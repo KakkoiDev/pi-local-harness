@@ -69,5 +69,10 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
     - **Continuous Commit:** Every single anomoly or change in state must be committed.
     - **Step-by-Step Auditing**: Commit after writing a test (Red), and commit after the integration makes it pass (Green).
     - **Clear Messages**: Use descriptive commit messages that indicate the state (e.g., "test: add project-card test (red)").
+11. **Request-to-Task Pipeline (Mandatory):**
+    - **Task Creation**: Every user request that involves a functional change, feature, or bug fix MUST be converted into a dedicated markdown file in the `tasks/` directory before implementation begins.
+    - **TDD Integration**: Each task file must explicitly define its TDD steps (Write Test $\rightarrow$ Red $\rightarrow$ Implement $\rightarrow$ Green).
+    - **Progress Tracking**: Use checkboxes (`- [ ]`) in the task file to track progress, checking them off as each sub-step is completed.
+    - **Completion Commit**: A final `git commit` must be performed upon the completion of the task, linking the code changes to the task completion.
 
 
