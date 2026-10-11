@@ -13,9 +13,9 @@ Change the site branding in the navigation bar from "KAKKOI" to "CreativeDev".
     - [x] Update `<portfolio-header>` in `js/components.js`.
     - [x] Run test $\rightarrow$ Verify **GREEN**.
     - [x] `git commit` (Test Green).
-- [ ] **Closure**:
-    - [ ] Verify visual correctness.
-    - [ ] `git commit` (Task Completed).
+- [x] **Closure**:
+    - [x] Verify visual correctness.
+    - [x] `git commit` (Task Completed).
 
 ## Acceptance Criteria
 - The header branding displays "CreativeDev".
