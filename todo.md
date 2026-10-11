@@ -25,6 +25,9 @@
 ## 🎨 Phase 7: Branding & Polish
 - [x] [11-Update Branding](tasks/11-update-branding.md)
 
+## 🛠️ Phase 8: Process Evolution
+- [ ] [12-SOP Update](tasks/12-sop-update.md)
+
 ---
 *Last updated: 2026-10-11*
 *Refer to [AGENT.md](AGENT.md) for project context and SOPs.*
