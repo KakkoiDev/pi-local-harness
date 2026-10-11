@@ -74,5 +74,11 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
     - **TDD Integration**: Each task file must explicitly define its TDD steps (Write Test $\rightarrow$ Red $\rightarrow$ Implement $\rightarrow$ Green).
     - **Progress Tracking**: Use checkboxes (`- [ ]`) in the task file to track progress, checking them off as each sub-step is completed.
     - **Completion Commit**: A final `git commit` must be performed upon the completion of the task, linking the code changes to the task completion.
+12. **Orchestration & Verification Loop:**
+    - **The Planner**: Complex requests must begin with a "Planning Turn" where the agent maps the request to a set of tasks and presents them for approval before any code changes.
+    - **The Verifier**: At the end of any task or session, the agent MUST run `tests/verify_workflow.py` to ensure that:
+        - All tasks in `todo.md` exist as files.
+        - All "completed" tasks in `todo.md` have all their internal checkboxes marked as `[x]`.
+    - **Audit**: Any failure in the verifier must be logged in `incident_log.md` and corrected before the task is considered complete.
 
 

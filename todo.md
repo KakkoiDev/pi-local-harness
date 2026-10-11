@@ -22,9 +22,6 @@
 ## 🧪 Phase 6: Quality Assurance
 - [x] [10-Regression Suite](tasks/10-regression-suite.md)
 
-## 🎨 Phase 7: Branding & Polish
-- [x] [11-Update Branding](tasks/11-update-branding.md)
-
 ## 🛠️ Phase 8: Process Evolution
 - [x] [12-SOP Update](tasks/12-sop-update.md)
 - [x] [13-Orchestration Layer](tasks/13-orchestration-layer.md)
