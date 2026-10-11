@@ -16,7 +16,7 @@ def get_ai_news_rss():
                 link = item.find('link').text
                 news_items.append({'title': title, 'link': link})
             
-            return news_items # Limit disabled for TDD Red state
+            return news_items[:10]
     except Exception as e:
         return [f"Error: {str(e)}"]
 
