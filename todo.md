@@ -20,7 +20,7 @@
 - [x] [09-Final Migration](tasks/09-final-migration.md)
 
 ## 🧪 Phase 6: Quality Assurance
-- [ ] [10-Regression Suite](tasks/10-regression-suite.md)
+- [x] [10-Regression Suite](tasks/10-regression-suite.md)
 
 ---
 *Last updated: 2026-10-11*
