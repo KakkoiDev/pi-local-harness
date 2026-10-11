@@ -4,15 +4,15 @@
 Change the site branding in the navigation bar from "KAKKOI" to "CreativeDev".
 
 ## TDD Workflow
-- [ ] **Establish Baseline**: Commit current state.
-- [ ] **Red State**:
-    - [ ] Write a test verifying the navbar contains "CreativeDev" and NOT "KAKKOI".
-    - [ ] Run test $\rightarrow$ Verify **RED**.
-    - [ ] `git commit` (Test Red).
-- [ ] **Green State**:
-    - [ ] Update `<portfolio-header>` in `js/components.js`.
-    - [ ] Run test $\rightarrow$ Verify **GREEN**.
-    - [ ] `git commit` (Test Green).
+- [x] **Establish Baseline**: Commit current state.
+- [x] **Red State**:
+    - [x] Write a test verifying the navbar contains "CreativeDev" and NOT "KAKKOI".
+    - [x] Run test $\rightarrow$ Verify **RED**.
+    - [x] `git commit` (Test Red).
+- [x] **Green State**:
+    - [x] Update `<portfolio-header>` in `js/components.js`.
+    - [x] Run test $\rightarrow$ Verify **GREEN**.
+    - [x] `git commit` (Test Green).
 - [ ] **Closure**:
     - [ ] Verify visual correctness.
     - [ ] `git commit` (Task Completed).

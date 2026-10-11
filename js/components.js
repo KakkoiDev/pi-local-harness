@@ -6,7 +6,7 @@ class PortfolioHeader extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
             <header class="mx-auto max-w-3xl px-4 py-6 flex justify-between items-center">
-                <a href="/" class="font-display text-2xl tracking-wider" hx-get="/" hx-select="#main-content" hx-target="#main-content" hx-push-url="true">KAKKOI</a>
+                <a href="/" class="font-display text-2xl tracking-wider" hx-get="/" hx-select="#main-content" hx-target="#main-content" hx-push-url="true">CreativeDev</a>
                 <nav class="flex gap-6 text-sm font-medium">
                     <a href="/#about" class="hover:text-gray-500 transition-colors">About</a>
                     <a href="/#projects" class="hover:text-gray-500 transition-colors">Projects</a>
