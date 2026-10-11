@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Framework | My Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="js/components.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Bebas Neue', sans-serif; }
+    </style>
+</head>
+<body class="bg-white text-black">
+    <portfolio-header></portfolio-header>
+
+    <main id="main-content" class="mx-auto max-w-3xl px-4 py-16">
+        <a href="/" hx-get="/" hx-select="#main-content" hx-target="#main-content" hx-push-url="true" class="text-sm text-gray-500 hover:text-black transition-colors">← Back to home</a>
+        
+        <section class="mt-12">
+            <h1 class="font-display text-6xl md:text-8xl leading-none tracking-tighter mb-4">AI Agent Framework</h1>
+            <p class="text-xl text-gray-600 mb-8">A toolkit for building production-ready AI agents with minimal boilerplate.</p>
+            
+            <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 italic">
+                [ Project Image / Screenshot Placeholder ]
+            </div>
+        </section>
+
+        <section class="mt-20 border-t border-black pt-12">
+            <h2 class="font-display text-3xl mb-6 tracking-tight">Overview</h2>
+            <p class="text-lg text-gray-700 leading-relaxed">
+                This framework was designed to solve the complexity of managing state and tool-calling in LLM-based applications. It provides a robust abstraction layer for developers to focus on logic rather than plumbing.
+            </p>
+        </section>
+
+        <section class="mt-16 border-t border-black pt-12">
+            <h2 class="font-display text-3xl mb-6 tracking-tight">Key Features</h2>
+            <ul class="space-y-4">
+                <li class="flex items-start">
+                    <span class="font-bold mr-3">•</span>
+                    <div>
+                        <span class="font-semibold block">State Management</span>
+                        <span class="text-gray-600">Built-in support for long-running conversations and context persistence.</span>
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="font-bold mr-3">•</span>
+                    <div>
+                        <span class="font-semibold block">Tool Integration</span>
+                        <span class="text-gray-600">Seamlessly connect your agents to APIs, databases, and local file systems.</span>
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="font-bold mr-3">•</span>
+                    <div>
+                        <span class="font-semibold block">Evaluations</span>
+                        <span class="text-gray-600">Automated testing suites to ensure reliability and safety.</span>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="mt-16 border-t border-black pt-12">
+            <h2 class="font-display text-3xl mb-6 tracking-tight">Technologies Used</h2>
+            <div class="flex flex-wrap gap-3">
+                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Python</span>
+                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">OpenAI API</span>
+                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Redis</span>
+                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm">Docker</span>
+            </div>
+        </section>
+    </main>
+
+    <portfolio-footer></portfolio-footer>
+</body>
+</html>
