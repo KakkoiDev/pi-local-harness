@@ -8,9 +8,9 @@ def get_ai_news():
         request = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(request) as response:
             html = response.read().decode('utf-8')
-            # Try to find H2 or H3 headings that might contain headlines
-            # This is a very crude way to do it.
-            headlines = re.findall(r'<h[23].*?>(.*?)</h[23]>', html, re.IGNORECASE | re.DOTALL)
+            # Crude way to find headlines
+            # headlines = re.findall(r'<h[23].*?>(.*?)</h[23]>', html, re.IGNORECASE | re.DOTALL)
+            headlines = [] # Force failure for TDD
             # Clean up the headlines (remove HTML tags if any)
             clean_headlines = []
             for h in headlines:
