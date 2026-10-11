@@ -20,8 +20,8 @@ class TestSentinel(unittest.TestCase):
 
     def test_ignores_different_steps(self):
         with open(self.log_file, "w") as f:
-            f.write("REASONING_STEP: Step 1\n")
-            f.write("REASONING_STEP: Step 2\n")
+            f.write("REASONING_STEP: Apple\n")
+            f.write("REASONING_STEP: Banana\n")
         
         self.assertFalse(self.sentinel.check_for_loop())
 

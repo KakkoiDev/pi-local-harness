@@ -41,8 +41,6 @@ class Sentinel:
                     return False
 
                 import difflib
-                # Force failure for TDD
-                return False
                 similarity = difflib.SequenceMatcher(None, recent_messages[-1], recent_messages[-2]).ratio()
                 return similarity > 0.8
         except Exception as e:
