@@ -16,8 +16,7 @@
     </style>
 </head>
 <body class="bg-white text-black">
-    <!-- Temporarily removed for TDD Red state -->
-    <!-- <portfolio-header></portfolio-header> -->
+    <portfolio-header></portfolio-header>
 
     <main id="main-content">
         <section id="hero" class="mx-auto max-w-3xl px-4 py-32 flex flex-col items-center justify-center text-center">
@@ -41,16 +40,18 @@
         <section id="projects" class="mx-auto max-w-3xl px-4 py-16 border-t border-black">
             <h2 class="font-display text-3xl mb-8 tracking-tight">Projects</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="group">
-                    <h3 class="text-xl font-bold group-hover:underline">AI Agent Framework</h3>
-                    <p class="text-gray-600 text-sm mt-2">A toolkit for building production-ready AI agents with minimal boilerplate.</p>
-                    <span class="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Python · LLMs</span>
-                </div>
-                <div class="group">
-                    <h3 class="text-xl font-bold group-hover:underline">Distributed Database</h3>
-                    <p class="text-gray-600 text-sm mt-2">An experimental distributed key-value store built for high availability.</p>
-                    <span class="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-gray-400">Go · Raft</span>
-                </div>
+                <project-card 
+                    title="AI Agent Framework" 
+                    description="A toolkit for building production-ready AI agents with minimal boilerplate." 
+                    link="project-ai.html" 
+                    tags="Python · LLMs">
+                </project-card>
+                <project-card 
+                    title="Distributed Database" 
+                    description="An experimental distributed key-value store built for high availability." 
+                    link="project-db.html" 
+                    tags="Go · Raft">
+                </project-card>
             </div>
         </section>
 
@@ -64,6 +65,6 @@
         </section>
     </main>
 
-    <!-- <portfolio-footer></portfolio-footer> -->
+    <portfolio-footer></portfolio-footer>
 </body>
 </html>
