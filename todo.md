@@ -20,7 +20,10 @@
 - [x] [09-Final Migration](tasks/09-final-migration.md)
 
 ## 🧪 Phase 6: Quality Assurance
-- [x] [10-Regression Suite](tasks/10-regression-suite.md)
+- [x] [10-Regression Suite](tasks/10-regression-suite)
+
+## 🎨 Phase 7: Branding & Polish
+- [ ] [11-Update Branding](tasks/11-update-branding.md)
 
 ---
 *Last updated: 2026-10-11*
