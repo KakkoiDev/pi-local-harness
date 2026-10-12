@@ -6,26 +6,30 @@ To implement the Laya compliance layer, which acts as a two-phase interceptor: T
 ## 🛠 Implementation Plan
 
 ### 1. Core Engine Development
-- [ ] Implement the `LayaEngine` class that coordinates both phases.
-- [ ] Implement the `ActionProposal` data structure.
-- [ ] Implement the `ExecutionResult` data structure.
+- [x] Implement the `LayaEngine` class that coordinates both phases.
+- [x] Implement the `ActionProposal` data structure.
+- [x] Implement the `ExecutionResult` data structure.
 
 ### 2. Phase 1: The Gatekeeper (Pre-Action)
-- [ ] Implement the `Gatekeeper` class.
-- [ ] Implement the hierarchical check: Existence $\rightarrow$ Risk Class $\rightarrow$ Policy.
-- [ ] Support outcomes: `ALLOW`, `BLOCK`, `REVISE`, `ESCALATE`.
+- [x] Implement the Gatekeeper phase (`LayaEngine.gatekeep`).
+- [x] Implement the hierarchical check: Existence $\rightarrow$ Risk Class $\rightarrow$ Policy.
+- [x] Define outcome values: `ALLOW`, `BLOCK`, `REVISE`, `ESCALATE`.
+- [x] Implement `ALLOW` and `BLOCK` decisions.
+- [ ] Implement actionable `REVISE` and `ESCALATE` decisions.
 
 ### 3. Phase 2: The Auditor (Post-Turn)
-- [ ] Implement the `Auditor` class.
-- [ ] Implement implementation integrity and drift detection logic.
-- [ ] Output `JudgmentEvent` logs.
+- [x] Implement the Auditor phase (`LayaEngine.audit`).
+- [x] Implement implementation integrity and drift detection logic.
+- [x] Output `JudgmentEvent` logs.
 
 ### 4. Integration
-- [ ] Integrate the Gatekeeper into the `agent_api.py` tool-calling lifecycle.
-- [ ] Integrate the Auditor into the turn-completion lifecycle.
+- [x] Integrate the Gatekeeper into the `agent_api.py` tool-calling lifecycle.
+- [x] Integrate the Auditor into pi tool completion (`tool_result`) and API tool calls.
 
 ## 🧪 Verification
 - [ ] **Unit Tests**: Verify Gatekeeper logic (existence, risk, policy).
-- [ ] **Unit Tests**: Verify Auditor logic (drift detection, integrity).
+- [x] **Unit Tests**: Verify Auditor logic (drift detection, integrity).
 - [ ] **Integration Test**: Verify a full turn: `Proposal` $\rightarrow$ `Gatekeeper (Allow)` $\rightarrow$ `Execution` $\rightarrow$ `Auditor (Verify)`.
 - [ ] **Integration Test**: Verify a blocked turn: `Proposal` $\rightarrow$ `Gatekeeper (Block)` $\rightarrow$ `No Execution`.
+
+Remaining: revision/escalation behavior and complete integration coverage. Current auditing compares proposal/result arguments and writes plain-text judgment events; the richer protocol remains task 18.

@@ -1,5 +1,7 @@
 # Spec: The Operational Lifecycle
 
+Current implementation: the global pi extension starts Laya/API and the portfolio webserver, displays bound ports, loads memory, and starts deterministic monitoring. Whisper loads only for audio input. See `tasks/20-boot-sequence.md` and `harness/README.md`. The PostgreSQL, analytics, and supervisory dashboard architecture below remains a future proposal.
+
 This specification defines how the entire "Guardian Trio" is initialized, executed, and terminated.
 
 ## 1. Boot Sequence (`./start.sh`)

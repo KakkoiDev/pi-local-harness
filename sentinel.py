@@ -1,7 +1,6 @@
 import os
 import time
 import sys
-import difflib
 import json
 import urllib.request
 from datetime import datetime
@@ -11,7 +10,7 @@ LOG_FILE = "session.log"
 LOOP_THRESHOLD = 0.85
 STALL_TIMEOUT = 60  # seconds
 STALL_ESCALATION_TIMEOUT = 180 # seconds
-CHECK_INTERVAL = 1    # seconds
+CHECK_INTERVAL = 10    # seconds
 
 class Sentinel:
     def __init__(self, log_file, loop_threshold=0.85, stall_timeout=60, escalation_timeout=180, interval=1):
@@ -21,6 +20,17 @@ class Sentinel:
         self.escalation_timeout = escalation_timeout
         self.interval = interval
         self.stall_state = "NORMAL" # NORMAL, WARNING, HANGING
+
+    def check_for_loop(self, lines):
+        thoughts = [line.split('REASONING_STEP:', 1)[1].strip()
+                    for line in lines if 'REASONING_STEP:' in line][-100:]
+        seen = {}
+        for index in range(len(thoughts) - 2):
+            triple = tuple(thoughts[index:index + 3])
+            if triple in seen and index - seen[triple] >= 3:
+                return True
+            seen.setdefault(triple, index)
+        return False
 
     def parse_timestamp(self, line):
         """Extracts timestamp from a line like '[2026-10-11 20:32:29] MESSAGE'"""
@@ -36,7 +46,7 @@ class Sentinel:
         return None
 
     def get_last_activity(self):
-        """Finds the timestamp of the most recent REASONING_STEP or TOOL_CALL."""
+        """Finds the timestamp of the most recent activity (REASONING_STEP, TOOL_CALL, or AGENT_RESPONSE)."""
         if not os.path.exists(self.log_file):
             return None
         
@@ -44,7 +54,7 @@ class Sentinel:
             with open(self.log_file, "r") as f:
                 lines = f.readlines()
                 for line in reversed(lines):
-                    if "REASONING_STEP:" in line or "TOOL_CALL:" in line:
+                    if any(marker in line for marker in ["REASONING_STEP:", "TOOL_CALL:", "AGENT_RESPONSE:"]):
                         ts = self.parse_timestamp(line)
                         if ts:
                             return ts
@@ -52,29 +62,21 @@ class Sentinel:
             print(f"Sentinel Error reading logs: {e}")
         return None
 
-    def check_for_loop(self, lines):
-        """Detects if recent reasoning steps are too similar."""
-        recent_messages = []
-        for line in lines:
-            if "REASONING_STEP:" in line:
-                msg = line.split("REASONING_STEP:")[1].strip()
-                recent_messages.append(msg)
+    def check_for_canary(self, lines):
+        """Checks if the most recent response starts with the [CANARY] token."""
+        if not lines:
+            return True
         
-        if len(recent_messages) < 2:
-            return False
-
-        # Take the last N messages for comparison
-        n = 5
-        recent_messages = recent_messages[-n:]
+        last_line = lines[-1]
+        # We expect lines like: "[2026-10-11 20:32:29] AGENT_RESPONSE: [CANARY] ..."
+        # or "[2026-10-11 20:32:29] TOOL_CALL: ..." (Wait, canary is for agent responses)
         
-        # Compare the last message against all preceding ones in the window
-        last_msg = recent_messages[-1]
-        for i in range(len(recent_messages) - 1):
-            prev_msg = recent_messages[i]
-            similarity = difflib.SequenceMatcher(None, last_msg, prev_msg).ratio()
-            if similarity > self.loop_threshold:
-                return True
-        return False
+        if "AGENT_RESPONSE:" in last_line:
+            # Extract message after 'AGENT_RESPONSE: ' and check for '[CANARY]'
+            content = last_line.split("AGENT_RESPONSE:")[1].strip()
+            if not content.startswith("[CANARY]"):
+                return False
+        return True
 
     def log_event(self, event_type, message):
         """Logs a sentinel event to the session log."""
@@ -96,64 +98,9 @@ class Sentinel:
             print(f"Sentinel: Failed to send wake-up signal: {e}")
 
 def main_loop():
-    sentinel = Sentinel(LOG_FILE, LOOP_THRESHOLD, STALL_TIMEOUT, STALL_ESCALATION_TIMEOUT, CHECK_INTERVAL)
-    print(f"🚀 Watchdog Sentinel is active. Monitoring {LOG_FILE}...")
-    
-    while True:
-        try:
-            if not os.path.exists(LOG_FILE):
-                time.sleep(CHECK_INTERVAL)
-                continue
-
-            with open(LOG_FILE, "r") as f:
-                lines = f.readlines()
-
-            if not lines:
-                time.sleep(CHECK_INTERVAL)
-                continue
-
-            # 1. Check for Loop
-            if sentinel.check_for_loop(lines):
-                print("\n[!!!] 🚨 WATCHDOG ALERT: REASONING LOOP DETECTED! 🚨")
-                sentinel.log_event("LOOP_DETECTION", "High semantic similarity detected in reasoning steps.")
-                # Escalation: Create lock file
-                with open("killswitch.lock", "w") as lock:
-                    lock.write("STOP")
-                print("Killswitch lock created. Agent should abort.")
-                sys.exit(0)
-
-            # 2. Check for Stall
-            last_ts = sentinel.get_last_activity()
-            if last_ts:
-                elapsed = (datetime.now() - last_ts).total_seconds()
-                
-                if elapsed > STALL_ESCALATION_TIMEOUT:
-                    if sentinel.stall_state != "HANGING":
-                        print("\n[!!!] 🚨 WATCHDOG ALERT: SYSTEM HANG DETECTED! 🚨")
-                        sentinel.log_event("SYSTEM_HANG", f"No activity for {elapsed}s. Initiating Hang Recovery.")
-                        sentinel.stall_state = "HANGING"
-                        # Hang Recovery: Kill the agent process
-                        print("Sentinel: Attempting to kill process listening on port 8000 (Hang Recovery)...")
-                        os.system("lsof -t -i:8000 | xargs kill -9")
-                elif elapsed > STALL_TIMEOUT:
-                    if sentinel.stall_state == "NORMAL":
-                        print("\n[!] ⚠️ WATCHDOG WARNING: STALL DETECTED! ⚠️")
-                        sentinel.log_event("STALL_WARNING", f"No activity detected for {elapsed}s. Attempting Wake-up.")
-                        sentinel.stall_state = "WARNING"
-                        sentinel.wake_up_actor()
-                else:
-                    # Activity is within normal bounds
-                    if sentinel.stall_state != "NORMAL":
-                        # Reset state on new activity
-                        sentinel.stall_state = "NORMAL"
-            else:
-                # No activity found yet (initial state)
-                pass
-
-        except Exception as e:
-            print(f"Sentinel runtime error: {e}")
-        
-        time.sleep(CHECK_INTERVAL)
+    print("Standalone Sentinel retired: start pi with ./start.sh. "
+          "The pi extension owns active-turn monitoring and recovery; "
+          "log inactivity cannot determine whether a model is working.")
 
 if __name__ == "__main__":
     main_loop()

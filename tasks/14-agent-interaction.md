@@ -14,8 +14,8 @@ To implement a feature that allows website visitors to chat with an AI agent tha
 ### 2. Backend: Agent API
 - [x] Create `agent_api.py` using FastAPI or a similar lightweight framework.
 - [x] Implement a POST endpoint `/chat` that accepts user messages.
-- [x] Integrate an LLM (e.g., via Ollama local endpoint or OpenAI API) to generate responses.
-- [x] Configure a strict "Persona" system prompt for the agent.
+- [ ] Integrate an LLM (e.g., via Ollama local endpoint or OpenAI API) to generate responses.
+- [ ] Configure a strict "Persona" system prompt for the agent.
 
 ### 3. TDD Workflow
 - [x] **Red**: Write a test for the chat endpoint and verify it fails.
@@ -25,4 +25,6 @@ To implement a feature that allows website visitors to chat with an AI agent tha
 ## 🧪 Verification
 - [x] Confirm the chat UI renders correctly in the browser.
 - [x] Verify that sending a message to the backend returns a response.
-- [x] Test the "persona" to ensure the agent responds as expected.
+- [ ] Test the "persona" to ensure the agent responds as expected.
+
+Current status: the website `/chat` endpoint is a demo echo. The local pi harness uses Gemma, but the website endpoint is not connected to it.

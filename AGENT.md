@@ -82,5 +82,9 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
         - All tasks in `todo.md` exist as files.
         - All "completed" tasks in `todo.md` have all their internal checkboxes marked as `[x]`.
     - **Audit**: Any failure in the verifier must be logged in `incident_log.md` and corrected before the task is considered complete.
+13. **Canary Protocol (Instruction Integrity):** To ensure long-term instruction adherence, the agent **must** prepend every response with the `[CANARY]` token. This token serves as a heartbeat for the Sentinel to verify that the agent is still following core instructions. Failure to include this token will trigger a high-priority alert and context re-injection.
 
 
+
+## Pi harness memory location
+Pi's global instruction file is `~/.pi/agent/AGENTS.md`. The local harness reloads it before each turn and after compaction. Incident lessons go into that same file. See `harness/README.md` for service startup, deterministic recovery, image paths, and local speech transcription.

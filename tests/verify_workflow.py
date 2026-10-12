@@ -5,12 +5,14 @@ import sys
 def verify_workflow():
     errors = []
     
-    # 1. Load todo.md
-    if not os.path.exists("todo.md"):
-        print("Error: todo.md not found")
+    # Prefer the current dashboard, retaining legacy compatibility.
+    dashboard = "ROADMAP.md" if os.path.exists("ROADMAP.md") else "todo.md"
+    # 1. Load dashboard
+    if not os.path.exists(dashboard):
+        print("Error: workflow dashboard not found")
         sys.exit(1)
     
-    with open("todo.md", "r") as f:
+    with open(dashboard, "r") as f:
         todo_content = f.read()
     
     # Find all tasks in todo.md: - [ ] [Name](path) or - [x] [Name](path)
