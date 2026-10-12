@@ -3,6 +3,7 @@ import http.server
 import socketserver
 from datetime import datetime
 from laya.engine import LayaEngine
+from laya.ledger import ProposalLedger
 from laya.models import ActionProposal, ActionOutcome, ExecutionResult
 
 # Configuration
@@ -44,19 +45,20 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
     def handle_gatekeep(self):
         try:
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-            proposal = ActionProposal(data['tool_name'], data['args'], data.get('reason', 'pi tool call'))
-            outcome = self.laya.gatekeep(proposal, data.get('auth_level', 'standard'))
-            self.send_json_response({'outcome': outcome.value})
+            result = self.ledger.propose(data['tool_name'], data['args'], data.get('auth_level', 'standard'),
+                                         pi_tool=data.get('pi_tool'), cwd=data.get('cwd'))
+            self.send_json_response(result)
         except Exception as error:
             self.send_error_response(400, str(error))
 
     def handle_audit(self):
         try:
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-            proposal = ActionProposal(data['tool_name'], data['args'], 'pi tool call')
-            execution = ExecutionResult(data['tool_name'], data['args'], data.get('output'), data.get('exit_code', 0))
-            event = self.laya.audit(proposal, execution)
-            self.send_json_response({'status': event.status})
+            event = self.ledger.complete(data['proposal_id'], data['tool_name'], data['args'],
+                                         data.get('output'), data.get('exit_code', 0))
+            self.send_json_response({'status': event.status, 'reason': event.reasoning})
+        except KeyError as error:
+            self.send_error_response(409, str(error))
         except Exception as error:
             self.send_error_response(400, str(error))
 
@@ -152,9 +154,11 @@ class InstrumentedHandler(AgentHandler):
 def run_server():
     laya = LayaEngine(policy_path=POLICY_PATH, log_file=LOG_FILE)
 
+    ledger = ProposalLedger(laya)
     class CustomHandler(AgentHandler):
         def __init__(self, request, client_address, server):
             self.laya = laya
+            self.ledger = ledger
             super().__init__(request, client_address, server)
 
     with socketserver.TCPServer(("127.0.0.1", PORT), CustomHandler) as httpd:

@@ -33,3 +33,12 @@
 
 Last updated: 2026-10-12. See task files for individual completed and remaining steps,
 and harness/README.md for the installed pi workflow.
+
+## Reliability and portability improvements
+
+- [x] [25-Laya enforcement](tasks/25-laya-enforcement.md)
+- [ ] [26-Verified incident memory](tasks/26-verified-memory.md)
+- [ ] [27-Recovery console](tasks/27-recovery-console.md)
+- [ ] [28-Japanese audio evaluation](tasks/28-japanese-audio.md)
+- [ ] [29-Portable pi package](tasks/29-portable-package.md)
+- [ ] [30-Local evaluation suite](tasks/30-local-evaluations.md)

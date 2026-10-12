@@ -28,6 +28,7 @@ export default function harness(pi, dependencies = {}) {
   });
   const schedule = dependencies.setInterval || setInterval;
   const watch = new ThoughtWatch();
+  const proposals = new Map();
   let child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
@@ -138,13 +139,26 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('tool_call', async event => {
     try {
-      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, auth_level: process.env.PI_LAYA_AUTH || 'standard' });
-      if (result.outcome !== 'ALLOW') return { block: true, reason: `Laya: ${result.outcome} for ${event.toolName}` };
+      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, cwd: context.cwd || root, auth_level: process.env.PI_LAYA_AUTH || 'admin' });
+      if (result.outcome !== 'ALLOW') return { block: true, reason: `Laya policy: ${result.outcome} for ${event.toolName} (profile ${process.env.PI_LAYA_AUTH || 'admin'}). The command was not executed. ${result.reason || 'Do not retry other commands from the same blocked tool class. The standard profile blocks shell execution; use PI_LAYA_AUTH=admin for a coding session.'}` };
+      proposals.set(event.toolCallId, result.proposal_id);
     } catch (error) { return { block: true, reason: error.message }; }
   });
   pi.on('tool_result', async event => {
-    try { await call('/audit', { tool_name: names[event.toolName] || event.toolName, args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 }); }
-    catch (error) { notify(`Laya audit failed: ${error.message}`, 'error'); }
+    const token = proposals.get(event.toolCallId);
+    proposals.delete(event.toolCallId);
+    if (!token) return; // Blocked calls were never approved for execution.
+    try {
+      const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
+        args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+      if (result.status !== 'SUCCESS') {
+        notify(`Laya: ${result.status}: ${result.reason}`, 'error');
+        return { isError: true, content: [...event.content, { type: 'text', text: `Laya audit failed: ${result.status}. ${result.reason}` }] };
+      }
+    } catch (error) {
+      notify(`Laya audit failed: ${error.message}`, 'error');
+      return { isError: true, content: [...event.content, { type: 'text', text: `Laya audit unavailable: ${error.message}` }] };
+    }
   });
   pi.on('session_shutdown', stop);
 }

@@ -45,12 +45,12 @@ Configuration:
 | `PI_LAYA_PORT` | `8000` | Laya port; `0` chooses an available port |
 | `PI_WEB_PORT` | `3000` | Frontend port; `0` chooses an available port |
 | `PI_HANG_MS` | `60000` | Maximum thought stream inactivity |
-| `PI_LAYA_AUTH` | `standard` | Existing Laya policy; `admin` allows shell commands |
+| `PI_LAYA_AUTH` | `admin` | Local coding profile; `standard` explicitly blocks shell commands |
 | `PI_HARNESS_MEMORY` | global `AGENTS.md` | Override memory file |
 | `PI_WHISPER_MODEL` | `mlx-community/whisper-base-mlx` | Local speech model |
 
-The existing standard Laya policy blocks shell execution and unknown tools. For a coding
-session requiring shell commands, start with `PI_LAYA_AUTH=admin pi`.
+Shell commands are allowed by default for local coding sessions. Set `PI_LAYA_AUTH=standard`
+to explicitly restrict shell execution. Unknown tools remain blocked.
 Laya judges actual pi tool calls through `/gatekeep` and audits their results through `/audit`.
 The legacy website `/chat` endpoint remains a demo echo; it is not a connection to the pi session.
 The standalone log-based Sentinel is retired because log inactivity cannot identify active model hangs.
@@ -85,3 +85,7 @@ Timestamps use the machine's local timezone and include seconds and UTC offset.
 They are custom session entries, rendered on session reload, and never added to model
 context or the CANARY text. Aborted/failed messages and tasks are labeled stopped/failed.
 RPC clients receive the timestamp entries as structured `entry_appended` events.
+
+Laya now snapshots each allowed proposal before execution and returns a one-use audit ID.
+Audits detect tool/argument drift, execution errors, and write/edit content mismatches on disk.
+Rejected or unavailable audits become failed pi tool results so the model cannot silently claim success.

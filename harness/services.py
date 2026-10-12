@@ -12,14 +12,17 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from agent_api import AgentHandler
 from laya.engine import LayaEngine
+from laya.ledger import ProposalLedger
 
 
 def main():
     os.chdir(ROOT)
-    laya = LayaEngine(str(ROOT / 'specs/judges.md'), str(ROOT / 'session.log'))
+    laya = LayaEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(ROOT / 'session.log')))
+    ledger = ProposalLedger(laya)
     class Handler(AgentHandler):
         def __init__(self, *args):
             self.laya = laya
+            self.ledger = ledger
             super().__init__(*args)
     servers = []
     try:

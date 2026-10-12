@@ -14,8 +14,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  const ctx={ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){}},
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
- const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT};
- process.env.PI_LAYA_PORT='0';process.env.PI_WEB_PORT='0';
+ const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT,log:process.env.PI_HARNESS_LOG_FILE};
+ process.env.PI_LAYA_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
  harness(pi,{root:dir+'/',setInterval:(callback,ms)=>{tick=callback;interval=ms;return {unref(){}};}});
  try {
   await handlers.session_start({},ctx);
@@ -23,6 +23,14 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(interval,10000);
   assert.match(notices.join('\n'),/Laya: http.*Web: http/s);
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
+  const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'whoami'}};
+  assert.equal(await handlers.tool_call(bash),undefined);
+  assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);
+  const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
+  assert.equal(await handlers.tool_call(drift),undefined);
+  const rejected=await handlers.tool_result({...drift,input:{command:'env'},content:[],isError:false});
+  assert.equal(rejected.isError,true);
+  assert.match(rejected.content.at(-1).text,/DRIFT_DETECTED/);
   handlers.input({source:'interactive',text:'Fix my code'});
   handlers.agent_start({},ctx);
   handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'a\nb\nc\na\nb\nc\n'}});
@@ -58,7 +66,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {
-   const name=key==='laya'?'PI_LAYA_PORT':'PI_WEB_PORT';
+   const name={laya:'PI_LAYA_PORT',web:'PI_WEB_PORT',log:'PI_HARNESS_LOG_FILE'}[key];
    if(value===undefined) delete process.env[name]; else process.env[name]=value;
   }
   rmSync(dir,{recursive:true});

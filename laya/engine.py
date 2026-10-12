@@ -40,25 +40,29 @@ class LayaEngine:
         print(f"[Laya-Gatekeeper] ✅ Action '{tool_name}' allowed.")
         return ActionOutcome.ALLOW
 
-    def audit(self, proposal: ActionProposal, execution: ExecutionResult) -> JudgmentEvent:
+    def audit(self, proposal: ActionProposal, execution: ExecutionResult, postcondition_ok=True) -> JudgmentEvent:
         """Post-turn check."""
         print(f"[Laya-Auditor] 🔍 Auditing action: {proposal.tool_name}")
         
         # 1. Implementation Integrity Check
         # Did the tool actually do what the actor said it would?
-        integrity_ok = proposal.args == execution.args
+        integrity_ok = proposal.tool_name == execution.tool_name and proposal.args == execution.args
         
         # 2. Drift Detection
         drift_detected = not integrity_ok
 
-        status = "SUCCESS" if not drift_detected else "DRIFT_DETECTED"
+        status = ("DRIFT_DETECTED" if drift_detected else "EXECUTION_FAILED" if execution.exit_code != 0
+                  else "POSTCONDITION_FAILED" if not postcondition_ok else "SUCCESS")
         
         event = JudgmentEvent(
             timestamp=datetime.now(),
             proposal=proposal,
             execution=execution,
             status=status,
-            reasoning="Automated audit completed.",
+            reasoning={"SUCCESS": "Original proposal and execution match; applicable postconditions passed.",
+                       "DRIFT_DETECTED": "Execution tool or arguments differ from the approved proposal.",
+                       "EXECUTION_FAILED": "The tool reported a failed execution.",
+                       "POSTCONDITION_FAILED": "The resulting file does not match the approved content."}[status],
             drift_detected=drift_detected
         )
         
