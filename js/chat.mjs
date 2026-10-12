@@ -2,6 +2,7 @@ import { decodeLines, applyDelta } from './chat-state.mjs';
 const $ = id => document.getElementById(id);
 const node = (tag, className, text) => { const element=document.createElement(tag);if(className)element.className=className;if(text!==undefined)element.textContent=text;return element; };
 let selecting=false, selected=null, conversations=[], current=null, maxFileBytes=12*1024*1024, recorder, recordStream;
+let layaVisible=false, layaEvents=[], layaLoading=false;
 const drafts=new Map(), running=new Map();
 function draft(id=selected){if(!drafts.has(id))drafts.set(id,{text:'',files:[]});return drafts.get(id);}
 function error(message){$('error').textContent=message;$('error').hidden=!message;}
@@ -24,7 +25,7 @@ async function select(id){
  selecting=true;controls();
  try {
  if(selected){draft().text=$('prompt').value;}
- const value=await api(`/api/conversations/${id}`);selected=id;current=value;localStorage.setItem('pi-chat-selected',id);
+ const value=await api(`/api/conversations/${id}`);selected=id;current=value;showView(false);localStorage.setItem('pi-chat-selected',id);
  $('prompt').value=draft().text;error('');menu(false);renderSidebar();renderMessages();renderAttachments();resize();
  } finally { selecting=false;controls(); }
 }
@@ -96,3 +97,36 @@ $('record').onclick=async()=>{
 };
 document.querySelectorAll('[data-prompt]').forEach(button=>{button.onclick=()=>{$('prompt').value=button.dataset.prompt;draft().text=$('prompt').value;resize();$('prompt').focus();};});
 try{const config=await api('/api/config');$('model').textContent=config.model;maxFileBytes=config.maxFileBytes;await refresh();const remembered=localStorage.getItem('pi-chat-selected');if(conversations.length)await select(conversations.some(c=>c.id===remembered)?remembered:conversations[0].id);else await create();}catch(e){error(`Cannot connect to local chat: ${e.message}`);}
+
+
+function renderLaya(){
+ const filter=$('laya-filter').value;
+ const events=layaEvents.filter(event=>filter==='all'||event.phase===filter||(filter==='failures'&&!['ALLOW','SUCCESS'].includes(event.outcome))).slice().reverse();
+ $('laya-events').replaceChildren();
+ if(!events.length){$('laya-events').append(node('p','laya-empty',layaEvents.length?'No checks match this filter.':'No tool checks yet. Send a task that uses a tool to see Laya at work.'));return;}
+ for(const event of events){
+  const card=node('article','laya-event');
+  const heading=node('div','laya-event-heading');
+  const outcome=node('span',`outcome ${['ALLOW','SUCCESS'].includes(event.outcome)?'allowed':'blocked'}`,event.outcome);
+  heading.append(outcome,node('strong','',event.tool),node('span','',event.phase==='gate'?'Before execution':'After execution'));
+  const time=node('time','',new Date(event.timestamp).toLocaleString());time.dateTime=event.timestamp;heading.append(time);card.append(heading);
+  if(Object.keys(event.args).length)card.append(node('pre','laya-args',Object.entries(event.args).map(([key,value])=>`${key}: ${value}`).join('\n')));
+  card.append(node('p','laya-reason',event.reason));
+  if(event.proposal_id)card.append(node('small','laya-id',`Proposal ${event.proposal_id}`));
+  $('laya-events').append(card);
+ }
+}
+async function refreshLaya(){
+ if(layaLoading)return;layaLoading=true;
+ try{const data=await api('/api/laya');layaEvents=data.events;renderLaya();$('laya-live').textContent=`● Live · Laya :${data.laya_port}`;}
+ catch(e){$('laya-live').textContent=`Unavailable: ${e.message}`;}
+ finally{layaLoading=false;}
+}
+function showView(laya){
+ layaVisible=laya;$('laya-panel').hidden=!laya;$('thread').hidden=laya;document.querySelector('.composer-wrap').hidden=laya;
+ for(const [id,active] of [['chat-tab',!laya],['laya-tab',laya]]){$(id).classList.toggle('active',active);$(id).setAttribute('aria-pressed',String(active));}
+ if(laya)refreshLaya();
+}
+$('chat-tab').onclick=()=>showView(false);$('laya-tab').onclick=()=>showView(true);
+$('laya-refresh').onclick=refreshLaya;$('laya-filter').onchange=renderLaya;
+setInterval(()=>{if(layaVisible&&!document.hidden)refreshLaya();},2000);

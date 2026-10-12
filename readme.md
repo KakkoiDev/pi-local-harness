@@ -90,6 +90,20 @@ The server listens on loopback and rejects foreign browser origins. Mobile-ready
 means the layout works on phone-size screens; access from a physical phone requires
 a separate connection arrangement. It is not automatically exposed on your LAN.
 
+## Laya activity tab
+
+The **Laya** tab on the web frontend shows real checks from the shared Laya ledger,
+including terminal and browser Pi sessions. Each card shows its timestamp, tool,
+pre-execution or audit phase, outcome, argument scope, reason, and proposal ID when
+available. Filter by pre-execution, audits, or blocks/failures. The tab refreshes every
+two seconds while visible; Chat returns to the conversation view.
+
+`laya/ledger.py` records a thread-safe, bounded feed of the latest 200 events.
+`GET /api/laya` on the web server reads that exact ledger; there is no extra model
+judge and no simulated status. Events disappear when the services restart. The feed
+omits file bodies and tool outputs, but command strings and paths are visible.
+It is an observation panel, not an authorization override or a second execution path.
+
 ## Recovery and memory
 
 `harness/extension.mjs` observes Pi lifecycle events. Every ten seconds,

@@ -15,7 +15,13 @@
     <div class="sidebar-footer"><span class="online-dot"></span> On your machine <span class="private">Local AI</span></div>
   </aside>
   <main>
-    <header><button id="open-menu" class="icon mobile" aria-label="Open conversation menu" aria-expanded="false">☰</button><div class="model-name">Pi <span id="model">Gemma 4</span></div><span class="effort">High thinking</span></header>
+    <header><button id="open-menu" class="icon mobile" aria-label="Open conversation menu" aria-expanded="false">☰</button><div class="model-name">Pi <span id="model">Gemma 4</span></div><nav class="view-tabs" aria-label="Workspace view"><button id="chat-tab" class="active" aria-pressed="true">Chat</button><button id="laya-tab" aria-pressed="false">Laya</button></nav><span class="effort">High thinking</span></header>
+    <section id="laya-panel" hidden aria-label="Laya activity">
+      <div class="laya-heading"><div><h1>Laya activity</h1><p>Before execution: approve or block. After execution: verify the result.</p></div><span id="laya-live" class="status">Connecting…</span></div>
+      <div class="laya-controls"><label>Show <select id="laya-filter"><option value="all">All checks</option><option value="gate">Pre-execution</option><option value="audit">Audits</option><option value="failures">Blocks & failures</option></select></label><button id="laya-refresh">Refresh</button></div>
+      <p class="laya-note">Live checks from terminal and web Pi sessions. Latest 200 events; refreshes every 2 seconds while this tab is open.</p>
+      <div id="laya-events" aria-live="polite"></div>
+    </section>
     <section id="thread" aria-label="Messages" tabindex="0">
       <div id="welcome"><div class="welcome-mark">π</div><h1>What are we working on?</h1><p>A quiet place to think, build, and explore.</p><div class="suggestions"><button data-prompt="Help me understand a piece of code">Understand some code <span>↗</span></button><button data-prompt="Describe the image I attach">Explore an image <span>↗</span></button><button data-prompt="Transcribe and summarize the audio I attach">Listen to a recording <span>↗</span></button></div></div>
       <div id="messages" aria-live="polite" aria-relevant="additions"></div>

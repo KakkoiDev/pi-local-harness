@@ -1,4 +1,6 @@
 """Bounded, one-use proposal correlation for concurrent pi tool calls."""
+from collections import deque
+from datetime import datetime
 import copy
 import hashlib
 from pathlib import Path
@@ -12,6 +14,22 @@ class ProposalLedger:
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
         self.pending = {}
         self.lock = threading.Lock()
+        self.events = deque(maxlen=200)
+        self.event_sequence = 0
+
+    def record_event(self, phase, outcome, proposal, reason, token=None):
+        # Show scope, not uploaded file bodies or tool output.
+        args = {key: str(value)[:500] for key, value in proposal.args.items()
+                if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
+        with self.lock:
+            self.event_sequence += 1
+            self.events.append({'id': self.event_sequence, 'timestamp': datetime.now().astimezone().isoformat(timespec='seconds'),
+                                'phase': phase, 'outcome': outcome, 'tool': proposal.tool_name,
+                                'args': args, 'reason': reason, 'proposal_id': token})
+
+    def recent_events(self):
+        with self.lock:
+            return copy.deepcopy(list(self.events))
 
     def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None):
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
@@ -19,6 +37,7 @@ class ProposalLedger:
         response = {'outcome': outcome.value}
         if outcome != ActionOutcome.ALLOW:
             response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Laya policy.'
+            self.record_event('gate', outcome.value, proposal, response['reason'])
             return response
         expected = None
         if pi_tool in ('write', 'edit'):
@@ -30,7 +49,9 @@ class ProposalLedger:
             else:
                 original = path.read_text()
                 if original.count(args['oldText']) != 1:
-                    return {'outcome': 'REVISE', 'reason': 'Edit must identify one exact occurrence.'}
+                    reason = 'Edit must identify one exact occurrence.'
+                    self.record_event('gate', 'REVISE', proposal, reason)
+                    return {'outcome': 'REVISE', 'reason': reason}
                 content = original.replace(args['oldText'], args['newText'], 1)
             expected = (str(path.resolve()), hashlib.sha256(content.encode()).hexdigest())
         with self.lock:
@@ -40,6 +61,7 @@ class ProposalLedger:
                 raise ValueError('Too many pending proposals')
             token = str(uuid.uuid4())
             self.pending[token] = (now, proposal, expected)
+        self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token)
         response['proposal_id'] = token
         return response
 
@@ -56,4 +78,6 @@ class ProposalLedger:
                 postcondition_ok = hashlib.sha256(Path(path).read_bytes()).hexdigest() == digest
             except OSError:
                 postcondition_ok = False
-        return self.engine.audit(proposal, execution, postcondition_ok=postcondition_ok)
+        event = self.engine.audit(proposal, execution, postcondition_ok=postcondition_ok)
+        self.record_event('audit', event.status, proposal, event.reasoning, token)
+        return event

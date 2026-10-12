@@ -195,6 +195,8 @@ class WebHandler(BaseHTTPRequestHandler):
         if not self.trusted():self.reply({'error':'Use the local web address'},403);return
         path=urlparse(self.path).path
         try:
+            if path=='/api/laya':
+                self.reply({'events':self.chat.ledger.recent_events(),'laya_port':self.chat.laya_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
             if path=='/api/config':self.reply({'model':os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'maxFileBytes':MAX_UPLOAD});return
             if path.startswith('/api/conversations/'):

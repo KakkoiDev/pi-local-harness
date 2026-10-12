@@ -48,6 +48,11 @@ class ServicesTest(unittest.TestCase):
                 if origin:headers['Origin']=origin
                 request=urllib.request.Request(web_base+path,data=json.dumps(body).encode(),headers=headers)
                 with urllib.request.urlopen(request,timeout=3) as response:return json.load(response)
+            with urllib.request.urlopen(web_base+'/api/laya') as response:
+                activity=json.load(response)
+                self.assertTrue(any(event['outcome']=='BLOCK' for event in activity['events']))
+                self.assertTrue(any(event['outcome']=='DRIFT_DETECTED' for event in activity['events']))
+                self.assertEqual(activity['laya_port'],ports['laya'])
             conversation=web_post('/api/conversations',{})
             renamed=web_post('/api/conversations/'+conversation['id']+'/rename',{'title':'Japanese audio'})
             self.assertEqual(renamed['title'],'Japanese audio')

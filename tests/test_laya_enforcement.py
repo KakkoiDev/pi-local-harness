@@ -47,3 +47,23 @@ class EnforcementTest(unittest.TestCase):
         with self.assertRaises(ValueError):self.ledger.propose('read_file',{},'standard')
         self.ledger.clock=lambda:10000
         self.assertIn('proposal_id',self.ledger.propose('read_file',{},'standard'))
+
+    def test_events_explain_precheck_and_postcheck_in_order(self):
+        gate=self.ledger.propose('execute_command',{'command':'whoami'},'standard')
+        self.ledger.complete(gate['proposal_id'],'execute_command',{'command':'whoami'},'developer',0)
+        self.ledger.propose('execute_command',{'command':'rm -fr *'},'admin')
+        events=self.ledger.recent_events()
+        self.assertEqual([event['outcome'] for event in events],['ALLOW','SUCCESS','BLOCK'])
+        self.assertEqual([event['phase'] for event in events],['gate','audit','gate'])
+        self.assertIn('Recursive deletion',events[-1]['reason'])
+        self.assertEqual(events[0]['proposal_id'],events[1]['proposal_id'])
+        self.assertEqual(events[0]['args'],{'command':'whoami'})
+        events[0]['outcome']='CHANGED'
+        self.assertEqual(self.ledger.recent_events()[0]['outcome'],'ALLOW')
+        self.assertTrue(all(event['timestamp'] for event in events))
+    def test_event_feed_is_bounded_and_does_not_include_file_contents(self):
+        self.ledger.limit=300
+        for _ in range(205):self.ledger.propose('write_file',{'path':'a.txt','content':'private content'},'standard')
+        events=self.ledger.recent_events()
+        self.assertEqual(len(events),200)
+        self.assertNotIn('private content',json.dumps(events))
