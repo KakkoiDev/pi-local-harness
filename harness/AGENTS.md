@@ -24,4 +24,4 @@ Recovery aborts the operation, compacts context, and reasks the original questio
 
 Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. Keep ROADMAP.md and tasks/*.md current, mark only verified work complete, and report blockers clearly.
 
-Document comments are requests only after the user sends them to the queue. The request identifies the page, comment ID, selected text, and JSON sidecar. Read the actual current page, perform the requested work, verify it, and update that comment's agent_reply with the result. Preserve every other comment and field.
+Document comments are requests only after the user sends them to the queue. The request identifies the page, comment ID, selected text, and Markdown comment record. Read the actual current page, perform the requested work, verify it, and update that comment's agent_reply in the comments frontmatter array with the result. Preserve every other comment and field.

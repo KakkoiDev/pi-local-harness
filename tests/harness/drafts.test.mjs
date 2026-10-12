@@ -1,0 +1,11 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {saveDraft,loadDraft} from '../../js/drafts.mjs';
+test('project drafts survive reload, detect stale disk revisions, and remain separate',()=>{const values=new Map();const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)};
+ assert.equal(saveDraft(storage,'project-one','# 日本語','revision-one'),true);
+ assert.equal(loadDraft(storage,'project-two','revision-one'),null);
+ assert.equal(loadDraft(storage,'project-one','revision-one').conflict,false);
+ assert.equal(loadDraft(storage,'project-one','revision-two').conflict,true);
+ assert.equal(loadDraft(storage,'project-one','revision-two').text,'# 日本語');
+ saveDraft(storage,'project-one',null);assert.equal(loadDraft(storage,'project-one','revision-two'),null);
+});
+test('unavailable or corrupted browser storage does not break the workbench',()=>{const broken={getItem:()=>'{bad',setItem:()=>{throw Error('quota');}};assert.equal(loadDraft(broken,'page','rev'),null);assert.equal(saveDraft(broken,'page','text','rev'),false);});

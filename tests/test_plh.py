@@ -30,7 +30,7 @@ class LauncherTest(unittest.TestCase):
             (agent/'AGENTS.md').write_text((ROOT/'harness/legacy-AGENTS.md').read_text())
             install(root/'prefix',agent,root/'data')
             package=root/'prefix/share/pi-local-harness'
-            self.assertTrue((package/'harness/web_chat.py').exists())
+            self.assertTrue((package/'harness/web_chat.py').exists());self.assertTrue((package/'DESIGN.md').exists())
             self.assertEqual((root/'prefix/bin/plh').resolve(),(package/'plh.py').resolve())
             self.assertFalse((agent/'extensions/local-harness.ts').is_symlink())
             settings=json.loads((agent/'settings.json').read_text());self.assertEqual(settings,{'packages':['user-package']})
@@ -60,3 +60,14 @@ class LauncherTest(unittest.TestCase):
             settings['effort']='medium';(data/'config.json').write_text(json.dumps(settings));launch()
             self.assertEqual(json.loads((data/'config.json').read_text())['effort'],'medium')
             self.assertFalse((home/'pi-local-agent-data').exists())
+
+    def test_owned_comment_instructions_upgrade_without_erasing_memory(self):
+        from harness.install import install
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);data=root/'data';data.mkdir()
+            template=(ROOT/'harness/AGENTS.md').read_text()
+            legacy=template.replace('Markdown comment record','JSON sidecar').replace('agent_reply in the comments frontmatter array','agent_reply')
+            (data/'AGENTS.md').write_text(legacy+'\nUser preference: retain this lesson.\n')
+            install(root/'prefix',root/'agent',data)
+            upgraded=(data/'AGENTS.md').read_text();self.assertIn('Markdown comment record',upgraded);self.assertIn('retain this lesson',upgraded);self.assertNotIn('JSON sidecar',upgraded)
+            self.assertTrue(list(data.glob('AGENTS.md.before-markdown-*')))

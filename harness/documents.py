@@ -1,4 +1,5 @@
 """Small single-user Markdown workspace. No identities, collaboration, or sync."""
+from harness.markdown_records import read_record,write_record
 import hashlib
 import json
 import re
@@ -31,10 +32,17 @@ class DocumentStore:
     def sidecar(self, relative):
         directory=self.root/'.comments';directory.mkdir(exist_ok=True)
         if not directory.resolve().is_relative_to(self.root):raise ValueError('Comments directory is outside the workspace')
-        return directory/(hashlib.sha256(relative.encode()).hexdigest()+'.json')
+        path=directory/(hashlib.sha256(relative.encode()).hexdigest()+'.md')
+        if not path.resolve().is_relative_to(directory.resolve()):raise ValueError('Comment record is outside the workspace')
+        return path
     def comments(self, relative):
         path=self.sidecar(relative)
-        return json.loads(path.read_text()) if path.exists() else []
+        if path.exists():return read_record(path)['comments']
+        legacy=path.with_suffix('.json')
+        if legacy.exists():
+            if not legacy.resolve().is_relative_to(path.parent.resolve()):raise ValueError('Comment record is outside the workspace')
+            values=json.loads(legacy.read_text());self.write_comments(relative,values);legacy.rename(legacy.with_name(legacy.name+'.before-markdown'));return values
+        return []
     def get(self, relative):
         with self.lock:
             path=self.path(relative);text=path.read_text(encoding='utf-8')
@@ -76,12 +84,22 @@ class DocumentStore:
             if not trash.resolve().is_relative_to(self.root):raise ValueError('Trash directory is outside the workspace')
             self.path(relative).replace(trash/(uuid.uuid4().hex+'-'+Path(relative).name))
     def write_comments(self, relative, comments):
-        path=self.sidecar(relative);temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(comments,ensure_ascii=False,indent=2));temporary.replace(path)
+        path=self.sidecar(relative)
+        body='# Comments on '+relative+'\n'
+        for entry in comments:
+            body+='\n## Thread '+entry['id']+'\n\n'+('Resolved' if entry['resolved'] else 'Open')+' · '+entry['created']+'\n\n> '+entry['anchor'].replace('\n','\n> ')+'\n\n'+entry['text']+'\n'
+            for reply in entry.get('replies',[]):body+='\n### Reply\n\n'+reply['text']+'\n'
+            if entry.get('agent_reply'):body+='\n### Agent reply\n\n'+entry['agent_reply']+'\n'
+        write_record(path,{'document':relative,'comments':comments},body)
     def comment(self, relative, text, anchor=''):
         if not isinstance(text,str) or not text.strip() or len(text)>10000:raise ValueError('Write a comment of at most 10,000 characters')
         with self.lock:
-            self.get(relative);comments=self.comments(relative)
-            entry={'id':uuid.uuid4().hex,'text':text.strip(),'anchor':str(anchor)[:2000],'created':datetime.now().astimezone().isoformat(timespec='seconds'),'resolved':False,'agent_reply':''}
+            page=self.get(relative);anchor=str(anchor).strip()
+            if len(anchor)>2000:raise ValueError('Select an anchor of at most 2,000 characters')
+            if not anchor or anchor not in page['markdown']:raise ValueError('Select an anchor from the current document before adding a text comment')
+            if page['markdown'].count(anchor)>1:raise ValueError('This anchor appears more than once. Select a longer, unique passage.')
+            comments=self.comments(relative)
+            entry={'id':uuid.uuid4().hex,'text':text.strip(),'anchor':str(anchor)[:2000],'created':datetime.now().astimezone().isoformat(timespec='seconds'),'resolved':False,'agent_reply':'','replies':[]}
             comments.append(entry);self.write_comments(relative,comments);return entry
     def resolve(self, relative, identifier, resolved):
         with self.lock:
@@ -89,6 +107,21 @@ class DocumentStore:
             entry=next((item for item in comments if item['id']==identifier),None)
             if not entry:raise ValueError('Comment not found')
             entry['resolved']=bool(resolved);self.write_comments(relative,comments);return entry
+    def reply(self, relative, identifier, text):
+        if not isinstance(text,str) or not text.strip() or len(text)>10000:raise ValueError('Write a reply of at most 10,000 characters')
+        with self.lock:
+            self.get(relative);comments=self.comments(relative)
+            entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('Comment not found')
+            entry.setdefault('replies',[]).append({'text':text.strip(),'created':datetime.now().astimezone().isoformat(timespec='seconds')})
+            self.write_comments(relative,comments);return entry
+    def agent_result(self, relative, identifier, text):
+        with self.lock:
+            comments=self.comments(relative)
+            entry=next((item for item in comments if item['id']==identifier),None)
+            if entry:
+                if not entry.get('agent_reply'):entry['agent_reply']=str(text)[:50000]
+                self.write_comments(relative,comments)
     def mark_sent(self, relative, identifier, chat):
         with self.lock:
             comments=self.comments(relative)
@@ -100,8 +133,8 @@ class DocumentStore:
         if entry['resolved']:raise ValueError('This comment is already resolved')
         return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
-                f"User comment: {entry['text']}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"
-                f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in {self.sidecar(relative)}. "
+                f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"
+                f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in the comments frontmatter array of {self.sidecar(relative)}. "
                 "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply.")
     def project_path(self, project):
         if not isinstance(project,str) or Path(project).name!=project or project in {'.','..'}:raise ValueError('Invalid project')

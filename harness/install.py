@@ -21,7 +21,7 @@ def install(prefix, agent, data):
     stage=target.parent/('.plh-install-'+uuid.uuid4().hex);stage.mkdir()
     for item in ['harness','laya','.pi','js','specs']:
         shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
-    for item in ['plh.py','agent_api.py','index.html','chat.css','readme.md']:
+    for item in ['plh.py','agent_api.py','index.html','chat.css','readme.md','PRODUCT.md','DESIGN.md']:
         shutil.copy2(ROOT/item,stage/item)
     stamp=datetime.now().strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:6]
     if target.exists():target.rename(target.with_name('pi-local-harness.before-'+stamp))
@@ -38,6 +38,12 @@ def install(prefix, agent, data):
     configuration(data)
     template=(ROOT/'harness/AGENTS.md').read_text()
     if not (data/'AGENTS.md').exists():(data/'AGENTS.md').write_text(template)
+    current=(data/'AGENTS.md').read_text()
+    paragraph=template.split('\n\n')[-1].strip()
+    previous=paragraph.replace('Markdown comment record','JSON sidecar').replace('agent_reply in the comments frontmatter array','agent_reply')
+    if previous!=paragraph and previous in current:
+        shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-markdown-'+stamp))
+        (data/'AGENTS.md').write_text(current.replace(previous,paragraph))
     # Keep other Pi extensions and custom settings intact.
     link=agent/'extensions/local-harness.ts'
     if link.is_symlink() and str(link.readlink()).endswith('/.pi/extensions/local-harness.ts'):

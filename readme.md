@@ -38,7 +38,7 @@ Projects can live anywhere. Registration alone does not create or overwrite docs
 The left sidebar contains projects and a search field (⌘/Ctrl K). Project and
 file searches stay scoped to their lists. The browser remembers the last project,
 view, and selected document. First-run actions guide you to create/register a folder. Each project has exactly one persistent chat.
-The **Work** tab shows its actual folder, file tree, active work, queue, roadmap,
+The **Work** tab shows its actual folder, searchable file tree, active work, roadmap,
 and task documents. Edit Markdown as heading, paragraph, list, checkbox, quote,
 and code blocks, or switch to Markdown source. Unsupported Markdown is retained
 as raw text; this is a small block editor, not a complete Notion renderer.
@@ -46,11 +46,25 @@ Changes autosave to the actual files. Concurrent filesystem changes produce a
 version conflict rather than silently overwriting your draft. Trash moves Markdown
 pages into the data directory's `.trash`.
 
-Select document text and add a comment, then explicitly **Send to agent**. Comments
-do nothing until sent. You can also prompt below a document or use **Open project
-chat**. All requests enter one durable FIFO queue. Cancel waiting work; Stop ends
-the active worker. You can browse another project while work continues. Interrupted
-work is marked interrupted after restart and is never automatically repeated.
+**Document discussion**, above the document, sends a request about the whole page.
+Its request and result remain attached to that document. For a specific passage,
+select its text, use **Comment on selection**, and add a text comment. The quoted
+passage is highlighted; clicking the quote returns to it. Threads support replies
+and Resolve/Reopen. Use **Ask agent about this passage** to send that thread;
+unsent comments do nothing. Anchors must match a unique passage in the current
+file. Changed passages retain the original quote rather than silently moving.
+
+The **Activity** tab shows running, waiting, completed, stopped, failed, and
+interrupted tasks. Filter by project or state, open the source chat/document,
+inspect the Markdown record, cancel waiting work, or stop active work. Requests
+enter one durable FIFO queue. You can browse another project while it runs.
+Interrupted work is never automatically repeated.
+
+Chat text drafts and unsaved document drafts survive browser reloads in local
+storage. Attachments remain in the current tab until sent. Version conflicts keep
+your draft intact: download it, retry transient failures, or explicitly reload
+from disk. ⌘/Ctrl S saves; live polling preserves unchanged content and thread
+reply drafts. A Reconnect action appears after service connection failures.
 
 Every queued turn starts a Pi RPC worker in that project's folder, resumes **only
 that project's Pi session**, and includes fresh roadmap/tasks and file inventory.
@@ -68,10 +82,15 @@ characters per turn, with a 12,000-character limit per document.
 ## Data and configuration
 
 `~/pi-local-harness-data` contains shared `AGENTS.md`, `config.json`, `.projects.json`
-(folder registry), `.queue.json`, `.comments/`, `.trash/`, and `chats/` (metadata,
+(folder registry), `activity/` (one Markdown task record per request),
+`.comments/` (Markdown threads), `.trash/`, and `chats/` (metadata,
 Pi session files, uploads). `projects/` stores projects created through the API
 without a chosen external parent. Registered external projects stay in place.
-Chat transcripts are never automatically copied into shared memory.
+Task and comment records have authoritative frontmatter and readable Markdown
+bodies. Existing JSON queue/comment records are migrated with backups. Binary
+attachment payloads and Pi session/registry/config internals retain their native
+formats. Task records include prompts, states, timestamps, outcomes, and links to
+their chat/document. Chat transcripts are never automatically copied into shared memory.
 
 The first `plh` launch creates this directory, a default `config.json`, and
 `AGENTS.md` if they are missing. Later launches preserve existing configuration.
@@ -179,3 +198,11 @@ Run `python3 -m unittest discover -s tests`, `node --test tests/harness/*.test.m
 and `python3 tests/verify_workflow.py`. Browser regression instructions are in
 [the operations guide](harness/README.md). Browser/RPC fixtures test boundaries;
 they do not claim to measure model intelligence.
+
+## UX design guidance
+
+This workbench uses [Impeccable](https://github.com/pbakaus/impeccable) polish and
+hardening guidance. [PRODUCT.md](PRODUCT.md) records product constraints;
+[DESIGN.md](DESIGN.md) records the existing visual system. Text-selected comments
+were informed by [Jikko's comment implementation](https://github.com/KakkoiDev/jikko/blob/main/comments.go); PLH stores threads in adjacent data-directory Markdown records
+to keep project document bodies directly editable.

@@ -119,11 +119,13 @@ class WebChat:
             name=next(item['name'] for item in self.documents.list_projects() if item['id']==project)
             chat=self.store.create();chat.update(project=project,title=name);return self.store.save(chat)
     def enqueue(self, data):
+        if not isinstance(data.get('message',''),str):raise ValueError('Message must be text')
+        if not isinstance(data.get('attachments',[]),list) or len(data.get('attachments',[]))>8:raise ValueError('Attach at most eight files')
         project=data['project'];chat=self.project_chat(project)
         if not data.get('message','').strip() and not data.get('attachments') and not data.get('document_comment'):raise ValueError('Write a prompt or choose a comment')
         if data.get('document_comment'):
             comment=data['document_comment']
-            if Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
+            if len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
             self.documents.comment_prompt(comment['path'],comment['id'])
         return self.queue.add(project,chat['id'],data)
     def execute_job(self, job, emit):
@@ -161,7 +163,7 @@ class WebChat:
             comment=data.get('document_comment')
             user_text=data.get('message','')
             if comment:
-                if not project or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
+                if not project or len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
                 user_text=self.documents.comment_prompt(comment['path'],comment['id'])
             if data.get('document'):
                 document=self.documents.get(data['document'])
@@ -201,6 +203,7 @@ class WebChat:
                     if settled:break
                     continue
                 if event is None:
+                    if cancelled.is_set():raise ValueError('Stopped')
                     diagnostics.seek(0);raise ValueError('Pi exited unexpectedly: '+diagnostics.read()[-1000:])
                 if event.get('type')=='agent_start':settled=False
                 if event.get('type')=='agent_settled':settled=True
@@ -219,6 +222,7 @@ class WebChat:
             else:raise ValueError('Pi response exceeded ten minutes')
             if not reply:raise ValueError('Pi completed without an assistant answer')
             self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:]})
+            if comment:self.documents.agent_result(comment['path'],comment['id'],reply)
             emit({'type':'done','conversation':self.store.get(identifier)})
         finally:
             if process:
@@ -248,6 +252,10 @@ class WebHandler(BaseHTTPRequestHandler):
         path=urlparse(self.path).path
         try:
             if path=='/api/directories':self.reply(self.chat.documents.directories(parse_qs(urlparse(self.path).query).get('path',[None])[0]));return
+            if path=='/api/activity-record':
+                identifier=parse_qs(urlparse(self.path).query)['id'][0]
+                if not re.fullmatch(r'[0-9a-f]{32}',identifier):raise ValueError('Invalid task ID')
+                self.reply({'markdown':(self.chat.queue.records/(identifier+'.md')).read_text()});return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -268,7 +276,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs'}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs'}
                 if path not in allowed:self.reply({'error':'Not found'},404);return
                 file=ROOT/allowed[path];mime=mimetypes.guess_type(str(file))[0] or 'text/plain';disposition=None
             body=file.read_bytes();self.send_response(200);self.send_header('Content-Type',mime)
@@ -282,8 +290,9 @@ class WebHandler(BaseHTTPRequestHandler):
         streaming=False
         try:
             size=int(self.headers.get('Content-Length','0'))
-            if size>32*1024*1024:raise ValueError('Request exceeds 32 MiB')
+            if size<0 or size>32*1024*1024:raise ValueError('Request exceeds 32 MiB')
             data=json.loads(self.rfile.read(size))
+            if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
             if path=='/api/projects/create':
                 project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
@@ -298,6 +307,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 if action=='save-file':self.reply(store.save_file(data['path'],data['text'],data['revision']));return
                 if action=='delete':store.delete(data['path']);self.reply({'deleted':True});return
                 if action=='comment':self.reply(store.comment(data['path'],data['text'],data.get('anchor','')));return
+                if action=='reply':self.reply(store.reply(data['path'],data['id'],data['text']));return
                 if action=='resolve':self.reply(store.resolve(data['path'],data['id'],data['resolved']));return
                 raise ValueError('Unknown document action')
             if path=='/api/conversations':raise ValueError('Chats belong to projects. Create or select a project first.')

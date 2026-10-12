@@ -26,6 +26,7 @@ class DocumentTest(unittest.TestCase):
     def test_comments_are_explicit_context_and_can_be_resolved(self):
         with tempfile.TemporaryDirectory() as directory:
             store=DocumentStore(Path(directory));page=store.create('Project','Plan')
+            store.save(page['path'],'# Plan\n\nBuild it\n',page['revision'])
             comment=store.comment(page['path'],'Add the Japanese audio task','Build it')
             self.assertFalse(comment['resolved'])
             prompt=store.comment_prompt(page['path'],comment['id'])
@@ -59,3 +60,28 @@ class DocumentTest(unittest.TestCase):
             self.assertTrue((outside/'New page.md').exists())
             self.assertEqual(DocumentStore(root).project_path(project),outside.resolve())
             with self.assertRaises(ValueError):store.get(f'projects/{project}/../outside.md')
+
+    def test_text_comments_have_verified_anchors_and_markdown_threads(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);store=DocumentStore(root);page=store.create('Project','Plan')
+            store.save(page['path'],'# Plan\n\nBuild the app carefully.\n',page['revision'])
+            comment=store.comment(page['path'],'Add tests','Build the app')
+            record=store.sidecar(page['path']);self.assertEqual(record.suffix,'.md')
+            self.assertIn('Add tests',record.read_text());self.assertIn('Build the app',record.read_text())
+            with self.assertRaisesRegex(ValueError,'anchor|Select'):store.comment(page['path'],'Invalid','not in the document')
+            store.reply(page['path'],comment['id'],'Also test Japanese')
+            self.assertEqual(store.get(page['path'])['comments'][0]['replies'][-1]['text'],'Also test Japanese')
+            self.assertEqual(DocumentStore(root).get(page['path'])['comments'][0]['anchor'],'Build the app')
+
+    def test_legacy_comments_migrate_and_ambiguous_quotes_are_rejected(self):
+        import json
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);store=DocumentStore(root);page=store.create('Project','Plan')
+            record=store.sidecar(page['path']);legacy=record.with_suffix('.json')
+            legacy.write_text(json.dumps([{'id':'old','anchor':'Plan','text':'Legacy note','created':'today','resolved':False,'agent_reply':''}]))
+            self.assertEqual(store.get(page['path'])['comments'][0]['text'],'Legacy note');self.assertTrue(record.exists());self.assertFalse(legacy.exists())
+            page=store.get(page['path']);store.save(page['path'],'# Plan\n\nBuild once. Build twice.\n',page['revision'])
+            with self.assertRaisesRegex(ValueError,'more than once'):store.comment(page['path'],'Which one?','Build')
+            with self.assertRaisesRegex(ValueError,'Select'):store.comment(page['path'],'No selection','')
+            store.agent_result(page['path'],'old','Verified outcome')
+            self.assertIn('Verified outcome',record.read_text())

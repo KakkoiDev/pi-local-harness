@@ -66,3 +66,13 @@ need permission to bind localhost sockets in restricted environments.
 
 The legacy Laya `/chat` route is a demo echo. The workbench uses project APIs and
 real Pi RPC workers; never connect model conversations to that demo route.
+
+## Activity and comment records
+
+`activity/<task-id>.md` is the durable task source; `.comments/<document-hash>.md`
+holds text threads. Metadata is authoritative YAML frontmatter using JSON-compatible
+values; the body is a readable summary. Existing JSON records migrate once and are
+kept as backups. Queued attachments use separate payload files; they are not embedded
+as base64 in the Markdown. A running task resumes as interrupted after restart.
+Document-level requests belong above the document; text comments require a unique
+selected passage. Activity links restore the appropriate project and source.

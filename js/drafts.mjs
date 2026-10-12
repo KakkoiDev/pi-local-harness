@@ -1,0 +1,2 @@
+export function saveDraft(storage,key,text,revision){try{if(text===null)storage.removeItem('plh.draft.'+key);else storage.setItem('plh.draft.'+key,JSON.stringify({text,revision}));return true;}catch{return false;}}
+export function loadDraft(storage,key,revision){try{const value=JSON.parse(storage.getItem('plh.draft.'+key));return value&&typeof value.text==='string'?{...value,conflict:value.revision!==revision}:null;}catch{return null;}}
