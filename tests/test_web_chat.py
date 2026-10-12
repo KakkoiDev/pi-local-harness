@@ -1,0 +1,92 @@
+import base64
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from harness.web_chat import ConversationStore, prepare_prompt
+
+class WebChatTest(unittest.TestCase):
+    def test_conversations_are_separate_persistent_and_manageable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store=ConversationStore(Path(directory))
+            first=store.create();second=store.create()
+            store.append(first['id'],{'role':'user','content':'one'})
+            self.assertEqual(store.get(second['id'])['messages'],[])
+            store.rename(first['id'],'A different title')
+            loaded=ConversationStore(Path(directory)).get(first['id'])
+            self.assertEqual(loaded['title'],'A different title')
+            self.assertEqual(loaded['messages'][0]['content'],'one')
+            store.delete(first['id'])
+            self.assertEqual(len(store.list()),1)
+            with self.assertRaises(ValueError):store.get('../outside')
+    def test_uploads_attach_images_transcribe_audio_and_read_text(self):
+        calls=[]
+        def transcribe(path):
+            calls.append(path.read_bytes());return 'こんにちは'
+        def attachment(name,mime,content):
+            return {'name':name,'mime':mime,'data':base64.b64encode(content).decode()}
+        with tempfile.TemporaryDirectory() as directory:
+            png=b'\x89PNG\r\n\x1a\n' + b'image'
+            prompt,images,files=prepare_prompt('Explain',[
+                attachment('../../photo.png','image/png',png),
+                attachment('voice.wav','audio/wav',b'voice'),
+                attachment('notes.txt','text/plain',b'<script>hello</script>')],Path(directory),transcribe)
+            self.assertEqual(len(images),1)
+            self.assertEqual(images[0]['data'],base64.b64encode(png).decode())
+            self.assertIn('こんにちは',prompt);self.assertIn('<script>hello</script>',prompt)
+            self.assertEqual(calls,[b'voice'])
+            self.assertTrue(all(Path(file['path']).is_relative_to(Path(directory)) for file in files))
+            self.assertTrue(all(Path(file['path']).exists() for file in files))
+            calls.clear();prepare_prompt('text only',[],Path(directory),transcribe)
+            self.assertEqual(calls,[])
+    def test_unsupported_binary_and_invalid_base64_have_clear_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError,'Unsupported'):
+                prepare_prompt('',[{'name':'thing.zip','mime':'application/zip','data':'YQ=='}],Path(directory),lambda _: '')
+            with self.assertRaises(ValueError):
+                prepare_prompt('',[{'name':'a.txt','mime':'text/plain','data':'invalid!'}],Path(directory),lambda _: '')
+
+class RpcBridgeTest(unittest.TestCase):
+    def test_real_subprocess_protocol_preserves_session_and_streams(self):
+        import os
+        import sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000);conversation=chat.store.create();events=[]
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+                chat.send(conversation['id'],{'message':'Hello'},events.append)
+                chat.send(conversation['id'],{'message':'Continue'},events.append)
+            saved=chat.store.get(conversation['id'])
+            self.assertEqual(len(saved['messages']),4)
+            self.assertEqual(saved['messages'][-1]['content'],'[CANARY] reply 2')
+            self.assertTrue(any(event['type']=='message_update' for event in events))
+            self.assertEqual(events[-1]['type'],'done');self.assertEqual(chat.active,{})
+            request=json.loads((chat.store.folder(conversation['id'])/'session.request.json').read_text())
+            self.assertEqual(request['message'],'Continue')
+    def test_stop_terminates_process_and_releases_conversation(self):
+        import os
+        import sys
+        import threading
+        import time
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000);conversation=chat.store.create();errors=[]
+            def run():
+                try:chat.send(conversation['id'],{'message':'TEST_WAIT'},lambda _:None)
+                except ValueError as error:errors.append(str(error))
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+                thread=threading.Thread(target=run);thread.start()
+                deadline=time.monotonic()+5
+                while time.monotonic()<deadline:
+                    with chat.lock:ready=chat.active.get(conversation['id'],{}).get('process') is not None
+                    if ready:break
+                    time.sleep(.01)
+                self.assertTrue(ready)
+                self.assertTrue(chat.stop(conversation['id'])['stopped']);thread.join(timeout=6)
+            self.assertFalse(thread.is_alive());self.assertTrue(errors);self.assertEqual(chat.active,{})

@@ -44,3 +44,5 @@ and harness/README.md for the installed pi workflow.
 - [ ] [30-Local evaluation suite](tasks/30-local-evaluations.md)
 
 - [x] [31-Destructive shell guard and architecture guide](tasks/31-destructive-shell-guard.md)
+
+- [x] [32-Mobile multimodal web chat](tasks/32-web-chat.md)

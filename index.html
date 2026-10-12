@@ -1,71 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script src="js/components.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-display { font-family: 'Bebas Neue', sans-serif; }
-    </style>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171819"><title>Pi · Local chat</title>
+  <link rel="stylesheet" href="/chat.css"><script type="module" src="/js/chat.mjs"></script>
 </head>
-<body class="bg-white text-black">
-    <portfolio-header></portfolio-header>
-
-    <main id="main-content">
-        <section id="hero" class="mx-auto max-w-3xl px-4 py-32 flex flex-col items-center justify-center text-center">
-            <h1 class="font-display text-7xl md:text-9xl leading-none tracking-tighter mb-4">
-                CREATIVE <span class="text-gray-400">DEV</span>
-            </h1>
-            <p class="text-lg md:text-xl font-light tracking-widest uppercase text-gray-600">
-                Building digital experiences with precision.
-            </p>
-        </section>
-
-        <section id="about" class="mx-auto max-w-3xl px-4 py-16 border-t border-black">
-            <h2 class="font-display text-3xl mb-6 tracking-tight">What I do</h2>
-            <ul class="space-y-4">
-                <li class="text-xl md:text-2xl font-semibold leading-tight">I solve complex problems.</li>
-                <li class="text-xl md:text-2xl font-semibold leading-tight">I build robust, scalable systems.</li>
-                <li class="text-xl md:text-2xl font-semibold leading-tight">I help teams grow through technical leadership.</li>
-            </ul>
-        </section>
-
-        <section id="projects" class="mx-auto max-w-3xl px-4 py-16 border-t border-black">
-            <h2 class="font-display text-3xl mb-8 tracking-tight">Projects</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <project-card 
-                    title="AI Agent Framework" 
-                    description="A toolkit for building production-ready AI agents with minimal boilerplate." 
-                    link="project-ai.html" 
-                    tags="Python · LLMs">
-                </project-card>
-                <project-card 
-                    title="Distributed Database" 
-                    description="An experimental distributed key-value store built for high availability." 
-                    link="project-db.html" 
-                    tags="Go · Raft">
-                </project-card>
-            </div>
-        </section>
-
-        <section id="contact" class="mx-auto max-w-3xl px-4 py-16 border-t border-black">
-            <h2 class="font-display text-3xl mb-6 tracking-tight">Contact</h2>
-            <div class="flex flex-wrap gap-x-8 gap-y-4 text-lg">
-                <a href="mailto:hello@example.com" class="underline hover:text-gray-500 transition-colors">hello@example.com</a>
-                <a href="#" class="underline hover:text-gray-500 transition-colors">GitHub</a>
-                <a href="#" class="underline hover:text-gray-500 transition-colors">LinkedIn</a>
-            </div>
-        </section>
-    </main>
-
-    <portfolio-footer></portfolio-footer>
-    <agent-chat></agent-chat>
+<body>
+  <button id="backdrop" aria-label="Close conversation menu" hidden></button>
+  <aside id="sidebar" aria-label="Conversations">
+    <div class="brand"><span class="logo">π</span><span>Local workspace</span><button id="close-menu" class="icon mobile" aria-label="Close menu">×</button></div>
+    <button id="new-chat" class="new-chat">＋ <span>New conversation</span></button>
+    <div class="sidebar-label">YOUR CONVERSATIONS</div>
+    <nav id="conversations" aria-label="Conversation history"></nav>
+    <div class="sidebar-footer"><span class="online-dot"></span> On your machine <span class="private">Local AI</span></div>
+  </aside>
+  <main>
+    <header><button id="open-menu" class="icon mobile" aria-label="Open conversation menu" aria-expanded="false">☰</button><div class="model-name">Pi <span id="model">Gemma 4</span></div><span class="effort">High thinking</span></header>
+    <section id="thread" aria-label="Messages" tabindex="0">
+      <div id="welcome"><div class="welcome-mark">π</div><h1>What are we working on?</h1><p>A quiet place to think, build, and explore.</p><div class="suggestions"><button data-prompt="Help me understand a piece of code">Understand some code <span>↗</span></button><button data-prompt="Describe the image I attach">Explore an image <span>↗</span></button><button data-prompt="Transcribe and summarize the audio I attach">Listen to a recording <span>↗</span></button></div></div>
+      <div id="messages" aria-live="polite" aria-relevant="additions"></div>
+    </section>
+    <div class="composer-wrap">
+      <div id="error" role="alert" hidden></div>
+      <form id="composer"><div id="attachments" aria-label="Attached files"></div>
+        <textarea id="prompt" rows="1" placeholder="Ask anything, or drop a file…" aria-label="Your message"></textarea>
+        <div class="composer-actions"><div><button id="attach" type="button" class="icon" aria-label="Attach files">＋</button><button id="record" type="button" class="icon" aria-label="Record audio">♩</button><span id="hint">Text, images, audio & files</span></div><button id="send" type="submit" aria-label="Send message">↑</button><button id="stop" type="button" hidden>■ Stop</button></div>
+        <input id="files" type="file" multiple hidden>
+      </form><p class="footnote">Local models can make mistakes. Review important answers.</p>
+    </div>
+  </main>
 </body>
 </html>

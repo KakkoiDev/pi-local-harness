@@ -55,15 +55,18 @@ export default function harness(pi, dependencies = {}) {
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     loadMemory(memoryPath);
-    child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
     let stderr = '';
+    const sharedPort = process.env.PI_HARNESS_SHARED_PORT;
+    if (!sharedPort) {
+    child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, env: { ...process.env, PI_WEB_CWD: process.env.PI_WEB_CWD || ctx.cwd || root }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-4000); });
     child.on('exit', () => {
       ports = undefined;
       if (!closing) { notify(`Harness services stopped: ${stderr}`, 'error'); watch.stop(); }
     });
+    }
     try {
-      ports = await new Promise((resolve, reject) => {
+      ports = sharedPort ? { laya: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000) } : await new Promise((resolve, reject) => {
         let output = '', announced = false;
         const deadline = setTimeout(() => { child.kill(); reject(new Error('Service startup timed out')); }, 10000);
         child.once('error', error => { clearTimeout(deadline); reject(error); });

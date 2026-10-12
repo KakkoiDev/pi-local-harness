@@ -19,7 +19,7 @@ class PiStartupTest(unittest.TestCase):
             process = subprocess.Popen(['pi', '--offline', '--mode', 'rpc', '--no-session', '--no-mcp',
                 '--no-extensions', '--extension', str(ROOT / '.pi/extensions/local-harness.ts'),
                 ], cwd=ROOT,
-                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_LAYA_PORT':'0', 'PI_WEB_PORT':'0'},
+                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_LAYA_PORT':'0', 'PI_WEB_PORT':'0', 'PI_WEB_DATA':str(Path(directory)/'web')},
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             try:
                 process.stdin.write(json.dumps({'id':'state','type':'get_state'})+'\n')

@@ -47,12 +47,17 @@ Configuration:
 | `PI_HANG_MS` | `60000` | Maximum thought stream inactivity |
 | `PI_LAYA_AUTH` | `admin` | Authorization profile; both profiles apply the destructive-shell guard |
 | `PI_HARNESS_MEMORY` | global `AGENTS.md` | Override memory file |
+| `PI_WEB_DATA` | `~/.pi/agent/web-chat` | Persistent web conversations and uploads |
+| `PI_WEB_MODEL` | `gemma4:26b-mlx` | Model used by browser Pi sessions |
+| `PI_WEB_CWD` | Launching Pi working directory | Workspace used by browser Pi tools |
 | `PI_WHISPER_MODEL` | `mlx-community/whisper-base-mlx` | Local speech model |
 
 Ordinary shell commands are allowed in both profiles. Broad destructive operations are
 blocked before execution with a reason delivered to the model. Unknown tools remain blocked.
 Laya judges actual pi tool calls through `/gatekeep` and audits their results through `/audit`.
-The legacy website `/chat` endpoint remains a demo echo; it is not a connection to the pi session.
+The frontend uses its same-origin `/api/conversations` API and real Pi RPC sessions.
+The legacy Laya `/chat` endpoint remains a demo echo and is unused by the frontend.
+See [the architecture guide](../readme.md) for web storage, uploads, and session lifecycle.
 The standalone log-based Sentinel is retired because log inactivity cannot identify active model hangs.
 
 Checks:

@@ -2,12 +2,14 @@ import unittest
 import os
 
 class TestFrontend(unittest.TestCase):
-    def test_index_contains_components(self):
+    def test_index_is_accessible_multimodal_chat(self):
         with open("index.html", "r") as f:
             content = f.read()
-            self.assertIn("<portfolio-header>", content)
-            self.assertIn("<portfolio-footer>", content)
-            self.assertIn("<project-card", content)
+            self.assertIn('id="conversations"',content)
+            self.assertIn('type="file" multiple',content)
+            self.assertIn('id="record"',content)
+            self.assertIn('name="viewport"',content)
+            self.assertNotIn('cdn.tailwindcss',content)
 
     def test_project_pages_contain_components_and_htmx(self):
         pages = ["project-ai.html", "project-db.html"]

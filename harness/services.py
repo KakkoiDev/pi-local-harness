@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 from agent_api import AgentHandler
 from laya.engine import LayaEngine
 from laya.ledger import ProposalLedger
+from harness.web_chat import WebChat, WebHandler
 
 
 def main():
@@ -25,10 +26,14 @@ def main():
             self.ledger = ledger
             super().__init__(*args)
     servers = []
+    chat = None
     try:
         api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_LAYA_PORT', '8000'))), Handler)
         servers.append(api)
-        web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(ROOT)))
+        web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
+        agent_dir = Path(os.getenv('PI_CODING_AGENT_DIR', str(Path.home() / '.pi/agent')))
+        chat = WebChat(os.getenv('PI_WEB_DATA', str(agent_dir / 'web-chat')), api.server_port, web.server_port)
+        WebHandler.chat = chat
         servers.append(web)
         for server in servers:
             threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -41,6 +46,7 @@ def main():
             if os.getppid() != owner:
                 break
     finally:
+        if chat: chat.close()
         for server in servers:
             server.server_close()
 
