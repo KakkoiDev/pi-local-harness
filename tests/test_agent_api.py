@@ -1,29 +1,23 @@
+"""Legacy demo endpoint regression, isolated from the user's running harness."""
+import http.server
+import json
+import tempfile
+import threading
 import unittest
 import urllib.request
-import json
+from pathlib import Path
+from unittest.mock import patch
+from agent_api import AgentHandler
 
 class TestAgentAPI(unittest.TestCase):
-    def setUp(self):
-        self.url = "http://localhost:8000/chat"
-
     def test_chat_endpoint_returns_success(self):
-        """Test that the /chat endpoint returns a 200 status and a valid JSON response."""
-        data = json.dumps({"message": "Hello, Agent!"}).encode('utf-8')
-        req = urllib.request.Request(
-            self.url, 
-            data=data, 
-            headers={'Content-Type': 'application/json'},
-            method='POST'
-        )
-        
-        try:
-            with urllib.request.urlopen(req) as response:
-                self.assertEqual(response.getcode(), 200)
-                res_data = json.loads(response.read().decode('utf-8'))
-                self.assertIn('reply', res_data)
-                self.assertTrue(len(res_data['reply']) > 0)
-        except urllib.error.URLError as e:
-            self.fail(f"Failed to connect to the Agent API. Is it running? Error: {e}")
-
-if __name__ == '__main__':
-    unittest.main()
+        with tempfile.TemporaryDirectory() as directory, patch('agent_api.LOG_FILE',str(Path(directory)/'session.log')):
+            server=http.server.ThreadingHTTPServer(('127.0.0.1',0),AgentHandler)
+            worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
+            try:
+                request=urllib.request.Request(f'http://127.0.0.1:{server.server_port}/chat',data=json.dumps({'message':'Hello, Agent!'}).encode(),headers={'Content-Type':'application/json'})
+                with urllib.request.urlopen(request,timeout=3) as response:
+                    self.assertEqual(response.status,200)
+                    self.assertIn('Hello, Agent!',json.load(response)['reply'])
+            finally:
+                server.shutdown();server.server_close();worker.join(timeout=3)

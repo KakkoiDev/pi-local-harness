@@ -1,6 +1,8 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Laya."""
 import base64
 from datetime import datetime
+from harness.documents import DocumentStore, DocumentConflict
+from harness.work_queue import WorkQueue
 import json
 import os
 from pathlib import Path
@@ -93,9 +95,44 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
     return '\n\n'.join(parts),images,files
 
 class WebChat:
-    def __init__(self, root, laya_port, web_port):
+    def __init__(self, root, laya_port, web_port, data_root=None):
         self.store=ConversationStore(root);self.laya_port=laya_port;self.web_port=web_port
         self.lock=threading.Lock();self.active={};self.closed=False
+        self.documents=DocumentStore(data_root or Path(root)/'workspace')
+        self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
+    def busy(self):
+        with self.lock:
+            if self.active:return True
+        lock=self.documents.root/'.agent-lock'
+        if lock.exists():
+            try:
+                owner=json.loads(lock.read_text());os.kill(owner['pid'],0);return True
+            except ProcessLookupError:return False
+            except (OSError,ValueError,KeyError):return True
+        return False
+    def project_chat(self, project):
+        self.documents.project_path(project)
+        with self.lock:
+            for summary in self.store.list():
+                chat=self.store.get(summary['id'])
+                if chat.get('project')==project:return chat
+            name=next(item['name'] for item in self.documents.list_projects() if item['id']==project)
+            chat=self.store.create();chat.update(project=project,title=name);return self.store.save(chat)
+    def enqueue(self, data):
+        project=data['project'];chat=self.project_chat(project)
+        if not data.get('message','').strip() and not data.get('attachments') and not data.get('document_comment'):raise ValueError('Write a prompt or choose a comment')
+        if data.get('document_comment'):
+            comment=data['document_comment']
+            if Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
+            self.documents.comment_prompt(comment['path'],comment['id'])
+        return self.queue.add(project,chat['id'],data)
+    def execute_job(self, job, emit):
+        data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit)
+    def workspace(self):
+        projects=[]
+        for project in self.documents.list_projects():
+            projects.append({**project,'chat':self.project_chat(project['id'])['id']})
+        return {'projects':projects,'jobs':self.queue.list(),'busy':self.busy(),'data_root':str(self.documents.root)}
     def stop(self, identifier):
         with self.lock:
             active=self.active.get(identifier)
@@ -106,6 +143,7 @@ class WebChat:
     def close(self):
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
+        self.queue.close()
     def send(self, identifier, data, emit):
         self.store.get(identifier)
         cancelled=threading.Event()
@@ -118,17 +156,30 @@ class WebChat:
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
-            prompt,images,files=prepare_prompt(data.get('message',''),data.get('attachments',[]),folder/'uploads')
+            conversation=self.store.get(identifier)
+            project=conversation.get('project')
+            comment=data.get('document_comment')
+            user_text=data.get('message','')
+            if comment:
+                if not project or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
+                user_text=self.documents.comment_prompt(comment['path'],comment['id'])
+            if data.get('document'):
+                document=self.documents.get(data['document'])
+                if document['project']!=project:raise ValueError('Document belongs to another project')
+                user_text+='\n\nCurrent document: '+str(self.documents.path(data['document']))+'\n'+document['markdown']
+            prompt,images,files=prepare_prompt(user_text,data.get('attachments',[]),folder/'uploads')
+            if project:
+                prompt=self.documents.snapshot(project)+'\n\nCurrent request:\n'+prompt
             if not prompt.strip():raise ValueError('Write a message or attach a file')
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
-            self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display})
+            self.store.append(identifier,{'role':'user','content':data.get('message','') or ('Comment task: '+self.documents.get(comment['path'])['title'] if comment else ''),'attachments':display})
             emit({'type':'conversation','conversation':self.store.get(identifier)})
             command=['pi','--offline','--mode','rpc','--no-mcp','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-                '--session',str(folder/'session.jsonl'),'--provider','ollama','--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking','high']
-            env={**os.environ,'PI_HARNESS_SHARED_PORT':str(self.laya_port),'PI_WEB_PORT':str(self.web_port)}
+                '--session',str(folder/'session.jsonl'),'--provider',os.getenv('PI_WEB_PROVIDER','ollama'),'--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+            env={**os.environ,'PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.laya_port),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
-            process=subprocess.Popen(command,cwd=os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
+            process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
                 self.active[identifier]['process']=process
                 if cancelled.is_set():process.terminate()
@@ -140,6 +191,7 @@ class WebChat:
                         except json.JSONDecodeError:continue
                 finally:events.put(None)
             threading.Thread(target=read,daemon=True).start()
+            if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             deadline=time.monotonic()+600;settled=False;reply='';thought=''
             while time.monotonic()<deadline:
@@ -178,7 +230,7 @@ class WebChat:
             with self.lock:self.active.pop(identifier,None)
 
 from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 import mimetypes
 
 class WebHandler(BaseHTTPRequestHandler):
@@ -195,10 +247,15 @@ class WebHandler(BaseHTTPRequestHandler):
         if not self.trusted():self.reply({'error':'Use the local web address'},403);return
         path=urlparse(self.path).path
         try:
+            if path=='/api/directories':self.reply(self.chat.documents.directories(parse_qs(urlparse(self.path).query).get('path',[None])[0]));return
+            if path=='/api/workspace':self.reply(self.chat.workspace());return
+            if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
+            if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
+            if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/laya':
                 self.reply({'events':self.chat.ledger.recent_events(),'laya_port':self.chat.laya_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':self.reply({'model':os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'maxFileBytes':MAX_UPLOAD});return
+            if path=='/api/config':self.reply({'model':os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD});return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):
@@ -211,7 +268,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs'}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs'}
                 if path not in allowed:self.reply({'error':'Not found'},404);return
                 file=ROOT/allowed[path];mime=mimetypes.guess_type(str(file))[0] or 'text/plain';disposition=None
             body=file.read_bytes();self.send_response(200);self.send_header('Content-Type',mime)
@@ -219,7 +276,7 @@ class WebHandler(BaseHTTPRequestHandler):
             self.send_header('Cache-Control','no-store')
             if disposition:self.send_header('Content-Disposition',disposition)
             self.end_headers();self.wfile.write(body)
-        except (FileNotFoundError,ValueError):self.reply({'error':'Not found'},404)
+        except (FileNotFoundError,ValueError,KeyError):self.reply({'error':'Not found'},404)
     def do_POST(self):
         if not self.trusted():self.reply({'error':'Cross-origin requests are not allowed'},403);return
         streaming=False
@@ -228,24 +285,41 @@ class WebHandler(BaseHTTPRequestHandler):
             if size>32*1024*1024:raise ValueError('Request exceeds 32 MiB')
             data=json.loads(self.rfile.read(size))
             path=urlparse(self.path).path
-            if path=='/api/conversations':self.reply(self.chat.store.create());return
+            if path=='/api/projects/create':
+                project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path=='/api/projects/register':
+                project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
+            if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
+            if path.startswith('/api/documents/'):
+                action=path.rsplit('/',1)[-1];store=self.chat.documents
+                if action=='create':self.reply(store.create(data['project'],data['title'],data.get('parent')));return
+                if action=='save':self.reply(store.save(data['path'],data['markdown'],data['revision']));return
+                if action=='save-file':self.reply(store.save_file(data['path'],data['text'],data['revision']));return
+                if action=='delete':store.delete(data['path']);self.reply({'deleted':True});return
+                if action=='comment':self.reply(store.comment(data['path'],data['text'],data.get('anchor','')));return
+                if action=='resolve':self.reply(store.resolve(data['path'],data['id'],data['resolved']));return
+                raise ValueError('Unknown document action')
+            if path=='/api/conversations':raise ValueError('Chats belong to projects. Create or select a project first.')
             parts=path.split('/')
             if len(parts)!=5 or parts[1:3]!=['api','conversations']:self.reply({'error':'Not found'},404);return
             identifier,action=parts[3:]
             self.chat.store.get(identifier)
             if action=='stop':self.reply(self.chat.stop(identifier));return
             if action=='rename':self.reply(self.chat.store.rename(identifier,data.get('title','')));return
+            if action=='delete' and self.chat.store.get(identifier).get('project'):raise ValueError('Project chats are retained with their project')
             if action=='delete':
                 with self.chat.lock:
                     if identifier in self.chat.active:raise ValueError('Stop this conversation before deleting it')
                     self.chat.store.delete(identifier)
                 self.reply({'deleted':True});return
             if action!='send':raise ValueError('Unknown action')
+            if not self.chat.store.get(identifier).get('project'):raise ValueError('This chat has no project; choose a project first')
             self.send_response(200);self.send_header('Content-Type','application/x-ndjson');self.send_header('Cache-Control','no-store');self.end_headers();streaming=True
             def emit(event):
                 self.wfile.write((json.dumps(event,ensure_ascii=False)+'\n').encode());self.wfile.flush()
             try:self.chat.send(identifier,data,emit)
             except (BrokenPipeError,ConnectionResetError):self.chat.stop(identifier)
             except Exception as error:emit({'type':'error','error':str(error)})
-        except (ValueError,KeyError,FileNotFoundError) as error:
-            if not streaming:self.reply({'error':str(error)},400)
+        except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
+            if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)

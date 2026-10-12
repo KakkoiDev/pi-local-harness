@@ -13,7 +13,7 @@ class ServicesTest(unittest.TestCase):
     def test_ready_gate_and_shutdown(self):
         temporary = tempfile.TemporaryDirectory()
         process = subprocess.Popen([sys.executable, 'harness/services.py'], cwd=ROOT,
-            env={**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_WEB_DATA':str(Path(temporary.name)/'web'), 'PI_HARNESS_LOG_FILE':str(Path(temporary.name)/'audit.log')},
+            env={**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA':str(Path(temporary.name)/'workspace'), 'PI_WEB_DATA':str(Path(temporary.name)/'web'), 'PI_HARNESS_LOG_FILE':str(Path(temporary.name)/'audit.log')},
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             line = process.stdout.readline()
@@ -53,18 +53,20 @@ class ServicesTest(unittest.TestCase):
                 self.assertTrue(any(event['outcome']=='BLOCK' for event in activity['events']))
                 self.assertTrue(any(event['outcome']=='DRIFT_DETECTED' for event in activity['events']))
                 self.assertEqual(activity['laya_port'],ports['laya'])
-            conversation=web_post('/api/conversations',{})
+            created=web_post('/api/projects/create',{'name':'HTTP project'})
+            conversation={'id':created['chat']}
             renamed=web_post('/api/conversations/'+conversation['id']+'/rename',{'title':'Japanese audio'})
             self.assertEqual(renamed['title'],'Japanese audio')
             with urllib.request.urlopen(web_base+'/api/conversations') as response:
                 self.assertEqual(len(json.load(response)),1)
             with self.assertRaises(urllib.error.HTTPError) as rejected:
-                web_post('/api/conversations',{},origin='https://untrusted.example')
+                web_post('/api/projects/create',{'name':'Untrusted'},origin='https://untrusted.example')
             self.assertEqual(rejected.exception.code,403);rejected.exception.close()
             with self.assertRaises(urllib.error.HTTPError) as hidden:
                 urllib.request.urlopen(web_base+'/session.log')
             self.assertEqual(hidden.exception.code,404);hidden.exception.close()
-            web_post('/api/conversations/'+conversation['id']+'/delete',{})
+            with urllib.request.urlopen(web_base+'/api/project-files?project=HTTP%20project') as response:
+                self.assertTrue(any(item['name']=='ROADMAP.md' for item in json.load(response)))
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)
         finally:

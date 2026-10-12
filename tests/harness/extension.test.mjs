@@ -15,8 +15,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  const ctx={ui:{notify:text=>notices.push(text),setWidget:(name,lines)=>{if(name==='local-harness')widget=lines;},setStatus:(name,value)=>{status=value;}},
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
- const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,log:process.env.PI_HARNESS_LOG_FILE};
- process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_LAYA_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
+ const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,workspace:process.env.PI_AGENT_DATA,log:process.env.PI_HARNESS_LOG_FILE};
+ process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_AGENT_DATA=join(dir,'workspace');process.env.PI_LAYA_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
  harness(pi,{root:dir+'/',setInterval:(callback,ms)=>{tick=callback;interval=ms;return {unref(){}};}});
  try {
   await handlers.session_start({},ctx);
@@ -83,7 +83,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {
-   const name={laya:'PI_LAYA_PORT',web:'PI_WEB_PORT',data:'PI_WEB_DATA',log:'PI_HARNESS_LOG_FILE'}[key];
+   const name={laya:'PI_LAYA_PORT',web:'PI_WEB_PORT',data:'PI_WEB_DATA',workspace:'PI_AGENT_DATA',log:'PI_HARNESS_LOG_FILE'}[key];
    if(value===undefined) delete process.env[name]; else process.env[name]=value;
   }
   rmSync(dir,{recursive:true});

@@ -1,0 +1,193 @@
+"""Small single-user Markdown workspace. No identities, collaboration, or sync."""
+import hashlib
+import json
+import re
+import threading
+import uuid
+from pathlib import Path
+from datetime import datetime
+
+class DocumentConflict(ValueError):pass
+
+def slug(text):
+    value=re.sub(r'[^\w -]','',str(text)).strip()[:80]
+    if not value or value in {'.','..'}:raise ValueError('Give the project or page a name')
+    return value
+
+class DocumentStore:
+    def __init__(self, root):
+        self.root=Path(root).resolve();self.root.mkdir(parents=True,exist_ok=True)
+        self.projects=self.root/'projects';self.projects.mkdir(exist_ok=True)
+        self.lock=threading.RLock()
+        self.registry_file=self.root/'.projects.json'
+        self.registry=json.loads(self.registry_file.read_text()) if self.registry_file.exists() else {}
+    def path(self, relative):
+        path=Path(relative)
+        if path.is_absolute() or path.suffix.lower()!='.md' or '..' in path.parts:raise ValueError('Invalid Markdown page path')
+        if len(path.parts)<3 or path.parts[0]!='projects':raise ValueError('Invalid project page')
+        project=self.project_path(path.parts[1]);resolved=(project/Path(*path.parts[2:])).resolve()
+        if not resolved.is_relative_to(project):raise ValueError('Page is outside the project folder')
+        return resolved
+    def sidecar(self, relative):
+        directory=self.root/'.comments';directory.mkdir(exist_ok=True)
+        if not directory.resolve().is_relative_to(self.root):raise ValueError('Comments directory is outside the workspace')
+        return directory/(hashlib.sha256(relative.encode()).hexdigest()+'.json')
+    def comments(self, relative):
+        path=self.sidecar(relative)
+        return json.loads(path.read_text()) if path.exists() else []
+    def get(self, relative):
+        with self.lock:
+            path=self.path(relative);text=path.read_text(encoding='utf-8')
+            title=next((line[2:].strip() for line in text.splitlines() if line.startswith('# ')),path.stem)
+            parts=Path(relative).parts
+            return {'path':relative,'title':title,'project':parts[1] if len(parts)>2 else 'Pages','markdown':text,
+                    'revision':hashlib.sha256(text.encode()).hexdigest(),'comments':self.comments(relative)}
+    def list(self):
+        values=[]
+        for project in self.list_projects():
+            for file in self.files(project['id']):
+                if file['path'].endswith('.md'):
+                    try:page=self.get(file['path']);values.append({k:page[k] for k in ('path','title','project','revision')})
+                    except (ValueError,OSError):continue
+        return values
+    def create(self, project, title, parent=None):
+        with self.lock:
+            directory=self.project_path(project) if (project in self.registry or (self.projects/project).exists()) else self.projects/slug(project)
+            directory.mkdir(parents=True,exist_ok=True)
+            if parent:
+                parent_path=self.path(parent)
+                directory=parent_path.parent/parent_path.stem
+            project_root=self.project_path(project)
+            relative='projects/'+project+'/'+str((directory/(slug(title)+'.md')).relative_to(project_root))
+            path=self.path(relative);path.parent.mkdir(parents=True,exist_ok=True)
+            with path.open('x',encoding='utf-8') as handle:handle.write('# '+str(title).strip()+'\n\n')
+            return self.get(relative)
+    def save(self, relative, markdown, revision):
+        if not isinstance(markdown,str) or len(markdown)>150000:raise ValueError('Page must be at most 150,000 characters')
+        with self.lock:
+            current=self.get(relative)
+            if current['revision']!=revision:raise DocumentConflict('This page changed on disk. Reload or copy your draft before merging; your edit was not written.')
+            path=self.path(relative);temporary=path.with_name('.'+path.name+'.'+uuid.uuid4().hex+'.tmp')
+            temporary.write_text(markdown,encoding='utf-8');temporary.replace(path)
+            return self.get(relative)
+    def delete(self, relative):
+        with self.lock:
+            self.get(relative);trash=self.root/'.trash';trash.mkdir(exist_ok=True)
+            if not trash.resolve().is_relative_to(self.root):raise ValueError('Trash directory is outside the workspace')
+            self.path(relative).replace(trash/(uuid.uuid4().hex+'-'+Path(relative).name))
+    def write_comments(self, relative, comments):
+        path=self.sidecar(relative);temporary=path.with_suffix('.tmp');temporary.write_text(json.dumps(comments,ensure_ascii=False,indent=2));temporary.replace(path)
+    def comment(self, relative, text, anchor=''):
+        if not isinstance(text,str) or not text.strip() or len(text)>10000:raise ValueError('Write a comment of at most 10,000 characters')
+        with self.lock:
+            self.get(relative);comments=self.comments(relative)
+            entry={'id':uuid.uuid4().hex,'text':text.strip(),'anchor':str(anchor)[:2000],'created':datetime.now().astimezone().isoformat(timespec='seconds'),'resolved':False,'agent_reply':''}
+            comments.append(entry);self.write_comments(relative,comments);return entry
+    def resolve(self, relative, identifier, resolved):
+        with self.lock:
+            self.get(relative);comments=self.comments(relative)
+            entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('Comment not found')
+            entry['resolved']=bool(resolved);self.write_comments(relative,comments);return entry
+    def mark_sent(self, relative, identifier, chat):
+        with self.lock:
+            comments=self.comments(relative)
+            entry=next(item for item in comments if item['id']==identifier)
+            entry['chat_id']=chat;entry['sent_at']=datetime.now().astimezone().isoformat(timespec='seconds');self.write_comments(relative,comments)
+    def comment_prompt(self, relative, identifier):
+        page=self.get(relative);entry=next((item for item in page['comments'] if item['id']==identifier),None)
+        if not entry:raise ValueError('Comment not found')
+        if entry['resolved']:raise ValueError('This comment is already resolved')
+        return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
+                f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
+                f"User comment: {entry['text']}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"
+                f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in {self.sidecar(relative)}. "
+                "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply.")
+    def project_path(self, project):
+        if not isinstance(project,str) or Path(project).name!=project or project in {'.','..'}:raise ValueError('Invalid project')
+        path=Path(self.registry[project]['path']).resolve() if project in self.registry else (self.projects/project).resolve()
+        if project not in self.registry and not path.is_relative_to(self.projects):raise ValueError('Project is outside the workspace')
+        if not path.is_dir():raise ValueError('Project not found')
+        return path
+    def list_projects(self):
+        with self.lock:
+            result=[{'id':key,**value} for key,value in self.registry.items()]
+            for path in sorted(self.projects.iterdir()):
+                if path.is_dir() and not path.is_symlink() and path.name not in self.registry:
+                    result.append({'id':path.name,'name':path.name,'path':str(path.resolve())})
+            return result
+    def register(self, directory, name=None):
+        supplied=Path(directory).expanduser()
+        if not supplied.is_absolute():raise ValueError('Choose an absolute folder path')
+        path=supplied.resolve()
+        if not path.is_dir():raise ValueError('Choose an existing folder')
+        with self.lock:
+            for project in self.list_projects():
+                if Path(project['path']).resolve()==path:return project['id']
+            identifier=uuid.uuid4().hex
+            self.registry[identifier]={'name':slug(name or path.name),'path':str(path)}
+            temporary=self.registry_file.with_suffix('.tmp');temporary.write_text(json.dumps(self.registry,ensure_ascii=False,indent=2));temporary.replace(self.registry_file)
+            return identifier
+    def create_project(self, name, parent=None):
+        name=slug(name)
+        base=Path(parent).expanduser().resolve() if parent else self.projects
+        if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
+        if not base.is_dir():raise ValueError('Parent folder not found')
+        path=base/name
+        with self.lock:
+            if path.exists():raise ValueError('Project already exists; add its existing folder instead')
+            path.mkdir();(path/'tasks').mkdir()
+            (path/'ROADMAP.md').write_text(f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] Define the first task\n',encoding='utf-8')
+            (path/'tasks'/'001-first-task.md').write_text('# First task\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n',encoding='utf-8')
+            return self.register(str(path),name) if parent else name
+    def directories(self, directory=None):
+        path=Path(directory or Path.home()).expanduser().resolve()
+        if not path.is_dir():raise ValueError('Folder not found')
+        entries=[]
+        for child in sorted(path.iterdir(),key=lambda item:item.name.lower()):
+            if child.is_dir() and not child.name.startswith('.'):
+                entries.append({'name':child.name,'path':str(child.resolve())})
+        return {'path':str(path),'parent':str(path.parent),'directories':entries}
+    def files(self, project):
+        path=self.project_path(project);result=[]
+        ignored={'.git','node_modules','.venv','__pycache__'}
+        import os
+        for directory,dirs,files in os.walk(path,followlinks=False):
+            dirs[:]=sorted(d for d in dirs if d not in ignored and not (Path(directory)/d).is_symlink())
+            for name in sorted(files):
+                file=Path(directory)/name
+                if file.is_symlink():continue
+                result.append({'path':'projects/'+project+'/'+str(file.relative_to(path)),'name':str(file.relative_to(path)),'size':file.stat().st_size})
+                if len(result)>=2000:return result
+        return result
+    def read_file(self, relative):
+        path=Path(relative)
+        if path.is_absolute() or '..' in path.parts or len(path.parts)<3 or path.parts[0]!='projects':raise ValueError('Invalid project file')
+        project=self.project_path(path.parts[1]);file=(project/Path(*path.parts[2:])).resolve()
+        if not file.is_relative_to(project) or not file.is_file():raise ValueError('File not found')
+        if file.stat().st_size>512000:raise ValueError('This file is too large for the text viewer')
+        try:text=file.read_text(encoding='utf-8')
+        except UnicodeDecodeError as error:raise ValueError('This is a binary file, not a text/code file') from error
+        if '\x00' in text:raise ValueError('Binary file')
+        return {'path':relative,'text':text,'revision':hashlib.sha256(text.encode()).hexdigest()}
+    def save_file(self, relative, text, revision):
+        with self.lock:
+            current=self.read_file(relative)
+            if current['revision']!=revision:raise DocumentConflict('File changed on disk; reload before saving.')
+            if not isinstance(text,str) or len(text.encode())>512000:raise ValueError('File is too large')
+            file=(self.project_path(Path(relative).parts[1])/Path(*Path(relative).parts[2:]));temporary=file.with_name('.'+file.name+'.'+uuid.uuid4().hex+'.tmp')
+            temporary.write_text(text,encoding='utf-8');temporary.replace(file)
+            return self.read_file(relative)
+    def snapshot(self, project):
+        path=self.project_path(project)
+        parts=[f'Active project folder: {path}\nUse this folder as the working directory. Read and update its ROADMAP.md and tasks as work proceeds. Do not import other project histories or read other project folders without an explicit user request. Current files below override older snapshots in this chat.']
+        inventory=self.files(project)
+        parts.append('Current file inventory:\n'+'\n'.join(item['name'] for item in inventory[:200]))
+        context_files=[item for item in inventory if item['name'].lower() in {'roadmap.md','readme.md'} or item['name'].startswith('tasks/') and item['name'].endswith('.md')]
+        budget=60000
+        for item in context_files:
+            text=self.read_file(item['path'])['text'];fragment=text[:min(budget,12000)]
+            parts.append(f"Current {item['name']}:\n{fragment}")
+            budget-=len(fragment)
+            if budget<=0:break
+        return '\n\n'.join(parts)

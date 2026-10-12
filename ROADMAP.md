@@ -31,7 +31,7 @@
 - [x] [23-Message Timestamps and Startup Defaults](tasks/23-message-timestamps.md)
 - [x] [24-Roadmap Status Reconciliation](tasks/24-roadmap-status.md)
 
-Last updated: 2026-10-12. See task files for individual completed and remaining steps,
+Last updated: 2026-10-13. See task files for individual completed and remaining steps,
 and harness/README.md for the installed pi workflow.
 
 ## Reliability and portability improvements
@@ -56,3 +56,6 @@ and harness/README.md for the installed pi workflow.
 - [x] [36-Scrolling startup links](tasks/36-scrolling-startup-links.md)
 
 - [x] [37-Home workspace and one active agent](tasks/37-home-single-agent.md)
+
+- [x] [38-Project documents, project chat, and agent queue](tasks/38-project-documents.md)
+- [ ] [39-Dedicated PLH launcher and configuration](tasks/39-plh-launcher.md)

@@ -9,13 +9,23 @@
   <button id="backdrop" aria-label="Close conversation menu" hidden></button>
   <aside id="sidebar" aria-label="Conversations">
     <div class="brand"><span class="logo">π</span><span>Local workspace</span><button id="close-menu" class="icon mobile" aria-label="Close menu">×</button></div>
-    <button id="new-chat" class="new-chat">＋ <span>New conversation</span></button>
-    <div class="sidebar-label">YOUR CONVERSATIONS</div>
-    <nav id="conversations" aria-label="Conversation history"></nav>
+    <button id="new-project" class="new-chat">＋ <span>New project</span></button><button id="add-folder" class="folder-link">Add existing folder</button>
+    <div class="sidebar-label">PROJECTS</div>
+    <nav id="project-list" aria-label="Projects"></nav>
     <div class="sidebar-footer"><span class="online-dot"></span> On your machine <span class="private">Local AI</span></div>
   </aside>
   <main>
-    <header><button id="open-menu" class="icon mobile" aria-label="Open conversation menu" aria-expanded="false">☰</button><div class="model-name">Pi <span id="model">Gemma 4</span></div><nav class="view-tabs" aria-label="Workspace view"><button id="chat-tab" class="active" aria-pressed="true">Chat</button><button id="laya-tab" aria-pressed="false">Laya</button></nav><span class="effort">High thinking</span></header>
+    <header><button id="open-menu" class="icon mobile" aria-label="Open conversation menu" aria-expanded="false">☰</button><div class="model-name">Pi <span id="model">Gemma 4</span></div><nav class="view-tabs" aria-label="Workspace view"><button id="chat-tab" class="active" aria-pressed="true">Chat</button><button id="work-tab" aria-pressed="false">Work</button><button id="laya-tab" aria-pressed="false">Laya</button></nav><span class="effort">High thinking</span></header>
+    <section id="work-panel" hidden>
+      <div class="work-header"><div><h1 id="project-title">Select a project</h1><p id="project-folder"></p></div><button id="project-chat">Open project chat</button></div>
+      <div id="work-status" aria-live="polite"></div><div id="work-queue"></div>
+      <div class="work-layout"><aside class="file-pane"><div class="file-actions"><button id="new-page">＋ Page</button><button id="new-task">＋ Task</button></div><nav id="file-tree" aria-label="Project files"></nav></aside>
+      <div class="document-pane"><div id="document-toolbar"><select id="editor-mode" aria-label="Editor mode"><option value="blocks">Document</option><option value="source">Markdown source</option></select><button id="add-block">＋ Block</button><button id="reload-document">Reload</button><button id="delete-page">Trash page</button><span id="save-status"></span></div>
+      <div id="document-editor" aria-label="Document editor"></div><textarea id="document-source" aria-label="File source" hidden spellcheck="false"></textarea>
+      <form id="document-prompt-form"><textarea id="document-prompt" placeholder="Ask the agent to work on this document…" aria-label="Document prompt"></textarea><button>Send to agent queue</button></form>
+      <section id="comments-panel"><h2>Comments</h2><form id="comment-form"><textarea id="comment-text" placeholder="Select text in the document, then add a comment…" aria-label="Comment"></textarea><button>Add comment</button></form><div id="document-comments"></div></section></div></div>
+    </section>
+    <dialog id="folder-dialog"><h2 id="folder-dialog-title">Choose a folder</h2><label>Project name <input id="folder-name"></label><div class="folder-location"><button id="folder-up">↑ Parent</button><input id="folder-path" aria-label="Folder path"><button id="folder-go">Go</button></div><nav id="folder-list"></nav><p id="folder-error" role="alert"></p><div class="dialog-actions"><button id="folder-cancel">Cancel</button><button id="folder-use">Use this folder</button></div></dialog>
     <section id="laya-panel" hidden aria-label="Laya activity">
       <div class="laya-heading"><div><h1>Laya activity</h1><p>Before execution: approve or block. After execution: verify the result.</p></div><span id="laya-live" class="status">Connecting…</span></div>
       <div class="laya-controls"><label>Show <select id="laya-filter"><option value="all">All checks</option><option value="gate">Pre-execution</option><option value="audit">Audits</option><option value="failures">Blocks & failures</option></select></label><button id="laya-refresh">Refresh</button></div>
@@ -23,7 +33,7 @@
       <div id="laya-events" aria-live="polite"></div>
     </section>
     <section id="thread" aria-label="Messages" tabindex="0">
-      <div id="welcome"><div class="welcome-mark">π</div><h1>What are we working on?</h1><p>A quiet place to think, build, and explore.</p><div class="suggestions"><button data-prompt="Help me understand a piece of code">Understand some code <span>↗</span></button><button data-prompt="Describe the image I attach">Explore an image <span>↗</span></button><button data-prompt="Transcribe and summarize the audio I attach">Listen to a recording <span>↗</span></button></div></div>
+      <div id="welcome"><div class="welcome-mark">π</div><h1>What are we working on?</h1><p>Choose a project folder to begin. Its chat, roadmap, tasks, and files stay together.</p><div class="suggestions"><button data-prompt="Help me understand a piece of code">Understand some code <span>↗</span></button><button data-prompt="Describe the image I attach">Explore an image <span>↗</span></button><button data-prompt="Transcribe and summarize the audio I attach">Listen to a recording <span>↗</span></button></div></div>
       <div id="messages" aria-live="polite" aria-relevant="additions"></div>
     </section>
     <div class="composer-wrap">

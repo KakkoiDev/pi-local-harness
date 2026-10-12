@@ -55,7 +55,7 @@ class RpcBridgeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);executable=root/'pi'
             executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
-            chat=WebChat(root/'data',12345,3000);conversation=chat.store.create();events=[]
+            chat=WebChat(root/'data',12345,3000);self.addCleanup(chat.close);conversation=chat.store.create();events=[]
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
                 chat.send(conversation['id'],{'message':'Hello'},events.append)
                 chat.send(conversation['id'],{'message':'Continue'},events.append)
@@ -76,7 +76,7 @@ class RpcBridgeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);executable=root/'pi'
             executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
-            chat=WebChat(root/'data',12345,3000);conversation=chat.store.create();errors=[]
+            chat=WebChat(root/'data',12345,3000);self.addCleanup(chat.close);conversation=chat.store.create();errors=[]
             def run():
                 try:chat.send(conversation['id'],{'message':'TEST_WAIT'},lambda _:None)
                 except ValueError as error:errors.append(str(error))
@@ -96,9 +96,33 @@ class SingleAgentTest(unittest.TestCase):
         from harness.web_chat import WebChat
         import threading
         with tempfile.TemporaryDirectory() as directory:
-            chat=WebChat(Path(directory),12345,3000)
+            chat=WebChat(Path(directory),12345,3000);self.addCleanup(chat.close)
             first=chat.store.create();second=chat.store.create()
             chat.active[first['id']]={'process':None,'cancel':threading.Event()}
             with self.assertRaisesRegex(ValueError,'one agent'):
                 chat.send(second['id'],{'message':'Hello'},lambda _:None)
             self.assertEqual(chat.store.get(second['id'])['messages'],[])
+
+class ProjectContextTest(unittest.TestCase):
+    def test_each_project_resumes_own_session_and_refreshes_roadmap(self):
+        import os, sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'chats',12345,3000,data_root=root/'workspace');self.addCleanup(chat.close)
+            first=chat.documents.create_project('First');second=chat.documents.create_project('Second')
+            one=chat.project_chat(first);two=chat.project_chat(second)
+            self.assertEqual(one['id'],chat.project_chat(first)['id']);self.assertNotEqual(one['id'],two['id'])
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+                chat.send(one['id'],{'message':'First history'},lambda _:None)
+                chat.send(two['id'],{'message':'Second history'},lambda _:None)
+                roadmap=chat.documents.project_path(first)/'ROADMAP.md';roadmap.write_text('# Fresh roadmap unique marker')
+                chat.send(one['id'],{'message':'Continue first'},lambda _:None)
+            request=json.loads((chat.store.folder(one['id'])/'session.request.json').read_text())
+            self.assertIn('Fresh roadmap unique marker',request['message']);self.assertNotIn('Second history',request['message'])
+            self.assertEqual(chat.store.get(one['id'])['messages'][-1]['content'],'[CANARY] reply 2')
+            self.assertEqual(chat.store.get(two['id'])['messages'][-1]['content'],'[CANARY] reply 1')
+            capture=json.loads((chat.store.folder(one['id'])/'session.environment.json').read_text())
+            self.assertEqual(Path(capture['cwd']),chat.documents.project_path(first))
