@@ -63,6 +63,6 @@ and harness/README.md for the installed pi workflow.
 - [x] [40-Correct harness data directory and first-launch config](tasks/40-harness-data-directory.md)
 
 - [x] [41-Workbench navigation and visual polish](tasks/41-workbench-ux.md)
-- [ ] [42-Draft safety and resilient live UX](tasks/42-resilient-ux.md)
+- [x] [42-Draft safety and resilient live UX](tasks/42-resilient-ux.md)
 
 - [x] [43-Document comments and Markdown activity](tasks/43-document-comments-activity.md)

@@ -16,6 +16,7 @@ emit({'type':'agent_start'})
 if request['message'].rstrip().endswith('TEST_WAIT'):
     time.sleep(60)
 else:
+    emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})
     text=f'[CANARY] reply {count}'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})

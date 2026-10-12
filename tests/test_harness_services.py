@@ -59,6 +59,9 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(renamed['title'],'Japanese audio')
             with urllib.request.urlopen(web_base+'/api/conversations') as response:
                 self.assertEqual(len(json.load(response)),1)
+            for invalid in [{'project':created['project'],'message':42},{'project':created['project'],'message':'Hello','document_comment':{'path':'x','id':'bad'}}]:
+                with self.assertRaises(urllib.error.HTTPError) as malformed:web_post('/api/jobs/create',invalid)
+                self.assertEqual(malformed.exception.code,400);malformed.exception.close()
             with self.assertRaises(urllib.error.HTTPError) as rejected:
                 web_post('/api/projects/create',{'name':'Untrusted'},origin='https://untrusted.example')
             self.assertEqual(rejected.exception.code,403);rejected.exception.close()
