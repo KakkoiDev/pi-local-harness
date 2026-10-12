@@ -88,3 +88,6 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
 
 ## Pi harness memory location
 Pi's global instruction file is `~/.pi/agent/AGENTS.md`. The local harness reloads it before each turn and after compaction. Incident lessons go into that same file. See `harness/README.md` for service startup, deterministic recovery, image paths, and local speech transcription.
+
+## Laya pre-execution guidance
+Read `readme.md` for the current harness architecture. Laya checks tool proposals before execution, allows ordinary shell diagnostics and scoped cleanup, and returns specific model-visible correction for broad destructive operations. Do not treat a blocked command as a broken bash tool or bypass the guard. Global Pi memory uses `AGENTS.md`.

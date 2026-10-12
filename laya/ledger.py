@@ -18,6 +18,7 @@ class ProposalLedger:
         outcome = self.engine.gatekeep(proposal, auth_level)
         response = {'outcome': outcome.value}
         if outcome != ActionOutcome.ALLOW:
+            response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Laya policy.'
             return response
         expected = None
         if pi_tool in ('write', 'edit'):

@@ -23,6 +23,12 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(interval,10000);
   assert.match(notices.join('\n'),/Laya: http.*Web: http/s);
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
+  const blocked=await handlers.tool_call({toolCallId:'danger',toolName:'bash',input:{command:'sudo rm -fr *'}});
+  assert.equal(blocked.block,true);
+  assert.match(blocked.reason,/not executed/);
+  assert.match(blocked.reason,/Recursive deletion/);
+  assert.match(blocked.reason,/narrowly scoped/);
+  assert.doesNotMatch(blocked.reason,/same blocked tool class/);
   const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'whoami'}};
   assert.equal(await handlers.tool_call(bash),undefined);
   assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);

@@ -45,12 +45,12 @@ Configuration:
 | `PI_LAYA_PORT` | `8000` | Laya port; `0` chooses an available port |
 | `PI_WEB_PORT` | `3000` | Frontend port; `0` chooses an available port |
 | `PI_HANG_MS` | `60000` | Maximum thought stream inactivity |
-| `PI_LAYA_AUTH` | `admin` | Local coding profile; `standard` explicitly blocks shell commands |
+| `PI_LAYA_AUTH` | `admin` | Authorization profile; both profiles apply the destructive-shell guard |
 | `PI_HARNESS_MEMORY` | global `AGENTS.md` | Override memory file |
 | `PI_WHISPER_MODEL` | `mlx-community/whisper-base-mlx` | Local speech model |
 
-Shell commands are allowed by default for local coding sessions. Set `PI_LAYA_AUTH=standard`
-to explicitly restrict shell execution. Unknown tools remain blocked.
+Ordinary shell commands are allowed in both profiles. Broad destructive operations are
+blocked before execution with a reason delivered to the model. Unknown tools remain blocked.
 Laya judges actual pi tool calls through `/gatekeep` and audits their results through `/audit`.
 The legacy website `/chat` endpoint remains a demo echo; it is not a connection to the pi session.
 The standalone log-based Sentinel is retired because log inactivity cannot identify active model hangs.

@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from typing import Any, Dict, Optional
+from .shell_guard import destructive_reason
 from .models import ActionProposal, ExecutionResult, JudgmentEvent, ActionOutcome, ToolRiskCategory
 
 class LayaEngine:
@@ -11,7 +12,7 @@ class LayaEngine:
             "tools": {
                 "read_file": ToolRiskCategory.READ_ONLY,
                 "write_file": ToolRiskCategory.REVERSIBLE_WRITE,
-                "execute_command": ToolRiskCategory.HIGH_RISK,
+                "execute_command": ToolRiskCategory.REVERSIBLE_WRITE,
                 "get_news": ToolRiskCategory.READ_ONLY
             },
             "auth_levels": {
@@ -20,23 +21,30 @@ class LayaEngine:
             }
         }
 
+    def rejection_reason(self, proposal: ActionProposal, auth_level: str = "standard"):
+        """Stateless explanation shared by the pre-action decision and model feedback."""
+        if proposal.tool_name not in self.policies['tools']:
+            return f"Unknown tool: {proposal.tool_name}. Use a supported tool."
+        if proposal.tool_name == 'execute_command':
+            command = proposal.args.get('command', proposal.args.get('cmd', proposal.args.get('script', '')))
+            if not isinstance(command, str):
+                return 'Shell command must be a string.'
+            reason = destructive_reason(command)
+            if reason:
+                return reason
+        risk = self.policies['tools'][proposal.tool_name]
+        if risk not in self.policies['auth_levels'].get(auth_level, []):
+            return f"Profile {auth_level} does not authorize {proposal.tool_name}."
+        return None
+
     def gatekeep(self, proposal: ActionProposal, auth_level: str = "standard") -> ActionOutcome:
         """Pre-action check."""
         tool_name = proposal.tool_name
+        reason = self.rejection_reason(proposal, auth_level)
+        if reason:
+            print(f"[Laya-Gatekeeper] BLOCK: {reason}")
+            return ActionOutcome.BLOCK
         
-        # 1. Existence Check
-        if tool_name not in self.policies["tools"]:
-            print(f"[Laya-Gatekeeper] ❌ Tool '{tool_name}' not recognized.")
-            return ActionOutcome.BLOCK
-
-        risk_category = self.policies["tools"][tool_name]
-
-        # 2. Policy Check
-        allowed_risks = self.policies["auth_levels"].get(auth_level, [])
-        if risk_category not in allowed_risks:
-            print(f"[Laya-Gatekeeper] ❌ Action '{tool_name}' (Risk: {risk_category.name}) denied for auth: {auth_level}")
-            return ActionOutcome.BLOCK
-
         print(f"[Laya-Gatekeeper] ✅ Action '{tool_name}' allowed.")
         return ActionOutcome.ALLOW
 

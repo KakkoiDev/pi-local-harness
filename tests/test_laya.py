@@ -19,7 +19,7 @@ class TestLayaEngine(unittest.TestCase):
         self.assertEqual(outcome, ActionOutcome.ALLOW)
 
     def test_gatekeeper_block_high_risk(self):
-        proposal = ActionProposal(tool_name="execute_command", args={"cmd": "ls"}, reason="Running a command")
+        proposal = ActionProposal(tool_name="execute_command", args={"cmd": "rm -fr *"}, reason="Running a command")
         outcome = self.engine.gatekeep(proposal, auth_level="standard")
         self.assertEqual(outcome, ActionOutcome.BLOCK)
 

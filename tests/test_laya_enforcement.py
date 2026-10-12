@@ -22,8 +22,10 @@ class EnforcementTest(unittest.TestCase):
         self.assertEqual(result.proposal.args,{'path':'one'})
         with self.assertRaises(KeyError): self.ledger.complete(gate['proposal_id'],'read_file',{},'',0)
     def test_blocked_calls_have_no_audit_token(self):
-        gate=self.ledger.propose('execute_command',{},'standard')
+        gate=self.ledger.propose('execute_command',{'command':'rm -fr *'},'standard')
         self.assertEqual(gate['outcome'],'BLOCK');self.assertNotIn('proposal_id',gate)
+        self.assertIn('Recursive deletion',gate['reason'])
+        self.assertEqual(self.ledger.pending,{})
         with self.assertRaises(KeyError): self.ledger.complete('invented','read_file',{},'',0)
     def test_failures_and_wrong_tool_cannot_pass(self):
         gate=self.ledger.propose('read_file',{},'standard')

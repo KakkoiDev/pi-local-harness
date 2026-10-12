@@ -22,7 +22,7 @@ class ServicesTest(unittest.TestCase):
             base = f"http://127.0.0.1:{ports['laya']}"
             with urllib.request.urlopen(base + '/health', timeout=3) as response:
                 self.assertTrue(json.load(response)['laya'])
-            for auth, expected in [('standard', 'BLOCK'), ('admin', 'ALLOW')]:
+            for auth, expected in [('standard', 'ALLOW'), ('admin', 'ALLOW')]:
                 request = urllib.request.Request(base + '/gatekeep', data=json.dumps({
                     'tool_name': 'execute_command', 'args': {'cmd':'echo hi'}, 'auth_level':auth,
                 }).encode(), headers={'Content-Type':'application/json'})
@@ -31,6 +31,10 @@ class ServicesTest(unittest.TestCase):
             def post(path, body):
                 request=urllib.request.Request(base+path,data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
                 with urllib.request.urlopen(request,timeout=3) as response:return json.load(response)
+            blocked=post('/gatekeep',{'tool_name':'execute_command','args':{'command':'rm -fr *'},'auth_level':'admin'})
+            self.assertEqual(blocked['outcome'],'BLOCK')
+            self.assertIn('Recursive deletion',blocked['reason'])
+            self.assertNotIn('proposal_id',blocked)
             gate=post('/gatekeep',{'tool_name':'read_file','args':{'path':'original'}})
             audit=post('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'read_file','args':{'path':'changed'},'exit_code':0})
             self.assertEqual(audit['status'],'DRIFT_DETECTED')
