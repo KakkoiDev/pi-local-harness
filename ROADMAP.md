@@ -52,3 +52,5 @@ and harness/README.md for the installed pi workflow.
 - [x] [35-Single startup display and visible links](tasks/35-startup-display.md)
 
 - [x] [34-Live Laya activity tab](tasks/34-laya-tab.md)
+
+- [x] [36-Scrolling startup links](tasks/36-scrolling-startup-links.md)

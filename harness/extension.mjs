@@ -6,6 +6,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { localModels } from './provider.mjs';
 import { attachMedia } from './media.mjs';
+import { installStartupDisplay } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
@@ -15,6 +16,7 @@ const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 const names = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 export default function harness(pi, dependencies = {}) {
   installTimestamps(pi, dependencies.timestamps);
+  const showStartup = installStartupDisplay(pi);
   const root = dependencies.root || moduleRoot;
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi/agent');
   const globalMemory = join(agentDir, 'AGENTS.md');
@@ -82,11 +84,10 @@ export default function harness(pi, dependencies = {}) {
         });
       });
       const lines = [`Laya: http://127.0.0.1:${ports.laya}`, `Web: http://127.0.0.1:${ports.web}`, 'Loop check: every 10 seconds'];
-      // OSC 8 links are understood by Pi's TUI and hyperlink-capable terminals.
-      const linkedLines = lines.map(line => line.replace(/http:\/\/127\.0\.0\.1:\d+/g, url => `\x1b[4;36m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[0m`));
-      ctx.ui.setWidget('local-harness', linkedLines);
-      ctx.ui.setStatus('local-harness', `Laya :${ports.laya} | Web :${ports.web}`);
-      if (ctx.hasUI === false) notify(lines.join('\n'));
+      ctx.ui.setWidget('local-harness', undefined);
+      ctx.ui.setStatus('local-harness', undefined);
+      showStartup(lines);
+      if (ctx.hasUI === false || process.argv.some((arg, index) => arg === '--mode=rpc' || (arg === '--mode' && process.argv[index + 1] === 'rpc'))) notify(lines.join('\n'));
       timer = schedule(() => {
         if (!watch.active || pending) return;
         const triple = watch.loop();

@@ -3,7 +3,8 @@
 Start with `pi` after installing the extension (`python3 harness/install.py`), or use
 `./start.sh`. The harness starts two local services and prints their actual ports:
 Laya API (8000) and web interface (3000). Their console URLs are clickable terminal
-hyperlinks; use your terminal’s link-opening gesture. Whisper loads only when audio is submitted.
+hyperlinks in a startup transcript entry that scrolls away with the conversation;
+use your terminal’s link-opening gesture. Whisper loads only when audio is submitted.
 See [configuration and installation](harness/README.md).
 
 ## Architecture: who does what
