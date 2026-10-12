@@ -3,7 +3,16 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#171819"><title>Pi · Project workspace</title>
-  <link rel="stylesheet" href="/chat.css"><script type="module" src="/js/chat.mjs"></script>
+  <link rel="stylesheet" href="/chat.css">
+  <script type="module">
+    import('/js/chat.mjs').catch(() => {
+      const alert = document.createElement('p');
+      alert.id = 'startup-error';
+      alert.setAttribute('role', 'alert');
+      alert.textContent = 'Workbench could not load. After updating, close the running PLH session, start plh again, and reload this page.';
+      document.querySelector('header').after(alert);
+    });
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#thread">Skip to conversation</a>

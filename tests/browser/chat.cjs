@@ -11,7 +11,7 @@ const readline = require('node:readline');
  const python=execFileSync('which',['python3'],{encoding:'utf8'}).trim();
  const fake=join(directory,'pi');
  writeFileSync(fake,`#!${python}\n`+require('node:fs').readFileSync('tests/fixtures/fake-pi.py','utf8'));chmodSync(fake,0o755);
- const server=spawn('python3',['harness/services.py'],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_LAYA_PORT:'0',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
+ const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_LAYA_PORT:'0',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
  let browser;
  try{
   const lines=readline.createInterface({input:server.stdout});
@@ -19,6 +19,13 @@ const readline = require('node:readline');
   browser=await chromium.launch({headless:true,...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:950}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  // Reproduce the installed failure: an older running server cannot serve a
+  // newly installed module. Report recovery instead of presenting dead tabs.
+  await page.route('**/js/ui.mjs',route=>route.fulfill({status:404,body:'Not found'}));
+  await page.goto(`http://127.0.0.1:${ports.web}`);
+  await page.locator('#startup-error').waitFor();
+  assert.match(await page.locator('#startup-error').textContent(),/start plh again/);
+  await page.unroute('**/js/ui.mjs');
   await page.goto(`http://127.0.0.1:${ports.web}`);
   await page.getByRole('button',{name:'Create your first project',exact:true}).waitFor();
   assert.equal(await page.locator('#prompt').isDisabled(),true);
@@ -106,7 +113,8 @@ const readline = require('node:readline');
   await page.locator('#project-chat').click();await page.locator('#prompt').fill('A draft for this project 日本語');await page.reload();await page.waitForFunction(()=>document.querySelector('#prompt').value.includes('A draft for this project 日本語'));
   await page.locator('#prompt').fill('');await page.keyboard.press('Control+k');assert.equal(await page.locator('#project-search').evaluate(element=>element===document.activeElement),true);
   await page.route('**/api/workspace',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"temporary offline"}'}));await page.locator('#connection-retry').waitFor();await page.unroute('**/api/workspace');await page.locator('#connection-retry').click();await page.locator('#connection-retry').waitFor({state:'hidden'});
-  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});for(const tab of ['chat','work','activity','laya']){await page.locator('#'+tab+'-tab').click();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,tab+' overflows at '+width);}}
+  const panels={chat:'#thread',work:'#work-panel',activity:'#activity-panel',laya:'#laya-panel'};
+  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});for(const tab of Object.keys(panels)){await page.locator('#'+tab+'-tab').click();for(const [name,panel] of Object.entries(panels)){assert.equal(await page.locator(panel).isVisible(),name===tab,tab+' panel selection at '+width);assert.equal(await page.locator('#'+name+'-tab').getAttribute('aria-pressed'),String(name===tab));}assert.equal(await page.locator('.composer-wrap').isVisible(),tab==='chat');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,tab+' overflows at '+width);}}
   await page.setViewportSize({width:1440,height:950});await page.locator('#work-tab').click();await page.screenshot({path:'/private/tmp/plh-work-desktop.png'});await page.locator('#activity-tab').click();await page.screenshot({path:'/private/tmp/plh-activity-desktop.png'});
   await page.setViewportSize({width:390,height:844});await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('#sidebar').getBoundingClientRect().right<=0);assert.equal(await page.evaluate(()=>scrollX),0);await page.screenshot({path:'/private/tmp/plh-activity-mobile.png'});
   assert.deepEqual(errors,[]);

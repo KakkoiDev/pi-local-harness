@@ -24,6 +24,11 @@ Re-run the installer after updating the source. It backs up previous installatio
 and detaches the recognized old global harness extension and its model defaults,
 preserving unrelated Pi settings, packages, extensions, and custom instructions.
 
+After installing an update, close the running PLH session, start `plh` again,
+and reload the browser. Servers retain their loaded Python code until restarted;
+mixing an old server with newly installed browser modules can leave all tabs
+unresponsive. A module loading failure now displays these recovery instructions.
+
 The console prints actual service URLs once, as colored, underlined terminal links.
 They scroll away with the transcript. Startup fails clearly if a configured port is
 already occupied; it never kills another process. Closing Pi stops its services.
