@@ -21,10 +21,11 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   await handlers.session_start({},ctx);
   assert.ok(tick,notices.join('\n'));
   assert.equal(interval,10000);
-  assert.match(notices.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,''),/Laya: http.*Web: http/s);
+  assert.equal(notices.filter(text=>text.includes('Loop check: every 10 seconds')).length,0);
+  assert.match(widget.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,''),/Laya: http.*Web: http/s);
   for (const [index,label] of ['Laya','Web'].entries()) {
    const url=widget[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
-   assert.equal(widget[index], `${label}: \x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\`);
+   assert.equal(widget[index], `${label}: \x1b[4;36m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[0m`);
   }
   assert.equal(widget[2],'Loop check: every 10 seconds');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);

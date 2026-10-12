@@ -48,3 +48,5 @@ and harness/README.md for the installed pi workflow.
 - [x] [32-Mobile multimodal web chat](tasks/32-web-chat.md)
 
 - [x] [33-Clickable Pi service URLs](tasks/33-clickable-service-links.md)
+
+- [x] [35-Single startup display and visible links](tasks/35-startup-display.md)
