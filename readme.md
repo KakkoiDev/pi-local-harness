@@ -35,7 +35,9 @@ creates a folder with `ROADMAP.md` and `tasks/001-first-task.md`. **Add existing
 folder** registers any accessible folder in place; it does not move its files.
 Projects can live anywhere. Registration alone does not create or overwrite docs.
 
-The left sidebar contains projects. Each project has exactly one persistent chat.
+The left sidebar contains projects and a search field (⌘/Ctrl K). Project and
+file searches stay scoped to their lists. The browser remembers the last project,
+view, and selected document. First-run actions guide you to create/register a folder. Each project has exactly one persistent chat.
 The **Work** tab shows its actual folder, file tree, active work, queue, roadmap,
 and task documents. Edit Markdown as heading, paragraph, list, checkbox, quote,
 and code blocks, or switch to Markdown source. Unsupported Markdown is retained

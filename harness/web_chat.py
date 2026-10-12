@@ -268,7 +268,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs'}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs'}
                 if path not in allowed:self.reply({'error':'Not found'},404);return
                 file=ROOT/allowed[path];mime=mimetypes.guess_type(str(file))[0] or 'text/plain';disposition=None
             body=file.read_bytes();self.send_response(200);self.send_header('Content-Type',mime)
