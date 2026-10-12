@@ -62,5 +62,5 @@ def install(prefix, agent, data):
     print(f'PLH: {binary}/plh\nPackage: {target}\nConfig: {data}/config.json\nPlain Pi: harness extension detached; unrelated settings preserved.')
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--prefix',default=str(Path.home()/'.local'));parser.add_argument('--agent-dir',default=os.getenv('PI_CODING_AGENT_DIR',str(Path.home()/'.pi/agent')));parser.add_argument('--data-dir',default=os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-agent-data')))
+    parser=argparse.ArgumentParser();parser.add_argument('--prefix',default=str(Path.home()/'.local'));parser.add_argument('--agent-dir',default=os.getenv('PI_CODING_AGENT_DIR',str(Path.home()/'.pi/agent')));parser.add_argument('--data-dir',default=os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data')))
     args=parser.parse_args();install(args.prefix,args.agent_dir,args.data_dir)

@@ -13,14 +13,14 @@ project folder. Plain `pi` does not auto-load the harness after legacy migration
 The installer preserves unknown/custom Pi instructions; check those separately
 if you intentionally added your own harness references.
 
-Configuration lives in `~/pi-local-agent-data/config.json`. Shared instructions
-are `~/pi-local-agent-data/AGENTS.md`, following Pi's plural instruction filename.
+Configuration lives in `~/pi-local-harness-data/config.json`. Shared instructions
+are `~/pi-local-harness-data/AGENTS.md`, following Pi's plural instruction filename.
 PLH explicitly injects this file before turns and after recovery; it need not live
 in Pi's global directory. Project-local Pi instructions can also apply.
 
 | Environment | Default | Purpose |
 |---|---|---|
-| `PI_AGENT_DATA` | `~/pi-local-agent-data` | Registry, memory, queue, shared agent lock |
+| `PI_AGENT_DATA` | `~/pi-local-harness-data` | Registry, memory, queue, shared agent lock |
 | `PI_LAYA_PORT` | Config: 8000 | Laya; 0 chooses a port |
 | `PI_WEB_PORT` | Config: 3000 | Web; 0 chooses a port |
 | `PI_HANG_MS` | 60000 | Thought stream inactivity timeout |

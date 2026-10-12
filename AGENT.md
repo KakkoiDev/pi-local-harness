@@ -6,7 +6,7 @@ This repository is a single-agent local project workbench. `plh.py` starts Pi fr
 home with explicit harness loading; ordinary `pi` remains independent. The web
 queue resumes one chat per registered project and runs tools in that folder.
 Workers share Laya and never start duplicate services. Shared runtime memory is
-~/pi-local-agent-data/AGENTS.md; do not copy project chats into it.
+~/pi-local-harness-data/AGENTS.md; do not copy project chats into it.
 
 ## Request-to-Task Pipeline
 

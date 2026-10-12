@@ -20,7 +20,7 @@ def configuration(directory):
     return settings
 
 def main():
-    directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-agent-data'))).expanduser().resolve()
+    directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))).expanduser().resolve()
     settings=configuration(directory)
     memory=directory/'AGENTS.md'
     if not memory.exists():memory.write_text((ROOT/'harness/AGENTS.md').read_text())

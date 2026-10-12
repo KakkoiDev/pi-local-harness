@@ -65,13 +65,16 @@ characters per turn, with a 12,000-character limit per document.
 
 ## Data and configuration
 
-`~/pi-local-agent-data` contains shared `AGENTS.md`, `config.json`, `.projects.json`
+`~/pi-local-harness-data` contains shared `AGENTS.md`, `config.json`, `.projects.json`
 (folder registry), `.queue.json`, `.comments/`, `.trash/`, and `chats/` (metadata,
 Pi session files, uploads). `projects/` stores projects created through the API
 without a chosen external parent. Registered external projects stay in place.
 Chat transcripts are never automatically copied into shared memory.
 
-Edit `~/pi-local-agent-data/config.json`, then restart `plh`:
+The first `plh` launch creates this directory, a default `config.json`, and
+`AGENTS.md` if they are missing. Later launches preserve existing configuration.
+
+Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 
 ```json
 {

@@ -59,3 +59,5 @@ and harness/README.md for the installed pi workflow.
 
 - [x] [38-Project documents, project chat, and agent queue](tasks/38-project-documents.md)
 - [x] [39-Dedicated PLH launcher and configuration](tasks/39-plh-launcher.md)
+
+- [x] [40-Correct harness data directory and first-launch config](tasks/40-harness-data-directory.md)

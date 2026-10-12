@@ -46,3 +46,17 @@ class LauncherTest(unittest.TestCase):
             root=Path(directory);binary=root/'prefix/bin';binary.mkdir(parents=True);(binary/'plh').write_text('user command')
             with self.assertRaisesRegex(RuntimeError,'unrelated command'):install(root/'prefix',root/'agent',root/'data')
             self.assertEqual((binary/'plh').read_text(),'user command');self.assertFalse((root/'prefix/share').exists())
+
+    def test_first_launch_creates_harness_data_and_preserves_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home=Path(directory).resolve();fake=home/'pi'
+            fake.write_text('#!'+sys.executable+'\nimport os,json\nprint(json.dumps({"data":os.environ["PI_AGENT_DATA"]}))\n');fake.chmod(0o755)
+            env={**os.environ,'HOME':str(home),'PATH':str(home)+os.pathsep+os.environ['PATH']}
+            env.pop('PI_AGENT_DATA',None)
+            def launch():return subprocess.run([sys.executable,str(ROOT/'plh.py')],env=env,capture_output=True,text=True,check=True)
+            record=json.loads(launch().stdout);data=home/'pi-local-harness-data'
+            self.assertEqual(record['data'],str(data));self.assertTrue((data/'AGENTS.md').exists())
+            settings=json.loads((data/'config.json').read_text());self.assertEqual(settings['effort'],'high')
+            settings['effort']='medium';(data/'config.json').write_text(json.dumps(settings));launch()
+            self.assertEqual(json.loads((data/'config.json').read_text())['effort'],'medium')
+            self.assertFalse((home/'pi-local-agent-data').exists())
