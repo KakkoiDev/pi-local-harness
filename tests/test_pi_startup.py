@@ -14,12 +14,8 @@ class PiStartupTest(unittest.TestCase):
     def test_real_pi_extension_loads_and_exposes_vision(self):
         with tempfile.TemporaryDirectory(prefix='pi-startup-') as directory:
             Path(directory, 'AGENTS.md').write_text('Start every response with [CANARY].')
-            subprocess.run(['python3', str(ROOT / 'harness/configure_startup.py')],
-                env={**os.environ, 'PI_CODING_AGENT_DIR':directory}, check=True, capture_output=True)
-            process = subprocess.Popen(['pi', '--offline', '--mode', 'rpc', '--no-session', '--no-mcp',
-                '--no-extensions', '--extension', str(ROOT / '.pi/extensions/local-harness.ts'),
-                ], cwd=ROOT,
-                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_LAYA_PORT':'0', 'PI_WEB_PORT':'0', 'PI_WEB_DATA':str(Path(directory)/'web')},
+            process = subprocess.Popen(['python3', str(ROOT / 'plh.py'), '--mode', 'rpc', '--no-session', '--no-mcp'], cwd=ROOT,
+                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_AGENT_DATA':str(Path(directory)/'workspace'), 'PI_LAYA_PORT':'0', 'PI_WEB_PORT':'0', 'PI_WEB_DATA':str(Path(directory)/'web')},
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             try:
                 process.stdin.write(json.dumps({'id':'state','type':'get_state'})+'\n')

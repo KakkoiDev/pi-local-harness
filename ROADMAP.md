@@ -40,7 +40,7 @@ and harness/README.md for the installed pi workflow.
 - [ ] [26-Verified incident memory](tasks/26-verified-memory.md)
 - [ ] [27-Recovery console](tasks/27-recovery-console.md)
 - [ ] [28-Japanese audio evaluation](tasks/28-japanese-audio.md)
-- [ ] [29-Portable pi package](tasks/29-portable-package.md)
+- [x] [29-Portable pi package](tasks/29-portable-package.md)
 - [ ] [30-Local evaluation suite](tasks/30-local-evaluations.md)
 
 - [x] [31-Destructive shell guard and architecture guide](tasks/31-destructive-shell-guard.md)
@@ -58,4 +58,4 @@ and harness/README.md for the installed pi workflow.
 - [x] [37-Home workspace and one active agent](tasks/37-home-single-agent.md)
 
 - [x] [38-Project documents, project chat, and agent queue](tasks/38-project-documents.md)
-- [ ] [39-Dedicated PLH launcher and configuration](tasks/39-plh-launcher.md)
+- [x] [39-Dedicated PLH launcher and configuration](tasks/39-plh-launcher.md)

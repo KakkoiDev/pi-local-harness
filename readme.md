@@ -1,152 +1,176 @@
-# Pi local AI harness
+# Pi local harness
 
-Start with `pi` after installing the extension (`python3 harness/install.py`), or use
-`./start.sh`. The harness starts two local services and prints their actual ports:
-Laya API (8000) and web interface (3000). Their console URLs are clickable terminal
-hyperlinks in a startup transcript entry that scrolls away with the conversation;
-use your terminal’s link-opening gesture. Whisper loads only when audio is submitted.
-See [configuration and installation](harness/README.md).
+A local workbench for **one agent, one chat per project, and real Markdown files**.
+Start `plh` (or `pi-local-harness`) from any directory. It starts Pi in your home
+directory, Laya on port **8000**, and the web workbench on **3000**. Plain `pi` keeps
+its normal behavior. Whisper loads only when you submit audio.
+
+## Install and start
+
+Requirements: Pi's `pi` command, Python 3, a running local Ollama-compatible model
+server, and `uv` for audio transcription.
+
+```sh
+python3 harness/install.py
+plh
+# From a checkout, without installing:
+./start.sh
+```
+
+The installer copies the runtime into `~/.local/share/pi-local-harness` and creates
+`~/.local/bin/plh` and `~/.local/bin/pi-local-harness`. Put `~/.local/bin` on your PATH
+if necessary. The installed runtime survives moving or deleting the checkout.
+Re-run the installer after updating the source. It backs up previous installations
+and detaches the recognized old global harness extension and its model defaults,
+preserving unrelated Pi settings, packages, extensions, and custom instructions.
+
+The console prints actual service URLs once, as colored, underlined terminal links.
+They scroll away with the transcript. Startup fails clearly if a configured port is
+already occupied; it never kills another process. Closing Pi stops its services.
+
+## Projects, documents, and chat
+
+Open the printed Web URL. **New project** lets you choose a parent directory and
+creates a folder with `ROADMAP.md` and `tasks/001-first-task.md`. **Add existing
+folder** registers any accessible folder in place; it does not move its files.
+Projects can live anywhere. Registration alone does not create or overwrite docs.
+
+The left sidebar contains projects. Each project has exactly one persistent chat.
+The **Work** tab shows its actual folder, file tree, active work, queue, roadmap,
+and task documents. Edit Markdown as heading, paragraph, list, checkbox, quote,
+and code blocks, or switch to Markdown source. Unsupported Markdown is retained
+as raw text; this is a small block editor, not a complete Notion renderer.
+Changes autosave to the actual files. Concurrent filesystem changes produce a
+version conflict rather than silently overwriting your draft. Trash moves Markdown
+pages into the data directory's `.trash`.
+
+Select document text and add a comment, then explicitly **Send to agent**. Comments
+do nothing until sent. You can also prompt below a document or use **Open project
+chat**. All requests enter one durable FIFO queue. Cancel waiting work; Stop ends
+the active worker. You can browse another project while work continues. Interrupted
+work is marked interrupted after restart and is never automatically repeated.
+
+Every queued turn starts a Pi RPC worker in that project's folder, resumes **only
+that project's Pi session**, and includes fresh roadmap/tasks and file inventory.
+Document requests also include the selected current document. Switching back
+restores that project's conversation; it never merges other project chats. Older
+conversation context can be compacted by Pi. Scope is an instruction and cwd, not
+a filesystem sandbox.
+
+Files and work progress refresh roughly every two seconds. Text/code files are
+viewable and editable; binary files are listed but not rendered as text. The tree
+skips `.git`, dependency/cache folders, and symlinks, with a 2,000-file limit.
+The text viewer limits files to 512 KB. Roadmap/task context is bounded to 60,000
+characters per turn, with a 12,000-character limit per document.
+
+## Data and configuration
+
+`~/pi-local-agent-data` contains shared `AGENTS.md`, `config.json`, `.projects.json`
+(folder registry), `.queue.json`, `.comments/`, `.trash/`, and `chats/` (metadata,
+Pi session files, uploads). `projects/` stores projects created through the API
+without a chosen external parent. Registered external projects stay in place.
+Chat transcripts are never automatically copied into shared memory.
+
+Edit `~/pi-local-agent-data/config.json`, then restart `plh`:
+
+```json
+{
+  "model": "ollama/gemma4:26b-mlx",
+  "effort": "high",
+  "laya_port": 8000,
+  "web_port": 3000,
+  "whisper_model": "mlx-community/whisper-base-mlx"
+}
+```
+
+Both terminal Pi and browser workers use this model/effort configuration. Port `0`
+selects an available port. `PI_AGENT_DATA` selects a different data directory;
+`PI_LAYA_PORT` and `PI_WEB_PORT` override ports. See the
+[operations guide](harness/README.md) for other environment settings.
 
 ## Architecture: who does what
 
 ```mermaid
 flowchart TD
-    User[User question + optional media] --> Pi[Pi agent runtime]
-    Memory[Global ~/.pi/agent/AGENTS.md] --> Pi
-    Pi --> Model[Local Gemma model: reasoning and tool proposals]
-    Model --> Before[Pi tool_call event: before execution]
-    Before --> Laya[Laya /gatekeep: deterministic policy]
-    Laya -->|ALLOW + proposal ID| Tool[Pi executes the actual tool]
-    Laya -->|BLOCK + specific reason| Model
-    Tool --> After[Pi tool_result event]
-    After --> Audit[Laya /audit: compare approved proposal and result]
+    Launch[plh: config + home cwd] --> Pi[Terminal Pi + harness extension]
+    Pi --> Services[Owned Laya and web servers]
+    Browser[Project workbench] --> Queue[Durable single-agent queue]
+    Queue --> Worker[Pi RPC worker: project cwd + own session]
+    Docs[Current roadmap, tasks, selected document] --> Worker
+    Worker --> Extension[Same harness: shared services]
+    Pi --> Model[Configured local model]
+    Worker --> Model
+    Model --> Proposal[Proposed tool call]
+    Proposal --> Gate[Laya: check before execution]
+    Gate -->|ALLOW| Tool[Pi executes tool]
+    Gate -->|BLOCK + reason| Model
+    Tool --> Audit[Laya: audit actual result]
     Audit --> Model
-    Pi --> Watch[10-second thought watchdog]
-    Watch -->|loop / hang / missing CANARY| Recover[Abort → compact → reinject memory → reask]
-    Recover --> Pi
 ```
 
-**Pi runs tools. Laya checks tools. The model proposes tools.** Laya never executes
-shell strings itself, and the watchdog never decides shell safety.
+**The model proposes. Laya checks. Pi executes.** Browser workers reuse existing
+services; they never launch a second web/Laya pair. A shared process lock prevents
+overlapping terminal and browser agent turns within the same data directory.
 
-## Exactly when Laya intervenes
+Laya runs at Pi's `tool_call` event **before execution**. Allowed proposals receive
+a one-use ID. Blocked proposals never execute; specific corrective feedback guides
+the model's next reasoning step. After `tool_result`, an audit checks the original
+proposal, execution status, and write/edit postconditions. Gate failures fail
+closed; failed/unavailable audits become failed tool results.
 
-1. The model finishes proposing a tool call. Pi emits `tool_call` **before** running it.
-2. The extension sends the tool name, exact arguments, working directory, and profile
-   to `/gatekeep`. Laya checks them without executing the command.
-3. An allowed call receives a one-use proposal ID and runs normally.
-4. A blocked call never runs. Its reason becomes model-visible tool feedback in the
-   next reasoning step: what was dangerous, that nothing executed, and that it should
-   choose a narrowly scoped alternative. Ordinary diagnostics remain available.
-5. After execution, `/audit` consumes the original proposal ID. Changed tool/arguments,
-   execution failures, and write/edit content mismatches become failed tool results.
-   An unavailable gate fails closed; an unavailable audit cannot count as success.
+Ordinary shell commands work in both profiles: `env`, `ls /`, `whoami`, builds,
+tests, and scoped cleanup such as `rm -rf ./build`. Broad deletion (`rm -fr *`),
+root/home deletion, disk erasure, raw disk writes, and recursive system permission
+changes are blocked. Common shell wrappers are checked. This is an accident guard,
+not a sandbox for arbitrary scripts. [Rules and sources](specs/shell-safety.md).
+The **Laya** tab shows the actual shared ledger: checks, arguments, outcomes,
+reasons, and timestamps. Its latest 200 events reset when services restart.
 
-Both `standard` and `admin` permit ordinary shell commands. Neither bypasses the
-shell guard. `env`, `ls /`, `whoami`, builds, tests, and `rm -rf ./build` are allowed.
-Broad deletion such as `rm -fr *`, root/home deletion, disk erasure, raw disk writes,
-and recursive system permission changes are blocked. Common wrappers and shell
-`-c` strings are checked too. [Exact rules and authoritative sources](specs/shell-safety.md).
-This is a deterministic accident guard, not a sandbox for arbitrary scripts.
+## Recovery, memory, media, and timestamps
 
-## Browser chat
+Every **10 seconds**, the watchdog checks the latest 100 nonempty thought lines.
+Two non-overlapping occurrences of the same consecutive three lines trigger
+recovery. A thought phase with no active Pi operation, or 60 seconds without
+streamed activity, triggers hang recovery. Normal idle and tool execution are
+exempt. Pi exposes operation/stream state, not definitive GPU utilization.
 
-Open the printed Web address (normally `http://127.0.0.1:3000`). The frontend is now
-a chat workspace: create, switch, rename, and delete conversations in the left sidebar;
-on narrow screens the menu button opens that sidebar as a drawer. Drop files, use the
-attachment button, paste images, or record audio with the microphone button. Responses,
-reasoning, and tool activity stream as they happen; Stop cancels the current run.
+Recovery aborts, waits for the turn to end, compacts, reloads shared `AGENTS.md`,
+and reasks the original question with previous reasoning and the incident. Missing
+`[CANARY]` in completed assistant text follows the same path. One automatic retry
+is allowed per question. Memory reloads before every turn. The agent can record
+verified lessons/preferences; automatic incident lessons are currently fixed and
+deduplicated by kind. Evidence-verified promotion remains an open roadmap task.
 
-```mermaid
-flowchart LR
-    Browser[Browser chat] --> Web[WebHandler: same-origin HTTP + streamed events]
-    Web --> Store[Conversation metadata + uploaded files]
-    Web --> RPC[One Pi RPC process per active conversation]
-    RPC --> Session[Separate durable Pi session file]
-    RPC --> Harness[Same harness extension: shared-service mode]
-    Harness --> Laya[Existing Laya API]
-    RPC --> Gemma[Local Gemma: high thinking]
-```
+Paste accessible image/audio paths in terminal Pi (quote paths containing spaces),
+or attach/drop/paste images and text files in web chat. Images are passed as bytes.
+Audio uses lazy local MLX Whisper speech transcription; the transcript goes to
+Gemma. This does not mean the 26B model consumes native audio or interprets
+non-speech sounds. First audio use may install dependencies/download weights;
+startup does not load Whisper. Microphone recording needs browser permission.
+Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB each,
+20 MiB total in the UI. Unsupported binary formats return an error.
 
-A web conversation is its own Pi session, not a mirror of the terminal conversation.
-Both use the same model configuration, global memory, watchdog, and Laya hooks. Web
-workers reuse the existing Laya service; they do **not** start another API/web server.
-Web agents start in your home directory, unless
-`PI_WEB_CWD` overrides it. Only one agent turn may run at a time, including terminal and web sessions. A shared
-process lock guards inference; the web UI requires waiting or stopping before switching.
+Question, assistant, tool, and completion events receive local timestamps in Pi.
+Web messages and queue jobs also record timestamps. Services bind to loopback and
+reject foreign browser origins. The layout supports mobile sizes; physical-phone
+access needs a separate connection setup.
 
-Conversation metadata, Pi sessions, and uploads persist under
-`~/pi-local-agent-data/chats/` (`PI_WEB_DATA` overrides this). Closing the browser does not
-cancel an in-progress task; reopening loads saved messages. Stop and server shutdown
-terminate the owned Pi worker. Deleting a conversation deletes its session and uploads;
-stop an active conversation before deleting it.
-
-Supported attachments: PNG/JPEG/WebP/GIF images, common audio formats, and UTF-8
-text/code files. Images go to Pi as image bytes. Audio is transcribed with lazy MLX
-Whisper. Text file contents are included in the prompt. Unsupported binary formats
-such as ZIP/PDF produce an explicit error. Limits: eight files, 12 MiB per file, and
-32 MiB per HTTP request. The UI limits total raw attachments to 20 MiB.
-Microphone recording requires browser permission and a supported MediaRecorder.
-
-The server listens on loopback and rejects foreign browser origins. Mobile-ready
-means the layout works on phone-size screens; access from a physical phone requires
-a separate connection arrangement. It is not automatically exposed on your LAN.
-
-## Laya activity tab
-
-The **Laya** tab on the web frontend shows real checks from the shared Laya ledger,
-including terminal and browser Pi sessions. Each card shows its timestamp, tool,
-pre-execution or audit phase, outcome, argument scope, reason, and proposal ID when
-available. Filter by pre-execution, audits, or blocks/failures. The tab refreshes every
-two seconds while visible; Chat returns to the conversation view.
-
-`laya/ledger.py` records a thread-safe, bounded feed of the latest 200 events.
-`GET /api/laya` on the web server reads that exact ledger; there is no extra model
-judge and no simulated status. Events disappear when the services restart. The feed
-omits file bodies and tool outputs, but command strings and paths are visible.
-It is an observation panel, not an authorization override or a second execution path.
-
-## Recovery and memory
-
-`harness/extension.mjs` observes Pi lifecycle events. Every ten seconds,
-`harness/watch.mjs` checks the latest 100 nonempty thought lines for two
-non-overlapping occurrences of the same three-line block. A thought phase with no
-active Pi operation, or 60 seconds without streamed activity, triggers hang recovery.
-Normal idle time and tool execution are exempt. Missing `[CANARY]` in completed
-assistant text also triggers recovery. Pi exposes stream/operation state, not GPU state.
-
-Recovery aborts the turn, waits for its end, compacts, reloads global `AGENTS.md`, and
-reasks the original question with the previous reasoning and images. One automatic
-retry is allowed per question. Current incident memory deduplicates fixed lessons by
-kind; evidence-verified lesson promotion remains roadmap task 26.
-
-## Files to read or change
+## Where to change things
 
 | File | Responsibility |
 |---|---|
-| `.pi/extensions/local-harness.ts` | Installed Pi extension entry point |
-| `harness/extension.mjs` | Startup, lifecycle hooks, recovery, and Laya calls |
-| `harness/services.py` | Owns API/web sockets and service shutdown |
-| `agent_api.py` | Laya HTTP routing; `/gatekeep` and `/audit` |
-| `harness/web_chat.py` | Conversation storage, attachment decoding, Pi RPC workers, streamed web API |
-| `index.html`, `chat.css`, `js/chat.mjs` | Responsive browser chat |
-| `laya/engine.py` | Pre-action decision and post-action judgment |
-| `laya/shell_guard.py` | Argument-sensitive destructive shell rules |
-| `laya/ledger.py` | Immutable proposals, one-use IDs, file postconditions |
-| `harness/media.mjs`, `harness/transcribe.py` | Image bytes and lazy audio transcription |
-| `harness/timestamps.mjs` | Timestamp entries in the Pi console |
-| `ROADMAP.md`, `tasks/` | Completed work and remaining work |
+| `plh.py`, `harness/install.py` | Dedicated launcher, config, stable installation |
+| `harness/extension.mjs` | Pi hooks, memory, recovery, service ownership |
+| `harness/services.py` | Laya/web sockets and shutdown |
+| `harness/web_chat.py`, `harness/work_queue.py` | Project chat, uploads, RPC, FIFO jobs |
+| `harness/documents.py` | Folder registry, Markdown, revisions, comments |
+| `index.html`, `chat.css`, `js/chat.mjs`, `js/workspace.mjs` | Project workbench |
+| `js/markdown-blocks.mjs` | Loss-preserving Markdown block conversion |
+| `laya/engine.py`, `laya/shell_guard.py`, `laya/ledger.py` | Gate, shell rules, audits |
+| `harness/media.mjs`, `harness/transcribe.py` | Image paths and lazy speech input |
+| `ROADMAP.md`, `tasks/` | Completed and remaining work |
 
-Check a safety change with `python3 -m unittest discover -s tests -p 'test_laya*.py'`
-and `python3 -m unittest discover -s tests -p test_shell_guard.py`. Run the HTTP and
-Pi integration tests described in [the harness guide](harness/README.md).
-
-## Home workspace and chat memory
-
-Run `pi` from your home directory, or use `start.sh`, which changes to home before
-starting Pi. `PI_AGENT_DATA` defaults to `~/pi-local-agent-data`. Chats have separate
-Pi session files; reopening a chat resumes that chat, and switching does not merge
-any other chat's conversation history. Shared `AGENTS.md` contains operating rules
-and preferences, not copied conversations. No transcript is automatically promoted
-into shared memory. The selected chat still retains its own earlier history, subject
-to Pi context compaction. Model KV caching is not application memory.
+Run `python3 -m unittest discover -s tests`, `node --test tests/harness/*.test.mjs`,
+and `python3 tests/verify_workflow.py`. Browser regression instructions are in
+[the operations guide](harness/README.md). Browser/RPC fixtures test boundaries;
+they do not claim to measure model intelligence.

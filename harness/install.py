@@ -1,23 +1,66 @@
-"""Install the reviewed harness in pi's global agent directory."""
+"""Install a stable PLH package; detach only the identifiable legacy Pi integration."""
+import argparse
+from datetime import datetime
+import json
 import os
 from pathlib import Path
+import shutil
+import sys
+import uuid
 
-root = Path(__file__).resolve().parent.parent
-agent = Path(os.environ.get('PI_CODING_AGENT_DIR', str(Path.home() / '.pi/agent')))
-agent.mkdir(parents=True, exist_ok=True)
-memory = agent / 'AGENTS.md'
-content = (root / 'harness/AGENTS.md').read_text()
-if not memory.exists():
-    memory.write_text(content)
-elif '# Local AI operating instructions' not in memory.read_text():
-    with memory.open('a') as handle:
-        handle.write('\n\n' + content)
-extensions = agent / 'extensions'
-extensions.mkdir(exist_ok=True)
-link = extensions / 'local-harness.ts'
-target = root / '.pi/extensions/local-harness.ts'
-if not link.exists() and not link.is_symlink():
-    link.symlink_to(target)
-elif link.resolve() != target.resolve():
-    raise RuntimeError(f'Refusing to overwrite existing extension: {link}')
-print(f'Memory: {memory}\nExtension: {link}')
+ROOT=Path(__file__).resolve().parent.parent
+
+def install(prefix, agent, data):
+    prefix,agent,data=Path(prefix),Path(agent),Path(data)
+    target=prefix/'share/pi-local-harness'
+    for name in ['plh','pi-local-harness']:
+        link=prefix/'bin'/name
+        if (link.exists() or link.is_symlink()) and (not link.is_symlink() or link.resolve()!=(target/'plh.py').resolve()):
+            raise RuntimeError(f'Refusing to replace unrelated command: {link}')
+    target.parent.mkdir(parents=True,exist_ok=True)
+    stage=target.parent/('.plh-install-'+uuid.uuid4().hex);stage.mkdir()
+    for item in ['harness','laya','.pi','js','specs']:
+        shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+    for item in ['plh.py','agent_api.py','index.html','chat.css','readme.md']:
+        shutil.copy2(ROOT/item,stage/item)
+    stamp=datetime.now().strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:6]
+    if target.exists():target.rename(target.with_name('pi-local-harness.before-'+stamp))
+    stage.rename(target);(target/'plh.py').chmod(0o755)
+    binary=prefix/'bin';binary.mkdir(parents=True,exist_ok=True)
+    for name in ['plh','pi-local-harness']:
+        link=binary/name
+        if link.exists() or link.is_symlink():
+            if not link.is_symlink() or link.resolve()!=(target/'plh.py').resolve():raise RuntimeError(f'Refusing to replace unrelated command: {link}')
+            link.unlink()
+        link.symlink_to(target/'plh.py')
+    data.mkdir(parents=True,exist_ok=True)
+    sys.path.insert(0,str(ROOT));from plh import configuration
+    configuration(data)
+    template=(ROOT/'harness/AGENTS.md').read_text()
+    if not (data/'AGENTS.md').exists():(data/'AGENTS.md').write_text(template)
+    # Keep other Pi extensions and custom settings intact.
+    link=agent/'extensions/local-harness.ts'
+    if link.is_symlink() and str(link.readlink()).endswith('/.pi/extensions/local-harness.ts'):
+        link.rename(link.with_name('local-harness.ts.before-plh-'+stamp))
+    settings_path=agent/'settings.json'
+    if settings_path.exists():
+        settings=json.loads(settings_path.read_text())
+        owned={'defaultProvider':'ollama','defaultModel':'gemma4:26b-mlx','defaultThinkingLevel':'high'}
+        if all(settings.get(key)==value for key,value in owned.items()):
+            shutil.copy2(settings_path,settings_path.with_name('settings.json.before-plh-'+stamp))
+            for key in owned:settings.pop(key)
+            settings_path.write_text(json.dumps(settings,indent=2)+'\n')
+    memory=agent/'AGENTS.md'
+    if memory.exists():
+        legacy=memory.read_text()
+        preference='\n## Harness preferences\n\nUser preference: plain `pi` starts the local harness with `gemma4:26b-mlx` and high thinking effort. Load Whisper only when an audio file is submitted. Show question submission and message/task completion timestamps in the transcript.'
+        old_template=(ROOT/'harness/legacy-AGENTS.md').read_text()
+        known={value.strip() for value in [template,old_template,old_template.rstrip()+'\n'+preference]}
+        if legacy.strip() in known:
+            shutil.copy2(memory,data/'legacy-global-AGENTS.md')
+            memory.rename(memory.with_name('AGENTS.md.before-plh-'+stamp))
+    print(f'PLH: {binary}/plh\nPackage: {target}\nConfig: {data}/config.json\nPlain Pi: harness extension detached; unrelated settings preserved.')
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--prefix',default=str(Path.home()/'.local'));parser.add_argument('--agent-dir',default=os.getenv('PI_CODING_AGENT_DIR',str(Path.home()/'.pi/agent')));parser.add_argument('--data-dir',default=os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-agent-data')))
+    args=parser.parse_args();install(args.prefix,args.agent_dir,args.data_dir)

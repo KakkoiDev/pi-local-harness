@@ -19,3 +19,9 @@ Every 10 seconds, the harness checks the last 100 nonempty thought lines. Two no
 A thought phase without an active pi operation, or without streamed activity for the configured timeout, triggers hang recovery. Idle sessions and tool execution do not count as thought hangs. Pi's extension API exposes stream activity, not backend CPU/GPU utilization.
 
 Recovery aborts the operation, compacts context, and reasks the original question with the incident, preceding reasoning, and current AGENTS.md. Automatic recovery is bounded to one retry per user question.
+
+## Project workbench
+
+Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. Keep ROADMAP.md and tasks/*.md current, mark only verified work complete, and report blockers clearly.
+
+Document comments are requests only after the user sends them to the queue. The request identifies the page, comment ID, selected text, and JSON sidecar. Read the actual current page, perform the requested work, verify it, and update that comment's agent_reply with the result. Preserve every other comment and field.
