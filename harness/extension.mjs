@@ -82,9 +82,11 @@ export default function harness(pi, dependencies = {}) {
         });
       });
       const lines = [`Laya: http://127.0.0.1:${ports.laya}`, `Web: http://127.0.0.1:${ports.web}`, 'Loop check: every 10 seconds'];
-      ctx.ui.setWidget('local-harness', lines);
+      // OSC 8 links are understood by Pi's TUI and hyperlink-capable terminals.
+      const linkedLines = lines.map(line => line.replace(/http:\/\/127\.0\.0\.1:\d+/g, url => `\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\`));
+      ctx.ui.setWidget('local-harness', linkedLines);
       ctx.ui.setStatus('local-harness', `Laya :${ports.laya} | Web :${ports.web}`);
-      notify(lines.join('\n'));
+      notify((ctx.hasUI === false ? lines : linkedLines).join('\n'));
       timer = schedule(() => {
         if (!watch.active || pending) return;
         const triple = watch.loop();

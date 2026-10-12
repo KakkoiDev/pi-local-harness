@@ -9,9 +9,9 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  const dir=mkdtempSync(join(tmpdir(),'pi-harness-'));
  writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
  const handlers={}, messages=[], notices=[], order=[];
- let tick, interval, idle = false;
+ let tick, interval, widget, idle = false;
  const pi={on:(name,fn)=>{handlers[name]=fn;},sendUserMessage:content=>{order.push('reask');messages.push(typeof content==='string'?content:content[0].text);}};
- const ctx={ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){}},
+ const ctx={ui:{notify:text=>notices.push(text),setWidget:(name,lines)=>{if(name==='local-harness')widget=lines;},setStatus(){}},
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
  const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,log:process.env.PI_HARNESS_LOG_FILE};
@@ -21,7 +21,12 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   await handlers.session_start({},ctx);
   assert.ok(tick,notices.join('\n'));
   assert.equal(interval,10000);
-  assert.match(notices.join('\n'),/Laya: http.*Web: http/s);
+  assert.match(notices.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,''),/Laya: http.*Web: http/s);
+  for (const [index,label] of ['Laya','Web'].entries()) {
+   const url=widget[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
+   assert.equal(widget[index], `${label}: \x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\`);
+  }
+  assert.equal(widget[2],'Loop check: every 10 seconds');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
   const blocked=await handlers.tool_call({toolCallId:'danger',toolName:'bash',input:{command:'sudo rm -fr *'}});
   assert.equal(blocked.block,true);

@@ -46,3 +46,5 @@ and harness/README.md for the installed pi workflow.
 - [x] [31-Destructive shell guard and architecture guide](tasks/31-destructive-shell-guard.md)
 
 - [x] [32-Mobile multimodal web chat](tasks/32-web-chat.md)
+
+- [x] [33-Clickable Pi service URLs](tasks/33-clickable-service-links.md)

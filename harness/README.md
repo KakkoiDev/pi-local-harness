@@ -7,7 +7,11 @@ Installed entry points:
 
 Start pi normally, or run `./start.sh --provider ollama --model gemma4:26b-mlx`.
 The extension starts Laya on `127.0.0.1:8000` and the frontend on `127.0.0.1:3000`,
-then displays the actual ports in the console widget and status line. Shutdown stops its owned services.
+then displays the actual ports in the console widget and status line.
+The Laya and Web URLs use OSC 8 terminal hyperlinks in the widget and interactive
+startup notice. Click using your terminal’s link-opening gesture (often Cmd-click
+on macOS or Ctrl-click elsewhere). Terminals without hyperlink support still show
+the readable URLs; RPC startup notices remain plain text. The loop-check line is status text. Shutdown stops its owned services.
 An occupied port produces a startup error; it never kills an unrelated process.
 Only one harness instance may use these fixed ports at a time; use port `0` for automatic assignment.
 
