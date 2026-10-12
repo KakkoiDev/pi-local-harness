@@ -31,8 +31,8 @@ def main():
         api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_LAYA_PORT', '8000'))), Handler)
         servers.append(api)
         web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
-        agent_dir = Path(os.getenv('PI_CODING_AGENT_DIR', str(Path.home() / '.pi/agent')))
-        chat = WebChat(os.getenv('PI_WEB_DATA', str(agent_dir / 'web-chat')), api.server_port, web.server_port)
+        data_dir = Path(os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-agent-data')))
+        chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port)
         chat.ledger = ledger
         WebHandler.chat = chat
         servers.append(web)

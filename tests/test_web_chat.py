@@ -90,3 +90,15 @@ class RpcBridgeTest(unittest.TestCase):
                 self.assertTrue(ready)
                 self.assertTrue(chat.stop(conversation['id'])['stopped']);thread.join(timeout=6)
             self.assertFalse(thread.is_alive());self.assertTrue(errors);self.assertEqual(chat.active,{})
+
+class SingleAgentTest(unittest.TestCase):
+    def test_other_chat_cannot_start_while_an_agent_is_active(self):
+        from harness.web_chat import WebChat
+        import threading
+        with tempfile.TemporaryDirectory() as directory:
+            chat=WebChat(Path(directory),12345,3000)
+            first=chat.store.create();second=chat.store.create()
+            chat.active[first['id']]={'process':None,'cancel':threading.Event()}
+            with self.assertRaisesRegex(ValueError,'one agent'):
+                chat.send(second['id'],{'message':'Hello'},lambda _:None)
+            self.assertEqual(chat.store.get(second['id'])['messages'],[])

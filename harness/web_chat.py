@@ -112,7 +112,7 @@ class WebChat:
         with self.lock:
             if self.closed:raise ValueError('Web chat is shutting down')
             if identifier in self.active:raise ValueError('This conversation is already running')
-            if len(self.active)>=4:raise ValueError('At most four conversations can run at once')
+            if self.active:raise ValueError('Only one agent can run at a time. Wait for the current task or stop it.')
             self.active[identifier]={'process':None,'cancel':cancelled}
         process=None;diagnostics=None
         try:
@@ -128,7 +128,7 @@ class WebChat:
                 '--session',str(folder/'session.jsonl'),'--provider','ollama','--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking','high']
             env={**os.environ,'PI_HARNESS_SHARED_PORT':str(self.laya_port),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
-            process=subprocess.Popen(command,cwd=os.getenv('PI_WEB_CWD',str(ROOT)),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
+            process=subprocess.Popen(command,cwd=os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
                 self.active[identifier]['process']=process
                 if cancelled.is_set():process.terminate()

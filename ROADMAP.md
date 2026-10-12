@@ -54,3 +54,5 @@ and harness/README.md for the installed pi workflow.
 - [x] [34-Live Laya activity tab](tasks/34-laya-tab.md)
 
 - [x] [36-Scrolling startup links](tasks/36-scrolling-startup-links.md)
+
+- [x] [37-Home workspace and one active agent](tasks/37-home-single-agent.md)

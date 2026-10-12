@@ -22,6 +22,7 @@ function renderSidebar(){
 }
 async function refresh(){conversations=await api('/api/conversations');renderSidebar();}
 async function select(id){
+ if(running.size&&id!==selected){error('Wait for the active task to finish, or press Stop before switching chats.');return;}
  selecting=true;controls();
  try {
  if(selected){draft().text=$('prompt').value;}
@@ -29,7 +30,7 @@ async function select(id){
  $('prompt').value=draft().text;error('');menu(false);renderSidebar();renderMessages();renderAttachments();resize();
  } finally { selecting=false;controls(); }
 }
-async function create(){selecting=true;controls();try{const value=await api('/api/conversations',{});await refresh();await select(value.id);$('prompt').focus();}finally{selecting=false;controls();}}
+async function create(){if(running.size){error('Wait for the active task or press Stop before starting another chat.');return;}selecting=true;controls();try{const value=await api('/api/conversations',{});await refresh();await select(value.id);$('prompt').focus();}finally{selecting=false;controls();}}
 $('new-chat').onclick=()=>create().catch(e=>error(e.message));
 function messageView(message){
  const article=node('article',`message ${message.role}`),label=node('div','message-label',message.role==='user'?'You':'Pi');
@@ -53,7 +54,7 @@ function renderMessages(){
  $('thread').scrollTop=$('thread').scrollHeight;
 }
 function updateLive(id){if(id!==selected)return;const state=running.get(id);if(!state)return;let live=$('live-message');if(!live){renderMessages();live=$('live-message');}const nearBottom=$('thread').scrollHeight-$('thread').scrollTop-$('thread').clientHeight<150;live.querySelector('.message-body').textContent=state.text;live.querySelector('.status').textContent=state.status;let details=live.querySelector('details');if(state.thinking){if(!details){details=node('details');details.append(node('summary','','Reasoning'),node('pre'));live.insertBefore(details,live.querySelector('.message-body'));}details.querySelector('pre').textContent=state.thinking.slice(-50000);}if(nearBottom)$('thread').scrollTop=$('thread').scrollHeight;}
-function controls(){const busy=running.has(selected);$('send').hidden=busy;$('stop').hidden=!busy;$('send').disabled=!selected||selecting;$('prompt').disabled=selecting;$('new-chat').disabled=selecting;}
+function controls(){const busy=running.has(selected);$('send').hidden=busy;$('stop').hidden=!busy;$('send').disabled=!selected||selecting||Boolean(running.size);$('prompt').disabled=selecting;$('new-chat').disabled=selecting;}
 function resize(){$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,180)+'px';}
 $('prompt').oninput=()=>{draft().text=$('prompt').value;resize();};
 $('prompt').onkeydown=event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing&&window.matchMedia('(min-width:761px)').matches){event.preventDefault();if(!running.has(selected))$('composer').requestSubmit();}};
@@ -64,7 +65,7 @@ $('composer').ondragover=event=>{event.preventDefault();$('composer').classList.
 $('prompt').addEventListener('paste',event=>{if(event.clipboardData.files.length){event.preventDefault();addFiles(event.clipboardData.files);}});
 async function encode(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({name:file.name,mime:file.type,data:String(reader.result).split(',')[1]});reader.onerror=()=>reject(new Error(`Cannot read ${file.name}`));reader.readAsDataURL(file.file);});}
 $('composer').onsubmit=async event=>{
- event.preventDefault();if(!selected||running.has(selected))return;const id=selected,submitted=draft();const text=$('prompt').value.trim();if(!text&&!submitted.files.length)return;error('');
+ event.preventDefault();if(!selected||running.size)return;const id=selected,submitted=draft();const text=$('prompt').value.trim();if(!text&&!submitted.files.length)return;error('');
  const state={text:'',thinking:'',status:'Sending…'};running.set(id,state);controls();renderMessages();let sent=false;
  try{
   const attachments=await Promise.all(submitted.files.map(encode));

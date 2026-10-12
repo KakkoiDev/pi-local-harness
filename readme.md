@@ -71,11 +71,12 @@ flowchart LR
 A web conversation is its own Pi session, not a mirror of the terminal conversation.
 Both use the same model configuration, global memory, watchdog, and Laya hooks. Web
 workers reuse the existing Laya service; they do **not** start another API/web server.
-The working directory follows the Pi session that started the services, unless
-`PI_WEB_CWD` overrides it. Up to four web conversations may run concurrently.
+Web agents start in your home directory, unless
+`PI_WEB_CWD` overrides it. Only one agent turn may run at a time, including terminal and web sessions. A shared
+process lock guards inference; the web UI requires waiting or stopping before switching.
 
 Conversation metadata, Pi sessions, and uploads persist under
-`~/.pi/agent/web-chat/` (`PI_WEB_DATA` overrides this). Closing the browser does not
+`~/pi-local-agent-data/chats/` (`PI_WEB_DATA` overrides this). Closing the browser does not
 cancel an in-progress task; reopening loads saved messages. Stop and server shutdown
 terminate the owned Pi worker. Deleting a conversation deletes its session and uploads;
 stop an active conversation before deleting it.
@@ -139,3 +140,13 @@ kind; evidence-verified lesson promotion remains roadmap task 26.
 Check a safety change with `python3 -m unittest discover -s tests -p 'test_laya*.py'`
 and `python3 -m unittest discover -s tests -p test_shell_guard.py`. Run the HTTP and
 Pi integration tests described in [the harness guide](harness/README.md).
+
+## Home workspace and chat memory
+
+Run `pi` from your home directory, or use `start.sh`, which changes to home before
+starting Pi. `PI_AGENT_DATA` defaults to `~/pi-local-agent-data`. Chats have separate
+Pi session files; reopening a chat resumes that chat, and switching does not merge
+any other chat's conversation history. Shared `AGENTS.md` contains operating rules
+and preferences, not copied conversations. No transcript is automatically promoted
+into shared memory. The selected chat still retains its own earlier history, subject
+to Pi context compaction. Model KV caching is not application memory.

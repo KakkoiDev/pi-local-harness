@@ -6,6 +6,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { localModels } from './provider.mjs';
 import { attachMedia } from './media.mjs';
+import { AgentLock } from './agent-lock.mjs';
 import { installStartupDisplay } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +20,8 @@ export default function harness(pi, dependencies = {}) {
   const showStartup = installStartupDisplay(pi);
   const root = dependencies.root || moduleRoot;
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi/agent');
+  const dataDir = process.env.PI_AGENT_DATA || join(homedir(), 'pi-local-agent-data');
+  const agentLock = new AgentLock(join(dependencies.root || dataDir, '.agent-lock'));
   const globalMemory = join(agentDir, 'AGENTS.md');
   const memoryPath = dependencies.root ? `${root}AGENT.md` : process.env.PI_HARNESS_MEMORY || (existsSync(globalMemory) ? globalMemory : `${root}AGENT.md`);
   let config = {};
@@ -34,7 +37,7 @@ export default function harness(pi, dependencies = {}) {
   let child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
-  const stop = () => { closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
+  const stop = () => { agentLock.release(); closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
   const call = async (path, body) => {
     if (!ports) throw new Error('Laya is unavailable');
     const response = await fetch(`http://127.0.0.1:${ports.laya}${path}`, {
@@ -60,7 +63,7 @@ export default function harness(pi, dependencies = {}) {
     let stderr = '';
     const sharedPort = process.env.PI_HARNESS_SHARED_PORT;
     if (!sharedPort) {
-    child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, env: { ...process.env, PI_WEB_CWD: process.env.PI_WEB_CWD || ctx.cwd || root }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, env: { ...process.env, PI_WEB_CWD: process.env.PI_WEB_CWD || homedir() }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-4000); });
     child.on('exit', () => {
       ports = undefined;
@@ -100,6 +103,7 @@ export default function harness(pi, dependencies = {}) {
     } catch (error) { notify(`Harness startup failed: ${error.message}`, 'error'); }
   });
   pi.on('before_agent_start', event => {
+    agentLock.acquire();
     if (!lastQuestion && event.prompt) lastQuestion = event.prompt;
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}` };
   });
@@ -166,5 +170,8 @@ export default function harness(pi, dependencies = {}) {
       return { isError: true, content: [...event.content, { type: 'text', text: `Laya audit unavailable: ${error.message}` }] };
     }
   });
+  pi.on('agent_settled', () => agentLock.release());
+  pi.on('session_before_compact', () => { try { agentLock.acquire(); } catch { return { cancel: true }; } });
+  pi.on('session_compact', () => { if (!watch.active) agentLock.release(); });
   pi.on('session_shutdown', stop);
 }
