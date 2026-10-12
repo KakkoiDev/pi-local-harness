@@ -1,0 +1,3 @@
+- in the AGENT.md file, add a statement to make the agent output the string [CANARY] at the begining of every responses to make sure that it doesn't forget minor instructions when the context gets long.
+- add in the sentinel a watchdog to check if the [CANARY] token is missing, if it is, re-inject AGENT.md into the agent's context and log the incident in a log file
+- use pi harness to output timestamp at every line the agent output, in reasoning and in answering like it we can both human and agent have an idea of when something happened.

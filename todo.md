@@ -13,7 +13,7 @@
 - [x] [04-Watchdog-Sentinel](tasks/04-watchdog-sentinel.md)
 
 ## 🚀 Phase 5: Modernization (Web Components & htmx)
-- [x] [05-Architectural Spec](tasks/05-architectural-spec.md)
+- [x] [05-Architectural Spec](tasks/05-architectarchical-spec.md)
 - [x] [06-Core Components](tasks/06-core-components.md)
 - [x] [07-Project Components](tasks/07-project-components.md)
 - [x] [08-htmx Integration](tasks/08-htmx-integration.md)
@@ -22,9 +22,21 @@
 ## 🧪 Phase 6: Quality Assurance
 - [x] [10-Regression Suite](tasks/10-regression-suite.md)
 
+## 🤖 Phase 7: Agent Interaction
+- [x] [14-Agent Interaction](tasks/14-agent-interaction.md)
+
 ## 🛠️ Phase 8: Process Evolution
 - [x] [12-SOP Update](tasks/12-sop-update.md)
 - [x] [13-Orchestration Layer](tasks/13-orchestration-layer.md)
+
+## 🛡️ Phase 9: Guardian Framework Integration (AEMA)
+- [x] [14-Implement Master Blueprint](specs/master_blueprint.md)
+- [ ] [15-Implement Laya Core (Gatekeeper & Auditor)](tasks/15-implement-laya-core.md)
+- [x] [16-Implement Sentinel (Watchdog)](specs/03_sentinel.md)
+- [ ] [17-Implement Pilot Console (UI/Dashboard)](specs/04_pilot_console.md)
+- [ ] [18-Implement Data Model (Protocols)](specs/05_data_model.md)
+- [ ] [19-Implement Evaluation Framework (Capture/Replay)](specs/06_evaluation.md)
+- [ ] [20-Implement Boot Sequence (start.sh)](tasks/20-boot-sequence.md)
 
 ---
 *Last updated: 2026-10-11*

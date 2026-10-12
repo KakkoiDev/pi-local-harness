@@ -15,6 +15,7 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
 - **Large Edits/Corruption:** Avoid using the `edit` tool for large blocks of code or when editing near the end of a file. This can lead to accidental corruption or failed matches. **SOP: Use `write` for significant file updates to ensure integrity.**
 - **Local File Access Misconception:** I do not have access to the user's local filesystem (e.g., `/Users/name/Desktop/...`). **SOP: If a user provides a local path, explain that I cannot access it and ask them to upload the file to the chat.**
 - **Reasoning Loops & Hallucinations:** If you notice repetitive/gibberish output (e.g., "didn' didn'...") or if you find yourself attempting the same failing command multiple times, you are in a reasoning loop. **SOP: Trigger the "Circuit Breaker." Stop the current approach, perform a diagnostic, and report the state to the user.**
+- **Persistent Background Processes:** When starting a server or a long-running background process in a single command, always include a mechanism to terminate it (e.g., `sleep` or a timeout) or ensure it's easily killable. Failure to manage process lifecycles can lead to "Address already in use" errors in subsequent turns.
 
 ### ✅ Successful Patterns (Positive Lessons)
 - **Task-Based Workflow:** Using a `tasks/` folder with individual markdown "tickets" and a `todo.md` dashboard provides excellent context and prevents scope creep.
@@ -43,7 +44,8 @@ To build a high-impact, minimalist, typography-driven portfolio website inspired
     - Perform a diagnostic step (e.g., `ls -la`, `cat`, `pwd`) to ensure your environment context is correct.
     - Acknowledge the error to the user: *"I have detected a reasoning loop/hallucination. I am stopping my current approach and performing a diagnostic check."*
     - Propose a new, non-repetitive direction.
-6. **Watchdog Protocol (Self-Auditing):**
+6. **Process & Tool Usage:** Do not get stuck in "thinking loops" about which tool to use. If you have a plan, **execute the tool immediately**. Prioritize action over excessive reasoning. If a tool fails, move to a diagnostic step rather than repeating the same thought process.
+7. **Watchdog Protocol (Self-Auditing)::
     - **The Audit:** At the conclusion of a task, or if a loop is suspected, perform a self-audit of the conversation context.
     - **The Log:** If a loop or logic failure is identified, the agent **must** write an entry to `incident_log.md`.
     - **Evolution:** Following an incident, the agent must propose a specific update to the "Mistakes to Avoid" or "SOPs" in `AGENT.md` to prevent recurrence.
