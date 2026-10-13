@@ -59,7 +59,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.match(messages[0],/Fix my code/);assert.match(messages[0],/Previous reasoning/);
   assert.match(messages[0],/Reinjected AGENTS.md/);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: loop/);
-  // Incident records go to the data directory so normal use never dirties the repository.
+  // Incident records are written under PI_AGENT_DATA, not the module root.
   assert.match(readFileSync(join(dir,'workspace','incident_log.md'),'utf8'),/Harness loop/);
   assert.match(readFileSync(join(dir,'workspace','session.log'),'utf8'),/"event":"recovery"/);
   assert.equal(existsSync(join(dir,'incident_log.md')),false);assert.equal(existsSync(join(dir,'session.log')),false);

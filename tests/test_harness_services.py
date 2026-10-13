@@ -50,7 +50,7 @@ class ServicesTest(unittest.TestCase):
                 post('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'read_file','args':{},'exit_code':0})
             self.assertEqual(error.exception.code,409)
             error.exception.close()
-            # Audit records belong to the data directory, never the tracked repository.
+            # The Laya audit log defaults to PI_AGENT_DATA/laya-audit.log.
             self.assertIn('DRIFT_DETECTED',(Path(temporary.name)/'workspace'/'laya-audit.log').read_text())
             web_base=f"http://127.0.0.1:{ports['web']}"
             def web_post(path,body,origin=None):

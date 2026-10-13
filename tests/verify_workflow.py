@@ -41,7 +41,7 @@ def verify_workflow():
                         errors.append(f"Task {path} marked completed in todo.md but has unchecked boxes")
                         break
     
-    # Checkboxes prove nothing on their own; the suites must pass too.
+    # Run the Python and Node suites; any failure fails the gate.
     suites = [('unittest', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests'])] if os.path.isdir('tests') else []
     node_tests = sorted(glob.glob('tests/harness/*.test.mjs'))
     if node_tests:

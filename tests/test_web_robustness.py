@@ -55,3 +55,11 @@ class WebRobustnessTest(unittest.TestCase):
         webp = b'RIFF\x00\x00\x00\x00WEBPVP8 '
         prompt, images, _ = prepare_prompt('', [{**attachment, 'data': base64.b64encode(webp).decode()}], Path(self.directory.name) / 'up', lambda _: '')
         self.assertEqual(len(images), 1)
+
+    def test_concurrent_polls_create_one_chat_per_project(self):
+        self.chat.documents.create_project('Race')
+        stale = self.chat.store.list()
+        first = self.chat.project_chat('Race', stale)
+        second = self.chat.project_chat('Race', stale)
+        self.assertEqual(first['id'], second['id'])
+        self.assertEqual(len(self.chat.store.list()), 1)

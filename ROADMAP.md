@@ -77,3 +77,4 @@ and harness/README.md for the installed pi workflow.
 - [x] [49-Web handler robustness](tasks/49-web-handler-robustness.md)
 - [x] [50-Pinned model](tasks/50-pinned-model.md)
 - [x] [51-Commit protocol gate](tasks/51-commit-protocol-gate.md)
+- [x] [52-Protocol review fixes](tasks/52-protocol-review-fixes.md)

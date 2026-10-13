@@ -102,6 +102,52 @@ class ProtocolTest(unittest.TestCase):
         self.assertEqual(self.commit(cwd=self.root / 'src')['outcome'], 'REVISE')
         self.assertEqual(self.run_bash('sh -c "git commit -qam work"')['outcome'], 'REVISE')
 
+    def test_cd_prefixed_commands_use_the_target_folder(self):
+        home = self.root.parent
+        (self.root / 'app.py').write_text('VALUE = 2\n')
+        gate = self.run_bash(f'cd {self.root} && git commit -qam work', cwd=home)
+        self.assertEqual(gate['outcome'], 'REVISE')
+        self.assertEqual(self.run_bash(f'git -C {self.root} commit -qam work', cwd=home)['outcome'], 'REVISE')
+        self.run_bash(f'cd {self.root} && python3 -m unittest', exit_code=1, cwd=home)
+        (self.root / 'app.py').write_text('VALUE = 3\n')
+        self.run_bash(f'cd {self.root}; python3 -m unittest', cwd=home)
+        self.check_boxes()
+        self.assertEqual(self.run_bash(f'cd {self.root} && git add -A && git -c user.name=t -c user.email=t@t commit -qm w', cwd=home, execute=True)['outcome'], 'ALLOW')
+
+    def test_project_in_a_subfolder_of_a_larger_repository(self):
+        project = self.root / 'app'
+        (project / 'tasks').mkdir(parents=True)
+        (project / 'tasks/01.md').write_text('- [ ] Do\n'); (project / 'ROADMAP.md').write_text('- [ ] [01](tasks/01.md)\n'); (project / 'main.py').write_text('x = 1\n')
+        git(self.root, 'add', '.'); git(self.root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'sub')
+        (self.root / 'app.py').write_text('VALUE = 9\n')
+        self.run_bash('pytest', exit_code=1, cwd=project)
+        (project / 'main.py').write_text('x = 2\n')
+        self.run_bash('pytest', cwd=project)
+        (project / 'tasks/01.md').write_text('- [x] Do\n'); (project / 'ROADMAP.md').write_text('- [x] [01](tasks/01.md)\n')
+        self.assertEqual(self.run_bash('git commit -qm w -- .', cwd=project)['outcome'], 'ALLOW')
+
+    def test_git_failure_revises_instead_of_raising(self):
+        from unittest.mock import patch
+        import subprocess as process
+        (self.root / 'app.py').write_text('VALUE = 2\n')
+        with patch('laya.protocol.subprocess.run', side_effect=process.TimeoutExpired('git', 15)):
+            gate = self.commit()
+            self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('could not be checked', gate['reason'])
+            self.run_bash('pytest')
+
+    def test_large_changed_files_are_fingerprinted_without_reading_them(self):
+        from laya.protocol import code_state, changed_paths
+        big = self.root / 'model.bin'; big.write_bytes(b'0' * (2 * 1024 * 1024))
+        original = Path.read_bytes
+        def guarded(path):
+            if path.name == 'model.bin': raise AssertionError('large file was read')
+            return original(path)
+        from unittest.mock import patch
+        with patch.object(Path, 'read_bytes', guarded):
+            first = code_state(self.root, changed_paths(self.root))[0]
+        big.write_bytes(b'1' * (2 * 1024 * 1024 + 1))
+        self.assertNotEqual(first, code_state(self.root, changed_paths(self.root))[0])
+
     def test_folders_without_roadmap_and_tasks_are_unaffected(self):
         (self.root / 'ROADMAP.md').unlink()
         (self.root / 'app.py').write_text('VALUE = 2\n')

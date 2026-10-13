@@ -122,8 +122,9 @@ class WebChat:
     def project_chat(self, project, summaries=None):
         self.documents.project_path(project)
         with self.lock:
-            for summary in self.store.list() if summaries is None else summaries:
-                if summary['project']==project:return self.store.get(summary['id'])
+            for candidates in ([] if summaries is None else summaries,self.store.list()):
+                for summary in candidates:
+                    if summary['project']==project:return self.store.get(summary['id'])
             name=next((item['name'] for item in self.documents.list_projects() if item['id']==project),None)
             if name is None:raise ValueError('Project not found')
             chat=self.store.create();chat.update(project=project,title=name);return self.store.save(chat)
