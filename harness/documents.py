@@ -108,11 +108,35 @@ class DocumentStore:
             path=self.path(relative);temporary=path.with_name('.'+path.name+'.'+uuid.uuid4().hex+'.tmp')
             temporary.write_text(markdown,encoding='utf-8');temporary.replace(path)
             return self.get(relative)
+    def project_file(self, relative, folders=False):
+        """Any existing file inside its project folder (not only Markdown), or a folder when asked: rename, move and trash work on all of them."""
+        path=Path(relative)
+        if path.is_absolute() or '..' in path.parts or len(path.parts)<3 or path.parts[0]!='projects' or '.git' in path.parts:raise ValueError('Invalid project file')
+        project=self.project_path(path.parts[1]);file=(project/Path(*path.parts[2:])).resolve()
+        if not file.is_relative_to(project) or file==project or not (file.is_file() or folders and file.is_dir()):raise ValueError('File not found')
+        return project,file
+    def move(self, relative, name):
+        """Rename or Move…: a file or folder gets a new name or path inside the same project; a file keeps its extension when none is given; never overwriting. Comments follow their files."""
+        project,file=self.project_file(relative,folders=True);name=str(name).strip().rstrip('/');base='projects/'+Path(relative).parts[1]+'/'
+        if not name or Path(name).is_absolute() or any(part in {'.','..','.git'} for part in Path(name).parts):raise ValueError('Give it a name inside the project folder')
+        if file.is_file() and not Path(name).suffix:name+=file.suffix
+        target=(project/name).resolve()
+        if not target.is_relative_to(project) or target==project:raise ValueError('Give it a name inside the project folder')
+        if file.is_dir() and target.is_relative_to(file):raise ValueError('A folder cannot move inside itself')
+        moved=base+str(target.relative_to(project))
+        with self.lock:
+            if target.exists():raise ValueError(f'“{name}” already exists')
+            inside=[item for item in ([file] if file.is_file() else file.rglob('*')) if item.is_file()]
+            notes={base+str(item.relative_to(project)):self.comments(base+str(item.relative_to(project))) for item in inside}
+            target.parent.mkdir(parents=True,exist_ok=True);file.rename(target)
+            for old,comments in notes.items():
+                if comments:self.write_comments(moved+old[len(base+str(file.relative_to(project))):],comments);self.sidecar(old).unlink(missing_ok=True)
+        return {'path':moved}
     def delete(self, relative):
         with self.lock:
-            self.get(relative);trash=self.root/'.trash';trash.mkdir(exist_ok=True)
+            _,file=self.project_file(relative,folders=True);trash=self.root/'.trash';trash.mkdir(exist_ok=True)
             if not trash.resolve().is_relative_to(self.root):raise ValueError('Trash directory is outside the workspace')
-            self.path(relative).replace(trash/(uuid.uuid4().hex+'-'+Path(relative).name))
+            file.replace(trash/(uuid.uuid4().hex+'-'+file.name))
     def write_comments(self, relative, comments):
         path=self.sidecar(relative)
         body='# Comments on '+relative+'\n'

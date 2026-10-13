@@ -152,6 +152,42 @@ class NewFileAndTaskTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.store.create_file(self.project, 'once.md')
         self.assertFalse((Path(self.temp.name) / 'code' / 'outside.md').exists())
 
+    def test_files_rename_and_move_inside_the_project_with_their_comments(self):
+        path = self.store.create_file(self.project, 'notes.md')['path']
+        self.store.save(path, '# notes\n\nKeep this line.\n', self.store.get(path)['revision'])
+        self.store.comment(path, 'Why?', 'Keep this line.')
+        moved = self.store.move(path, 'docs/ideas.md')['path']
+        self.assertEqual(moved, f'projects/{self.project}/docs/ideas.md')
+        self.assertFalse((self.root / 'notes.md').exists()); self.assertTrue((self.root / 'docs/ideas.md').is_file())
+        self.assertEqual([c['text'] for c in self.store.comments(moved)], ['Why?'])
+        self.assertEqual(self.store.comments(path), [])
+        script = self.store.create_file(self.project, 'run.py')['path']
+        self.assertEqual(self.store.move(script, 'tools/run')['path'], f'projects/{self.project}/tools/run.py', 'no extension keeps the old one')
+
+    def test_moves_cannot_escape_or_overwrite(self):
+        path = self.store.create_file(self.project, 'a.md')['path']; self.store.create_file(self.project, 'b.md')
+        for name in ['../outside.md', '/etc/x.md', 'x/../../y.md', '', '.git/config', 'b.md']:
+            with self.assertRaises(ValueError, msg=name): self.store.move(path, name)
+        self.assertTrue((self.root / 'a.md').is_file())
+
+    def test_folders_rename_move_and_trash_with_their_files_and_comments(self):
+        path = self.store.create_file(self.project, 'docs/notes.md')['path']
+        self.store.save(path, '# notes\n\nKeep this line.\n', self.store.get(path)['revision']); self.store.comment(path, 'Why?', 'Keep this line.')
+        self.assertEqual(self.store.move(f'projects/{self.project}/docs', 'archive/old-docs')['path'], f'projects/{self.project}/archive/old-docs')
+        moved = f'projects/{self.project}/archive/old-docs/notes.md'
+        self.assertTrue((self.root / 'archive/old-docs/notes.md').is_file()); self.assertFalse((self.root / 'docs').exists())
+        self.assertEqual([c['text'] for c in self.store.comments(moved)], ['Why?'])
+        with self.assertRaises(ValueError): self.store.move(f'projects/{self.project}/archive', 'archive/inner')
+        with self.assertRaises(ValueError): self.store.delete(f'projects/{self.project}')
+        self.store.delete(f'projects/{self.project}/archive')
+        self.assertFalse((self.root / 'archive').exists())
+
+    def test_any_project_file_moves_to_the_trash(self):
+        script = self.store.create_file(self.project, 'run.py')['path']
+        self.store.delete(script)
+        self.assertFalse((self.root / 'run.py').exists())
+        self.assertEqual(len(list((Path(self.temp.name) / 'data/.trash').iterdir())), 1)
+
     def test_tasks_take_the_next_number_a_template_and_a_roadmap_line(self):
         created = self.store.create_task(self.project, 'Phone layouts')
         self.assertEqual(created['path'], f'projects/{self.project}/tasks/002-phone-layouts.md')

@@ -17,13 +17,13 @@ export function planSummary(files) {
   return [hasPlan ? plural(open, 'open task') : 'No plan yet', plural(folders, 'folder'), plural(top.size - folders, 'file')].join(' · ');
 }
 
-export function installFilesWindow({ tree, note, seg, add, node, open, newTask, newFile, createRoadmap }) {
+export function installFilesWindow({ tree, note, seg, add, node, open, newTask, newFile, createRoadmap, fileMenu }) {
   let project = null, files = [], current = null, query = '', focusKey = null, segment = 'plan';
   const expanded = new Set();
   const groups = () => ({ plan: true, files: true, done: false, ...(readState('fileGroups', {})[project] || {}) });
   const setGroup = (name, value) => { const all = readState('fileGroups', {}); all[project] = { ...groups(), [name]: value }; writeState('fileGroups', all); render(); };
 
-  function row({ key, label, meta, glyph, depth = 0, kind = 'file', expandedState, onClick, title, current: isCurrent }) {
+  function row({ key, label, meta, glyph, depth = 0, kind = 'file', expandedState, onClick, onMenu, title, current: isCurrent }) {
     const item = node('button', 'pw-row' + (kind === 'file' ? ' file-item' : '') + (kind === 'summary' ? ' pw-row--summary' : '') + (depth ? ' pw-row--nested' : ''));
     item.type = 'button'; item.dataset.key = key; item.tabIndex = -1;
     if (depth > 1) item.style.paddingLeft = 8 + depth * 28 + 'px';
@@ -34,11 +34,11 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
     if (meta || glyph) { const value = node('span', 'pw-row__meta'); value.setAttribute('aria-hidden', 'true'); if (glyph) value.append(icon(glyph, { size: 12 })); if (meta) value.append(meta); item.append(value); item.setAttribute('aria-description', meta); }
     if (title) item.title = title;
     item.setAttribute('aria-current', isCurrent ? 'page' : 'false');
-    item.onclick = onClick; return item;
+    item.onclick = onClick; if (onMenu) item.oncontextmenu = event => { event.preventDefault(); onMenu(event); }; return item;
   }
   const fileRow = (file, label, depth = 0) => {
     const meta = isPlan(file.name) ? (file.blocked ? 'Blocked' : file.total ? `${file.done}/${file.total}` : '') : '';
-    return row({ key: 'f:' + file.path, label, depth, meta, glyph: file.blocked && isPlan(file.name) ? 'caution' : null, title: file.name, current: file.path === current, onClick: () => open(file.path) });
+    return row({ key: 'f:' + file.path, label, depth, meta, glyph: file.blocked && isPlan(file.name) ? 'caution' : null, title: file.name, current: file.path === current, onClick: () => open(file.path), onMenu: fileMenu && (event => fileMenu(file.path, event, false)) });
   };
 
   function group(name, title, count, actionLabel, action, children, isOpen) {
@@ -63,7 +63,7 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
     for (const [name, children] of [...folders].sort(([a], [b]) => a.localeCompare(b))) {
       const prefix = children[0].file.name.slice(0, children[0].file.name.length - children[0].rest.length);
       const isOpen = expanded.has(prefix);
-      result.push(row({ key: 'd:' + prefix, label: name, kind: 'folder', depth, expandedState: isOpen, onClick: () => { if (isOpen) expanded.delete(prefix); else expanded.add(prefix); render(); } }));
+      result.push(row({ key: 'd:' + prefix, label: name, kind: 'folder', depth, expandedState: isOpen, onClick: () => { if (isOpen) expanded.delete(prefix); else expanded.add(prefix); render(); }, onMenu: fileMenu && (event => fileMenu(children[0].file.path.slice(0, -children[0].rest.length - 1), event, true)) }));
       if (isOpen) result.push(...folderRows(children, depth + 1));
     }
     for (const file of leaves.sort((a, b) => a.name.split('/').pop().localeCompare(b.name.split('/').pop()))) result.push(fileRow(file, file.name.split('/').pop(), depth));

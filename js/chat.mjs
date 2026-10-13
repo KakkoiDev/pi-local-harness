@@ -135,7 +135,7 @@ const commands={
  'open-on-phone':async()=>{$('phone-url').value=phoneUrl;$('phone-dialog').showModal();const {default:qrcode}=await import('/harness/vendor/qrcode.mjs');const code=qrcode(0,'M');code.addData(phoneUrl);code.make();$('phone-qr').innerHTML=code.createSvgTag({cellSize:4,margin:4,scalable:true});},
  about:()=>{$('about-model').textContent=$('model').textContent+' · '+document.querySelector('.effort').textContent;$('about-web').textContent=location.host;$('about-dialog').showModal();},
  'new-project':click('new-project'),'add-folder':click('add-folder'),'new-file':()=>workspace.newFile(),'new-task':()=>workspace.newTask(),
- save:()=>workspace.saveNow(),'reload-document':()=>workspace.reloadDocument(),'download-draft':click('download-draft'),'trash-page':()=>workspace.trashPage(),
+ save:()=>workspace.saveNow(),'reload-document':()=>workspace.reloadDocument(),'download-draft':click('download-draft'),'trash-page':()=>workspace.trashPage(),'rename-file':()=>workspace.renameFile(),
  'close-window':()=>{if(['activity','gate'].includes(view))leaveAppWindow();else reviewOpen(false);},
  undo:()=>toast.undo&&!textField()?$('toast-undo').click():document.execCommand('undo'),'undo-toast':click('toast-undo'),cut:()=>document.execCommand('cut'),copy:()=>document.execCommand('copy'),paste:()=>document.execCommand('paste'),'select-all':()=>document.execCommand('selectAll'),
  'find-file':()=>$('file-search').focus(),'find-project':()=>{setLevel('projects');menu(true);$('project-search').focus();},
@@ -148,7 +148,7 @@ const commands={
  'toggle-projects':()=>setLevel('projects'),'toggle-files':()=>setLevel('project'),
  project:(item)=>workspace.selectProject(item.dataset.project)};
 function enabled(command,item){if(!commands[command])return false;const state=workspace.status(),markdown=state.page&&!state.textFile,when={
- 'new-file':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
+ 'new-file':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':state.page&&(item||!textField()),'rename-file':state.page,
  'close-window':['activity','gate'].includes(view)||view==='work'&&document.body.dataset.review!=='closed','find-file':view==='work','mode-blocks':markdown,'mode-source':markdown,'mode-toggle':markdown,'block-up':markdown&&state.focusedBlock!==null&&view==='work','block-down':markdown&&state.focusedBlock!==null&&view==='work',
  'toggle-review':view==='work','open-on-phone':Boolean(phoneUrl),'task-record':view==='activity'&&state.selectedJob,'undo-toast':toast.undo&&!textField(),'comment-selection':view==='work'&&state.anchor,'ask-selection':view==='work'&&state.anchor,'toggle-resolved':view==='work'&&markdown,'next-comment':view==='work'&&markdown&&state.comments,'previous-comment':view==='work'&&markdown&&state.comments,'project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
  send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,'cancel-waiting':waitingJob(),reconnect:state.offline,

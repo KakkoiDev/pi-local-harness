@@ -8,8 +8,8 @@ export function ask({icon:kind='caution',message,detail='',danger,safe}){
  const shown=settle($('alert-dialog'),value=>value==='danger'?'danger':'default');$('alert-default').focus();return shown;
 }
 $('name-dialog-cancel').onclick=()=>$('name-dialog').close('cancel');
-export function askName({title,label,help='',describe}){
+export function askName({title,label,help='',describe,value='',action}){
  // describe(value) keeps the help naming the exact file as the person types (Dialogs2 › New Page).
- $('name-dialog-title').textContent=title;$('name-dialog-label').textContent=label;$('name-dialog-input').value='';const show=()=>{$('name-dialog-help').textContent=describe?describe($('name-dialog-input').value.trim()):help;};$('name-dialog-input').oninput=show;show();
+ $('name-dialog-title').textContent=title;$('name-dialog-label').textContent=label;$('name-dialog-input').value=value;const show=()=>{$('name-dialog-help').textContent=describe?describe($('name-dialog-input').value.trim()):help;};$('name-dialog-input').oninput=show;show();
  return settle($('name-dialog'),value=>value==='ok'?$('name-dialog-input').value.trim()||null:null);
 }

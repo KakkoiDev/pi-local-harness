@@ -378,6 +378,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 action=path.rsplit('/',1)[-1];store=self.chat.documents
                 if action=='create':self.reply(store.create(data['project'],data['title'],data.get('parent')));return
                 if action=='create-file':self.reply(store.create_file(data['project'],data['name']));return
+                if action=='move':self.reply(store.move(data['path'],data['name']));return
                 if action=='create-task':self.reply(store.create_task(data['project'],data['title']));return
                 if action=='create-roadmap':self.reply(store.create_roadmap(data['project']));return
                 if action=='save':self.reply(store.save(data['path'],data['markdown'],data['revision']));return
