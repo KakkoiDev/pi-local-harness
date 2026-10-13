@@ -127,6 +127,24 @@ class TailscaleServeTest(unittest.TestCase):
         _, ready, _ = self.start('/nonexistent/tailscale')
         self.assertIn('tailscale', ready['remote_error']); self.assertTrue(ready['web'])
 
+    def test_serve_that_waits_for_enabling_is_reported_and_stopped(self):
+        """Real tailscale 1.9x prints the enable link on stdout and waits (seen 2026-10-13 on the mini)."""
+        import os, time
+        record = Path(tempfile.mkdtemp()) / 'pid'
+        body = (f'echo $$ > {record}\necho "Serve is not enabled on your tailnet."\necho "To enable, visit:"\necho\n'
+                'echo "         https://login.tailscale.com/f/serve?node=abc123"\nexec sleep 60\n')
+        _, ready, _ = self.start(str(self.fake(body)))
+        self.assertNotIn('remote', ready)
+        self.assertIn('not enabled', ready['remote_error'])
+        self.assertIn('https://login.tailscale.com/f/serve?node=abc123', ready['remote_error'])
+        self.assertIsNone(self.config(ready)['phoneUrl'])
+        pid = int(record.read_text())
+        for _ in range(50):
+            try: os.kill(pid, 0)
+            except ProcessLookupError: break
+            time.sleep(0.1)
+        else: self.fail('a serve waiting to be enabled is left running')
+
 class RemoteConfigTest(unittest.TestCase):
     def test_plh_validates_and_exports_remote_settings(self):
         from plh import configuration, environment

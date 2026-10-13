@@ -74,10 +74,13 @@ process; quitting Pi terminates it. Nothing is left in the tailnet config, unles
 you also ran `tailscale serve --bg` yourself: undo that with `tailscale serve reset`.
 Set `PI_TAILSCALE` to use a different tailscale binary (tests use a fake).
 
-Not verified (2026-10-13, Tailscale was stopped on the dev Mac):
-- that a foreground serve removes its config on exit (check `tailscale serve status` after quitting Pi);
-- what serve does when HTTPS is not enabled: if it waits for you to enable it instead
-  of exiting within 1 second, Pi shows the Phone URL anyway and the phone gets an error.
+Checked 2026-10-13 on the Mac mini (tailscale 1.9x, task 110):
+- A foreground serve leaves no config behind: after the services stop, `tailscale serve status` reads "No serve config".
+- With Serve not yet enabled for the tailnet, `tailscale serve` prints the enable link on stdout and waits.
+  `tailscale_serve` reads its output for 2 seconds, stops it, and Pi shows
+  `Phone access off: Serve is not enabled on your tailnet; enable it once at https://login.tailscale.com/f/serve?node=…`.
+  Open that link once (tailnet admin), then restart `plh`.
+- With `remote_hosts`/`remote_users` unset, Pi shows `Phone access off: set remote_hosts and remote_users in config.json`.
 
 How a request is trusted (`WebHandler.trusted` in `harness/web_chat.py`):
 

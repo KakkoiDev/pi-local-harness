@@ -33,7 +33,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
    const url=lines[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
    assert.equal(lines[index], `${label}: \x1b[4;36m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[0m`);
   }
-  assert.equal(lines[2],'Loop check: every 10 seconds');
+  assert.equal(lines[2],'Phone access off: set remote_hosts and remote_users in config.json');
+  assert.equal(lines[3],'Loop check: every 10 seconds');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
   const blocked=await handlers.tool_call({toolCallId:'danger',toolName:'bash',input:{command:'sudo rm -fr *'}});
   assert.equal(blocked.block,true);

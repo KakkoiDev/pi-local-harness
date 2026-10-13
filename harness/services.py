@@ -8,6 +8,7 @@ import signal
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,19 +19,32 @@ from gate.ledger import ProposalLedger
 from harness.web_chat import WebChat, WebHandler
 
 
-def tailscale_serve(port):
-    """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process."""
+def tailscale_serve(port, settle=2.0):
+    """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process.
+
+    When Serve is off for the tailnet, tailscale prints an enable link on stdout and waits instead of exiting;
+    that counts as a failure (the process is stopped) so plh never shows a phone address that cannot load."""
     try:
         process = subprocess.Popen([os.getenv('PI_TAILSCALE', 'tailscale'), 'serve', str(port)],
-                                   stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     except OSError as error:
         return None, f'cannot run tailscale: {error}'
-    try:
-        process.wait(1)
-    except subprocess.TimeoutExpired:
-        threading.Thread(target=process.stderr.read, daemon=True).start()
+    output = []
+    threading.Thread(target=lambda: output.extend(process.stdout), daemon=True).start()
+    deadline = time.monotonic() + settle
+    while time.monotonic() < deadline and process.poll() is None and 'not enabled' not in ''.join(output):
+        time.sleep(0.05)
+    text = ''.join(output)
+    if 'not enabled' in text:
+        process.terminate()
+        try: process.wait(5)
+        except subprocess.TimeoutExpired: process.kill()
+        link = next((word for word in text.split() if word.startswith('https://')), '')
+        return None, 'Serve is not enabled on your tailnet' + (f'; enable it once at {link}' if link else '')
+    if process.poll() is None:
         return process, None
-    return None, f'tailscale serve exited ({process.returncode}): {process.stderr.read().strip()[-500:]}'
+    return None, f'tailscale serve exited ({process.returncode}): {text.strip()[-500:]}'
+
 
 def main():
     os.chdir(ROOT)

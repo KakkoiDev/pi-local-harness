@@ -23,6 +23,7 @@ export function startupLines(ports) {
   const lines = [`Gate: http://127.0.0.1:${ports.gate}`, `Web: http://127.0.0.1:${ports.web}`];
   if (ports.remote) lines.push(`Phone: ${ports.remote}`);
   if (ports.remote_error) lines.push(`Phone access off: ${ports.remote_error}`);
+  else if (!ports.remote) lines.push('Phone access off: set remote_hosts and remote_users in config.json'); // the data folder's config.json; see harness/README.md
   return [...lines, 'Loop check: every 10 seconds'];
 }
 
