@@ -1,0 +1,7 @@
+# 132: Phone and tablet for app-level Activity and Gate
+
+Kind: code
+
+Request 2026-10-13: "design updated" (re-synced in task 126); build what the agent-scope brief asked for. Inventory of design vs code: 2026-10-13 review.
+
+- [ ] Red (browser, 390×844, 1024×768): view popup Chat, Work, separator, "Activity · all", "Gate · all" with meta; π sheet Agent section replaces the status card; detail buttons "Open in Project", "Show in Activity"; G_Tablet Gate columns and 220px Projects window.

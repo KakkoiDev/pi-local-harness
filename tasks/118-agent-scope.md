@@ -6,3 +6,4 @@ Request 2026-10-13: "my problem is the hierarchy of information. it is grouped w
 
 - [ ] Designer output; re-sync (task 111 recipe).
 - [ ] Code tasks with red tests per piece.
+- 2026-10-13: designed (task 126); built as tasks 127-132.

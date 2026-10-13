@@ -7,3 +7,4 @@ Request 2026-10-13 (agreed): "Pi sees: …" under the composers, "Also read: …
 - [ ] Designer output for the four elements.
 - [ ] One code task per element with a red browser test.
 - [ ] Per-job context usage after the turn (`job.usage`, from `ctx.getContextUsage()`), for the meter (moved from task 116).
+- 2026-10-13: designed (task 126); built as tasks 133-139.
