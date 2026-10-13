@@ -113,7 +113,9 @@
   <nav id="phonebar" class="pw-phonebar" aria-label="Menu bar">
     <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π</button>
     <button id="phone-view" class="pw-phonebar__btn" aria-haspopup="menu" aria-expanded="false"><span id="phone-view-label">Chat</span><span data-icon="popup-arrow"></span></button>
+    <button id="phone-back" class="pw-phonebar__btn" hidden>‹ <span id="phone-back-label">Files</span></button>
     <span class="pw-menubar__spacer"></span>
+    <button id="phone-comments" class="pw-phonebar__btn" hidden>Comments <span id="phone-comment-count">0</span></button>
     <span id="phone-status" class="pw-glyph" role="status"></span>
   </nav>
 
@@ -130,6 +132,10 @@
       <div class="window-section window-section--actions">
         <button id="new-project" class="pw-btn">New Project…<span class="pw-kbd">⌘N</span></button>
         <button id="add-folder" class="pw-btn">Add Existing Folder…<span class="pw-kbd">⌘O</span></button>
+      </div>
+      <div class="window-section window-section--actions pi-sheet-extra"><!-- phone: the π sheet also holds Settings and About -->
+        <button id="pi-settings" class="pw-btn">Settings…</button>
+        <button id="pi-about" class="pw-btn">About Pi Workbench</button>
       </div>
       <div class="pw-statusbar"><span>Local AI</span><span>Model runs on this Mac</span></div>
     </aside>
@@ -295,6 +301,7 @@
   </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="laya">Laya</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
     <span class="pw-menu__item" aria-disabled="true">Turn Into</span>

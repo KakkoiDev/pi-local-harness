@@ -85,8 +85,7 @@ body[data-view="work"] .window-projects{display:none}
   #desk{padding:0;gap:0;background:var(--paper)}
   #main-window{border:0;box-shadow:none}
   #main-window>.pw-titlebar{height:30px}
-  /* #workspace-bar stays until the phone-view popup exists (step 12 of the build order). */
-  .view-tabs kbd{display:none}
+  #workspace-bar{display:none} /* views move to the phone-view popup */
   /* Projects window becomes the π sheet (body.menu-open, set by js/chat.mjs) */
   .window-projects{position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink);transform:translateY(100%);visibility:hidden}
   body.menu-open .window-projects{transform:none;visibility:visible}
@@ -145,3 +144,21 @@ button.laya-event{text-align:left;background:none;border-left:0;border-right:0;b
 .settings-patterns{display:flex;gap:10px}
 .settings-patterns>button{width:64px;height:40px;border:1px solid var(--ink);padding:0}
 .settings-patterns>button[aria-checked="true"]{border:3px double var(--ink)}
+/* Phone screens and sheets (body[data-pane] is set by js/chat.mjs phoneBar) */
+.pi-sheet-extra{display:none}
+@media (max-width:760px){
+  .pi-sheet-extra{display:flex}
+  body.menu-open .window-projects{display:flex} /* the π sheet opens from every view, Work included */
+  #phone-view-menu{position:fixed;z-index:45}
+  .pw-table__row,.file-item{min-height:44px}
+  [data-command="close-window"],[data-command="zoom"]{display:none} /* phone screens are always full screen */
+  .window-projects>.pw-titlebar,.window-review>.pw-titlebar{height:44px}
+  .window-projects .pw-box,.window-review .pw-box{width:44px;height:44px}
+  body[data-view="activity"]:not([data-pane="detail"]) #activity-detail{display:none}
+  body[data-view="activity"][data-pane="detail"] #activity-list,body[data-view="activity"][data-pane="detail"] #activity-panel>.pw-toolbar,body[data-view="activity"][data-pane="detail"] #activity-panel>.pw-infobar{display:none}
+  body[data-view="activity"][data-pane="detail"] #activity-detail{max-height:none;flex:1;border-top:0}
+  body[data-view="laya"]:not([data-pane="detail"]) #event-info{display:none}
+  body[data-view="laya"][data-pane="detail"] #event-info:not([hidden]){display:flex;position:fixed;left:0;right:0;bottom:0;top:calc(48px + env(safe-area-inset-top,0px));width:auto;z-index:35;border:0;box-shadow:none}
+  #selection-bar{left:0!important;right:0;top:auto!important;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  #selection-bar>.pw-btn{flex:1}
+}

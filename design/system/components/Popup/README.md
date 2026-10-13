@@ -4,3 +4,4 @@ A popup menu: a native `<select class="pw-popup">` drawn square with a 1px drop 
 
 - Always a native select so keyboard and screen readers work; label it with a visible `<label>` or `aria-label`.
 - Width fits the longest option; block style is at least 140px.
+- Phone (<=760px): 44px tall, 16px text, like every other control.

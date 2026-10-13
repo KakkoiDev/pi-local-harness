@@ -231,6 +231,7 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-seg>*{height:var(--size-touch);font-size:16px}
   .pw-row{min-height:var(--size-touch);font-size:16px}
   .pw-field{min-height:var(--size-touch);font-size:17px}
+  .pw-popup{min-height:var(--size-touch);font-size:16px}
   .pw-menu__item{height:var(--size-touch);font-size:16px}
   .pw-transcript{padding:18px 16px;gap:22px}
   .pw-doc{padding:18px 16px 48px 52px;font-size:17px;line-height:1.55}
