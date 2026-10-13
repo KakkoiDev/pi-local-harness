@@ -64,6 +64,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 #files-summary{margin-left:auto;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .file-search-note{margin:0;padding:8px 12px;border-top:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
 #file-tree{padding:0}
+.file-seg-row{display:none}
 #document-editor{position:relative;padding-left:56px}
 #document-source{min-height:100%}
 #save-recovery{margin:8px 12px}
@@ -104,6 +105,17 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
   body[data-view] [data-view-only]{display:none} /* full screens or sheets on phone — IMPLEMENTATION.md § Phone */
   .window-files{display:none}
   #show-projects,#files-close{display:none} /* phone: π opens the projects sheet (Ph_Files) */
+  .file-seg-row{display:flex;flex-direction:row;align-items:center;gap:8px}
+  .window-files>.pw-infobar,.window-files>.pw-titlebar>.pw-box,.window-files .pw-kbd{display:none} /* Ph_Files: title strip, search, segments, list */
+  #file-tree .pw-row{min-height:48px;padding:0 16px;border-bottom:1px dotted var(--ink)}
+  #file-tree .pw-row--nested{padding-left:44px}
+  #file-tree .pw-group__body{padding:0}
+  .window-files .pw-search{height:44px}
+  .file-seg-row>.pw-seg{flex:1}
+  #file-tree .pw-group__head{display:none}
+  #file-tree .pw-group+.pw-group{border-top:0}
+  #file-tree .pw-group__body[hidden]{display:flex!important} /* desk collapse state does not hide a phone segment */
+  #file-tree[data-segment="plan"] .pw-group[data-group="files"],#file-tree[data-segment="files"] .pw-group[data-group="plan"]{display:none}
   body[data-view="work"][data-pane="files"] .window-files{display:flex;width:100%;border:0;box-shadow:none}
   body[data-view="work"][data-pane="files"] #main-window{display:none}
   body[data-view] .window-review.is-sheet,body[data-view] .window-info.is-sheet{display:flex;position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink)}

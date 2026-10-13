@@ -244,6 +244,22 @@ const readline = require('node:readline');
   await page.goto(`${base}/?document=`+encodeURIComponent(`projects/${id}/TYPES.md`));await page.waitForURL(`${base}/p/${id}/work/TYPES.md`);
   await page.goto(base+'/');await page.waitForURL(url=>url.pathname!=='/');
 
+  // 97 phone (Ph_Files): a Plan · N open | Files · N segmented control with its + beside it replaces the group headers.
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor({state:'attached'});
+  await page.locator('#phone-back').click();
+  const seg=page.locator('#file-seg');await seg.waitFor();
+  assert.deepEqual(await seg.getByRole('radio').evaluateAll(items=>items.map(item=>[item.textContent,item.getAttribute('aria-checked')])),[['Plan · 3 open','true'],['Files · 2','false']]);
+  assert.equal(await page.locator('.pw-group__head').first().isVisible(),false,'no group headers on phone');
+  assert.equal(await page.locator('#file-seg-add').getAttribute('aria-label'),'New Task…');
+  assert.equal(await page.locator('.pw-group[data-group="files"]').isVisible(),false);
+  await seg.getByRole('radio',{name:'Files · 2'}).click();
+  assert.equal(await page.locator('.pw-group[data-group="plan"]').isVisible(),false);assert.equal(await page.locator('#file-seg-add').getAttribute('aria-label'),'New File…');
+  assert.equal(Math.round((await page.locator('#file-seg-add').boundingBox()).height),44);
+  await page.locator('#file-search').fill('a');
+  assert.match(await seg.getByRole('radio').first().textContent(),/^Plan · \d+$/,'search shows match counts on both segments');
+  await page.locator('#file-search').fill('');await page.setViewportSize({width:1440,height:900});
+
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();const exited=new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

@@ -147,6 +147,10 @@
         <div class="window-section">
           <label class="pw-search file-search"><span data-icon="search"></span><input id="file-search" type="search" placeholder="Find a file" aria-label="Find a file"><kbd class="pw-kbd">⌘F</kbd></label>
         </div>
+        <div class="window-section file-seg-row"><!-- phone (Ph_Files): Plan | Files segments with their + action -->
+          <div id="file-seg" class="pw-seg pw-seg--fill pw-seg--touch" role="radiogroup" aria-label="Show"></div>
+          <button id="file-seg-add" type="button" class="pw-btn pw-btn--touch pw-btn--icon" aria-label="New Task…"><span data-icon="plus"></span></button>
+        </div>
         <nav id="file-tree" class="pw-window__body" aria-label="Files"></nav>
         <p id="file-search-note" class="file-search-note" role="status" hidden></p>
       </aside>

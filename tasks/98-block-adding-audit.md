@@ -6,5 +6,6 @@ Request 2026-10-13: "I think you didn't integrate the document block adding feat
 
 Not investigated yet; the claim is the user's observation.
 
-- [ ] Diff the ruler and block-adding UI against the handoff: `design/canvas/EditB.dc.html`, `Final.dc.html`, `PhoneEdit5.dc.html` (block handle menu), `design/IMPLEMENTATION.md` editing section.
-- [ ] Record each gap here, then one code task per gap with a red browser test.
+- [x] Diff the ruler and block-adding UI against the handoff: `design/canvas/EditB.dc.html`, `Final.dc.html`, `PhoneEdit5.dc.html` (block handle menu), `design/IMPLEMENTATION.md` editing section.
+- [x] Record each gap here, then one code task per gap with a red browser test.
+- 2026-10-13: done through tasks 104 (ruler = Work/Final boards: no Add Block, Reload, Trash buttons), 105 (the boards never drew block adding; Notion-style decision recorded in design/IMPLEMENTATION.md) and 112 (block types styled).

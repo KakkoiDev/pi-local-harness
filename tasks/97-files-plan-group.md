@@ -10,9 +10,10 @@ Request 2026-10-13: "Group the tree in the UI only: “Plan” (ROADMAP.md, task
 - [x] Task progress meta (`2/3`, ROADMAP `47/68`), Blocked from `- [~] Blocked:` lines (tasks 56/59, not built), Done summary row. Server parses checkboxes.
 - [x] Empty Plan: "Create Roadmap" (new endpoint; scaffold as `create_project`).
 - [x] Roving keyboard focus across toggles and rows.
-- [ ] Phone: segmented Plan · N open | Files · N.
+- [x] Phone: segmented Plan · N open | Files · N.
 
 Notes:
 - The canvas still uses the old checker name; the repo copy takes Gate names (task 96).
 - Tablet: the design keeps Files at 220px; task 95 set 256px for the old button row. With the `+` actions 220 fits; the overflow assertion in `tests/browser/chat.cjs` guards it.
 - 2026-10-13: built in `js/files-window.mjs` from the re-synced ListGroup/ListRow cards (task 111); progress and Blocked come from `/api/project-files`, Create Roadmap from `/api/documents/create-roadmap`. Red: tests/test_documents.py PlanFilesTest, tests/browser/design.cjs § 97. Compared with Work.dc.html at 1440×900: same title, groups, meta, Done row, folders-first tree; differences: "‹ Projects" in the info bar (task 107), no B / I / { } (inline marks).
+- Phone: `#file-seg` + `#file-seg-add` (Ph_Files); group headers hidden, rows 48px with dotted rules, no info bar or ⌘F hint; search shows match counts on both segments. Compared with Ph_Files at 390×844. Red/green: tests/browser/design.cjs § 97 phone.

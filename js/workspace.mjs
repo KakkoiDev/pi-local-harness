@@ -190,7 +190,7 @@ export function installWorkspace(host){
   if(!matches.length)$('project-list').append(node('p','list-empty pw-empty',query?'No matching projects':'Your projects will appear here.'));
   for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));if(busy[item.id]==='running')button.append(icon('running',{size:12,label:'Working'}));else if(busy[item.id]==='waiting')button.append(node('span','pw-row__meta','waiting'));button.classList.add('conversation');button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=async()=>{await selectProject(item.id);host.setLevel('project');};$('project-list').append(button);}
  }
- const filesWindow=installFilesWindow({tree:$('file-tree'),note:$('file-search-note'),node,open:async path=>{await openFile(path);host.showView('work');},newTask:()=>newTask(),newFile:()=>newFile(),createRoadmap:()=>createRoadmap()});
+ const filesWindow=installFilesWindow({tree:$('file-tree'),note:$('file-search-note'),seg:$('file-seg'),add:$('file-seg-add'),node,open:async path=>{await openFile(path);host.showView('work');},newTask:()=>newTask(),newFile:()=>newFile(),createRoadmap:()=>createRoadmap()});
  function renderFiles(){if(unchanged('files',[project,files,page?.path]))return;filesWindow.update({project,files,current:page?.path||null});$('files-summary').textContent=filesWindow.summary();}
  async function createRoadmap(){if(!project)return;await createAndOpen('/api/documents/create-roadmap',{project});}
  async function refreshFiles(){

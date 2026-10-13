@@ -17,8 +17,8 @@ export function planSummary(files) {
   return [hasPlan ? plural(open, 'open task') : 'No plan yet', plural(folders, 'folder'), plural(top.size - folders, 'file')].join(' · ');
 }
 
-export function installFilesWindow({ tree, note, node, open, newTask, newFile, createRoadmap }) {
-  let project = null, files = [], current = null, query = '', focusKey = null;
+export function installFilesWindow({ tree, note, seg, add, node, open, newTask, newFile, createRoadmap }) {
+  let project = null, files = [], current = null, query = '', focusKey = null, segment = 'plan';
   const expanded = new Set();
   const groups = () => ({ plan: true, files: true, done: false, ...(readState('fileGroups', {})[project] || {}) });
   const setGroup = (name, value) => { const all = readState('fileGroups', {}); all[project] = { ...groups(), [name]: value }; writeState('fileGroups', all); render(); };
@@ -105,9 +105,21 @@ export function installFilesWindow({ tree, note, node, open, newTask, newFile, c
       tree.append(group('plan', 'Plan', openTasks.length + ' open', 'New Task…', newTask, planRows, state.plan),
         group('files', 'Files', String(top.size), 'New File…', newFile, fileRows, state.files));
     }
+    segments(query ? { plan: tree.querySelector('[data-group="plan"] .pw-group__body')?.childElementCount || 0, files: tree.querySelector('[data-group="files"] .pw-group__body')?.childElementCount || 0 }
+      : { plan: openTasks.length + ' open', files: new Set(others.map(file => file.name.split('/')[0])).size });
     // One roving tab stop across toggles and rows (ListGroup § Behaviour).
     const items = visible(), target = items.find(item => item.dataset.key === focusKey) || items.find(item => item.getAttribute('aria-current') === 'page') || items[0];
     if (target) { target.tabIndex = 0; if (focused) target.focus(); }
+  }
+  // Phone (ListGroup § Phone): the groups become two segments; the + beside them acts on the chosen one.
+  function segments(counts) {
+    tree.dataset.segment = segment;
+    seg.replaceChildren(...['plan', 'files'].map(name => {
+      const item = node('button', '', `${name === 'plan' ? 'Plan' : 'Files'} · ${counts[name]}`); item.type = 'button'; item.setAttribute('role', 'radio');
+      item.setAttribute('aria-checked', String(segment === name)); item.tabIndex = segment === name ? 0 : -1;
+      item.onclick = () => { segment = name; render(); seg.querySelector('[aria-checked="true"]')?.focus(); }; return item;
+    }));
+    add.setAttribute('aria-label', segment === 'plan' ? 'New Task…' : 'New File…'); add.onclick = segment === 'plan' ? newTask : newFile;
   }
   const visible = () => [...tree.querySelectorAll('.pw-group__toggle,.pw-row')].filter(item => !item.closest('[hidden]'));
 
