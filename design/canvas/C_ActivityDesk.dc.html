@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Activity desktop component</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; color: #000">
+<section class="pw-window" aria-label="Activity" style="flex: 1">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Activity</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<div class="pw-toolbar">
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html" aria-current="page">Activity<kbd>⌘3</kbd></a><a href="Laya.dc.html">Laya<kbd>⌘4</kbd></a></nav>
+<span style="flex: 1"></span>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center">Show <select class="pw-popup"><option>{{filterLabel}}</option></select></label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center">Project <select class="pw-popup"><option>All Projects</option></select></label>
+</div>
+<div class="pw-infobar" role="status"><span>{{summary}}</span><span style="margin-left: auto">One queue, first in, first out. Interrupted work is never repeated automatically.</span></div>
+
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<div class="pw-window__body"><div style="max-width: 460px; margin: 160px auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center">
+<svg viewBox="0 0 16 16" width="40" height="40" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+<p style="margin: 0; font-size: 17px">All caught up</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.5">Send a chat message or a document request. Its progress and result will appear here.</p>
+<a href="Main.dc.html" class="pw-btn pw-btn--default">Open Project Chat</a>
+</div></div>
+</sc-if>
+
+<sc-if value="{{notEmpty}}" hint-placeholder-val="{{true}}">
+<div class="pw-table" style="--pw-cols: 150px minmax(0,1fr) 190px 150px 90px 70px; flex: 1; min-height: 0; overflow: auto">
+<div class="pw-table__row pw-table__head"><span>State</span><span>Request</span><span>Project</span><span>Source</span><span>Started</span><span>Time</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<a href="#" class="pw-table__row" aria-current="{{r.current}}">
+<span class="pw-glyph"><sc-if value="{{r.isRunning}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.isQueued}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.isFailed}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.isDone}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{r.isInterrupted}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M.5 8h5.5M10 8h5.5M5.5 4.5l5 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></sc-if><sc-if value="{{r.isStopped}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="10" height="10" fill="currentColor"/></svg></sc-if>{{r.state}}</span>
+<span class="pw-table__cell--text">{{r.request}}</span><span>{{r.project}}</span><span>{{r.source}}</span><span>{{r.started}}</span><span>{{r.time}}</span>
+</a>
+</sc-for>
+</div>
+
+<!-- Detail -->
+<div style="flex: none; height: 330px; border-top: 3px double #000; display: flex; min-height: 0">
+<div style="flex: 1 1 380px; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid #000">
+<h2 class="pw-dialog__title">{{dTitle}}</h2>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.45">“{{dRequest}}”</p>
+<dl style="margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; font-size: 14px">
+<dt>Phase</dt><dd style="margin: 0">{{dPhase}}</dd>
+<dt>Last command</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">{{dCommand}}</dd>
+<dt>Laya</dt><dd style="margin: 0">{{dLaya}}</dd>
+</dl>
+<sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/><path d="M4.5 8h7" stroke="#fff" stroke-width="2"/></svg>backup.sh exited with code 1: /mnt/backup is not mounted.</div></sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto">
+<a href="Main.dc.html" class="pw-btn">Open Chat</a>
+<sc-if value="{{running}}" hint-placeholder-val="{{true}}"><button class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></sc-if>
+<sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><button class="pw-btn pw-btn--default">Ask Pi to Retry…</button></sc-if>
+</div>
+</div>
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column">
+<div class="pw-infobar" style="justify-content: space-between; border-bottom: 1px solid #000"><span>Markdown task record</span><span class="pw-mono">{{recordPath}}</span></div>
+<pre class="pw-mono" style="margin: 0; flex: 1; overflow: auto; padding: 12px 14px; font-size: 13px; line-height: 1.55; white-space: pre-wrap">{{record}}</pre>
+</div>
+</div>
+</sc-if>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","attention","empty"],"default":"running"},"$preview":{"width":1440,"height":872}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.state ?? 'running';
+const all = [
+{ state: 'Running', request: 'The Activity badge still counts interrupted jobs after a restart…', project: 'pi-local-harness', source: 'Chat', started: '14:02', time: '0:48', k: 'running' },
+{ state: 'Waiting', request: 'Add a furigana toggle to the flashcard view', project: 'Japanese study app', source: 'Chat', started: 'queued 14:05', time: '—', k: 'queued' },
+{ state: 'Failed', request: 'Run the backup script and report disk usage', project: 'home-server', source: 'Chat', started: '13:40', time: '2:11', k: 'attention' },
+{ state: 'Completed', request: 'Should a stuck task also send a notification?', project: 'pi-local-harness', source: '59-stuck-detection', started: '14:20', time: '0:31', k: 'done' },
+{ state: 'Interrupted', request: 'Rewrite the roadmap summary for tasks 55–58', project: 'pi-local-harness', source: 'ROADMAP.md', started: 'Yesterday', time: '4:02', k: 'attention' },
+{ state: 'Stopped', request: 'Transcribe the attached voice memo', project: 'Japanese study app', source: 'Chat', started: 'Yesterday', time: '0:09', k: 'attention' }
+];
+const attention = s === 'attention';
+const rows = (attention ? all.filter((r) => r.k === 'attention') : all).map((r, i) => Object.assign({}, r, { isRunning: r.state === 'Running', isQueued: r.state === 'Waiting', isFailed: r.state === 'Failed', isDone: r.state === 'Completed', isInterrupted: r.state === 'Interrupted', isStopped: r.state === 'Stopped', current: attention ? (i === 0 ? 'true' : 'false') : (r.k === 'running' ? 'true' : 'false') }));
+return {
+empty: s === 'empty', notEmpty: s !== 'empty',
+filterLabel: attention ? 'Needs Attention' : 'All Work',
+summary: s === 'empty' ? 'Nothing running or waiting' : attention ? '3 need attention: 1 failed, 1 interrupted, 1 stopped' : '1 running · 1 waiting · 3 need attention',
+rows: rows,
+running: !attention, failed: attention,
+dTitle: attention ? 'Failed in home-server' : 'Running in pi-local-harness',
+dRequest: attention ? 'Run the backup script and report disk usage' : 'The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?',
+dPhase: attention ? 'Verify — stopped at the first failing step' : 'Verify — running tests',
+dCommand: attention ? './backup.sh --report' : 'python3 -m pytest tests/test_work_queue.py',
+dLaya: attention ? '3 approved · 1 audit failed (exit 1)' : '4 approved · 0 blocked',
+recordPath: attention ? 'work/2026-10-13-1340.md' : 'work/2026-10-13-1402.md',
+record: attention ? '## Request 13:40 · home-server · chat\nState: failed\nPhase: verify\n\n- [x] Read backup.sh\n- [x] Run ./backup.sh --report\n- [ ] Report disk usage\n\nError: exit 1 — /mnt/backup is not mounted.' : '## Request 14:02 · pi-local-harness · chat\nState: running\nPhase: verify\n\n- [x] Read harness/work_queue.py\n- [x] Narrow badge count to running + waiting\n- [x] Add regression test\n- [ ] Green: tests/test_work_queue.py'
+};
+}
+}
+</script>
+</body>
+</html>

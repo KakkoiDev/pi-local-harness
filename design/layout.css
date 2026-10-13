@@ -1,0 +1,91 @@
+/* Pi Workbench System 1 — page layout for index.reference.html.
+   Replaces the contents of /chat.css (keep the filename: harness/web_chat.py serves /chat.css).
+   Colours, type and components come from design/tokens.css and design/components.css. */
+
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;overflow:hidden;background:var(--desk)}
+.skip-link{position:absolute;left:8px;top:-60px;z-index:100}
+.skip-link:focus{top:8px}
+
+/* Menu bar vs phone bar */
+.menubar-slot{position:relative}
+#phonebar{display:none}
+
+/* Desktop: windows tile left to right */
+#desk{flex:1;min-height:0;display:flex;gap:var(--space-6);padding:var(--space-6)}
+#desk[data-pattern="gray"]{background-image:repeating-conic-gradient(var(--desk-dot) 0 25%,var(--desk) 0 50%);background-size:2px 2px}
+#desk[data-pattern="plain"]{background-image:none}
+.window-projects{width:var(--size-sidebar);min-width:260px;flex:none}
+#main-window{flex:1;min-width:0}
+.window-info{width:340px;flex:none}
+.window-section{padding:10px;border-bottom:1px solid var(--ink);display:flex;flex-direction:column;gap:8px}
+.window-section--actions{border-bottom:0;border-top:1px solid var(--ink);margin-top:auto}
+.window-section--top{border-bottom:0;border-top:3px double var(--ink);margin-top:auto}
+.window-row{display:flex;gap:8px;align-items:center}
+.window-row>*{flex:1}
+.window-column{display:flex;flex-direction:column;gap:8px}
+.pw-statusbar{justify-content:space-between}
+
+/* Main window: one view at a time (the JS toggles [hidden]) */
+#thread{flex:1;min-height:0;overflow:auto}
+.composer-wrap{flex:none}
+.composer-wrap .footnote{margin:0}
+.welcome{max-width:520px;margin:120px auto 0;padding:0 24px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.welcome[hidden]{display:none}
+.welcome-mark{width:72px;height:72px;border:1px solid var(--ink);box-shadow:var(--shadow-window);display:grid;place-content:center;font-family:var(--font-text);font-style:italic;font-weight:600;font-size:44px}
+.welcome h2{margin:0;font-size:24px;font-weight:400}
+.welcome p{margin:0;font-size:17px;line-height:1.5}
+.suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.activity-count{font-size:13px;border:1px solid currentColor;padding:0 4px;min-width:16px;text-align:center}
+
+/* Work: Files window | main window (document) | Review window, side by side on the desk */
+.work-panel{flex:1;min-height:0;display:flex;flex-direction:column}
+.work-layout{flex:1;min-height:0;display:flex}
+.document-pane{flex:1;min-width:0;display:flex;flex-direction:column}
+.window-files{width:290px;flex:none}
+.window-review{width:var(--size-review);flex:none}
+.window-review[hidden]{display:none}
+/* Side windows belong to one view; the Projects window steps aside in Work */
+[data-view-only]{display:none}
+body[data-view="work"] [data-view-only="work"],body[data-view="laya"] [data-view-only="laya"]:not([hidden]){display:flex}
+body[data-view="work"] .window-projects{display:none}
+#document-editor{position:relative;padding-left:56px}
+#document-source{min-height:100%}
+#save-recovery{margin:8px 12px}
+#save-recovery p{flex:1;margin:0}
+
+/* Activity and Laya */
+.activity-panel,.laya-panel{flex:1;min-height:0;display:flex;flex-direction:column}
+.activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
+.activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
+#activity-list{--pw-cols:150px minmax(0,1fr) 190px 150px 90px 70px}
+#laya-events{--pw-cols:74px 72px 120px 110px minmax(0,1fr) 150px 80px}
+
+/* Folder dialog */
+.folder-list{border:1px solid var(--ink);height:180px;overflow:auto;padding:0}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;min-width:320px}
+
+/* ---------- Phone (≤760px) ---------- */
+@media (max-width:760px){
+  #menubar{display:none}
+  #phonebar{display:flex;padding-top:env(safe-area-inset-top,0px);height:calc(48px + env(safe-area-inset-top,0px))}
+  #desk{padding:0;gap:0;background:var(--paper)}
+  #main-window{border:0;box-shadow:none}
+  #main-window>.pw-titlebar{height:30px}
+  #workspace-bar{display:none} /* views move to the phone-view popup */
+  /* Projects window becomes the π sheet (body.menu-open, set by js/chat.mjs) */
+  .window-projects{position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink);transform:translateY(100%);visibility:hidden}
+  body.menu-open .window-projects{transform:none;visibility:visible}
+  #backdrop:not([hidden]){display:block;border:0;z-index:30}
+  .work-layout{padding:0;gap:0}
+  body[data-view] [data-view-only]{display:none} /* full screens or sheets on phone — IMPLEMENTATION.md § Phone */
+  body[data-view="work"][data-pane="files"] .window-files{display:flex;width:100%;border:0;box-shadow:none}
+  body[data-view="work"][data-pane="files"] #main-window{display:none}
+  body[data-view] .window-review.is-sheet,body[data-view] .window-info.is-sheet{display:flex;position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink)}
+  #document-editor{padding:18px 16px 48px 52px}
+  .composer-wrap{padding-bottom:env(safe-area-inset-bottom,0px)}
+  #activity-list,#laya-events{--pw-cols:minmax(0,1fr)}
+  .welcome{margin-top:48px}
+}

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editing — inline threads with Review window</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.box-btn{width:28px;height:26px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center}
+.box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
+.mb-item{font:inherit;color:#000;background:none;border:0;height:28px;padding:0 10px;display:flex;align-items:center}
+.mb-item:hover{background:#000;color:#fff}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn:active{background:#000;color:#fff}
+.btn[disabled]{color:#767676;border-color:#767676;cursor:default}
+.btn-def{border-radius:9px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
+.popup{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px}
+.tool{width:32px;height:30px;border:1px solid #000;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Source Serif 4',Georgia,serif;font-size:16px;padding:0;color:#000}
+.seg{flex:1;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:14px;height:30px;padding:0 8px;border:1px solid #000;background:#fff;color:#000;cursor:pointer}
+.seg.on{background:#000;color:#fff}
+.mark{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;line-height:16px;display:inline-block;background:#fff;color:#000;cursor:pointer}
+.mark.on{background:#000;color:#fff}
+.mark.res{border-style:dotted}
+.mark.res.on{background:#fff;color:#000;border:2px dotted #000}
+.anchor{border-bottom:2px solid #000}
+.anchor-res{border-bottom:1px dotted #000}
+.hl{background:#000;color:#fff}
+.thread{position:relative;border:1px solid #000;box-shadow:2px 2px 0 #000;font-size:15px;line-height:1.45;margin:2px 0 4px 24px;background:#fff}
+.thread.res{border-style:dotted;box-shadow:none}
+.tmsg{padding:10px 14px;border-bottom:1px solid #000;display:flex;gap:12px;align-items:baseline}
+.who{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:13px;flex:none;width:76px}
+.tacts{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:'Pixelify Sans',system-ui,sans-serif}
+.tacts input{flex:1 1 180px;min-width:0;height:32px;box-sizing:border-box;border:1px solid #000;box-shadow:inset 1px 1px 0 #000;padding:0 8px;font-family:'Source Serif 4',Georgia,serif;font-size:15px}
+.item{border-bottom:1px solid #000;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.item.sel{outline:2px solid #000;outline-offset:-3px}
+.ihead{display:flex;justify-content:space-between;gap:8px;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:13px;background:none;border:0;padding:0;text-align:left;color:#000;cursor:pointer}
+.mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
+.btn:focus-visible,.popup:focus-visible,.tool:focus-visible,.seg:focus-visible,.mark:focus-visible,.ihead:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 860px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; display: flex; flex-direction: column; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000">
+
+<nav aria-label="Menu bar" style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px">
+<button class="mb-item" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</button>
+<button class="mb-item">File</button><button class="mb-item">Edit</button><button class="mb-item">View</button><button class="mb-item">Project</button><button class="mb-item">Agent</button><button class="mb-item">Format</button><button class="mb-item" onClick="{{toggleReview}}">Window</button>
+<div style="flex: 1"></div>
+<span style="font-size: 14px; padding: 0 8px">Gemma 4 · Idle</span>
+</nav>
+
+<div style="flex: 1; min-height: 0; display: flex; gap: 20px; padding: 20px">
+
+<!-- Document window -->
+<section aria-label="DESIGN.md" style="flex: 1; min-width: 0; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
+<button class="box-btn" aria-label="Close window"><span></span></button><div class="tb-stripes"></div>
+<h1 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px">DESIGN.md</h1>
+<div class="tb-stripes"></div><button class="box-btn" aria-label="Zoom window"><span></span></button>
+</div>
+<div role="toolbar" aria-label="Ruler" style="flex: none; border-bottom: 3px double #000; display: flex; align-items: center; gap: 8px; padding: 8px 12px">
+<button class="popup" aria-label="Block style: Paragraph" style="min-width: 140px; justify-content: space-between">Paragraph<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
+<div style="display: flex"><button class="tool" aria-label="Bold" style="font-weight: 700">B</button><button class="tool" aria-label="Italic" style="font-style: italic; border-left: 0">I</button><button class="tool mono" aria-label="Code" style="border-left: 0; font-size: 13px">{ }</button></div>
+<div style="display: flex"><button class="tool" aria-label="Bulleted list"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M0 1h2v2H0zM0 5h2v2H0zM0 9h2v2H0z" fill="#000"/><path d="M5 2h11M5 6h11M5 10h11" stroke="#000"/></svg></button><button class="tool" aria-label="Task checkbox" style="border-left: 0"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x=".5" y=".5" width="11" height="11" fill="none" stroke="#000"/></svg></button><button class="tool" aria-label="Quote" style="border-left: 0">“</button></div>
+<div style="flex: 1"></div>
+<button class="btn" onClick="{{toggleReview}}" aria-pressed="{{review}}">{{reviewLabel}}<span style="font-size: 13px">⌥⌘R</span></button>
+<span role="status" style="font-size: 14px; border-left: 1px solid #000; padding-left: 10px">Saved</span>
+</div>
+
+<div style="flex: 1; min-height: 0; overflow: auto; display: flex; justify-content: center">
+<article style="width: 700px; max-width: 100%; padding: 28px 24px 60px; box-sizing: border-box; font-family: 'Source Serif 4', 'New York', Georgia, serif; font-size: 18px; line-height: 1.6; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+
+<!-- Paragraph 1 -->
+<sc-if value="{{notApplied}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; text-wrap: pretty">Preserve the <span class="{{t1.anchorClass}}">established dark workspace and pale green accent</span><sc-if value="{{t1.mark}}" hint-placeholder-val="{{true}}"><button class="{{t1.markClass}}" onClick="{{t1.toggle}}" aria-label="Comment 1" aria-expanded="{{t1.shown}}">1</button></sc-if>. Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
+</sc-if>
+<sc-if value="{{applied}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0; text-wrap: pretty"><span class="{{t1.anchorClass}}">Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</span><sc-if value="{{t1.mark}}" hint-placeholder-val="{{false}}"><button class="{{t1.markClass}}" onClick="{{t1.toggle}}" aria-label="Comment 1, resolved">1</button></sc-if> Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
+</sc-if>
+
+<sc-if value="{{t1.shown}}" hint-placeholder-val="{{true}}">
+<div class="{{t1.threadClass}}" role="region" aria-label="Comment 1">
+<div class="tmsg"><span class="who"><b>You</b> 14:20</span><p style="margin: 0">Out of date after the 1-bit redesign. Rewrite this sentence.</p></div>
+<sc-if value="{{showSuggestion}}" hint-placeholder-val="{{true}}">
+<div class="tmsg" style="flex-direction: column; gap: 8px"><span class="who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span>
+<p style="margin: 0; border: 1px dotted #000; padding: 8px 10px"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></p>
+<div style="display: flex; gap: 10px; align-items: center; font-family: 'Pixelify Sans', system-ui, sans-serif"><button class="btn" onClick="{{keep}}">Keep Mine</button><div style="flex: 1"></div><button class="btn btn-def" onClick="{{apply}}">Apply Change</button></div>
+</div>
+</sc-if>
+<sc-if value="{{kept}}" hint-placeholder-val="{{false}}">
+<div class="tmsg"><span class="who"><b>Pi</b> 14:21</span><p style="margin: 0; font-style: italic">Suggested a rewrite — you kept your text.</p></div>
+</sc-if>
+<sc-if value="{{t1.isOpen}}" hint-placeholder-val="{{true}}">
+<div class="tacts"><input aria-label="Reply to comment 1" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t1.resolve}}">Resolve</button></div>
+</sc-if>
+<sc-if value="{{t1.isRes}}" hint-placeholder-val="{{false}}">
+<div class="tacts"><span style="font-size: 13px; flex: 1">{{t1.noteLine}}</span><button class="btn" onClick="{{t1.reopen}}">Reopen</button></div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- Paragraph 2 -->
+<div style="position: relative">
+<p style="margin: 0; text-wrap: pretty">Projects live in the left rail. <span class="{{t2.anchorClass}}">Chat, Work, and Laya remain the main views.</span><sc-if value="{{t2.mark}}" hint-placeholder-val="{{true}}"><button class="{{t2.markClass}}" onClick="{{t2.toggle}}" aria-label="Comment 2" aria-expanded="{{t2.shown}}">2</button></sc-if> The active project and selected file must be clear. Persist navigation and drafts, and expose conflict recovery before allowing data loss. Buttons have visible keyboard focus and <span class="{{selClass}}">touch-sized targets</span><sc-if value="{{t5.mark}}" hint-placeholder-val="{{false}}"><button class="{{t5.markClass}}" onClick="{{t5.toggle}}" aria-label="Comment 3" aria-expanded="{{t5.shown}}">3</button></sc-if>.</p>
+<sc-if value="{{sel}}" hint-placeholder-val="{{true}}">
+<div role="toolbar" aria-label="Selection" style="position: absolute; right: 0; bottom: -44px; display: flex; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; z-index: 2">
+<button class="btn" onClick="{{comment}}" style="border: 0; border-radius: 0; border-right: 1px solid #000">Comment<span style="font-size: 13px">⇧⌘M</span></button>
+<button class="btn" style="border: 0; border-radius: 0">Ask Pi…</button>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{t2.shown}}" hint-placeholder-val="{{false}}">
+<div class="{{t2.threadClass}}" role="region" aria-label="Comment 2">
+<div class="tmsg"><span class="who"><b>You</b> 14:31</span><p style="margin: 0">Activity is missing from this list.</p></div>
+<sc-if value="{{t2.isOpen}}" hint-placeholder-val="{{true}}">
+<div class="tacts"><span style="font-size: 13px; display: flex; align-items: center; gap: 6px; flex-basis: 100%"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Sent to Pi · waiting in queue · can no longer be deleted</span><input aria-label="Reply to comment 2" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t2.resolve}}">Resolve</button></div>
+</sc-if>
+<sc-if value="{{t2.isRes}}" hint-placeholder-val="{{false}}">
+<div class="tacts"><span style="font-size: 13px; flex: 1">{{t2.noteLine}}</span><button class="btn" onClick="{{t2.reopen}}">Reopen</button></div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{t5.shown}}" hint-placeholder-val="{{false}}">
+<div class="{{t5.threadClass}}" role="region" aria-label="Comment 3">
+<div class="tmsg"><span class="who"><b>You</b> now</span><p style="margin: 0">Say 44 px, so the phone layouts can be checked against it.</p></div>
+<sc-if value="{{t5.isOpen}}" hint-placeholder-val="{{true}}">
+<div class="tacts"><span style="font-size: 13px; flex-basis: 100%">Saved with the file · not sent to Pi</span><button class="btn">Ask Pi</button><button class="btn" onClick="{{t5.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t5.del}}">Delete</button></div>
+</sc-if>
+<sc-if value="{{t5.isRes}}" hint-placeholder-val="{{false}}">
+<div class="tacts"><span style="font-size: 13px; flex: 1">{{t5.noteLine}}</span><button class="btn" onClick="{{t5.reopen}}">Reopen</button></div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- Paragraph 3 -->
+<p style="margin: 0; text-wrap: pretty">Applied Impeccable polish and harden guidance; <span class="{{t3.anchorClass}}">refine the existing product rather than replacing its visual identity</span><sc-if value="{{t3.mark}}" hint-placeholder-val="{{false}}"><button class="{{t3.markClass}}" onClick="{{t3.toggle}}" aria-label="Comment 4" aria-expanded="{{t3.shown}}">4</button></sc-if>. Browser verification covers real workflows, <span class="{{t4.anchorClass}}">long/CJK text</span><sc-if value="{{t4.mark}}" hint-placeholder-val="{{false}}"><button class="{{t4.markClass}}" onClick="{{t4.toggle}}" aria-label="Comment 5" aria-expanded="{{t4.shown}}">5</button></sc-if>, keyboard input, mobile widths, loading/failure states, and save conflicts.</p>
+
+<sc-if value="{{t3.shown}}" hint-placeholder-val="{{false}}">
+<div class="{{t3.threadClass}}" role="region" aria-label="Comment 4">
+<div class="tmsg"><span class="who"><b>You</b> 14:12</span><p style="margin: 0">Superseded by the redesign brief.</p></div>
+<sc-if value="{{t3.isOpen}}" hint-placeholder-val="{{false}}">
+<div class="tacts"><input aria-label="Reply to comment 4" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t3.resolve}}">Resolve</button></div>
+</sc-if>
+<sc-if value="{{t3.isRes}}" hint-placeholder-val="{{true}}">
+<div class="tacts"><span style="font-size: 13px; flex: 1">{{t3.noteLine}}</span><button class="btn" onClick="{{t3.reopen}}">Reopen</button></div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{t4.shown}}" hint-placeholder-val="{{false}}">
+<div class="{{t4.threadClass}}" role="region" aria-label="Comment 5">
+<div class="tmsg"><span class="who"><b>You</b> 14:15</span><p style="margin: 0">Add a CJK fixture for the block editor.</p></div>
+<sc-if value="{{t4.isOpen}}" hint-placeholder-val="{{true}}">
+<div class="tacts"><span style="font-size: 13px; flex-basis: 100%">Restored · not sent to Pi</span><button class="btn">Ask Pi</button><button class="btn" onClick="{{t4.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t4.del}}">Delete</button></div>
+</sc-if>
+<sc-if value="{{t4.isRes}}" hint-placeholder-val="{{false}}">
+<div class="tacts"><span style="font-size: 13px; flex: 1">{{t4.noteLine}}</span><button class="btn" onClick="{{t4.reopen}}">Reopen</button></div>
+</sc-if>
+</div>
+</sc-if>
+</article>
+</div>
+
+<div role="status" style="flex: none; border-top: 1px solid #000; min-height: 34px; padding: 0 12px; font-size: 14px; display: flex; align-items: center; gap: 12px">
+<sc-if value="{{hasUndo}}" hint-placeholder-val="{{false}}">
+<span>Comment deleted. It’s kept under Deleted in Review.</span><button class="btn" onClick="{{undo}}" style="min-height: 26px">Undo<span style="font-size: 13px">⌘Z</span></button>
+</sc-if>
+<sc-if value="{{hasFlash}}" hint-placeholder-val="{{false}}"><span>{{flash}}</span></sc-if>
+<sc-if value="{{idle}}" hint-placeholder-val="{{true}}"><span>Paragraph · {{openCount}} open comments</span></sc-if>
+<span style="margin-left: auto; font-size: 13px">⌘⌥] next comment</span>
+</div>
+</section>
+
+<!-- Review window -->
+<sc-if value="{{review}}" hint-placeholder-val="{{true}}">
+<section aria-label="Review" style="width: 380px; flex: none; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
+<button class="box-btn" aria-label="Close Review window" onClick="{{toggleReview}}"><span></span></button><div class="tb-stripes"></div>
+<h2 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px">Review</h2>
+<div class="tb-stripes"></div><span style="width: 28px"></span>
+</div>
+<div role="radiogroup" aria-label="Show" style="flex: none; display: flex; padding: 10px 12px; border-bottom: 3px double #000">
+<button class="{{segOpen}}" role="radio" aria-checked="{{fOpen}}" onClick="{{showOpen}}" style="border-radius: 8px 0 0 8px">Open {{openCount}}</button>
+<button class="{{segRes}}" role="radio" aria-checked="{{fRes}}" onClick="{{showResolvedList}}" style="border-left: 0">Resolved {{resCount}}</button>
+<button class="{{segDel}}" role="radio" aria-checked="{{fDel}}" onClick="{{showDeleted}}" style="border-left: 0; border-radius: 0 8px 8px 0">Deleted {{delCount}}</button>
+</div>
+<div style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="3">
+<div class="{{it.itemClass}}">
+<button class="ihead" onClick="{{it.goTo}}"><span>{{it.n}} · {{it.noteLine}}</span><span>{{it.time}}</span></button>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 14px; line-height: 1.35">“{{it.quote}}”</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">{{it.text}}</p>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-if value="{{it.isOpen}}" hint-placeholder-val="{{true}}"><button class="btn" onClick="{{it.resolve}}">Resolve</button></sc-if>
+<sc-if value="{{it.canDelete}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.del}}">Delete</button></sc-if>
+<sc-if value="{{it.isRes}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.reopen}}">Reopen</button></sc-if>
+<sc-if value="{{it.isDel}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.restore}}">Restore</button></sc-if>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<p style="margin: 24px 16px; font-size: 14px; text-align: center">{{emptyText}}</p>
+</sc-if>
+</div>
+<div style="flex: none; border-top: 1px solid #000; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; min-height: 28px"><input type="checkbox" checked="{{showRes}}" onChange="{{toggleShowRes}}" style="width: 16px; height: 16px; accent-color: #000">Show resolved in the text</label>
+<button class="btn" disabled="{{sendDisabled}}">{{sendLabel}}</button>
+</div>
+</section>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { st: { t1: 'open', t2: 'open', t3: 'resolved', t4: 'deleted', t5: 'none' }, open: 't1', review: true, filter: 'open', showRes: false, applied: false, kept: false, sel: true, undo: null, undoPrev: null, flash: '' };
+}
+setSt(id, v, extra) {
+const st = Object.assign({}, this.state.st);
+st[id] = v;
+this.setState(Object.assign({ st: st }, extra || {}));
+}
+renderVals() {
+const s = this.state, st = s.st;
+const DEFS = [
+{ id: 't1', n: 1, time: '14:20', sent: true, quote: s.applied ? 'Use one-bit black on white…' : 'established dark workspace and pale green accent', text: 'Out of date after the 1-bit redesign. Rewrite this sentence.' },
+{ id: 't2', n: 2, time: '14:31', sent: true, quote: 'Chat, Work, and Laya remain the main views.', text: 'Activity is missing from this list.' },
+{ id: 't5', n: 3, time: 'now', sent: false, quote: 'touch-sized targets', text: 'Say 44 px, so the phone layouts can be checked against it.' },
+{ id: 't3', n: 4, time: '14:12', sent: true, quote: 'refine the existing product rather than replacing its visual identity', text: 'Superseded by the redesign brief.' },
+{ id: 't4', n: 5, time: '14:15', sent: false, quote: 'long/CJK text', text: 'Add a CJK fixture for the block editor.' }
+];
+const openNote = {
+t1: s.kept ? 'Suggestion declined' : 'Pi suggested a change',
+t2: 'Sent to Pi · waiting',
+t5: 'Not sent to Pi',
+t3: 'Open',
+t4: 'Not sent to Pi'
+};
+const mk = (d) => {
+const status = st[d.id];
+const visible = status === 'open' || (status === 'resolved' && s.showRes);
+let noteLine = openNote[d.id];
+if (status === 'resolved') noteLine = (d.id === 't1' && s.applied) ? 'Resolved when the change was applied' : 'Resolved by you · 14:52';
+if (status === 'deleted') noteLine = 'Deleted 14:55 · kept with the file';
+return Object.assign({}, d, {
+status: status, noteLine: noteLine,
+isOpen: status === 'open', isRes: status === 'resolved', isDel: status === 'deleted',
+mark: visible,
+markClass: 'mark' + (s.open === d.id ? ' on' : '') + (status === 'resolved' ? ' res' : ''),
+anchorClass: d.id === 't5' ? '' : (status === 'open' ? 'anchor' : (status === 'resolved' && s.showRes ? 'anchor-res' : '')),
+threadClass: 'thread' + (status === 'resolved' ? ' res' : ''),
+itemClass: 'item' + (s.open === d.id ? ' sel' : ''),
+shown: s.open === d.id && visible,
+canDelete: status === 'open' && !d.sent,
+toggle: () => this.setState({ open: s.open === d.id ? null : d.id, flash: '' }),
+resolve: () => this.setSt(d.id, 'resolved', { open: s.open === d.id ? null : s.open, flash: 'Comment ' + d.n + ' resolved. Find it under Resolved.', undo: null }),
+reopen: () => this.setSt(d.id, 'open', { open: d.id, flash: '', filter: 'open' }),
+del: () => this.setSt(d.id, 'deleted', { open: null, undo: d.id, undoPrev: status, flash: '' }),
+restore: () => this.setSt(d.id, 'open', { open: d.id, flash: 'Comment ' + d.n + ' restored.', undo: null, filter: 'open' }),
+goTo: () => { if (status === 'deleted') return; this.setState({ open: d.id, showRes: status === 'resolved' ? true : s.showRes }); }
+});
+};
+const all = DEFS.map(mk);
+const by = {};
+all.forEach((x) => { by[x.id] = x; });
+const live = all.filter((x) => x.status !== 'none');
+const openCount = live.filter((x) => x.isOpen).length;
+const resCount = live.filter((x) => x.isRes).length;
+const delCount = live.filter((x) => x.isDel).length;
+const items = live.filter((x) => s.filter === 'open' ? x.isOpen : s.filter === 'resolved' ? x.isRes : x.isDel);
+const unsent = live.filter((x) => x.isOpen && !x.sent).length;
+const emptyText = s.filter === 'open' ? 'No open comments.' : s.filter === 'resolved' ? 'Nothing resolved yet.' : 'No deleted comments.';
+return Object.assign({}, by, {
+review: s.review,
+reviewLabel: s.review ? 'Hide Review' : 'Review (' + openCount + ')',
+toggleReview: () => this.setState({ review: !s.review }),
+applied: s.applied, notApplied: !s.applied, kept: s.kept,
+showSuggestion: st.t1 === 'open' && !s.applied && !s.kept,
+apply: () => this.setSt('t1', 'resolved', { applied: true, open: null, flash: 'Change applied. Comment 1 resolved.', undo: null }),
+keep: () => this.setState({ kept: true }),
+sel: s.sel,
+selClass: s.sel ? 'hl' : (st.t5 === 'open' ? 'anchor' : (st.t5 === 'resolved' && s.showRes ? 'anchor-res' : '')),
+comment: () => this.setSt('t5', 'open', { sel: false, open: 't5', flash: '', filter: 'open' }),
+hasUndo: !!s.undo,
+hasFlash: !s.undo && !!s.flash,
+idle: !s.undo && !s.flash,
+flash: s.flash,
+undo: () => this.setSt(s.undo, s.undoPrev, { undo: null, open: s.undo, flash: '' }),
+openCount: openCount, resCount: resCount, delCount: delCount,
+items: items, empty: items.length === 0, emptyText: emptyText,
+fOpen: s.filter === 'open', fRes: s.filter === 'resolved', fDel: s.filter === 'deleted',
+segOpen: 'seg' + (s.filter === 'open' ? ' on' : ''),
+segRes: 'seg' + (s.filter === 'resolved' ? ' on' : ''),
+segDel: 'seg' + (s.filter === 'deleted' ? ' on' : ''),
+showOpen: () => this.setState({ filter: 'open' }),
+showResolvedList: () => this.setState({ filter: 'resolved' }),
+showDeleted: () => this.setState({ filter: 'deleted' }),
+showRes: s.showRes,
+toggleShowRes: () => this.setState({ showRes: !s.showRes }),
+sendDisabled: unsent === 0,
+sendLabel: unsent === 0 ? 'No unsent comments' : 'Send ' + unsent + ' Unsent Comment' + (unsent > 1 ? 's' : '') + ' to Pi'
+});
+}
+}
+</script>
+</body>
+</html>

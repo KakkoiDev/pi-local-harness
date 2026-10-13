@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pi Workbench — Menus</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.menu{display:flex;flex-direction:column;width:180px;flex:none}
+.mt{height:28px;display:flex;align-items:center;padding:0 10px;background:#000;color:#fff;align-self:flex-start;border:1px solid #000;border-bottom:0}
+.md{background:#fff;border:1px solid #000;box-shadow:2px 2px 0 #000;padding:3px 0;display:flex;flex-direction:column}
+.mi{height:26px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 10px 0 22px;font-size:15px;position:relative;white-space:nowrap}
+.mi.on{background:#000;color:#fff}
+.mi.dis{color:#767676}
+.mi .chk{position:absolute;left:7px}
+.mi kbd{font:inherit;font-size:14px}
+.sep{height:0;border-top:1px dotted #000;margin:4px 0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 640px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; display: flex; flex-direction: column">
+
+<div style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px">
+<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</span>
+<span style="padding: 0 10px">File</span><span style="padding: 0 10px">Edit</span><span style="padding: 0 10px">View</span><span style="padding: 0 10px">Project</span><span style="padding: 0 10px">Agent</span><span style="padding: 0 10px">Window</span>
+</div>
+
+<div style="flex: 1; display: flex; gap: 14px; padding: 36px 40px; align-items: flex-start">
+
+<div class="menu"><div class="mt" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600">π</div><div class="md">
+<div class="mi">About Pi Workbench…</div>
+<div class="sep"></div>
+<div class="mi">Settings…<kbd>⌘,</kbd></div>
+<div class="mi">Desktop Pattern…</div>
+<div class="sep"></div>
+<div class="mi dis">Gemma 4 · local</div>
+<div class="mi">Check Services…</div>
+</div></div>
+
+<div class="menu"><div class="mt">File</div><div class="md">
+<div class="mi on">New Project…<kbd>⌘N</kbd></div>
+<div class="mi">Add Existing Folder…<kbd>⌘O</kbd></div>
+<div class="sep"></div>
+<div class="mi">New Page<kbd>⇧⌘N</kbd></div>
+<div class="mi">New Task<kbd>⌘T</kbd></div>
+<div class="sep"></div>
+<div class="mi">Save<kbd>⌘S</kbd></div>
+<div class="mi">Reload from Disk</div>
+<div class="mi dis">Download Draft…</div>
+<div class="sep"></div>
+<div class="mi">Move to Trash<kbd>⌘⌫</kbd></div>
+<div class="mi">Close Window<kbd>⌘W</kbd></div>
+</div></div>
+
+<div class="menu"><div class="mt">Edit</div><div class="md">
+<div class="mi">Undo Typing<kbd>⌘Z</kbd></div>
+<div class="sep"></div>
+<div class="mi">Cut<kbd>⌘X</kbd></div>
+<div class="mi">Copy<kbd>⌘C</kbd></div>
+<div class="mi">Paste<kbd>⌘V</kbd></div>
+<div class="mi">Select All<kbd>⌘A</kbd></div>
+<div class="sep"></div>
+<div class="mi">Comment on Selection<kbd>⇧⌘M</kbd></div>
+<div class="sep"></div>
+<div class="mi">Find in Files…<kbd>⌘F</kbd></div>
+<div class="mi">Find Project…<kbd>⌘K</kbd></div>
+</div></div>
+
+<div class="menu"><div class="mt">View</div><div class="md">
+<div class="mi"><span class="chk">✓</span>Chat<kbd>⌘1</kbd></div>
+<div class="mi">Work<kbd>⌘2</kbd></div>
+<div class="mi">Activity<kbd>⌘3</kbd></div>
+<div class="mi">Laya<kbd>⌘4</kbd></div>
+<div class="sep"></div>
+<div class="mi"><span class="chk">✓</span>As Document</div>
+<div class="mi">As Markdown Source</div>
+<div class="sep"></div>
+<div class="mi">Show Comments</div>
+<div class="mi">Show Resolved</div>
+</div></div>
+
+<div class="menu"><div class="mt">Project</div><div class="md">
+<div class="mi">Open Project Chat</div>
+<div class="mi">Ask About Document…</div>
+<div class="mi">Reveal Folder</div>
+<div class="sep"></div>
+<div class="mi"><span class="chk">✓</span>pi-local-harness</div>
+<div class="mi">Japanese study app</div>
+<div class="mi">home-server</div>
+</div></div>
+
+<div class="menu"><div class="mt">Agent</div><div class="md">
+<div class="mi">Queue Message<kbd>⌘↩</kbd></div>
+<div class="mi">Attach Files…<kbd>⇧⌘A</kbd></div>
+<div class="mi">Record Audio<kbd>⇧⌘R</kbd></div>
+<div class="sep"></div>
+<div class="mi">Stop<kbd>⌘.</kbd></div>
+<div class="mi">Cancel Waiting Request</div>
+<div class="sep"></div>
+<div class="mi dis">Reconnect</div>
+</div></div>
+
+<div class="menu"><div class="mt">Window</div><div class="md">
+<div class="mi"><span class="chk">✓</span>Projects</div>
+<div class="mi">Comments</div>
+<div class="mi">Event Info</div>
+<div class="sep"></div>
+<div class="mi">Bring All to Front</div>
+</div></div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

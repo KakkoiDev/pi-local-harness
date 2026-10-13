@@ -102,3 +102,9 @@ and harness/README.md for the installed pi workflow.
 
 - [ ] [66-Phone access over Tailscale and voice input](tasks/66-tailscale-voice-input.md)
 - [ ] [67-Parallel inference experiment (check MLX fix first)](tasks/67-parallel-inference-experiment.md)
+
+## Pi Workbench System 1
+
+Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build order in [design/IMPLEMENTATION.md](design/IMPLEMENTATION.md) § 12.
+
+- [ ] [68-Design foundations (fonts pending)](tasks/68-design-foundations.md)

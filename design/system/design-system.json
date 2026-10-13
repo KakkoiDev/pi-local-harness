@@ -1,0 +1,218 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-13T13:30:00+09:00"
+ },
+ "title": "Pi Workbench System 1",
+ "namespace": "PiWorkbench",
+ "libraries": [],
+ "sections": {},
+ "groups": [
+  "Icons"
+ ],
+ "assetGroups": {
+  "Icons": {
+   "name": "Icons",
+   "tile": "xs",
+   "order": [
+    "folder.svg",
+    "file.svg",
+    "disclosure-closed.svg",
+    "disclosure-open.svg",
+    "popup-arrow.svg",
+    "back.svg",
+    "up.svg",
+    "down.svg",
+    "search.svg",
+    "plus.svg",
+    "close.svg",
+    "mic.svg",
+    "handle.svg",
+    "list-bullet.svg",
+    "list-check.svg",
+    "running.svg",
+    "waiting.svg",
+    "done.svg",
+    "failed.svg",
+    "stopped.svg",
+    "interrupted.svg",
+    "caution.svg",
+    "note.svg",
+    "alert-stop.svg",
+    "alert-caution.svg",
+    "alert-note.svg"
+   ],
+   "files": {
+    "folder.svg": {
+     "name": "folder.svg",
+     "blob": "84b81f961f87759ccd0f954a1d55fad5",
+     "size": 189,
+     "type": "image/svg+xml"
+    },
+    "file.svg": {
+     "name": "file.svg",
+     "blob": "92cd1c9dfc79e691a0c741efc57f2d89",
+     "size": 190,
+     "type": "image/svg+xml"
+    },
+    "disclosure-closed.svg": {
+     "name": "disclosure-closed.svg",
+     "blob": "a4097530861437af1a5412816a659615",
+     "size": 161,
+     "type": "image/svg+xml"
+    },
+    "disclosure-open.svg": {
+     "name": "disclosure-open.svg",
+     "blob": "dcab0d00d8bf55fbc9a0b111733c7f3d",
+     "size": 162,
+     "type": "image/svg+xml"
+    },
+    "popup-arrow.svg": {
+     "name": "popup-arrow.svg",
+     "blob": "9882b3504f6a710f99dda2cc8a7fb0fc",
+     "size": 160,
+     "type": "image/svg+xml"
+    },
+    "back.svg": {
+     "name": "back.svg",
+     "blob": "48d0953d746c0f27fdc6ce1c6727a45c",
+     "size": 198,
+     "type": "image/svg+xml"
+    },
+    "up.svg": {
+     "name": "up.svg",
+     "blob": "a9cd186b520bba68a737295d0a45b615",
+     "size": 209,
+     "type": "image/svg+xml"
+    },
+    "down.svg": {
+     "name": "down.svg",
+     "blob": "61d177081216b0c1da56f9514d25d2c4",
+     "size": 208,
+     "type": "image/svg+xml"
+    },
+    "search.svg": {
+     "name": "search.svg",
+     "blob": "24dc3ea329cc431327576312986a7104",
+     "size": 263,
+     "type": "image/svg+xml"
+    },
+    "plus.svg": {
+     "name": "plus.svg",
+     "blob": "bab47a61e2f605663259494101887240",
+     "size": 179,
+     "type": "image/svg+xml"
+    },
+    "close.svg": {
+     "name": "close.svg",
+     "blob": "9c2cf346d33c6b2f5120b159c877e8d5",
+     "size": 193,
+     "type": "image/svg+xml"
+    },
+    "mic.svg": {
+     "name": "mic.svg",
+     "blob": "975ee87c13e825bca38837749e9ef79d",
+     "size": 286,
+     "type": "image/svg+xml"
+    },
+    "handle.svg": {
+     "name": "handle.svg",
+     "blob": "37546e76f5cd3668eee4b3df4ce5662a",
+     "size": 214,
+     "type": "image/svg+xml"
+    },
+    "list-bullet.svg": {
+     "name": "list-bullet.svg",
+     "blob": "f546c5b3b879dd7072beffb2498f31de",
+     "size": 231,
+     "type": "image/svg+xml"
+    },
+    "list-check.svg": {
+     "name": "list-check.svg",
+     "blob": "0028d9803794c157893b900c8e2feecb",
+     "size": 194,
+     "type": "image/svg+xml"
+    },
+    "running.svg": {
+     "name": "running.svg",
+     "blob": "c1aecdfbd324927331758a7c776128c6",
+     "size": 307,
+     "type": "image/svg+xml"
+    },
+    "waiting.svg": {
+     "name": "waiting.svg",
+     "blob": "0ac2215ddd77987b4b7a8566987ce28e",
+     "size": 230,
+     "type": "image/svg+xml"
+    },
+    "done.svg": {
+     "name": "done.svg",
+     "blob": "d636e92418d37280ddca9d5ae8e66991",
+     "size": 197,
+     "type": "image/svg+xml"
+    },
+    "failed.svg": {
+     "name": "failed.svg",
+     "blob": "6d70d923e579225de92774257f2d225e",
+     "size": 235,
+     "type": "image/svg+xml"
+    },
+    "stopped.svg": {
+     "name": "stopped.svg",
+     "blob": "e3fb9df6e0e8f472651fbee475ece785",
+     "size": 176,
+     "type": "image/svg+xml"
+    },
+    "interrupted.svg": {
+     "name": "interrupted.svg",
+     "blob": "6ec873c85c89b57699b806ecc87f2e7e",
+     "size": 209,
+     "type": "image/svg+xml"
+    },
+    "caution.svg": {
+     "name": "caution.svg",
+     "blob": "449055ccdb86af0d974a5b80778028f9",
+     "size": 248,
+     "type": "image/svg+xml"
+    },
+    "note.svg": {
+     "name": "note.svg",
+     "blob": "2d4ebbfa8188aadcad2b0d316b779788",
+     "size": 257,
+     "type": "image/svg+xml"
+    },
+    "alert-stop.svg": {
+     "name": "alert-stop.svg",
+     "blob": "f317800b8d446b754f835782edb5ad84",
+     "size": 245,
+     "type": "image/svg+xml"
+    },
+    "alert-caution.svg": {
+     "name": "alert-caution.svg",
+     "blob": "9cf6ede5bf929c4bb88c12881f8762c4",
+     "size": 289,
+     "type": "image/svg+xml"
+    },
+    "alert-note.svg": {
+     "name": "alert-note.svg",
+     "blob": "942b3a275ef4dcb50fbb76668679eada",
+     "size": 293,
+     "type": "image/svg+xml"
+    }
+   }
+  }
+ },
+ "blobs": {},
+ "docs": {
+  "readme": "project/README.md",
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Cyril",
+  "at": "2026-10-13T13:30:00+09:00",
+  "via": "Claude (Cowork)",
+  "note": "First version: tokens, 27 components, icons, built from the Pi Workbench canvas and pi-local-harness."
+ }
+}

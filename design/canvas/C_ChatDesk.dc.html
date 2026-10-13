@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat desktop component</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; align-items: stretch; color: #000">
+
+<!-- Projects window (inactive) -->
+<section class="pw-window pw-window--inactive" aria-label="Projects" style="width: 290px; flex: none">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<div class="pw-infobar" style="justify-content: space-between"><span>{{projectCount}}</span><span>on this Mac</span></div>
+<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a project" placeholder="Find a project"><kbd class="pw-kbd">⌘K</kbd></label></div>
+<div class="pw-window__body">
+<sc-if value="{{noProjects}}" hint-placeholder-val="{{false}}"><p class="pw-empty">Your projects will appear here.</p></sc-if>
+<sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}">
+<div class="pw-list" role="list">
+<a href="#" class="pw-row" aria-current="page"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">pi-local-harness</span><sc-if value="{{working}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-label="Working"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if></a>
+<a href="#" class="pw-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Japanese study app</span><span class="pw-row__meta">{{jsaMeta}}</span></a>
+<a href="#" class="pw-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">home-server</span></a>
+</div>
+</sc-if>
+</div>
+<div style="flex: none; border-top: 1px solid #000; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px">
+<a href="Dialogs.dc.html" class="pw-btn" style="justify-content: space-between">New Project…<span class="pw-kbd">⌘N</span></a>
+<a href="Dialogs2.dc.html" class="pw-btn" style="justify-content: space-between">Add Existing Folder…<span class="pw-kbd">⌘O</span></a>
+</div>
+<div class="pw-statusbar" style="justify-content: space-between"><span>Local AI</span><span>Nothing leaves this Mac</span></div>
+</section>
+
+<!-- Chat window (active) -->
+<section class="pw-window" aria-label="Chat" style="flex: 1">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">{{title}}</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<div class="pw-infobar" style="padding: 8px 12px">
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html" aria-current="page">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Laya.dc.html">Laya<kbd>⌘4</kbd></a></nav>
+<span style="flex: 1"></span>
+<span class="pw-mono" style="font-size: 13px">{{folder}}</span>
+</div>
+
+<sc-if value="{{offline}}" hint-placeholder-val="{{false}}">
+<div role="alert" style="flex: none; border-bottom: 1px solid #000; padding: 10px 14px; display: flex; align-items: center; gap: 14px">
+<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+<span style="flex: 1; font-size: 15px">Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</span>
+<button class="pw-btn pw-btn--default">Reconnect</button>
+</div>
+</sc-if>
+
+<div class="pw-window__body" tabindex="0" aria-label="Messages">
+<sc-if value="{{showWelcome}}" hint-placeholder-val="{{false}}">
+<div style="max-width: 520px; margin: 120px auto 0; padding: 0 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+<div aria-hidden="true" style="width: 72px; height: 72px; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 44px">π</div>
+<h2 style="margin: 0; font-size: 24px; font-weight: 400">{{welcomeTitle}}</h2>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.5">{{welcomeCopy}}</p>
+<sc-if value="{{noProjects}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center"><a href="Dialogs2.dc.html" class="pw-btn">Use an Existing Folder…</a><a href="Dialogs.dc.html" class="pw-btn pw-btn--default">Create Your First Project…</a></div>
+</sc-if>
+<sc-if value="{{hasProjects}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center"><button class="pw-btn">Understand some code</button><button class="pw-btn">Explore an image</button><button class="pw-btn">Listen to a recording</button></div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{hasMessages}}" hint-placeholder-val="{{true}}">
+<div class="pw-transcript">
+<article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>14:02</time></div><p class="pw-msg__body">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</p></article>
+<article class="pw-msg">
+<div class="pw-msg__label"><b>Pi</b><time>14:02</time></div>
+<details><summary>Reasoning</summary><p style="margin: 6px 0 0">The badge reads every unfinished state. Interrupted is terminal, so it should not count.</p></details>
+<p class="pw-msg__body">Interrupted work is kept on purpose — it is never repeated automatically — but the badge should only count running and waiting requests. Checking the queue first.</p>
+<div class="pw-tool"><div class="pw-tool__cmd">$ grep -n "interrupted" harness/work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Laya approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span><a href="Laya.dc.html">Show in Laya</a></div></div>
+<p class="pw-msg__body">The counter includes every unfinished state. I’ve narrowed it to running and waiting, and added a regression test. Running the queue tests now.</p>
+<sc-if value="{{working}}" hint-placeholder-val="{{true}}">
+<div class="pw-tool pw-tool--live"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks" role="status"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Laya approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Running · 0:12</span></div></div>
+</sc-if>
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<div class="pw-tool"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Laya approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span></div></div>
+<p class="pw-msg__body">All 14 queue tests pass. The badge now shows only running and waiting requests.</p>
+</sc-if>
+</article>
+<sc-if value="{{working}}" hint-placeholder-val="{{true}}"><div class="pw-queue-note">Next: 1 request waiting in Japanese study app</div></sc-if>
+</div>
+</sc-if>
+</div>
+
+<!-- Composer -->
+<form class="{{composerClass}}" aria-label="Message composer">
+<sc-if value="{{error}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line" role="alert"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>“site-video.mov” is 48 MiB. Limit: 12 MiB per file and 20 MiB in total.</div></sc-if>
+<sc-if value="{{attachments}}" hint-placeholder-val="{{false}}">
+<div class="pw-chips" aria-label="Attached files"><span class="pw-chip"><span aria-hidden="true" style="width: 22px; height: 22px; border: 1px solid #000; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px"></span><span>activity-badge.png</span><button type="button" aria-label="Remove activity-badge.png"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5"/></svg></button></span><span class="pw-chip"><span>work_queue.log</span><button type="button" aria-label="Remove work_queue.log"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5"/></svg></button></span></div>
+</sc-if>
+<sc-if value="{{dragging}}" hint-placeholder-val="{{false}}"><p class="pw-help" style="text-align: center; font-size: 15px">Drop to attach 1 file</p></sc-if>
+<label class="pw-label" for="prompt">{{promptLabel}}</label>
+<textarea id="prompt" class="pw-field" rows="3" placeholder="{{placeholder}}" disabled="{{noProjects}}">{{draft}}</textarea>
+<div class="pw-composer__row">
+<button type="button" class="pw-btn" disabled="{{noProjects}}">Attach…</button>
+<sc-if value="{{notRecording}}" hint-placeholder-val="{{true}}"><button type="button" class="pw-btn" disabled="{{noProjects}}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.5" y=".5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor"/><path d="M2.5 7.5a5.5 5.5 0 0 0 11 0M8 13v2.5M5 15.5h6" fill="none" stroke="currentColor"/></svg>Record</button></sc-if>
+<sc-if value="{{recording}}" hint-placeholder-val="{{false}}"><button type="button" class="pw-btn" aria-pressed="true"><span class="pw-recording">Stop Recording</span></button></sc-if>
+<span class="pw-help">{{hint}}</span>
+<span style="flex: 1"></span>
+<sc-if value="{{working}}" hint-placeholder-val="{{true}}"><button type="button" class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></sc-if>
+<button type="submit" class="pw-btn pw-btn--default" disabled="{{noProjects}}">{{sendLabel}}</button>
+</div>
+</form>
+<div class="pw-statusbar" style="justify-content: space-between"><span>Local models can make mistakes. Review important answers.</span><span>{{session}}</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline"],"default":"working"},"$preview":{"width":1440,"height":872}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.state ?? 'working';
+const welcome = s === 'welcome';
+const empty = s === 'empty';
+const working = s === 'working';
+const hasMessages = !welcome && !empty;
+const hints = {
+working: 'Return queues · Shift-Return adds a line',
+recording: 'Recording · 0:07 — the text lands at the cursor for review',
+welcome: 'Choose a project first',
+dragging: 'Text, images, audio & files',
+attachments: '2 files · 1.4 MiB of 20 MiB'
+};
+return {
+working: working,
+done: hasMessages && !working,
+noProjects: welcome, hasProjects: !welcome,
+projectCount: welcome ? 'No projects' : '3 projects',
+jsaMeta: working ? 'waiting' : '',
+title: welcome ? 'Pi Workbench' : 'pi-local-harness',
+folder: welcome ? '' : '~/code/pi-local-harness',
+offline: s === 'offline',
+showWelcome: welcome || empty,
+welcomeTitle: welcome ? 'What are we working on?' : 'pi-local-harness',
+welcomeCopy: welcome ? 'Give your agent a place to work. Keep its conversation, plan, and files together.' : 'This project has its own conversation. Ask a question or attach a file.',
+hasMessages: hasMessages,
+composerClass: 'pw-composer' + (s === 'dragging' ? ' pw-composer--dragging' : ''),
+error: s === 'error',
+attachments: s === 'attachments',
+dragging: s === 'dragging',
+recording: s === 'recording', notRecording: s !== 'recording',
+promptLabel: welcome ? 'Message (choose a project first)' : 'Message to Pi',
+placeholder: 'Ask anything, or drop a file here',
+draft: s === 'attachments' ? 'This is what the badge shows after a restart.' : s === 'recording' ? 'Also check whether ' : '',
+hint: hints[s] || 'Return sends · Shift-Return adds a line',
+sendLabel: working ? 'Queue' : 'Send',
+session: welcome ? 'No project' : 'Session: pi-local-harness only'
+};
+}
+}
+</script>
+</body>
+</html>

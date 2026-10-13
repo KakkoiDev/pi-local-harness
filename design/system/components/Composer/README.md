@@ -1,0 +1,9 @@
+# Composer
+
+The message form at the bottom of the Chat window.
+
+- Label, textarea (`.pw-field`), then a row: Attach…, Record, the hint, Stop ⌘. (only while Pi runs), and the default button. The default button reads **Queue** while the agent is busy and **Send** when idle; both add to the one queue.
+- Attachments appear above the textarea as AttachmentChips (max 8 files, 12 MiB each, 20 MiB total).
+- Recording: the Record button reads Stop Recording with a filled dot; then Transcribing… in the hint; the text lands at the cursor.
+- Dragging files over the composer: `.pw-composer--dragging` (3px dashed inner outline).
+- Errors sit above the form in `.pw-alert-line` with the Caution glyph.

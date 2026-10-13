@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>More dialogs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 36px 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; align-items: start; color: #000">
+
+<!-- Add existing folder -->
+<form role="dialog" aria-labelledby="d-add" class="pw-dialog" style="max-width: none">
+<h2 id="d-add" class="pw-dialog__title">Make This Folder a Project</h2>
+<div style="display: flex; gap: 8px; align-items: center"><select class="pw-popup" aria-label="Location" style="flex: 1"><option>code</option></select><button type="button" class="pw-btn">Parent</button></div>
+<div style="border: 1px solid #000; height: 150px; display: flex">
+<div class="pw-list" role="listbox" aria-label="Folders in code" style="flex: 1">
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>dotfiles</div>
+<div class="pw-row" role="option" aria-selected="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>home-server</div>
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>learning</div>
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>pi-local-harness</div>
+</div>
+<div class="pw-dither" aria-hidden="true" style="width: 16px; border-left: 1px solid #000"></div>
+</div>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Path<input class="pw-field pw-mono" style="font-size: 13px; font-family: 'IBM Plex Mono', monospace" value="~/code/home-server"></label>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Project name (optional)<input class="pw-field" placeholder="home-server"></label>
+<p class="pw-help">Registers the folder in place. Nothing is moved or created.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Use This Folder</button></div>
+</form>
+
+<!-- New page / task -->
+<div style="display: flex; flex-direction: column; gap: 36px">
+<form role="dialog" aria-labelledby="d-page" class="pw-dialog" style="max-width: none">
+<h2 id="d-page" class="pw-dialog__title">New Page</h2>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Page name<input class="pw-field" value="Phone layouts"></label>
+<p class="pw-help">Creates “Phone layouts.md” in pi-local-harness and opens it.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Create</button></div>
+</form>
+
+<!-- Startup error -->
+<div role="alertdialog" aria-labelledby="d-start" class="pw-dialog" style="max-width: none">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg><div><p id="d-start" class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, then reload this page.</p></div></div>
+<div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Reload Page</button></div>
+</div>
+</div>
+
+<!-- About -->
+<div role="dialog" aria-labelledby="d-about" class="pw-dialog" style="max-width: none; align-items: center; text-align: center">
+<div aria-hidden="true" style="width: 64px; height: 64px; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 40px">π</div>
+<h2 id="d-about" class="pw-dialog__title">Pi Workbench</h2>
+<p class="pw-help" style="font-size: 14px">pi-local-harness · [VERSION]</p>
+<dl style="margin: 0; display: grid; grid-template-columns: auto auto; gap: 6px 14px; font-size: 14px; text-align: left">
+<dt>Model</dt><dd style="margin: 0">Gemma 4 · High thinking</dd>
+<dt>Web</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">localhost:3000</dd>
+<dt>Laya</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">localhost:8000</dd>
+<dt>Data</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">~/.local/share/pi-local-harness</dd>
+</dl>
+<p class="pw-alert__detail" style="margin: 0">One person, one local agent. Nothing leaves this Mac.</p>
+<div class="pw-dialog__actions" style="justify-content: center"><button class="pw-btn pw-btn--default">OK</button></div>
+</div>
+
+<!-- Settings -->
+<form role="dialog" aria-labelledby="d-set" class="pw-dialog" style="max-width: none">
+<h2 id="d-set" class="pw-dialog__title">Settings</h2>
+<fieldset style="border: 1px solid #000; padding: 10px 14px; margin: 0; display: flex; flex-direction: column; gap: 6px">
+<legend class="pw-label" style="padding: 0 6px">Appearance</legend>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" checked style="accent-color: #000">Paper (black on white)</label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" style="accent-color: #000">Inverse (white on black)</label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" style="accent-color: #000">Match System</label>
+</fieldset>
+<fieldset style="border: 1px solid #000; padding: 10px 14px; margin: 0; display: flex; flex-direction: column; gap: 8px">
+<legend class="pw-label" style="padding: 0 6px">Desktop pattern</legend>
+<div role="radiogroup" aria-label="Desktop pattern" style="display: flex; gap: 10px">
+<button type="button" role="radio" aria-checked="true" aria-label="Dots" class="pw-desk" style="width: 64px; height: 40px; border: 3px double #000"></button>
+<button type="button" role="radio" aria-checked="false" aria-label="Gray" class="pw-desk pw-desk--gray" style="width: 64px; height: 40px; border: 1px solid #000"></button>
+<button type="button" role="radio" aria-checked="false" aria-label="Plain" class="pw-desk pw-desk--plain" style="width: 64px; height: 40px; border: 1px solid #000"></button>
+</div>
+</fieldset>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="checkbox" class="pw-check" checked>Return sends a message (Shift-Return adds a line)</label>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Save</button></div>
+</form>
+
+<!-- Open on phone -->
+<div role="dialog" aria-labelledby="d-phone" class="pw-dialog" style="max-width: none">
+<h2 id="d-phone" class="pw-dialog__title">Open on Phone</h2>
+<p class="pw-alert__detail" style="margin: 0">plh serves the workbench on your tailnet. Open this address on a phone signed in to the same Tailscale account.</p>
+<div style="display: flex; gap: 8px; align-items: center"><input class="pw-field" aria-label="Phone address" readonly value="https://[YOUR-MACHINE].[TAILNET].ts.net" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px"><button class="pw-btn">Copy</button></div>
+<p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
+<div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Done</button></div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

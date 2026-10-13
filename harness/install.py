@@ -19,7 +19,7 @@ def install(prefix, agent, data):
             raise RuntimeError(f'Refusing to replace unrelated command: {link}')
     target.parent.mkdir(parents=True,exist_ok=True)
     stage=target.parent/('.plh-install-'+uuid.uuid4().hex);stage.mkdir()
-    for item in ['harness','laya','.pi','js','specs']:
+    for item in ['harness','laya','.pi','js','specs','design','fonts']:
         shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
     for item in ['plh.py','agent_api.py','index.html','chat.css','readme.md','PRODUCT.md','DESIGN.md']:
         shutil.copy2(ROOT/item,stage/item)

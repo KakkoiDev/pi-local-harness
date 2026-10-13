@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone — long press selects a passage</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.nb{height:44px;min-width:44px;border:0;background:none;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:16px;color:#000;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-def{border-radius:11px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
+.mark{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;line-height:16px;display:inline-block;background:#fff;color:#000}
+.anchor{border-bottom:2px solid #000}
+.sel{background:#000;color:#fff;position:relative}
+.knob{position:absolute;width:2px;background:#000;height:26px;top:-2px}
+.knob::after{content:"";position:absolute;left:-5px;width:12px;height:12px;border-radius:50%;background:#000}
+.nb:focus-visible,.btn:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; overflow: hidden">
+<div style="height: 44px; flex: none"></div>
+<nav aria-label="Document" style="height: 48px; flex: none; display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid #000">
+<button class="nb" aria-label="Back to files"><svg width="8" height="14" viewBox="0 0 8 14" aria-hidden="true"><path d="M7 1L1 7l6 6" fill="none" stroke="#000" stroke-width="2"/></svg>Files</button>
+<div class="tb-stripes" style="margin: 0 6px"></div>
+<h1 style="margin: 0; font-size: 16px; font-weight: 400; padding: 0 4px">DESIGN.md</h1>
+<div class="tb-stripes" style="margin: 0 6px"></div>
+<span role="status" style="font-size: 14px; padding: 0 10px">Saved</span>
+</nav>
+<div style="flex: 1; min-height: 0; overflow: hidden; padding: 18px 18px 0 52px; position: relative">
+<article style="font-family: 'Source Serif 4', 'New York', Georgia, serif; font-size: 17px; line-height: 1.55; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+<p style="margin: 0">Preserve the <span class="anchor">established dark workspace and pale green accent</span><span class="mark">1</span>. Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
+<p style="margin: 0">Projects live in the left rail. <span class="anchor">Chat, Work, and Laya remain the main views.</span><span class="mark">1</span> The active project and selected file must be clear. Buttons have visible keyboard focus and <span class="sel"><span class="knob" aria-hidden="true" style="left: -2px"></span>touch-sized targets<span class="knob" aria-hidden="true" style="right: -2px; top: 0"></span></span>.</p>
+<p style="margin: 0">Applied Impeccable polish and harden guidance; refine the existing product rather than replacing its visual identity.</p>
+</article>
+<!-- System selection menu: drawn by the OS, not the app -->
+<div aria-hidden="true" style="position: absolute; left: 120px; top: 286px; width: 200px; height: 40px; border: 1.5px dashed #000; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px">System menu · Copy, Look Up…</div>
+</div>
+<div role="toolbar" aria-label="Selection actions" style="flex: none; border-top: 3px double #000; background: #fff; padding: 12px 12px 34px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; display: flex; justify-content: space-between"><span>“touch-sized targets”</span><span>2 words</span></span>
+<div style="display: flex; gap: 8px; align-items: center">
+<button class="btn" style="flex: 1">Ask Pi…</button>
+<button class="btn btn-def" style="flex: 1">Comment</button>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

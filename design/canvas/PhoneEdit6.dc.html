@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone — comments list filtered to resolved</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.seg{flex:1;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;min-height:44px;padding:0 6px;border:1px solid #000;background:#fff;color:#000}
+.seg.on{background:#000;color:#fff}
+.item{border-bottom:1px solid #000;padding:12px 2px;display:flex;flex-direction:column;gap:6px}
+.btn:focus-visible,.seg:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #fff; position: relative; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; inset: 0; padding: 92px 18px 0 52px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.55">
+<div style="position: absolute; top: 44px; left: 0; right: 0; height: 48px; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 12px; gap: 8px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 16px"><span>‹ Files</span><div class="tb-stripes"></div><span>DESIGN.md</span><div class="tb-stripes"></div><span style="border: 1px solid #000; padding: 2px 8px; background: #000; color: #fff">Comments 2</span></div>
+<h2 style="margin: 18px 0 14px; font-size: 26px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+<p style="margin: 0">Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</p>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 180px; bottom: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
+
+<section role="dialog" aria-modal="true" aria-labelledby="cm-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 190px; background: #fff; border-top: 1px solid #000; box-shadow: inset 0 2px 0 #fff, inset 0 5px 0 #000; padding: 18px 16px 34px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 id="cm-title" style="margin: 0; font-size: 17px; font-weight: 600">Comments</h2>
+<button class="btn" style="border: 0">Close</button>
+</div>
+<div role="radiogroup" aria-label="Show" style="display: flex">
+<button class="seg" role="radio" aria-checked="false" style="border-radius: 10px 0 0 10px">Open 2</button>
+<button class="seg on" role="radio" aria-checked="true" style="border-left: 0">Resolved 2</button>
+<button class="seg" role="radio" aria-checked="false" style="border-left: 0; border-radius: 0 10px 10px 0">Deleted 1</button>
+</div>
+<div style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; border-top: 1px solid #000">
+<div class="item">
+<span style="font-size: 13px; display: flex; justify-content: space-between"><span>1 · Resolved when the change was applied</span><span>14:22</span></span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px">“Use one-bit black on white…”</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.4">Out of date after the 1-bit redesign. Rewrite this sentence.</p>
+<div style="display: flex; gap: 8px"><button class="btn">Show in Text</button><button class="btn">Reopen</button></div>
+</div>
+<div class="item">
+<span style="font-size: 13px; display: flex; justify-content: space-between"><span>4 · Resolved by you · 14:52</span><span>14:12</span></span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px">“refine the existing product rather than replacing its visual identity”</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.4">Superseded by the redesign brief.</p>
+<div style="display: flex; gap: 8px"><button class="btn">Show in Text</button><button class="btn">Reopen</button></div>
+</div>
+</div>
+<label style="display: flex; align-items: center; gap: 10px; font-size: 15px; min-height: 44px; border-top: 1px solid #000"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #000">Show resolved in the text</label>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

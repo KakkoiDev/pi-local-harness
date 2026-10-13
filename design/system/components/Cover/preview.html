@@ -1,0 +1,32 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cover</title>
+<style>
+body{margin:0;background:var(--paper)}
+.cover{position:relative;width:960px;height:288px;background:var(--paper);overflow:hidden}
+.ink{fill:var(--ink)} .paper{fill:var(--paper)} .rule{fill:none;stroke:var(--ink);stroke-width:1px}
+.dither{fill:url(#dither)}
+.name{position:absolute;left:40px;top:150px;margin:0;font-family:var(--font-chrome);font-size:64px;line-height:.95;color:var(--ink);font-weight:400;white-space:nowrap}
+.tag{position:absolute;left:40px;top:222px;margin:0;font-family:var(--font-text);font-size:14px;color:var(--ink)}
+</style></head>
+<body>
+<div class="cover">
+<!-- blocks: ink slab (0..360 × 0..112, bleeds top/left), 50% dither field (360..600 × 0..112), paper block with 1px ink rule and 2px offset shadow (600..936 × 8..104) — colours ink, paper, desk-dot
+     arrangement: top band of three unequal blocks, the way windows tile across the desktop
+     pattern: dot grid — "precise, technical, a 4px grid": the desktop's own 1px dot, enlarged to 4px at a space-6 (24px) pitch, cut out of the slab at 48 × 36
+     scales: pitch space-6 24px and space-8×1.5; block insets space-2 8px; radius-none (square system); shadow-window 2px offset -->
+<svg width="960" height="120" viewBox="0 0 960 120" aria-hidden="true">
+<defs><pattern id="dither" width="2" height="2" patternUnits="userSpaceOnUse"><rect class="ink" width="1" height="1"/><rect class="ink" x="1" y="1" width="1" height="1"/></pattern></defs>
+<rect class="ink" x="0" y="0" width="360" height="112"/>
+<rect class="dither" x="360" y="0" width="240" height="112"/>
+<rect class="ink" x="602" y="10" width="336" height="96"/>
+<rect class="paper" x="600" y="8" width="336" height="96"/>
+<rect class="rule" x="600.5" y="8.5" width="335" height="95"/>
+<rect class="ink" x="612" y="28" width="4" height="4"/><rect class="ink" x="612" y="52" width="4" height="4"/><rect class="ink" x="612" y="76" width="4" height="4"/><rect class="ink" x="636" y="28" width="4" height="4"/><rect class="ink" x="636" y="52" width="4" height="4"/><rect class="ink" x="636" y="76" width="4" height="4"/><rect class="ink" x="660" y="28" width="4" height="4"/><rect class="ink" x="660" y="52" width="4" height="4"/><rect class="ink" x="660" y="76" width="4" height="4"/><rect class="ink" x="684" y="28" width="4" height="4"/><rect class="ink" x="684" y="52" width="4" height="4"/><rect class="ink" x="684" y="76" width="4" height="4"/><rect class="ink" x="708" y="28" width="4" height="4"/><rect class="ink" x="708" y="52" width="4" height="4"/><rect class="ink" x="708" y="76" width="4" height="4"/><rect class="ink" x="732" y="28" width="4" height="4"/><rect class="ink" x="732" y="52" width="4" height="4"/><rect class="ink" x="732" y="76" width="4" height="4"/><rect class="ink" x="756" y="28" width="4" height="4"/><rect class="ink" x="756" y="52" width="4" height="4"/><rect class="ink" x="756" y="76" width="4" height="4"/><rect class="ink" x="780" y="28" width="4" height="4"/><rect class="ink" x="780" y="52" width="4" height="4"/><rect class="ink" x="780" y="76" width="4" height="4"/><rect class="ink" x="804" y="28" width="4" height="4"/><rect class="ink" x="804" y="52" width="4" height="4"/><rect class="ink" x="804" y="76" width="4" height="4"/><rect class="ink" x="828" y="28" width="4" height="4"/><rect class="ink" x="828" y="52" width="4" height="4"/><rect class="ink" x="828" y="76" width="4" height="4"/><rect class="ink" x="852" y="28" width="4" height="4"/><rect class="ink" x="852" y="52" width="4" height="4"/><rect class="ink" x="852" y="76" width="4" height="4"/><rect class="ink" x="876" y="28" width="4" height="4"/><rect class="ink" x="876" y="52" width="4" height="4"/><rect class="ink" x="876" y="76" width="4" height="4"/><rect class="ink" x="900" y="28" width="4" height="4"/><rect class="ink" x="900" y="52" width="4" height="4"/><rect class="ink" x="900" y="76" width="4" height="4"/><rect class="ink" x="924" y="28" width="4" height="4"/><rect class="ink" x="924" y="52" width="4" height="4"/><rect class="ink" x="924" y="76" width="4" height="4"/><rect class="paper" x="24" y="28" width="4" height="4"/><rect class="paper" x="24" y="64" width="4" height="4"/><rect class="paper" x="72" y="28" width="4" height="4"/><rect class="paper" x="72" y="64" width="4" height="4"/><rect class="paper" x="120" y="28" width="4" height="4"/><rect class="paper" x="120" y="64" width="4" height="4"/><rect class="paper" x="168" y="28" width="4" height="4"/><rect class="paper" x="168" y="64" width="4" height="4"/><rect class="paper" x="216" y="28" width="4" height="4"/><rect class="paper" x="216" y="64" width="4" height="4"/><rect class="paper" x="264" y="28" width="4" height="4"/><rect class="paper" x="264" y="64" width="4" height="4"/><rect class="paper" x="312" y="28" width="4" height="4"/><rect class="paper" x="312" y="64" width="4" height="4"/>
+</svg>
+<h1 class="name">Pi Workbench System 1</h1>
+<p class="tag">One bit, one menu bar, select then command.</p>
+</div>
+</body>
+</html>

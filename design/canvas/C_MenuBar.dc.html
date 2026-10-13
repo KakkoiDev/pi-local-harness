@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Menu bar component</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="height: {{rootH}}; position: relative">
+<nav class="pw-root pw-menubar" role="menubar" aria-label="Menu bar" style="color: #000">
+<div style="position: relative"><a href="M_Pi.dc.html" class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="{{piOpen}}" aria-label="Pi menu">π</a>
+<sc-if value="{{piOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Pi">
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">About Pi Workbench</a>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Settings…<span class="pw-menu__key">⌘,</span></a>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Desktop Pattern…</a>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Open on Phone…</a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Gemma 4 · High thinking</span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Laya :8000 · Web :3000</span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_File.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{fileOpen}}">File</a>
+<sc-if value="{{fileOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="File" style="min-width: 250px">
+<a href="Dialogs.dc.html" class="pw-menu__item" role="menuitem" data-active="true">New Project…<span class="pw-menu__key">⌘N</span></a>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Add Existing Folder…<span class="pw-menu__key">⌘O</span></a>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">New Page…<span class="pw-menu__key">⇧⌘N</span></a>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">New Task…<span class="pw-menu__key">⌘T</span></a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem">Save<span class="pw-menu__key">⌘S</span></span>
+<a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Reload from Disk…</a>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Download Draft…</span>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="Dialogs.dc.html" class="pw-menu__item" role="menuitem">Move to Trash…<span class="pw-menu__key">⌘⌫</span></a>
+<span class="pw-menu__item" role="menuitem">Close Window<span class="pw-menu__key">⌘W</span></span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_Edit.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{editOpen}}">Edit</a>
+<sc-if value="{{editOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Edit" style="min-width: 270px">
+<span class="pw-menu__item" role="menuitem">Undo Typing<span class="pw-menu__key">⌘Z</span></span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Redo<span class="pw-menu__key">⇧⌘Z</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem">Cut<span class="pw-menu__key">⌘X</span></span>
+<span class="pw-menu__item" role="menuitem">Copy<span class="pw-menu__key">⌘C</span></span>
+<span class="pw-menu__item" role="menuitem">Paste<span class="pw-menu__key">⌘V</span></span>
+<span class="pw-menu__item" role="menuitem">Select All<span class="pw-menu__key">⌘A</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="Final.dc.html" class="pw-menu__item" role="menuitem">Comment on Selection<span class="pw-menu__key">⇧⌘M</span></a>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Ask Pi About Selection…</span>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="W_Search.dc.html" class="pw-menu__item" role="menuitem">Find in Files…<span class="pw-menu__key">⌘F</span></a>
+<span class="pw-menu__item" role="menuitem">Find Project…<span class="pw-menu__key">⌘K</span></span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_View.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{viewOpen}}">View</a>
+<sc-if value="{{viewOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="View" style="min-width: 280px">
+<a href="Main.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vChat}}">Chat<span class="pw-menu__key">⌘1</span></a>
+<a href="Final.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vWork}}">Work<span class="pw-menu__key">⌘2</span></a>
+<a href="Activity.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vActivity}}">Activity<span class="pw-menu__key">⌘3</span></a>
+<a href="Laya.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vLaya}}">Laya<span class="pw-menu__key">⌘4</span></a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="true" aria-disabled="{{notWork}}">As Document</span>
+<a href="W_Source.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="false">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" aria-disabled="{{notWork}}">Show Review<span class="pw-menu__key">⌥⌘R</span></span>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" aria-disabled="{{notWork}}">Show Resolved Comments</span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="{{notWork}}">Next Comment<span class="pw-menu__key">⌥⌘]</span></span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="{{notWork}}">Previous Comment<span class="pw-menu__key">⌥⌘[</span></span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_Project.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{projectOpen}}">Project</a>
+<sc-if value="{{projectOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Project" style="min-width: 270px">
+<a href="Main.dc.html" class="pw-menu__item" role="menuitem">Open Project Chat</a>
+<a href="W_Requests.dc.html" class="pw-menu__item" role="menuitem">Ask Pi About This Document…</a>
+<span class="pw-menu__item" role="menuitem">Copy Folder Path</span>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="true">pi-local-harness</span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false">Japanese study app</span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false">home-server</span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_Agent.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{agentOpen}}">Agent</a>
+<sc-if value="{{agentOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Agent" style="min-width: 260px">
+<span class="pw-menu__item" role="menuitem">Queue Message<span class="pw-menu__key">⌘↩</span></span>
+<a href="S_Attachments.dc.html" class="pw-menu__item" role="menuitem">Attach Files…<span class="pw-menu__key">⇧⌘A</span></a>
+<a href="S_Recording.dc.html" class="pw-menu__item" role="menuitem">Record Audio<span class="pw-menu__key">⇧⌘R</span></a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem">Stop<span class="pw-menu__key">⌘.</span></span>
+<a href="Activity.dc.html" class="pw-menu__item" role="menuitem">Cancel Waiting Request…</a>
+<a href="A_Attention.dc.html" class="pw-menu__item" role="menuitem">Show Task Record</a>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Reconnect</span>
+</div></sc-if></div>
+
+<div style="position: relative"><a href="M_Window.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{windowOpen}}">Window</a>
+<sc-if value="{{windowOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Window" style="min-width: 220px">
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="true">Projects</span>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false">Files</span>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false">Review</span>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false">Event Info</span>
+</div></sc-if></div>
+
+<span class="pw-menubar__spacer"></span>
+<span class="pw-menubar__status" role="status"><span>Gemma 4 · High thinking</span><span>{{status}}</span></span>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","window"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","laya"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"$preview":{"width":1440,"height":360}}'>
+class Component extends DCLogic {
+renderVals() {
+const o = this.props.open ?? 'none';
+const v = this.props.view ?? 'chat';
+return {
+piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
+projectOpen: o === 'project', agentOpen: o === 'agent', windowOpen: o === 'window',
+vChat: v === 'chat', vWork: v === 'work', vActivity: v === 'activity', vLaya: v === 'laya', notWork: v !== 'work',
+status: this.props.status ?? 'Working · 1 waiting',
+rootH: o === 'none' ? '28px' : '400px'
+};
+}
+}
+</script>
+</body>
+</html>

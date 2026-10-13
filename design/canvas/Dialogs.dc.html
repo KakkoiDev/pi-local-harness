@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pi Workbench — Dialogs and alerts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.dlg{background:#fff;border:1px solid #000;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 5px #000,2px 2px 0 #000;padding:24px 26px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;min-width:84px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default}
+.btn:active{background:#000;color:#fff}
+.btn-def{border-radius:9px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
+.popup{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px;cursor:default}
+.row{display:flex;align-items:center;gap:8px;height:28px;padding:0 10px;font-size:15px}
+.row.sel{background:#000;color:#fff}
+.row.sel svg path{stroke:#fff}
+.mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
+.btn:focus-visible,.popup:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 640px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; display: flex; gap: 40px; padding: 48px 40px; align-items: flex-start">
+
+<!-- New project: modal dialog -->
+<form role="dialog" aria-labelledby="np-title" class="dlg" style="width: 500px">
+<h2 id="np-title" style="margin: 0; font-size: 17px; font-weight: 600">New Project</h2>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 15px">Name
+<input value="Japanese study app" style="height: 32px; box-sizing: border-box; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 0 10px; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px">
+</label>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 15px">Create in</span>
+<div style="display: flex; gap: 10px; align-items: center">
+<button type="button" class="popup" style="flex: 1; justify-content: space-between"><span style="display: flex; align-items: center; gap: 8px"><svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="M.5 2.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="#000"/></svg>code</span><svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
+<button type="button" class="btn">Parent</button>
+</div>
+<div style="border: 1px solid #000; height: 168px; display: flex">
+<div role="listbox" aria-label="Folders in code" style="flex: 1; padding: 4px 0">
+<div class="row" role="option"><svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="M.5 2.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="#000"/></svg>dotfiles</div>
+<div class="row" role="option"><svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="M.5 2.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="#000"/></svg>home-server</div>
+<div class="row sel" role="option" aria-selected="true"><svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="M.5 2.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="#000"/></svg>learning</div>
+<div class="row" role="option"><svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="M.5 2.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="#000"/></svg>pi-local-harness</div>
+</div>
+<div aria-hidden="true" style="width: 16px; border-left: 1px solid #000; display: flex; flex-direction: column"><div style="height: 16px; border-bottom: 1px solid #000"></div><div style="flex: 1; background: #fff repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/2px 2px"></div><div style="height: 16px; border-top: 1px solid #000"></div></div>
+</div>
+<span class="mono" style="font-size: 13px">~/code/learning/Japanese study app</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.4">Creates the folder with ROADMAP.md and tasks/001-first-task.md.</p>
+<div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px">
+<button type="button" class="btn">Cancel</button>
+<button type="submit" class="btn btn-def">Create</button>
+</div>
+</form>
+
+<div style="display: flex; flex-direction: column; gap: 40px">
+<!-- Save conflict: caution alert -->
+<div role="alertdialog" aria-labelledby="cf-msg" class="dlg" style="width: 470px">
+<div style="display: flex; gap: 18px; align-items: flex-start">
+<svg width="36" height="32" viewBox="0 0 36 32" role="img" aria-label="Caution" style="flex: none"><path d="M18 1.5L34.5 30.5h-33z" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M18 10v11" stroke="#000" stroke-width="3.5"/><path d="M18 24.5v3" stroke="#000" stroke-width="3.5"/></svg>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p id="cf-msg" style="margin: 0; font-size: 16px; line-height: 1.35">“59-stuck-detection.md” changed on disk while you were editing.</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.45">Your draft is safe in this window. Nothing has been overwritten.</p>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<button class="btn">Reload from Disk</button>
+<div style="flex: 1"></div>
+<button class="btn">Retry Save</button>
+<button class="btn btn-def">Download Draft…</button>
+</div>
+</div>
+
+<!-- Connection lost: note alert -->
+<div role="alertdialog" aria-labelledby="cn-msg" class="dlg" style="width: 470px">
+<div style="display: flex; gap: 18px; align-items: flex-start">
+<svg width="34" height="34" viewBox="0 0 34 34" role="img" aria-label="Note" style="flex: none"><path d="M2 3h30v22H14l-7 7v-7H2z" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M17 8v2M17 13v8" stroke="#000" stroke-width="3"/></svg>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p id="cn-msg" style="margin: 0; font-size: 16px; line-height: 1.35">Can’t reach the agent service on port 8000.</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.45">Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px">
+<button class="btn">Not Now</button>
+<button class="btn btn-def">Reconnect</button>
+</div>
+</div>
+</div>
+
+<!-- Trash confirm: stop alert -->
+<div role="alertdialog" aria-labelledby="tr-msg" class="dlg" style="width: 330px">
+<div style="display: flex; gap: 16px; align-items: flex-start">
+<svg width="34" height="34" viewBox="0 0 36 36" role="img" aria-label="Stop" style="flex: none"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="#000"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p id="tr-msg" style="margin: 0; font-size: 16px; line-height: 1.35">Move “59-stuck-detection.md” to the Trash?</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.45">Its comments go with it. You can restore it from the data folder’s .trash.</p>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px">
+<button class="btn">Move to Trash</button>
+<button class="btn btn-def">Cancel</button>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

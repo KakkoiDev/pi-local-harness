@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editing option C — Edit and Review modes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.box-btn{width:28px;height:26px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center}
+.box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-def{border-radius:9px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
+.seg{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;height:30px;padding:0 14px;border:1px solid #000;background:#fff;color:#000;display:flex;align-items:center;gap:8px}
+.seg.on{background:#000;color:#fff}
+.anchor{border-bottom:2px solid #000}
+.anchor-sent{border-bottom:2px dotted #000}
+.n{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:3px;vertical-align:3px;line-height:16px;display:inline-block}
+.item{border-bottom:1px solid #000;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.item.sel{outline:2px solid #000;outline-offset:-3px}
+.btn:focus-visible,.seg:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1200px; height: 780px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; padding: 20px; display: flex; gap: 20px; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000">
+
+<section aria-label="DESIGN.md" style="flex: 1; min-width: 0; height: 738px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
+<button class="box-btn" aria-label="Close window"><span></span></button><div class="tb-stripes"></div>
+<h1 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px">DESIGN.md</h1>
+<div class="tb-stripes"></div><button class="box-btn" aria-label="Zoom window"><span></span></button>
+</div>
+<div style="flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; gap: 10px; padding: 8px 12px">
+<div role="radiogroup" aria-label="Mode" style="display: flex">
+<button class="seg" role="radio" aria-checked="false" style="border-radius: 8px 0 0 8px">Edit<span style="font-size: 13px">⌘E</span></button>
+<button class="seg on" role="radio" aria-checked="true" style="border-left: 0; border-radius: 0 8px 8px 0">Review<span style="font-size: 13px">⇧⌘E</span></button>
+</div>
+<div style="flex: 1"></div>
+<span role="status" style="font-size: 14px">Saved</span>
+</div>
+<div role="note" style="flex: none; border-bottom: 3px double #000; padding: 6px 14px; font-size: 14px; display: flex; gap: 10px; align-items: center; background: #fff repeating-linear-gradient(135deg,#000 0 1px,transparent 1px 6px)">
+<span style="background: #fff; padding: 2px 8px; border: 1px solid #000">Reviewing — the text is read-only. Select any passage to comment.</span>
+</div>
+
+<article style="flex: 1; min-height: 0; overflow: hidden; padding: 34px 56px; font-family: 'Source Serif 4', 'New York', Georgia, serif; font-size: 18px; line-height: 1.6; display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+<p style="margin: 0; text-wrap: pretty"><span style="border: 1px dotted #000; padding: 1px 3px"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></span><span class="n">1</span> Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
+<p style="margin: 0; text-wrap: pretty">Projects live in the left rail. <span class="anchor-sent">Chat, Work, and Laya remain the main views.</span><span class="n">2</span> The active project and selected file must be clear. Search scopes to its adjacent list. Persist navigation and drafts, preserve keyboard focus during live polling, and expose <span class="anchor">conflict recovery before allowing data loss</span><span class="n">3</span>.</p>
+<p style="margin: 0; text-wrap: pretty">Applied Impeccable polish and harden guidance; refine the existing product rather than replacing its visual identity. Browser verification covers real workflows, long/CJK text, keyboard input, mobile widths, loading/failure states, and save conflicts.</p>
+</article>
+</section>
+
+<!-- Review window -->
+<section aria-label="Review" style="width: 380px; flex: none; height: 738px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 15px">Review</div>
+<div style="flex: none; border-bottom: 3px double #000; display: flex; justify-content: space-between; padding: 6px 12px; font-size: 13px"><span>3 items · in document order</span><span>⌘⌥] next</span></div>
+<div style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column">
+<div class="item sel">
+<span style="font-size: 13px; display: flex; justify-content: space-between"><span>1 · Pi suggests a change</span><span>14:21</span></span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">From your comment: “Out of date after the 1-bit redesign. Rewrite this sentence.”</p>
+<div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center"><button class="btn">Reject</button><button class="btn btn-def">Accept</button></div>
+</div>
+<div class="item">
+<span style="font-size: 13px; display: flex; justify-content: space-between"><span>2 · Sent to Pi</span><span>14:31</span></span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">Activity is missing from this list.</p>
+<span style="font-size: 13px; display: flex; align-items: center; gap: 6px"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Waiting in queue</span>
+</div>
+<div class="item">
+<span style="font-size: 13px; display: flex; justify-content: space-between"><span>3 · Open · not sent</span><span>14:40</span></span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">Name the three recovery choices here so the alert copy can be checked against it.</p>
+<div style="display: flex; gap: 8px"><button class="btn">Reply</button><button class="btn">Resolve</button></div>
+</div>
+</div>
+<form style="flex: none; border-top: 1px solid #000; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<label for="all" style="font-size: 13px">Note for Pi (optional)</label>
+<input id="all" style="height: 32px; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 0 8px; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px">
+<button class="btn" type="submit" style="align-self: stretch">Send 1 Open Comment to Pi</button>
+</form>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":780}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

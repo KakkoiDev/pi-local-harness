@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pi Workbench — Laya</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.desk-dots{background-color:#fff;background-image:radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px);background-size:4px 4px}
+.desk-gray{background:#fff repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/2px 2px}
+.desk-plain{background:#fff}
+.mb-item{font:inherit;color:#000;background:none;border:0;height:28px;padding:0 10px;display:flex;align-items:center;gap:6px;cursor:default}
+.mb-item:hover{background:#000;color:#fff}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.box-btn{width:28px;height:26px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;cursor:default}
+.box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default;text-decoration:none}
+.btn:active{background:#000;color:#fff}
+.popup{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px;cursor:default}
+.vtab{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;text-decoration:none;height:30px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid #000;background:#fff}
+.vtab:hover{background:#eee}
+.vtab.on{background:#000;color:#fff}
+.vtab kbd{font:inherit;font-size:13px;opacity:.75}
+.ev{display:grid;grid-template-columns:70px 90px 120px minmax(0,1fr) 170px 80px;align-items:center;min-height:34px;padding:0 14px;gap:12px;font-size:14px;text-decoration:none;color:#000;border-bottom:1px dotted #000}
+.ev:hover{background:#eee}
+.ev.sel{background:#000;color:#fff}
+.ev.sel svg path{stroke:#fff}
+.ev.sel svg .fill{fill:#fff}
+.ev.sel svg .ink{stroke:#000}
+.st{display:flex;align-items:center;gap:8px}
+.sb{width:16px;flex:none;border-left:1px solid #000;display:flex;flex-direction:column}
+.sb-arrow{height:16px;border-bottom:1px solid #000;display:flex;align-items:center;justify-content:center}
+.sb-arrow.dn{border-bottom:0;border-top:1px solid #000}
+.sb-track{flex:1;background:#fff repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/2px 2px;position:relative}
+.sb-thumb{position:absolute;left:0;right:0;height:16px;background:#fff;border-top:1px solid #000;border-bottom:1px solid #000}
+.mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
+.btn:focus-visible,.vtab:focus-visible,.ev:focus-visible,.popup:focus-visible{outline:2px solid #000;outline-offset:2px}
+@media (max-width:900px){.ev{grid-template-columns:60px 110px minmax(0,1fr)}.hide-md{display:none !important}}
+</style>
+</helmet>
+<div class="{{deskClass}}" style="min-height: 100vh; display: flex; flex-direction: column; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000">
+
+<nav aria-label="Menu bar" style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px; overflow-x: auto">
+<button class="mb-item" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</button>
+<button class="mb-item">File</button>
+<button class="mb-item">Edit</button>
+<button class="mb-item">View</button>
+<button class="mb-item">Project</button>
+<button class="mb-item">Agent</button>
+<button class="mb-item">Window</button>
+<div style="flex: 1"></div>
+<span style="font-size: 14px; padding: 0 8px">Laya · watching 2 sessions</span>
+</nav>
+
+<div style="flex: 1; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; padding: 24px; box-sizing: border-box">
+
+<section aria-label="Laya activity" style="flex: 999 1 640px; min-width: 0; height: 820px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
+<button class="box-btn" aria-label="Close window"><span></span></button>
+<div class="tb-stripes"></div>
+<h1 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px; white-space: nowrap">Laya</h1>
+<div class="tb-stripes"></div>
+<button class="box-btn" aria-label="Zoom window"><span style="background: linear-gradient(#000,#000) 0 0/7px 7px no-repeat #fff"></span></button>
+</div>
+<div style="flex: none; border-bottom: 1px solid #000; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px">
+<nav aria-label="Project view" style="display: flex">
+<a href="Main.dc.html" class="vtab" style="border-radius: 8px 0 0 8px">Chat<kbd>⌘1</kbd></a>
+<a href="Work.dc.html" class="vtab" style="border-left: 0">Work<kbd>⌘2</kbd></a>
+<a href="Activity.dc.html" class="vtab" style="border-left: 0">Activity<kbd>⌘3</kbd></a>
+<a href="Laya.dc.html" class="vtab on" aria-current="page" style="border-left: 0; border-radius: 0 8px 8px 0">Laya<kbd>⌘4</kbd></a>
+</nav>
+<div style="flex: 1"></div>
+<span style="font-size: 14px">Show</span><button class="popup">Blocks &amp; Failures<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
+<button class="btn">Refresh<span style="font-size: 13px">⌘R</span></button>
+</div>
+<div style="flex: none; border-bottom: 3px double #000; display: flex; flex-wrap: wrap; gap: 20px; padding: 6px 14px; font-size: 14px">
+<span>Before a command runs: approve or block. After it runs: verify the result.</span>
+<span role="status" style="margin-left: auto">Live · updates every 2 s · latest 200</span>
+</div>
+<div class="ev" style="min-height: 28px; font-size: 13px; border-bottom: 1px solid #000">
+<span>Time</span><span>Check</span><span>Decision</span><span>Command</span><span class="hide-md">Project</span><span class="hide-md">From</span>
+</div>
+<div style="flex: 1; min-height: 0; display: flex">
+<div role="list" style="flex: 1; min-width: 0; overflow: auto">
+<a href="#" role="listitem" class="ev"><span>14:03:10</span><span>Gate</span><span class="st"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Approved</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">python3 -m pytest tests/test_work_queue.py</span><span class="hide-md">pi-local-harness</span><span class="hide-md">Web</span></a>
+<a href="#" role="listitem" class="ev sel" aria-current="true"><span>14:02:51</span><span>Gate</span><span class="st"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" class="fill" fill="#000" stroke="#000"/><path d="M4 7h6" class="ink" stroke="#fff" stroke-width="2"/></svg>Blocked</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">rm -rf ~/.local/share/pi-local-harness/work</span><span class="hide-md">pi-local-harness</span><span class="hide-md">Web</span></a>
+<a href="#" role="listitem" class="ev"><span>14:02:40</span><span>Audit</span><span class="st"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Verified</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">grep -n "interrupted" harness/work_queue.py</span><span class="hide-md">pi-local-harness</span><span class="hide-md">Web</span></a>
+<a href="#" role="listitem" class="ev"><span>13:42:51</span><span>Audit</span><span class="st"><svg width="14" height="13" viewBox="0 0 16 14" aria-hidden="true"><path d="M8 .8L15.3 13.5H.7z" fill="none" stroke="#000"/><path d="M8 5v4M8 10.5v1.5" stroke="#000" stroke-width="1.5"/></svg>Failed</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">./backup.sh --report</span><span class="hide-md">home-server</span><span class="hide-md">Terminal</span></a>
+<a href="#" role="listitem" class="ev"><span>13:40:12</span><span>Gate</span><span class="st"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Approved</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">./backup.sh --report</span><span class="hide-md">home-server</span><span class="hide-md">Terminal</span></a>
+<a href="#" role="listitem" class="ev"><span>11:18:03</span><span>Gate</span><span class="st"><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" class="fill" fill="#000" stroke="#000"/><path d="M4 7h6" class="ink" stroke="#fff" stroke-width="2"/></svg>Blocked</span><span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">git commit -m "wip"</span><span class="hide-md">Japanese study app</span><span class="hide-md">Web</span></a>
+</div>
+<div class="sb" aria-hidden="true"><div class="sb-arrow"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M.5 5.5L4.5 .5l4 5z" fill="#fff" stroke="#000"/></svg></div><div class="sb-track"><div class="sb-thumb" style="top: 0"></div></div><div class="sb-arrow dn"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M.5 .5L4.5 5.5l4-5z" fill="#fff" stroke="#000"/></svg></div></div>
+</div>
+<div style="flex: none; border-top: 1px solid #000; padding: 5px 12px; font-size: 13px">6 events shown · filter: Blocks &amp; Failures plus their context</div>
+</section>
+
+<!-- Get Info window for the selected event -->
+<section aria-label="Event info" style="flex: 1 1 300px; max-width: 360px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column; min-width: 0">
+<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 15px">Blocked command Info</div>
+<div style="padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 14px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="Stop"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="#000"/><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="none" stroke="#fff" stroke-width="2" transform="translate(18 18) scale(.86) translate(-18 -18)"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.45; text-wrap: pretty">Laya blocked this command before it ran. Recursive delete of the harness data directory is destructive and outside the project folder.</p>
+</div>
+<pre class="mono" style="margin: 0; border: 1px solid #000; padding: 10px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere">rm -rf ~/.local/share/pi-local-harness/work</pre>
+<dl style="margin: 0; display: grid; grid-template-columns: 90px 1fr; gap: 6px 12px; font-size: 14px">
+<dt>Rule</dt><dd style="margin: 0">Destructive shell guard</dd>
+<dt>Project</dt><dd style="margin: 0">pi-local-harness</dd>
+<dt>Session</dt><dd style="margin: 0">Web · request 14:02</dd>
+<dt>Agent saw</dt><dd style="margin: 0">The block reason, and chose another approach</dd>
+</dl>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Activity.dc.html" class="btn">Open Request</a>
+<button class="btn">Copy Command</button>
+</div>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"pattern":{"editor":"enum","options":["dots","gray","plain"],"default":"dots"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { deskClass: 'desk-' + (this.props.pattern ?? 'dots') };
+}
+}
+</script>
+</body>
+</html>

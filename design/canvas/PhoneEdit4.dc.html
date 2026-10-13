@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone — open a comment thread</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-def{border-radius:11px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
+.btn:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #fff; position: relative; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; inset: 0; padding: 92px 18px 0 52px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.55">
+<div style="position: absolute; top: 44px; left: 0; right: 0; height: 48px; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 12px; gap: 8px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 16px"><span>‹ Files</span><div class="tb-stripes"></div><span>DESIGN.md</span><div class="tb-stripes"></div><span>Saved</span></div>
+<h2 style="margin: 18px 0 14px; font-size: 26px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+<p style="margin: 0 0 14px">Preserve the <span style="background: #000; color: #fff">established dark workspace and pale green accent</span><span style="font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 12px; border: 1px solid #000; padding: 0 5px; margin-left: 4px; background: #000; color: #fff">1</span>. Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 260px; bottom: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
+
+<section role="dialog" aria-modal="true" aria-labelledby="th-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 270px; background: #fff; border-top: 1px solid #000; box-shadow: inset 0 2px 0 #fff, inset 0 5px 0 #000; padding: 18px 16px 34px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h2 id="th-title" style="margin: 0; font-size: 17px; font-weight: 600">Comment 1 of 2</h2>
+<div style="display: flex; gap: 4px">
+<button class="btn" aria-label="Previous comment" style="width: 44px; padding: 0">‹</button>
+<button class="btn" aria-label="Next comment" style="width: 44px; padding: 0">›</button>
+<button class="btn" style="border: 0">Close</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #000; padding-bottom: 12px">
+<span style="font-size: 13px"><span style="font-weight: 600">You</span> · 14:20</span>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.45">Out of date after the 1-bit redesign. Rewrite this sentence.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px"><span style="font-weight: 600">Pi</span> · 14:21 · suggested change</span>
+<p style="margin: 0; border: 1px dotted #000; padding: 10px; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.45"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></p>
+<div style="display: flex; gap: 8px; align-items: center">
+<button class="btn" style="flex: 1">Keep Mine</button>
+<button class="btn btn-def" style="flex: 1">Apply Change</button>
+</div>
+</div>
+<div style="flex: 1"></div>
+<label for="r" style="font-size: 14px">Reply</label>
+<div style="display: flex; gap: 8px">
+<input id="r" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 0 10px; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px">
+<button class="btn">Send</button>
+</div>
+<button class="btn" style="align-self: flex-start; border: 0; padding: 0 2px; text-decoration: underline">Resolve thread</button>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

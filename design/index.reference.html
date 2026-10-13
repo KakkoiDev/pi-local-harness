@@ -1,0 +1,288 @@
+<!doctype html>
+<!-- Pi Workbench System 1 — reference markup for index.html.
+     Every id the current js/*.mjs and tests use is kept (search "id=" against the old index.html).
+     New ids are marked NEW. Replace index.html with this structure, then follow IMPLEMENTATION.md. -->
+<html lang="en" data-appearance="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff"><title>Pi Workbench</title>
+  <link rel="stylesheet" href="/design/tokens.css">
+  <link rel="stylesheet" href="/design/components.css">
+  <link rel="stylesheet" href="/chat.css"><!-- layout only: see design/layout.css -->
+  <script type="module">
+    import('/js/chat.mjs').catch(() => {
+      const alert = document.createElement('div');
+      alert.id = 'startup-error';
+      alert.className = 'pw-dialog';
+      alert.setAttribute('role', 'alert');
+      alert.innerHTML = '<div class="pw-alert"><span class="pw-alert__icon" data-icon="alert-stop"></span><div><p class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, and reload this page.</p></div></div><div class="pw-dialog__actions"><button class="pw-btn pw-btn--default" onclick="location.reload()">Reload Page</button></div>';
+      document.body.append(alert);
+    });
+  </script>
+</head>
+<body class="pw-root" data-view="chat"><!-- js/chat.mjs showView() sets data-view -->
+  <a class="skip-link pw-btn" href="#thread">Skip to conversation</a>
+
+  <!-- NEW: menu bar (desktop). On phone it is hidden and #phonebar shows instead. -->
+  <nav id="menubar" class="pw-menubar" role="menubar" aria-label="Menu bar">
+    <div class="menubar-slot"><button class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pi" aria-label="Pi menu">π</button>
+      <div id="menu-pi" class="pw-menu" role="menu" aria-label="Pi" hidden>
+        <button class="pw-menu__item" role="menuitem" data-command="about">About Pi Workbench</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="settings">Settings…<span class="pw-menu__key">⌘,</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="desktop-pattern">Desktop Pattern…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="open-on-phone">Open on Phone…</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <span class="pw-menu__item" role="menuitem" aria-disabled="true"><span id="menu-model">Gemma 4</span>&nbsp;·&nbsp;<span id="menu-effort">High thinking</span></span>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">File</button>
+      <div id="menu-file" class="pw-menu" role="menu" aria-label="File" hidden>
+        <button class="pw-menu__item" role="menuitem" data-command="new-project">New Project…<span class="pw-menu__key">⌘N</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="add-folder">Add Existing Folder…<span class="pw-menu__key">⌘O</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="new-page">New Page…<span class="pw-menu__key">⇧⌘N</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="new-task">New Task…<span class="pw-menu__key">⌘T</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="save">Save<span class="pw-menu__key">⌘S</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="reload-document">Reload from Disk…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="download-draft">Download Draft…</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="trash-page">Move to Trash…<span class="pw-menu__key">⌘⌫</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="close-window">Close Window<span class="pw-menu__key">⌘W</span></button>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-edit">Edit</button>
+      <div id="menu-edit" class="pw-menu" role="menu" aria-label="Edit" hidden>
+        <button class="pw-menu__item" role="menuitem" data-command="undo">Undo<span class="pw-menu__key">⌘Z</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="cut">Cut<span class="pw-menu__key">⌘X</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="copy">Copy<span class="pw-menu__key">⌘C</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="paste">Paste<span class="pw-menu__key">⌘V</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="select-all">Select All<span class="pw-menu__key">⌘A</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="comment-selection">Comment on Selection<span class="pw-menu__key">⇧⌘M</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="ask-selection">Ask Pi About Selection…</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="find-file">Find in Files…<span class="pw-menu__key">⌘F</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="find-project">Find Project…<span class="pw-menu__key">⌘K</span></button>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-view">View</button>
+      <div id="menu-view" class="pw-menu" role="menu" aria-label="View" hidden>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity<span class="pw-menu__key">⌘3</span></button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-laya">Laya<span class="pw-menu__key">⌘4</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="mode-blocks">As Document</button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="mode-source">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-review">Show Review<span class="pw-menu__key">⌥⌘R</span></button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-resolved">Show Resolved Comments</button>
+        <button class="pw-menu__item" role="menuitem" data-command="next-comment">Next Comment<span class="pw-menu__key">⌥⌘]</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="previous-comment">Previous Comment<span class="pw-menu__key">⌥⌘[</span></button>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-project">Project</button>
+      <div id="menu-project" class="pw-menu" role="menu" aria-label="Project" hidden>
+        <button class="pw-menu__item" role="menuitem" data-command="project-chat">Open Project Chat</button>
+        <button class="pw-menu__item" role="menuitem" data-command="ask-document">Ask Pi About This Document…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="copy-folder-path">Copy Folder Path</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <div id="menu-project-list" role="group" aria-label="Projects"><!-- one menuitemradio per project, filled by JS --></div>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-agent">Agent</button>
+      <div id="menu-agent" class="pw-menu" role="menu" aria-label="Agent" hidden>
+        <button class="pw-menu__item" role="menuitem" data-command="send">Queue Message<span class="pw-menu__key">⌘↩</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="attach">Attach Files…<span class="pw-menu__key">⇧⌘A</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="record">Record Audio<span class="pw-menu__key">⇧⌘R</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="stop">Stop<span class="pw-menu__key">⌘.</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="cancel-waiting">Cancel Waiting Request…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="task-record">Show Task Record</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="reconnect">Reconnect</button>
+      </div></div>
+    <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-window">Window</button>
+      <div id="menu-window" class="pw-menu" role="menu" aria-label="Window" hidden>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-projects">Projects</button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-files">Files</button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-review">Review</button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-event-info">Event Info</button>
+      </div></div>
+    <span class="pw-menubar__spacer"></span>
+    <span class="pw-menubar__status"><span><span id="model">Gemma 4</span> · <span class="effort">High thinking</span></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
+  </nav>
+
+  <!-- NEW: phone bar (≤760px) -->
+  <nav id="phonebar" class="pw-phonebar" aria-label="Menu bar">
+    <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π</button>
+    <button id="phone-view" class="pw-phonebar__btn" aria-haspopup="menu" aria-expanded="false"><span id="phone-view-label">Chat</span><span data-icon="popup-arrow"></span></button>
+    <span class="pw-menubar__spacer"></span>
+    <span id="phone-status" class="pw-glyph" role="status"></span>
+  </nav>
+
+  <button id="backdrop" class="pw-scrim" aria-label="Close menu" hidden></button>
+
+  <div id="desk" class="pw-desk"><!-- data-pattern="dots|gray|plain" -->
+
+    <!-- Projects window (phone: the π sheet) -->
+    <aside id="sidebar" class="pw-window window-projects" aria-label="Project navigation">
+      <div class="pw-titlebar"><button id="close-menu" class="pw-box" aria-label="Close menu"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
+      <div class="pw-infobar"><span><span id="project-count"></span> projects</span><span id="active-project-label">Choose a project</span></div>
+      <div class="window-section"><label class="pw-search"><span data-icon="search"></span><input id="project-search" type="search" placeholder="Find a project" aria-label="Search projects"><kbd class="pw-kbd">⌘K</kbd></label></div>
+      <nav id="project-list" class="pw-list pw-window__body" aria-label="Projects"></nav>
+      <div class="window-section window-section--actions">
+        <button id="new-project" class="pw-btn">New Project…<span class="pw-kbd">⌘N</span></button>
+        <button id="add-folder" class="pw-btn">Add Existing Folder…<span class="pw-kbd">⌘O</span></button>
+      </div>
+      <div class="pw-statusbar"><span>Local AI</span><span>Nothing leaves this Mac</span></div>
+    </aside>
+
+    <!-- Files window (Work view only; replaces the Projects window there) -->
+      <aside class="file-pane pw-window window-files" aria-label="Project files" data-view-only="work">
+        <div class="window-section">
+          <div class="window-row"><button id="new-page" class="pw-btn">New Page…</button><button id="new-task" class="pw-btn">New Task…</button></div>
+          <label class="pw-search file-search"><span data-icon="search"></span><input id="file-search" type="search" placeholder="Find a file" aria-label="Search project files"><kbd class="pw-kbd">⌘F</kbd></label>
+        </div>
+        <nav id="file-tree" class="pw-list pw-window__body" aria-label="Project files"></nav>
+      </aside>
+
+    <main id="main-window" class="pw-window">
+      <header class="pw-titlebar"><button class="pw-box" aria-label="Close window" data-command="close-window"></button><div class="pw-titlebar__stripes"></div><h1 id="window-title" class="pw-titlebar__title">Pi Workbench</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window" data-command="zoom"></button></header>
+      <div id="workspace-bar" class="pw-toolbar">
+        <nav class="view-tabs pw-seg" aria-label="Workspace view">
+          <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌘1</kbd></button>
+          <button id="work-tab" aria-pressed="false">Work<kbd>⌘2</kbd></button>
+          <button id="activity-tab" aria-pressed="false">Activity<span id="activity-count" class="activity-count" hidden></span><kbd>⌘3</kbd></button>
+          <button id="laya-tab" aria-pressed="false">Laya<kbd>⌘4</kbd></button>
+        </nav>
+        <span class="pw-menubar__spacer"></span>
+        <span id="project-folder" class="pw-mono pw-help"></span>
+      </div>
+
+      <!-- Chat -->
+      <section id="thread" class="pw-window__body" aria-label="Messages" tabindex="0">
+        <div id="welcome" class="welcome">
+          <div class="welcome-mark" aria-hidden="true">π</div>
+          <h2 id="project-title">What are we working on?</h2>
+          <p id="welcome-copy" class="pw-text">Give your agent a place to work. Keep its conversation, plan, and files together.</p>
+          <div id="onboarding-actions" class="pw-dialog__actions"><button id="welcome-folder" class="pw-btn">Use an Existing Folder…</button><button id="welcome-create" class="pw-btn pw-btn--default">Create Your First Project…</button></div>
+          <div class="suggestions" hidden><button class="pw-btn" data-prompt="Help me understand a piece of code">Understand some code</button><button class="pw-btn" data-prompt="Describe the image I attach">Explore an image</button><button class="pw-btn" data-prompt="Transcribe and summarize the audio I attach">Listen to a recording</button></div>
+        </div>
+        <div id="messages" class="pw-transcript" aria-live="polite" aria-relevant="additions"></div>
+      </section>
+      <div class="composer-wrap">
+        <div id="error" class="pw-alert-line" role="alert" hidden></div>
+        <form id="composer" class="pw-composer">
+          <div id="attachments" class="pw-chips" aria-label="Attached files"></div>
+          <label class="pw-label" for="prompt">Message to Pi</label>
+          <textarea id="prompt" class="pw-field" rows="3" placeholder="Ask anything, or drop a file here"></textarea>
+          <div class="pw-composer__row">
+            <button id="attach" type="button" class="pw-btn">Attach…</button>
+            <button id="record" type="button" class="pw-btn"><span data-icon="mic"></span>Record</button>
+            <span id="hint" class="pw-help">Text, images, audio &amp; files</span>
+            <span class="pw-menubar__spacer"></span>
+            <button id="stop" type="button" class="pw-btn" hidden>Stop<span class="pw-kbd">⌘.</span></button>
+            <button id="send" type="submit" class="pw-btn pw-btn--default">Send</button>
+          </div>
+          <input id="files" type="file" multiple hidden>
+        </form>
+        <p class="footnote pw-statusbar">Local models can make mistakes. Review important answers.</p>
+      </div>
+
+      <!-- Work -->
+      <section id="work-panel" class="work-panel" hidden>
+        <div class="work-header pw-infobar">
+          <span id="work-status" aria-live="polite"></span><span id="work-queue"></span>
+          <span class="pw-menubar__spacer"></span>
+          <button id="project-chat" class="pw-btn">Open Project Chat</button>
+        </div>
+        <div class="work-layout">
+          <div class="document-pane">
+            <div class="pw-infobar"><h2 class="pw-label" style="margin:0"><span id="document-name">Choose a document</span></h2><span id="file-kind" class="pw-help"></span></div><!-- JS also mirrors the file name into #window-title -->
+            <div id="document-toolbar" class="pw-ruler" role="toolbar" aria-label="Ruler">
+              <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Text</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
+              <button id="add-block" class="pw-btn">Add Block</button>
+              <button id="selection-comment" class="pw-btn" hidden>Comment<span class="pw-kbd">⇧⌘M</span></button>
+              <span class="pw-menubar__spacer"></span>
+              <select id="editor-mode" class="pw-popup" aria-label="Editor mode"><option value="blocks">Document</option><option value="source">Markdown Source</option></select>
+              <button id="toggle-review" class="pw-btn" aria-pressed="true">Hide Review<span class="pw-kbd">⌥⌘R</span></button><!-- NEW -->
+              <button id="reload-document" class="pw-btn">Reload</button>
+              <button id="delete-page" class="pw-btn">Move to Trash…</button>
+              <span id="save-status" class="pw-label" role="status"></span>
+            </div>
+            <div id="save-recovery" class="pw-alert-line" hidden role="alert"><span data-icon="caution"></span><p id="save-recovery-message"></p><button id="discard-draft" class="pw-btn">Reload from Disk</button><button id="retry-save" class="pw-btn">Retry Save</button><button id="download-draft" class="pw-btn pw-btn--default">Download Draft…</button></div>
+            <div class="pw-window__body">
+              <div id="document-editor" class="pw-doc" aria-label="Document editor"></div>
+              <textarea id="document-source" class="pw-source" aria-label="File source" hidden spellcheck="false"></textarea>
+            </div>
+            <div class="pw-statusbar"><span>⌘S saves · changes save as you type</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity -->
+      <section id="activity-panel" class="activity-panel" hidden aria-label="Agent activity">
+        <div class="pw-toolbar">
+          <label class="pw-label">Show <select id="activity-filter" class="pw-popup"><option value="all">All Work</option><option value="pending">Running &amp; Waiting</option><option value="completed">Completed</option><option value="attention">Needs Attention</option></select></label>
+          <label class="pw-label">Project <select id="activity-project" class="pw-popup"><option value="all">All Projects</option></select></label>
+          <span class="pw-menubar__spacer"></span>
+          <span id="activity-summary" class="pw-label" role="status"></span>
+        </div>
+        <div class="pw-infobar"><span>One queue, first in, first out. Interrupted work is never repeated automatically.</span></div>
+        <div id="activity-list" class="pw-table pw-window__body" role="list"></div>
+        <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
+      </section>
+
+      <!-- Laya -->
+      <section id="laya-panel" class="laya-panel" hidden aria-label="Laya activity">
+        <div class="pw-toolbar">
+          <label class="pw-label">Show <select id="laya-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
+          <button id="laya-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
+          <span class="pw-menubar__spacer"></span>
+          <span id="laya-live" class="pw-label" role="status">Connecting…</span>
+        </div>
+        <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span></div>
+        <div id="laya-events" class="pw-table pw-window__body" aria-live="polite"></div>
+      </section>
+    </main>
+
+      <!-- Review window: comments + document requests -->
+      <aside id="comments-panel" class="pw-window window-review" aria-label="Review" data-view-only="work">
+        <div class="pw-titlebar"><button class="pw-box" aria-label="Close Review" data-command="toggle-review"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Review <span id="comment-count"></span></h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
+        <div class="window-section"><div id="comment-filter" class="pw-seg pw-seg--fill" role="radiogroup" aria-label="Show"><button role="radio" aria-checked="true" data-filter="open">Open</button><button role="radio" aria-checked="false" data-filter="resolved">Resolved</button><button role="radio" aria-checked="false" data-filter="deleted">Deleted</button></div></div><!-- NEW -->
+        <div id="selected-passage" class="window-section" hidden><blockquote id="comment-anchor" class="pw-review-item__quote"></blockquote><button id="clear-anchor" class="pw-btn" aria-label="Clear selected passage">Clear Selection</button>
+          <form id="comment-form" class="window-column"><label class="pw-label" for="comment-text">Comment</label><textarea id="comment-text" class="pw-field" rows="2" placeholder="Comment on the selected passage…"></textarea><button id="add-comment" class="pw-btn pw-btn--default" disabled>Add Comment</button></form>
+        </div>
+        <div id="document-comments" class="pw-window__body"></div>
+        <section id="document-discussion" class="window-section window-section--top">
+          <h3 class="pw-label">Ask Pi about this whole document</h3>
+          <form id="document-prompt-form" class="window-column"><textarea id="document-prompt" class="pw-field" rows="2" placeholder="e.g. Split the Red steps into separate tests" aria-label="Document request"></textarea><button class="pw-btn">Send Request</button></form>
+          <p class="pw-help">Includes this document and the project context.</p>
+          <details id="document-request-history" hidden><summary id="document-request-summary" class="pw-label">Recent requests</summary><div id="document-requests"></div></details>
+        </section>
+      </aside>
+
+    <!-- NEW: Event Info window (Laya detail) -->
+    <aside id="event-info" class="pw-window window-info" aria-label="Event info" data-view-only="laya"></aside>
+  </div>
+
+  <!-- Dialogs -->
+  <dialog id="folder-dialog" class="pw-dialog">
+    <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
+    <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
+    <div class="folder-location window-row"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
+    <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav>
+    <p id="folder-error" class="pw-help" role="alert"></p>
+    <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
+  </dialog>
+  <dialog id="name-dialog" class="pw-dialog"><!-- NEW: replaces window.prompt for New Page / New Task -->
+    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New Page</h2><label class="pw-label window-column"><span id="name-dialog-label">Page name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button value="cancel" class="pw-btn" formnovalidate>Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
+  </dialog>
+  <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- NEW: replaces window.confirm -->
+    <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
+  </dialog>
+  <dialog id="settings-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <dialog id="about-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <div id="toast" class="pw-toast" role="status" hidden><span id="toast-text"></span><button id="toast-undo" class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div><!-- NEW -->
+</body>
+</html>

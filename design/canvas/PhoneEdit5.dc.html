@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone — block handle menu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#000}a:hover{color:#000}
+.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
+.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.type{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;min-height:44px;display:flex;align-items:center;gap:8px;padding:0 12px}
+.type.on{background:#000;color:#fff}
+.mi{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:0;border-bottom:1px dotted #000;min-height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;text-align:left}
+.btn:focus-visible,.type:focus-visible,.mi:focus-visible{outline:2px solid #000;outline-offset:-3px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #fff; position: relative; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; inset: 0; padding: 92px 18px 0 52px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.55">
+<div style="position: absolute; top: 44px; left: 0; right: 0; height: 48px; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 12px; gap: 8px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 16px"><span>‹ Files</span><div class="tb-stripes"></div><span>DESIGN.md</span><div class="tb-stripes"></div><span>Saved</span></div>
+<h2 style="margin: 18px 0 14px; font-size: 26px; font-weight: 600; line-height: 1.2">Workbench design</h2>
+<p style="margin: 0 0 14px">Preserve the established dark workspace and pale green accent. Use a warm charcoal canvas, a darker navigation rail.</p>
+<div style="position: absolute; left: 10px; top: 268px; width: 22px; height: 28px; background: #000"></div>
+<p style="margin: 0; outline: 2px solid #000; outline-offset: 5px">Projects live in the left rail. Chat, Work, and Laya remain the main views.</p>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 330px; bottom: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
+
+<section role="dialog" aria-modal="true" aria-labelledby="bk-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 340px; background: #fff; border-top: 1px solid #000; box-shadow: inset 0 2px 0 #fff, inset 0 5px 0 #000; padding: 18px 16px 34px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="bk-title" style="margin: 0; font-size: 17px; font-weight: 600">Paragraph</h2>
+<div role="radiogroup" aria-label="Turn into" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<button class="type on" role="radio" aria-checked="true">Text</button>
+<button class="type" role="radio" aria-checked="false">Heading</button>
+<button class="type" role="radio" aria-checked="false">Quote</button>
+<button class="type" role="radio" aria-checked="false">Bullet</button>
+<button class="type" role="radio" aria-checked="false">Number</button>
+<button class="type" role="radio" aria-checked="false">Checkbox</button>
+</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #000">
+<button class="mi">Move Up</button>
+<button class="mi">Move Down</button>
+<button class="mi">Comment on Paragraph</button>
+<button class="mi">Ask Pi About Paragraph…</button>
+<button class="mi" style="border-bottom: 0">Delete Paragraph<svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" fill="#000"/><path d="M4 7h6" stroke="#fff" stroke-width="2"/></svg></button>
+</div>
+<div style="flex: 1"></div>
+<button class="btn" style="width: 100%">Cancel</button>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -47,6 +47,7 @@ class LauncherTest(unittest.TestCase):
             install(root/'prefix',agent,root/'data')
             package=root/'prefix/share/pi-local-harness'
             self.assertTrue((package/'harness/web_chat.py').exists());self.assertTrue((package/'DESIGN.md').exists())
+            self.assertTrue((package/'design/tokens.css').exists());self.assertTrue((package/'design/icons.mjs').exists());self.assertTrue((package/'fonts').is_dir())
             self.assertEqual((root/'prefix/bin/plh').resolve(),(package/'plh.py').resolve())
             self.assertFalse((agent/'extensions/local-harness.ts').is_symlink())
             settings=json.loads((agent/'settings.json').read_text());self.assertEqual(settings,{'packages':['user-package']})

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Every popup open</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 40px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; gap: 40px; color: #000">
+
+<div style="display: flex; flex-direction: column; gap: 6px; position: relative">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Ruler › Block style</span>
+<button class="pw-popup" style="align-self: flex-start; min-width: 150px; text-align: left" aria-expanded="true">Paragraph</button>
+<div class="pw-menu" role="listbox" aria-label="Block style" style="position: static; width: 220px">
+<span class="pw-menu__item" role="option" aria-checked="true">Text</span>
+<span class="pw-menu__item" role="option">Heading</span>
+<span class="pw-menu__item" role="option" data-active="true">Task Checkbox</span>
+<span class="pw-menu__item" role="option">Bullet</span>
+<span class="pw-menu__item" role="option">Number</span>
+<span class="pw-menu__item" role="option">Quote</span>
+<span class="pw-menu__item" role="option">Code</span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="option">Raw Markdown</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Ruler › Editor mode</span>
+<button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">Document</button>
+<div class="pw-menu" role="listbox" aria-label="Editor mode" style="position: static; width: 240px">
+<span class="pw-menu__item" role="option" aria-checked="true">Document</span>
+<span class="pw-menu__item" role="option" data-active="true">Markdown Source<span class="pw-menu__key">⌥⌘U</span></span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity › Show</span>
+<button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Work</button>
+<div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 240px">
+<span class="pw-menu__item" role="option" aria-checked="true">All Work</span>
+<span class="pw-menu__item" role="option">Running &amp; Waiting</span>
+<span class="pw-menu__item" role="option">Completed</span>
+<span class="pw-menu__item" role="option" data-active="true">Needs Attention</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity › Project</span>
+<button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Projects</button>
+<div class="pw-menu" role="listbox" aria-label="Project" style="position: static; width: 240px">
+<span class="pw-menu__item" role="option" aria-checked="true">All Projects</span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="option">pi-local-harness</span>
+<span class="pw-menu__item" role="option">Japanese study app</span>
+<span class="pw-menu__item" role="option">home-server</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Laya › Show</span>
+<button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Checks</button>
+<div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 260px">
+<span class="pw-menu__item" role="option" aria-checked="true">All Checks</span>
+<span class="pw-menu__item" role="option">Before Execution</span>
+<span class="pw-menu__item" role="option">After Execution</span>
+<span class="pw-menu__item" role="option" data-active="true">Blocks &amp; Failures</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Document › Block handle</span>
+<div style="display: flex; gap: 8px; align-items: flex-start">
+<button class="pw-btn pw-btn--icon" aria-pressed="true" aria-label="Paragraph options" style="width: 28px; min-height: 28px; border-radius: 0"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"/></svg></button>
+<div class="pw-menu" role="menu" aria-label="Paragraph" style="position: static; width: 250px">
+<span class="pw-menu__item" role="menuitem">Turn Into<span class="pw-menu__key">▸</span></span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="menuitem">Move Up<span class="pw-menu__key">⌥⌘↑</span></span>
+<span class="pw-menu__item" role="menuitem">Move Down<span class="pw-menu__key">⌥⌘↓</span></span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="menuitem" data-active="true">Comment on Paragraph</span>
+<span class="pw-menu__item" role="menuitem">Ask Pi About Paragraph…</span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="menuitem">Delete Paragraph</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Document › Text selected</span>
+<div class="pw-window" style="padding: 16px 18px 64px; position: relative">
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 18px; line-height: 1.6">Buttons have visible keyboard focus and <span style="background: #000; color: #fff">touch-sized targets</span>.</p>
+<div class="pw-floatbar" role="toolbar" aria-label="Selection" style="left: 18px; bottom: 14px"><button class="pw-btn">Comment<span class="pw-kbd">⇧⌘M</span></button><button class="pw-btn">Ask Pi…</button></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Folder dialog › Location</span>
+<button class="pw-popup" style="align-self: flex-start; text-align: left; min-width: 200px" aria-expanded="true">learning</button>
+<div class="pw-menu" role="listbox" aria-label="Location" style="position: static; width: 250px">
+<span class="pw-menu__item" role="option" aria-checked="true">learning</span>
+<span class="pw-menu__item" role="option" data-active="true">code</span>
+<span class="pw-menu__item" role="option">cyril</span>
+<span class="pw-menu__item" role="option">Users</span>
+<div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="option">Home</span>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
