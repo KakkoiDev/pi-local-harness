@@ -5,13 +5,20 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import uuid
 
 ROOT=Path(__file__).resolve().parent.parent
+KEEP_BACKUPS=3
 
-def install(prefix, agent, data):
-    prefix,agent,data=Path(prefix),Path(agent),Path(data)
+def head(source):
+    try:return subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
+    except (OSError,subprocess.CalledProcessError):return None
+
+def install(prefix, agent, data, source=ROOT, commit=None):
+    prefix,agent,data,source=Path(prefix).resolve(),Path(agent).resolve(),Path(data).resolve(),Path(source).resolve()
+    commit=commit or head(source)
     target=prefix/'share/pi-local-harness'
     for name in ['plh','pi-local-harness']:
         link=prefix/'bin'/name
@@ -23,9 +30,12 @@ def install(prefix, agent, data):
         shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
     for item in ['plh.py','agent_api.py','index.html','chat.css','readme.md','PRODUCT.md','DESIGN.md']:
         shutil.copy2(ROOT/item,stage/item)
+    # plh reads this on launch to follow the checkout (see plh.py update).
+    (stage/'install.json').write_text(json.dumps({'source':str(source),'commit':commit,'prefix':str(prefix),'agent':str(agent),'data':str(data)},indent=2)+'\n')
     stamp=datetime.now().strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:6]
     if target.exists():target.rename(target.with_name('pi-local-harness.before-'+stamp))
     stage.rename(target);(target/'plh.py').chmod(0o755)
+    for old in sorted(target.parent.glob('pi-local-harness.before-*'))[:-KEEP_BACKUPS]:shutil.rmtree(old)
     binary=prefix/'bin';binary.mkdir(parents=True,exist_ok=True)
     for name in ['plh','pi-local-harness']:
         link=binary/name
@@ -69,4 +79,5 @@ def install(prefix, agent, data):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--prefix',default=str(Path.home()/'.local'));parser.add_argument('--agent-dir',default=os.getenv('PI_CODING_AGENT_DIR',str(Path.home()/'.pi/agent')));parser.add_argument('--data-dir',default=os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data')))
-    args=parser.parse_args();install(args.prefix,args.agent_dir,args.data_dir)
+    parser.add_argument('--source',default=str(ROOT),help='checkout plh follows on launch');parser.add_argument('--commit',help='commit being installed (default: HEAD of --source)')
+    args=parser.parse_args();install(args.prefix,args.agent_dir,args.data_dir,args.source,args.commit)

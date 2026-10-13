@@ -138,3 +138,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [96-Laya renamed Gate](tasks/96-rename-gate.md)
 - [ ] [97-Files window: Plan above Files](tasks/97-files-plan-group.md)
 - [ ] [98-Block adding matches the design](tasks/98-block-adding-audit.md)
+- [ ] [99-plh follows the checkout](tasks/99-plh-auto-update.md)

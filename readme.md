@@ -20,8 +20,15 @@ plh
 The installer copies the runtime into `~/.local/share/pi-local-harness` and creates
 `~/.local/bin/plh` and `~/.local/bin/pi-local-harness`. Put `~/.local/bin` on your PATH
 if necessary. The installed runtime survives moving or deleting the checkout.
-Re-run the installer after updating the source. It backs up previous installations
-and detaches the recognized old global harness extension and its model defaults,
+
+`plh` follows the checkout it was installed from. On each launch it compares the
+checkout's committed `HEAD` with the installed build; if they differ it installs that
+commit (`git archive`, so uncommitted edits never ship) and prints `PLH: updated to
+<commit>`. If the checkout is gone or the update fails it prints `PLH: not updated` and
+starts the installed build. Set `"auto_update": false` in `config.json` to stop this.
+A running session keeps its build until you restart `plh`. Re-run the installer by hand
+only to install from a different checkout. Each install backs up the previous one and
+keeps the three newest backups, and detaches the recognized old global harness extension and its model defaults,
 preserving unrelated Pi settings, packages, extensions, and custom instructions.
 
 After installing an update, close the running PLH session, start `plh` again,
@@ -109,7 +116,8 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
   "web_port": 3000,
   "whisper_model": "mlx-community/whisper-base-mlx",
   "remote_hosts": [],
-  "remote_users": []
+  "remote_users": [],
+  "auto_update": true
 }
 ```
 
