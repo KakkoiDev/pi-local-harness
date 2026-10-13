@@ -115,6 +115,35 @@ class DocumentTest(unittest.TestCase):
             self.assertEqual(store.get(page['path'])['comments'][0]['replies'][-1]['text'],'Also test Japanese')
             self.assertEqual(DocumentStore(root).get(page['path'])['comments'][0]['anchor'],'Build the app')
 
+    def test_a_thread_is_one_conversation_and_follow_up_answers_are_appended(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store=DocumentStore(Path(directory));page=store.create('Project','Plan')
+            store.save(page['path'],'# Plan\n\nBuild it\n',page['revision'])
+            entry=store.comment(page['path'],'hello','Build it')
+            store.agent_result(page['path'],entry['id'],'Hello! How can I help?')
+            store.reply(page['path'],entry['id'],'Checking if this works')
+            prompt=store.comment_prompt(page['path'],entry['id'])
+            self.assertLess(prompt.index('Hello! How can I help?'),prompt.index('Checking if this works'),'the prompt reads the thread in order')
+            self.assertIn('Answer the latest message',prompt)
+            store.agent_result(page['path'],entry['id'],'It works.',previous='Hello! How can I help?')
+            thread=store.get(page['path'])['comments'][0]['replies']
+            self.assertEqual([(item['author'],item['text']) for item in thread],[('pi','Hello! How can I help?'),('you','Checking if this works'),('pi','It works.')])
+            self.assertEqual(store.get(page['path'])['comments'][0]['agent_reply'],'It works.','the latest answer')
+
+    def test_an_answer_pi_writes_itself_is_kept_and_old_threads_read_in_order(self):
+        import json
+        with tempfile.TemporaryDirectory() as directory:
+            store=DocumentStore(Path(directory));page=store.create('Project','Plan')
+            store.save(page['path'],'# Plan\n\nBuild it\n',page['revision'])
+            entry=store.comment(page['path'],'hello','Build it')
+            # before this change: the answer in agent_reply only, replies with no author, one written after the request was sent
+            comments=store.comments(page['path']);comments[0].update(agent_reply='Old answer',sent_at='2026-10-13T23:23:00+09:00',replies=[{'text':'Later note','created':'2026-10-13T23:24:00+09:00'}])
+            store.write_comments(page['path'],comments)
+            self.assertEqual([(item['author'],item['text']) for item in store.get(page['path'])['comments'][0]['replies']],[('pi','Old answer'),('you','Later note')])
+            raw=store.comments(page['path'],raw=True);raw[0]['agent_reply']='Written by Pi itself';store.write_comments(page['path'],raw)
+            store.agent_result(page['path'],entry['id'],'Final message text',previous='Old answer')
+            self.assertEqual([item['text'] for item in store.get(page['path'])['comments'][0]['replies']],['Old answer','Later note','Written by Pi itself'])
+
     def test_legacy_comments_migrate_and_ambiguous_quotes_are_rejected(self):
         import json
         with tempfile.TemporaryDirectory() as directory:

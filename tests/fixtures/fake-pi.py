@@ -19,9 +19,9 @@ def call_gate(path,body):
     import urllib.request
     call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':os.environ['PI_HARNESS_TOKEN']})
     with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
-if '\nUser comment: Tighten this TEST_SUGGEST\n' in request['message']:
+if '\nPerson: Tighten this TEST_SUGGEST\n' in request['message']:
     import re
-    message=request['message'];anchor=message.split('\nSelected text: ',1)[1].split('\nUser comment: ',1)[0]
+    message=request['message'];anchor=message.split('\nSelected text: ',1)[1].split('\nThe thread so far',1)[0]
     sidecar=Path(re.search(r'comments frontmatter array of (.+?\.md)\. Preserve',message).group(1))
     lines=sidecar.read_text().split('\n')
     index=next(i for i,line in enumerate(lines) if line.startswith('comments: '));comments=json.loads(lines[index][10:])

@@ -67,7 +67,7 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#document-editor .pw-anchor').first().textContent(),'Edited roadmap');assert.deepEqual((await texts())[0],'Edited roadmap','the marker number is not document text');
   assert.equal(await page.locator('#comment-filter [data-filter=open]').textContent(),'Open 1');assert.match(await page.locator('.pw-review-item__head').first().textContent(),/^1 · Not sent to Pi/);
   await mark.click();const thread=page.locator('#document-editor .pw-thread');await thread.waitFor();assert.equal(await mark.getAttribute('aria-expanded'),'true');
-  await thread.getByRole('button',{name:'Ask Pi',exact:true}).click();await page.locator('#document-editor .pw-anchor--sent').waitFor();await thread.getByText(/Sent to Pi/).waitFor();
+  await thread.getByRole('button',{name:'Ask Pi',exact:true}).click();await page.locator('#document-editor .pw-anchor--sent').waitFor();await thread.getByText(/Sent to Pi|Pi is working on it|Pi answered/).waitFor();
   assert.equal(await thread.getByRole('button',{name:'Delete',exact:true}).count(),0,'a comment sent to Pi cannot be deleted');
   await thread.getByRole('textbox',{name:'Reply to text comment'}).fill('Cover Japanese too');await thread.getByRole('button',{name:'Reply',exact:true}).click();await thread.getByText('Cover Japanese too',{exact:true}).waitFor();
   await page.locator('#document-editor .pw-block').nth(1).locator('.block-content').evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});

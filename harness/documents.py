@@ -35,9 +35,19 @@ class DocumentStore:
         path=directory/(hashlib.sha256(relative.encode()).hexdigest()+'.md')
         if not path.resolve().is_relative_to(directory.resolve()):raise ValueError('Comment record is outside the workspace')
         return path
-    def comments(self, relative):
+    @staticmethod
+    def thread(entry):
+        """A comment's follow-ups as one conversation: replies carry an author (you or pi) and stay in order.
+        Older records kept Pi's answer apart in agent_reply; it is placed after the replies written before the request was sent."""
+        replies=[{**item,'author':item.get('author','you')} for item in entry.get('replies',[])]
+        if entry.get('agent_reply') and not any(item['author']=='pi' for item in replies):
+            sent=entry.get('sent_at','');at=next((index for index,item in enumerate(replies) if sent and item.get('created','')>sent),len(replies))
+            replies.insert(at,{'author':'pi','text':entry['agent_reply'],'created':''})
+        return {**entry,'replies':replies}
+    def comments(self, relative, raw=False):
         path=self.sidecar(relative)
-        if path.exists():return read_record(path)['comments']
+        if path.exists():
+            values=read_record(path)['comments'];return values if raw else [self.thread(entry) for entry in values]
         legacy=path.with_suffix('.json')
         if legacy.exists():
             if not legacy.resolve().is_relative_to(path.parent.resolve()):raise ValueError('Comment record is outside the workspace')
@@ -142,8 +152,7 @@ class DocumentStore:
         body='# Comments on '+relative+'\n'
         for entry in comments:
             body+='\n## Thread '+entry['id']+'\n\n'+('Deleted' if entry.get('deleted') else 'Resolved' if entry['resolved'] else 'Open')+' · '+entry['created']+'\n\n> '+entry['anchor'].replace('\n','\n> ')+'\n\n'+entry['text']+'\n'
-            for reply in entry.get('replies',[]):body+='\n### Reply\n\n'+reply['text']+'\n'
-            if entry.get('agent_reply'):body+='\n### Agent reply\n\n'+entry['agent_reply']+'\n'
+            for reply in self.thread(entry)['replies']:body+='\n### '+('Pi' if reply['author']=='pi' else 'Reply')+'\n\n'+reply['text']+'\n'
             suggestion=entry.get('suggestion')
             if isinstance(suggestion,dict):body+='\n### Suggested change'+(' (applied)' if suggestion.get('applied') else ' (kept the original)' if suggestion.get('kept') else '')+'\n\n'+str(suggestion.get('replacement',''))+'\n'
         write_record(path,{'document':relative,'comments':comments},body)
@@ -177,7 +186,7 @@ class DocumentStore:
             self.get(relative);comments=self.comments(relative)
             entry=next((item for item in comments if item['id']==identifier),None)
             if not entry:raise ValueError('Comment not found')
-            entry.setdefault('replies',[]).append({'text':text.strip(),'created':datetime.now().astimezone().isoformat(timespec='seconds')})
+            entry.setdefault('replies',[]).append({'author':'you','text':text.strip(),'created':datetime.now().astimezone().isoformat(timespec='seconds')})
             self.write_comments(relative,comments);return entry
     def pending_suggestion(self, entry):
         suggestion=entry.get('suggestion')
@@ -203,13 +212,16 @@ class DocumentStore:
             self.pending_suggestion(entry)['kept']=datetime.now().astimezone().isoformat(timespec='seconds')
             self.write_comments(relative,comments);return entry
     def agent_result(self, relative, identifier, text, previous=''):
-        """Keep the answer Pi wrote itself during this run; otherwise record its reply (a follow-up replaces the earlier answer)."""
+        """Append Pi's answer to the thread (InlineThread: follow-up answers are appended, earlier ones stay).
+        The answer is the one Pi wrote itself into agent_reply during this run, otherwise its final message."""
         with self.lock:
-            comments=self.comments(relative)
+            comments=self.comments(relative,raw=True)
             entry=next((item for item in comments if item['id']==identifier),None)
             if entry:
-                if entry.get('agent_reply','') in ('',previous):entry['agent_reply']=str(text)[:50000]
-                self.write_comments(relative,comments)
+                written=entry.get('agent_reply','');answer=written if written not in ('',previous) else str(text)[:50000]
+                replies=self.thread({**entry,'agent_reply':previous})['replies']
+                replies.append({'author':'pi','text':answer,'created':datetime.now().astimezone().isoformat(timespec='seconds')})
+                entry.update(replies=replies,agent_reply=answer);self.write_comments(relative,comments)
     def mark_sent(self, relative, identifier, chat):
         with self.lock:
             comments=self.comments(relative)
@@ -222,8 +234,8 @@ class DocumentStore:
         if entry.get('deleted'):raise ValueError('This comment is deleted. Restore it first.')
         return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
-                f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n"
-                f"Pi's earlier answer: {entry.get('agent_reply') or 'none'}\nThe page text is in your context.\n\n"
+                f"The thread so far, oldest first:\n"+'\n'.join(('Pi' if item['author']=='pi' else 'Person')+': '+item['text'] for item in [{'author':'you','text':entry['text']},*entry['replies']])+"\n"
+                f"Answer the latest message from the person. The page text is in your context.\n\n"
                 f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in the comments frontmatter array of {self.sidecar(relative)}. "
                 "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply. "
                 f"If the request only rewrites the selected text, do not edit the page: add a suggestion field to this comment, "
