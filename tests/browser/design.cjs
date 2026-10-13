@@ -358,27 +358,25 @@ const readline = require('node:readline');
   await page.waitForURL(new RegExp(`/p/${id}/work`));assert.equal(await page.evaluate(()=>document.body.dataset.level),'project');
   await page.goto(`${base}/gate`);await page.locator('#gate-panel .app-back').click();await page.waitForURL(new RegExp(`/p/${id}/`));
 
-  // 146: files and folders can be renamed, moved and trashed from the Files window (right-click a row) and from File › for the open file.
+  // 146: select a file or folder in the Files window, then File › Rename or Move… or Move to Trash… (one button, no right-click).
   await post('/api/documents/create-file',{project:id,name:'drafts/idea.md'});
+  const fileCommand=async command=>{await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator(`#menu-file [data-command="${command}"]`).click();};
   await page.goto(`${base}/p/${id}/work`);await page.locator('#file-tree .pw-row',{hasText:'drafts'}).waitFor();
-  const folderRow=page.locator('#file-tree .pw-row',{hasText:'drafts'});await folderRow.click();
-  await page.locator('#file-tree .pw-row',{hasText:'idea.md'}).click({button:'right'});
-  assert.equal(await page.locator('#file-menu').isVisible(),true,'right-click opens the row menu');
-  await page.locator('#file-menu [data-action="rename"]').click();
+  await page.locator('#file-tree .pw-row',{hasText:'drafts'}).click();await page.locator('#file-tree .pw-row',{hasText:'idea.md'}).click();await page.waitForURL(/drafts\/idea\.md$/);
+  await fileCommand('rename-file');await page.waitForFunction(()=>document.querySelector('#name-dialog').open);
   assert.equal(await page.locator('#name-dialog-input').inputValue(),'drafts/idea.md','starts from the current path');
   await page.locator('#name-dialog-input').fill('drafts/plan');assert.match(await page.locator('#name-dialog-help').textContent(),/Moves the file “drafts\/idea\.md” to “drafts\/plan”/);
-  await page.locator('#name-dialog-input').press('Enter');await page.locator('#file-tree .pw-row',{hasText:'plan.md'}).waitFor();
+  await page.locator('#name-dialog-input').press('Enter');await page.waitForURL(/drafts\/plan\.md$/);
   assert.ok(fs.existsSync(join(root,'drafts/plan.md'))&&!fs.existsSync(join(root,'drafts/idea.md')),'renamed on disk, extension kept');
-  await page.locator('#file-tree .pw-row',{hasText:'plan.md'}).click();await page.waitForURL(/drafts\/plan\.md$/);
-  await page.locator('#file-tree .pw-row',{hasText:'drafts'}).first().click({button:'right'});
-  assert.equal(await page.locator('#file-menu [data-action="open"]').isVisible(),false,'a folder has no Open');
-  await page.locator('#file-menu [data-action="rename"]').click();await page.locator('#name-dialog-input').fill('archive/drafts');await page.locator('#name-dialog-input').press('Enter');
+  const folder=page.locator('#file-tree .pw-row',{hasText:'drafts'}).first();await folder.click();
+  assert.equal(await folder.getAttribute('aria-current'),'true','a clicked folder is selected');
+  await fileCommand('rename-file');await page.waitForFunction(()=>document.querySelector('#name-dialog').open);
+  assert.equal(await page.locator('#name-dialog-input').inputValue(),'drafts','the command acts on the selected folder');
+  await page.locator('#name-dialog-input').fill('archive/drafts');await page.locator('#name-dialog-input').press('Enter');
   await page.waitForURL(/archive\/drafts\/plan\.md$/);assert.ok(fs.existsSync(join(root,'archive/drafts/plan.md')),'the folder moved, the open file followed');
-  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="rename-file"]').click();
-  await page.waitForFunction(()=>document.querySelector('#name-dialog').open&&document.querySelector('#name-dialog-input').value.endsWith('.md'));
-  assert.equal(await page.locator('#name-dialog-input').inputValue(),'archive/drafts/plan.md','File › Rename or Move… acts on the open file');await page.keyboard.press('Escape');
-  await page.locator('#file-tree .pw-row',{hasText:'archive'}).first().click({button:'right'});await page.locator('#file-menu [data-action="trash"]').click();
-  assert.match(await page.locator('#alert-dialog').textContent(),/Move the folder “archive” to the Trash\?/);await page.getByRole('button',{name:'Move to Trash',exact:true}).click();
+  await page.locator('#file-tree .pw-row',{hasText:'archive'}).first().click();await fileCommand('trash-page');
+  await page.waitForFunction(()=>document.querySelector('#alert-dialog').open);assert.match(await page.locator('#alert-dialog').textContent(),/Move the folder “archive” to the Trash\?/);
+  await page.getByRole('button',{name:'Move to Trash',exact:true}).click();
   await page.waitForFunction(()=>![...document.querySelectorAll('#file-tree .pw-row')].some(row=>row.textContent.includes('archive')));assert.ok(!fs.existsSync(join(root,'archive')));
 
   // 123: the phone follows the phone boards.
