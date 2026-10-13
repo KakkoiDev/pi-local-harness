@@ -14,6 +14,7 @@ session.write_text(str(count))
 def emit(value):print(json.dumps(value),flush=True)
 emit({'type':'agent_start'})
 if request['message'].rstrip().endswith('TEST_WAIT'):
+    emit({'type':'tool_execution_start','toolName':'bash'})
     time.sleep(60)
 else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})

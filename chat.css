@@ -57,6 +57,8 @@ body[data-view="work"] .window-projects{display:none}
 #document-editor{position:relative;padding-left:56px}
 #document-source{min-height:100%}
 #save-recovery{margin:8px 12px}
+#offline-banner{margin:8px 12px}
+#offline-banner p{flex:1;margin:0}
 #save-recovery p{flex:1;margin:0}
 
 /* Activity and Laya */

@@ -56,11 +56,16 @@ const readline = require('node:readline');
    {name:'pixel.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jCWQAAAAASUVORK5CYII=','base64')},
    {name:'voice.wav',mimeType:'audio/wav',buffer:Buffer.from('audio-ui-fixture')}
   ]);
-  assert.equal(await page.locator('.attachment-chip').count(),3);
+  assert.equal(await page.locator('.attachment-chip.pw-chip').count(),3);assert.match(await page.locator('#hint').textContent(),/^3 files · 0\.0 MiB of 20 MiB$/);
+  await page.locator('#files').setInputFiles([{name:'site-video.mov',mimeType:'video/quicktime',buffer:Buffer.alloc(13*1024*1024)}]);
+  assert.equal(await page.locator('#error').textContent(),'“site-video.mov” is 13 MiB. Limit: 12 MiB per file and 20 MiB in total.');assert.equal(await page.locator('#error svg').count(),1);
+  const dragged=await page.evaluateHandle(()=>{const data=new DataTransfer();data.items.add(new File(['x'],'a.txt'));data.items.add(new File(['y'],'b.txt'));return data;});
+  await page.locator('#composer').dispatchEvent('dragover',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),1);assert.equal(await page.locator('#hint').textContent(),'Drop to attach 2 files');
+  await page.locator('#composer').dispatchEvent('dragleave',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),0);assert.match(await page.locator('#hint').textContent(),/^3 files/);
   await page.getByRole('button',{name:'Remove voice.wav'}).click();await page.locator('#send').click();
   await page.locator('#messages').getByText('[CANARY] reply 3',{exact:true}).waitFor();
   const reasoning=page.locator('#messages details').first();await reasoning.locator('summary').click();for(let i=0;i<2;i++)await page.waitForResponse(response=>response.url().endsWith('/api/workspace'));assert.equal(await reasoning.getAttribute('open'),'');
-  assert.equal(await page.locator('.message.user').count(),3);assert.equal(await page.locator('.message img').count(),1);
+  assert.equal(await page.locator('.message.user.pw-msg.pw-msg--user').count(),3);assert.equal(await page.locator('.message.assistant .pw-msg__label b').first().textContent(),'Pi');assert.equal(await page.locator('#send').textContent(),'Send');assert.equal(await page.locator('.message img').count(),1);
   await createProject('Second project');await page.locator('#project-chat').click();
   await page.locator('#prompt').fill('Second question');await page.locator('#send').click();
   await page.locator('#messages').getByText('[CANARY] reply 1',{exact:true}).waitFor();
@@ -119,8 +124,8 @@ const readline = require('node:readline');
   await page.locator('#backdrop').waitFor({state:'hidden'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.screenshot({path:'/private/tmp/pi-chat-mobile.png'});
-  await page.locator('#prompt').fill('TEST_WAIT');await page.locator('#send').click();await page.locator('#stop').waitFor();
-  await page.locator('#prompt').fill('Queued work to cancel');await page.locator('#send').click();await page.locator('#activity-tab').click();
+  await page.locator('#prompt').fill('TEST_WAIT');await page.locator('#send').click();await page.locator('#stop').waitFor();await page.locator('.pw-tool--live').filter({hasText:'Using bash'}).waitFor();await page.locator('#send').filter({hasText:/^Queue$/}).waitFor();
+  await page.locator('#prompt').fill('Queued work to cancel');await page.locator('#send').click();await page.locator('.pw-queue-note').filter({hasText:'Next: 1 request waiting in Second project'}).waitFor();await page.locator('#activity-tab').click();
   const waiting=page.locator('.activity-task').filter({hasText:'Queued work to cancel'});await waiting.getByRole('button',{name:'Cancel',exact:true}).click();await page.locator('#alert-message').filter({hasText:'Cancel the waiting request?'}).waitFor();await page.locator('#alert-dialog').getByRole('button',{name:'Cancel Request',exact:true}).click();await waiting.locator('.task-state').filter({hasText:'cancelled'}).waitFor();
   await page.locator('.activity-task').filter({hasText:'TEST_WAIT'}).getByRole('button',{name:'Stop',exact:true}).click();
   await page.locator('.activity-task').filter({hasText:'TEST_WAIT'}).locator('.task-state').filter({hasText:'stopped'}).waitFor();
@@ -138,7 +143,7 @@ const readline = require('node:readline');
   await page.locator('#project-chat').click();await page.locator('#prompt').fill('A draft for this project 日本語');await page.reload();await page.waitForFunction(()=>document.querySelector('#prompt').value.includes('A draft for this project 日本語'));
   await page.locator('#prompt').fill('');await page.keyboard.press('ControlOrMeta+k');assert.equal(await page.locator('#project-search').evaluate(element=>element===document.activeElement),true);
   assert.deepEqual(await page.evaluate(()=>['sidebar','main-window'].map(id=>document.getElementById(id).classList.contains('pw-window--inactive'))),[false,true],'the window holding focus is the active one');
-  await page.route('**/api/workspace',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"temporary offline"}'}));await page.locator('#connection-retry').waitFor();await page.unroute('**/api/workspace');await page.locator('#connection-retry').click();await page.locator('#connection-retry').waitFor({state:'hidden'});
+  await page.route('**/api/workspace',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"temporary offline"}'}));await page.locator('#connection-retry').waitFor();await page.locator('#offline-banner').filter({hasText:'Connection interrupted. Your drafts are kept.'}).waitFor();assert.equal(await page.locator('#send').isDisabled(),true);await page.unroute('**/api/workspace');await page.locator('#offline-reconnect').click();await page.locator('#connection-retry').waitFor({state:'hidden'});await page.locator('#offline-banner').waitFor({state:'hidden'});
   const panels={chat:'#thread',work:'#work-panel',activity:'#activity-panel',laya:'#laya-panel'};
   for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});for(const tab of Object.keys(panels)){await page.locator('#'+tab+'-tab').click();for(const [name,panel] of Object.entries(panels)){assert.equal(await page.locator(panel).isVisible(),name===tab,tab+' panel selection at '+width);assert.equal(await page.locator('#'+name+'-tab').getAttribute('aria-pressed'),String(name===tab));}assert.equal(await page.evaluate(()=>document.body.dataset.view),tab);assert.equal(await page.locator('#window-title').textContent(),{chat:'First project',work:'ROADMAP.md',activity:'Activity',laya:'Laya'}[tab]);assert.equal(await page.locator('.composer-wrap').isVisible(),tab==='chat');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,tab+' overflows at '+width);}}
   await page.setViewportSize({width:1440,height:950});await page.locator('#work-tab').click();await page.screenshot({path:'/private/tmp/plh-work-desktop.png'});await page.locator('#activity-tab').click();await page.screenshot({path:'/private/tmp/plh-activity-desktop.png'});

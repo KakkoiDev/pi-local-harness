@@ -154,6 +154,7 @@
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
       </div>
+      <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
 
       <!-- Chat -->
       <section id="thread" class="pw-window__body" aria-label="Messages" tabindex="0">
@@ -171,14 +172,14 @@
         <form id="composer" class="pw-composer">
           <div id="attachments" class="pw-chips" aria-label="Attached files"></div>
           <label class="pw-label" for="prompt">Message to Pi</label>
-          <textarea id="prompt" class="pw-field" rows="3" placeholder="Ask anything, or drop a file here"></textarea>
+          <textarea id="prompt" class="pw-field" rows="3" disabled placeholder="Ask anything, or drop a file here"></textarea>
           <div class="pw-composer__row">
-            <button id="attach" type="button" class="pw-btn">Attach…</button>
-            <button id="record" type="button" class="pw-btn"><span data-icon="mic"></span>Record</button>
+            <button id="attach" type="button" class="pw-btn" disabled>Attach…</button>
+            <button id="record" type="button" class="pw-btn" aria-pressed="false" disabled><span data-icon="mic"></span>Record</button>
             <span id="hint" class="pw-help">Text, images, audio &amp; files</span>
             <span class="pw-menubar__spacer"></span>
             <button id="stop" type="button" class="pw-btn" hidden>Stop<span class="pw-kbd">⌘.</span></button>
-            <button id="send" type="submit" class="pw-btn pw-btn--default">Send</button>
+            <button id="send" type="submit" class="pw-btn pw-btn--default" disabled>Send</button>
           </div>
           <input id="files" type="file" multiple hidden>
         </form>
