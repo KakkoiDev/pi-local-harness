@@ -111,7 +111,7 @@
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
       </div></div>
     <span class="pw-menubar__spacer"></span>
-    <span class="pw-menubar__status"><span><span id="model">Gemma 4</span> · <span class="effort">High thinking</span></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
+    <span class="pw-menubar__status"><span class="model-controls"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">Gemma 4</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
   </nav>
 
   <!-- NEW: phone bar (≤760px) -->
@@ -330,6 +330,11 @@
     <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
     <div class="pw-dialog__actions"><button value="done" class="pw-btn pw-btn--default">Done</button></div>
   </form></dialog>
+  <div id="model-menu" class="pw-menu" role="menu" aria-label="Model" hidden><!-- filled from /api/models --></div>
+  <div id="effort-menu" class="pw-menu" role="menu" aria-label="Thinking level" hidden>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="off">Off</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="minimal">Minimal</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="low">Low</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="medium">Medium</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="high">High</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="xhigh">Extra High</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="max">Max</button>
+    <div class="pw-menu__sep" role="separator"></div><span class="pw-menu__item" role="menuitem" aria-disabled="true">Applies from the next request</span>
+  </div>
   <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="gate">Gate</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>

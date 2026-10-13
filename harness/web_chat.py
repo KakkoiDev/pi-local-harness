@@ -3,7 +3,8 @@ import base64
 from datetime import datetime
 from harness.context import build_context
 from harness.documents import DocumentStore, DocumentConflict
-from harness.model import PROVIDER, MODEL
+from harness.model import PROVIDER, MODEL, EFFORTS
+from harness import model as models
 from harness.work_queue import WorkQueue
 import json
 import os
@@ -104,10 +105,11 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
         files.append({'name':name,'mime':mime,'size':len(data),'path':str(path)})
     return '\n\n'.join(parts),images,files
 
-def pi_command(session):
-    """session None: a one-off request with no session (comments and whole-file questions, task 115)."""
+def pi_command(session, choice=None):
+    """session None: a one-off request with no session (comments and whole-file questions, task 115). choice: the model and thinking level chosen in the menu bar (task 147)."""
+    choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-        *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',MODEL,'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+        *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
@@ -115,6 +117,35 @@ class WebChat:
         self.lock=threading.Lock();self.active={};self.closed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
+    # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
+    def capabilities(self, model):
+        cached=getattr(self,'_capabilities',{})
+        if model not in cached:
+            try:cached.update({item['id']:item for item in models.local_models()})
+            except OSError:pass
+            self._capabilities=cached
+        return cached.get(model,{'id':model,'tools':True,'thinking':model==MODEL,'vision':model==MODEL})
+    def choice(self):
+        value=models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high'));known=self.capabilities(value['model'])
+        return {**value,'effort':value['effort'] if known.get('thinking') else 'off','thinking':bool(known.get('thinking')),'vision':bool(known.get('vision')),'chosenEffort':value['effort']}
+    def model_list(self):
+        listed=models.local_models();self._capabilities={item['id']:item for item in listed}
+        return {'models':listed,'current':self.choice()}
+    def choose_model(self, model):
+        listed={item['id']:item for item in models.local_models()}
+        if model not in listed:raise ValueError(f'“{model}” is not installed in Ollama')
+        if not listed[model]['tools']:raise ValueError(f'“{model}” cannot use tools, so Pi cannot work with it')
+        if self.busy():raise ValueError('Pi is working. Switch models when the queue is empty.')
+        with self.lock:
+            if getattr(self,'switching',None):raise ValueError('Already switching models')
+            self.switching=model
+        try:models.switch(models.current(self.documents.root)['model'],model);models.save(self.documents.root,model=model)
+        finally:
+            with self.lock:self.switching=None
+        self._capabilities=listed;return self.choice()
+    def choose_effort(self, effort):
+        if effort not in EFFORTS:raise ValueError('Unknown thinking level')
+        models.save(self.documents.root,effort=effort);return self.choice()
     def busy(self):
         with self.lock:
             if self.active:return True
@@ -218,8 +249,8 @@ class WebChat:
             if not detached:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
-            command=pi_command(None if detached else folder/'session.jsonl')
-            env={**os.environ,'PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
+            env={**os.environ,'PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
@@ -333,7 +364,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/gate':
                 self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
+            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
+            if path=='/api/models':self.reply(self.chat.model_list());return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):
@@ -373,6 +405,8 @@ class WebHandler(BaseHTTPRequestHandler):
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
+            if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
+            if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
             if path.startswith('/api/documents/'):
                 action=path.rsplit('/',1)[-1];store=self.chat.documents

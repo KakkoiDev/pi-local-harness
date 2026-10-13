@@ -12,7 +12,7 @@ const readline = require('node:readline');
  const python=execFileSync('which',['python3'],{encoding:'utf8'}).trim();
  const fake=join(directory,'pi');
  fs.writeFileSync(fake,`#!${python}\n`+fs.readFileSync('tests/fixtures/fake-pi.py','utf8'));fs.chmodSync(fake,0o755);
- const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_GATE_PORT:'0',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
+ const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
  let browser;
  try{
   const lines=readline.createInterface({input:server.stdout});
@@ -386,6 +386,23 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.querySelector('#alert-dialog').open);assert.match(await page.locator('#alert-dialog').textContent(),/Move the folder “archive” to the Trash\?/);
   await page.getByRole('button',{name:'Move to Trash',exact:true}).click();
   await page.waitForFunction(()=>![...document.querySelectorAll('#file-tree .pw-row')].some(row=>row.textContent.includes('archive')));assert.ok(!fs.existsSync(join(root,'archive')));
+
+  // 147: the menu bar names the model and the thinking level; each opens a menu. Switching says when the new model is ready;
+  // a model without thinking dims the thinking button and its items (disable, never hide). Ollama is faked here.
+  await page.route('**/api/models',route=>route.fulfill({json:{models:[{id:'gemma4:26b-mlx',tools:true,thinking:true,vision:true},{id:'qwen3:8b',tools:true,thinking:false,vision:false},{id:'tiny:1b',tools:false,thinking:false,vision:false}],current:{model:'gemma4:26b-mlx',effort:'high',chosenEffort:'high',thinking:true}}}));
+  await page.route('**/api/model',route=>new Promise(resolve=>setTimeout(()=>resolve(route.fulfill({json:{model:'qwen3:8b',effort:'off',chosenEffort:'high',thinking:false,vision:false}})),400)));
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#effort-button').waitFor();
+  assert.equal(await page.locator('#effort-button').textContent(),'High thinking');
+  await page.locator('#effort-button').click();await page.locator('#effort-menu [data-effort="low"]').click();
+  await page.locator('#effort-button',{hasText:'Low thinking'}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/Thinking set to low\. Pi uses it from the next request\./);
+  assert.equal(JSON.parse(fs.readFileSync(join(directory,'workspace','model.json'),'utf8')).effort,'low','kept for the next request');
+  await page.locator('#model-button').click();await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
+  assert.equal(await page.locator('#model-menu [data-model="tiny:1b"]').getAttribute('aria-disabled'),'true','a model without tools cannot be chosen');
+  await page.locator('#model-menu [data-model="qwen3:8b"]').click();
+  assert.match(await page.locator('#model-button').textContent(),/Loading qwen3:8b…/);
+  await page.locator('#model',{hasText:/^qwen3:8b$/}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/qwen3:8b is ready\./);
+  assert.equal(await page.locator('#effort-button').getAttribute('aria-disabled'),'true');assert.equal(await page.locator('#effort-button').textContent(),'No thinking');
+  await page.unroute('**/api/models');await page.unroute('**/api/model');fs.rmSync(join(directory,'workspace','model.json'));
 
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});

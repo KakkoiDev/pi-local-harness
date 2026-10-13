@@ -309,3 +309,11 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 /* Menu bar status: the glyph keeps its distance from the word; Reconnect fits the 28px bar with room around its label */
 #agent-state{display:inline-flex;align-items:center;gap:6px}
 .pw-menubar__status #connection-retry{min-height:0;height:22px;padding:0 12px;font-size:13px;line-height:20px}
+/* Model and thinking level in the menu bar (task 147): read as status, open a menu like a menu title; dimmed when unavailable */
+.model-controls{display:inline-flex;align-items:center;gap:2px}
+.pw-menubar__pick{border:0;background:none;color:inherit;font:inherit;padding:2px 6px;margin:0 -2px;cursor:default;display:inline-flex;align-items:center;gap:4px}
+.pw-menubar__pick:hover{background:var(--wash)}
+.pw-menubar__pick[aria-expanded="true"],.pw-menubar__pick:active{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-menubar__pick[aria-disabled="true"]{color:var(--ink-disabled)}
+.pw-menubar__pick[aria-disabled="true"]:hover{background:none}
+#model-menu,#effort-menu{position:fixed;z-index:60}
