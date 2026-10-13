@@ -78,3 +78,11 @@ and harness/README.md for the installed pi workflow.
 - [x] [50-Pinned model](tasks/50-pinned-model.md)
 - [x] [51-Commit protocol gate](tasks/51-commit-protocol-gate.md)
 - [x] [52-Protocol review fixes](tasks/52-protocol-review-fixes.md)
+
+## Laya as guide and judge
+
+- [ ] [53-Durable test evidence](tasks/53-durable-test-evidence.md)
+- [ ] [54-Task kinds decide the required steps](tasks/54-task-kinds.md)
+- [ ] [55-Laya guides each step](tasks/55-step-guide.md)
+- [ ] [56-Discussion, planning, implementation, check](tasks/56-work-phases.md)
+- [ ] [57-Show phase, task, step, and a manual release](tasks/57-phase-visibility.md)
