@@ -4,3 +4,4 @@ The phone's bottom sheet (≤760px): a paper panel with a double top rule over a
 
 - `.pw-sheet` with a `.pw-sheet__head` (title, Close or Cancel as `.pw-btn--plain`). All controls 44px.
 - `role="dialog" aria-modal="true"`; Esc or the scrim closes it; focus is trapped inside.
+- **More** (phone, task 146): the phone has no File menu, so whatever is open carries a ⋯ button at the right of its header: the open file (Ph_FileMore: Rename or Move…, Copy Path, Ask Pi About This File…, Download Draft…, then Move to Trash… after a double rule) and a folder, which opens as its own level from Files (Ph_FolderMore: New File in drafts…, Rename or Move…, Copy Path, Move to Trash…). The sheet's title is the path.

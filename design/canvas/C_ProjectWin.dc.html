@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Project window component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
 </head>
 <body>
 <x-dc>
@@ -41,7 +41,7 @@
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["chat", "doc", "code", "search", "noplan", "empty", "new", "jsa", "newplan", "task0", "task2", "task3", "taskdone"], "default": "doc"}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["chat", "doc", "code", "search", "noplan", "empty", "new", "jsa", "newplan", "task0", "task2", "task3", "taskdone", "filesel", "foldersel"], "default": "doc"}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'doc';
@@ -72,7 +72,9 @@ if (neu) {
   plan = [R('ROADMAP.md', { meta: '47/68' }), R('67-parallel-inference-experiment', { meta: '3/4' }), R('66-tailscale-voice-input', { meta: '6/7' }), R('64-task-report', { meta: '0/3' }), R('63-node-version-check', { meta: '0/2' }), R('62-stale-agent-lock', { meta: '0/3' }), R('61-real-exit-codes', { meta: '0/3' }), R('60-ntfy-notifications', { meta: '0/4' }), R('59-stuck-detection', { meta: '0/3' }), R('58-fresh-context-per-task', { meta: '0/3' }), R('57-phase-visibility', { meta: '0/3' }), R('56-work-phases', { meta: '0/8' }), R('Done', { cls: 'pw-row pw-row--summary', file: false, closed: true, expanded: 'false', meta: s === 'taskdone' ? '57 tasks' : '56 tasks', done: true })];
   if (tk && s !== 'taskdone') { plan.splice(1, 0, R('68-phone-targets', { meta: { task0: '0/3', task2: '2/3', task3: '3/3' }[s], done: s === 'task3', current: 'page' })); planCount = s === 'task3' ? '11 open' : '12 open'; summary = (s === 'task3' ? '11' : '12') + ' open tasks · 6 folders · 13 files'; }
   const harness = ['AGENTS.md', 'README.md', 'agent-lock.mjs', 'configure_startup.py', 'documents.py', 'extension.mjs', 'install.py', 'legacy-AGENTS.md', 'markdown_records.py', 'media.mjs', 'memory.mjs', 'model.json', 'model.py', 'provider.mjs', 'services.py', 'startup-display.mjs', 'timestamps.mjs', 'transcribe.py', 'watch.mjs', 'web_chat.py', 'work_queue.py'].map((n) => N(n, { current: (code && n === 'work_queue.py') ? 'page' : 'false' }));
-  files = [F('experiments'), F('harness', code)].concat(code ? harness : []).concat([F('js'), F('gate'), F('specs'), F('tests'), R('AGENT.md'), R('AUDIT.md'), R('DESIGN.md', { current: (docOpen && !tk) ? 'page' : 'false' }), R('PRODUCT.md'), R('Screenshot 2026-10-11 at 15.05.36.png'), R('agent_api.py'), R('chat.css'), R('ideas.md'), R('incident_log.md'), R('index.html'), R('plh.py'), R('readme.md'), R('start.sh')]);
+  const sel = s === 'filesel' || s === 'foldersel';
+  const drafts = sel ? [R('drafts', { folder: true, file: false, open: true, closed: false, expanded: 'true', current: s === 'foldersel' ? 'true' : 'false' }), N('idea.md', { current: s === 'filesel' ? 'page' : 'false' }), N('notes.md'), N('outline.md')] : [];
+  files = drafts.concat([F('experiments'), F('harness', code)]).concat(code ? harness : []).concat([F('js'), F('gate'), F('specs'), F('tests'), R('AGENT.md'), R('AUDIT.md'), R('DESIGN.md', { current: (docOpen && !tk && !sel) ? 'page' : 'false' }), R('PRODUCT.md'), R('Screenshot 2026-10-11 at 15.05.36.png'), R('agent_api.py'), R('chat.css'), R('ideas.md'), R('incident_log.md'), R('index.html'), R('plh.py'), R('readme.md'), R('start.sh')]);
 }
 return {
 project: projectName,

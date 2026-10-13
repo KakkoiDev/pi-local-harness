@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Menu bar component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
 </head>
 <body>
 <x-dc>
@@ -38,7 +38,8 @@
 <a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Reload from Disk…</a>
 <span class="pw-menu__item" role="menuitem" aria-disabled="true">Download Draft…</span>
 <div class="pw-menu__sep" role="separator"></div>
-<a href="Dialogs.dc.html" class="pw-menu__item" role="menuitem">Move to Trash…<span class="pw-menu__key">⌘⌫</span></a>
+<a href="W_Rename.dc.html" class="pw-menu__item" role="menuitem">Rename or Move…</a>
+<a href="W_TrashFolder.dc.html" class="pw-menu__item" role="menuitem">Move to Trash…<span class="pw-menu__key">⌘⌫</span></a>
 <span class="pw-menu__item" role="menuitem">Close Window<span class="pw-menu__key">⌘W</span></span>
 </div></sc-if></div>
 
@@ -61,9 +62,6 @@
 
 <div style="position: relative"><a href="M_View.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{viewOpen}}">View</a>
 <sc-if value="{{viewOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="View" style="min-width: 280px">
-<a href="Main.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vChat}}" aria-disabled="{{appWin}}">Chat<span class="pw-menu__key">⌘1</span></a>
-<a href="Final.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vWork}}" aria-disabled="{{appWin}}">Work<span class="pw-menu__key">⌘2</span></a>
-<div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitemradio" aria-checked="true" aria-disabled="{{notWork}}">As Document</span>
 <a href="W_Source.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="false">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></a>
 <div class="pw-menu__sep" role="separator"></div>
@@ -108,6 +106,9 @@
 
 <div style="position: relative"><a href="M_Window.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{windowOpen}}">Window</a>
 <sc-if value="{{windowOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Window" style="min-width: 270px">
+<a href="Main.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vChat}}">Chat<span class="pw-menu__key">⌘1</span></a>
+<a href="Final.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vWork}}">Work<span class="pw-menu__key">⌘2</span></a>
+<div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitemcheckbox" aria-checked="true">Projects</span>
 <span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false">Files</span>
 <span class="pw-menu__item" role="menuitemcheckbox" aria-checked="false">Review</span>
@@ -118,16 +119,32 @@
 </div></sc-if></div>
 
 <span class="pw-menubar__spacer"></span>
-<span class="pw-menubar__status"><span>Gemma 4 · High thinking</span><button type="button" id="agent-status" class="{{sClass}}" data-state="{{sState}}" aria-label="{{sLabel}}" aria-keyshortcuts="Meta+3"><sc-if value="{{sRun}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{sWait}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{sWarn}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if><span id="agent-state" role="status">{{status}}</span><span class="pw-statusbtn__more"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></span>
+<span class="pw-menubar__status"><span class="pw-menubar__picks"><button type="button" id="model-button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="{{modelOpen}}" aria-label="Model: {{modelLabel}}">{{modelLabel}}</button> · <button type="button" id="effort-button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="{{thinkOpen}}" aria-disabled="{{noThink}}" aria-label="Thinking level: {{thinkLabel}}">{{thinkLabel}}</button>
+<sc-if value="{{modelOpen}}" hint-placeholder-val="{{false}}"><div id="model-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Model" style="min-width: 300px; right: 90px">
+<span class="pw-menu__item" role="menuitemradio" aria-checked="true">gemma4:12b<span class="pw-menu__key">thinks · sees</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false" data-active="true">qwen3:8b<span class="pw-menu__key">thinks</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false">mistral-small:24b<span class="pw-menu__key">no thinking</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false" aria-disabled="true">llama3.2:3b<span class="pw-menu__key">no tools</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<p class="pw-menu__note" role="note">One model in memory at a time. Switching unloads the current one.</p>
+</div></sc-if>
+<sc-if value="{{thinkOpen}}" hint-placeholder-val="{{false}}"><div id="effort-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Thinking level" style="min-width: 220px">
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="7"><span class="pw-menu__item" role="menuitemradio" aria-checked="{{l.on}}" aria-disabled="{{noThink}}">{{l.name}}</span></sc-for>
+<div class="pw-menu__sep" role="separator"></div>
+<p class="pw-menu__note" role="note">{{thinkNote}}</p>
+</div></sc-if>
+</span><button type="button" id="agent-status" class="{{sClass}}" data-state="{{sState}}" aria-label="{{sLabel}}" aria-keyshortcuts="Meta+3"><sc-if value="{{sRun}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{sWait}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{sWarn}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if><span id="agent-state" role="status">{{status}}</span><span class="pw-statusbtn__more"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button></span>
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"$preview":{"width":1440,"height":360}}'>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"$preview":{"width":1440,"height":360}}'>
 class Component extends DCLogic {
 renderVals() {
 const o = this.props.open ?? 'none';
 const v = this.props.view ?? 'chat';
 const st = this.props.statusState ?? 'rest';
+const ms = this.props.modelState ?? 'rest';
+const noThink = ms === 'nothink';
 return {
 piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
 projectOpen: o === 'project', agentOpen: o === 'agent' || o === 'agentEarlier', earlierOpen: o === 'agentEarlier', windowOpen: o === 'window',
@@ -139,7 +156,12 @@ sWait: st !== 'attention' && /^\d+ waiting/.test(this.props.status ?? ''),
 sWarn: st === 'attention',
 sLabel: 'Agent status: ' + (st === 'attention' ? 'needs attention' : (this.props.status ?? 'Working · 1 waiting')) + '. Open Activity',
 appWin: false, notChat: v !== 'chat',
-rootH: o === 'none' ? '28px' : '400px'
+rootH: o === 'none' ? '28px' : '400px',
+modelOpen: o === 'model', thinkOpen: o === 'thinking', noThink: noThink,
+modelLabel: ms === 'loading' ? 'Loading qwen3:8b…' : ms === 'nothink' ? 'mistral-small:24b' : 'gemma4:12b',
+thinkLabel: noThink ? 'No thinking' : 'High thinking',
+thinkNote: noThink ? 'mistral-small:24b does not think. Choose a model that thinks to set a level.' : 'Applies from the next request.',
+levels: ['Off','Minimal','Low','Medium','High','Extra High','Max'].map((n) => ({ name: n, on: (!noThink && n === 'High') ? 'true' : 'false' }))
 };
 }
 }

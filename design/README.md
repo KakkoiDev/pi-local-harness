@@ -24,7 +24,7 @@ The server allowlist is in `harness/web_chat.py` (`allowed` in `do_GET`, plus `F
 
 This folder is the backup of both claude.ai artifacts, for everything their authors wrote:
 
-- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b.css` (the boards link it as `/_blob/<id>`).
+- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/df76a9fabeae28600b25f9b7ca37501f.css` (the boards link it as `/_blob/<id>`).
 - Design system: `IMPLEMENTATION.md` (the designer keeps it in the system artifact as `project/IMPLEMENTATION.md`; it lives at `design/IMPLEMENTATION.md`), `system/README.md`, `tokens.json`, `design-system.json`, every component card (`components/<Name>/README.md`, `preview.html`), `components/bundle.css`, and the 27 icon uploads as `system/assets/Icons/*.svg` (names from `design-system.json`; `gate.svg` added in round 3).
 - The old checker name is mapped to Gate in the copies (task 96).
 
@@ -35,7 +35,7 @@ Not backed up: each artifact's `index.html`, `artifact-type/` files and runtime.
 - Design system "Pi Workbench System 1": https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1
 - Design canvas "Pi Workbench, Desktop Interface": https://claude.ai/artifact/Re2trGpSgYLrd2anCHTRyK
 
-The copies here are from 2026-10-13 23:10 JST (re-synced for task 145: round 3, tables, workflows F1–F10, open questions answered). `components.css` keeps four repo additions over the bundle: `.pw-menu--sub` (desk and phone), the expanded submenu item, the 44px phone popup, and the closed-dialog fix. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
+The copies here are from 2026-10-14 00:45 JST (re-synced for task 149: round 4, model menus, rename and move, phone More sheets, Add Note / Ask Pi). `components.css` keeps four repo additions over the bundle: `.pw-menu--sub` (desk and phone), the expanded submenu item, the 44px phone popup, and the closed-dialog fix. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
 
 ## Progress
 

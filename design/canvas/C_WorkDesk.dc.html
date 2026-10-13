@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Work desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
 </head>
 <body>
 <x-dc>
@@ -43,7 +43,7 @@
 <sc-if value="{{showT1}}" hint-placeholder-val="{{true}}"><div class="pw-thread">
 <div class="pw-thread__msg"><span class="pw-thread__who"><b>You</b> 14:20</span><p style="margin: 0">Out of date after the 1-bit redesign. Rewrite this sentence.</p></div>
 <div class="pw-thread__msg" style="flex-direction: column; gap: 8px"><span class="pw-thread__who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span><p class="pw-suggest"><del>Preserve the established dark workspace and pale green accent.</del> <ins>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</ins></p><div style="display: flex; gap: 10px; align-items: center"><button class="pw-btn">Keep Mine</button><span style="flex: 1"></span><button class="pw-btn pw-btn--default">Apply Change</button></div><p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN-SYSTEM.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tokens.css</a></span></span></p></div>
-<div class="pw-thread__actions"><span class="pw-thread__state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input class="pw-field" aria-label="Reply to comment 1" placeholder="Reply…"><button class="pw-btn">Reply</button><button class="pw-btn">Ask Pi</button><button class="pw-btn">Resolve</button></div>
+<div class="pw-thread__actions"><span class="pw-thread__state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input class="pw-field" aria-label="Reply to comment 1" placeholder="Reply…"><button class="pw-btn">Add Note</button><button class="pw-btn pw-btn--default">Ask Pi</button><button class="pw-btn">Resolve</button><p class="pw-thread__help">Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.</p></div>
 </div></sc-if>
 </sc-if>
 <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><p><span class="pw-anchor--resolved">Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</span><button class="pw-mark pw-mark--resolved" aria-label="Comment 1, resolved">1</button> Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p></sc-if>
@@ -53,7 +53,7 @@
 <div class="pw-thread__msg"><span class="pw-thread__who"><b>You</b> 14:40</span><p style="margin: 0">Say 44 px, so the phone layouts can be checked against it.</p></div>
 <sc-if value="{{t3Answer}}" hint-placeholder-val="{{false}}"><div class="pw-thread__msg" style="flex-direction: column; gap: 8px"><span class="pw-thread__who" style="width: auto"><b>Pi</b> 14:41</span><p style="margin: 0">Changed it to “44 px touch targets”, the height every phone control uses (size-touch).</p><p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tokens.css</a></span></span></p></div></sc-if>
 <sc-if value="{{t3Follow}}" hint-placeholder-val="{{false}}"><div class="pw-thread__msg"><span class="pw-thread__who"><b>You</b> 14:44</span><p style="margin: 0">Also say that chrome text grows to 16 px on the phone.</p></div></sc-if>
-<div class="pw-thread__actions"><span class="pw-thread__state"><sc-if value="{{t3GWait}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{t3GRun}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{t3GDone}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if>{{t3State}}</span><input class="pw-field" aria-label="Reply to comment 3" placeholder="Reply…"><button class="pw-btn">Reply</button><sc-if value="{{t3Ask}}" hint-placeholder-val="{{false}}"><button class="pw-btn">Ask Pi</button></sc-if><button class="pw-btn">Resolve</button><span class="pw-thread__gap"></span><sc-if value="{{t3Act}}" hint-placeholder-val="{{false}}"><a href="Activity.dc.html" class="pw-link" style="font-size: 13px">Show in Activity</a></sc-if></div>
+<div class="pw-thread__actions"><span class="pw-thread__state"><sc-if value="{{t3GWait}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{t3GRun}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{t3GDone}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if>{{t3State}}</span><input class="pw-field" aria-label="Reply to comment 3" placeholder="Reply…"><button class="pw-btn">Add Note</button><sc-if value="{{t3Ask}}" hint-placeholder-val="{{false}}"><button class="pw-btn pw-btn--default">Ask Pi</button></sc-if><button class="pw-btn">Resolve</button><span class="pw-thread__gap"></span><sc-if value="{{t3Act}}" hint-placeholder-val="{{false}}"><a href="Activity.dc.html" class="pw-link" style="font-size: 13px">Show in Activity</a></sc-if><sc-if value="{{t3Ask}}" hint-placeholder-val="{{false}}"><p class="pw-thread__help">Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.</p></sc-if></div>
 </div>
 </sc-if>
 <p>Applied Impeccable polish and harden guidance; refine the existing product rather than replacing its visual identity.</p>
@@ -64,6 +64,13 @@
 <h2>{{taskTitle}}</h2>
 <div class="pw-block"><p class="pw-block__content" style="margin: 0">{{taskIntro}}</p></div>
 <sc-for list="{{tasks}}" as="t" hint-placeholder-count="3"><div class="pw-block"><sc-if value="{{t.done}}" hint-placeholder-val="{{false}}"><input type="checkbox" class="pw-check" checked aria-label="Done"></sc-if><sc-if value="{{t.todo}}" hint-placeholder-val="{{true}}"><input type="checkbox" class="pw-check" aria-label="Not done"></sc-if><div class="pw-block__content">{{t.text}}</div></div></sc-for>
+</article>
+</sc-if>
+<sc-if value="{{showIdea}}" hint-placeholder-val="{{false}}">
+<article class="pw-doc">
+<h2>Idea</h2>
+<div class="pw-block"><p class="pw-block__content" style="margin: 0">A phone-first review mode: one comment at a time, full screen, with Keep and Apply as the only two buttons.</p></div>
+<div class="pw-block"><p class="pw-block__content" style="margin: 0">Try it on DESIGN.md before the Work view.</p></div>
 </article>
 </sc-if>
 <sc-if value="{{showSource}}" hint-placeholder-val="{{false}}">
@@ -144,6 +151,15 @@ def finish(job, status):
 <div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Create</button></div>
 </form>
 </sc-if>
+<sc-if value="{{renameDlg}}" hint-placeholder-val="{{false}}">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
+<form role="dialog" aria-labelledby="rn-t" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 500px">
+<h2 id="rn-t" class="pw-dialog__title">Rename or Move</h2>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">New name or path in pi-local-harness<input class="pw-field pw-mono" value="plans/phone-review.md" style="font-size: 14px"></label>
+<p class="pw-help">Moves the file “drafts/idea.md” to “plans/phone-review.md”. Folders are created as needed. Its comments move with it.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Move</button></div>
+</form>
+</sc-if>
 <!-- Modal alert over the desk -->
 <sc-if value="{{hasAlert}}" hint-placeholder-val="{{false}}">
 <div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
@@ -162,7 +178,7 @@ def finish(job, status):
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["doc","source","code","empty","search","requests","conflict","trash","reload","noplan","comment","newplan","jsa","sent","piworking","answered","followup","resolved","applied","askfile","sentfile","newtask","task0","task2","task3","taskdone","projects","findproject"],"default":"doc"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["doc","source","code","empty","search","requests","conflict","trash","reload","noplan","comment","newplan","jsa","sent","piworking","answered","followup","resolved","applied","askfile","sentfile","newtask","task0","task2","task3","taskdone","projects","findproject","rename","trashfolder","foldersel"],"default":"doc"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'doc';
@@ -187,6 +203,7 @@ if (search) {
 }
 const alerts = {
 conflict: { m: '“DESIGN.md” changed on disk while you were editing.', d: 'Your draft is safe in this window. Nothing has been overwritten.', danger: 'Reload from Disk', def: 'Download Draft…', caution: true },
+trashfolder: { m: 'Move the folder “drafts” and its 3 files to the Trash?', d: 'Their comments go with them. You can restore them from the data folder’s .trash.', danger: 'Move to Trash', def: 'Cancel', caution: false },
 trash: { m: 'Move “DESIGN.md” to the Trash?', d: 'Its comments go with it. You can restore it from the data folder’s .trash.', danger: 'Move to Trash', def: 'Cancel', caution: false },
 reload: { m: 'Reload “DESIGN.md” from disk?', d: 'Your unsaved changes in this window will be replaced by the file on disk.', danger: 'Reload', def: 'Keep Editing', caution: false }
 };
@@ -195,7 +212,9 @@ const taskSets = { newplan: [0,0,0], jsa: [0,0,0], task0: [0,0,0], task2: [1,1,0
 const newTasks = ['newplan','jsa'].includes(s);
 const tasks = TK ? (newTasks ? ['Define the outcome','Implement','Verify'] : ['Every control reaches 44 px on the phone','Chrome text is 16 px on the phone','Check each phone board against both']).map((text, i) => ({ text: text, done: !!taskSets[s][i], todo: !taskSets[s][i] })) : [];
 const t3 = { sent: ['Sent to Pi · waiting in queue · can no longer be deleted', 'wait'], piworking: ['Pi is working on it', 'run'], answered: ['Pi answered · 14:41 · can no longer be deleted', 'done'], followup: ['Sent to Pi · waiting in queue · follow-up', 'wait'] }[s] || ['', ''];
+const IDEA = s === 'rename' || s === 'trashfolder' || s === 'foldersel';
 return {
+showIdea: IDEA, renameDlg: s === 'rename',
 lvlProject: s !== 'projects' && s !== 'findproject', lvlProjects: s === 'projects' || s === 'findproject', pq: s === 'findproject' ? 'home' : '', pqActive: s === 'findproject',
 showT1: !T3, p1Orig: s !== 'applied', applied: s === 'applied',
 showT3: T3 && s !== 'resolved', t3Answer: ['answered','followup'].includes(s), t3Follow: s === 'followup',
@@ -211,9 +230,9 @@ sentCard: s === 'sentfile', showCards: s === 'requests' || s === 'sentfile',
 newtaskDlg: s === 'newtask',
 showTask: TK, tasks: tasks,
 taskTitle: newTasks ? '001: First task' : '68: Phone targets', taskIntro: newTasks ? 'Replace these steps with your own.' : 'Kind: design · from the comment on DESIGN.md',
-pwState: ({ newplan: 'newplan', jsa: 'jsa', task0: 'task0', task2: 'task2', task3: 'task3', taskdone: 'taskdone' })[s] || (search ? 'search' : code ? 'code' : noplan ? 'noplan' : empty ? 'empty' : 'doc'),
+pwState: ({ rename: 'filesel', trashfolder: 'foldersel', foldersel: 'foldersel', newplan: 'newplan', jsa: 'jsa', task0: 'task0', task2: 'task2', task3: 'task3', taskdone: 'taskdone' })[s] || (search ? 'search' : code ? 'code' : noplan ? 'noplan' : empty ? 'empty' : 'doc'),
 composing: s === 'comment',
-reviewLabel: (!code && !empty && !TK) ? 'Hide Review' : 'Show Review',
+reviewLabel: (!code && !empty && !TK && !IDEA) ? 'Hide Review' : 'Show Review',
 project: noplan ? 'home-server' : 'pi-local-harness',
 infoLeft: noplan ? 'No plan yet' : search ? '3 matches' : '11 open tasks',
 infoRight: noplan ? '2 folders · 4 files' : '6 folders · 13 files',
@@ -225,17 +244,17 @@ planEmpty: noplan, filesEmpty: false,
 planCount: noplan ? '' : search ? '1' : '11 open',
 filesCount: search ? '2' : noplan ? '6' : '19',
 planRows: plan, filesRows: files,
-docTitle: newTasks ? '001-first-task.md' : TK ? '068-phone-targets.md' : code ? 'work_queue.py' : (empty || noplan) ? (noplan ? 'home-server' : 'pi-local-harness') : 'DESIGN.md',
+docTitle: IDEA ? 'idea.md' : newTasks ? '001-first-task.md' : TK ? '068-phone-targets.md' : code ? 'work_queue.py' : (empty || noplan) ? (noplan ? 'home-server' : 'pi-local-harness') : 'DESIGN.md',
 saveStatus: s === 'conflict' ? 'Not saved — changed on disk' : code ? 'Live text file · saved' : empty ? '' : 'Saved',
 rulerOff: code || empty || source,
 modeOff: code || empty,
 modeLabel: code ? 'Text File' : source ? 'Markdown Source' : 'Document',
-showDoc: !code && !empty && !source && !TK,
+showDoc: !code && !empty && !source && !TK && !IDEA,
 showSource: source, showCode: code, showEmpty: empty,
-showReview: !code && !empty && !TK,
+showReview: !code && !empty && !TK && !IDEA,
 requestsOpen: ['requests','askfile','sentfile'].includes(s), requestsClosed: s !== 'requests',
 statusLeft: s === 'resolved' ? 'Comment 3 resolved. Find it under Resolved in Review.' : s === 'applied' ? 'Change applied. Comment 1 resolved.' : s === 'newplan' ? 'Created ROADMAP.md and tasks/001-first-task.md' : s === 'task3' ? 'All 3 done · this task moves to Done in Plan' : s === 'taskdone' ? 'Moved to Done in Plan · ROADMAP.md updated' : TK ? 'Task' : code ? 'Text and code files have no comments' : empty ? 'No document open' : s === 'conflict' ? 'Not saved' : 'Paragraph · 3 open comments',
-path: newTasks ? (s === 'jsa' ? '~/code/Japanese study app/tasks/001-first-task.md' : '~/code/home-server/tasks/001-first-task.md') : TK ? '~/code/pi-local-harness/tasks/068-phone-targets.md' : code ? '~/code/pi-local-harness/harness/work_queue.py' : empty ? '' : '~/code/pi-local-harness/DESIGN.md',
+path: IDEA ? '~/code/pi-local-harness/drafts/idea.md' : newTasks ? (s === 'jsa' ? '~/code/Japanese study app/tasks/001-first-task.md' : '~/code/home-server/tasks/001-first-task.md') : TK ? '~/code/pi-local-harness/tasks/068-phone-targets.md' : code ? '~/code/pi-local-harness/harness/work_queue.py' : empty ? '' : '~/code/pi-local-harness/DESIGN.md',
 hasAlert: !!a,
 alertCaution: !!(a && a.caution), alertStop: !!(a && !a.caution),
 alertMessage: a ? a.m : '', alertDetail: a ? a.d : '', alertDanger: a ? a.danger : '', alertDefault: a ? a.def : ''

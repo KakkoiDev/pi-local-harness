@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Model and thinking menus</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1560px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 28px; color: #000">
+<section class="pw-window" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 20px">
+<h2 class="pw-dialog__title" style="margin: 0">Model and thinking level — two menu titles inside the status</h2>
+<div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start">
+<div><p class="pw-label" style="margin: 0">Rest</p><p class="pw-help" style="margin: 4px 0 0">Both read as status; hover shows the wash, like any menu title.</p></div>
+<div style="position: relative; height: 30px; border: 1px solid #000; overflow: hidden; background: #fff"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" modelState="rest" hint-size="1160px,30px"></dc-import></div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start">
+<div><p class="pw-label" style="margin: 0">Model menu</p><p class="pw-help" style="margin: 4px 0 0">Installed Ollama models. Right: what each can do. A model without tools is dimmed: Pi cannot work without them.</p></div>
+<div style="position: relative; height: 260px; border: 1px solid #000; overflow: hidden; background: #fff"><dc-import name="C_MenuBar" open="model" view="chat" status="Working · 1 waiting" modelState="rest" hint-size="1160px,260px"></dc-import></div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start">
+<div><p class="pw-label" style="margin: 0">Thinking menu</p><p class="pw-help" style="margin: 4px 0 0">Seven levels; the change applies from the next request.</p></div>
+<div style="position: relative; height: 300px; border: 1px solid #000; overflow: hidden; background: #fff"><dc-import name="C_MenuBar" open="thinking" view="chat" status="Working · 1 waiting" modelState="rest" hint-size="1160px,300px"></dc-import></div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start">
+<div><p class="pw-label" style="margin: 0">Loading</p><p class="pw-help" style="margin: 4px 0 0">The name reads “Loading qwen3:8b…” until Ollama has it in memory; then a toast.</p></div>
+<div style="position: relative; height: 120px; border: 1px solid #000; overflow: hidden; background: #fff"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" modelState="loading" hint-size="1160px,120px"></dc-import><div class="pw-toast" role="status" style="position: absolute; right: 24px; top: 44px; width: 460px"><span>qwen3:8b is ready. Ollama keeps only this model in memory.</span></div></div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start">
+<div><p class="pw-label" style="margin: 0">No thinking</p><p class="pw-help" style="margin: 4px 0 0">The model cannot think: the title reads “No thinking”, dimmed, and so are its items. Disabled, never hidden.</p></div>
+<div style="position: relative; height: 300px; border: 1px solid #000; overflow: hidden; background: #fff"><dc-import name="C_MenuBar" open="thinking" view="chat" status="Working · 1 waiting" modelState="nothink" hint-size="1160px,300px"></dc-import></div>
+</div>
+</section>
+<section class="pw-window" style="padding: 16px 20px; font-size: 14px; line-height: 20px; display: flex; flex-direction: column; gap: 8px">
+<h2 class="pw-dialog__title" style="margin: 0">Notes</h2>
+<p style="margin: 0">Use the Ollama tag (gemma4:12b) in the title, the menu and the toast, so one model has one name. The footnotes are notes (<code class="pw-mono">.pw-menu__note</code>, role="note"), not disabled items: a screen reader should not read them as unavailable commands. The toast has no Undo; switching back is the same menu.</p>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1560}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

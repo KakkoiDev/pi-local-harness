@@ -218,8 +218,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-13T23:40:00+09:00",
+  "at": "2026-10-14T00:40:00+09:00",
   "via": "Claude (Cowork)",
-  "note": "Round 3: Table block and MarkdownTable; StatusButton states (waiting only, real attention words, button); InlineThread follow-ups appended; ContextLine order by kind; ContextMeter uses reported usage; Menu and Popup lists match Turn Into; gate icon; IMPLEMENTATION.md."
+  "note": "Round 4: model and thinking menus in the MenuBar, menu notes, Rename or Move and folder selection, phone More sheets, phone recording button, thread Add Note / Ask Pi."
  }
 }

@@ -452,3 +452,23 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-mdtable th,.pw-mdtable td{max-width:200px}
   .pw-step{font-size:14px;padding:8px 12px}
 }
+
+/* ---- 2026-10-13 · Round 4: model and thinking menus, rename/move, phone record, threads ---- */
+
+/* MenuBar pickers: the model and the thinking level are menu titles inside the status area (task 147) */
+.pw-menubar__pick{border:0;background:none;color:inherit;font:inherit;padding:2px 6px;margin:0 -2px;cursor:default;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.pw-menubar__pick:hover{background:var(--wash)}
+.pw-menubar__pick[aria-expanded="true"],.pw-menubar__pick:active{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-menubar__pick[aria-disabled="true"]{color:var(--ink-disabled)}
+.pw-menubar__pick[aria-disabled="true"]:hover{background:none}
+.pw-menubar__picks{position:relative;display:inline-flex;align-items:center;gap:2px}
+.pw-menu--end{left:auto;right:0}
+.pw-menu__note{display:block;margin:0;padding:4px 12px 6px 24px;max-width:280px;font-family:var(--font-chrome);font-size:13px;line-height:18px;color:var(--ink);white-space:normal}
+.pw-menu__item .pw-menu__key{font-size:13px}
+
+/* Phone record button while recording: same 44px shape, inverted, a paper dot and the elapsed time */
+.pw-btn--rec[aria-pressed="true"]{background:var(--selection-bg);color:var(--selection-fg);font-variant-numeric:tabular-nums}
+.pw-btn--rec[aria-pressed="true"]::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--selection-fg)}
+
+/* Thread reply row: Add Note keeps the reply with the file; Ask Pi sends the thread (task 135) */
+.pw-thread__help{flex-basis:100%;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}

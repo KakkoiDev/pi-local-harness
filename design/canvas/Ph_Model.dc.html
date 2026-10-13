@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone · π sheet with Model</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column">
+<div style="height: 44px; flex: none"></div>
+
+<nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Working. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><span role="status">Working</span></button></nav><div style="position: relative; flex: 1"><div aria-hidden="true" style="padding: 18px 16px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px">The Activity badge still counts interrupted jobs after a restart.</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
+<section class="pw-sheet" role="dialog" aria-modal="true" aria-labelledby="pm-t" style="position: absolute; top: 160px; max-height: none; padding-bottom: 34px">
+<div class="pw-sheet__head"><h2 id="pm-t" class="pw-dialog__title">π Pi Workbench</h2><button class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div>
+<div style="display: flex; flex-direction: column; border: 1px solid #000">
+<h3 class="pw-label" style="margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid #000; font-size: 14px; font-weight: 400">Agent<span>All projects</span></h3>
+<a href="Ph_Activity.dc.html" class="pw-row" style="min-height: 44px; font-size: 16px"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/></svg><span class="pw-row__label">Activity</span><span class="pw-row__meta"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>1 running</span></a>
+<a href="Ph_Gate.dc.html" class="pw-row" style="min-height: 44px; font-size: 16px; border-top: 1px dotted #000"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 1v14M13.5 1v14M2.5 4.5h11M2.5 9.5h11" fill="none" stroke="currentColor"/><path d="M5 4.5v5M8 4.5v5M11 4.5v5" stroke="currentColor"/></svg><span class="pw-row__label">Gate</span><span class="pw-row__meta">12 checks</span></a>
+</div>
+<div style="display: flex; flex-direction: column; border: 1px solid #000">
+<h3 class="pw-label" style="margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid #000; font-size: 14px; font-weight: 400">Model<span>One in memory at a time</span></h3>
+<button type="button" class="pw-row" style="min-height: 44px; font-size: 16px; justify-content: space-between"><span>Model</span><span class="pw-row__meta" style="font-size: 15px">gemma4:12b <span aria-hidden="true">›</span></span></button>
+<div style="border-top: 1px dotted #000"><button type="button" class="pw-row" style="min-height: 44px; font-size: 16px; justify-content: space-between"><span>Thinking</span><span class="pw-row__meta" style="font-size: 15px">High <span aria-hidden="true">›</span></span></button></div>
+</div>
+<p class="pw-help" style="font-size: 14px; margin: 0">Thinking applies from the next request. With a model that does not think, the row reads “No thinking”, dimmed.</p>
+<div style="display: flex; flex-direction: column; border-top: 3px double #000">
+<button class="pw-menu__item" style="height: 44px; font-size: 16px; padding-left: 4px">Settings…</button>
+<button class="pw-menu__item" style="height: 44px; font-size: 16px; padding-left: 4px; border-top: 1px dotted #000">About Pi Workbench</button>
+</div>
+</section></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

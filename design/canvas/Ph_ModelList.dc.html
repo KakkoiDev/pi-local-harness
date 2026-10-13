@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone · choose a model</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column">
+<div style="height: 44px; flex: none"></div>
+
+<nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Working. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><span role="status">Working</span></button></nav><div style="position: relative; flex: 1"><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
+<section class="pw-sheet" role="dialog" aria-modal="true" aria-labelledby="pml" style="position: absolute; top: 300px; max-height: none; padding-bottom: 34px">
+<div class="pw-sheet__head"><button class="pw-btn pw-btn--plain pw-btn--touch">‹ π</button><h2 id="pml" class="pw-dialog__title">Model</h2><span style="width: 44px"></span></div>
+<div role="menu" aria-label="Model" style="display: flex; flex-direction: column; border-bottom: 1px dotted #000"><button type="button" role="menuitemradio" aria-checked="true" class="pw-row" style="min-height: 48px; font-size: 16px; border-top: 1px dotted #000"><span style="width: 16px">✓</span><span class="pw-row__label">gemma4:12b</span><span class="pw-row__meta">thinks · sees</span></button><button type="button" role="menuitemradio" aria-checked="false" class="pw-row" style="min-height: 48px; font-size: 16px; border-top: 1px dotted #000"><span style="width: 16px"></span><span class="pw-row__label">qwen3:8b</span><span class="pw-row__meta">thinks</span></button><button type="button" role="menuitemradio" aria-checked="false" class="pw-row" style="min-height: 48px; font-size: 16px; border-top: 1px dotted #000"><span style="width: 16px"></span><span class="pw-row__label">mistral-small:24b</span><span class="pw-row__meta">no thinking</span></button><button type="button" role="menuitemradio" aria-checked="false" aria-disabled="true" class="pw-row" style="min-height: 48px; font-size: 16px; border-top: 1px dotted #000; color: var(--ink-disabled)"><span style="width: 16px"></span><span class="pw-row__label">llama3.2:3b</span><span class="pw-row__meta">no tools</span></button></div>
+<p class="pw-help" style="font-size: 14px; margin: 0">One model in memory at a time. Choosing one shows “Loading qwen3:8b…” in this row until it is ready.</p>
+</section></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

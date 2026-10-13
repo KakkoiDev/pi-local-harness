@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Editing — inline threads with Review window</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
+<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
 </head>
 <body>
 <x-dc>
@@ -101,7 +101,7 @@ a{color:#000}a:hover{color:#000}
 <div class="tmsg"><span class="who"><b>Pi</b> 14:21</span><p style="margin: 0; font-style: italic">Suggested a rewrite — you kept your text.</p></div>
 </sc-if>
 <sc-if value="{{t1.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span class="state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input aria-label="Reply to comment 1" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t1.resolve}}">Resolve</button></div>
+<div class="tacts"><span class="state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input aria-label="Reply to comment 1" placeholder="Reply, then Add Note or Ask Pi…"><button class="btn">Add Note</button><button class="btn btn-def">Ask Pi</button><button class="btn" onClick="{{t1.resolve}}">Resolve</button></div>
 </sc-if>
 <sc-if value="{{t1.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t1.noteLine}}</span><button class="btn" onClick="{{t1.reopen}}">Reopen</button></div>
@@ -124,7 +124,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t2.threadClass}}" role="region" aria-label="Comment 2">
 <div class="tmsg"><span class="who"><b>You</b> 14:31</span><p style="margin: 0">Activity is missing from this list.</p></div>
 <sc-if value="{{t2.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span class="state"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Sent to Pi · waiting in queue · can no longer be deleted</span><input aria-label="Reply to comment 2" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t2.resolve}}">Resolve</button><div style="flex: 1"></div><a href="Activity.dc.html" style="font-size: 13px">Show in Activity</a></div>
+<div class="tacts"><span class="state"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Sent to Pi · waiting in queue · can no longer be deleted</span><input aria-label="Reply to comment 2" placeholder="Reply…"><button class="btn">Add Note</button><button class="btn" onClick="{{t2.resolve}}">Resolve</button><div style="flex: 1"></div><a href="Activity.dc.html" style="font-size: 13px">Show in Activity</a></div>
 </sc-if>
 <sc-if value="{{t2.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t2.noteLine}}</span><button class="btn" onClick="{{t2.reopen}}">Reopen</button></div>
@@ -136,7 +136,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t5.threadClass}}" role="region" aria-label="Comment 3">
 <div class="tmsg"><span class="who"><b>You</b> now</span><p style="margin: 0">Say 44 px, so the phone layouts can be checked against it.</p></div>
 <sc-if value="{{t5.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span class="state">Saved with the file · not sent to Pi</span><input aria-label="Reply to comment 3" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t5.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t5.del}}">Delete</button><p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p></div>
+<div class="tacts"><span class="state">Saved with the file · not sent to Pi</span><input aria-label="Reply to comment 3" placeholder="Reply…"><button class="btn">Add Note</button><button class="btn btn-def">Ask Pi</button><button class="btn" onClick="{{t5.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t5.del}}">Delete</button><p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p></div>
 </sc-if>
 <sc-if value="{{t5.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t5.noteLine}}</span><button class="btn" onClick="{{t5.reopen}}">Reopen</button></div>
@@ -151,7 +151,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t3.threadClass}}" role="region" aria-label="Comment 4">
 <div class="tmsg"><span class="who"><b>You</b> 14:12</span><p style="margin: 0">Superseded by the redesign brief.</p></div>
 <sc-if value="{{t3.isOpen}}" hint-placeholder-val="{{false}}">
-<div class="tacts"><input aria-label="Reply to comment 4" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t3.resolve}}">Resolve</button></div>
+<div class="tacts"><input aria-label="Reply to comment 4" placeholder="Reply…"><button class="btn">Add Note</button><button class="btn" onClick="{{t3.resolve}}">Resolve</button></div>
 </sc-if>
 <sc-if value="{{t3.isRes}}" hint-placeholder-val="{{true}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t3.noteLine}}</span><button class="btn" onClick="{{t3.reopen}}">Reopen</button></div>
@@ -163,7 +163,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t4.threadClass}}" role="region" aria-label="Comment 5">
 <div class="tmsg"><span class="who"><b>You</b> 14:15</span><p style="margin: 0">Add a CJK fixture for the block editor.</p></div>
 <sc-if value="{{t4.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span class="state">Restored · not sent to Pi</span><input aria-label="Reply to comment 5" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t4.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t4.del}}">Delete</button></div>
+<div class="tacts"><span class="state">Restored · not sent to Pi</span><input aria-label="Reply to comment 5" placeholder="Reply…"><button class="btn">Add Note</button><button class="btn btn-def">Ask Pi</button><button class="btn" onClick="{{t4.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t4.del}}">Delete</button></div>
 </sc-if>
 <sc-if value="{{t4.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t4.noteLine}}</span><button class="btn" onClick="{{t4.reopen}}">Reopen</button></div>

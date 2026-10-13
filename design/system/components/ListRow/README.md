@@ -21,3 +21,4 @@ The folder tree without `ROADMAP.md` and `tasks/`. No meta (the file list API ha
 ## Phone
 
 44px rows, 16px side inset. Same content.
+- **Select, then command (task 146)**: clicking a folder row selects it (`aria-current="true"`, inverted) and opens or closes it; File › Rename or Move… and Move to Trash… then act on it. With no folder selected they act on the open file (`aria-current="page"`). Selecting a file opens it. Board: W_FolderSel.

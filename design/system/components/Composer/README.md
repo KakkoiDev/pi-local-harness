@@ -7,3 +7,4 @@ The message form at the bottom of the Chat window.
 - Recording: the Record button reads Stop Recording with a filled dot; then Transcribing… in the hint; the text lands at the cursor.
 - Dragging files over the composer: `.pw-composer--dragging` (3px dashed inner outline).
 - Errors sit above the form in `.pw-alert-line` with the Caution glyph.
+- **Recording on the phone**: the Record button keeps its 44px shape and becomes `.pw-btn--rec[aria-pressed="true"]`: inverted, a paper dot, then the elapsed time “0:12” in tabular figures; `aria-label="Stop Recording"`. One bit, not red: the inversion is the recording signal, as a pressed button is everywhere else. Board: Ph_Recording.

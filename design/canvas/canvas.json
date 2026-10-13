@@ -1345,6 +1345,81 @@
       "h": 972,
       "title": "F10·P3 Choose Japanese study app",
       "page": "flows"
+    },
+    "MB_Model.dc.html": {
+      "x": 0,
+      "y": 17220,
+      "w": 1440,
+      "h": 1560,
+      "title": "Model and thinking menus: rest, open, loading, no thinking",
+      "page": "states"
+    },
+    "W_FolderSel.dc.html": {
+      "x": 1520,
+      "y": 17220,
+      "w": 1440,
+      "h": 900,
+      "title": "Work · folder selected, File menu",
+      "page": "states",
+      "is_interactive": true
+    },
+    "W_Rename.dc.html": {
+      "x": 3040,
+      "y": 17220,
+      "w": 1440,
+      "h": 900,
+      "title": "Work · Rename or Move…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "W_TrashFolder.dc.html": {
+      "x": 4560,
+      "y": 17220,
+      "w": 1440,
+      "h": 900,
+      "title": "Work · Move a folder to the Trash",
+      "page": "states",
+      "is_interactive": true
+    },
+    "Ph_Model.dc.html": {
+      "x": 0,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "π sheet: Model",
+      "page": "phone"
+    },
+    "Ph_ModelList.dc.html": {
+      "x": 470,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "Choose a model",
+      "page": "phone"
+    },
+    "Ph_FileMore.dc.html": {
+      "x": 940,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "More for the open file",
+      "page": "phone"
+    },
+    "Ph_FolderMore.dc.html": {
+      "x": 1410,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "More for a folder",
+      "page": "phone"
+    },
+    "Ph_Recording.dc.html": {
+      "x": 1880,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "Recording",
+      "page": "phone"
     }
   },
   "createdOnFiles": {
@@ -1579,6 +1654,24 @@
       "w": 240,
       "x": 0,
       "y": 17256
+    },
+    "s8": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Round 4 — model menus, rename and move",
+      "w": 240,
+      "x": 0,
+      "y": 16960
+    },
+    "p3": {
+      "kind": "title1",
+      "maxW": 4150,
+      "page": "phone",
+      "text": "Phone — model, More for files and folders, recording",
+      "w": 240,
+      "x": 0,
+      "y": 2240
     }
   },
   "order": [
@@ -1737,7 +1830,16 @@
     "F10_SwitchProject_4.dc.html",
     "F10_SwitchProject_P1.dc.html",
     "F10_SwitchProject_P2.dc.html",
-    "F10_SwitchProject_P3.dc.html"
+    "F10_SwitchProject_P3.dc.html",
+    "MB_Model.dc.html",
+    "W_FolderSel.dc.html",
+    "W_Rename.dc.html",
+    "W_TrashFolder.dc.html",
+    "Ph_Model.dc.html",
+    "Ph_ModelList.dc.html",
+    "Ph_FileMore.dc.html",
+    "Ph_FolderMore.dc.html",
+    "Ph_Recording.dc.html"
   ],
   "pages": [
     {
