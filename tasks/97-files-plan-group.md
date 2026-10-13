@@ -7,7 +7,7 @@ Request 2026-10-13: "Group the tree in the UI only: “Plan” (ROADMAP.md, task
 2026-10-13: go (user: "no files vs document dropdowns in the tree nav"). Projects home (task 107) hosts the groups. Import the designer output first. Each is its own code task with a red test.
 
 - [x] Groups: `.pw-group` Plan/Files, folder tree (IMPLEMENTATION.md renderFiles, never built; task 88 shipped a flat list), `+` actions replace the New Page/New Task row, collapse state per project, flat search, "No matching files".
-- [x] Task progress meta (`2/3`, ROADMAP `47/68`), Blocked from `- [~] Blocked:` lines (tasks 56/59, not built), Done summary row. Server parses checkboxes.
+- [x] Task progress meta (`2/3`, ROADMAP `47/68`), Blocked from tilde-box "Blocked:" lines (tasks 56/59, not built), Done summary row. Server parses checkboxes.
 - [x] Empty Plan: "Create Roadmap" (new endpoint; scaffold as `create_project`).
 - [x] Roving keyboard focus across toggles and rows.
 - [x] Phone: segmented Plan · N open | Files · N.
