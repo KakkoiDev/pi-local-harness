@@ -130,3 +130,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [88-Design File Rows](tasks/88-design-file-rows.md)
 - [x] [89-Design Model Copy](tasks/89-design-model-copy.md)
 - [x] [90-Design Tablet Layout](tasks/90-design-tablet.md)
+- [x] [91-Kind chore](tasks/91-kind-chore.md)

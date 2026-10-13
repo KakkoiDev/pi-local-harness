@@ -169,7 +169,7 @@ In a project folder with `ROADMAP.md` and `tasks/`, Laya revises any `git commit
 until it has seen, since the last commit: a failing test run, a code change, a
 passing test run on exactly the code being committed, a newly checked `- [x]` box in
 a `tasks/*.md` file, and one in `ROADMAP.md`. Each checked task file needs a
-`Kind:` line: `code` needs red and green, `config` needs green, `docs` and `planning`
+`Kind:` line: `code` needs red and green, `chore` needs green, `docs` and `planning`
 need no runs and may not change code. A commit that only adds unchecked tasks to
 `ROADMAP.md` and `tasks/` is a planning commit; each task file it touches needs a
 `Kind:` line. Test runs count only when the runner (unittest, pytest, `node --test`,

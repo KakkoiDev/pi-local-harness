@@ -1,6 +1,6 @@
 # 65: Remove portfolio leftovers
 
-Kind: config
+Kind: chore
 
 Request 2026-10-13 (audit #14): remove code from the portfolio site this repo started as.
 

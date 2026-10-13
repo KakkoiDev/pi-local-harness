@@ -166,9 +166,9 @@ class ProtocolTest(unittest.TestCase):
         self.assertEqual(self.commit()['outcome'], 'ALLOW')
         self.assertEqual(ProposalLedger(self.ledger.engine, protocol_file=state).protocol.runs, {})
 
-    def test_config_task_needs_green_but_not_red(self):
+    def test_chore_task_needs_green_but_not_red(self):
         (self.root / 'app.py').write_text('VALUE = 2\n')
-        self.run_bash('pytest'); self.check_boxes('config')
+        self.run_bash('pytest'); self.check_boxes('chore')
         self.assertEqual(self.commit()['outcome'], 'ALLOW')
 
     def test_docs_task_needs_no_runs_but_cannot_change_code(self):
@@ -180,11 +180,11 @@ class ProtocolTest(unittest.TestCase):
         self.assertIn('Kind: docs', self.commit()['reason'])
 
     def test_missing_or_unknown_kind_names_the_fix(self):
-        for line in ['', 'Kind: stuff\n']:
+        for line in ['', 'Kind: stuff\n', 'Kind: config\n']:
             (self.root / 'tasks/01-feature.md').write_text(f'{line}- [x] Red\n')
             (self.root / 'ROADMAP.md').write_text('- [x] [01](tasks/01-feature.md)\n')
             gate = self.commit()
-            self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('Kind: code|config|docs|planning', gate['reason'])
+            self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('Kind: code|chore|docs|planning', gate['reason'])
 
     def test_planning_commit_adds_unchecked_tasks_with_kinds(self):
         (self.root / 'tasks/02-next.md').write_text('# Next\n\nKind: code\n\n- [ ] Red\n')

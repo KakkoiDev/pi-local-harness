@@ -22,8 +22,8 @@ TEST_COMMANDS = [
 ]
 CHECKED = re.compile(r'- \[[xX]\]')
 KIND = re.compile(r'^Kind:\s*(\S+)', re.MULTILINE)
-KINDS = ('code', 'config', 'docs', 'planning')
-KIND_FIX = '`Kind: code|config|docs|planning` line'
+KINDS = ('code', 'chore', 'docs', 'planning')
+KIND_FIX = '`Kind: code|chore|docs|planning` line'
 LARGE = 1024 * 1024
 INTERRUPTED = ('Command aborted', 'Command terminated without an exit code', 'Command timed out after')
 
@@ -254,7 +254,7 @@ class Protocol:
         missing += [f'a {KIND_FIX} in {path}' for path, kind in kinds.items() if not kind]
         known = set(kinds.values()) - {None}
         if code and known and known <= {'docs', 'planning'}:
-            missing.append(f'code changes in a Kind: {"/".join(sorted(known))} task; set Kind: code or Kind: config, or revert the code')
+            missing.append(f'code changes in a Kind: {"/".join(sorted(known))} task; set Kind: code or Kind: chore, or revert the code')
         elif code:
             runs = self.runs.get(root, [])
             green = next((index for index in range(len(runs) - 1, -1, -1) if runs[index] == (state, True)), None)
