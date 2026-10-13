@@ -33,7 +33,7 @@ When the canvas and this file disagree, this file wins for behaviour and ids; th
 ```
 design/tokens.css        new  (from this handoff)
 design/components.css    new
-design/icons.mjs         new  → also served as /js/icons.mjs (or import from /design/icons.mjs)
+design/icons.mjs         new  → served as /design/icons.mjs; js/ui.mjs re-exports it from '../design/icons.mjs'
 fonts/PixelifySans-Variable.woff2
 fonts/SourceSerif4-Variable.woff2
 fonts/SourceSerif4-Italic-Variable.woff2
@@ -51,7 +51,7 @@ DESIGN.md                replace with this handoff's DESIGN.md
 
 ```python
 '/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',
-'/js/icons.mjs':'design/icons.mjs',
+'/design/icons.mjs':'design/icons.mjs',
 '/fonts/PixelifySans-Variable.woff2':'fonts/PixelifySans-Variable.woff2',
 '/fonts/SourceSerif4-Variable.woff2':'fonts/SourceSerif4-Variable.woff2',
 '/fonts/SourceSerif4-Italic-Variable.woff2':'fonts/SourceSerif4-Italic-Variable.woff2',
@@ -66,7 +66,7 @@ and call `mimetypes.add_type('font/woff2','.woff2')` once at import, because `mi
 **Icons** (`js/ui.mjs`): delete the `paths` map, `icon()` and `hydrateIcons()`, and re-export them from `icons.mjs`:
 
 ```js
-export { icon, hydrateIcons, stateGlyph } from './icons.mjs';
+export { icon, hydrateIcons, stateGlyph } from '../design/icons.mjs';
 ```
 
 `data-icon` names change: `plus`, `search`, `close`, `mic` keep their names; `folder` → `folder`; `file` → `file`; `send`, `menu`, `stop`, `chat`, `chevron`, `refresh`, `check` are no longer drawn (the buttons carry words). New names: `disclosure-open`, `disclosure-closed`, `popup-arrow`, `back`, `up`, `down`, `handle`, `list-bullet`, `list-check`, `running`, `waiting`, `done`, `failed`, `stopped`, `interrupted`, `caution`, `note`, and `alert-stop`, `alert-caution`, `alert-note` (36px).

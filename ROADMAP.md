@@ -108,3 +108,4 @@ and harness/README.md for the installed pi workflow.
 Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build order in [design/IMPLEMENTATION.md](design/IMPLEMENTATION.md) § 12.
 
 - [ ] [68-Design foundations (fonts pending)](tasks/68-design-foundations.md)
+- [x] [69-Design tokens, components, icons](tasks/69-design-tokens-icons.md)

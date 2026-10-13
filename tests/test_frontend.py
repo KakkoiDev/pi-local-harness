@@ -10,6 +10,8 @@ class TestFrontend(unittest.TestCase):
             self.assertIn('id="record"',content)
             self.assertIn('name="viewport"',content)
             self.assertNotIn('cdn.tailwindcss',content)
+            self.assertLess(content.index('/design/tokens.css'),content.index('/design/components.css'))
+            self.assertLess(content.index('/design/components.css'),content.index('/chat.css'))
 
 if __name__ == "__main__":
     unittest.main()
