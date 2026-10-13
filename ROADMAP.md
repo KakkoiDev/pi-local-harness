@@ -115,3 +115,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [73-Design chat states](tasks/73-design-chat-states.md)
 - [x] [74-Design ruler and block handle](tasks/74-design-ruler-block-handle.md)
 - [x] [75-Design comments](tasks/75-design-comments.md)
+- [x] [76-Design Activity](tasks/76-design-activity.md)
