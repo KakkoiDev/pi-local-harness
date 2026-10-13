@@ -184,3 +184,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [142-Voice input gives only what was said](tasks/142-whisper-clean-text.md)
 - [x] [143-Markdown tables render as tables in chat](tasks/143-chat-tables.md)
 - [x] [144-The phone composer stays small](tasks/144-phone-composer-height.md)
+- [x] [145-Re-sync the design after round 3](tasks/145-design-resync-3.md)

@@ -362,3 +362,39 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
 .pw-msg__tasks{list-style:none;padding-left:0!important}
 .pw-msg__task{display:flex;gap:8px;align-items:baseline}
 .pw-msg__task .pw-check{transform:translateY(2px)}
+
+/* ---- 2026-10-13 · Round 3: Table block, Markdown tables, workflows ---- */
+
+/* MarkdownTable: one look for Pi's tables in Chat (.pw-msg__table) and the Table block (.pw-block--table) */
+.pw-mdtable,.pw-msg__table{max-width:100%;overflow-x:auto}
+.pw-mdtable table,.pw-msg__table table{border-collapse:collapse;font-family:var(--font-text);font-size:16px;line-height:1.45}
+.pw-mdtable th,.pw-mdtable td,.pw-msg__table th,.pw-msg__table td{border:1px solid var(--ink);padding:6px 10px;vertical-align:top;text-align:left;min-width:64px;max-width:280px;overflow-wrap:anywhere}
+.pw-mdtable th,.pw-msg__table th{font-family:var(--font-chrome);font-size:14px;line-height:20px;font-weight:400;border-bottom:3px double var(--ink)}
+.pw-mdtable [data-align="center"],.pw-msg__table [data-align="center"]{text-align:center}
+.pw-mdtable [data-align="right"],.pw-msg__table [data-align="right"]{text-align:right;font-variant-numeric:tabular-nums}
+.pw-mdtable code,.pw-msg__table code{font-family:var(--font-mono);font-size:14px;border:1px solid var(--ink);padding:0 3px}
+.pw-mdtable a,.pw-msg__table a{color:var(--ink)}
+
+/* Table block: reads as a table, edits as its Markdown */
+.pw-block--table>.pw-block__content{min-width:0}
+.pw-block--table.pw-block--editing>.pw-block__content{display:flex;flex-direction:column;gap:var(--space-1)}
+.pw-block__source{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre;overflow-x:auto}
+.pw-block__hint{margin:0;display:flex;align-items:center;gap:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+
+/* Earlier conversation (read only) */
+.pw-readonly{flex:none;display:flex;align-items:center;gap:var(--space-3);padding:6px 12px;border-bottom:3px double var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-readonly .pw-btn{min-height:26px}
+
+/* QR code in Open on Phone */
+.pw-qr{flex:none;display:block;width:148px;height:148px;border:1px solid var(--ink);padding:8px;background:var(--paper)}
+.pw-qr svg{display:block;width:100%;height:100%}
+
+/* Workflow step caption (canvas only) */
+.pw-step{position:absolute;left:0;right:0;bottom:0;z-index:9;display:flex;gap:var(--space-3);align-items:baseline;padding:10px 16px;background:var(--paper);border-top:3px double var(--ink);font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-step__n{flex:none;border:1px solid var(--ink);padding:0 6px;font-size:13px}
+.pw-step__lost{margin-left:auto;font-size:13px}
+
+@media (max-width:760px){
+  .pw-mdtable th,.pw-mdtable td{max-width:200px}
+  .pw-step{font-size:14px;padding:8px 12px}
+}

@@ -636,9 +636,715 @@
       "x": 0,
       "y": 12860,
       "w": 1440,
-      "h": 1180,
+      "h": 1260,
       "title": "Menu bar status + Agent section states",
       "page": "states"
+    },
+    "W_Table.dc.html": {
+      "x": 0,
+      "y": 14640,
+      "w": 1440,
+      "h": 1000,
+      "title": "Work · Table block: rest, focused, editing",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_Earlier.dc.html": {
+      "x": 1520,
+      "y": 14640,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · earlier conversation, read only",
+      "page": "states",
+      "is_interactive": true
+    },
+    "M_AgentEarlier.dc.html": {
+      "x": 3040,
+      "y": 14640,
+      "w": 1440,
+      "h": 900,
+      "title": "Agent › Earlier Conversations ▸",
+      "page": "states",
+      "is_interactive": true
+    },
+    "A_Retry.dc.html": {
+      "x": 4560,
+      "y": 14640,
+      "w": 1440,
+      "h": 900,
+      "title": "Activity · Ask Pi to Retry…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_FirstChat.dc.html": {
+      "x": 0,
+      "y": 15800,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · new project, first open",
+      "page": "states",
+      "is_interactive": true
+    },
+    "Ph_Table.dc.html": {
+      "x": 0,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "Table reads",
+      "page": "phone"
+    },
+    "Ph_TableEdit.dc.html": {
+      "x": 470,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "Table edits as Markdown",
+      "page": "phone"
+    },
+    "Ph_NewProject.dc.html": {
+      "x": 940,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "New Project sheet",
+      "page": "phone"
+    },
+    "Ph_FirstChat.dc.html": {
+      "x": 1410,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "New project Chat",
+      "page": "phone"
+    },
+    "Ph_FilesNew.dc.html": {
+      "x": 1880,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "Work › Plan, new project",
+      "page": "phone"
+    },
+    "Ph_ThreadAnswered.dc.html": {
+      "x": 2350,
+      "y": 1260,
+      "w": 390,
+      "h": 844,
+      "title": "Thread answered",
+      "page": "phone"
+    },
+    "F1_FirstRun_1.dc.html": {
+      "x": 0,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·1 Open Pi Workbench",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_2.dc.html": {
+      "x": 1520,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·2 Create Your First Project…",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_3.dc.html": {
+      "x": 3040,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·3 Create",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_4.dc.html": {
+      "x": 4560,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·4 Or: Use an Existing Folder…",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_5.dc.html": {
+      "x": 6080,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·5 The folder has no plan",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_6.dc.html": {
+      "x": 7600,
+      "y": 260,
+      "w": 1440,
+      "h": 972,
+      "title": "F1·6 Create Roadmap",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F1_FirstRun_P1.dc.html": {
+      "x": 0,
+      "y": 1352,
+      "w": 390,
+      "h": 972,
+      "title": "F1·P1 Open on the phone",
+      "page": "flows"
+    },
+    "F1_FirstRun_P2.dc.html": {
+      "x": 470,
+      "y": 1352,
+      "w": 390,
+      "h": 972,
+      "title": "F1·P2 Create Your First Project…",
+      "page": "flows"
+    },
+    "F1_FirstRun_P3.dc.html": {
+      "x": 940,
+      "y": 1352,
+      "w": 390,
+      "h": 972,
+      "title": "F1·P3 Create",
+      "page": "flows"
+    },
+    "F1_FirstRun_P4.dc.html": {
+      "x": 1410,
+      "y": 1352,
+      "w": 390,
+      "h": 972,
+      "title": "F1·P4 Open the Plan",
+      "page": "flows"
+    },
+    "F2_ChatWork_1.dc.html": {
+      "x": 0,
+      "y": 2784,
+      "w": 1440,
+      "h": 972,
+      "title": "F2·1 Type a question",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F2_ChatWork_2.dc.html": {
+      "x": 1520,
+      "y": 2784,
+      "w": 1440,
+      "h": 972,
+      "title": "F2·2 Send",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F2_ChatWork_3.dc.html": {
+      "x": 3040,
+      "y": 2784,
+      "w": 1440,
+      "h": 972,
+      "title": "F2·3 Point at the status",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F2_ChatWork_4.dc.html": {
+      "x": 4560,
+      "y": 2784,
+      "w": 1440,
+      "h": 972,
+      "title": "F2·4 Click it (or ⌘3)",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F2_ChatWork_5.dc.html": {
+      "x": 6080,
+      "y": 2784,
+      "w": 1440,
+      "h": 972,
+      "title": "F2·5 Close box (⌘W)",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_1.dc.html": {
+      "x": 0,
+      "y": 4216,
+      "w": 1440,
+      "h": 932,
+      "title": "F3·1 Select a passage",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_2.dc.html": {
+      "x": 1520,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·2 Comment",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_3.dc.html": {
+      "x": 3040,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·3 Add & Ask Pi",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_4.dc.html": {
+      "x": 4560,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·4 Wait",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_5.dc.html": {
+      "x": 6080,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·5 Pi answers",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_6.dc.html": {
+      "x": 7600,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·6 Reply, then Ask Pi",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_7.dc.html": {
+      "x": 9120,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·7 Resolve",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_8.dc.html": {
+      "x": 10640,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·8 Suggested change",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_9.dc.html": {
+      "x": 12160,
+      "y": 4216,
+      "w": 1440,
+      "h": 972,
+      "title": "F3·9 Apply Change",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F3_Comment_P1.dc.html": {
+      "x": 0,
+      "y": 5308,
+      "w": 390,
+      "h": 972,
+      "title": "F3·P1 Long press",
+      "page": "flows"
+    },
+    "F3_Comment_P2.dc.html": {
+      "x": 470,
+      "y": 5308,
+      "w": 390,
+      "h": 972,
+      "title": "F3·P2 Comment",
+      "page": "flows"
+    },
+    "F3_Comment_P3.dc.html": {
+      "x": 940,
+      "y": 5308,
+      "w": 390,
+      "h": 972,
+      "title": "F3·P3 Pi answers",
+      "page": "flows"
+    },
+    "F3_Comment_P4.dc.html": {
+      "x": 1410,
+      "y": 5308,
+      "w": 390,
+      "h": 972,
+      "title": "F3·P4 Suggested change",
+      "page": "flows"
+    },
+    "F4_WholeFile_1.dc.html": {
+      "x": 0,
+      "y": 6740,
+      "w": 1440,
+      "h": 972,
+      "title": "F4·1 Open “Ask Pi about this whole file”",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F4_WholeFile_2.dc.html": {
+      "x": 1520,
+      "y": 6740,
+      "w": 1440,
+      "h": 972,
+      "title": "F4·2 Send Request",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F4_WholeFile_3.dc.html": {
+      "x": 3040,
+      "y": 6740,
+      "w": 1440,
+      "h": 972,
+      "title": "F4·3 Pi answers",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F5_Plan_1.dc.html": {
+      "x": 0,
+      "y": 8172,
+      "w": 1440,
+      "h": 972,
+      "title": "F5·1 Plan +  (or ⌘T)",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F5_Plan_2.dc.html": {
+      "x": 1520,
+      "y": 8172,
+      "w": 1440,
+      "h": 972,
+      "title": "F5·2 Create",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F5_Plan_3.dc.html": {
+      "x": 3040,
+      "y": 8172,
+      "w": 1440,
+      "h": 972,
+      "title": "F5·3 Check two boxes",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F5_Plan_4.dc.html": {
+      "x": 4560,
+      "y": 8172,
+      "w": 1440,
+      "h": 972,
+      "title": "F5·4 Check the last",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F5_Plan_5.dc.html": {
+      "x": 6080,
+      "y": 8172,
+      "w": 1440,
+      "h": 972,
+      "title": "F5·5 Next refresh",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F6_Edit_1.dc.html": {
+      "x": 0,
+      "y": 9604,
+      "w": 1440,
+      "h": 972,
+      "title": "F6·1 Point at the gutter, Return, click below",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F6_Edit_2.dc.html": {
+      "x": 1520,
+      "y": 9604,
+      "w": 1440,
+      "h": 972,
+      "title": "F6·2 Handle › Turn Into › Table",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F6_Edit_3.dc.html": {
+      "x": 3040,
+      "y": 9604,
+      "w": 1440,
+      "h": 972,
+      "title": "F6·3 Handle menu, every popup",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F6_Edit_P1.dc.html": {
+      "x": 0,
+      "y": 10696,
+      "w": 390,
+      "h": 972,
+      "title": "F6·P1 Tap a paragraph",
+      "page": "flows"
+    },
+    "F6_Edit_P2.dc.html": {
+      "x": 470,
+      "y": 10696,
+      "w": 390,
+      "h": 972,
+      "title": "F6·P2 Tap the handle",
+      "page": "flows"
+    },
+    "F6_Edit_P3.dc.html": {
+      "x": 940,
+      "y": 10696,
+      "w": 390,
+      "h": 972,
+      "title": "F6·P3 Table",
+      "page": "flows"
+    },
+    "F6_Edit_P4.dc.html": {
+      "x": 1410,
+      "y": 10696,
+      "w": 390,
+      "h": 972,
+      "title": "F6·P4 Tap the table",
+      "page": "flows"
+    },
+    "F6_Edit_P5.dc.html": {
+      "x": 1880,
+      "y": 10696,
+      "w": 390,
+      "h": 972,
+      "title": "F6·P5 Delete",
+      "page": "flows"
+    },
+    "F7_LongChat_1.dc.html": {
+      "x": 0,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·1 Keep talking",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_2.dc.html": {
+      "x": 1520,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·2 Pi answers",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_3.dc.html": {
+      "x": 3040,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·3 Show Summary",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_4.dc.html": {
+      "x": 4560,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·4 Agent › New Conversation…",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_5.dc.html": {
+      "x": 6080,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·5 New Conversation",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_6.dc.html": {
+      "x": 7600,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·6 Agent › Earlier Conversations ▸",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F7_LongChat_7.dc.html": {
+      "x": 9120,
+      "y": 12128,
+      "w": 1440,
+      "h": 972,
+      "title": "F7·7 Open one",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_1.dc.html": {
+      "x": 0,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·1 A command is blocked",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_2.dc.html": {
+      "x": 1520,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·2 Show in Gate",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_3.dc.html": {
+      "x": 3040,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·3 Show in Activity",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_4.dc.html": {
+      "x": 4560,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·4 A request fails",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_5.dc.html": {
+      "x": 6080,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·5 Click it",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_6.dc.html": {
+      "x": 7600,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·6 Ask Pi to Retry…",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_7.dc.html": {
+      "x": 9120,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·7 The connection drops",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F8_Wrong_8.dc.html": {
+      "x": 10640,
+      "y": 13560,
+      "w": 1440,
+      "h": 972,
+      "title": "F8·8 Reconnect",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F9_Phone_1.dc.html": {
+      "x": 0,
+      "y": 14992,
+      "w": 1440,
+      "h": 972,
+      "title": "F9·1 π › Open on Phone…",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F9_Phone_2.dc.html": {
+      "x": 1520,
+      "y": 14992,
+      "w": 1440,
+      "h": 972,
+      "title": "F9·2 Phone access on",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F9_Phone_3.dc.html": {
+      "x": 3040,
+      "y": 14992,
+      "w": 1440,
+      "h": 972,
+      "title": "F9·3 Phone access off",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F9_Phone_P1.dc.html": {
+      "x": 0,
+      "y": 16084,
+      "w": 390,
+      "h": 972,
+      "title": "F9·P1 Scan the code",
+      "page": "flows"
+    },
+    "F10_SwitchProject_1.dc.html": {
+      "x": 0,
+      "y": 17516,
+      "w": 1440,
+      "h": 972,
+      "title": "F10·1 Inside pi-local-harness, Work",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F10_SwitchProject_2.dc.html": {
+      "x": 1520,
+      "y": 17516,
+      "w": 1440,
+      "h": 972,
+      "title": "F10·2 ‹ Projects (or the close box)",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F10_SwitchProject_3.dc.html": {
+      "x": 3040,
+      "y": 17516,
+      "w": 1440,
+      "h": 972,
+      "title": "F10·3 ⌘K, type “home”",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F10_SwitchProject_4.dc.html": {
+      "x": 4560,
+      "y": 17516,
+      "w": 1440,
+      "h": 972,
+      "title": "F10·4 Choose Japanese study app",
+      "page": "flows",
+      "is_interactive": true
+    },
+    "F10_SwitchProject_P1.dc.html": {
+      "x": 0,
+      "y": 18608,
+      "w": 390,
+      "h": 972,
+      "title": "F10·P1 Inside a project",
+      "page": "flows"
+    },
+    "F10_SwitchProject_P2.dc.html": {
+      "x": 470,
+      "y": 18608,
+      "w": 390,
+      "h": 972,
+      "title": "F10·P2 π",
+      "page": "flows"
+    },
+    "F10_SwitchProject_P3.dc.html": {
+      "x": 940,
+      "y": 18608,
+      "w": 390,
+      "h": 972,
+      "title": "F10·P3 Choose Japanese study app",
+      "page": "flows"
     }
   },
   "createdOnFiles": {
@@ -765,6 +1471,114 @@
       "w": 240,
       "x": 0,
       "y": 10560
+    },
+    "s7": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Round 3 — tables and earlier conversations",
+      "w": 240,
+      "x": 0,
+      "y": 14380
+    },
+    "p2": {
+      "kind": "title1",
+      "maxW": 4150,
+      "page": "phone",
+      "text": "Phone — tables, first run, answered thread",
+      "w": 240,
+      "x": 0,
+      "y": 1000
+    },
+    "n_F1_FirstRun": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F1 · First run",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "n_F2_ChatWork": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F2 · Ask in Chat and follow the work",
+      "w": 240,
+      "x": 0,
+      "y": 2524
+    },
+    "n_F3_Comment": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F3 · Comment and ask Pi",
+      "w": 240,
+      "x": 0,
+      "y": 3956
+    },
+    "n_F4_WholeFile": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F4 · Ask about the whole file",
+      "w": 240,
+      "x": 0,
+      "y": 6480
+    },
+    "n_F5_Plan": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F5 · Plan work",
+      "w": 240,
+      "x": 0,
+      "y": 7912
+    },
+    "n_F6_Edit": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F6 · Edit a document",
+      "w": 240,
+      "x": 0,
+      "y": 9344
+    },
+    "n_F7_LongChat": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F7 · A long conversation",
+      "w": 240,
+      "x": 0,
+      "y": 11868
+    },
+    "n_F8_Wrong": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F8 · Something went wrong",
+      "w": 240,
+      "x": 0,
+      "y": 13300
+    },
+    "n_F9_Phone": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F9 · Phone access",
+      "w": 240,
+      "x": 0,
+      "y": 14732
+    },
+    "n_F10_SwitchProject": {
+      "kind": "title1",
+      "maxW": 12000,
+      "page": "flows",
+      "text": "F10 · Switch projects",
+      "w": 240,
+      "x": 0,
+      "y": 17256
     }
   },
   "order": [
@@ -842,12 +1656,97 @@
     "W_Comment.dc.html",
     "W_Blocks.dc.html",
     "G_Tablet.dc.html",
-    "MB_Status.dc.html"
+    "MB_Status.dc.html",
+    "W_Table.dc.html",
+    "S_Earlier.dc.html",
+    "M_AgentEarlier.dc.html",
+    "A_Retry.dc.html",
+    "S_FirstChat.dc.html",
+    "Ph_Table.dc.html",
+    "Ph_TableEdit.dc.html",
+    "Ph_NewProject.dc.html",
+    "Ph_FirstChat.dc.html",
+    "Ph_FilesNew.dc.html",
+    "Ph_ThreadAnswered.dc.html",
+    "F1_FirstRun_1.dc.html",
+    "F1_FirstRun_2.dc.html",
+    "F1_FirstRun_3.dc.html",
+    "F1_FirstRun_4.dc.html",
+    "F1_FirstRun_5.dc.html",
+    "F1_FirstRun_6.dc.html",
+    "F1_FirstRun_P1.dc.html",
+    "F1_FirstRun_P2.dc.html",
+    "F1_FirstRun_P3.dc.html",
+    "F1_FirstRun_P4.dc.html",
+    "F2_ChatWork_1.dc.html",
+    "F2_ChatWork_2.dc.html",
+    "F2_ChatWork_3.dc.html",
+    "F2_ChatWork_4.dc.html",
+    "F2_ChatWork_5.dc.html",
+    "F3_Comment_1.dc.html",
+    "F3_Comment_2.dc.html",
+    "F3_Comment_3.dc.html",
+    "F3_Comment_4.dc.html",
+    "F3_Comment_5.dc.html",
+    "F3_Comment_6.dc.html",
+    "F3_Comment_7.dc.html",
+    "F3_Comment_8.dc.html",
+    "F3_Comment_9.dc.html",
+    "F3_Comment_P1.dc.html",
+    "F3_Comment_P2.dc.html",
+    "F3_Comment_P3.dc.html",
+    "F3_Comment_P4.dc.html",
+    "F4_WholeFile_1.dc.html",
+    "F4_WholeFile_2.dc.html",
+    "F4_WholeFile_3.dc.html",
+    "F5_Plan_1.dc.html",
+    "F5_Plan_2.dc.html",
+    "F5_Plan_3.dc.html",
+    "F5_Plan_4.dc.html",
+    "F5_Plan_5.dc.html",
+    "F6_Edit_1.dc.html",
+    "F6_Edit_2.dc.html",
+    "F6_Edit_3.dc.html",
+    "F6_Edit_P1.dc.html",
+    "F6_Edit_P2.dc.html",
+    "F6_Edit_P3.dc.html",
+    "F6_Edit_P4.dc.html",
+    "F6_Edit_P5.dc.html",
+    "F7_LongChat_1.dc.html",
+    "F7_LongChat_2.dc.html",
+    "F7_LongChat_3.dc.html",
+    "F7_LongChat_4.dc.html",
+    "F7_LongChat_5.dc.html",
+    "F7_LongChat_6.dc.html",
+    "F7_LongChat_7.dc.html",
+    "F8_Wrong_1.dc.html",
+    "F8_Wrong_2.dc.html",
+    "F8_Wrong_3.dc.html",
+    "F8_Wrong_4.dc.html",
+    "F8_Wrong_5.dc.html",
+    "F8_Wrong_6.dc.html",
+    "F8_Wrong_7.dc.html",
+    "F8_Wrong_8.dc.html",
+    "F9_Phone_1.dc.html",
+    "F9_Phone_2.dc.html",
+    "F9_Phone_3.dc.html",
+    "F9_Phone_P1.dc.html",
+    "F10_SwitchProject_1.dc.html",
+    "F10_SwitchProject_2.dc.html",
+    "F10_SwitchProject_3.dc.html",
+    "F10_SwitchProject_4.dc.html",
+    "F10_SwitchProject_P1.dc.html",
+    "F10_SwitchProject_P2.dc.html",
+    "F10_SwitchProject_P3.dc.html"
   ],
   "pages": [
     {
       "id": "screens",
       "name": "Screens"
+    },
+    {
+      "id": "flows",
+      "name": "Workflows"
     },
     {
       "id": "states",

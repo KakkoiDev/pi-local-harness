@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Project window component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -41,7 +41,7 @@
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["chat", "doc", "code", "search", "noplan", "empty"], "default": "doc"}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["chat", "doc", "code", "search", "noplan", "empty", "new", "jsa", "newplan", "task0", "task2", "task3", "taskdone"], "default": "doc"}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'doc';
@@ -52,30 +52,41 @@ const F = (label, isOpen) => R(label, { folder: true, file: false, open: !!isOpe
 const N = (label, o) => R(label, Object.assign({ cls: 'pw-row pw-row--nested file-item' }, o || {}));
 const docOpen = !code && !empty && !noplan && !chat;
 let plan, files;
-if (search) {
+const neu = s === 'new' || s === 'jsa', newplan = s === 'newplan', tk = ['task0','task2','task3','taskdone'].includes(s);
+let projectName = noplan || newplan ? 'home-server' : neu ? 'Japanese study app' : 'pi-local-harness';
+let planCount = noplan ? '' : search ? '1' : '11 open', filesCount = search ? '2' : noplan ? '6' : '19', filesEmpty = false;
+let summary = noplan ? 'No plan yet · 2 folders · 4 files' : '11 open tasks · 6 folders · 13 files';
+if (neu) {
+  plan = [R('ROADMAP.md', { meta: '0/1' }), R('001-first-task', { meta: '0/3', current: s === 'jsa' ? 'page' : 'false' })];
+  files = []; filesEmpty = true; planCount = '1 open'; filesCount = '0'; summary = '1 open task · 1 folder · 2 files';
+} else if (newplan) {
+  plan = [R('ROADMAP.md', { meta: '0/1' }), R('001-first-task', { meta: '0/3', current: 'page' })];
+  files = [F('config'), F('scripts'), R('backup.sh'), R('docker-compose.yml'), R('notes.md'), R('README.md')]; planCount = '1 open'; filesCount = '6'; summary = '1 open task · 3 folders · 6 files';
+} else if (search) {
   plan = [R('62-stale-agent-lock', { meta: '0/3' })];
   files = [R('harness/agent-lock.mjs'), R('tests/harness/agent-lock.test.mjs')];
 } else if (noplan) {
   plan = [];
   files = [F('config'), F('scripts'), R('backup.sh'), R('docker-compose.yml'), R('notes.md'), R('README.md')];
 } else {
-  plan = [R('ROADMAP.md', { meta: '47/68' }), R('67-parallel-inference-experiment', { meta: '3/4' }), R('66-tailscale-voice-input', { meta: '6/7' }), R('64-task-report', { meta: '0/3' }), R('63-node-version-check', { meta: '0/2' }), R('62-stale-agent-lock', { meta: '0/3' }), R('61-real-exit-codes', { meta: '0/3' }), R('60-ntfy-notifications', { meta: '0/4' }), R('59-stuck-detection', { meta: '0/3' }), R('58-fresh-context-per-task', { meta: '0/3' }), R('57-phase-visibility', { meta: '0/3' }), R('56-work-phases', { meta: '0/8' }), R('Done', { cls: 'pw-row pw-row--summary', file: false, closed: true, expanded: 'false', meta: '56 tasks', done: true })];
+  plan = [R('ROADMAP.md', { meta: '47/68' }), R('67-parallel-inference-experiment', { meta: '3/4' }), R('66-tailscale-voice-input', { meta: '6/7' }), R('64-task-report', { meta: '0/3' }), R('63-node-version-check', { meta: '0/2' }), R('62-stale-agent-lock', { meta: '0/3' }), R('61-real-exit-codes', { meta: '0/3' }), R('60-ntfy-notifications', { meta: '0/4' }), R('59-stuck-detection', { meta: '0/3' }), R('58-fresh-context-per-task', { meta: '0/3' }), R('57-phase-visibility', { meta: '0/3' }), R('56-work-phases', { meta: '0/8' }), R('Done', { cls: 'pw-row pw-row--summary', file: false, closed: true, expanded: 'false', meta: s === 'taskdone' ? '57 tasks' : '56 tasks', done: true })];
+  if (tk && s !== 'taskdone') { plan.splice(1, 0, R('68-phone-targets', { meta: { task0: '0/3', task2: '2/3', task3: '3/3' }[s], done: s === 'task3', current: 'page' })); planCount = s === 'task3' ? '11 open' : '12 open'; summary = (s === 'task3' ? '11' : '12') + ' open tasks · 6 folders · 13 files'; }
   const harness = ['AGENTS.md', 'README.md', 'agent-lock.mjs', 'configure_startup.py', 'documents.py', 'extension.mjs', 'install.py', 'legacy-AGENTS.md', 'markdown_records.py', 'media.mjs', 'memory.mjs', 'model.json', 'model.py', 'provider.mjs', 'services.py', 'startup-display.mjs', 'timestamps.mjs', 'transcribe.py', 'watch.mjs', 'web_chat.py', 'work_queue.py'].map((n) => N(n, { current: (code && n === 'work_queue.py') ? 'page' : 'false' }));
-  files = [F('experiments'), F('harness', code)].concat(code ? harness : []).concat([F('js'), F('gate'), F('specs'), F('tests'), R('AGENT.md'), R('AUDIT.md'), R('DESIGN.md', { current: docOpen ? 'page' : 'false' }), R('PRODUCT.md'), R('Screenshot 2026-10-11 at 15.05.36.png'), R('agent_api.py'), R('chat.css'), R('ideas.md'), R('incident_log.md'), R('index.html'), R('plh.py'), R('readme.md'), R('start.sh')]);
+  files = [F('experiments'), F('harness', code)].concat(code ? harness : []).concat([F('js'), F('gate'), F('specs'), F('tests'), R('AGENT.md'), R('AUDIT.md'), R('DESIGN.md', { current: (docOpen && !tk) ? 'page' : 'false' }), R('PRODUCT.md'), R('Screenshot 2026-10-11 at 15.05.36.png'), R('agent_api.py'), R('chat.css'), R('ideas.md'), R('incident_log.md'), R('index.html'), R('plh.py'), R('readme.md'), R('start.sh')]);
 }
 return {
-project: noplan ? 'home-server' : 'pi-local-harness',
+project: projectName,
 query: search ? 'lock' : '',
 searching: search, searchNote: '3 matches for “lock” in both groups. Esc clears.',
 showPlan: true, showFiles: true,
 planOpen: !code, planShut: code, filesOpen: true, filesShut: false,
-planEmpty: noplan, filesEmpty: false,
-planCount: noplan ? '' : search ? '1' : '11 open',
-filesCount: search ? '2' : noplan ? '6' : '19',
+planEmpty: noplan, filesEmpty: filesEmpty,
+planCount: planCount,
+filesCount: filesCount,
 planRows: plan, filesRows: files,
 h: this.props.h ?? '824px',
-winClass: 'pw-window' + (this.props.active ? '' : ' pw-window--inactive'),
-summary: noplan ? 'No plan yet · 2 folders · 4 files' : '11 open tasks · 6 folders · 13 files'
+winClass: 'pw-window' + ((this.props.active === true || this.props.active === 'true') ? '' : ' pw-window--inactive'),
+summary: summary
 };
 }
 }

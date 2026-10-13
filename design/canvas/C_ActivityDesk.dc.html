@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Activity desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; color: #000">
+<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; position: relative; color: #000">
 <!-- Projects home: Activity and Gate cover every project -->
 <div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="activity" h="824px" hint-size="290px,824px"></dc-import></div>
 <section class="pw-window" aria-label="Activity · All Projects" style="flex: 1; min-width: 0">
@@ -27,7 +27,7 @@
 <div class="pw-window__body"><div style="max-width: 460px; margin: 160px auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center">
 <svg viewBox="0 0 16 16" width="40" height="40" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
 <p style="margin: 0; font-size: 17px">All caught up</p>
-<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.5">Requests from every project, comments and terminal Pi wait here in one queue.</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.5">Requests from every project, its comments and whole-file questions wait here in one queue. Terminal Pi runs directly and shows in Gate.</p>
 </div></div>
 </sc-if>
 
@@ -66,9 +66,19 @@
 </div>
 </sc-if>
 </section>
+<sc-if value="{{retry}}" hint-placeholder-val="{{false}}">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
+<form role="dialog" aria-labelledby="rt-t" class="pw-dialog" style="position: absolute; left: 50%; top: 170px; transform: translateX(-50%); width: 500px">
+<h2 id="rt-t" class="pw-dialog__title">Ask Pi to Retry</h2>
+<p class="pw-review-item__quote">“Run the backup script and report disk usage”</p>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Add a note for Pi (optional)<textarea class="pw-field" rows="2">The backup drive is mounted now.</textarea></label>
+<p class="pw-help">Queues the request again in home-server. The failed run stays in its record.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Queue Again</button></div>
+</form>
+</sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","attention","empty"],"default":"running"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","attention","empty","retry"],"default":"running"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'running';
@@ -80,9 +90,10 @@ const all = [
 { state: 'Interrupted', request: 'Rewrite the roadmap summary for tasks 55–58', project: 'pi-local-harness', source: 'ROADMAP.md', started: 'Yesterday', time: '4:02', k: 'attention' },
 { state: 'Stopped', request: 'Transcribe the attached voice memo', project: 'Japanese study app', source: 'Chat', started: 'Yesterday', time: '0:09', k: 'attention' }
 ];
-const attention = s === 'attention';
+const attention = s === 'attention' || s === 'retry';
 const rows = (attention ? all.filter((r) => r.k === 'attention') : all).map((r, i) => Object.assign({}, r, { isRunning: r.state === 'Running', isQueued: r.state === 'Waiting', isFailed: r.state === 'Failed', isDone: r.state === 'Completed', isInterrupted: r.state === 'Interrupted', isStopped: r.state === 'Stopped', current: attention ? (i === 0 ? 'true' : 'false') : (r.k === 'running' ? 'true' : 'false') }));
 return {
+retry: s === 'retry',
 empty: s === 'empty', notEmpty: s !== 'empty',
 filterLabel: attention ? 'Needs Attention' : 'All Work',
 summary: s === 'empty' ? 'Nothing running or waiting' : attention ? '3 need attention: 1 failed, 1 interrupted, 1 stopped' : '1 running · 1 waiting · 3 need attention',

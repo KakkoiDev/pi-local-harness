@@ -23,7 +23,7 @@ export const ICONS = {
   mic: '<rect x="5.5" y=".5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor"/><path d="M2.5 7.5a5.5 5.5 0 0 0 11 0M8 13v2.5M5 15.5h6" fill="none" stroke="currentColor"/>',
   handle: '<path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"/>',
   'list-bullet': '<path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/>',
-  fence: '<path d="M2.5 1v14M13.5 1v14M2.5 4.5h11M2.5 9.5h11" fill="none" stroke="currentColor"/><path d="M5 4.5v5M8 4.5v5M11 4.5v5" stroke="currentColor"/>', // Gate (C_ProjectsWin)
+  gate: '<path d="M2.5 1v14M13.5 1v14M2.5 4.5h11M2.5 9.5h11" fill="none" stroke="currentColor"/><path d="M5 4.5v5M8 4.5v5M11 4.5v5" stroke="currentColor"/>', // Gate (C_ProjectsWin)
   'list-check': '<rect x="2.5" y="2.5" width="11" height="11" fill="none" stroke="currentColor"/>',
   // States (always shown with a word beside them)
   running: '<path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/><path d="M5 14.5h6L8 11.5z" fill="currentColor"/>',

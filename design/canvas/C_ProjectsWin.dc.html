@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Projects window component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -16,7 +16,7 @@
 <section class="{{winClass}}" aria-label="Projects" style="flex: 1; min-width: 0">
 <div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-infobar" style="justify-content: space-between"><span>{{projectCount}}</span><span>on this Mac</span></div>
-<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a project" placeholder="Find a project"><kbd class="pw-kbd">⌘K</kbd></label></div>
+<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a project" placeholder="Find a project" value="{{query}}"><kbd class="pw-kbd">⌘K</kbd></label></div>
 <nav class="pw-window__body" aria-label="Projects and agent">
 <section class="pw-group" aria-labelledby="pg-projects"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-projects"><button class="pw-group__toggle" aria-expanded="true" aria-controls="pg-projects-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Projects<span class="pw-group__count">{{projectN}}</span></button></h3></div>
 <div class="pw-group__body" id="pg-projects-body" role="list">
@@ -37,23 +37,26 @@
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
+<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "query": {"editor": "text", "default": ""}, "$preview": {"width": 290, "height": 824}}'>
 class Component extends DCLogic {
 renderVals() {
-const a = this.props.agent ?? 'working', c = this.props.current ?? 'none', empty = !!this.props.empty;
+const a = this.props.agent ?? 'working', c = this.props.current ?? 'none', empty = (this.props.empty === true || this.props.empty === 'true');
 const P = (name, o) => Object.assign({ name: name, href: 'Main.dc.html', current: 'false', run: false, warn: false, meta: '' }, o || {});
-const projects = empty ? [] : [
- P('pi-local-harness', { current: c === 'project' ? 'page' : 'false', run: a === 'working', meta: a === 'working' ? 'running' : '' }),
+const q = (this.props.query ?? '').toLowerCase();
+const all = empty ? [] : [
+ P('pi-local-harness', { current: (c === 'project' && !(this.props.query)) ? 'page' : 'false', run: a === 'working', meta: a === 'working' ? 'running' : '' }),
  P('Japanese study app', { meta: a === 'working' ? 'waiting' : '' }),
  P('home-server', { warn: a === 'attention', meta: a === 'attention' ? 'failed' : '' })
 ];
+const projects = q ? all.filter((p) => p.name.toLowerCase().includes(q)).map((p, i) => Object.assign({}, p, { current: i === 0 ? 'page' : 'false' })) : all;
 const act = { working: '1 running · 1 waiting', idle: 'Nothing running', attention: '1 needs attention' }[a];
 const gate = { working: '12 checks · 1 blocked', idle: '12 checks today', attention: '14 checks · 1 blocked' }[a];
 return {
+query: this.props.query ?? '',
 h: this.props.h ?? '824px',
-winClass: 'pw-window' + (this.props.active ? '' : ' pw-window--inactive'),
+winClass: 'pw-window' + ((this.props.active === true || this.props.active === 'true') ? '' : ' pw-window--inactive'),
 projects: projects, empty: empty,
-projectCount: empty ? 'No projects' : '3 projects', projectN: empty ? '0' : '3',
+projectCount: empty ? 'No projects' : q ? projects.length + ' of 3 projects' : '3 projects', projectN: empty ? '0' : String(projects.length),
 actCurrent: c === 'activity' ? 'page' : 'false', gateCurrent: c === 'gate' ? 'page' : 'false',
 actRun: !empty && a === 'working', actWarn: !empty && a === 'attention',
 actMeta: empty ? 'Nothing yet' : act,

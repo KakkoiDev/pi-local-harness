@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Status button and Agent section states</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -12,38 +12,56 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 1180px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 32px; color: #000">
-<section class="pw-window" aria-label="Menu bar status" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 2px 2px 0 #000">
+<div class="pw-root pw-desk" style="width: 1440px; height: 1260px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 32px; color: #000">
+<section class="pw-window" aria-label="Menu bar status" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
 <h2 class="pw-dialog__title" style="margin: 0">Menu bar status — a button that still reads as status</h2>
-<div style="display: grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: start">
-<div style="padding-top: 4px"><p class="pw-label" style="margin: 0">Resting</p><p class="pw-help" style="margin: 4px 0 0">Reads as status: no frame. The hourglass and words update live; the › appears on hover.</p></div>
-<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="rest" hint-size="1100px,28px"></dc-import></div>
-</div><div style="display: grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: start">
-<div style="padding-top: 4px"><p class="pw-label" style="margin: 0">Hover</p><p class="pw-help" style="margin: 4px 0 0">A 1px ink frame and the › say it opens something.</p></div>
-<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="hover" hint-size="1100px,28px"></dc-import></div>
-</div><div style="display: grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: start">
-<div style="padding-top: 4px"><p class="pw-label" style="margin: 0">Pressed</p><p class="pw-help" style="margin: 4px 0 0">Inverted while the mouse is down, like a menu title. Release opens Activity · All Projects (⌘3).</p></div>
-<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="pressed" hint-size="1100px,28px"></dc-import></div>
-</div><div style="display: grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: start">
-<div style="padding-top: 4px"><p class="pw-label" style="margin: 0">Attention</p><p class="pw-help" style="margin: 4px 0 0">A failed, stopped or interrupted request. Caution glyph, framed with a 1px shadow, › always shown; it stays until the person opens Activity.</p></div>
-<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="attention" hint-size="1100px,28px"></dc-import></div>
-</div><div style="display: grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: start">
-<div style="padding-top: 4px"><p class="pw-label" style="margin: 0">Idle</p><p class="pw-help" style="margin: 4px 0 0">Nothing running or waiting. Still a button.</p></div>
-<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Ready" statusState="rest" hint-size="1100px,28px"></dc-import></div>
+<div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Working</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="rest" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">Reads as status: no frame. Hourglass while something runs; the › shows on hover.</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Waiting only</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="1 waiting" statusState="rest" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">Queued, nothing running yet (the model is loading or the previous request is finishing). Clock glyph.</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Idle</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Ready" statusState="rest" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">Nothing running or waiting. Still a button.</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Hover</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="hover" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">1px ink frame and › say it opens Activity.</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Pressed</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="pressed" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">Inverted while the pointer is down, like a menu title. Release opens Activity · All Projects (⌘3).</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Attention · Failed</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="attention" attn="failed" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0">A request failed, stopped or was interrupted. The real word leads; with two or more: “2 need attention”. Attention wins over Working until Activity is opened, then the button shows Working again.</p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Attention · Stopped</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="attention" attn="stopped" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0"></p>
+</div><div style="display: grid; grid-template-columns: 170px 1fr 380px; gap: 20px; align-items: center">
+<p class="pw-label" style="margin: 0">Attention · Interrupted</p>
+<div style="position: relative; height: 28px; border: 1px solid #000; overflow: hidden"><dc-import name="C_MenuBar" open="none" view="chat" status="Working · 1 waiting" statusState="attention" attn="interrupted" hint-size="760px,28px"></dc-import></div>
+<p class="pw-help" style="margin: 0"></p>
 </div>
+<p class="pw-help" style="margin: 0">Opening Activity (any way: this button, ⌘3, the Agent row, the Window menu) clears attention. Connection interrupted: the button opens nothing and Reconnect follows it.</p>
 </section>
 <div style="display: flex; gap: 40px; align-items: flex-start">
 <div style="display: flex; flex-direction: column; gap: 8px"><span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Idle · Nothing running</span><div style="width: 290px; height: 560px; display: flex"><dc-import name="C_ProjectsWin" agent="idle" current="none" active="true" h="560px" hint-size="290px,560px"></dc-import></div></div><div style="display: flex; flex-direction: column; gap: 8px"><span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Working · live counts</span><div style="width: 290px; height: 560px; display: flex"><dc-import name="C_ProjectsWin" agent="working" current="none" active="true" h="560px" hint-size="290px,560px"></dc-import></div></div><div style="display: flex; flex-direction: column; gap: 8px"><span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Attention · 1 needs attention</span><div style="width: 290px; height: 560px; display: flex"><dc-import name="C_ProjectsWin" agent="attention" current="none" active="true" h="560px" hint-size="290px,560px"></dc-import></div></div>
 <section class="pw-window" style="flex: 1; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px">
 <h2 class="pw-dialog__title" style="margin: 0">Agent section</h2>
 <p style="margin: 0">A ListGroup under Projects, titled <b>Agent</b>, count “All projects”. Two rows, both app-level windows: <b>Activity</b> (⌘3) and <b>Gate</b> (⌘4). The meta is the live count, updated with the menu bar status.</p>
-<p style="margin: 0">Activity: “1 running · 1 waiting” with the hourglass; “Nothing running” when idle; “1 needs attention” with the caution glyph when a request failed, stopped or was interrupted. Gate: “12 checks · 1 blocked” with the stop glyph; “12 checks today” when nothing is blocked. Counts are today’s.</p>
-<p style="margin: 0">The open window’s row is selected (aria-current="page"), so the Projects window says where you are. No + action: nothing is created here.</p>
+<p style="margin: 0">Activity: “1 running · 1 waiting” with the hourglass; “1 waiting” with the clock; “Nothing running” when idle; “1 needs attention” with the caution glyph. Gate: “12 checks · 1 blocked” with the stop glyph; “12 checks today”.</p>
+<p style="margin: 0">The open window’s row is selected (aria-current="page"). A project row opens that project’s Chat.</p>
 </section>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1180}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1260}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

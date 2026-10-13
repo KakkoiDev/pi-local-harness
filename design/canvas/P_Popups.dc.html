@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Every popup open</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -20,12 +20,15 @@
 <div class="pw-menu" role="listbox" aria-label="Block style" style="position: static; width: 220px">
 <span class="pw-menu__item" role="option" aria-checked="true">Paragraph</span>
 <span class="pw-menu__item" role="option">Heading</span>
-<span class="pw-menu__item" role="option" data-active="true">Task Checkbox</span>
+<span class="pw-menu__item" role="option">Task</span>
 <span class="pw-menu__item" role="option">Bullet</span>
 <span class="pw-menu__item" role="option">Number</span>
 <span class="pw-menu__item" role="option">Quote</span>
+<span class="pw-menu__item" role="option" data-active="true">Table</span>
 <span class="pw-menu__item" role="option">Code</span>
 <div class="pw-menu__sep"></div>
+<span class="pw-menu__item" role="option">Raw Markdown</span>
+</div>
 <span class="pw-menu__item" role="option">Raw Markdown</span>
 </div>
 </div>
@@ -40,7 +43,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity · All Projects › Show</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity › Show</span>
 <button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Work</button>
 <div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 240px">
 <span class="pw-menu__item" role="option" aria-checked="true">All Work</span>
@@ -63,7 +66,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Gate · All Projects › Show</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Gate › Show</span>
 <button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Checks</button>
 <div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 260px">
 <span class="pw-menu__item" role="option" aria-checked="true">All Checks</span>
@@ -79,7 +82,7 @@
 <button class="pw-btn pw-btn--icon" aria-pressed="true" aria-label="Task options" style="width: 28px; min-height: 28px; border-radius: 0"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"></path></svg></button>
 <div class="pw-menu" role="menu" aria-label="Task" style="position: static; width: 250px">
 <span class="pw-menu__item" role="menuitem">Turn Into<span class="pw-menu__key">▸</span></span>
-<span class="pw-menu__item" role="menuitem" data-active="true">Add Block Below</span>
+<span class="pw-menu__item" role="menuitem" data-active="true" aria-haspopup="menu">Add Block Below<span class="pw-menu__key">▸</span></span>
 <div class="pw-menu__sep"></div>
 <span class="pw-menu__item" role="menuitem">Move Up<span class="pw-menu__key">⌥⌘↑</span></span>
 <span class="pw-menu__item" role="menuitem">Move Down<span class="pw-menu__key">⌥⌘↓</span></span>

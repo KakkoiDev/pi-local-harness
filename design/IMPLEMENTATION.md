@@ -301,3 +301,116 @@ Each step is one task file and one commit; run the repo gate after each: `PATH=$
 - **Projects home, then inside a project** (task 107, user decision). The left window follows `body[data-level]`, in every view: `projects` shows the Projects window (rows carry the running glyph or "waiting"), `project` shows the project window (title = project name, close box and "‹ Projects" go back, info bar "N open tasks · N folders · N files", Find a file, Plan above Files). Choosing a project keeps the current view. File › New Project… and ⌘K (Find Project) work from inside a project; ⌘K returns to the Projects home. Phone keeps the π sheet and the Work › Files screen.
 - **Plan above Files** (task 97): `js/files-window.mjs`, per ListGroup and ListRow. `/api/project-files` adds `done`, `total`, `blocked` to ROADMAP.md and `tasks/*.md`; `/api/documents/create-roadmap` backs Create Roadmap. Opening or creating a file from the project window switches to Work.
 - **Where you are is in the path** (task 106): `js/router.mjs`. `/projects`; `/p/<project>/chat|work|activity|gate`; `/p/<project>/work/<file in the project>`. `history.pushState` on every view, project, level or file change; Back/Forward replay it; `/` and the old `/?chat=` / `/?document=` links redirect. The server answers these paths with `index.html` (`harness/web_chat.py`). htmx stays out (§ no framework).
+
+
+## 2026-10-13 · Task 119: agent scope, what Pi sees, catching the canvas up
+
+Boards are on the canvas; the new CSS is at the end of `components.css` (also in `system/components/bundle.css`), token names only. Classes that moved from `chat.css` into `components.css`: `.pw-infobar__back`, the block types (renamed `.pw-block.quote` → `.pw-block--quote`, `.block-content` → `.pw-block__content`), the Markdown message body (`.pw-msg__body--md`, `.pw-msg__task`), and `.pw-thread__line` → `.pw-thread__state`. Delete them from `chat.css` when you take this file.
+
+### A. Activity and Gate are app-level windows — [Projects], [Activity], [A_Attention], [A_Empty], [Gate], [G_All], [G_Empty], [G_Tablet], [MB_Status], [Ph_Views], [Ph_Pi], [Ph_Activity], [Ph_ActivityDetail], [Ph_Gate], [Ph_GateDetail]
+
+- **Levels.** `body[data-level]` gains two values: `activity` and `gate` (routes `/activity`, `/gate`). Both show the **Projects window** on the left (as `projects`) and replace the main window's content with the Activity or Gate panel. `data-view` keeps `chat|work` for the project window; it is not changed by opening Activity or Gate, so Back and ⌘1/⌘2 return to the same project and view.
+- **Project window tabs.** `#workspace-bar .view-tabs` keeps only `#chat-tab` and `#work-tab`. Remove `#activity-tab`, `#gate-tab` and `#activity-count` (the count moves to the status button and the Agent section). `tests/browser/chat.cjs` that click `#activity-tab`/`#gate-tab` switch to `#agent-activity`/`#agent-gate` or ⌘3/⌘4.
+- **Main window title.** `#window-title` reads “Activity · All Projects” / “Gate · All Projects”. The title-bar close box (`data-command="close-window"`, ⌘W) and Back both return to the previous location (`history.back()`; if there is none, `/projects`). No extra “‹ Projects” link: the Projects window is already on the left with the Agent row selected.
+- **Toolbar.** Activity: Show + Project popups, summary on the right. Gate: Show + Project popups (add `#gate-project`, same options as `#activity-project`), Refresh ⌘R, live status. The infobar copy stays.
+- **Project column.** Rows stop being links themselves: `<div class="pw-table__row" role="row" tabindex="0" aria-current>`; the Project cell is `<a class="pw-link" href="/p/<project>/chat">`. Return on a row opens its detail; the link takes Tab. Gate merges Tool + Arguments into one **Command** cell (mono, ellipsis); the tool name moves to Event Info. Columns: Activity `130px 1fr 170px 130px 90px 56px`; Gate `70px 58px 104px 1fr 150px 70px`.
+- **Agent section** (Projects window, under the project list). Markup:
+  ```html
+  <section class="pw-group" aria-labelledby="agent-title">
+    <div class="pw-group__head"><h3 class="pw-group__title" id="agent-title"><button class="pw-group__toggle" aria-expanded="true" aria-controls="agent-rows"><span data-icon="disclosure-open"></span>Agent<span class="pw-group__count">All projects</span></button></h3></div>
+    <div class="pw-group__body" id="agent-rows" role="list">
+      <a id="agent-activity" class="pw-row" role="listitem" href="/activity" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
+      <a id="agent-gate" class="pw-row" role="listitem" href="/gate" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
+    </div>
+  </section>
+  ```
+  The project list becomes the first ListGroup (“Projects”, count = number of projects). Meta strings: Activity `N running · N waiting` (running glyph) | `Nothing running` | `N needs attention` (caution glyph; failed, stopped or interrupted since the person last opened Activity); Gate `N checks · N blocked` (stop glyph) | `N checks today`. `aria-current="page"` on the open one. Add a `gate` icon to `icons.mjs` (two posts, two rails: `M2.5 1v14M13.5 1v14M2.5 4.5h11M2.5 9.5h11M5 4.5v5M8 4.5v5M11 4.5v5`).
+- **Status button** — StatusButton card. Replace `#agent-state`'s parent: `<button id="agent-status" class="pw-statusbtn" aria-keyshortcuts="Meta+3"><span data-icon="running"></span><span id="agent-state" role="status">Working · 1 waiting</span><span class="pw-statusbtn__more"><span data-icon="disclosure-closed"></span></span></button>`. Click opens `/activity`. `aria-label` is set with the state (“Agent status: Working, 1 waiting. Open Activity”). Add `.pw-statusbtn--attention` and the caution glyph while the attention count is > 0 (round 3: words and priority below). `#connection-retry` stays after it.
+- **Menus.** View: remove Activity ⌘3 and Gate ⌘4; Chat/Work stay enabled while Activity or Gate is open and return to the last project in that view (changed in round 3). Window: after Event Info, a separator, then `data-command="view-activity"` “Activity · All Projects ⌘3” and `view-gate` “Gate · All Projects ⌘4” (`menuitemradio`, checked when open). ⌘3/⌘4 keep working.
+- **Context links.** “Show in Gate” on a ToolCall → `/gate?event=<id>` (selects the row, opens Event Info). Event Info's “Open Request” becomes “Show in Activity” → `/activity?job=<id>`.
+- **Tablet (761–1100px).** Confirmed: Event Info floats over the main window, right-aligned, `position:absolute; top:45%` as built, with its close box. The Projects window narrows to 220px; Gate hides the Check and From columns there (both are in Event Info).
+- **Phone.** `#phone-view-menu`: Chat, Work, `<div class="pw-menu__sep" role="separator">`, “Activity · all” (key = live count), “Gate · all” (key = blocked count). `#phone-view-label` shows “Activity · all” / “Gate · all”. The π sheet gets the same Agent ListGroup under the project list (44px rows) and loses the separate Working/Stop strip (Stop is in the Activity detail). `#phone-status` becomes a `.pw-statusbtn` that opens Activity. Detail screens' back buttons read “‹ Activity · all”, “‹ Gate · all”; Activity detail “Open Chat” becomes “Open in Project”.
+
+### B. What Pi sees, and how full the chat is — [C_ChatDesk], [Main], [S_Near], [S_Compacted], [S_Summary], [S_NewConversation], [S_Fresh], [Final], [W_Comment], [PhoneEdit3]
+
+- **API.** `GET /api/context-preview?project=&document=&text=` returns `{items:[{label, path?, kind:'plan'|'this file'|'tasks'|'mentioned'|'related'}], tokens}` from the same selector the harness uses for the turn. Job records add `also_read: [path]` (files Pi opened with its tools that were not in the context) and `context: {used, limit, compacted_at?, summary_id?}` on chat jobs.
+- **ContextLine** (`.pw-context`). Ids: `#chat-context` under `.pw-composer__row`; `#comment-context` under `#comment-form`; `#document-context` in `#document-discussion`; inside an unsent thread `.pw-thread__actions > .pw-context`. Update on input (debounce 300 ms) and on document change. Items: file names are `<a href="/p/<project>/work/<path>" title="<path>">`; “N open tasks” is text. Overflow: render all items, then hide from the end while `list.scrollWidth > list.clientWidth`; the hidden count goes in `.pw-context__more` (`aria-expanded=false`, `aria-label="Show N more"`). Click toggles `data-expanded` on the line (wraps, shows all, button reads “Less”). Empty: “Pi sees: nothing from this project”.
+- **Also read** (`.pw-context.pw-context--after`, label “Also read:”) is appended to a Pi message, a Pi thread answer and a whole-file answer when `also_read` is non-empty. Same links, no overflow counter (wraps).
+- **ContextMeter** (`#context-meter.pw-meter`, `role="meter"`) replaces “Session: … only” at the right of the Chat footer status bar. `aria-valuenow` = used in k, `aria-valuemax` = limit in k, `--pw-meter` = percent. States: `< 50%` plain; `≥ 50%` `.pw-meter--near` + “· earlier turns are summarised after this answer”; after compaction “· summarised HH:MM” until the next send. Phone: text only in the footer line.
+- **CompactionMarker.** When a chat job reports `compacted_at`, insert `<details class="pw-compacted">` after the last summarised message (summary text from `/api/chat/summary?id=`, rendered with `message-markdown.mjs`). The earlier messages stay visible. Toggle label Show Summary / Hide Summary.
+- **Agent menu.** After Show Task Record: separator, `data-command="compact-now"` “Compact Now” (no alert; adds the marker; toast “Conversation summarised.” without Undo), `new-conversation` “New Conversation…”, `earlier-conversations` “Earlier Conversations ▸” (submenu, newest first, “13 Oct · 84 messages”). All three only in Chat.
+- **New Conversation alert** (`#alert-dialog`, note icon): message “Start a new conversation in <project>?”, detail “Pi starts fresh with only the project context. This conversation is kept, read only: open it from the top of the new one or from Agent › Earlier Conversations.”, buttons Cancel / **New Conversation** (default). The new transcript starts with `.pw-convline` “‹ Earlier conversation · 13 Oct · 84 messages · kept, read only”; opening it shows the old transcript with the composer hidden and an info bar “Earlier conversation · read only” + Back to Current. Routes: `/p/<project>/chat` (current), `/p/<project>/chat/<conversation id>` (earlier).
+- **Sent comments.** Thread `.pw-thread__state` lines: “Saved with the file · not sent to Pi” → “Sent to Pi · waiting in queue · can no longer be deleted” (waiting glyph) → “Pi is working on it” (running) → “Pi answered · HH:MM · can no longer be deleted” (done). Sent and unanswered: a `.pw-link` “Show in Activity” at the end of the actions, also on the Review item (replaces the removed Open Chat). Answers stay in the thread; nothing is posted to Chat.
+
+### C. What shipped, now drawn
+
+1. **Projects home / project window** — [Projects], [Main], [C_ChatDesk], [C_WorkDesk], [Work], [W_NoPlan], [C_ProjectsWin], [C_ProjectWin]. As built (task 107). The canvas now shares one ProjectWin component across Chat and Work.
+2. **Work toolbar and ruler** — [Final], [C_WorkDesk], [Work], [W_Blocks]. As built. The status bar left shows the focused block's type (or Not saved / No document open), the right the full path.
+3. **Adding blocks** — [W_Blocks], [P_Popups], [PhoneEdit5]. As built. Additions: the empty-block placeholder “Write, or choose a style in the ruler” (“List item” in lists) via `data-placeholder` + `.pw-block--empty`; the delete toast reads “<Type> deleted.” with Undo ⌘Z; the Turn Into submenu labels the plain type **Paragraph** (the repo still says Text in `#turn-into-menu`).
+4. **Block types** — DocumentBlock card. As built, with the class rename above.
+5. **Inline thread** — [Final], [C_WorkDesk]. Full column width; order: state line, Reply field + Reply, Ask Pi (unsent), Resolve, gap, Delete (unsent, yours).
+6. **Review window** — [Final], [W_Comment], [W_Requests]. As built, plus: unsent items get Ask Pi; sent items get Show in Activity; ContextLine in the comment composer and in the whole-file box; the whole-file help reads “The answer appears here, not in Chat.”
+7. **New File / New Task** — [Dialogs2]. As built; help for New File adds “Any name works; .md is added when there is no extension, and “specs/phone.md” creates the folder too.” The empty Work state says “Or start one: New File… ⇧⌘N, New Task… ⌘T.”
+8. **Chat Markdown** — [C_ChatDesk] (idle and summary states). As built.
+9. **Phone access off** — [Dialogs2]. `#phone-dialog` gets an off state when `/api/phone` reports `serve: false`: Caution alert “Phone access is off.” / “Serve is not enabled on your tailnet. Enable it once at <link>, then quit plh and start it again.”, buttons Copy Link / **Done**; the address field and Copy are hidden.
+10. **Gate naming** — every board, menu, tab and copy now says Gate; the old checker boards are removed from the canvas.
+
+## 2026-10-13 · Round 3: tables, open questions, workflows
+
+Boards: [W_Table], [Ph_Table], [Ph_TableEdit], [P_Popups], [PhoneEdit1], [PhoneEdit5], [S_Earlier], [M_AgentEarlier], [A_Retry], [S_FirstChat], [MB_Status], the **Workflows** page (F1–F10). New CSS at the end of `components.css` (also in `system/components/bundle.css`): MarkdownTable, Table block, `.pw-readonly`, `.pw-qr`; `.pw-step` is canvas-only. Move `.pw-msg__table` rules out of `chat.css` (the shared rule set now covers it).
+
+### A. Table block — DocumentBlock card § Table, MarkdownTable card
+
+- **Type id** `table`, label **Table**, between Quote and Code everywhere: `#block-style`, `#turn-into-menu`, the new `#add-below-menu`, the phone block sheet (3×3: Paragraph, Heading, Task / Bullet, Number, Quote / Table, Code, Raw Markdown). Parse: a block of lines where line 2 matches `^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$`; anything else stays Raw Markdown.
+- **Rest**: `<div class="pw-block pw-block--table" data-type="table"><div class="pw-block__content"><div class="pw-mdtable" tabindex="0" role="region" aria-label="Table: Control, Height, Where"><table>…</table></div></div></div>`, built as DOM nodes with `message-markdown.mjs`'s inline tokens; `data-align` from the rule row.
+- **Editing**: click inside, Return on the focused block, or the menu's Edit as Markdown → add `.pw-block--editing`; content becomes `<pre class="pw-block__source" contenteditable="plaintext-only" spellcheck="false">` + `<p class="pw-block__hint">Table as Markdown · Esc or click outside shows the table</p>`. Blur or Esc re-renders. If it no longer parses: keep editing state, hint `.pw-block__hint` with the caution icon and “Not a table yet: add a rule row like | --- | --- | under the header. Saved as written.” Save always writes the text as typed.
+- **Create**: Turn Into › Table / Add Block Below › Table insert `| Column | Column |\n| ------ | ------ |\n|  |  |` in editing state, selecting the first “Column”.
+- **Menu** for a table block: after Add Block Below ▸, a separator, `data-action="add-row"` Add Row, `add-column` Add Column, `edit-markdown` Edit as Markdown (key ↩). Row/column edits rewrite the Markdown (pad cells to the widest, keep alignment colons) and go through the same Undo stack as typing.
+- **Add Block Below ▸** becomes a submenu (`#add-below-menu.pw-menu--sub`) with the nine types, Paragraph first; Return on the parent item still adds a Paragraph.
+- **Comments in cells**: anchors are text offsets inside the rendered cell text, mapped to the source like any other block; while editing, marks are hidden.
+- **Phone**: the table reads in place and scrolls inside its frame. Tap → editing in place; the bottom bar swaps to Block style · Add Row · Add Column · Done (default). PhoneEdit1's bar drops B and I (no inline marks yet) and gets the bullet tool.
+- **Not now**: cell-by-cell editing (Tab between cells, inline row/column handles). Revisit when inline marks land.
+
+### B. Answers to the open questions
+
+1. IMPLEMENTATION.md: this file now carries the task 119 section above and this one. It is published in the design-system artifact as `IMPLEMENTATION.md`; copy it to `design/IMPLEMENTATION.md` when re-syncing.
+2. SegmentedControl: two view tabs. Popup: Paragraph … Table, Code, Raw Markdown. Cards fixed.
+3. StatusButton: a `<button>` (boards fixed). Waiting only: clock glyph + “1 waiting”. Attention: the real word — “Failed · 1 needs attention”, “Stopped · …”, “Interrupted · …”; mixed: “2 need attention”. Opening Activity by any route clears it (A_Attention now shows the cleared button). Attention wins over Working until then. [MB_Status]
+4. InlineThread: keep Ask Pi on answered threads. **Change**: a follow-up answer is appended, not a replacement; earlier answers stay so the thread reads as a conversation. State line during it: “Sent to Pi · waiting in queue · follow-up”. [F3·6]
+5. ContextLine: file first for comments and whole-file requests, plan first in Chat. Card fixed.
+6. ContextMeter: show Pi's reported usage (history + that turn's context). Label built as one string, no space before k.
+7. New Conversation alert: confirmed as drawn. It is not destructive (the old conversation is kept), so the expected action is the default.
+8. Earlier conversations: address `/p/<project>/chat/earlier/<id>`. Read-only view: `.pw-readonly` bar under the toolbar (“Earlier conversation · 13 Oct, 09:12 – 14:30 · 84 messages · read only” + Back to Current, default), composer and meter hidden. Agent › Earlier Conversations ▸ lists them newest first with the message count as the key text. [S_Earlier], [M_AgentEarlier]
+9. Gate icon: added to the Icons group as `gate.svg`.
+10. Returning: the close box (⌘W) goes back to the last page (fallback `/projects`). **Change**: View ⌘1/⌘2 stay enabled in Activity and Gate and open the last project in that view. A project row or Project-column link opens that project's Chat.
+11. Activity empty copy reworded: “Requests from every project, its comments and whole-file questions wait here in one queue. Terminal Pi runs directly and shows in Gate.”
+12. G_Tablet: confirmed.
+
+### C. Workflows (page “Workflows”, boards `F<n>_<Name>_<step>`, phone `…_P<step>`)
+
+Each step board is the real screen plus a caption: the person's action → what they see, and, where a step could lose them, what fixed it.
+
+| Flow | Where people could get lost | Fixed in |
+| --- | --- | --- |
+| F1 First run | After Create, an empty Chat gave no hint that a plan exists; after Create Roadmap, nothing said what was created | firstchat copy points at Plan (desktop) and an **Open the Plan** button (phone); status bar names the new files |
+| F2 Chat and Activity | Returning from Activity; ⌘1 disabled there | close box goes back; ⌘1/⌘2 enabled |
+| F3 Comment and ask | Desktop had no Add & Ask Pi (only phone); after an answer, whether to ask again | Add & Ask Pi in the Review composer; Ask Pi stays on answered threads; follow-ups append |
+| F4 Whole file | Where the answer goes | “The answer appears here, not in Chat.” and a waiting card with Show in Activity |
+| F5 Plan | A finished task vanishing under the pointer | it stays at 3/3 with a done mark until the next refresh; the status bar says it moves to Done |
+| F6 Edit | Tables only as pipe text | Table type; Add Block Below ▸ |
+| F7 Long chat | Finding an earlier conversation; knowing it is read only | link at the top, Agent › Earlier Conversations ▸, the read-only bar with Back to Current |
+| F8 Something wrong | Retry without context | Ask Pi to Retry… dialog with an optional note; failed record kept |
+| F9 Phone access | Address shown when Serve is off | off state replaces the address; QR (same as the terminal's) when on |
+| F10 Switch projects | Losing the view when switching | choosing a project keeps the view; ⌘K filters in place |
+
+New states used by the flows (all on the shared components): ChatDesk `typing`, `newproject`, `firstchat`, `blocked`, `phoneon`, `phoneoff`, `earlier`; WorkDesk `newplan`, `jsa`, `sent`, `piworking`, `answered`, `followup`, `resolved`, `applied`, `askfile`, `sentfile`, `newtask`, `task0`, `task2`, `task3`, `taskdone`, `projects`, `findproject`; ActivityDesk `retry`; ProjectWin `new`, `jsa`, `newplan`, `task*`; ProjectsWin `query`.
+
+- **Open on Phone**: `#phone-dialog` shows `<div class="pw-qr">` with the same QR the terminal prints (render the SVG server-side from the phone address, `/api/phone` → `{url, serve, qr_svg}`), then the address and Copy. Off: the caution alert from round 2; Copy Link copies the enable link.
+- **Ask Pi to Retry…**: `#alert-dialog` is not enough (it has a field): a `<dialog id="retry-dialog">` with the quoted request, “Add a note for Pi (optional)”, help “Queues the request again in <project>. The failed run stays in its record.”, Cancel / **Queue Again**. POST `/api/jobs/<id>/retry {note}`.
+- **New Project** dialog help: “Creates the folder “~/code/<name>” with ROADMAP.md and tasks/001-first-task.md, then opens its Chat.”
+- **First Chat** empty state copy: “Your project is ready: a roadmap and a first task are in Plan on the left. Ask Pi to fill them in, or open them in Work.”
+
+### D. Corrections
+
+- The Chat composer no longer binds a draft object (boards showed “[object Object]”); the meter label is one string (“Context 20k of 32k”).
+- Phone: Ph_Pi has the Agent section instead of the status card; Ph_Views reads Chat, Work, separator, “Activity · all”, “Gate · all”; Phone (chat) has the status button, Pi sees, and the meter as text.

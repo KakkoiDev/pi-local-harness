@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Chat desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+<link rel="stylesheet" href="/_blob/ccf0bf8ae1858e4ffc7f6a20d13d0d3b">
 </head>
 <body>
 <x-dc>
@@ -16,7 +16,7 @@
 
 <!-- Left window: Projects home or the project window (body[data-level]) -->
 <sc-if value="{{levelProjects}}" hint-placeholder-val="{{false}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="{{pcurrent}}" empty="{{noProjects}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
-<sc-if value="{{levelProject}}" hint-placeholder-val="{{true}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectWin" state="chat" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
+<sc-if value="{{levelProject}}" hint-placeholder-val="{{true}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectWin" state="{{pwState}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
 
 <!-- Chat window (active) -->
 <section class="pw-window" aria-label="Chat" style="flex: 1">
@@ -35,8 +35,9 @@
 </div>
 </sc-if>
 
+<sc-if value="{{earlier}}" hint-placeholder-val="{{false}}"><div class="pw-readonly" role="status"><span>Earlier conversation · 13 Oct, 09:12 – 14:30 · 84 messages · read only</span><span style="flex: 1"></span><a href="S_Fresh.dc.html" class="pw-btn pw-btn--default">Back to Current</a></div></sc-if>
 <div class="pw-window__body" tabindex="0" aria-label="Messages">
-<sc-if value="{{fresh}}" hint-placeholder-val="{{false}}"><div style="display: flex; justify-content: center; padding-top: 24px"><p class="pw-convline" style="margin: 0"><a href="#" class="pw-link">‹ Earlier conversation</a><span>13 Oct · 84 messages · kept, read only</span></p></div></sc-if>
+<sc-if value="{{fresh}}" hint-placeholder-val="{{false}}"><div style="display: flex; justify-content: center; padding-top: 24px"><p class="pw-convline" style="margin: 0"><a href="S_Earlier.dc.html" class="pw-link">‹ Earlier conversation</a><span>13 Oct · 84 messages · kept, read only</span></p></div></sc-if>
 <sc-if value="{{showWelcome}}" hint-placeholder-val="{{false}}">
 <div style="max-width: 520px; margin: 120px auto 0; padding: 0 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
 <div aria-hidden="true" style="width: 72px; height: 72px; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 44px">π</div>
@@ -65,12 +66,16 @@
 <p class="pw-msg__body">Interrupted work is kept on purpose — it is never repeated automatically — but the badge should only count running and waiting requests. Checking the queue first.</p>
 <div class="pw-tool"><div class="pw-tool__cmd">$ grep -n "interrupted" harness/work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span><a href="Gate.dc.html" class="pw-link">Show in Gate</a></div></div>
 <p class="pw-msg__body">The counter includes every unfinished state. I’ve narrowed it to running and waiting, and added a regression test. Running the queue tests now.</p>
+<sc-if value="{{blocked}}" hint-placeholder-val="{{false}}">
+<div class="pw-tool"><div class="pw-tool__cmd">$ rm -rf ~/.local/share/pi-local-harness/work</div><p class="pw-tool__reason" style="margin: 0; padding: 6px 12px; border-bottom: 1px solid #000; font-family: var(--font-chrome); font-size: 13px">Blocked before it ran: recursive delete outside the project folder.</p><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg>Gate blocked</span><a href="Gate.dc.html" class="pw-link">Show in Gate</a></div></div>
+<p class="pw-msg__body">Gate stopped that command, so nothing was deleted. Should I clear only the interrupted job’s record instead?</p>
+</sc-if>
 <sc-if value="{{working}}" hint-placeholder-val="{{true}}">
 <div class="pw-tool pw-tool--live"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks" role="status"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Running · 0:12</span></div></div>
 </sc-if>
 <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
 <div class="pw-tool"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span></div></div>
-<div class="pw-msg__body pw-msg__body--md"><h3>Fixed</h3><p>All 14 queue tests pass. The badge now counts <strong>only running and waiting</strong> requests.</p><ul><li>Counts <code>running</code> and <code>queued</code></li><li>Regression test in <code>tests/test_work_queue.py</code></li></ul><ul class="pw-msg__tasks"><li class="pw-msg__task"><input type="checkbox" class="pw-check" checked disabled aria-label="Done">Badge ignores interrupted jobs</li><li class="pw-msg__task"><input type="checkbox" class="pw-check" disabled aria-label="Not done">Decide on stuck-task notifications (task 59)</li></ul></div>
+<div class="pw-msg__body pw-msg__body--md"><h3>Fixed</h3><p>All 14 queue tests pass. The badge now counts <strong>only running and waiting</strong> requests.</p><ul><li>Counts <code>running</code> and <code>queued</code></li><li>Regression test in <code>tests/test_work_queue.py</code></li></ul><div class="pw-msg__table"><table><thead><tr><th scope="col">State</th><th scope="col">Counted</th></tr></thead><tbody><tr><td>running</td><td>yes</td></tr><tr><td>queued</td><td>yes</td></tr><tr><td>interrupted</td><td>no</td></tr></tbody></table></div><ul class="pw-msg__tasks"><li class="pw-msg__task"><input type="checkbox" class="pw-check" checked disabled aria-label="Done">Badge ignores interrupted jobs</li><li class="pw-msg__task"><input type="checkbox" class="pw-check" disabled aria-label="Not done">Decide on stuck-task notifications (task 59)</li></ul></div>
 <p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">harness/work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">tests/test_work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">harness/web_chat.py</a></span></span></p>
 </sc-if>
 </article>
@@ -79,6 +84,7 @@
 </sc-if>
 </div>
 
+<sc-if value="{{notEarlier}}" hint-placeholder-val="{{true}}">
 <!-- Composer -->
 <form class="{{composerClass}}" aria-label="Message composer">
 <sc-if value="{{error}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line" role="alert"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>“site-video.mov” is 48 MiB. Limit: 12 MiB per file and 20 MiB in total.</div></sc-if>
@@ -87,7 +93,10 @@
 </sc-if>
 <sc-if value="{{dragging}}" hint-placeholder-val="{{false}}"><p class="pw-help" style="text-align: center; font-size: 15px">Drop to attach 1 file</p></sc-if>
 <label class="pw-label" for="prompt">{{promptLabel}}</label>
-<textarea id="prompt" class="pw-field" rows="3" placeholder="{{placeholder}}" disabled="{{noProjects}}">{{draft}}</textarea>
+<sc-if value="{{draftNone}}" hint-placeholder-val="{{true}}"><textarea id="prompt" class="pw-field" rows="3" placeholder="Ask anything, or drop a file here" disabled="{{noProjects}}"></textarea></sc-if>
+<sc-if value="{{draftAttach}}" hint-placeholder-val="{{false}}"><textarea id="prompt" class="pw-field" rows="3">This is what the badge shows after a restart.</textarea></sc-if>
+<sc-if value="{{draftRec}}" hint-placeholder-val="{{false}}"><textarea id="prompt" class="pw-field" rows="3">Also check whether </textarea></sc-if>
+<sc-if value="{{draftTyping}}" hint-placeholder-val="{{false}}"><textarea id="prompt" class="pw-field" rows="3">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</textarea></sc-if>
 <div class="pw-composer__row">
 <button type="button" class="pw-btn" disabled="{{noProjects}}">Attach…</button>
 <sc-if value="{{notRecording}}" hint-placeholder-val="{{true}}"><button type="button" class="pw-btn" disabled="{{noProjects}}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.5" y=".5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor"/><path d="M2.5 7.5a5.5 5.5 0 0 0 11 0M8 13v2.5M5 15.5h6" fill="none" stroke="currentColor"/></svg>Record</button></sc-if>
@@ -99,8 +108,33 @@
 </div>
 <sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}"><p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem">11 open tasks</span><span class="pw-context__item" role="listitem"><a href="#">harness/work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">tests/test_work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">agent-lock.mjs</a><span class="pw-context__kind">(related)</span></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 3 more">+3</button></p></sc-if>
 </form>
-<div class="pw-statusbar" style="justify-content: space-between"><span>Local models can make mistakes. Review important answers.</span><sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}"><span class="{{meterClass}}" role="meter" aria-label="Conversation context" aria-valuemin="0" aria-valuemax="32" aria-valuenow="{{ctxK}}" aria-valuetext="{{meterText}}">Context {{ctxK}}k of 32k<span class="pw-meter__bar" aria-hidden="true" style="--pw-meter: {{ctxPct}}"><span class="pw-meter__fill"></span><span class="pw-meter__line"></span></span>{{meterNote}}</span></sc-if></div>
+</sc-if>
+<div class="pw-statusbar" style="justify-content: space-between"><span>Local models can make mistakes. Review important answers.</span><sc-if value="{{showMeter}}" hint-placeholder-val="{{true}}"><span class="{{meterClass}}" role="meter" aria-label="Conversation context" aria-valuemin="0" aria-valuemax="32" aria-valuenow="{{ctxK}}" aria-valuetext="{{meterText}}">{{meterLabel}}<span class="pw-meter__bar" aria-hidden="true" style="--pw-meter: {{ctxPct}}"><span class="pw-meter__fill"></span><span class="pw-meter__line"></span></span>{{meterNote}}</span></sc-if></div>
 </section>
+<sc-if value="{{overlay}}" hint-placeholder-val="{{false}}"><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div></sc-if>
+<sc-if value="{{newproject}}" hint-placeholder-val="{{false}}">
+<form role="dialog" aria-labelledby="np-t" class="pw-dialog" style="position: absolute; left: 50%; top: 140px; transform: translateX(-50%); width: 460px">
+<h2 id="np-t" class="pw-dialog__title">New Project</h2>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Name<input class="pw-field" value="Japanese study app"></label>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Create in<select class="pw-popup"><option>~/code</option></select></label>
+<p class="pw-help">Creates the folder “~/code/Japanese study app” with ROADMAP.md and tasks/001-first-task.md, then opens its Chat.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><a href="S_FirstChat.dc.html" class="pw-btn pw-btn--default">Create</a></div>
+</form></sc-if>
+<sc-if value="{{phoneon}}" hint-placeholder-val="{{false}}">
+<div role="dialog" aria-labelledby="ph-t" class="pw-dialog" style="position: absolute; left: 50%; top: 120px; transform: translateX(-50%); width: 540px">
+<h2 id="ph-t" class="pw-dialog__title">Open on Phone</h2>
+<div style="display: flex; gap: 18px; align-items: flex-start"><div class="pw-qr"><svg viewBox="0 0 29 29" role="img" aria-label="QR code of the phone address" shape-rendering="crispEdges"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM11 0h1v1h-1zM14 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM11 1h1v1h-1zM19 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM17 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM12 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM14 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM18 7h1v1h-1zM19 7h1v1h-1zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM17 8h1v1h-1zM19 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM28 8h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM25 9h1v1h-1zM26 9h1v1h-1zM27 9h1v1h-1zM28 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM20 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM28 10h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM11 11h1v1h-1zM13 11h1v1h-1zM17 11h1v1h-1zM18 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM25 11h1v1h-1zM27 11h1v1h-1zM28 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM27 12h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM1 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM20 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM14 15h1v1h-1zM17 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM0 17h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM18 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM27 17h1v1h-1zM28 17h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM28 18h1v1h-1zM7 19h1v1h-1zM8 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM27 19h1v1h-1zM28 19h1v1h-1zM0 20h1v1h-1zM1 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM28 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM11 22h1v1h-1zM12 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM12 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM9 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM27 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM9 25h1v1h-1zM13 25h1v1h-1zM15 25h1v1h-1zM16 25h1v1h-1zM19 25h1v1h-1zM21 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM12 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM17 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM12 27h1v1h-1zM17 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM9 28h1v1h-1zM12 28h1v1h-1zM15 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM22 28h1v1h-1zM27 28h1v1h-1z" fill="currentColor"/></svg></div>
+<div style="display: flex; flex-direction: column; gap: 10px; min-width: 0"><p class="pw-alert__detail" style="margin: 0">Scan with a phone signed in to the same Tailscale account, or open this address. The terminal printed the same code when plh started.</p>
+<div style="display: flex; gap: 8px"><input class="pw-field pw-mono" aria-label="Phone address" readonly value="https://your-mac.your-tailnet.ts.net" style="font-size: 13px"><button class="pw-btn">Copy</button></div></div></div>
+<p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
+<div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Done</button></div>
+</div></sc-if>
+<sc-if value="{{phoneoff}}" hint-placeholder-val="{{false}}">
+<div role="alertdialog" aria-labelledby="po-t" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 520px">
+<h2 class="pw-dialog__title">Open on Phone</h2>
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="po-t" class="pw-alert__message">Phone access is off.</p><p class="pw-alert__detail">Serve is not enabled on your tailnet. Enable it once at <a href="#" class="pw-link">login.tailscale.com/f/serve</a>, then quit plh and start it again.</p></div></div>
+<div class="pw-dialog__actions"><button class="pw-btn">Copy Link</button><button class="pw-btn pw-btn--default">Done</button></div>
+</div></sc-if>
 <sc-if value="{{newconv}}" hint-placeholder-val="{{false}}">
 <div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
 <div role="alertdialog" aria-labelledby="nc-msg" aria-describedby="nc-det" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 500px">
@@ -111,17 +145,18 @@
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh","earlier","typing","blocked","phoneon","phoneoff","newproject","firstchat"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'working';
-const welcome = s === 'welcome';
-const empty = s === 'empty';
+const welcome = s === 'welcome' || s === 'newproject';
+const first = s === 'firstchat';
+const empty = s === 'empty' || first;
 const working = s === 'working';
 const fresh = s === 'fresh';
 const hasMessages = !welcome && !empty && !fresh;
 const lvl = welcome ? 'projects' : (this.props.level ?? 'project');
-const K = { near: 20, compacted: 6, summary: 6, fresh: 0, empty: 0 }[s] ?? 14;
+const K = { near: 20, compacted: 6, summary: 6, fresh: 0, empty: 0, firstchat: 0 }[s] ?? 14;
 const hints = {
 working: 'Return queues · Shift-Return adds a line',
 recording: 'Recording · 0:07 — the text lands at the cursor for review',
@@ -130,24 +165,29 @@ dragging: 'Text, images, audio & files',
 attachments: '2 files · 1.4 MiB of 20 MiB'
 };
 return {
+pwState: first ? 'new' : 'chat',
 levelProjects: lvl === 'projects', levelProject: lvl === 'project',
 agent: working ? 'working' : 'idle', pcurrent: welcome ? 'none' : 'project',
 fresh: fresh, compacted: s === 'compacted' || s === 'summary', summaryOpen: s === 'summary', summaryToggle: s === 'summary' ? 'Hide Summary' : 'Show Summary',
-newconv: s === 'newconv',
-ctxK: String(K), ctxPct: Math.round(K / 32 * 100) + '%',
+showMeter: !welcome && s !== 'earlier' && s !== 'newproject',
+overlay: ['newproject','phoneon','phoneoff'].includes(s), newproject: s === 'newproject', phoneon: s === 'phoneon', phoneoff: s === 'phoneoff', blocked: s === 'blocked',
+newconv: s === 'newconv', earlier: s === 'earlier', notEarlier: s !== 'earlier',
+ctxK: String(K), meterLabel: 'Context ' + K + 'k of 32k',
+draftAttach: s === 'attachments', draftRec: s === 'recording', draftTyping: s === 'typing', draftNone: !['attachments','recording','typing'].includes(s), ctxPct: Math.round(K / 32 * 100) + '%',
 meterClass: 'pw-meter' + (K >= 16 ? ' pw-meter--near' : ''),
 meterNote: K >= 16 ? '· earlier turns are summarised after this answer' : (s === 'compacted' || s === 'summary') ? '· summarised 14:01' : '',
 meterText: K + 'k of 32k tokens' + (K >= 16 ? ', earlier turns are summarised after this answer' : ''),
+working: working,
 done: hasMessages && !working,
 noProjects: welcome, hasProjects: !welcome,
 projectCount: welcome ? 'No projects' : '3 projects',
 jsaMeta: working ? 'waiting' : '',
-title: welcome ? 'Pi Workbench' : 'pi-local-harness',
-folder: welcome ? '' : '~/code/pi-local-harness',
+title: welcome ? 'Pi Workbench' : first ? 'Japanese study app' : 'pi-local-harness',
+folder: welcome ? '' : first ? '~/code/Japanese study app' : '~/code/pi-local-harness',
 offline: s === 'offline',
 showWelcome: welcome || empty || fresh,
-welcomeTitle: welcome ? 'What are we working on?' : fresh ? 'New conversation' : 'pi-local-harness',
-welcomeCopy: welcome ? 'Give your agent a place to work. Keep its conversation, plan, and files together.' : fresh ? 'Pi starts with the project context only. The earlier conversation is kept above, read only.' : 'This project has its own conversation. Ask a question or attach a file.',
+welcomeTitle: welcome ? 'What are we working on?' : fresh ? 'New conversation' : first ? 'Japanese study app' : 'pi-local-harness',
+welcomeCopy: welcome ? 'Give your agent a place to work. Keep its conversation, plan, and files together.' : fresh ? 'Pi starts with the project context only. The earlier conversation is kept above, read only.' : first ? 'Your project is ready: a roadmap and a first task are in Plan on the left. Ask Pi to fill them in, or open them in Work.' : 'This project has its own conversation. Ask a question or attach a file.',
 hasMessages: hasMessages,
 composerClass: 'pw-composer' + (s === 'dragging' ? ' pw-composer--dragging' : ''),
 error: s === 'error',
