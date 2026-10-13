@@ -211,6 +211,15 @@ const readline = require('node:readline');
   assert.equal(await reply.locator('ol>li').count(),2);
   assert.equal(await reply.locator('input.pw-check').isChecked(),true);
   assert.equal(await reply.evaluate(element=>element.innerHTML.includes('**')),false,'no raw Markdown marks');
+  // 143: tables render as tables and scroll inside their box on a phone.
+  assert.deepEqual(await reply.locator('table th').evaluateAll(cells=>cells.map(cell=>cell.textContent)),['If you are…','Action','A very long example column that should scroll on a phone']);
+  assert.equal(await reply.locator('table td strong').textContent(),'Looking');
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.querySelector('#thread').scrollWidth<=document.querySelector('#thread').clientWidth+1),true,'a wide table does not widen the page');
+  // 144: the phone composer stays within a quarter of the screen while typing.
+  await page.locator('#prompt').fill('one\ntwo\nthree\nfour\nfive\nsix');await page.locator('#prompt').dispatchEvent('input');
+  assert.ok((await page.locator('#composer').boundingBox()).height<=844/4,'composer height '+(await page.locator('#composer').boundingBox()).height);
+  await page.locator('#prompt').fill('');await page.setViewportSize({width:1440,height:900});
 
   // 97: Files window = Plan above Files (ListGroup), titled with the project, as the Work board.
   fs.writeFileSync(join(root,'tasks/003-finished.md'),'# Finished\n\n- [x] a\n- [x] b\n');

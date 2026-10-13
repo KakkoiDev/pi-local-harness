@@ -25,6 +25,18 @@ export function inlineTokens(text) {
 }
 
 const LIST = { bullet: 'ul', number: 'ol', check: 'ul' };
+
+// GFM tables (task 143): a header row, a `---` row (colons set alignment), then body rows; outer pipes optional.
+const cells = line => line.trim().replace(/^\|/, '').replace(/\|$/, '').split(/(?<!\\)\|/).map(cell => cell.trim().replace(/\\\|/g, '|'));
+function table(text) {
+  const lines = text.split('\n').filter(line => line.trim());
+  if (lines.length < 2 || !lines[0].includes('|')) return null;
+  const rule = cells(lines[1]);
+  if (!rule.length || !rule.every(cell => /^:?-{3,}:?$/.test(cell))) return null;
+  const head = cells(lines[0]);
+  const align = rule.map(cell => cell.startsWith(':') && cell.endsWith(':') ? 'center' : cell.endsWith(':') ? 'right' : 'left');
+  return { tag: 'table', head, align, rows: lines.slice(2).map(line => cells(line).slice(0, head.length)) };
+}
 export function messageBlocks(markdown) {
   const result = [];
   for (const block of parseMarkdown(markdown)) {
@@ -35,6 +47,8 @@ export function messageBlocks(markdown) {
       if (last?.tag === list && last.kind === block.type) last.items.push(item);
       else result.push({ tag: list, kind: block.type, items: [item] });
     } else if (block.type === 'heading') result.push({ tag: 'h' + Math.min(block.level + 1, 6), text: block.text });
+    else if (block.type === 'raw' && table(block.text)) result.push(table(block.text));
+    else if (block.type === 'raw' && block.text.includes('|') && !/^\s*(<|~~~|---)/.test(block.text)) result.push({ tag: 'p', text: block.text }); // a pipe in prose is not raw Markdown
     else if (block.type === 'code' || block.type === 'raw') result.push({ tag: 'pre', text: block.text.trim() ? block.text : block.raw });
     else if (block.type === 'quote') result.push({ tag: 'blockquote', text: block.text });
     else if (block.text.trim()) result.push({ tag: 'p', text: block.text });
@@ -56,6 +70,14 @@ function inline(document, parent, text) {
 export function renderMessage(document, markdown) {
   const fragment = document.createDocumentFragment();
   for (const block of messageBlocks(spoken(markdown))) {
+    if (block.tag === 'table') {
+      // A wide table scrolls inside its own box instead of widening the message (phone).
+      const box = document.createElement('div'); box.className = 'pw-msg__table'; const element = document.createElement('table');
+      const row = (values, cellTag) => { const tr = document.createElement('tr'); values.forEach((value, index) => { const cell = document.createElement(cellTag); cell.style.textAlign = block.align[index] || 'left'; inline(document, cell, value || ''); tr.append(cell); }); return tr; };
+      const thead = document.createElement('thead'); thead.append(row(block.head, 'th'));
+      const tbody = document.createElement('tbody'); for (const values of block.rows) tbody.append(row(values, 'td'));
+      element.append(thead, tbody); box.append(element); fragment.append(box); continue;
+    }
     const element = document.createElement(block.tag);
     if (block.items) for (const item of block.items) {
       const li = document.createElement('li');

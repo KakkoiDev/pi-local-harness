@@ -24,3 +24,13 @@ test('consecutive list items group into one list', () => {
   assert.deepEqual(blocks.map(block => [block.tag, block.items?.length ?? block.text]), [
     ['h3', 'Result'], ['p', 'Text **b**.'], ['ol', 2], ['ul', 2], ['pre', 'print(1)']]);
 });
+
+test('GFM tables become tables (task 143)', () => {
+  const [table] = messageBlocks('| If you are… | Action | Example |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう |\n| Told | Use *sou* | おいしいそう |');
+  assert.equal(table.tag, 'table');
+  assert.deepEqual(table.head, ['If you are…', 'Action', 'Example']);
+  assert.deepEqual(table.align, ['left', 'center', 'right']);
+  assert.deepEqual(table.rows, [['**Looking**', 'Use `sou`', '美味しそう'], ['Told', 'Use *sou*', 'おいしいそう']]);
+  assert.equal(messageBlocks('a | b\n--- | ---\n1 | 2')[0].tag, 'table', 'outer pipes are optional');
+  assert.equal(messageBlocks('Costs | about 3 | hours')[0].tag, 'p', 'a pipe in a sentence is not a table');
+});

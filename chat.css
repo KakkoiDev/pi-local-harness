@@ -261,6 +261,8 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
   #hint,.composer-wrap .footnote{display:none}
   .composer-wrap .pw-composer__row{flex-wrap:nowrap}
   #attach,#record{width:var(--size-touch);padding:0}
+  #prompt{max-height:96px!important;overflow-y:auto} /* task 144: four lines, then the field scrolls */
+  .composer-wrap .pw-composer{padding:10px 12px;gap:8px}
   /* Document (PhoneEdit1): the name sits in the phone bar; no desk ruler; an edit bar at the bottom while editing */
   body[data-view="work"][data-pane="document"] #main-window>.pw-titlebar,#document-toolbar,.document-pane>.pw-statusbar{display:none}
   .phone-edit-bar:not([hidden]){display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--ink);background:var(--paper);flex:none}
@@ -292,3 +294,8 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 /* App windows (task 128): no project tabs; info bar note on the right */
 body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{display:none}
 .infobar-note{margin-left:auto}
+/* Markdown tables in Pi's replies (task 143): ink rules like .pw-table, scroll inside their box */
+.pw-msg__table{max-width:100%;overflow-x:auto}
+.pw-msg__table table{border-collapse:collapse;font-size:15px;line-height:1.4}
+.pw-msg__table th,.pw-msg__table td{border:1px solid var(--ink);padding:6px 10px;vertical-align:top}
+.pw-msg__table th{font-family:var(--font-chrome);font-size:14px;font-weight:600}
