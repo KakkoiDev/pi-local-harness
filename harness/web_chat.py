@@ -101,8 +101,9 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
     return '\n\n'.join(parts),images,files
 
 def pi_command(session):
+    """session None: a one-off request with no session (comments and whole-file questions, task 115)."""
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-        '--session',str(session),'--provider',PROVIDER,'--model',MODEL,'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+        *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',MODEL,'--thinking',os.getenv('PI_WEB_EFFORT','high')]
 
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
@@ -172,6 +173,8 @@ class WebChat:
             conversation=self.store.get(identifier)
             project=conversation.get('project')
             comment=data.get('document_comment')
+            # Task 115: comment and whole-file requests run on their own; the project chat holds only chat.
+            detached=bool(comment or data.get('document'))
             user_text=data.get('message','')
             if comment:
                 if not project or len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
@@ -195,9 +198,10 @@ class WebChat:
             if not prompt.strip():raise ValueError('Write a message or attach a file')
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
-            self.store.append(identifier,{'role':'user','content':data.get('message','') or ('Comment task: '+self.documents.get(comment['path'])['title'] if comment else ''),'attachments':display})
-            emit({'type':'conversation','conversation':self.store.get(identifier)})
-            command=pi_command(folder/'session.jsonl')
+            if not detached:
+                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display})
+                emit({'type':'conversation','conversation':self.store.get(identifier)})
+            command=pi_command(None if detached else folder/'session.jsonl')
             env={**os.environ,'PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
@@ -240,9 +244,9 @@ class WebChat:
                     emit(event)
             else:raise ValueError('Pi response exceeded ten minutes')
             if not reply:raise ValueError('Pi completed without an assistant answer')
-            self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:]})
-            if comment:self.documents.agent_result(comment['path'],comment['id'],reply)
-            emit({'type':'done','conversation':self.store.get(identifier)})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:]})
+            if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''))
+            emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
             if process:
                 process.terminate()

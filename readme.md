@@ -58,8 +58,9 @@ Changes autosave to the actual files. Concurrent filesystem changes produce a
 version conflict rather than silently overwriting your draft. Trash moves Markdown
 pages into the data directory's `.trash`.
 
-**Document discussion**, above the document, sends a request about the whole page.
-Its request and result remain attached to that document. For a specific passage,
+**Ask Pi about this whole file**, at the bottom of Review, sends a request about the whole page.
+Its request and result remain attached to that document. Comment and whole-file requests run
+as one-off Pi requests with their own context; they never appear in, or use up, the project chat. For a specific passage,
 select its text, use **Comment on selection**, and add a text comment. The quoted
 passage is highlighted; clicking the quote returns to it. Threads support replies
 and Resolve/Reopen. Use **Ask agent about this passage** to send that thread;

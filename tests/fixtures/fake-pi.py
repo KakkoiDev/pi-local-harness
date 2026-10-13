@@ -4,13 +4,15 @@ import os
 from pathlib import Path
 import sys
 import time
-session=Path(sys.argv[sys.argv.index('--session')+1])
+if '--session' in sys.argv:session=counter=Path(sys.argv[sys.argv.index('--session')+1])
+else:  # --no-session (task 115): record beside the context file, count replies on their own
+    session=Path(os.environ['PI_HARNESS_CONTEXT']).parent/'session.jsonl';counter=session.with_name('oneoff')
 request=json.loads(sys.stdin.readline())
 assert int(os.environ['PI_HARNESS_SHARED_PORT'])>0
 session.with_suffix('.request.json').write_text(json.dumps(request))
 session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':os.environ.get('PI_HARNESS_TOKEN'),'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv}))
-count=int(session.read_text())+1 if session.exists() else 1
-session.write_text(str(count))
+count=int(counter.read_text())+1 if counter.exists() else 1
+counter.write_text(str(count))
 def emit(value):print(json.dumps(value),flush=True)
 emit({'type':'agent_start'})
 def call_gate(path,body):

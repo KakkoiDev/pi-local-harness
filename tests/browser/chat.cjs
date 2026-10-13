@@ -96,7 +96,7 @@ const readline = require('node:readline');
   await page.keyboard.press(above?'ArrowUp':'ArrowDown');for(let step=1;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowUp':'ArrowDown');await page.waitForFunction(()=>document.activeElement?.matches('a.activity-task[aria-current=true]')&&document.activeElement.textContent.includes('Implement this roadmap'));for(let step=0;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowDown':'ArrowUp');await page.waitForFunction(()=>document.activeElement?.textContent.includes('Review the whole roadmap'));
   await detail.getByRole('button',{name:'Show Task Record',exact:true}).click();await page.locator('#activity-record-text').filter({hasText:'Review the whole roadmap'}).waitFor();
   assert.equal(require('node:fs').readdirSync(join(directory,'workspace/activity')).filter(name=>name.endsWith('.md')).length,3,'two roadmap requests and the suggestion request');
-  await page.locator('#chat-tab').click();await page.locator('#messages').getByText('reply 3',{exact:true}).waitFor();
+  await page.locator('#chat-tab').click();assert.equal(await page.locator('#messages .pw-msg').count(),0,'document and comment answers stay in the document (task 115)');
   await page.locator('#prompt').fill('First question');
   await page.locator('#files').setInputFiles([
    {name:'notes.txt',mimeType:'text/plain',buffer:Buffer.from('Attached text')},
@@ -110,9 +110,9 @@ const readline = require('node:readline');
   await page.locator('#composer').dispatchEvent('dragover',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),1);assert.equal(await page.locator('#hint').textContent(),'Drop to attach 2 files');
   await page.locator('#composer').dispatchEvent('dragleave',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),0);assert.match(await page.locator('#hint').textContent(),/^3 files/);
   await page.getByRole('button',{name:'Remove voice.wav'}).click();await page.locator('#send').click();
-  await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();
+  await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
   const reasoning=page.locator('#messages details').first();await reasoning.locator('summary').click();for(let i=0;i<2;i++)await page.waitForResponse(response=>response.url().endsWith('/api/workspace'));assert.equal(await reasoning.getAttribute('open'),'');
-  assert.equal(await page.locator('.message.user.pw-msg.pw-msg--user').count(),4);assert.equal(await page.locator('.message.assistant .pw-msg__label b').first().textContent(),'Pi');assert.equal(await page.locator('#send').textContent(),'Send');assert.equal(await page.locator('.message img').count(),1);
+  assert.equal(await page.locator('.message.user.pw-msg.pw-msg--user').count(),1,'only what was typed in Chat (task 115)');assert.equal(await page.locator('.message.assistant .pw-msg__label b').first().textContent(),'Pi');assert.equal(await page.locator('#send').textContent(),'Send');assert.equal(await page.locator('.message img').count(),1);
   await createProject('Second project');await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Second question');await page.locator('#send').click();
   await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
@@ -121,7 +121,7 @@ const readline = require('node:readline');
   await page.locator('#project-search').fill('missing project');await page.getByText('No matching projects',{exact:true}).waitFor();
   await page.locator('#project-search').fill('First');assert.equal(await page.locator('#project-list .pw-row').count(),1);await page.locator('#project-search').fill('');
   await page.getByRole('button',{name:'First project',exact:true}).click();await page.locator('#chat-tab').click();
-  await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();
+  await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
   assert.equal(await page.locator('#window-title').textContent(),'First project');
   // Menu bar: WAI-ARIA keyboard pattern, disabled items, shortcuts, project list, status.
   const focused=()=>page.evaluate(()=>document.activeElement.dataset.command||document.activeElement.getAttribute('aria-controls'));
@@ -156,8 +156,8 @@ const readline = require('node:readline');
    await phone.keyboard.press('Enter');await phone.locator('#phone-dialog').waitFor({state:'hidden'});await phone.close();}
   await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();await page.locator('#name-dialog-title').filter({hasText:'New File'}).waitFor();
   await page.locator('#name-dialog-input').fill('Meeting notes');await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:/meeting/i}).waitFor();
-  await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator('#menu-project [data-command="project-chat"]').click();await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();
-  await page.reload();await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();
+  await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator('#menu-project [data-command="project-chat"]').click();await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
+  await page.reload();await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
   await page.locator('#work-tab').click();await page.locator('#file-search').fill('ROADMAP');assert.equal(await page.locator('.file-item').count(),1);await page.locator('#file-search').fill('');await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.getByRole('textbox',{name:'Heading',exact:true}).filter({hasText:'Edited roadmap'}).waitFor();
   const fileRow=page.locator('#file-tree [aria-current="page"]');assert.deepEqual(await fileRow.evaluate(row=>{const style=getComputedStyle(row);return [row.classList.contains('pw-row'),style.textAlign,style.color===getComputedStyle(document.body).backgroundColor,Math.round(row.getBoundingClientRect().width)===Math.round(document.getElementById('file-tree').clientWidth),row.querySelector('.pw-row__label')?.textContent];}),[true,'left',true,true,'ROADMAP.md'],'the open file is a left-aligned selected .pw-row');
   assert.deepEqual(await page.locator('label:has(#show-resolved)').evaluate(label=>{const box=label.getBoundingClientRect(),check=label.querySelector('input').getBoundingClientRect();return [check.left-box.left<=12,Math.abs((check.top+check.bottom)/2-(box.top+box.bottom)/2)<=2,box.height<=48];}),[true,true,true],'Show resolved: checkbox inline at the left of its label');

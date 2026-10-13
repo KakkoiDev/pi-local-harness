@@ -154,6 +154,11 @@ const readline = require('node:readline');
   await page.locator('#send-unsent').click();
   await page.locator('#send-unsent').filter({hasText:'No unsent comments'}).waitFor();
   assert.equal(await page.locator('#send-unsent').isDisabled(),true);
+  // 115: comment requests run on their own; the chat shows none of them, live or finished.
+  await page.locator('#prompt').evaluate(()=>{});await page.locator('#chat-tab').click();
+  await page.waitForFunction(()=>!document.querySelector('#messages [data-live]'));
+  assert.equal(await page.locator('#messages').evaluate(element=>/Name the reader|Say who it is calm for|Comment:/.test(element.textContent)),false,'the chat holds only chat');
+  await page.locator('#work-tab').click();
   assert.equal(await page.locator('#document-discussion>summary').textContent(),'Ask Pi about this whole file');
   assert.equal(await page.locator('#document-prompt').isVisible(),false,'folded until opened');
   await page.locator('#document-discussion>summary').click();assert.equal(await page.locator('#document-prompt').isVisible(),true);

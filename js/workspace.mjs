@@ -103,7 +103,6 @@ export function installWorkspace(host){
    if(state==='open'&&!comment.chat_id)actions.append(button('Delete',()=>deleteComment(comment)));
    if(state==='resolved')actions.append(button('Reopen',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:false})));
    if(state==='deleted')actions.append(button('Restore',()=>commentAction('/api/documents/delete-comment',{id:comment.id,deleted:false})));
-   if(comment.chat_id){const chat=node('a','pw-link','Open Chat');chat.href='/?chat='+comment.chat_id;chat.onclick=event=>{event.preventDefault();host.selectChat(comment.chat_id);};actions.append(chat);}
    item.append(actions);$('document-comments').append(item);
   }
  }
@@ -137,7 +136,7 @@ export function installWorkspace(host){
   if(job.status==='failed'){const line=node('p','pw-error');line.append(icon('alert-caution'),job.progress);detail.append(line);}
   if(job.tools?.length){const tools=node('section','activity-detail__tools');tools.setAttribute('aria-label','Commands');tools.append(node('h4','pw-label','Commands'));for(const tool of job.tools)tools.append(toolCard(tool,{showEvent:host.showGateEvent}));detail.append(tools);}
   if(job.text){const result=node('details');result.append(node('summary','pw-label','Result'),node('pre','pw-mono',spoken(job.text)));detail.append(result);}
-  const actions=node('div','activity-detail__actions'),chat=node('a','pw-btn','Open Chat');chat.href='/?chat='+job.chat;chat.onclick=event=>{event.preventDefault();host.selectChat(job.chat);};actions.append(chat);
+  const actions=node('div','activity-detail__actions');if(!job.document){const chat=node('a','pw-btn','Open Chat');chat.href='/?chat='+job.chat;chat.onclick=event=>{event.preventDefault();host.selectChat(job.chat);};actions.append(chat);}/* comment and whole-file answers live in the document (task 115) */
   if(job.document){const doc=node('a','pw-btn','Open Document');doc.href='/?document='+encodeURIComponent(job.document);doc.onclick=async event=>{event.preventDefault();await selectProject(job.project,{view:'work'});host.setLevel('project');await openFile(job.document);if(job.comment_id)document.getElementById('comment-'+job.comment_id)?.scrollIntoView({block:'center'});};actions.append(doc);}
   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api(`/api/conversations/${job.chat}/stop`,{}).catch(e=>error(e.message));actions.append(stop);}
   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}

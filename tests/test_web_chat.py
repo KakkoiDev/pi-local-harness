@@ -143,3 +143,32 @@ class ProjectContextTest(unittest.TestCase):
             self.assertEqual(chat.store.get(two['id'])['messages'][-1]['content'],'[CANARY] reply 1')
             capture=json.loads((chat.store.folder(one['id'])/'session.environment.json').read_text())
             self.assertEqual(Path(capture['cwd']),chat.documents.project_path(first))
+
+
+class DocumentContextTest(unittest.TestCase):
+    """Task 115: comment and whole-file requests run on their own; the project chat holds only chat."""
+    def test_comment_and_document_requests_leave_the_chat_alone(self):
+        import os, sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'chats',12345,3000,data_root=root/'workspace');self.addCleanup(chat.close)
+            project=chat.documents.create_project('Docs');conversation=chat.project_chat(project)
+            path=f'projects/{project}/ROADMAP.md';entry=chat.documents.comment(path,'Shorter, please.','Describe what we are building.')
+            chat.documents.agent_result(path,entry['id'],'Earlier answer marker')
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+                chat.send(conversation['id'],{'message':'Plain chat'},lambda _:None)
+                before=chat.store.get(conversation['id'])['messages']
+                events=[];chat.send(conversation['id'],{'message':'Comment: Shorter, please.','document_comment':{'path':path,'id':entry['id']}},events.append)
+                comment_env=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
+                comment_request=json.loads((chat.store.folder(conversation['id'])/'session.request.json').read_text())
+                chat.send(conversation['id'],{'message':'Is the plan complete?','document':path},events.append)
+                document_env=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
+            self.assertEqual(chat.store.get(conversation['id'])['messages'],before,'the chat holds only chat')
+            self.assertFalse(comment_env['session']);self.assertFalse(document_env['session'],'one-off Pi requests, no session')
+            self.assertIn('Earlier answer marker',comment_request['message'],'the whole thread, Pi\'s answers included')
+            self.assertIn('Describe what we are building.',comment_env['context'],'the page is in the context')
+            self.assertTrue(any(event.get('type')=='message_update' for event in events),'the answer still streams to the job')
+            self.assertEqual(next(item for item in chat.documents.get(path)['comments'] if item['id']==entry['id'])['agent_reply'],'[CANARY] reply 1')

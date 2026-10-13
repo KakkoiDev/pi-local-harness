@@ -178,12 +178,13 @@ class DocumentStore:
             if not entry:raise ValueError('Comment not found')
             self.pending_suggestion(entry)['kept']=datetime.now().astimezone().isoformat(timespec='seconds')
             self.write_comments(relative,comments);return entry
-    def agent_result(self, relative, identifier, text):
+    def agent_result(self, relative, identifier, text, previous=''):
+        """Keep the answer Pi wrote itself during this run; otherwise record its reply (a follow-up replaces the earlier answer)."""
         with self.lock:
             comments=self.comments(relative)
             entry=next((item for item in comments if item['id']==identifier),None)
             if entry:
-                if not entry.get('agent_reply'):entry['agent_reply']=str(text)[:50000]
+                if entry.get('agent_reply','') in ('',previous):entry['agent_reply']=str(text)[:50000]
                 self.write_comments(relative,comments)
     def mark_sent(self, relative, identifier, chat):
         with self.lock:
