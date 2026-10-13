@@ -36,7 +36,7 @@ if request['message'].rstrip().endswith('TEST_TOOL'):
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
-        emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n'}})
+        emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})
         time.sleep(0.6)
 if request['message'].rstrip().endswith('TEST_WAIT'):
     emit({'type':'tool_execution_start','toolName':'bash'})

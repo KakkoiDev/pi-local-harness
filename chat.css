@@ -284,3 +284,8 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
   #open-menu{font-family:var(--font-text);font-style:italic;font-weight:600;font-size:24px}
   #project-list.pw-list{padding:0}
 }
+/* Reasoning renders Markdown and wraps (task 125) */
+.pw-msg__reasoning{margin-top:6px;font-family:var(--font-text);font-size:15px;line-height:1.45;overflow-wrap:anywhere;min-width:0}
+.pw-msg details{min-width:0;max-width:100%;box-sizing:border-box}
+.pw-msg__body--md,.pw-msg__body--md pre{overflow-wrap:anywhere}
+.pw-msg__body--md pre{max-width:100%;box-sizing:border-box}

@@ -187,10 +187,16 @@ const readline = require('node:readline');
   await page.locator('#prompt').fill('Think it over. TEST_THINK');await page.locator('#send').click();
   const live=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details');
   await live.locator('summary').waitFor();await live.locator('summary').click();
-  await page.waitForFunction(()=>(document.querySelector('#messages .pw-msg:not(.pw-msg--user):last-of-type details pre')?.textContent||'').includes('Thinking step 3'));
+  await page.waitForFunction(()=>(document.querySelector('#messages .pw-msg:not(.pw-msg--user):last-of-type details')?.textContent||'').includes('Thinking step 3'));
   assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open after new reasoning');
   await page.locator('#messages').getByText(/reply \d+/).last().waitFor({timeout:15000});
   assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open on the finished reply');
+  // 125: reasoning renders its Markdown and wraps inside its box, also at phone width.
+  const reasoning=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details');
+  assert.equal(await reasoning.locator('strong').first().textContent(),'Plan');
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await reasoning.evaluate(element=>[...element.querySelectorAll('*')].every(child=>child.scrollWidth<=element.clientWidth+1)),true,'nothing wider than the box');
+  await page.setViewportSize({width:1440,height:900});
 
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
