@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs';
+export const pinned = JSON.parse(readFileSync(new URL('./model.json', import.meta.url), 'utf8'));
 export function localModels(config = {}) {
  const models = config.models || [];
- const ids = new Set([...models.map(model=>model.id), 'gemma4:26b-mlx', 'gemma4:31b-mlx']);
+ const ids = new Set([...models.map(model=>model.id), pinned.model, 'gemma4:31b-mlx']);
  return { ...config, api: config.api || 'openai-completions', apiKey: config.apiKey || 'ollama', baseUrl: config.baseUrl || 'http://127.0.0.1:11434/v1',
   models: [...ids].map(id=>{
    const original = models.find(model=>model.id===id) || {};

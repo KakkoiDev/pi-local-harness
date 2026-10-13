@@ -104,7 +104,6 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 
 ```json
 {
-  "model": "ollama/gemma4:26b-mlx",
   "effort": "high",
   "laya_port": 8000,
   "web_port": 3000,
@@ -112,7 +111,9 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 }
 ```
 
-Both terminal Pi and browser workers use this model/effort configuration. Port `0`
+Both terminal Pi and browser workers use this effort. The model is pinned to
+`ollama/gemma4:26b-mlx` in `harness/model.json`; a different `model` in `config.json`
+stops `plh` with an error. Change the pin only in that file. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;
 `PI_LAYA_PORT` and `PI_WEB_PORT` override ports. See the
 [operations guide](harness/README.md) for other environment settings.

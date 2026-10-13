@@ -22,7 +22,7 @@ export async function attachMedia(event, cwd, model, transcribe) {
  const images=[...(event.images || [])]; let text=event.text;
  for(const file of files) {
   if(file.type==='image') {
-   if(!model?.input?.includes('image')) throw new Error('The selected pi model does not advertise vision. Select ollama/gemma4:26b-mlx.');
+   if(!model?.input?.includes('image')) throw new Error('The selected pi model does not advertise vision. Select the pinned model in harness/model.json.');
    images.push({type:'image',data:readFileSync(file.path).toString('base64'),mimeType:imageTypes[extname(file.path).toLowerCase()]});
   } else {
    const transcript=await transcribe(file.path);

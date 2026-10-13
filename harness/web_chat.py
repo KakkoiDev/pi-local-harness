@@ -2,6 +2,7 @@
 import base64
 from datetime import datetime
 from harness.documents import DocumentStore, DocumentConflict
+from harness.model import PROVIDER, MODEL
 from harness.work_queue import WorkQueue
 import json
 import os
@@ -100,7 +101,7 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
 
 def pi_command(session):
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-        '--session',str(session),'--provider',os.getenv('PI_WEB_PROVIDER','ollama'),'--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+        '--session',str(session),'--provider',PROVIDER,'--model',MODEL,'--thinking',os.getenv('PI_WEB_EFFORT','high')]
 
 class WebChat:
     def __init__(self, root, laya_port, web_port, data_root=None, laya_token=''):
@@ -270,7 +271,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/laya':
                 self.reply({'events':self.chat.ledger.recent_events(),'laya_port':self.chat.laya_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':self.reply({'model':os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD});return
+            if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD});return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):

@@ -29,9 +29,10 @@ in Pi's global directory. Project-local Pi instructions can also apply.
 | `PI_WEB_DATA` | Data directory `chats/` | Persistent web session/upload location |
 | `PI_WHISPER_MODEL` | Config: whisper-base-mlx | Lazy transcription model |
 
-PLH derives browser `PI_WEB_PROVIDER`, `PI_WEB_MODEL`, and `PI_WEB_EFFORT` from
-config. CLI Pi flags can override the terminal invocation only; use config to
-change terminal and browser together. `PI_WEB_CWD` is retained only for legacy
+The model is pinned in `harness/model.json` (`ollama/gemma4:26b-mlx`); terminal and
+browser workers both read it, and `config.json` cannot change it. PLH derives browser
+`PI_WEB_EFFORT` from config. Extra `plh` arguments such as `--model` still reach the
+terminal Pi for that one session only. `PI_WEB_CWD` is retained only for legacy
 nonproject sessions; project jobs always use their registered folder.
 
 Services are owned by the launched Pi process. Occupied ports fail without
