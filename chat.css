@@ -165,3 +165,7 @@ button.laya-event{text-align:left;background:none;border-left:0;border-right:0;b
 /* Open on Phone dialog */
 .phone-address{display:flex;gap:8px;align-items:center}
 .phone-address>.pw-field{flex:1;min-width:0;font-size:13px}
+/* Commands with Laya checks in the Activity detail */
+.activity-detail__tools{display:flex;flex-direction:column;gap:8px}
+.activity-detail__tools h4{margin:0}
+.pw-tool__reason{display:flex;gap:8px;align-items:flex-start;margin:0;padding:6px 12px;border-top:1px solid var(--ink);font-size:13px}

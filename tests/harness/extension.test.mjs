@@ -44,6 +44,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'whoami'}};
   assert.equal(await handlers.tool_call(bash),undefined);
   assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);
+  const web=lines[1].match(/http:\/\/127\.0\.0\.1:\d+/)[0],checked=(await (await fetch(web+'/api/laya')).json()).events.filter(event=>event.tool_call==='bash-regression');
+  assert.deepEqual(checked.map(event=>event.phase+' '+event.outcome),['gate ALLOW','audit SUCCESS']);
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
   const rejected=await handlers.tool_result({...drift,input:{command:'env'},content:[],isError:false});

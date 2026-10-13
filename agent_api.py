@@ -40,7 +40,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
         try:
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             result = self.ledger.propose(data['tool_name'], data['args'], data.get('auth_level', 'standard'),
-                                         pi_tool=data.get('pi_tool'), cwd=data.get('cwd'))
+                                         pi_tool=data.get('pi_tool'), cwd=data.get('cwd'), tool_call_id=data.get('tool_call_id'))
             self.send_json_response(result)
         except Exception as error:
             self.send_error_response(400, str(error))

@@ -63,6 +63,10 @@ class ServicesTest(unittest.TestCase):
                 self.assertTrue(any(event['outcome']=='BLOCK' for event in activity['events']))
                 self.assertTrue(any(event['outcome']=='DRIFT_DETECTED' for event in activity['events']))
                 self.assertEqual(activity['laya_port'],ports['laya'])
+            gate=post('/gatekeep',{'tool_name':'read_file','args':{'path':'seen'},'tool_call_id':'call-9'})
+            post('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'read_file','args':{'path':'seen'},'exit_code':0})
+            with urllib.request.urlopen(web_base+'/api/laya') as response:
+                self.assertEqual([(event['phase'],event['outcome']) for event in json.load(response)['events'] if event['tool_call']=='call-9'],[('gate','ALLOW'),('audit','SUCCESS')])
             created=web_post('/api/projects/create',{'name':'HTTP project'})
             conversation={'id':created['chat']}
             renamed=web_post('/api/conversations/'+conversation['id']+'/rename',{'title':'Japanese audio'})

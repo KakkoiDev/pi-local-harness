@@ -16,6 +16,17 @@ class QueueTest(unittest.TestCase):
             queue.run_one();queue.run_one()
             self.assertEqual(calls,[('One','chat-one','first'),('Two','chat-two','second')])
             self.assertEqual([job['status'] for job in queue.list()],['failed','completed'])
+    def test_tool_calls_are_kept_on_the_task(self):
+        with tempfile.TemporaryDirectory() as directory:
+            def execute(job,emit):
+                emit({'type':'tool_execution_start','toolCallId':'call-1','toolName':'bash','args':{'command':'ls'}})
+                emit({'type':'tool_execution_end','toolCallId':'call-1','toolName':'bash','isError':False})
+                emit({'type':'tool_execution_start','toolCallId':'call-2','toolName':'read','args':{'path':'x'}})
+                emit({'type':'tool_execution_end','toolCallId':'call-2','toolName':'read','isError':True})
+            queue=WorkQueue(Path(directory)/'queue.json',execute,start=False)
+            queue.add('One','chat',{'message':'work'});queue.run_one()
+            self.assertEqual(queue.list()[0]['tools'],[{'id':'call-1','name':'bash','detail':'ls','status':'done'},{'id':'call-2','name':'read','detail':'x','status':'failed'}])
+            self.assertEqual(WorkQueue(Path(directory)/'queue.json',execute,start=False).list()[0]['tools'][1]['status'],'failed')
     def test_busy_cancellation_and_restart_do_not_repeat_side_effects(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'queue.json';calls=[]

@@ -120,4 +120,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [78-Design Settings](tasks/78-design-settings.md)
 - [x] [79-Design Phone](tasks/79-design-phone.md)
 - [x] [80-Design Open on Phone](tasks/80-design-phone-url.md)
-- [ ] Phase 2, blocked on a decision: Apply Change (comment jobs tell Pi to edit the file itself, so a suggestion needs a new job contract) and Laya checks per tool call (ledger events carry no job or chat id)
+- [x] [81-Design Laya Checks](tasks/81-design-laya-checks.md)

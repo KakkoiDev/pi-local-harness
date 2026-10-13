@@ -236,8 +236,8 @@ Phone: dialogs become sheets (`.pw-sheet`) — same content, buttons 44px, full 
 | Comment delete (soft, kept for good) + restore | **missing** | add `deleted` (ISO time or null) to the comment record and `/api/documents/delete-comment {path,id,deleted:bool}`; list deleted comments in `/api/document` with the flag; never hard-delete. Test in `tests/test_documents.py` |
 | “Sent to Pi” state | partly (`chat_id` on the comment after Ask) | treat `comment.chat_id` (or a job with `comment_id`) as sent; expose `sent_at` |
 | Pi’s suggested change (Keep Mine / Apply Change) | **missing** | phase 2: let the agent return `{suggestion:{anchor,replacement}}` on a comment job; **Apply Change** = save the document with `anchor` replaced (with the usual revision check), then resolve. Until then, show Pi’s `agent_reply` as a normal reply |
-| Laya results per tool call in chat | **missing** | phase 2: include in each job’s events the Laya gate outcome and audit status per tool call (the ledger already records both); render as `.pw-tool__checks` |
-| Phone URL for Open on Phone… | printed by plh only | add `phoneUrl` to `/api/config` |
+| Laya results per tool call in chat | **missing** | phase 2: include in each job’s events the Laya gate outcome and audit status per tool call (the ledger already records both); render as `.pw-tool__checks`. 2026-10-13: done in task 81 (`tool_call` on ledger events, `tools[]` on jobs) |
+| Phone URL for Open on Phone… | printed by plh only | add `phoneUrl` to `/api/config`. 2026-10-13: done in task 80 |
 
 Everything else in the design uses data the API already returns.
 

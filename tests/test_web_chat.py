@@ -46,6 +46,19 @@ class WebChatTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 prepare_prompt('',[{'name':'a.txt','mime':'text/plain','data':'invalid!'}],Path(directory),lambda _: '')
 
+class ToolChecksTest(unittest.TestCase):
+    def test_each_tool_call_carries_its_laya_checks(self):
+        from harness.web_chat import with_checks
+        jobs=[{'id':'job','tools':[{'id':'call-1','name':'bash','status':'done'},{'id':'call-2','name':'read','status':'running'}]},{'id':'old'}]
+        events=[{'id':1,'tool_call':'call-1','phase':'gate','outcome':'ALLOW','reason':'Approved before execution.'},
+                {'id':2,'tool_call':'other','phase':'gate','outcome':'BLOCK','reason':'no'},
+                {'id':3,'tool_call':'call-1','phase':'audit','outcome':'SUCCESS','reason':'ok'}]
+        result=with_checks(jobs,events)
+        self.assertEqual(result[0]['tools'][0]['checks'],[{'event':1,'phase':'gate','outcome':'ALLOW','reason':'Approved before execution.'},{'event':3,'phase':'audit','outcome':'SUCCESS','reason':'ok'}])
+        self.assertEqual(result[0]['tools'][1]['checks'],[])
+        self.assertNotIn('tools',result[1])
+        self.assertNotIn('checks',jobs[0]['tools'][0])
+
 class RpcBridgeTest(unittest.TestCase):
     def test_real_subprocess_protocol_preserves_session_and_streams(self):
         import os

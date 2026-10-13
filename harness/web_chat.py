@@ -144,7 +144,7 @@ class WebChat:
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
             projects.append({**project,'chat':self.project_chat(project['id'],summaries)['id']})
-        return {'projects':projects,'jobs':self.queue.list(),'busy':self.busy(),'data_root':str(self.documents.root)}
+        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root)}
     def stop(self, identifier):
         with self.lock:
             active=self.active.get(identifier)
@@ -241,6 +241,13 @@ class WebChat:
                 process.stdin.close();process.stdout.close()
             if diagnostics:diagnostics.close()
             with self.lock:self.active.pop(identifier,None)
+
+def with_checks(jobs,events):
+    """Copies of the jobs where each tool call lists the Laya events recorded for it (gate, then audit)."""
+    checks={}
+    for event in events:
+        if event.get('tool_call'):checks.setdefault(event['tool_call'],[]).append({'event':event['id'],'phase':event['phase'],'outcome':event['outcome'],'reason':event['reason']})
+    return [{**job,'tools':[{**tool,'checks':checks.get(tool['id'],[])} for tool in job['tools']]} if 'tools' in job else job for job in jobs]
 
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, unquote, parse_qs

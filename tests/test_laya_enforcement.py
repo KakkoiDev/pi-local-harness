@@ -21,6 +21,12 @@ class EnforcementTest(unittest.TestCase):
         self.assertEqual(result.status,'DRIFT_DETECTED')
         self.assertEqual(result.proposal.args,{'path':'one'})
         with self.assertRaises(KeyError): self.ledger.complete(gate['proposal_id'],'read_file',{},'',0)
+    def test_events_name_the_pi_tool_call(self):
+        blocked=self.ledger.propose('execute_command',{'command':'rm -fr *'},'standard',tool_call_id='call-1')
+        gate=self.ledger.propose('read_file',{'path':'one'},'standard',tool_call_id='call-2')
+        self.ledger.complete(gate['proposal_id'],'read_file',{'path':'one'},'content',0)
+        self.assertEqual([(event['tool_call'],event['phase'],event['outcome']) for event in self.ledger.recent_events()],
+                         [('call-1','gate','BLOCK'),('call-2','gate','ALLOW'),('call-2','audit','SUCCESS')])
     def test_blocked_calls_have_no_audit_token(self):
         gate=self.ledger.propose('execute_command',{'command':'rm -fr *'},'standard')
         self.assertEqual(gate['outcome'],'BLOCK');self.assertNotIn('proposal_id',gate)

@@ -1,5 +1,5 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
-import { icon,stateGlyph,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
+import { icon,stateGlyph,toolCard,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
@@ -110,6 +110,7 @@ export function installWorkspace(host){
   const facts=node('dl','activity-detail__facts'),fact=(name,value)=>{if(value)facts.append(node('dt','',name),node('dd','',value));};
   if(job.status!=='failed')fact('Progress',job.progress);fact('Started',job.started?new Date(job.started).toLocaleString():'');fact('Files',(job.files||[]).join(', '));detail.append(facts);
   if(job.status==='failed'){const line=node('p','pw-error');line.append(icon('alert-caution'),job.progress);detail.append(line);}
+  if(job.tools?.length){const tools=node('section','activity-detail__tools');tools.setAttribute('aria-label','Commands');tools.append(node('h4','pw-label','Commands'));for(const tool of job.tools)tools.append(toolCard(tool,{showEvent:host.showLayaEvent}));detail.append(tools);}
   if(job.text){const result=node('details');result.append(node('summary','pw-label','Result'),node('pre','pw-mono',job.text));detail.append(result);}
   const actions=node('div','activity-detail__actions'),chat=node('a','pw-btn','Open Chat');chat.href='/?chat='+job.chat;chat.onclick=event=>{event.preventDefault();host.selectChat(job.chat);};actions.append(chat);
   if(job.document){const doc=node('a','pw-btn','Open Document');doc.href='/?document='+encodeURIComponent(job.document);doc.onclick=async event=>{event.preventDefault();await selectProject(job.project);await openFile(job.document);host.showWorkspace();if(job.comment_id)document.getElementById('comment-'+job.comment_id)?.scrollIntoView({block:'center'});};actions.append(doc);}

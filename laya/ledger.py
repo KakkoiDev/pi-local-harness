@@ -19,7 +19,7 @@ class ProposalLedger:
         self.event_sequence = 0
         self.protocol = Protocol(protocol_file)
 
-    def record_event(self, phase, outcome, proposal, reason, token=None):
+    def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None):
         # Show scope, not uploaded file bodies or tool output.
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
@@ -27,24 +27,24 @@ class ProposalLedger:
             self.event_sequence += 1
             self.events.append({'id': self.event_sequence, 'timestamp': datetime.now().astimezone().isoformat(timespec='seconds'),
                                 'phase': phase, 'outcome': outcome, 'tool': proposal.tool_name,
-                                'args': args, 'reason': reason, 'proposal_id': token})
+                                'args': args, 'reason': reason, 'proposal_id': token, 'tool_call': tool_call})
 
     def recent_events(self):
         with self.lock:
             return copy.deepcopy(list(self.events))
 
-    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None):
+    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None):
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         outcome = self.engine.gatekeep(proposal, auth_level)
         response = {'outcome': outcome.value}
         if outcome != ActionOutcome.ALLOW:
             response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Laya policy.'
-            self.record_event('gate', outcome.value, proposal, response['reason'])
+            self.record_event('gate', outcome.value, proposal, response['reason'], tool_call=tool_call_id)
             return response
         command = args.get('command') if tool_name == 'execute_command' else None
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
-            self.record_event('gate', 'REVISE', proposal, reason)
+            self.record_event('gate', 'REVISE', proposal, reason, tool_call=tool_call_id)
             return {'outcome': 'REVISE', 'reason': reason}
         expected = None
         if pi_tool in ('write', 'edit'):
@@ -57,7 +57,7 @@ class ProposalLedger:
                 original = path.read_text()
                 if original.count(args['oldText']) != 1:
                     reason = 'Edit must identify one exact occurrence.'
-                    self.record_event('gate', 'REVISE', proposal, reason)
+                    self.record_event('gate', 'REVISE', proposal, reason, tool_call=tool_call_id)
                     return {'outcome': 'REVISE', 'reason': reason}
                 content = original.replace(args['oldText'], args['newText'], 1)
             expected = (str(path.resolve()), hashlib.sha256(content.encode()).hexdigest())
@@ -67,14 +67,14 @@ class ProposalLedger:
             if len(self.pending) >= self.limit:
                 raise ValueError('Too many pending proposals')
             token = str(uuid.uuid4())
-            self.pending[token] = (now, proposal, expected, cwd)
-        self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token)
+            self.pending[token] = (now, proposal, expected, cwd, tool_call_id)
+        self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id)
         response['proposal_id'] = token
         return response
 
     def complete(self, token, tool_name, args, output, exit_code):
         with self.lock:
-            created, proposal, expected, cwd = self.pending.pop(token)
+            created, proposal, expected, cwd, tool_call_id = self.pending.pop(token)
         if self.clock() - created >= self.ttl:
             raise KeyError('Proposal expired')
         execution = ExecutionResult(tool_name, copy.deepcopy(args), output, exit_code)
@@ -89,5 +89,5 @@ class ProposalLedger:
         command = proposal.args.get('command')
         if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
             self.protocol.record(cwd, command, exit_code == 0, output)
-        self.record_event('audit', event.status, proposal, event.reasoning, token)
+        self.record_event('audit', event.status, proposal, event.reasoning, token, tool_call_id)
         return event
