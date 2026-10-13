@@ -158,12 +158,14 @@ const readline = require('node:readline');
   await page.locator('#prompt').evaluate(()=>{});await page.locator('#chat-tab').click();
   await page.waitForFunction(()=>!document.querySelector('#messages [data-live]'));
   assert.equal(await page.locator('#messages').evaluate(element=>/Name the reader|Say who it is calm for|Comment:/.test(element.textContent)),false,'the chat holds only chat');
-  // 135: a thread is one conversation in order; after Pi answers, Reply sends the follow-up to Pi and the new answer is appended.
+  // 135 (round 4): a thread is one conversation in order; Add Note keeps a reply with the file, Ask Pi sends the thread with what you typed; answers are appended.
   await page.locator('#work-tab').click();
   const mark=page.locator('.pw-mark').first();await mark.click();const answered=page.locator('.pw-thread').first();
   await answered.getByText('Pi answered',{exact:false}).waitFor({timeout:20000});
-  assert.equal(await answered.getByRole('button',{name:'Ask Pi',exact:true}).count(),0,'an answered thread with nothing new has no Ask Pi');
-  await answered.locator('input').fill('And one more thing?');await answered.getByRole('button',{name:'Reply',exact:true}).click(); // a reply to a sent thread reaches Pi
+  assert.equal(await answered.locator('.pw-thread__help').textContent(),'Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.');
+  const ask=answered.getByRole('button',{name:'Ask Pi',exact:true});assert.equal(await ask.evaluate(button=>button.classList.contains('pw-btn--default')),false);
+  await answered.locator('input').fill('And one more thing?');assert.equal(await ask.evaluate(button=>button.classList.contains('pw-btn--default')),true,'Ask Pi is the default once there is text');
+  await ask.click(); // a follow-up: the thread with what you typed
   await page.waitForFunction(()=>[...document.querySelectorAll('.pw-thread .pw-thread__who b')].filter(b=>b.textContent==='Pi').length===2,null,{timeout:20000});
   assert.deepEqual(await page.locator('.pw-thread').first().locator('.pw-thread__who b').allTextContents(),['You','Pi','You','Pi'],'messages read in order');
   assert.match(await page.locator('.pw-thread').first().locator('.pw-thread__msg').nth(2).textContent(),/And one more thing\?/);
@@ -335,7 +337,7 @@ const readline = require('node:readline');
   const projectLink=page.locator('#activity-list .pw-link').first();assert.equal(await projectLink.count(),1,'project names are links');
   assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^Open in /);
   await page.locator('#menubar [aria-controls="menu-view"]').click();
-  assert.notEqual(await page.locator('#menu-view [data-command="view-chat"]').getAttribute('aria-disabled'),'true','View › Chat opens the last project (round 3)');
+  assert.equal(await page.locator('#menu-view [data-command="view-chat"]').count(),0,'round 4: Chat and Work live in Window, View is how you see the document');
   await page.keyboard.press('Escape');
   await page.keyboard.press('ControlOrMeta+Digit4');await page.waitForURL(`${base}/gate`);
   assert.equal(await page.locator('#window-title').textContent(),'Gate · All Projects');
@@ -379,17 +381,19 @@ const readline = require('node:readline');
   await page.locator('#file-tree .pw-row',{hasText:'drafts'}).click();await page.locator('#file-tree .pw-row',{hasText:'idea.md'}).click();await page.waitForURL(/drafts\/idea\.md$/);
   await fileCommand('rename-file');await page.waitForFunction(()=>document.querySelector('#name-dialog').open);
   assert.equal(await page.locator('#name-dialog-input').inputValue(),'drafts/idea.md','starts from the current path');
-  await page.locator('#name-dialog-input').fill('drafts/plan');assert.match(await page.locator('#name-dialog-help').textContent(),/Moves the file “drafts\/idea\.md” to “drafts\/plan”/);
+  assert.equal(await page.locator('#name-dialog-input').evaluate(input=>input.value.slice(input.selectionStart,input.selectionEnd)),'idea','the name is selected, not the extension');
+  await page.locator('#name-dialog-input').fill('drafts/plan');assert.match(await page.locator('#name-dialog-help').textContent(),/Moves the file “drafts\/idea\.md” to “drafts\/plan\.md”\. Folders are created as needed\. Its comments move with it\./);
+  assert.equal(await page.locator('#name-dialog-ok').textContent(),'Rename','same folder');
   await page.locator('#name-dialog-input').press('Enter');await page.waitForURL(/drafts\/plan\.md$/);
   assert.ok(fs.existsSync(join(root,'drafts/plan.md'))&&!fs.existsSync(join(root,'drafts/idea.md')),'renamed on disk, extension kept');
   const folder=page.locator('#file-tree .pw-row',{hasText:'drafts'}).first();await folder.click();
   assert.equal(await folder.getAttribute('aria-current'),'true','a clicked folder is selected');
   await fileCommand('rename-file');await page.waitForFunction(()=>document.querySelector('#name-dialog').open);
   assert.equal(await page.locator('#name-dialog-input').inputValue(),'drafts','the command acts on the selected folder');
-  await page.locator('#name-dialog-input').fill('archive/drafts');await page.locator('#name-dialog-input').press('Enter');
+  await page.locator('#name-dialog-input').fill('archive/drafts');assert.equal(await page.locator('#name-dialog-ok').textContent(),'Move','another folder');await page.locator('#name-dialog-input').press('Enter');
   await page.waitForURL(/archive\/drafts\/plan\.md$/);assert.ok(fs.existsSync(join(root,'archive/drafts/plan.md')),'the folder moved, the open file followed');
   await page.locator('#file-tree .pw-row',{hasText:'archive'}).first().click();await fileCommand('trash-page');
-  await page.waitForFunction(()=>document.querySelector('#alert-dialog').open);assert.match(await page.locator('#alert-dialog').textContent(),/Move the folder “archive” to the Trash\?/);
+  await page.waitForFunction(()=>document.querySelector('#alert-dialog').open);assert.match(await page.locator('#alert-dialog').textContent(),/Move the folder “archive” and its 1 file to the Trash\?/);
   await page.getByRole('button',{name:'Move to Trash',exact:true}).click();
   await page.waitForFunction(()=>![...document.querySelectorAll('#file-tree .pw-row')].some(row=>row.textContent.includes('archive')));assert.ok(!fs.existsSync(join(root,'archive')));
 
@@ -404,10 +408,12 @@ const readline = require('node:readline');
   assert.equal(JSON.parse(fs.readFileSync(join(directory,'workspace','model.json'),'utf8')).effort,'low','kept for the next request');
   await page.locator('#model-button').click();await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
   assert.equal(await page.locator('#model-menu [data-model="tiny:1b"]').getAttribute('aria-disabled'),'true','a model without tools cannot be chosen');
+  assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['thinks · sees','no thinking','no tools']);assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'One model in memory at a time. Switching unloads the current one.');
   await page.locator('#model-menu [data-model="qwen3:8b"]').click();
   assert.match(await page.locator('#model-button').textContent(),/Loading qwen3:8b…/);
   await page.locator('#model',{hasText:/^qwen3:8b$/}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/qwen3:8b is ready\./);
   assert.equal(await page.locator('#effort-button').getAttribute('aria-disabled'),'true');assert.equal(await page.locator('#effort-button').textContent(),'No thinking');
+  assert.equal(await page.locator('#effort-note').textContent(),'qwen3:8b does not think. Choose a model that thinks to set a level.','a note, not a disabled item');
   await page.unroute('**/api/models');await page.unroute('**/api/model');fs.rmSync(join(directory,'workspace','model.json'));
 
   // Messages sent while Pi works join the chat's waiting message: one request, not many.

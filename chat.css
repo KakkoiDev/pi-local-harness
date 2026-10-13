@@ -262,7 +262,7 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
   .composer-wrap .pw-composer__row{flex-wrap:nowrap}
   #attach,#record{width:var(--size-touch);padding:0}
   .app-back{display:none} /* the phone's view popup has Chat and Work */
-  #record[aria-pressed="true"]{width:auto;padding:0 10px;gap:6px;font-variant-numeric:tabular-nums} /* recording: the dot and the time, nothing spills */
+  #record[aria-pressed="true"]{width:auto;padding:0 12px;gap:8px} /* recording: the dot and the time, nothing spills */
   #prompt{max-height:96px!important;overflow-y:auto} /* task 144: four lines, then the field scrolls */
   .composer-wrap .pw-composer{padding:10px 12px;gap:8px}
   /* Document (PhoneEdit1): the name sits in the phone bar; no desk ruler; an edit bar at the bottom while editing */

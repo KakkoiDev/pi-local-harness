@@ -31,7 +31,7 @@
         <button class="pw-menu__item" role="menuitem" data-command="desktop-pattern">Desktop Pattern…</button>
         <button class="pw-menu__item" role="menuitem" data-command="open-on-phone">Open on Phone…</button>
         <div class="pw-menu__sep" role="separator"></div>
-        <span class="pw-menu__item" role="menuitem" aria-disabled="true"><span id="menu-model">Gemma 4</span>&nbsp;·&nbsp;<span id="menu-effort">High thinking</span></span>
+        <p class="pw-menu__note" role="note"><span id="menu-model">gemma4:26b-mlx</span>&nbsp;·&nbsp;<span id="menu-effort">High thinking</span></p>
       </div></div>
     <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">File</button>
       <div id="menu-file" class="pw-menu" role="menu" aria-label="File" hidden>
@@ -66,9 +66,7 @@
       </div></div>
     <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-view">View</button>
       <div id="menu-view" class="pw-menu" role="menu" aria-label="View" hidden>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
-        <div class="pw-menu__sep" role="separator"></div>
+        <!-- round 4: View is how you see the current document; Chat and Work live in Window -->
         <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="mode-blocks">As Document</button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="mode-source">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></button>
         <div class="pw-menu__sep" role="separator"></div>
@@ -111,7 +109,7 @@
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
       </div></div>
     <span class="pw-menubar__spacer"></span>
-    <span class="pw-menubar__status"><span class="model-controls"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">Gemma 4</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
+    <span class="pw-menubar__status"><span class="model-controls"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">gemma4:26b-mlx</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
   </nav>
 
   <!-- NEW: phone bar (≤760px) -->
@@ -204,7 +202,7 @@
           <textarea id="prompt" class="pw-field" rows="3" disabled placeholder="Ask anything, or drop a file here"></textarea>
           <div class="pw-composer__row">
             <button id="attach" type="button" class="pw-btn" aria-label="Attach…" disabled><span class="phone-only" data-icon="plus"></span><span class="desk-only">Attach…</span></button>
-            <button id="record" type="button" class="pw-btn" aria-pressed="false" aria-label="Record" disabled><span data-icon="mic"></span><span class="desk-only">Record</span></button>
+            <button id="record" type="button" class="pw-btn pw-btn--rec" aria-pressed="false" aria-label="Record" disabled><span data-icon="mic"></span><span class="desk-only">Record</span></button>
             <span id="hint" class="pw-help">Text, images, audio &amp; files</span>
             <span class="pw-menubar__spacer"></span>
             <button id="stop" type="button" class="pw-btn" hidden>Stop<span class="pw-kbd">⌘.</span></button>
@@ -303,7 +301,7 @@
     <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
   </dialog>
   <dialog id="name-dialog" class="pw-dialog"><!-- NEW: replaces window.prompt for New File / New Task -->
-    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New File</h2><label class="pw-label window-column"><span id="name-dialog-label">File name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
+    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New File</h2><label class="pw-label window-column"><span id="name-dialog-label">File name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button id="name-dialog-ok" value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
   </dialog>
   <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- NEW: replaces window.confirm -->
     <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
@@ -330,10 +328,10 @@
     <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
     <div class="pw-dialog__actions"><button value="done" class="pw-btn pw-btn--default">Done</button></div>
   </form></dialog>
-  <div id="model-menu" class="pw-menu" role="menu" aria-label="Model" hidden><!-- filled from /api/models --></div>
-  <div id="effort-menu" class="pw-menu" role="menu" aria-label="Thinking level" hidden>
+  <div id="model-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Model" hidden><!-- filled from /api/models --></div>
+  <div id="effort-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Thinking level" hidden>
     <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="off">Off</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="minimal">Minimal</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="low">Low</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="medium">Medium</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="high">High</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="xhigh">Extra High</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-effort="max">Max</button>
-    <div class="pw-menu__sep" role="separator"></div><span class="pw-menu__item" role="menuitem" aria-disabled="true">Applies from the next request</span>
+    <div class="pw-menu__sep" role="separator"></div><p id="effort-note" class="pw-menu__note" role="note">Applies from the next request.</p>
   </div>
   <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="gate">Gate</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
