@@ -208,6 +208,7 @@ textarea.pw-field{resize:none;padding:10px 12px}
 
 /* ---------- Dialogs, alerts, sheets, toasts ---------- */
 .pw-dialog{background:var(--paper);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-dialog);padding:24px 26px;display:flex;flex-direction:column;gap:16px;max-width:min(520px,calc(100vw - 32px))}
+dialog.pw-dialog:not([open]){display:none} /* .pw-dialog's display:flex would otherwise show closed dialogs */
 dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#000) 0 25%,transparent 0 50%) 0 0/4px 4px;opacity:.35}
 .pw-dialog__title{margin:0;font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
 .pw-dialog__actions{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:10px}

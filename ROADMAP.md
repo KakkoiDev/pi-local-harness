@@ -109,3 +109,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 
 - [ ] [68-Design foundations (fonts pending)](tasks/68-design-foundations.md)
 - [x] [69-Design tokens, components, icons](tasks/69-design-tokens-icons.md)
+- [x] [70-Design markup and layout](tasks/70-design-markup-layout.md)
