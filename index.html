@@ -281,6 +281,25 @@
   <dialog id="settings-dialog" class="pw-dialog"><!-- NEW --></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
+    <span class="pw-menu__item" aria-disabled="true">Turn Into</span>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="heading">Heading</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check">Task Checkbox</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="bullet">Bullet</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="number">Number</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="quote">Quote</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="code">Code</button>
+    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="raw">Raw Markdown</button>
+    <div class="pw-menu__sep" role="separator"></div>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="up">Move Up<span class="pw-menu__key">⌥⌘↑</span></button>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="down">Move Down<span class="pw-menu__key">⌥⌘↓</span></button>
+    <div class="pw-menu__sep" role="separator"></div>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="comment">Comment on Paragraph</button>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="ask">Ask Pi About Paragraph…</button>
+    <div class="pw-menu__sep" role="separator"></div>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="delete">Delete Paragraph</button>
+  </div>
   <div id="toast" class="pw-toast" role="status" hidden><span id="toast-text"></span><button id="toast-undo" class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div><!-- NEW -->
 </body>
 </html>

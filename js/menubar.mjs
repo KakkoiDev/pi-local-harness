@@ -31,3 +31,18 @@ export function installMenubar(bar,{run,enabled,update,shortcuts}){
  document.addEventListener('keydown',event=>{if(event.isComposing||!modifier(event))return;const command=shortcuts[shortcutOf(event)];if(!command)return;update();if(!enabled(command))return;event.preventDefault();run(command);});
  return {refresh,close};
 }
+// A popup menu opened from a button (the block handle). choose(item) runs after it closes; update() runs before it opens.
+export function installPopup(menu,choose,update=()=>{}){
+ let opener=null;const items=()=>[...menu.querySelectorAll('[role^="menuitem"]')];
+ function close(focusOpener){if(menu.hidden)return;menu.hidden=true;opener?.setAttribute('aria-expanded','false');if(focusOpener)opener?.focus();}
+ function open(anchor){opener=anchor;update();menu.hidden=false;anchor.setAttribute('aria-expanded','true');const box=anchor.getBoundingClientRect();menu.style.left=Math.max(4,Math.min(box.left,innerWidth-menu.offsetWidth-4))+'px';menu.style.top=(box.bottom+menu.offsetHeight+4>innerHeight?Math.max(4,box.top-menu.offsetHeight-2):box.bottom+2)+'px';items()[0]?.focus();}
+ menu.onclick=event=>{const item=event.target.closest('[role^="menuitem"]');if(item){close(false);choose(item);}};
+ menu.onkeydown=event=>{const list=items(),index=list.indexOf(document.activeElement);
+  if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();list[(index+(event.key==='ArrowDown'?1:-1)+list.length)%list.length]?.focus();}
+  else if(event.key==='Home'||event.key==='End'){event.preventDefault();(event.key==='Home'?list[0]:list.at(-1))?.focus();}
+  else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close(true);}
+  else if(event.key==='Tab')close(false);
+  else if(event.key==='Enter'||event.key===' '){event.preventDefault();if(index>=0){close(false);choose(list[index]);}}};
+ document.addEventListener('pointerdown',event=>{if(!menu.hidden&&!menu.contains(event.target)&&!opener?.contains(event.target))close(false);});
+ return {open,close};
+}

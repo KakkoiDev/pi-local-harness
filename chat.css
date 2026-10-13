@@ -102,7 +102,6 @@ body[data-view="work"] .window-projects{display:none}
   .welcome{margin-top:48px}
 }
 
-/* Legacy: elements js/*.mjs still builds the old way. Each block goes when its build step lands. */
-.editor-block{position:relative}
-.block-tools{position:absolute;right:4px;top:-28px;display:none;gap:4px;background:var(--paper);border:1px solid var(--ink);padding:2px;z-index:2}
-.editor-block:hover .block-tools,.editor-block:focus-within .block-tools{display:flex}
+/* Block handle menu: placed under its handle by js/menubar.mjs installPopup */
+#block-menu{position:fixed;top:0;left:0;z-index:45}
+#block-menu>span.pw-menu__item{padding-left:12px}
