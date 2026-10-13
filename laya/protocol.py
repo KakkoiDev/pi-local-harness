@@ -21,6 +21,9 @@ TEST_COMMANDS = [
     ('jest',), ('go', 'test'), ('cargo', 'test'), ('make', 'test'), ('python3', 'tests/verify_workflow.py'),
 ]
 CHECKED = re.compile(r'- \[[xX]\]')
+KIND = re.compile(r'^Kind:\s*(\S+)', re.MULTILINE)
+KINDS = ('code', 'config', 'docs', 'planning')
+KIND_FIX = '`Kind: code|config|docs|planning` line'
 LARGE = 1024 * 1024
 INTERRUPTED = ('Command aborted', 'Command terminated without an exit code', 'Command timed out after')
 
@@ -149,18 +152,31 @@ def code_state(root, paths):
     return digest.hexdigest(), code
 
 def newly_checked(root, paths, selected):
+    """Selected paths whose changes add a checked box."""
+    found = []
     for path, status in paths.items():
         if not selected(path):
             continue
         if status == '??' or git(root, 'cat-file', '-e', f'HEAD:./{path}') is None:
             file = root / path
             if file.is_file() and CHECKED.search(file.read_text(errors='replace')):
-                return True
+                found.append(path)
             continue
         diff = (git(root, 'diff', 'HEAD', '--unified=0', '--', path) or b'').decode(errors='replace')
         if any(line.startswith('+') and not line.startswith('+++') and CHECKED.search(line) for line in diff.splitlines()):
-            return True
-    return False
+            found.append(path)
+    return found
+
+def is_task(path):
+    return path.startswith('tasks/') and path.endswith('.md')
+
+def task_kind(root, path):
+    """Value of the task file's `Kind:` line, or None when missing or unknown."""
+    try:
+        match = KIND.search((root / path).read_text(errors='replace'))
+    except OSError:
+        return None
+    return match.group(1).lower() if match and match.group(1).lower() in KINDS else None
 
 def interrupted(output):
     """True when Pi's bash tool reports a stopped, killed, or timed-out command instead of an exit code."""
@@ -225,18 +241,34 @@ class Protocol:
         if paths is None:
             return None
         state, code = code_state(root, paths)
+        tasks = newly_checked(root, paths, is_task)
+        roadmap = newly_checked(root, paths, lambda path: path == 'ROADMAP.md')
+        planning_only = all(path == 'ROADMAP.md' or path.startswith('tasks/') for path in paths)
         missing = []
-        if code:
+        if planning_only and not tasks and not roadmap:
+            unkinded = [path for path in paths if is_task(path) and (root / path).is_file() and not task_kind(root, path)]
+            if unkinded:
+                missing.append(f'a {KIND_FIX} in ' + ', '.join(unkinded))
+            return self.reason(root, missing, code)
+        kinds = {path: task_kind(root, path) for path in tasks}
+        missing += [f'a {KIND_FIX} in {path}' for path, kind in kinds.items() if not kind]
+        known = set(kinds.values()) - {None}
+        if code and known and known <= {'docs', 'planning'}:
+            missing.append(f'code changes in a Kind: {"/".join(sorted(known))} task; set Kind: code or Kind: config, or revert the code')
+        elif code:
             runs = self.runs.get(root, [])
             green = next((index for index in range(len(runs) - 1, -1, -1) if runs[index] == (state, True)), None)
-            if green is None or not any(not passed and before != state for before, passed in runs[:green]):
+            if (not known or 'code' in known) and (green is None or not any(not passed and before != state for before, passed in runs[:green])):
                 missing.append('a failing (red) test run before the implementation, made by running the tests without pipes or `|| true`')
             if green is None:
                 missing.append('a passing (green) test run after the last code change')
-        if not newly_checked(root, paths, lambda path: path.startswith('tasks/') and path.endswith('.md')):
+        if not tasks:
             missing.append('a newly checked box (- [x]) in the task file under tasks/')
-        if not newly_checked(root, paths, lambda path: path == 'ROADMAP.md'):
+        if not roadmap:
             missing.append('the task marked done (- [x]) in ROADMAP.md')
+        return self.reason(root, missing, code)
+
+    def reason(self, root, missing, code):
         if not missing:
             return None
         changed = ', '.join(code[:8]) + (' ...' if len(code) > 8 else '') if code else 'documentation only'

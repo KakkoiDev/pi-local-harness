@@ -15,7 +15,7 @@ class ProtocolTest(unittest.TestCase):
         directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
         self.root = Path(directory.name).resolve()
         (self.root / 'tasks').mkdir()
-        (self.root / 'tasks/01-feature.md').write_text('# Feature\n\n- [ ] Red\n- [ ] Green\n')
+        (self.root / 'tasks/01-feature.md').write_text('# Feature\n\nKind: code\n\n- [ ] Red\n- [ ] Green\n')
         (self.root / 'ROADMAP.md').write_text('- [ ] [01](tasks/01-feature.md)\n')
         (self.root / 'app.py').write_text('VALUE = 1\n')
         git(self.root, 'init', '-q'); git(self.root, 'add', '.')
@@ -33,8 +33,8 @@ class ProtocolTest(unittest.TestCase):
     def commit(self, cwd=None):
         return self.run_bash('git add -A && git -c user.name=t -c user.email=t@t commit -q -m work', cwd=cwd, execute=True)
 
-    def check_boxes(self):
-        (self.root / 'tasks/01-feature.md').write_text('# Feature\n\n- [x] Red\n- [x] Green\n')
+    def check_boxes(self, kind='code'):
+        (self.root / 'tasks/01-feature.md').write_text(f'# Feature\n\nKind: {kind}\n\n- [x] Red\n- [x] Green\n')
         (self.root / 'ROADMAP.md').write_text('- [x] [01](tasks/01-feature.md)\n')
 
     def test_full_protocol_allows_commit(self):
@@ -117,13 +117,13 @@ class ProtocolTest(unittest.TestCase):
     def test_project_in_a_subfolder_of_a_larger_repository(self):
         project = self.root / 'app'
         (project / 'tasks').mkdir(parents=True)
-        (project / 'tasks/01.md').write_text('- [ ] Do\n'); (project / 'ROADMAP.md').write_text('- [ ] [01](tasks/01.md)\n'); (project / 'main.py').write_text('x = 1\n')
+        (project / 'tasks/01.md').write_text('Kind: code\n- [ ] Do\n'); (project / 'ROADMAP.md').write_text('- [ ] [01](tasks/01.md)\n'); (project / 'main.py').write_text('x = 1\n')
         git(self.root, 'add', '.'); git(self.root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'sub')
         (self.root / 'app.py').write_text('VALUE = 9\n')
         self.run_bash('pytest', exit_code=1, cwd=project)
         (project / 'main.py').write_text('x = 2\n')
         self.run_bash('pytest', cwd=project)
-        (project / 'tasks/01.md').write_text('- [x] Do\n'); (project / 'ROADMAP.md').write_text('- [x] [01](tasks/01.md)\n')
+        (project / 'tasks/01.md').write_text('Kind: code\n- [x] Do\n'); (project / 'ROADMAP.md').write_text('- [x] [01](tasks/01.md)\n')
         self.assertEqual(self.run_bash('git commit -qm w -- .', cwd=project)['outcome'], 'ALLOW')
 
     def test_git_failure_revises_instead_of_raising(self):
@@ -165,6 +165,34 @@ class ProtocolTest(unittest.TestCase):
         self.run_bash('pytest'); self.check_boxes()
         self.assertEqual(self.commit()['outcome'], 'ALLOW')
         self.assertEqual(ProposalLedger(self.ledger.engine, protocol_file=state).protocol.runs, {})
+
+    def test_config_task_needs_green_but_not_red(self):
+        (self.root / 'app.py').write_text('VALUE = 2\n')
+        self.run_bash('pytest'); self.check_boxes('config')
+        self.assertEqual(self.commit()['outcome'], 'ALLOW')
+
+    def test_docs_task_needs_no_runs_but_cannot_change_code(self):
+        (self.root / 'NOTES.md').write_text('notes\n'); self.check_boxes('docs')
+        self.assertEqual(self.commit()['outcome'], 'ALLOW')
+        (self.root / 'app.py').write_text('VALUE = 2\n'); self.check_boxes('docs')
+        (self.root / 'tasks/01-feature.md').write_text('Kind: docs\n\n- [x] Red\n- [x] Green\n- [x] More\n')
+        (self.root / 'ROADMAP.md').write_text('- [x] [01](tasks/01-feature.md)\n- [x] more\n')
+        self.assertIn('Kind: docs', self.commit()['reason'])
+
+    def test_missing_or_unknown_kind_names_the_fix(self):
+        for line in ['', 'Kind: stuff\n']:
+            (self.root / 'tasks/01-feature.md').write_text(f'{line}- [x] Red\n')
+            (self.root / 'ROADMAP.md').write_text('- [x] [01](tasks/01-feature.md)\n')
+            gate = self.commit()
+            self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('Kind: code|config|docs|planning', gate['reason'])
+
+    def test_planning_commit_adds_unchecked_tasks_with_kinds(self):
+        (self.root / 'tasks/02-next.md').write_text('# Next\n\nKind: code\n\n- [ ] Red\n')
+        (self.root / 'ROADMAP.md').write_text('- [ ] [01](tasks/01-feature.md)\n- [ ] [02](tasks/02-next.md)\n')
+        self.assertEqual(self.commit()['outcome'], 'ALLOW')
+        (self.root / 'tasks/03-later.md').write_text('# Later\n\n- [ ] Red\n')
+        gate = self.commit()
+        self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('tasks/03-later.md', gate['reason'])
 
     def test_folders_without_roadmap_and_tasks_are_unaffected(self):
         (self.root / 'ROADMAP.md').unlink()
