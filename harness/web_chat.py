@@ -146,11 +146,24 @@ class WebChat:
         return self.queue.add(project,chat['id'],data)
     def execute_job(self, job, emit):
         data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit)
+    def gate_events(self):
+        """Gate events with their project (from the folder the check ran in) and source (task 129)."""
+        projects=sorted(((str(Path(item['path']).resolve()),item['id']) for item in self.documents.list_projects()),key=lambda pair:-len(pair[0]))
+        def owner(cwd):
+            if not cwd:return None
+            folder=str(Path(cwd).resolve())
+            return next((identifier for path,identifier in projects if folder==path or folder.startswith(path+os.sep)),None)
+        ledger=getattr(self,'ledger',None)
+        return [{**event,'project':owner(event.get('cwd')),'from':{'web':'Web','terminal':'Terminal'}.get(event.get('source'),'')} for event in (ledger.recent_events() if ledger else [])]
+    def gate_today(self):
+        today=datetime.now().astimezone().date().isoformat()
+        events=[event for event in self.gate_events() if event['timestamp'].startswith(today) and event['phase']=='gate']
+        return {'today':len(events),'blocked_today':sum(event['outcome']!='ALLOW' for event in events)}
     def workspace(self):
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
             projects.append({**project,'chat':self.project_chat(project['id'],summaries)['id']})
-        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root)}
+        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         with self.lock:
             active=self.active.get(identifier)
@@ -318,7 +331,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/gate':
-                self.reply({'events':self.chat.ledger.recent_events(),'gate_port':self.chat.gate_port});return
+                self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
             if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
             if path.startswith('/api/conversations/'):

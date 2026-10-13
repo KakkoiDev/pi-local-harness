@@ -328,6 +328,13 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#gate-panel .pw-infobar #gate-live').count(),1,'live status sits in the info bar');
   await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();await page.waitForURL(new RegExp('/p/'));
 
+  // 129: Gate rows name their project and source; the Project popup filters them.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Look around TEST_TOOL');await page.locator('#send').click();
+  await page.goto(`${base}/gate`);const webRow=page.locator('#gate-events .gate-event').filter({hasText:'cat README.md'}).first();await webRow.waitFor({timeout:20000});
+  assert.equal(await webRow.locator('.pw-link').textContent(),'Design check');assert.equal(await webRow.locator('span').last().textContent(),'Web');
+  await page.locator('#gate-project').selectOption({label:'Bare folder'});await page.waitForFunction(()=>!document.querySelector('#gate-events .gate-event'));
+  await page.locator('#gate-project').selectOption('all');
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();

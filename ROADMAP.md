@@ -168,7 +168,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [126-Re-sync the design after the agent-scope brief](tasks/126-design-resync-2.md)
 - [x] [127-Routes /activity and /gate](tasks/127-app-routes.md)
 - [x] [128-Activity and Gate are app windows; the project window has Chat | Work](tasks/128-app-windows.md)
-- [ ] [129-Gate events know their project and source](tasks/129-gate-project-source.md)
+- [x] [129-Gate events know their project and source](tasks/129-gate-project-source.md)
 - [ ] [130-Projects window: Projects group and Agent section](tasks/130-agent-section.md)
 - [ ] [131-The menu bar status is a button](tasks/131-status-button.md)
 - [ ] [132-Phone and tablet for app-level Activity and Gate](tasks/132-phone-agent.md)

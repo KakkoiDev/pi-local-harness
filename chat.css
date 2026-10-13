@@ -162,7 +162,7 @@ a.activity-task,.activity-task{color:inherit;text-decoration:none;cursor:default
 .event-info>.pw-btn{align-self:flex-start}
 .gate-empty{padding:24px 14px}
 .gate-empty h3{margin:0 0 8px}
-button.gate-event{text-align:left;background:none;border-left:0;border-right:0;border-top:0;color:inherit;font:inherit;width:100%}
+button.gate-event,.gate-event{text-align:left;background:none;border-left:0;border-right:0;border-top:0;color:inherit;font:inherit;width:100%;cursor:default}
 /* Settings dialog */
 .settings-group{border:1px solid var(--ink);padding:10px 14px;margin:0;display:flex;flex-direction:column;gap:6px}
 .settings-group legend{padding:0 6px}
