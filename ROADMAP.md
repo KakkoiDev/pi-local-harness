@@ -160,3 +160,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [118-Activity and Gate are app-level windows](tasks/118-agent-scope.md)
 - [ ] [119-Brief for the designer: agent scope and context](tasks/119-designer-brief.md)
 - [x] [120-Back up the design artifacts](tasks/120-design-backup.md)
+- [x] [121-Enter that confirms Japanese input never sends](tasks/121-ime-enter.md)

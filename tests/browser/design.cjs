@@ -158,6 +158,25 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#document-prompt').isVisible(),false,'folded until opened');
   await page.locator('#document-discussion>summary').click();assert.equal(await page.locator('#document-prompt').isVisible(),true);
 
+  // 121: the Enter that confirms Japanese (IME) input never sends or splits; Safari reports it as keyCode 229 with isComposing false.
+  await page.locator('#chat-tab').click();
+  const sentBefore=await page.locator('#messages .pw-msg--user').count();
+  await page.locator('#prompt').fill('漢字');
+  await page.locator('#prompt').evaluate(element=>element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',keyCode:229,bubbles:true,cancelable:true})));
+  await page.waitForTimeout(500);
+  assert.equal(await page.locator('#messages .pw-msg--user').count(),sentBefore,'confirming a kanji does not send');assert.equal(await page.locator('#prompt').inputValue(),'漢字');
+  await page.locator('#prompt').fill('');
+  await page.locator('#work-tab').click();
+  const blocksBefore=await page.locator('#document-editor>.pw-block').count();
+  await page.locator('#document-editor>.pw-block.text .block-content').first().evaluate(element=>{element.focus();element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',keyCode:229,bubbles:true,cancelable:true}));});
+  assert.equal(await page.locator('#document-editor>.pw-block').count(),blocksBefore,'confirming a kanji does not split the block');
+
+  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();
+  await page.locator('#name-dialog-input').fill('メモ');
+  // A script-made Enter never submits a form, so check the guard itself: the confirming Enter is cancelled, a plain one is not.
+  assert.deepEqual(await page.locator('#name-dialog-input').evaluate(element=>[229,13].map(keyCode=>{const event=new KeyboardEvent('keydown',{key:'Enter',keyCode,bubbles:true,cancelable:true});element.dispatchEvent(event);return event.defaultPrevented;})),[true,false]);
+  await page.keyboard.press('Escape');
+
   // 113: an open Reasoning panel stays open while reasoning streams in, and after the reply finishes.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Think it over. TEST_THINK');await page.locator('#send').click();

@@ -1,5 +1,5 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
-import { icon,stateGlyph,toolCard,segmentFor,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
+import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
@@ -21,7 +21,7 @@ export function installWorkspace(host){
  // Notion-style keys: Return splits the block (lists continue, an empty list item becomes a paragraph); Backspace in an empty block removes it.
  function caretOffset(element){const selection=getSelection();if(!selection.rangeCount||!element.contains(selection.anchorNode))return element.innerText.length;const range=document.createRange();range.selectNodeContents(element);range.setEnd(selection.anchorNode,selection.anchorOffset);return range.toString().length;}
  function caretToEnd(index){const element=blockRows()[index]?.querySelector('[contenteditable]');if(!element)return;element.focus();const range=document.createRange();range.selectNodeContents(element);range.collapse(false);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);}
- function blockKey(event,index,element){const block=blocks[index];if(event.isComposing||!block)return;
+ function blockKey(event,index,element){const block=blocks[index];if(imeEnter(event)||!block)return;
   if(event.key==='Enter'&&!event.shiftKey&&!['code','raw'].includes(block.type)){event.preventDefault();const list=['bullet','number','check'].includes(block.type);
    if(list&&!element.innerText.trim()){setType(index,'text');return;}
    const at=caretOffset(element),value=element.innerText;block.text=value.slice(0,at);block.dirty=true;blocks.splice(index+1,0,{type:list?block.type:'text',text:value.slice(at),checked:false,level:block.level,dirty:true});changed();renderBlocks();refocus(index+1);focusBlock(index+1);}

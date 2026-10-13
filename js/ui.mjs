@@ -22,3 +22,7 @@ export function segmentFor(seg,select){
  sync();return sync;}
 export function readState(key,fallback=null){try{return JSON.parse(localStorage.getItem('plh.'+key))??fallback;}catch{return fallback;}}
 export function writeState(key,value){try{if(value===null)localStorage.removeItem('plh.'+key);else localStorage.setItem('plh.'+key,JSON.stringify(value));return true;}catch{return false;}}
+
+// An Enter that confirms IME input (Japanese kana to kanji) must not act. Safari sends it after compositionend
+// with isComposing false, so keyCode 229 is the reliable sign (task 121).
+export const imeEnter=event=>event.isComposing||event.keyCode===229;
