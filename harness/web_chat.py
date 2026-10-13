@@ -42,9 +42,12 @@ class ConversationStore:
     def create(self):
         return self.save({'id':uuid.uuid4().hex,'title':'New conversation','messages':[],'created':timestamp()})
     def list(self):
+        values=[]
         with self.lock:
-            values=[json.loads(path.read_text()) for path in self.root.glob('*/conversation.json')]
-        return sorted([dict(id=v['id'],title=v['title'],updated=v['updated']) for v in values],key=lambda v:v['updated'],reverse=True)
+            for path in self.root.glob('*/conversation.json'):
+                try:value=json.loads(path.read_text());values.append(dict(id=value['id'],title=value['title'],updated=value['updated'],project=value.get('project')))
+                except (OSError,ValueError,KeyError,TypeError):continue
+        return sorted(values,key=lambda v:v['updated'],reverse=True)
     def append(self, identifier, message):
         with self.lock:
             value=self.get(identifier);message.setdefault('timestamp',timestamp());value['messages'].append(message)
@@ -77,12 +80,13 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
         suffix=Path(name).suffix.lower()
         if mime in IMAGE_TYPES:
             signatures={'image/png':b'\x89PNG\r\n\x1a\n','image/jpeg':b'\xff\xd8','image/webp':b'RIFF','image/gif':b'GIF8'}
-            if not data.startswith(signatures[mime]):raise ValueError('Image content does not match its type')
+            if not data.startswith(signatures[mime]) or mime=='image/webp' and data[8:12]!=b'WEBP':raise ValueError('Image content does not match its type')
             images.append({'type':'image','data':base64.b64encode(data).decode(),'mimeType':mime})
             parts.append(f'Attached image: {name}')
         elif mime.startswith('audio/') or suffix in AUDIO_SUFFIXES:
             path.write_bytes(data)
             parts.append(f'Audio transcript ({name}):\n{speech(path)}')
+            files.append({'name':name,'mime':mime,'size':len(data),'path':str(path)});continue
         elif mime.startswith('text/') or suffix in TEXT_SUFFIXES:
             try:content=data.decode('utf-8')
             except UnicodeDecodeError as error:raise ValueError('Text files must be UTF-8') from error
@@ -114,13 +118,13 @@ class WebChat:
             except ProcessLookupError:return False
             except (OSError,ValueError,KeyError):return True
         return False
-    def project_chat(self, project):
+    def project_chat(self, project, summaries=None):
         self.documents.project_path(project)
         with self.lock:
-            for summary in self.store.list():
-                chat=self.store.get(summary['id'])
-                if chat.get('project')==project:return chat
-            name=next(item['name'] for item in self.documents.list_projects() if item['id']==project)
+            for summary in self.store.list() if summaries is None else summaries:
+                if summary['project']==project:return self.store.get(summary['id'])
+            name=next((item['name'] for item in self.documents.list_projects() if item['id']==project),None)
+            if name is None:raise ValueError('Project not found')
             chat=self.store.create();chat.update(project=project,title=name);return self.store.save(chat)
     def enqueue(self, data):
         if not isinstance(data.get('message',''),str):raise ValueError('Message must be text')
@@ -135,9 +139,9 @@ class WebChat:
     def execute_job(self, job, emit):
         data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit)
     def workspace(self):
-        projects=[]
+        projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
-            projects.append({**project,'chat':self.project_chat(project['id'])['id']})
+            projects.append({**project,'chat':self.project_chat(project['id'],summaries)['id']})
         return {'projects':projects,'jobs':self.queue.list(),'busy':self.busy(),'data_root':str(self.documents.root)}
     def stop(self, identifier):
         with self.lock:
@@ -288,6 +292,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if disposition:self.send_header('Content-Disposition',disposition)
             self.end_headers();self.wfile.write(body)
         except (FileNotFoundError,ValueError,KeyError):self.reply({'error':'Not found'},404)
+        except Exception as error:self.reply({'error':f'Internal error: {type(error).__name__}'},500)
     def do_POST(self):
         if not self.trusted():self.reply({'error':'Cross-origin requests are not allowed'},403);return
         streaming=False
@@ -336,3 +341,7 @@ class WebHandler(BaseHTTPRequestHandler):
             except Exception as error:emit({'type':'error','error':str(error)})
         except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
             if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)
+        except (TypeError,AttributeError) as error:
+            if not streaming:self.reply({'error':f'Malformed request field: {error}'},400)
+        except Exception as error:
+            if not streaming:self.reply({'error':f'Internal error: {type(error).__name__}: {error}'},500)

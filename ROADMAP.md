@@ -74,3 +74,4 @@ and harness/README.md for the installed pi workflow.
 - [x] [46-Pi CLI compatibility](tasks/46-pi-cli-compatibility.md)
 - [x] [47-Real verification gate](tasks/47-real-verification-gate.md)
 - [x] [48-Runtime data out of the repository](tasks/48-runtime-data-out-of-repo.md)
+- [x] [49-Web handler robustness](tasks/49-web-handler-robustness.md)
