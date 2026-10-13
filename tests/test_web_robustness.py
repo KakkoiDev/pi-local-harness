@@ -64,6 +64,18 @@ class WebRobustnessTest(unittest.TestCase):
         self.assertEqual(first['id'], second['id'])
         self.assertEqual(len(self.chat.store.list()), 1)
 
+    def test_app_paths_serve_the_workbench_and_unknown_paths_do_not(self):
+        """Task 106: /projects and /p/<project>/<view>[/<file>] are the app; anything else stays 404."""
+        import urllib.error
+        for path in ['/projects', '/p/abc/chat', '/p/abc/work/tasks/001-first%20task.md', '/p/abc/activity', '/p/abc/gate', '/js/router.mjs', '/js/files-window.mjs']:
+            with urllib.request.urlopen(self.base + path, timeout=5) as response:
+                self.assertEqual(response.status, 200, path)
+        with urllib.request.urlopen(self.base + '/p/abc/work/x.md', timeout=5) as response:
+            self.assertIn('<title>Pi Workbench</title>', response.read().decode())
+        for path in ['/p', '/p/abc', '/p/abc/other', '/api/nothing', '/js/missing.mjs', '/projects/x']:
+            with self.assertRaises(urllib.error.HTTPError, msg=path) as caught: urllib.request.urlopen(self.base + path, timeout=5)
+            self.assertEqual(caught.exception.code, 404, path)
+
     def test_design_files_and_fonts_are_served_with_their_types(self):
         import harness.web_chat as web
         from unittest import mock

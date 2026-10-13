@@ -1,3 +1,5 @@
+> Stale (2026-10-13, task 106): this was the removed portfolio site. The workbench uses no htmx, Tailwind or CDN (design/IMPLEMENTATION.md § no framework); navigation is `js/router.mjs`.
+
 # Migration Spec: Web Components & htmx
 
 ## Objective

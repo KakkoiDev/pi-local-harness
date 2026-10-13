@@ -294,3 +294,10 @@ Each step is one task file and one commit; run the repo gate after each: `PATH=$
 - [ ] Inverse theme: no element keeps a light-only colour (check `#fff`/`#000` literals; use tokens).
 - [ ] Works offline: no request leaves localhost except the tailnet proxy plh starts.
 - [ ] `tests/verify_workflow.py` passes (unit, Node and browser tests).
+
+
+## 2026-10-13 additions (tasks 97, 106, 107)
+
+- **Projects home, then inside a project** (task 107, user decision). The left window follows `body[data-level]`, in every view: `projects` shows the Projects window (rows carry the running glyph or "waiting"), `project` shows the project window (title = project name, close box and "‹ Projects" go back, info bar "N open tasks · N folders · N files", Find a file, Plan above Files). Choosing a project keeps the current view. File › New Project… and ⌘K (Find Project) work from inside a project; ⌘K returns to the Projects home. Phone keeps the π sheet and the Work › Files screen.
+- **Plan above Files** (task 97): `js/files-window.mjs`, per ListGroup and ListRow. `/api/project-files` adds `done`, `total`, `blocked` to ROADMAP.md and `tasks/*.md`; `/api/documents/create-roadmap` backs Create Roadmap. Opening or creating a file from the project window switches to Work.
+- **Where you are is in the path** (task 106): `js/router.mjs`. `/projects`; `/p/<project>/chat|work|activity|gate`; `/p/<project>/work/<file in the project>`. `history.pushState` on every view, project, level or file change; Back/Forward replay it; `/` and the old `/?chat=` / `/?document=` links redirect. The server answers these paths with `index.html` (`harness/web_chat.py`). htmx stays out (§ no framework).

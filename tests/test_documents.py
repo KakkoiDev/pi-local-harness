@@ -160,3 +160,37 @@ class NewFileAndTaskTest(unittest.TestCase):
         self.assertTrue((self.root / 'ROADMAP.md').read_text().endswith('- [ ] Define the first task\n- [ ] [002-Phone layouts](tasks/002-phone-layouts.md)\n'))
         (self.root / 'tasks/041-later.md').write_text('# Later\n')
         self.assertEqual(self.store.create_task(self.project, 'Ünïcode & symbols!')['path'], f'projects/{self.project}/tasks/042-ünïcode-symbols.md')
+
+
+class PlanFilesTest(unittest.TestCase):
+    """The Files window's Plan group needs checkbox progress and a Create Roadmap action (task 97)."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.store = DocumentStore(Path(self.temp.name) / 'data')
+        self.root = Path(self.temp.name) / 'folder'; (self.root / 'tasks').mkdir(parents=True)
+        self.project = self.store.register(str(self.root), 'Folder')
+
+    def entry(self, name):
+        return next(item for item in self.store.files(self.project) if item['name'] == name)
+
+    def test_plan_files_carry_checkbox_progress_and_blocked(self):
+        (self.root / 'ROADMAP.md').write_text('# R\n\n- [x] a\n- [ ] b\n- [~] c\n')
+        (self.root / 'tasks/001-a.md').write_text('# A\n\n- [x] one\n- [x] two\n')
+        (self.root / 'tasks/002-b.md').write_text('# B\n\n- [ ] one\n- [~] Blocked: waiting on Serve\n')
+        (self.root / 'tasks/003-c.md').write_text('# C\n\nNo boxes.\n')
+        (self.root / 'notes.md').write_text('- [x] not a plan file\n')
+        self.assertEqual({k: self.entry('ROADMAP.md')[k] for k in ('done', 'total', 'blocked')}, {'done': 1, 'total': 3, 'blocked': False})
+        self.assertEqual({k: self.entry('tasks/001-a.md')[k] for k in ('done', 'total', 'blocked')}, {'done': 2, 'total': 2, 'blocked': False})
+        self.assertEqual(self.entry('tasks/002-b.md')['blocked'], True)
+        self.assertEqual(self.entry('tasks/003-c.md')['total'], 0)
+        self.assertNotIn('total', self.entry('notes.md'))
+
+    def test_create_roadmap_scaffolds_only_what_is_missing(self):
+        (self.root / 'tasks').rmdir(); (self.root / 'keep.txt').write_text('mine')
+        created = self.store.create_roadmap(self.project)
+        self.assertEqual(created['path'], f'projects/{self.project}/ROADMAP.md')
+        self.assertTrue((self.root / 'ROADMAP.md').is_file()); self.assertTrue((self.root / 'tasks/001-first-task.md').is_file())
+        self.assertEqual((self.root / 'keep.txt').read_text(), 'mine')
+        (self.root / 'ROADMAP.md').write_text('# Mine\n')
+        with self.assertRaises(ValueError): self.store.create_roadmap(self.project)
+        self.assertEqual((self.root / 'ROADMAP.md').read_text(), '# Mine\n')

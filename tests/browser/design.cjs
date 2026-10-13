@@ -172,6 +172,68 @@ const readline = require('node:readline');
   assert.equal(await reply.locator('input.pw-check').isChecked(),true);
   assert.equal(await reply.evaluate(element=>element.innerHTML.includes('**')),false,'no raw Markdown marks');
 
+  // 97: Files window = Plan above Files (ListGroup), titled with the project, as the Work board.
+  fs.writeFileSync(join(root,'tasks/003-finished.md'),'# Finished\n\n- [x] a\n- [x] b\n');
+  fs.writeFileSync(join(root,'tasks/004-stuck.md'),'# Stuck\n\n- [ ] a\n- [~] Blocked: waiting\n');
+  const id=created.project;
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);
+  await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  assert.equal(await page.locator('#files-title').textContent(),'Design check','Files window title is the project');
+  const plan=page.locator('.pw-group[data-group="plan"]'),other=page.locator('.pw-group[data-group="files"]');
+  assert.equal(await plan.locator('.pw-group__toggle').textContent(),'Plan3 open');
+  assert.deepEqual(await plan.locator('.pw-group__body>.pw-row').evaluateAll(rows=>rows.map(row=>[row.querySelector('.pw-row__label').textContent,row.querySelector('.pw-row__meta')?.textContent||''])),
+   [['ROADMAP.md','1/3'],['004-stuck','Blocked'],['002-phone-layouts','0/3'],['001-first-task','0/3'],['Done','1 task']]);
+  const done=plan.locator('.pw-row--summary');assert.equal(await done.getAttribute('aria-expanded'),'false');
+  await done.click();assert.equal(await plan.locator('.pw-row--nested .pw-row__label').first().textContent(),'003-finished');
+  assert.deepEqual(await other.locator('.pw-group__body>.pw-row .pw-row__label').evaluateAll(rows=>rows.map(row=>row.textContent)),['tools','TYPES.md'],'folders first, then files; plan files are not repeated');
+  assert.equal(await other.locator('.pw-row', {hasText:'tools'}).first().getAttribute('aria-expanded'),'false','folders start collapsed');
+  await other.locator('.pw-row',{hasText:'tools'}).first().click();
+  assert.equal(await other.locator('.pw-row--nested .pw-row__label').textContent(),'check.py');
+  await plan.locator('.pw-group__action').click();assert.equal(await page.locator('#name-dialog-title').textContent(),'New Task');await page.keyboard.press('Escape');
+  await other.locator('.pw-group__action').click();assert.equal(await page.locator('#name-dialog-title').textContent(),'New File');await page.keyboard.press('Escape');
+  await plan.locator('.pw-group__toggle').click();assert.equal(await plan.locator('.pw-group__body').isHidden(),true);
+  await page.reload();
+  await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  assert.equal(await page.locator('.pw-group[data-group="plan"] .pw-group__body').isHidden(),true,'collapse is remembered per project');
+  await page.locator('.pw-group[data-group="plan"] .pw-group__toggle').click();
+  await page.locator('#file-search').fill('check');
+  assert.deepEqual(await page.locator('#file-tree .pw-row__label').evaluateAll(rows=>rows.map(row=>row.textContent)),['tools/check.py']);
+  assert.equal(await page.locator('#file-search-note').textContent(),'1 match for “check” in both groups. Esc clears.');
+  await page.locator('#file-search').press('Escape');assert.equal(await page.locator('#file-search').inputValue(),'');
+  await page.locator('.pw-group[data-group="plan"] .pw-group__toggle').focus();await page.keyboard.press('ArrowDown');
+  assert.equal(await page.evaluate(()=>document.activeElement.querySelector('.pw-row__label')?.textContent),'ROADMAP.md','one roving list: ↓ from the toggle reaches the first row');
+  assert.equal(await page.locator('#file-tree [tabindex="0"]').count(),1,'one tab stop');
+
+  // 107: the Projects home lists projects; choosing one shows what is inside; ‹ Projects goes back. Same in every view.
+  const bare=join(directory,'Bare folder');fs.mkdirSync(bare);fs.writeFileSync(join(bare,'notes.txt'),'x');
+  const registered=await post('/api/projects/register',{path:bare});
+  await page.locator('#chat-tab').click();
+  await page.locator('#show-projects').click();
+  await page.waitForURL(base+'/projects');
+  assert.equal(await page.locator('.window-projects').isVisible(),true);assert.equal(await page.locator('.window-files').isVisible(),false);
+  await page.locator('#project-list .pw-row',{hasText:'Bare folder'}).click();
+  await page.waitForURL(`${base}/p/${registered.project}/chat`);
+  assert.equal(await page.locator('#files-title').textContent(),'Bare folder');assert.equal(await page.locator('.window-projects').isVisible(),false);
+  // empty Plan: Create Roadmap
+  assert.equal(await page.locator('.pw-group[data-group="plan"] .pw-group__empty').isVisible(),true);
+  await page.getByRole('button',{name:'Create Roadmap',exact:true}).click();
+  await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  assert.equal(fs.existsSync(join(bare,'tasks/001-first-task.md')),true);
+  await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);
+
+  // 106: views and files are in the path; Back and Forward restore them; a reload lands in the same place.
+  await page.locator('#file-tree .pw-row',{hasText:'notes.txt'}).click();
+  await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
+  await page.locator('#activity-tab').click();await page.waitForURL(`${base}/p/${registered.project}/activity`);
+  await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
+  assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');assert.equal(await page.locator('#document-path').textContent(),'notes.txt');
+  await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  await page.goForward();await page.locator('#document-path').filter({hasText:'notes.txt'}).waitFor();
+  await page.goto(`${base}/p/${id}/work/TYPES.md`);await page.locator('#document-path').filter({hasText:'TYPES.md'}).waitFor();
+  assert.equal(await page.locator('#files-title').textContent(),'Design check');assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');
+  await page.goto(`${base}/?document=`+encodeURIComponent(`projects/${id}/TYPES.md`));await page.waitForURL(`${base}/p/${id}/work/TYPES.md`);
+  await page.goto(base+'/');await page.waitForURL(url=>url.pathname!=='/');
+
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();const exited=new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

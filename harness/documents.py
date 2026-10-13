@@ -256,9 +256,29 @@ class DocumentStore:
             for name in sorted(files):
                 file=Path(directory)/name
                 if file.is_symlink():continue
-                result.append({'path':'projects/'+project+'/'+str(file.relative_to(path)),'name':str(file.relative_to(path)),'size':file.stat().st_size})
+                entry={'path':'projects/'+project+'/'+str(file.relative_to(path)),'name':str(file.relative_to(path)),'size':file.stat().st_size}
+                if entry['name']=='ROADMAP.md' or entry['name'].startswith('tasks/') and name.endswith('.md'):entry.update(self.progress(file))
+                result.append(entry)
                 if len(result)>=2000:return result
         return result
+    @staticmethod
+    def progress(file):
+        """Plan group meta: checkbox progress (done/total over - [ ], - [x], - [~]) and a - [~] Blocked: line."""
+        try:text=file.read_text(encoding='utf-8',errors='ignore') if file.stat().st_size<=512000 else ''
+        except OSError:text=''
+        boxes=re.findall(r'^\s*[-*] \[([ xX~])\]',text,re.M)
+        return {'done':sum(box in 'xX' for box in boxes),'total':len(boxes),'blocked':bool(re.search(r'^\s*[-*] \[~\] Blocked:',text,re.M))}
+    def create_roadmap(self, project):
+        """Create Roadmap (empty Plan): ROADMAP.md and tasks/001-first-task.md, nothing else."""
+        root=self.project_path(project)
+        with self.lock:
+            if (root/'ROADMAP.md').exists():raise ValueError('This folder already has a ROADMAP.md')
+            name=self.registry.get(project,{}).get('name',root.name)
+            (root/'ROADMAP.md').write_text(f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-First task](tasks/001-first-task.md)\n',encoding='utf-8')
+            (root/'tasks').mkdir(exist_ok=True)
+            first=root/'tasks'/'001-first-task.md'
+            if not first.exists():first.write_text('# First task\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n',encoding='utf-8')
+        return {'path':f'projects/{project}/ROADMAP.md'}
     def read_file(self, relative):
         path=Path(relative)
         if path.is_absolute() or '..' in path.parts or len(path.parts)<3 or path.parts[0]!='projects':raise ValueError('Invalid project file')

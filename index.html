@@ -126,7 +126,7 @@
     <!-- Projects window (phone: the π sheet) -->
     <aside id="sidebar" class="pw-window window-projects" aria-label="Project navigation">
       <div class="pw-titlebar"><button id="close-menu" class="pw-box" aria-label="Close menu"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
-      <div class="pw-infobar"><span><span id="project-count"></span> projects</span><span id="active-project-label">Choose a project</span></div>
+      <div class="pw-infobar"><span id="project-count"></span><span>on this Mac</span></div>
       <div class="window-section"><label class="pw-search"><span data-icon="search"></span><input id="project-search" type="search" placeholder="Find a project" aria-label="Search projects"><kbd class="pw-kbd">⌘K</kbd></label></div>
       <nav id="project-list" class="pw-list pw-window__body" aria-label="Projects"></nav>
       <div class="window-section window-section--actions">
@@ -140,13 +140,15 @@
       <div class="pw-statusbar"><span>Local AI</span><span>Pi runs on this Mac</span></div>
     </aside>
 
-    <!-- Files window (Work view only; replaces the Projects window there) -->
-      <aside class="file-pane pw-window window-files" aria-label="Project files" data-view-only="work">
+    <!-- Project window: inside the chosen project (Plan above Files). Projects home shows the Projects window instead (body[data-level], js/router.mjs). -->
+      <aside class="file-pane pw-window window-files" aria-label="Project files">
+        <div class="pw-titlebar"><button id="files-close" class="pw-box" aria-label="Close project and show Projects"></button><div class="pw-titlebar__stripes"></div><h2 id="files-title" class="pw-titlebar__title">Project</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
+        <div class="pw-infobar"><button id="show-projects" type="button" class="pw-infobar__back">‹ Projects</button><span id="files-summary"></span></div>
         <div class="window-section">
-          <div class="window-row"><button id="new-file" class="pw-btn">New File…</button><button id="new-task" class="pw-btn">New Task…</button></div>
-          <label class="pw-search file-search"><span data-icon="search"></span><input id="file-search" type="search" placeholder="Find a file" aria-label="Search project files"><kbd class="pw-kbd">⌘F</kbd></label>
+          <label class="pw-search file-search"><span data-icon="search"></span><input id="file-search" type="search" placeholder="Find a file" aria-label="Find a file"><kbd class="pw-kbd">⌘F</kbd></label>
         </div>
-        <nav id="file-tree" class="pw-list pw-window__body" aria-label="Project files"></nav>
+        <nav id="file-tree" class="pw-window__body" aria-label="Files"></nav>
+        <p id="file-search-note" class="file-search-note" role="status" hidden></p>
       </aside>
 
     <main id="main-window" class="pw-window">
