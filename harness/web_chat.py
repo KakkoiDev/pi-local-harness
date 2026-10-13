@@ -66,7 +66,11 @@ class ConversationStore:
 def transcribe(path):
     completed=subprocess.run(['uv','run','--python','3.12',str(ROOT/'harness/transcribe.py'),str(path)],capture_output=True,text=True,timeout=180)
     if completed.returncode:raise ValueError('Audio transcription failed: '+completed.stderr[-1000:])
-    return completed.stdout.strip()
+    # The transcriber's answer is its last JSON line; anything else it printed is progress, not speech (task 142).
+    for line in reversed(completed.stdout.strip().splitlines()):
+        try:return str(json.loads(line)['text']).strip()
+        except (ValueError,KeyError,TypeError):continue
+    raise ValueError('Audio transcription returned no text')
 
 def prepare_prompt(text, attachments, directory, speech=transcribe):
     if not isinstance(text,str) or len(text)>200000:raise ValueError('Message is too large')

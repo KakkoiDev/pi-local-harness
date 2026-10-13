@@ -181,3 +181,6 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [139-New Conversation and Earlier Conversations](tasks/139-new-conversation.md)
 - [ ] [140-Document blocks follow the DocumentBlock card](tasks/140-block-markup.md)
 - [ ] [141-New File help and Open on Phone when phone access is off](tasks/141-dialogs-phone-off.md)
+- [x] [142-Voice input gives only what was said](tasks/142-whisper-clean-text.md)
+- [ ] [143-Markdown tables render as tables in chat](tasks/143-chat-tables.md)
+- [ ] [144-The phone composer stays small](tasks/144-phone-composer-height.md)

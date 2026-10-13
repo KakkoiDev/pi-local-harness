@@ -3,6 +3,8 @@
 # dependencies = ["mlx-whisper==0.4.3", "imageio-ffmpeg==0.6.0"]
 # ///
 """Local audio -> text. No audio is sent to a remote API."""
+import contextlib
+import json
 import os
 import sys
 import tempfile
@@ -15,8 +17,10 @@ with tempfile.TemporaryDirectory(prefix='pi-audio-') as directory:
     ffmpeg = Path(directory) / 'ffmpeg'
     ffmpeg.symlink_to(imageio_ffmpeg.get_ffmpeg_exe())
     os.environ['PATH'] = directory + os.pathsep + os.environ.get('PATH', '')
-    result = mlx_whisper.transcribe(str(source), path_or_hf_repo=os.getenv('PI_WHISPER_MODEL', 'mlx-community/whisper-base-mlx'), verbose=False)
+    # verbose=None: mlx_whisper prints "Detected language: …" for any other value (task 142); library chatter goes to stderr.
+    with contextlib.redirect_stdout(sys.stderr):
+        result = mlx_whisper.transcribe(str(source), path_or_hf_repo=os.getenv('PI_WHISPER_MODEL', 'mlx-community/whisper-base-mlx'), verbose=None)
     text = result['text'].strip()
     if not text:
         raise RuntimeError('No speech was recognized in this audio file')
-    print(text)
+    print(json.dumps({'text': text}, ensure_ascii=False))

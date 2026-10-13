@@ -158,3 +158,16 @@ class RemoteConfigTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TranscriptTextTest(unittest.TestCase):
+    """Task 142: only the words said reach the prompt box, not the transcriber's progress lines."""
+    def test_progress_lines_are_not_text(self):
+        import os, sys
+        from unittest.mock import patch
+        from harness.web_chat import transcribe
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / 'uv'
+            fake.write_text('#!/bin/sh\necho "Detected language: English"\necho \'{"text": "Test, 日本語"}\'\n'); fake.chmod(0o755)
+            with patch.dict(os.environ, {'PATH': directory + os.pathsep + os.environ['PATH']}):
+                self.assertEqual(transcribe(Path(directory) / 'audio.webm'), 'Test, 日本語')
