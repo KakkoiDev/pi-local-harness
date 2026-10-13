@@ -302,3 +302,7 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .pw-msg__table table{border-collapse:collapse;font-size:15px;line-height:1.4}
 .pw-msg__table th,.pw-msg__table td{border:1px solid var(--ink);padding:6px 10px;vertical-align:top}
 .pw-msg__table th{font-family:var(--font-chrome);font-size:14px;font-weight:600}
+/* Open on Phone: the address as a QR code, 1-bit like the terminal's */
+.phone-qr{align-self:center;width:184px;height:184px;border:1px solid var(--ink);background:#fff;margin:4px 0 12px}
+.phone-qr svg{display:block;width:100%;height:100%}
+.phone-qr rect[fill="white"],.phone-qr path{shape-rendering:crispEdges}

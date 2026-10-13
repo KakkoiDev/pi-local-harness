@@ -324,6 +324,7 @@
   <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-title"><form method="dialog" class="window-column">
     <h2 id="phone-title" class="pw-dialog__title">Open on Phone</h2>
     <p class="pw-alert__detail">plh serves the workbench on your tailnet. Open this address on a phone signed in to the same Tailscale account.</p>
+    <div id="phone-qr" class="phone-qr" role="img" aria-label="QR code of the phone address"></div><!-- the same code the terminal prints at startup -->
     <div class="phone-address"><input id="phone-url" class="pw-field pw-mono" aria-label="Phone address" readonly><button id="phone-copy" type="button" class="pw-btn">Copy</button></div>
     <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
     <div class="pw-dialog__actions"><button value="done" class="pw-btn pw-btn--default">Done</button></div>

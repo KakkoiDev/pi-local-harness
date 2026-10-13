@@ -132,7 +132,7 @@ const waitingJob=()=>{const state=workspace.status();return state.jobs.find(job=
 const commands={
  'cancel-waiting':async()=>{const job=waitingJob();if(job&&await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})==='danger')api('/api/jobs/cancel',{id:job.id}).then(()=>workspace.refresh(),e=>error(e.message));},
  settings:()=>openSettings(false),'desktop-pattern':()=>openSettings(true),
- 'open-on-phone':()=>{$('phone-url').value=phoneUrl;$('phone-dialog').showModal();},
+ 'open-on-phone':async()=>{$('phone-url').value=phoneUrl;$('phone-dialog').showModal();const {default:qrcode}=await import('/harness/vendor/qrcode.mjs');const code=qrcode(0,'M');code.addData(phoneUrl);code.make();$('phone-qr').innerHTML=code.createSvgTag({cellSize:4,margin:4,scalable:true});},
  about:()=>{$('about-model').textContent=$('model').textContent+' · '+document.querySelector('.effort').textContent;$('about-web').textContent=location.host;$('about-dialog').showModal();},
  'new-project':click('new-project'),'add-folder':click('add-folder'),'new-file':()=>workspace.newFile(),'new-task':()=>workspace.newTask(),
  save:()=>workspace.saveNow(),'reload-document':()=>workspace.reloadDocument(),'download-draft':click('download-draft'),'trash-page':()=>workspace.trashPage(),
