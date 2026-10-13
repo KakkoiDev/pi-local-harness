@@ -419,6 +419,12 @@ const readline = require('node:readline');
   assert.deepEqual(waitingJobs.map(job=>job.message),['First follow-up\n\nSecond follow-up']);
   await stopAll();
 
+  // From Activity or Gate, a project row opens that project's Chat at once; a file then opens in Work.
+  await page.goto(`${base}/activity`);await page.locator('#project-list .pw-row',{hasText:'Design check'}).click();
+  await page.waitForURL(`${base}/p/${id}/chat`);assert.equal(await page.evaluate(()=>document.body.dataset.level),'project');
+  await page.goto(`${base}/gate`);await page.locator('#project-list .pw-row',{hasText:'Design check'}).click();await page.waitForURL(`${base}/p/${id}/chat`);
+  await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.waitForURL(/\/work\/ROADMAP\.md$/);
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
