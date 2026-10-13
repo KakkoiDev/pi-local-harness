@@ -1,5 +1,7 @@
+import glob
 import os
 import re
+import subprocess
 import sys
 
 def verify_workflow():
@@ -39,6 +41,18 @@ def verify_workflow():
                         errors.append(f"Task {path} marked completed in todo.md but has unchecked boxes")
                         break
     
+    # Checkboxes prove nothing on their own; the suites must pass too.
+    suites = [('unittest', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests'])] if os.path.isdir('tests') else []
+    node_tests = sorted(glob.glob('tests/harness/*.test.mjs'))
+    if node_tests:
+        suites.append(('node --test', ['node', '--test', *node_tests]))
+    for label, command in suites:
+        completed = subprocess.run(command, capture_output=True, text=True)
+        if completed.returncode:
+            errors.append(f"{label} failed (exit {completed.returncode}):\n{(completed.stdout + completed.stderr)[-3000:]}")
+        else:
+            print(f"✅ {label} passed")
+
     if errors:
         for err in errors:
             print(f"❌ {err}")

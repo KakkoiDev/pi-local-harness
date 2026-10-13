@@ -52,9 +52,9 @@ GPU-running signal is inferred. The retired standalone log sentinel is unused.
 ## Validation
 
 ```sh
+python3 tests/verify_workflow.py   # roadmap/task checkboxes + both suites below
 python3 -m unittest discover -s tests
 node --test tests/harness/*.test.mjs
-python3 tests/verify_workflow.py
 # Requires Playwright and Chromium:
 NODE_PATH=/path/to/node_modules node tests/browser/chat.cjs
 ```
