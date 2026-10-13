@@ -55,7 +55,7 @@ class RpcBridgeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);executable=root/'pi'
             executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
-            chat=WebChat(root/'data',12345,3000);self.addCleanup(chat.close);conversation=chat.store.create();events=[]
+            chat=WebChat(root/'data',12345,3000,laya_token='shared-token');self.addCleanup(chat.close);conversation=chat.store.create();events=[]
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
                 chat.send(conversation['id'],{'message':'Hello'},events.append)
                 chat.send(conversation['id'],{'message':'Continue'},events.append)
@@ -66,6 +66,8 @@ class RpcBridgeTest(unittest.TestCase):
             self.assertEqual(events[-1]['type'],'done');self.assertEqual(chat.active,{})
             request=json.loads((chat.store.folder(conversation['id'])/'session.request.json').read_text())
             self.assertEqual(request['message'],'Continue')
+            environment=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
+            self.assertEqual(environment['token'],'shared-token')
     def test_stop_terminates_process_and_releases_conversation(self):
         import os
         import sys

@@ -181,7 +181,9 @@ Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB e
 
 Question, assistant, tool, and completion events receive local timestamps in Pi.
 Web messages and queue jobs also record timestamps. Services bind to loopback and
-reject foreign browser origins. The layout supports mobile sizes; physical-phone
+reject foreign browser origins. Laya also requires a per-run `X-Laya-Token` that
+`services.py` hands only to the Pi extension and web-started Pi processes; it sends
+no CORS headers, so web pages cannot query it. The layout supports mobile sizes; physical-phone
 access needs a separate connection setup.
 
 ## Where to change things

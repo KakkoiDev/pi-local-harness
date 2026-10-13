@@ -1,5 +1,7 @@
+import hmac
 import json
 import http.server
+import secrets
 import socketserver
 from datetime import datetime
 from laya.engine import LayaEngine
@@ -12,17 +14,22 @@ POLICY_PATH = "specs/judges.md"
 LOG_FILE = "session.log"
 
 class AgentHandler(http.server.BaseHTTPRequestHandler):
-    def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        super().end_headers()
+    token = None
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.end_headers()
+    def trusted(self, require_token=True):
+        """Loopback Host, no browser Origin, and the per-run token from services.py."""
+        port = self.server.server_port
+        if self.headers.get('Host') not in {f'127.0.0.1:{port}', f'localhost:{port}'} or self.headers.get('Origin') is not None:
+            return False
+        if not require_token:
+            return True
+        supplied = self.headers.get('X-Laya-Token', '')
+        return bool(self.token) and hmac.compare_digest(supplied.encode(), self.token.encode())
 
     def do_POST(self):
+        if not self.trusted():
+            self.send_error_response(403, 'Laya accepts only local harness requests')
+            return
         if self.path == '/chat':
             self.handle_chat()
         elif self.path == '/gatekeep':
@@ -36,7 +43,9 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_GET(self):
-        if self.path == '/health':
+        if not self.trusted(require_token=False):
+            self.send_error_response(403, 'Laya accepts only local harness requests')
+        elif self.path == '/health':
             self.send_json_response({'status': 'ready', 'laya': True})
         else:
             self.send_response(404)
@@ -136,13 +145,12 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
     def send_json_response(self, data: dict):
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
     def send_error_response(self, code: int, message: str):
         self.send_response(code)
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps({'error': message}).encode('utf-8'))
 
@@ -156,13 +164,14 @@ def run_server():
 
     ledger = ProposalLedger(laya)
     class CustomHandler(AgentHandler):
+        token = secrets.token_urlsafe(32)
         def __init__(self, request, client_address, server):
             self.laya = laya
             self.ledger = ledger
             super().__init__(request, client_address, server)
 
     with socketserver.TCPServer(("127.0.0.1", PORT), CustomHandler) as httpd:
-        print(f"🤖 Agent API is running on http://localhost:{PORT}")
+        print(f"Agent API is running on http://localhost:{PORT} (X-Laya-Token: {CustomHandler.token})")
         httpd.serve_forever()
 
 if __name__ == "__main__":

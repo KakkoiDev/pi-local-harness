@@ -41,7 +41,7 @@ export default function harness(pi, dependencies = {}) {
   const call = async (path, body) => {
     if (!ports) throw new Error('Laya is unavailable');
     const response = await fetch(`http://127.0.0.1:${ports.laya}${path}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Laya-Token': ports.token || '' },
       body: JSON.stringify(body), signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) throw new Error(`Laya HTTP ${response.status}`);
@@ -71,7 +71,7 @@ export default function harness(pi, dependencies = {}) {
     });
     }
     try {
-      ports = sharedPort ? { laya: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000) } : await new Promise((resolve, reject) => {
+      ports = sharedPort ? { laya: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN } : await new Promise((resolve, reject) => {
         let output = '', announced = false;
         const deadline = setTimeout(() => { child.kill(); reject(new Error('Service startup timed out')); }, 10000);
         child.once('error', error => { clearTimeout(deadline); reject(error); });

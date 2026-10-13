@@ -3,6 +3,7 @@ import functools
 import http.server
 import json
 import os
+import secrets
 import signal
 import sys
 import threading
@@ -20,10 +21,12 @@ def main():
     os.chdir(ROOT)
     laya = LayaEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(ROOT / 'session.log')))
     ledger = ProposalLedger(laya)
+    token = secrets.token_urlsafe(32)
     class Handler(AgentHandler):
         def __init__(self, *args):
             self.laya = laya
             self.ledger = ledger
+            self.token = token
             super().__init__(*args)
     servers = []
     chat = None
@@ -32,7 +35,7 @@ def main():
         servers.append(api)
         web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
         data_dir = Path(os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')))
-        chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir)
+        chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, laya_token=token)
         chat.ledger = ledger
         WebHandler.chat = chat
         servers.append(web)
@@ -41,7 +44,7 @@ def main():
         stopped = threading.Event()
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, lambda *_: stopped.set())
-        print(json.dumps({'laya': api.server_port, 'web': web.server_port}), flush=True)
+        print(json.dumps({'laya': api.server_port, 'web': web.server_port, 'token': token}), flush=True)
         owner = os.getppid()
         while not stopped.wait(1):
             if os.getppid() != owner:

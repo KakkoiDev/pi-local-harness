@@ -79,7 +79,7 @@ const readline = require('node:readline');
   await page.locator('#document-source').filter({visible:true}).waitFor();assert.match(await page.locator('#document-source').inputValue(),/live code/);
   writeFileSync(join(directory,'First project/live.py'),'print("updated code")\n');
   await page.waitForFunction(()=>document.querySelector('#document-source').value.includes('updated code'));
-  const gate=await fetch(`http://127.0.0.1:${ports.laya}/gatekeep`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool_name:'execute_command',args:{command:'rm -fr *'},auth_level:'admin'})});
+  const gate=await fetch(`http://127.0.0.1:${ports.laya}/gatekeep`,{method:'POST',headers:{'Content-Type':'application/json','X-Laya-Token':ports.token},body:JSON.stringify({tool_name:'execute_command',args:{command:'rm -fr *'},auth_level:'admin'})});
   assert.equal((await gate.json()).outcome,'BLOCK');
   await page.locator('#laya-tab').click();
   await page.getByText('BLOCK',{exact:true}).waitFor();

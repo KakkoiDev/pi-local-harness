@@ -22,15 +22,23 @@ class ServicesTest(unittest.TestCase):
             base = f"http://127.0.0.1:{ports['laya']}"
             with urllib.request.urlopen(base + '/health', timeout=3) as response:
                 self.assertTrue(json.load(response)['laya'])
-            for auth, expected in [('standard', 'ALLOW'), ('admin', 'ALLOW')]:
-                request = urllib.request.Request(base + '/gatekeep', data=json.dumps({
-                    'tool_name': 'execute_command', 'args': {'cmd':'echo hi'}, 'auth_level':auth,
-                }).encode(), headers={'Content-Type':'application/json'})
-                with urllib.request.urlopen(request, timeout=3) as response:
-                    self.assertEqual(json.load(response)['outcome'],expected)
-            def post(path, body):
-                request=urllib.request.Request(base+path,data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
-                with urllib.request.urlopen(request,timeout=3) as response:return json.load(response)
+            self.assertGreaterEqual(len(ports.get('token','')),32)
+            def post(path, body, **headers):
+                headers={'Content-Type':'application/json','X-Laya-Token':ports.get('token',''),**headers}
+                request=urllib.request.Request(base+path,data=json.dumps(body).encode(),headers=headers)
+                with urllib.request.urlopen(request,timeout=3) as response:
+                    self.assertIsNone(response.headers.get('Access-Control-Allow-Origin'))
+                    return json.load(response)
+            # A web page must not reach Laya: no CORS, no foreign Origin/Host, no missing or wrong token.
+            probe={'tool_name':'read_file','args':{'path':'x'}}
+            for headers in [{'Origin':'https://evil.example'},{'Origin':base},{'X-Laya-Token':''},{'X-Laya-Token':'wrong'},{'Host':'evil.example:'+str(ports['laya'])}]:
+                with self.assertRaises(urllib.error.HTTPError,msg=headers) as denied:post('/gatekeep',probe,**headers)
+                self.assertEqual(denied.exception.code,403,headers);denied.exception.close()
+            preflight=urllib.request.Request(base+'/gatekeep',method='OPTIONS',headers={'Origin':'https://evil.example','Access-Control-Request-Method':'POST'})
+            with self.assertRaises(urllib.error.HTTPError) as denied:urllib.request.urlopen(preflight,timeout=3)
+            self.assertIsNone(denied.exception.headers.get('Access-Control-Allow-Origin'));denied.exception.close()
+            for auth in ['standard','admin']:
+                self.assertEqual(post('/gatekeep',{'tool_name':'execute_command','args':{'cmd':'echo hi'},'auth_level':auth})['outcome'],'ALLOW')
             blocked=post('/gatekeep',{'tool_name':'execute_command','args':{'command':'rm -fr *'},'auth_level':'admin'})
             self.assertEqual(blocked['outcome'],'BLOCK')
             self.assertIn('Recursive deletion',blocked['reason'])

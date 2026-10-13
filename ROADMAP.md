@@ -67,3 +67,7 @@ and harness/README.md for the installed pi workflow.
 
 - [x] [43-Document comments and Markdown activity](tasks/43-document-comments-activity.md)
 - [x] [44-Navigation regression and update recovery](tasks/44-navigation-regression.md)
+
+## Audit 2026-10-13 fixes
+
+- [x] [45-Laya API lockdown](tasks/45-laya-api-lockdown.md)
