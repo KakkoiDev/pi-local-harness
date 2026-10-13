@@ -20,7 +20,7 @@ export function renderStartup(lines, width) {
 }
 
 export function startupLines(ports) {
-  const lines = [`Laya: http://127.0.0.1:${ports.laya}`, `Web: http://127.0.0.1:${ports.web}`];
+  const lines = [`Gate: http://127.0.0.1:${ports.gate}`, `Web: http://127.0.0.1:${ports.web}`];
   if (ports.remote) lines.push(`Phone: ${ports.remote}`);
   if (ports.remote_error) lines.push(`Phone access off: ${ports.remote_error}`);
   return [...lines, 'Loop check: every 10 seconds'];

@@ -4,7 +4,7 @@
 
 | # | Status |
 |---|---|
-| 1 Laya oracle | Fixed, task 45. Exploit now 403. |
+| 1 Gate oracle | Fixed, task 45. Exploit now 403. |
 | 2 `--no-mcp` | Fixed, task 46. Real Pi checks the web command. |
 | 3 Gate checks nothing | Fixed, task 47. Gate runs both suites. |
 | 4 Pi 0.77 renderer | Fixed, task 46. |
@@ -28,14 +28,14 @@ Evidence column: V = reproduced this session, R = read in source only.
 
 ## Critical
 
-1. **Laya API: cross-origin file-content oracle** (V)
+1. **Gate API: cross-origin file-content oracle** (V)
    - `agent_api.py:15-18` sends `Access-Control-Allow-Origin: *`; no Host/Origin check, no auth.
-   - `laya/ledger.py:49-56`: `/gatekeep` with `pi_tool=edit` reads any path and answers `ALLOW` iff `oldText` occurs exactly once.
+   - `gate/ledger.py:49-56`: `/gatekeep` with `pi_tool=edit` reads any path and answers `ALLOW` iff `oldText` occurs exactly once.
    - Repro: services on 127.0.0.1:18731, `Origin: https://evil.example`, secret file `AWS_SECRET=hunter2`.
      Guess `AWS_SECRET=h` -> `ALLOW`; guess `AWS_SECRET=x` -> `REVISE`. Preflight returns `ACAO: *`.
    - Impact: any web page the user visits can extract any readable file byte by byte (ssh keys, tokens),
      subject to browser private-network-access rules (Chrome may prompt/block; Safari/Firefox do not, unverified here).
-   - Same surface: forge `/audit` events into the Laya tab, fill the 1024-slot ledger -> every agent tool call blocked for 1 h (R), `/chat` appends arbitrary text to `session.log` (R).
+   - Same surface: forge `/audit` events into the Gate tab, fill the 1024-slot ledger -> every agent tool call blocked for 1 h (R), `/chat` appends arbitrary text to `session.log` (R).
    - Fix: drop CORS headers, require exact Host `127.0.0.1:<port>`, reject any `Origin`, add a per-run shared secret header from `services.py` to the extension.
 
 2. **Web chat cannot start pi** (V for CLI, R for web path)
@@ -48,12 +48,12 @@ Evidence column: V = reproduced this session, R = read in source only.
 3. **"Verification" gate verifies nothing executable** (V)
    - `AGENT.md` requires `tests/verify_workflow.py` before completion. It only checks ROADMAP checkboxes vs task files. Passes while a real test fails.
 4. **pi 0.77 incompatible** (V): `pi.registerEntryRenderer is not a function` (`harness/startup-display.mjs:23`, unguarded; `timestamps.mjs:13` is guarded). Which pi runs depends on the active nvm node. Shell default node here is v20.11, where `pi` crashes outright.
-5. **Runtime writes into tracked repo files** (R): `harness/extension.mjs:46-47` appends to `<repo>/incident_log.md` and `<repo>/session.log` on every loop/hang/canary trip; `services.py:21` defaults the Laya log to `<repo>/session.log`. Repo dirties itself in normal use.
+5. **Runtime writes into tracked repo files** (R): `harness/extension.mjs:46-47` appends to `<repo>/incident_log.md` and `<repo>/session.log` on every loop/hang/canary trip; `services.py:21` defaults the Gate log to `<repo>/session.log`. Repo dirties itself in normal use.
 6. **Canary trip aborts correct answers** (R): `extension.mjs:121` aborts + compacts + re-asks when a reply lacks `[CANARY]`. A formatting slip by the model throws away a valid answer. Cost unmeasured.
 
 ## Medium
 
-7. **Laya profiles are identical** (R): no tool maps to `HIGH_RISK` (`laya/engine.py:12-21`), so `standard` == `admin`. Auth level is chosen by the client (`extension.mjs:144`). The "restricted standard profile" in `incident_log.md` does not exist.
+7. **Gate profiles are identical** (R): no tool maps to `HIGH_RISK` (`gate/engine.py:12-21`), so `standard` == `admin`. Auth level is chosen by the client (`extension.mjs:144`). The "restricted standard profile" in `incident_log.md` does not exist.
 8. **Drift audit cannot detect drift** (R): proposal and execution args both come from the same `event.input` (`extension.mjs:144,155`). 2026-10-13, verified in pi-agent-core `dist/agent-loop.js` 370-450 and pi-coding-agent `dist/core/agent-session.js` 177-211: one `validatedArgs` object goes to `tool_call`, to `tool.execute` and to `tool_result`, so the executed args are the audited args. `/gatekeep` serializes the args when it is called, so the only drift path, a later `tool_call` handler or the tool mutating `event.input` in place, does show as DRIFT_DETECTED. Downgraded to Low: kept as is.
 9. **Shell guard is a string deny-list** (R): `python3 -c "shutil.rmtree(...)"`, `git clean -fdx ~`, `rm -rf ~/Code` all pass. Documented as "not a sandbox"; fine only if nobody relies on it.
 10. **Unhandled exceptions drop connections** (R): `web_chat.py:334` catches ValueError/KeyError/FileNotFound/FileExists only. TypeError (non-string `path`), PermissionError, StopIteration (`project_chat` `next()` line 119, `mark_sent` line 464) -> no HTTP response.

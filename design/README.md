@@ -12,7 +12,7 @@ Everything about the Pi Workbench System 1 interface lives here: the source desi
 | --- | --- | --- |
 | `tokens.css` | yes, `/design/tokens.css` | Colours, fonts (`@font-face` to `/fonts/`), spacing, sizes. Paper theme by default; Inverse under `html[data-theme="dark"]` or `data-appearance="system"` + OS dark. |
 | `components.css` | yes, `/design/components.css` | The `pw-*` component classes. Same as `system/components/bundle.css` minus the Google Fonts import. Both carry one repo fix: closed `dialog.pw-dialog` stays hidden (task 70). |
-| `icons.mjs` | yes, `/design/icons.mjs` (imported by `js/ui.mjs` as `../design/icons.mjs`) | 1-bit icons, `icon()`, `hydrateIcons()`, `stateGlyph()`, the `STATES` vocabulary (glyph + word per job state and Laya outcome). |
+| `icons.mjs` | yes, `/design/icons.mjs` (imported by `js/ui.mjs` as `../design/icons.mjs`) | 1-bit icons, `icon()`, `hydrateIcons()`, `stateGlyph()`, the `STATES` vocabulary (glyph + word per job state and Gate outcome). |
 | `layout.css` | no | Page layout for the new markup. Build step 3 copies it into `/chat.css`. |
 | `index.reference.html` | no | Target markup with every existing id kept and new ids marked. Build step 3 copies it into `/index.html`. |
 | `system/` | no | Design system source: `tokens.json`, `design-system.json`, `components/<Name>/{README.md,preview.html}`, `assets/Icons/README.md`. Previews load Google Fonts; they are for reading in a browser, not for the app. |

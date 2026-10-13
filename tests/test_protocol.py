@@ -1,11 +1,11 @@
-"""Laya allows `git commit` in a ROADMAP.md + tasks/ project only after the AGENT.md protocol:
+"""Gate allows `git commit` in a ROADMAP.md + tasks/ project only after the AGENT.md protocol:
 red test run, implementation, green test run on the final code, checked task, checked roadmap."""
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
-from laya.engine import LayaEngine
-from laya.ledger import ProposalLedger
+from gate.engine import GateEngine
+from gate.ledger import ProposalLedger
 
 def git(root, *args):
     subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True)
@@ -21,7 +21,7 @@ class ProtocolTest(unittest.TestCase):
         git(self.root, 'init', '-q'); git(self.root, 'add', '.')
         git(self.root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'base')
         log = tempfile.NamedTemporaryFile(suffix='.log', delete=False); log.close(); self.addCleanup(Path(log.name).unlink)
-        self.ledger = ProposalLedger(LayaEngine('specs/judges.md', log.name))
+        self.ledger = ProposalLedger(GateEngine('specs/judges.md', log.name))
 
     def run_bash(self, command, exit_code=0, cwd=None, execute=False):
         gate = self.ledger.propose('execute_command', {'command': command}, 'admin', pi_tool='bash', cwd=str(cwd or self.root))
@@ -130,13 +130,13 @@ class ProtocolTest(unittest.TestCase):
         from unittest.mock import patch
         import subprocess as process
         (self.root / 'app.py').write_text('VALUE = 2\n')
-        with patch('laya.protocol.subprocess.run', side_effect=process.TimeoutExpired('git', 15)):
+        with patch('gate.protocol.subprocess.run', side_effect=process.TimeoutExpired('git', 15)):
             gate = self.commit()
             self.assertEqual(gate['outcome'], 'REVISE'); self.assertIn('could not be checked', gate['reason'])
             self.run_bash('pytest')
 
     def test_large_changed_files_are_fingerprinted_without_reading_them(self):
-        from laya.protocol import code_state, changed_paths
+        from gate.protocol import code_state, changed_paths
         big = self.root / 'model.bin'; big.write_bytes(b'0' * (2 * 1024 * 1024))
         original = Path.read_bytes
         def guarded(path):
@@ -157,7 +157,7 @@ class ProtocolTest(unittest.TestCase):
         self.assertIn('failing (red) test', self.commit()['reason'])
 
     def test_runs_survive_a_restart(self):
-        state = Path(tempfile.mkdtemp()) / 'laya-protocol.json'
+        state = Path(tempfile.mkdtemp()) / 'gate-protocol.json'
         self.ledger = ProposalLedger(self.ledger.engine, protocol_file=state)
         self.run_bash('pytest', exit_code=1)
         (self.root / 'app.py').write_text('VALUE = 2\n')

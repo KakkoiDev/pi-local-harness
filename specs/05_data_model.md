@@ -16,7 +16,7 @@ The structured object emitted by an Agent when it wants to perform a side-effect
 | `classification` | Enum | `read_only` \| `reversible_write` \| `external_side_effect` \| `high_risk`. |
 
 ## 2. Judgments (`JudgmentEvent`)
-The structured response from the Laya Gatekeeper or Auditor.
+The structured response from the Gate or Auditor.
 
 | Field | Type | Description |
 |---|---|---|

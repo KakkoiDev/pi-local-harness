@@ -68,7 +68,7 @@
         <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity<span class="pw-menu__key">⌘3</span></button>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-laya">Laya<span class="pw-menu__key">⌘4</span></button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate<span class="pw-menu__key">⌘4</span></button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="mode-blocks">As Document</button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="mode-source">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></button>
@@ -156,7 +156,7 @@
           <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌘1</kbd></button>
           <button id="work-tab" aria-pressed="false">Work<kbd>⌘2</kbd></button>
           <button id="activity-tab" aria-pressed="false">Activity<span id="activity-count" class="activity-count" hidden></span><kbd>⌘3</kbd></button>
-          <button id="laya-tab" aria-pressed="false">Laya<kbd>⌘4</kbd></button>
+          <button id="gate-tab" aria-pressed="false">Gate<kbd>⌘4</kbd></button>
         </nav>
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
@@ -238,17 +238,17 @@
         <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
       </section>
 
-      <!-- Laya -->
-      <section id="laya-panel" class="laya-panel" hidden aria-label="Laya activity">
+      <!-- Gate -->
+      <section id="gate-panel" class="gate-panel" hidden aria-label="Gate activity">
         <div class="pw-toolbar">
-          <div id="laya-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="gate">Before</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="audit">After</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="failures">Problems</button></div>
-          <label class="pw-label desk-filter">Show <select id="laya-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
-          <button id="laya-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
+          <div id="gate-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="gate">Before</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="audit">After</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="failures">Problems</button></div>
+          <label class="pw-label desk-filter">Show <select id="gate-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
+          <button id="gate-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
           <span class="pw-menubar__spacer"></span>
-          <span id="laya-live" class="pw-label" role="status">Connecting…</span>
+          <span id="gate-live" class="pw-label" role="status">Connecting…</span>
         </div>
         <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span></div>
-        <div id="laya-events" class="pw-table pw-window__body" aria-live="polite"></div>
+        <div id="gate-events" class="pw-table pw-window__body" aria-live="polite"></div>
       </section>
     </main>
 
@@ -269,8 +269,8 @@
         </section>
       </aside>
 
-    <!-- NEW: Event Info window (Laya detail) -->
-    <aside id="event-info" class="pw-window window-info" aria-label="Event info" data-view-only="laya" hidden><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Event Info</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div><div id="event-info-body" class="pw-window__body event-info"></div></aside>
+    <!-- NEW: Event Info window (Gate detail) -->
+    <aside id="event-info" class="pw-window window-info" aria-label="Event info" data-view-only="gate" hidden><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Event Info</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div><div id="event-info-body" class="pw-window__body event-info"></div></aside>
   </div>
 
   <!-- Dialogs -->
@@ -309,7 +309,7 @@
     <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
     <div class="pw-dialog__actions"><button value="done" class="pw-btn pw-btn--default">Done</button></div>
   </form></dialog>
-  <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="laya">Laya</button></div>
+  <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="gate">Gate</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
     <button class="pw-menu__item" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="turn-into-menu">Turn Into<span class="pw-menu__key" aria-hidden="true">▸</span></button>

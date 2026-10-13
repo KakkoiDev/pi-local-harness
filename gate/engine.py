@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from .shell_guard import destructive_reason
 from .models import ActionProposal, ExecutionResult, JudgmentEvent, ActionOutcome, ToolRiskCategory
 
-class LayaEngine:
+class GateEngine:
     def __init__(self, policy_path: str, log_file: str):
         self.policy_path = policy_path
         self.log_file = log_file
@@ -41,15 +41,15 @@ class LayaEngine:
         tool_name = proposal.tool_name
         reason = self.rejection_reason(proposal, auth_level)
         if reason:
-            print(f"[Laya-Gatekeeper] BLOCK: {reason}")
+            print(f"[Gate] BLOCK: {reason}")
             return ActionOutcome.BLOCK
         
-        print(f"[Laya-Gatekeeper] ✅ Action '{tool_name}' allowed.")
+        print(f"[Gate] ✅ Action '{tool_name}' allowed.")
         return ActionOutcome.ALLOW
 
     def audit(self, proposal: ActionProposal, execution: ExecutionResult, postcondition_ok=True) -> JudgmentEvent:
         """Post-turn check."""
-        print(f"[Laya-Auditor] 🔍 Auditing action: {proposal.tool_name}")
+        print(f"[Gate-Auditor] 🔍 Auditing action: {proposal.tool_name}")
         
         # 1. Implementation Integrity Check
         # Did the tool actually do what the actor said it would?

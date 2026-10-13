@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Laya desktop component</title>
+<title>Gate desktop component</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
 </head>
@@ -13,10 +13,10 @@
 <style>body{margin:0}</style>
 </helmet>
 <div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; color: #000">
-<section class="pw-window" aria-label="Laya" style="flex: 1">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Laya</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<section class="pw-window" aria-label="Gate" style="flex: 1">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Gate</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-toolbar">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Laya.dc.html" aria-current="page">Laya<kbd>⌘4</kbd></a></nav>
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Gate.dc.html" aria-current="page">Gate<kbd>⌘4</kbd></a></nav>
 <span style="flex: 1"></span>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center">Show <select class="pw-popup"><option>{{filterLabel}}</option></select></label>
 <button class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
@@ -27,7 +27,7 @@
 <div class="pw-window__body"><div style="max-width: 460px; margin: 160px auto 0; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center">
 <svg viewBox="0 0 16 16" width="40" height="40" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width=".6"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor" stroke-width=".6"/></svg>
 <p style="margin: 0; font-size: 17px">No checks yet</p>
-<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.5">Laya records a check each time Pi proposes a command, in this workbench or in terminal Pi. They appear here within two seconds.</p>
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.5">Gate records a check each time Pi proposes a command, in this workbench or in terminal Pi. They appear here within two seconds.</p>
 </div></div>
 </sc-if>
 
@@ -86,7 +86,7 @@ const rows = (blocked ? all.filter((e) => e.k !== 'ok' || e.time === '14:03:10')
 return {
 empty: s === 'empty', notEmpty: s !== 'empty', info: blocked,
 filterLabel: blocked ? 'Blocks & Failures' : 'All Checks',
-live: s === 'empty' ? 'Connecting to Laya :8000…' : 'Live · Laya :8000',
+live: s === 'empty' ? 'Connecting to Gate :8000…' : 'Live · Gate :8000',
 rows: rows, count: rows.length + ' checks shown'
 };
 }

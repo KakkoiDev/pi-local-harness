@@ -1,24 +1,24 @@
-# Task 15: Implement Laya Core (Gatekeeper & Auditor)
+# Task 15: Implement Gate Core (Gatekeeper & Auditor)
 
 ## 🎯 Goal
-To implement the Laya compliance layer, which acts as a two-phase interceptor: The Gatekeeper (pre-action) and The Auditor (post-turn), ensuring all agent actions align with system policies and risk models.
+To implement the Gate compliance layer, which acts as a two-phase interceptor: The Gatekeeper (pre-action) and The Auditor (post-turn), ensuring all agent actions align with system policies and risk models.
 
 ## 🛠 Implementation Plan
 
 ### 1. Core Engine Development
-- [x] Implement the `LayaEngine` class that coordinates both phases.
+- [x] Implement the `GateEngine` class that coordinates both phases.
 - [x] Implement the `ActionProposal` data structure.
 - [x] Implement the `ExecutionResult` data structure.
 
 ### 2. Phase 1: The Gatekeeper (Pre-Action)
-- [x] Implement the Gatekeeper phase (`LayaEngine.gatekeep`).
+- [x] Implement the Gatekeeper phase (`GateEngine.gatekeep`).
 - [x] Implement the hierarchical check: Existence $\rightarrow$ Risk Class $\rightarrow$ Policy.
 - [x] Define outcome values: `ALLOW`, `BLOCK`, `REVISE`, `ESCALATE`.
 - [x] Implement `ALLOW` and `BLOCK` decisions.
 - [ ] Implement actionable `REVISE` and `ESCALATE` decisions.
 
 ### 3. Phase 2: The Auditor (Post-Turn)
-- [x] Implement the Auditor phase (`LayaEngine.audit`).
+- [x] Implement the Auditor phase (`GateEngine.audit`).
 - [x] Implement implementation integrity and drift detection logic.
 - [x] Output `JudgmentEvent` logs.
 

@@ -13,9 +13,9 @@ count=int(session.read_text())+1 if session.exists() else 1
 session.write_text(str(count))
 def emit(value):print(json.dumps(value),flush=True)
 emit({'type':'agent_start'})
-def laya(path,body):
+def call_gate(path,body):
     import urllib.request
-    call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Laya-Token':os.environ['PI_HARNESS_TOKEN']})
+    call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':os.environ['PI_HARNESS_TOKEN']})
     with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
 if '\nUser comment: Tighten this TEST_SUGGEST\n' in request['message']:
     import re
@@ -27,10 +27,10 @@ if '\nUser comment: Tighten this TEST_SUGGEST\n' in request['message']:
         if comment['text']=='Tighten this TEST_SUGGEST':comment.update(suggestion={'anchor':anchor,'replacement':'State the goal in one line.'},agent_reply='Suggested a shorter sentence.')
     lines[index]='comments: '+json.dumps(comments,ensure_ascii=False);sidecar.write_text('\n'.join(lines))
 if request['message'].rstrip().endswith('TEST_TOOL'):
-    gate=laya('/gatekeep',{'tool_name':'execute_command','args':{'command':'cat README.md'},'auth_level':'admin','tool_call_id':'call-read'})
+    gate=call_gate('/gatekeep',{'tool_name':'execute_command','args':{'command':'cat README.md'},'auth_level':'admin','tool_call_id':'call-read'})
     emit({'type':'tool_execution_start','toolCallId':'call-read','toolName':'bash','args':{'command':'cat README.md'}})
     time.sleep(2)
-    laya('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':{'command':'cat README.md'},'output':'readme','exit_code':0})
+    call_gate('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':{'command':'cat README.md'},'output':'readme','exit_code':0})
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
 if request['message'].rstrip().endswith('TEST_WAIT'):
     emit({'type':'tool_execution_start','toolName':'bash'})

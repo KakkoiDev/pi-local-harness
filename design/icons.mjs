@@ -34,7 +34,7 @@ export const ICONS = {
   caution: '<path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/>',
   note: '<path d="M1.5 1.5h13v9h-7l-3.5 3.5v-3.5H1.5z" fill="none" stroke="currentColor"/><path d="M8 3.5v1M8 6v3" stroke="currentColor" stroke-width="1.5"/>',
 };
-// Alert icons (36px) for dialogs and the Laya info window.
+// Alert icons (36px) for dialogs and the Gate info window.
 export const ALERT_ICONS = {
   stop: '<path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke="' + P + '" stroke-width="4"/>',
   caution: '<path d="M18 2.5 34 31.5H2z" fill="' + P + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/>',
@@ -49,12 +49,12 @@ export const STATES = {
   stopped: { icon: 'stopped', label: 'Stopped' },
   interrupted: { icon: 'interrupted', label: 'Interrupted' },
   cancelled: { icon: 'close', label: 'Cancelled' },
-  // Laya gate outcomes (laya/models.py ActionOutcome)
+  // Gate decision outcomes (gate/models.py ActionOutcome)
   ALLOW: { icon: 'done', label: 'Approved' },
   BLOCK: { icon: 'failed', label: 'Blocked' },
   REVISE: { icon: 'caution', label: 'Revise' },
   ESCALATE: { icon: 'note', label: 'Escalated' },
-  // Laya audit statuses (laya/engine.py audit)
+  // Gate audit statuses (gate/engine.py audit)
   SUCCESS: { icon: 'done', label: 'Verified' },
   EXECUTION_FAILED: { icon: 'caution', label: 'Exit ≠ 0' },
   POSTCONDITION_FAILED: { icon: 'caution', label: 'Check failed' },

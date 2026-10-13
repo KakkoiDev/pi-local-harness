@@ -1,5 +1,5 @@
 - [In Roadmap] in the AGENT.md file, add a statement to make the agent output the string [CANARY] at the begining of every responses to make sure that it doesn't forget minor instructions when the context gets long.
 - [In Roadmap] add in the sentinel a watchdog to check if the [CANARY] token is missing, if it is, re-inject AGENT.md into the agent's context and log the incident in a log file
 - [In Roadmap] use pi harness to output timestamp at every line the agent output, in reasoning and in answering like it we can both human and agent have an idea of when something happened.
-- [In Roadmap] I want to find a way to make the agent continue working on tasks until there are no more tasks to work on. once a task is done, I want it to start working on the next one. use laya if needed to restart the agent if it stops working.
-- [In Roadmap] i want the server logs to be displayed in the console where the server is running when laya catches issues. like it I know in real time if the system is working as expected.1
+- [In Roadmap] I want to find a way to make the agent continue working on tasks until there are no more tasks to work on. once a task is done, I want it to start working on the next one. use gate if needed to restart the agent if it stops working.
+- [In Roadmap] i want the server logs to be displayed in the console where the server is running when gate catches issues. like it I know in real time if the system is working as expected.1

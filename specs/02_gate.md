@@ -1,7 +1,7 @@
-# Spec: Laya (The Compliance Layer)
+# Spec: Gate (The Compliance Layer)
 
 ## Overview
-Laya is a dual-phase interceptor that ensures the Actor's actions align with the system's policy and risk model. It operates in two distinct phases: **The Gatekeeper** (Pre-Action) and **The Auditor** (Post-Turn).
+Gate is a dual-phase interceptor that ensures the Actor's actions align with the system's policy and risk model. It operates in two distinct phases: **The Gatekeeper** (Pre-Action) and **The Auditor** (Post-Turn).
 
 ## Phase 1: The Gatekeeper (Pre-Action)
 The Gatekeeper intercepts tool-use requests *before* they are dispatched to the runtime.

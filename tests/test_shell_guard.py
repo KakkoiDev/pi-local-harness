@@ -1,14 +1,14 @@
 import unittest
-from laya.shell_guard import destructive_reason
-from laya.engine import LayaEngine
-from laya.models import ActionProposal,ActionOutcome
+from gate.shell_guard import destructive_reason
+from gate.engine import GateEngine
+from gate.models import ActionProposal,ActionOutcome
 
 class ShellGuardTest(unittest.TestCase):
     def test_normal_commands_are_unrestricted(self):
         for command in ['env','ls /','whoami','cat /nonexistent','ls -la','git status','npm test','rm -rf ./build',
                         'echo "rm -fr *"','find . -name "*.py"']:
             self.assertIsNone(destructive_reason(command),command)
-        engine=LayaEngine('', '/tmp/unused.log')
+        engine=GateEngine('', '/tmp/unused.log')
         self.assertEqual(engine.gatekeep(ActionProposal('execute_command',{'command':'env'},'diagnostic'),'standard'),ActionOutcome.ALLOW)
     def test_broad_recursive_deletion_is_blocked(self):
         for command in ['rm -fr *','rm -rf /','sudo rm -rf ~/*','rm --recursive --force .',

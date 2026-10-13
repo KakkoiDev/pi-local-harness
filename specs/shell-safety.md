@@ -1,6 +1,6 @@
 # Destructive shell guard
 
-Laya allows ordinary diagnostics, builds, tests, and targeted cleanup. Both standard
+Gate allows ordinary diagnostics, builds, tests, and targeted cleanup. Both standard
 and admin profiles allow normal shell commands; neither bypasses this guard.
 
 There is no universal authoritative shell denylist. This policy is our narrow,

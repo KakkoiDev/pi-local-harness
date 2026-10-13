@@ -4,5 +4,5 @@ __pycache__/
 .harness-venv/
 *.swp
 session.log
-test_laya_audit.log
+test_gate_audit.log
 Screenshot *.png

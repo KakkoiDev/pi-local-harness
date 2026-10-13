@@ -1,13 +1,13 @@
 import unittest
 import os
-from laya.engine import LayaEngine
-from laya.models import ActionProposal, ExecutionResult, ActionOutcome, ToolRiskCategory
+from gate.engine import GateEngine
+from gate.models import ActionProposal, ExecutionResult, ActionOutcome, ToolRiskCategory
 
-class TestLayaEngine(unittest.TestCase):
+class TestGateEngine(unittest.TestCase):
     def setUp(self):
-        self.log_file = "test_laya_audit.log"
+        self.log_file = "test_gate_audit.log"
         self.policy_path = "specs/judges.md"
-        self.engine = LayaEngine(self.policy_path, self.log_file)
+        self.engine = GateEngine(self.policy_path, self.log_file)
 
     def tearDown(self):
         if os.path.exists(self.log_file):

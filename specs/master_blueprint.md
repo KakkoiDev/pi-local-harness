@@ -6,7 +6,7 @@ The system is designed as a high-reliability, multi-agent ecosystem comprising t
 ### 1.1 The Actor (The Worker)
 The Actor is the LLM-driven engine that performs tasks. It communicates its intent via structured `ActionProposal` packets.
 
-### 1.2 Laya (The Compliance Layer)
+### 1.2 Gate (The Compliance Layer)
 A dual-phase interceptor that gates the Actor's actions.
 * **Phase 1: The Gatekeeper (Pre-Action):** Intercepts proposed tool calls to validate policy (e.g., prevents unauthorized `edit` operations).
 * **Phase 2: The Auditor (Post-Turn):** AnalyIdxes the consequence of the turn (file changes + reasoning) to issue a final `JudgmentEvent`.
@@ -48,6 +48,6 @@ Enables testing through "Golden Datasets" to ensure regression-free development.
 * **Boot Sequence (`./start.sh`):** 
   1. Launch Actor-API.
   2. Launch Sentinel (Background).
-  3. Launch Laya-Monitor (Background).
+  3. Launch Gate-Monitor (Background).
   4. Launch Pilot Console (Frontend).
 * **Shutdown:** Graceful flush of the audit log followed by process termination.

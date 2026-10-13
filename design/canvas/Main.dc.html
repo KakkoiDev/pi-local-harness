@@ -108,7 +108,7 @@ textarea:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset
 <a href="Main.dc.html" class="vtab on" aria-current="page" style="border-radius: 8px 0 0 8px">Chat<kbd>⌘1</kbd></a>
 <a href="Work.dc.html" class="vtab" style="border-left: 0">Work<kbd>⌘2</kbd></a>
 <a href="Activity.dc.html" class="vtab" style="border-left: 0">Activity<kbd>⌘3</kbd></a>
-<a href="Laya.dc.html" class="vtab" style="border-left: 0; border-radius: 0 8px 8px 0">Laya<kbd>⌘4</kbd></a>
+<a href="Gate.dc.html" class="vtab" style="border-left: 0; border-radius: 0 8px 8px 0">Gate<kbd>⌘4</kbd></a>
 </nav>
 <div style="flex: 1"></div>
 <span class="mono hide-sm" style="font-size: 13px">~/code/pi-local-harness</span>
@@ -129,16 +129,16 @@ textarea:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset
 <div style="border: 1px solid #000; display: flex; flex-direction: column">
 <div class="mono" style="padding: 8px 12px; font-size: 14px; border-bottom: 1px solid #000">$ grep -n "interrupted" harness/work_queue.py</div>
 <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 6px 12px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px">
-<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Laya approved</span>
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Gate approved</span>
 <span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Verified · exit 0</span>
-<a href="Laya.dc.html" style="margin-left: auto">Show in Laya</a>
+<a href="Gate.dc.html" style="margin-left: auto">Show in Gate</a>
 </div>
 </div>
 <p style="margin: 0; text-wrap: pretty">The counter includes every unfinished state. I’ve narrowed it to running and waiting, and added a regression test. Running the queue tests now.</p>
 <div style="border: 2px solid #000; display: flex; flex-direction: column">
 <div class="mono" style="padding: 8px 12px; font-size: 14px; border-bottom: 1px solid #000">$ python3 -m pytest tests/test_work_queue.py</div>
 <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 6px 12px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px">
-<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Laya approved</span>
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Gate approved</span>
 <span style="display: flex; align-items: center; gap: 6px" role="status"><svg width="11" height="13" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/><path d="M4 14h6l-3-3z" fill="#000"/></svg>Running · 0:12</span>
 </div>
 </div>

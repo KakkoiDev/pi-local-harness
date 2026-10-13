@@ -9,7 +9,7 @@ import sys
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT))
 from harness.model import QUALIFIED
-DEFAULTS={'effort':'high','laya_port':8000,'web_port':3000,'whisper_model':'mlx-community/whisper-base-mlx','remote_hosts':[],'remote_users':[]}
+DEFAULTS={'effort':'high','gate_port':8000,'web_port':3000,'whisper_model':'mlx-community/whisper-base-mlx','remote_hosts':[],'remote_users':[]}
 
 def configuration(directory):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
@@ -18,7 +18,7 @@ def configuration(directory):
     settings={**DEFAULTS,**json.loads(path.read_text())}
     if settings.setdefault('model',QUALIFIED)!=QUALIFIED:raise ValueError(f"The model is pinned to {QUALIFIED} in harness/model.json; remove 'model' from {path}")
     if settings['effort'] not in {'off','minimal','low','medium','high','xhigh','max'}:raise ValueError('Invalid thinking effort in config.json')
-    for key in ['laya_port','web_port']:
+    for key in ['gate_port','web_port']:
         if not isinstance(settings[key],int) or not 0<=settings[key]<=65535:raise ValueError(f'Invalid {key}')
     for key in ['remote_hosts','remote_users']:
         if not isinstance(settings[key],list) or not all(isinstance(value,str) and re.fullmatch(r'[\w.@+-]+',value) for value in settings[key]):
@@ -28,7 +28,7 @@ def configuration(directory):
 
 def environment(settings):
     env={'PI_WEB_EFFORT':settings['effort'],'PI_WEB_REMOTE_HOSTS':','.join(settings['remote_hosts']),'PI_WEB_REMOTE_USERS':','.join(settings['remote_users'])}
-    for name,key in [('PI_LAYA_PORT','laya_port'),('PI_WEB_PORT','web_port'),('PI_WHISPER_MODEL','whisper_model')]:env[name]=str(settings[key])
+    for name,key in [('PI_GATE_PORT','gate_port'),('PI_WEB_PORT','web_port'),('PI_WHISPER_MODEL','whisper_model')]:env[name]=str(settings[key])
     return env
 
 def main():

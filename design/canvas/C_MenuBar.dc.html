@@ -23,7 +23,7 @@
 <a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Open on Phone…</a>
 <div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitem" aria-disabled="true">Gemma 4 · High thinking</span>
-<span class="pw-menu__item" role="menuitem" aria-disabled="true">Laya :8000 · Web :3000</span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true">Gate :8000 · Web :3000</span>
 </div></sc-if></div>
 
 <div style="position: relative"><a href="M_File.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{fileOpen}}">File</a>
@@ -64,7 +64,7 @@
 <a href="Main.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vChat}}">Chat<span class="pw-menu__key">⌘1</span></a>
 <a href="Final.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vWork}}">Work<span class="pw-menu__key">⌘2</span></a>
 <a href="Activity.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vActivity}}">Activity<span class="pw-menu__key">⌘3</span></a>
-<a href="Laya.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vLaya}}">Laya<span class="pw-menu__key">⌘4</span></a>
+<a href="Gate.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="{{vGate}}">Gate<span class="pw-menu__key">⌘4</span></a>
 <div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitemradio" aria-checked="true" aria-disabled="{{notWork}}">As Document</span>
 <a href="W_Source.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="false">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></a>
@@ -112,7 +112,7 @@
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","window"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","laya"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"$preview":{"width":1440,"height":360}}'>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","window"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"$preview":{"width":1440,"height":360}}'>
 class Component extends DCLogic {
 renderVals() {
 const o = this.props.open ?? 'none';
@@ -120,7 +120,7 @@ const v = this.props.view ?? 'chat';
 return {
 piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
 projectOpen: o === 'project', agentOpen: o === 'agent', windowOpen: o === 'window',
-vChat: v === 'chat', vWork: v === 'work', vActivity: v === 'activity', vLaya: v === 'laya', notWork: v !== 'work',
+vChat: v === 'chat', vWork: v === 'work', vActivity: v === 'activity', vGate: v === 'gate', notWork: v !== 'work',
 status: this.props.status ?? 'Working · 1 waiting',
 rootH: o === 'none' ? '28px' : '400px'
 };

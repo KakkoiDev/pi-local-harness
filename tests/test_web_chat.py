@@ -47,7 +47,7 @@ class WebChatTest(unittest.TestCase):
                 prepare_prompt('',[{'name':'a.txt','mime':'text/plain','data':'invalid!'}],Path(directory),lambda _: '')
 
 class ToolChecksTest(unittest.TestCase):
-    def test_each_tool_call_carries_its_laya_checks(self):
+    def test_each_tool_call_carries_its_gate_checks(self):
         from harness.web_chat import with_checks
         jobs=[{'id':'job','tools':[{'id':'call-1','name':'bash','status':'done'},{'id':'call-2','name':'read','status':'running'}]},{'id':'old'}]
         events=[{'id':1,'tool_call':'call-1','phase':'gate','outcome':'ALLOW','reason':'Approved before execution.'},
@@ -68,7 +68,7 @@ class RpcBridgeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);executable=root/'pi'
             executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
-            chat=WebChat(root/'data',12345,3000,laya_token='shared-token');self.addCleanup(chat.close);conversation=chat.store.create();events=[]
+            chat=WebChat(root/'data',12345,3000,gate_token='shared-token');self.addCleanup(chat.close);conversation=chat.store.create();events=[]
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
                 chat.send(conversation['id'],{'message':'Hello'},events.append)
                 chat.send(conversation['id'],{'message':'Continue'},events.append)

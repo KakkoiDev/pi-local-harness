@@ -39,12 +39,12 @@ export default function harness(pi, dependencies = {}) {
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   const stop = () => { agentLock.release(); closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
   const call = async (path, body) => {
-    if (!ports) throw new Error('Laya is unavailable');
-    const response = await fetch(`http://127.0.0.1:${ports.laya}${path}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Laya-Token': ports.token || '' },
+    if (!ports) throw new Error('Gate is unavailable');
+    const response = await fetch(`http://127.0.0.1:${ports.gate}${path}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': ports.token || '' },
       body: JSON.stringify(body), signal: AbortSignal.timeout(5000),
     });
-    if (!response.ok) throw new Error(`Laya HTTP ${response.status}`);
+    if (!response.ok) throw new Error(`Gate HTTP ${response.status}`);
     return response.json();
   };
   const trip = (reason, kind = 'loop') => {
@@ -72,7 +72,7 @@ export default function harness(pi, dependencies = {}) {
     });
     }
     try {
-      ports = sharedPort ? { laya: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN } : await new Promise((resolve, reject) => {
+      ports = sharedPort ? { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN } : await new Promise((resolve, reject) => {
         let output = '', announced = false;
         const deadline = setTimeout(() => { child.kill(); reject(new Error('Service startup timed out')); }, 10000);
         child.once('error', error => { clearTimeout(deadline); reject(error); });
@@ -150,9 +150,9 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('tool_call', async event => {
     try {
-      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_LAYA_AUTH || 'admin' });
-      if (result.outcome === 'REVISE') return { block: true, reason: `Laya pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
-      if (result.outcome !== 'ALLOW') return { block: true, reason: `Laya pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
+      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin' });
+      if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
+      if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
     } catch (error) { return { block: true, reason: error.message }; }
   });
@@ -164,12 +164,12 @@ export default function harness(pi, dependencies = {}) {
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
         args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
       if (result.status !== 'SUCCESS') {
-        notify(`Laya: ${result.status}: ${result.reason}`, 'error');
-        return { isError: true, content: [...event.content, { type: 'text', text: `Laya audit failed: ${result.status}. ${result.reason}` }] };
+        notify(`Gate: ${result.status}: ${result.reason}`, 'error');
+        return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit failed: ${result.status}. ${result.reason}` }] };
       }
     } catch (error) {
-      notify(`Laya audit failed: ${error.message}`, 'error');
-      return { isError: true, content: [...event.content, { type: 'text', text: `Laya audit unavailable: ${error.message}` }] };
+      notify(`Gate audit failed: ${error.message}`, 'error');
+      return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit unavailable: ${error.message}` }] };
     }
   });
   pi.on('agent_settled', () => agentLock.release());

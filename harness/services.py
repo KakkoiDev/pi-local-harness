@@ -13,8 +13,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from agent_api import AgentHandler
-from laya.engine import LayaEngine
-from laya.ledger import ProposalLedger
+from gate.engine import GateEngine
+from gate.ledger import ProposalLedger
 from harness.web_chat import WebChat, WebHandler
 
 
@@ -36,12 +36,12 @@ def main():
     os.chdir(ROOT)
     data_dir = Path(os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')))
     data_dir.mkdir(parents=True, exist_ok=True)
-    laya = LayaEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(data_dir / 'laya-audit.log')))
-    ledger = ProposalLedger(laya, protocol_file=data_dir / 'laya-protocol.json')
+    gate = GateEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(data_dir / 'gate-audit.log')))
+    ledger = ProposalLedger(gate, protocol_file=data_dir / 'gate-protocol.json')
     token = secrets.token_urlsafe(32)
     class Handler(AgentHandler):
         def __init__(self, *args):
-            self.laya = laya
+            self.gate = gate
             self.ledger = ledger
             self.token = token
             super().__init__(*args)
@@ -49,10 +49,10 @@ def main():
     chat = None
     serve = None
     try:
-        api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_LAYA_PORT', '8000'))), Handler)
+        api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_GATE_PORT', '8000'))), Handler)
         servers.append(api)
         web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
-        chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, laya_token=token)
+        chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, gate_token=token)
         chat.ledger = ledger
         WebHandler.chat = chat
         WebHandler.remote_hosts = frozenset(filter(None, os.getenv('PI_WEB_REMOTE_HOSTS', '').split(',')))
@@ -60,7 +60,7 @@ def main():
         servers.append(web)
         for server in servers:
             threading.Thread(target=server.serve_forever, daemon=True).start()
-        ready = {'laya': api.server_port, 'web': web.server_port, 'token': token}
+        ready = {'gate': api.server_port, 'web': web.server_port, 'token': token}
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
             if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]

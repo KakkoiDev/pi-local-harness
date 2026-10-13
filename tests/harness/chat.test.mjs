@@ -11,5 +11,5 @@ test('conversation stream state stays isolated and handles tools and failures',(
  applyDelta(first,{type:'message_update',assistantMessageEvent:{type:'text_delta',delta:'hello'}});
  applyDelta(first,{type:'tool_execution_end',isError:true});
  assert.match(first.status,/failed/);assert.equal(second.text,'other');
- applyDelta(first,{type:'error',error:'Laya unavailable'});assert.equal(first.error,'Laya unavailable');
+ applyDelta(first,{type:'error',error:'Gate unavailable'});assert.equal(first.error,'Gate unavailable');
 });

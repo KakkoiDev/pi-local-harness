@@ -21,10 +21,10 @@ in Pi's global directory. Project-local Pi instructions can also apply.
 | Environment | Default | Purpose |
 |---|---|---|
 | `PI_AGENT_DATA` | `~/pi-local-harness-data` | Registry, memory, queue, shared agent lock |
-| `PI_LAYA_PORT` | Config: 8000 | Laya; 0 chooses a port |
+| `PI_GATE_PORT` | Config: 8000 | Gate; 0 chooses a port |
 | `PI_WEB_PORT` | Config: 3000 | Web; 0 chooses a port |
 | `PI_HANG_MS` | 60000 | Thought stream inactivity timeout |
-| `PI_LAYA_AUTH` | admin | Both profiles enforce destructive-shell rules |
+| `PI_GATE_AUTH` | admin | Both profiles enforce destructive-shell rules |
 | `PI_HARNESS_MEMORY` | Data directory `AGENTS.md` | Advanced direct-extension override |
 | `PI_WEB_DATA` | Data directory `chats/` | Persistent web session/upload location |
 | `PI_WHISPER_MODEL` | Config: whisper-base-mlx | Lazy transcription model |
@@ -126,7 +126,7 @@ first on `PATH` must match (verified: Pi 0.87.1 on Node 24.16). The web chat's e
 Pi command is checked against that installed Pi. HTTP/browser tests
 need permission to bind localhost sockets in restricted environments.
 
-Laya serves only `/health`, `/gatekeep`, and `/audit`. The workbench uses project
+Gate serves only `/health`, `/gatekeep`, and `/audit`. The workbench uses project
 APIs and real Pi RPC workers.
 
 ## Activity and comment records

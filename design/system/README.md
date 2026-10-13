@@ -9,7 +9,7 @@ Start here, then read a component's card before using it. The implementation han
 1. **See and point.** Every command lives in a menu, on a button, or both. Nothing is reachable only by a gesture, a right-click or a long press. Right-click and keyboard shortcuts are accelerators for things you can also find.
 2. **Select, then command.** Select a project, a file, a passage or a task, then choose what to do with it. The phone works the same way: the phone's own long press selects text, and every app action is a tap.
 3. **Modeless by default.** You can always type, select or comment. The only mode is the agent working, and it is always visible in the menu bar.
-4. **Feedback for everything.** Saving says Saved. Queueing says Waiting. Laya's decisions are shown next to the command they judged.
+4. **Feedback for everything.** Saving says Saved. Queueing says Waiting. Gate's decisions are shown next to the command they judged.
 5. **Forgiveness.** Destructive actions ask with an alert whose default button is the safe one. Deleting a comment can be undone, and deleted comments are kept for good. Nothing the agent was interrupted doing is repeated automatically.
 6. **Perceived stability.** The menu bar never changes shape. Windows stay where they are. Live polling never moves focus or the text under the cursor.
 
@@ -58,7 +58,7 @@ All three are SIL Open Font License faces on Google Fonts. The repo should ship 
 | Chat | ⌘1 | project name | The project's single conversation and the composer. |
 | Work | ⌘2 | file name | Files window, document editor with inline comment threads, Review window. |
 | Activity | ⌘3 | Activity | The one request queue: Running, Waiting, Completed, Failed, Stopped, Interrupted. |
-| Laya | ⌘4 | Laya | Gate and audit checks from terminal and web Pi sessions. |
+| Gate | ⌘4 | Gate | Gate and audit checks from terminal and web Pi sessions. |
 
 ## Iconography
 
@@ -76,7 +76,7 @@ All three are SIL Open Font License faces on Google Fonts. The repo should ship 
 | ⌘Z | Undo (including Undo Delete Comment) |
 | ⇧⌘M | Comment on Selection |
 | ⌘F / ⌘K | Find in Files… / Find Project… |
-| ⌘1–⌘4 | Chat, Work, Activity, Laya |
+| ⌘1–⌘4 | Chat, Work, Activity, Gate |
 | ⌥⌘R | Show or hide Review |
 | ⌘⌥] / ⌘⌥[ | Next / previous comment |
 | Return / ⇧Return | Queue message / new line (desktop only) |

@@ -22,8 +22,8 @@ When the canvas and this file disagree, this file wins for behaviour and ids; th
 1. **No framework, no build step, no CDN.** Plain ES modules and CSS, as today. `tests/test_frontend.py` fails if `cdn.tailwindcss` appears; do not add any other remote URL either. Fonts are local files.
 2. **Keep every existing id.** `js/chat.mjs`, `js/workspace.mjs` and `tests/browser/chat.cjs` address elements by id. `design/index.reference.html` keeps all of them; new ids are marked `NEW`.
 3. **Keep the legacy class names the tests use** and add the new ones beside them: `.conversation`, `.file-item`, `.attachment-chip`, `.activity-task`, `.task-state`, `.composer-wrap`, `.md`. Example: `node('div','conversation pw-row')`.
-4. **Keep these visible strings exactly:** `Saved`, `No matching projects`, `start plh again` (inside `#startup-error`), `Recursive deletion targets` (Laya's reason text, rendered verbatim). See § 11 for the one string that changes (`BLOCK`).
-5. **State is never colour.** Use `stateGlyph()` from `icons.mjs` (glyph + word) for every job and Laya outcome.
+4. **Keep these visible strings exactly:** `Saved`, `No matching projects`, `start plh again` (inside `#startup-error`), `Recursive deletion targets` (Gate's reason text, rendered verbatim). See § 11 for the one string that changes (`BLOCK`).
+5. **State is never colour.** Use `stateGlyph()` from `icons.mjs` (glyph + word) for every job and Gate outcome.
 6. **One default button per window, dialog or sheet**, always the safe or expected action (§ 7).
 7. **Never `window.confirm()` or `window.prompt()`.** Use `#alert-dialog` and `#name-dialog` (§ 7).
 8. Commit per task with the repo's convention and a `tasks/NN-*.md` file per step.
@@ -76,15 +76,15 @@ export { icon, hydrateIcons, stateGlyph } from '../design/icons.mjs';
 ```
 nav#menubar (desktop)      nav#phonebar (≤760px)
 div#desk.pw-desk           ← windows tile left to right, 24px gaps
-  aside#sidebar            Projects window      (Chat, Activity, Laya views; phone: π sheet)
+  aside#sidebar            Projects window      (Chat, Activity, Gate views; phone: π sheet)
   aside.window-files       Files window         (Work view only)
   main#main-window         the one main window; its body switches with the view
   aside#comments-panel     Review window        (Work view only)
-  aside#event-info         Event Info window    (Laya view, when an event is selected)
+  aside#event-info         Event Info window    (Gate view, when an event is selected)
 dialogs, #toast
 ```
 
-`showView(next)` in `js/chat.mjs` must also set `document.body.dataset.view = next`, set `#window-title` (project name in Chat, file name in Work, `Activity`, `Laya`), update the View menu's `aria-checked`, and update `#phone-view-label`. Side windows show and hide purely from `body[data-view]` in CSS (`[data-view-only]`).
+`showView(next)` in `js/chat.mjs` must also set `document.body.dataset.view = next`, set `#window-title` (project name in Chat, file name in Work, `Activity`, `Gate`), update the View menu's `aria-checked`, and update `#phone-view-label`. Side windows show and hide purely from `body[data-view]` in CSS (`[data-view-only]`).
 
 Window activation: the window containing focus is active (striped title bar). Implement with one `focusin` listener on `#desk` that toggles `.pw-window--inactive` on the other windows.
 
@@ -97,10 +97,10 @@ Desktop pattern: `#desk[data-pattern="dots|gray|plain"]`, from Settings (§ 8).
 | `renderProjects` | `div.conversation > button.conversation-select` | `div.conversation` > `button.pw-row.conversation-select` with `folder` icon, `.pw-row__label`, `aria-current="page"` on the current project, a `running` glyph when that project has the running job, `.pw-row__meta` “waiting” when it has a queued job |
 | `renderFiles` | `button.file-item` | `button.file-item.pw-row` with `file` icon; folders get `disclosure-*` + `folder` icons and `aria-expanded`; nested files `.pw-row--nested`. Group by directory (today the list is flat): collapse folders by default except the one holding the open file |
 | `messageView` | `article.message.(user|assistant)` | add `pw-msg`, plus `pw-msg--user` for the user. Label → `.pw-msg__label` with `<b>You</b>`/`<b>Pi</b>` and `<time>`; body → `.pw-msg__body`; reasoning `<details>` stays; images/audio unchanged; `a.file-link` → add `pw-file` |
-| live status (`div.status`) | text | A `.pw-tool.pw-tool--live` card when the status is `Using <tool>…` (command in `.pw-tool__cmd` when known), else a `.pw-help` line. Completed tool calls with Laya results render as `.pw-tool` with two `stateGlyph`s (gate, audit) — needs the job’s Laya events (§ 9) |
+| live status (`div.status`) | text | A `.pw-tool.pw-tool--live` card when the status is `Using <tool>…` (command in `.pw-tool__cmd` when known), else a `.pw-help` line. Completed tool calls with Gate results render as `.pw-tool` with two `stateGlyph`s (gate, audit) — needs the job’s Gate events (§ 9) |
 | `renderAttachments` | `div.attachment-chip` | add `pw-chip`; remove button keeps `aria-label="Remove <name>"`, icon `close` |
 | `renderActivity` | `article.activity-task` | `a.activity-task.pw-table__row` (columns: State, Request, Project, Source, Started, Time); `span.task-state` becomes `stateGlyph(job.status)` with class `task-state` kept. Selecting a row fills a detail pane (§ 6.3) |
-| `renderLaya` | `article.laya-event` | `button.laya-event.pw-table__row` (Time, Check, Decision, Tool, Arguments, Project, From). Decision = `stateGlyph(event.outcome)`. Selecting a row fills `#event-info` |
+| `renderGate` | `article.gate-event` | `button.gate-event.pw-table__row` (Time, Check, Decision, Tool, Arguments, Project, From). Decision = `stateGlyph(event.outcome)`. Selecting a row fills `#event-info` |
 | `renderBlocks` | `.editor-block` with a `<select>` and ↑ ↓ × buttons per block | `.editor-block.pw-block`; per-block tools are replaced by one `.pw-block__handle` (icon `handle`) that opens the block menu (§ 6.2). The focused block gets `.pw-block--focused`; `#block-style` in the ruler mirrors and sets the focused block’s type |
 | `renderComments` | `article.document-comment` cards in a side panel | Review items `.pw-review-item` in `#document-comments`, filtered by `#comment-filter`; inline threads `.pw-thread` under their block (§ 6.2) |
 | `highlightComments` | `mark.text-anchor` | `span.pw-anchor` (`--sent` when sent to Pi, `--resolved` when shown resolved) followed by `button.pw-mark` with the comment’s number in document order |
@@ -138,7 +138,7 @@ Implement the WAI-ARIA menubar pattern on `#menubar`:
 | ask-selection | Ask Pi About Selection… | | a passage is selected | comment composer with “Ask Pi” as the default |
 | find-file | Find in Files… | ⌘F | Work view | focus `#file-search` |
 | find-project | Find Project… | ⌘K | always | focus `#project-search` (phone: opens π sheet) — existing handler |
-| view-chat … view-laya | Chat / Work / Activity / Laya | ⌘1–⌘4 | always | `showView()` |
+| view-chat … view-gate | Chat / Work / Activity / Gate | ⌘1–⌘4 | always | `showView()` |
 | mode-blocks / mode-source | As Document / As Markdown Source | ⌥⌘U toggles | a Markdown page is open | set `#editor-mode` and dispatch `change` |
 | toggle-review | Show Review | ⌥⌘R | Work view | toggle `#comments-panel` |
 | toggle-resolved | Show Resolved Comments | | Work view | toggles resolved anchors in the text |
@@ -203,11 +203,11 @@ Layout: Files window | main window (ruler + document) | Review window. The chose
 
 ### 6.3 Activity — [Activity], [A_Attention], [A_Empty]
 
-Table of jobs (`#activity-list`), sorted as today. Selecting a row (click, or Up/Down with the list focused) fills a detail pane under the table: heading “<State> in <project>”, the request, Phase, Last command, Laya counts, an error line for failed jobs, actions (**Open Chat**, **Open Document** when there is one, **Stop ⌘.** when running, **Cancel…** when queued), and the Markdown task record (`#activity-record`, `#activity-record-text`). Empty: “All caught up” + the existing copy + **Open Project Chat** (default). `#activity-summary`: “1 running · 1 waiting · 3 need attention” / “Nothing running or waiting”. `#activity-count` badge in the Activity tab counts running + waiting only.
+Table of jobs (`#activity-list`), sorted as today. Selecting a row (click, or Up/Down with the list focused) fills a detail pane under the table: heading “<State> in <project>”, the request, Phase, Last command, Gate counts, an error line for failed jobs, actions (**Open Chat**, **Open Document** when there is one, **Stop ⌘.** when running, **Cancel…** when queued), and the Markdown task record (`#activity-record`, `#activity-record-text`). Empty: “All caught up” + the existing copy + **Open Project Chat** (default). `#activity-summary`: “1 running · 1 waiting · 3 need attention” / “Nothing running or waiting”. `#activity-count` badge in the Activity tab counts running + waiting only.
 
-### 6.4 Laya — [Laya], [L_All], [L_Empty]
+### 6.4 Gate — [Gate], [G_All], [G_Empty]
 
-Table of events (`#laya-events`), newest first, filtered by `#laya-filter` (All Checks, Before Execution, After Execution, Blocks & Failures — the existing values `all`, `gate`, `audit`, `failures`). Selecting a row opens `#event-info`: alert icon by outcome (stop for BLOCK/DRIFT_DETECTED, caution for REVISE/EXECUTION_FAILED/POSTCONDITION_FAILED, note for ESCALATE, none for ALLOW/SUCCESS), the reason (verbatim), the arguments in mono, Decision with the raw outcome code (`BLOCK`), Tool, Project, From, Proposal id, **Open Request**, **Copy Command**. When nothing is selected, select the newest non-ALLOW event so its reason is visible. Empty: “No checks yet” + explanation; `#laya-live` “Connecting to Laya :8000…”.
+Table of events (`#gate-events`), newest first, filtered by `#gate-filter` (All Checks, Before Execution, After Execution, Blocks & Failures — the existing values `all`, `gate`, `audit`, `failures`). Selecting a row opens `#event-info`: alert icon by outcome (stop for BLOCK/DRIFT_DETECTED, caution for REVISE/EXECUTION_FAILED/POSTCONDITION_FAILED, note for ESCALATE, none for ALLOW/SUCCESS), the reason (verbatim), the arguments in mono, Decision with the raw outcome code (`BLOCK`), Tool, Project, From, Proposal id, **Open Request**, **Copy Command**. When nothing is selected, select the newest non-ALLOW event so its reason is visible. Empty: “No checks yet” + explanation; `#gate-live` “Connecting to Gate :8000…”.
 
 ## 7. Dialogs, alerts, sheets, toasts
 
@@ -236,17 +236,17 @@ Phone: dialogs become sheets (`.pw-sheet`) — same content, buttons 44px, full 
 | Comment delete (soft, kept for good) + restore | **missing** | add `deleted` (ISO time or null) to the comment record and `/api/documents/delete-comment {path,id,deleted:bool}`; list deleted comments in `/api/document` with the flag; never hard-delete. Test in `tests/test_documents.py` |
 | “Sent to Pi” state | partly (`chat_id` on the comment after Ask) | treat `comment.chat_id` (or a job with `comment_id`) as sent; expose `sent_at` |
 | Pi’s suggested change (Keep Mine / Apply Change) | **missing** | phase 2: let the agent return `{suggestion:{anchor,replacement}}` on a comment job; **Apply Change** = save the document with `anchor` replaced (with the usual revision check), then resolve. Until then, show Pi’s `agent_reply` as a normal reply. 2026-10-13: done in task 82 (`apply-suggestion`, `keep-suggestion`) |
-| Laya results per tool call in chat | **missing** | phase 2: include in each job’s events the Laya gate outcome and audit status per tool call (the ledger already records both); render as `.pw-tool__checks`. 2026-10-13: done in task 81 (`tool_call` on ledger events, `tools[]` on jobs) |
+| Gate results per tool call in chat | **missing** | phase 2: include in each job’s events the Gate decision and audit status per tool call (the ledger already records both); render as `.pw-tool__checks`. 2026-10-13: done in task 81 (`tool_call` on ledger events, `tools[]` on jobs) |
 | Phone URL for Open on Phone… | printed by plh only | add `phoneUrl` to `/api/config`. 2026-10-13: done in task 80 |
 
 Everything else in the design uses data the API already returns.
 
 ## 10. Phone (≤760px) — [Phone pages], [Phone], [PhoneEdit1–7]
 
-- `#menubar` hides; `#phonebar` shows: **π** (`#open-menu`, opens the π sheet = `#sidebar` with `body.menu-open`, existing `menu()` logic), the view popup `#phone-view` (Chat, Work, Activity with its count, Laya) [Ph_Views], and the status.
+- `#menubar` hides; `#phonebar` shows: **π** (`#open-menu`, opens the π sheet = `#sidebar` with `body.menu-open`, existing `menu()` logic), the view popup `#phone-view` (Chat, Work, Activity with its count, Gate) [Ph_Views], and the status.
 - The π sheet [Ph_Pi] holds: agent status with **Stop**, project search and list, **New Project…**, **Add Folder…**, then Settings… and About Pi Workbench.
 - Work on phone: the Files window is a full screen [Ph_Files] (`body[data-pane="files"]`); tapping a file opens the document full screen [PhoneEdit1] with **‹ Files** in the phone bar and **Comments N**, which opens the Review window as a sheet [PhoneEdit6] (`.is-sheet`).
-- Activity and Laya: list screens with a segmented filter [Ph_Activity], [Ph_Laya]; tapping a row opens a detail screen with ‹ back [Ph_ActivityDetail], [Ph_LayaDetail].
+- Activity and Gate: list screens with a segmented filter [Ph_Activity], [Ph_Gate]; tapping a row opens a detail screen with ‹ back [Ph_ActivityDetail], [Ph_GateDetail].
 - Selection: the phone’s own long press selects text; the app shows its own bottom bar (**Ask Pi…**, **Comment**) while a selection exists, listening to `selectionchange`. Do not cancel `contextmenu` or `touchstart`. Every other action is a tap.
 - Offline [Ph_Offline]: banner with **Reconnect**; the draft stays in the composer; Send disabled.
 - All controls ≥44px (components.css does this at ≤760px). No fake status bar; respect safe-area insets (layout.css).
@@ -276,10 +276,10 @@ Each step is one task file and one commit; run the repo gate after each: `PATH=$
 7. **Work: ruler and block handle.** `#block-style`, handle menu, focused block, keyboard moves.
 8. **Work: comments.** Markers, inline threads, Review window with filters, selection float bar, phone selection bar. Soft delete + undo toast (needs the § 9 API).
 9. **Activity.** Table rows, detail pane, empty state, badge count.
-10. **Laya.** Table rows, `#event-info`, empty state.
+10. **Gate.** Table rows, `#event-info`, empty state.
 11. **Settings.** Appearance, desktop pattern, Return sends; apply before first paint.
-12. **Phone.** Phone bar, π sheet, view popup, Files screen, Review sheet, Activity/Laya detail screens, safe areas.
-13. **Phase 2 data.** Suggested changes (Apply Change), Laya results per tool call, phone URL in config.
+12. **Phone.** Phone bar, π sheet, view popup, Files screen, Review sheet, Activity/Gate detail screens, safe areas.
+13. **Phase 2 data.** Suggested changes (Apply Change), Gate results per tool call, phone URL in config.
 
 ## 13. Acceptance checklist
 

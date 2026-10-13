@@ -11,7 +11,7 @@ class LauncherTest(unittest.TestCase):
     def test_launch_anywhere_uses_home_and_config_without_changing_pi(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);data=root/'data';data.mkdir()
-            (data/'config.json').write_text(json.dumps({'effort':'medium','laya_port':1234,'web_port':4321}))
+            (data/'config.json').write_text(json.dumps({'effort':'medium','gate_port':1234,'web_port':4321}))
             fake=root/'pi';fake.write_text('#!'+sys.executable+'\nimport os,json,sys\nprint(json.dumps({"cwd":os.getcwd(),"args":sys.argv[1:],"port":os.environ["PI_WEB_PORT"]}))\n');fake.chmod(0o755)
             result=subprocess.run([sys.executable,str(ROOT/'plh.py'),'--mode','rpc'],cwd=root,env={**os.environ,'PATH':str(root)+os.pathsep+os.environ['PATH'],'PI_AGENT_DATA':str(data)},capture_output=True,text=True,check=True)
             record=json.loads(result.stdout);self.assertEqual(record['cwd'],str(Path.home()))

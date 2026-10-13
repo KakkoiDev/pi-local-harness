@@ -2,7 +2,7 @@
 
 A local workbench for **one agent, one chat per project, and real Markdown files**.
 Start `plh` (or `pi-local-harness`) from any directory. It starts Pi in your home
-directory, Laya on port **8000**, and the web workbench on **3000**. Plain `pi` keeps
+directory, Gate on port **8000**, and the web workbench on **3000**. Plain `pi` keeps
 its normal behavior. Whisper loads only when you submit audio.
 
 ## Install and start
@@ -105,7 +105,7 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 ```json
 {
   "effort": "high",
-  "laya_port": 8000,
+  "gate_port": 8000,
   "web_port": 3000,
   "whisper_model": "mlx-community/whisper-base-mlx",
   "remote_hosts": [],
@@ -120,7 +120,7 @@ Both terminal Pi and browser workers use this effort. The model is pinned to
 `ollama/gemma4:26b-mlx` in `harness/model.json`; a different `model` in `config.json`
 stops `plh` with an error. Change the pin only in that file. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;
-`PI_LAYA_PORT` and `PI_WEB_PORT` override ports. See the
+`PI_GATE_PORT` and `PI_WEB_PORT` override ports. See the
 [operations guide](harness/README.md) for other environment settings.
 
 ## Architecture: who does what
@@ -128,7 +128,7 @@ selects an available port. `PI_AGENT_DATA` selects a different data directory;
 ```mermaid
 flowchart TD
     Launch[plh: config + home cwd] --> Pi[Terminal Pi + harness extension]
-    Pi --> Services[Owned Laya and web servers]
+    Pi --> Services[Owned Gate and web servers]
     Browser[Project workbench] --> Queue[Durable single-agent queue]
     Queue --> Worker[Pi RPC worker: project cwd + own session]
     Docs[Current roadmap, tasks, selected document] --> Worker
@@ -136,18 +136,18 @@ flowchart TD
     Pi --> Model[Configured local model]
     Worker --> Model
     Model --> Proposal[Proposed tool call]
-    Proposal --> Gate[Laya: check before execution]
+    Proposal --> Gate[Gate: check before execution]
     Gate -->|ALLOW| Tool[Pi executes tool]
     Gate -->|BLOCK + reason| Model
-    Tool --> Audit[Laya: audit actual result]
+    Tool --> Audit[Gate: audit actual result]
     Audit --> Model
 ```
 
-**The model proposes. Laya checks. Pi executes.** Browser workers reuse existing
-services; they never launch a second web/Laya pair. A shared process lock prevents
+**The model proposes. Gate checks. Pi executes.** Browser workers reuse existing
+services; they never launch a second web/Gate pair. A shared process lock prevents
 overlapping terminal and browser agent turns within the same data directory.
 
-Laya runs at Pi's `tool_call` event **before execution**. Allowed proposals receive
+Gate runs at Pi's `tool_call` event **before execution**. Allowed proposals receive
 a one-use ID. Blocked proposals never execute; specific corrective feedback guides
 the model's next reasoning step. After `tool_result`, an audit checks the original
 proposal, execution status, and write/edit postconditions. Gate failures fail
@@ -158,14 +158,14 @@ tests, and scoped cleanup such as `rm -rf ./build`. Broad deletion (`rm -fr *`),
 root/home deletion, disk erasure, raw disk writes, and recursive system permission
 changes are blocked. Common shell wrappers are checked. This is an accident guard,
 not a sandbox for arbitrary scripts. [Rules and sources](specs/shell-safety.md).
-The **Laya** tab shows the actual shared ledger: checks, arguments, outcomes,
+The **Gate** tab shows the actual shared ledger: checks, arguments, outcomes,
 reasons, and timestamps. Its latest 200 events reset when services restart.
 
 ## Recovery, memory, media, and timestamps
 
 ### Commit protocol
 
-In a project folder with `ROADMAP.md` and `tasks/`, Laya revises any `git commit`
+In a project folder with `ROADMAP.md` and `tasks/`, Gate revises any `git commit`
 until it has seen, since the last commit: a failing test run, a code change, a
 passing test run on exactly the code being committed, a newly checked `- [x]` box in
 a `tasks/*.md` file, and one in `ROADMAP.md`. Each checked task file needs a
@@ -175,8 +175,8 @@ need no runs and may not change code. A commit that only adds unchecked tasks to
 `Kind:` line. Test runs count only when the runner (unittest, pytest, `node --test`,
 npm/yarn/pnpm/bun test, vitest, jest, go/cargo/make test) is the last command and
 no pipe or `||` hides its exit code; stopped, killed, or timed-out runs are ignored.
-Evidence is git state plus runs Laya observed, kept in
-`~/pi-local-harness-data/laya-protocol.json` across restarts. It checks the protocol; a
+Evidence is git state plus runs Gate observed, kept in
+`~/pi-local-harness-data/gate-protocol.json` across restarts. It checks the protocol; a
 commit made outside Pi's tools, or through an unrecognized wrapper, is not seen.
 
 Every **10 seconds**, the watchdog checks the latest 100 nonempty thought lines.
@@ -204,7 +204,7 @@ Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB e
 
 Question, assistant, tool, and completion events receive local timestamps in Pi.
 Web messages and queue jobs also record timestamps. Services bind to loopback and
-reject foreign browser origins. Laya also requires a per-run `X-Laya-Token` that
+reject foreign browser origins. Gate also requires a per-run `X-Gate-Token` that
 `services.py` hands only to the Pi extension and web-started Pi processes; it sends
 no CORS headers, so web pages cannot query it. The layout supports mobile sizes; physical-phone
 access needs a separate connection setup.
@@ -215,12 +215,12 @@ access needs a separate connection setup.
 |---|---|
 | `plh.py`, `harness/install.py` | Dedicated launcher, config, stable installation |
 | `harness/extension.mjs` | Pi hooks, memory, recovery, service ownership |
-| `harness/services.py` | Laya/web sockets and shutdown |
+| `harness/services.py` | Gate/web sockets and shutdown |
 | `harness/web_chat.py`, `harness/work_queue.py` | Project chat, uploads, RPC, FIFO jobs |
 | `harness/documents.py` | Folder registry, Markdown, revisions, comments |
 | `index.html`, `chat.css`, `js/chat.mjs`, `js/workspace.mjs` | Project workbench |
 | `js/markdown-blocks.mjs` | Loss-preserving Markdown block conversion |
-| `laya/engine.py`, `laya/shell_guard.py`, `laya/ledger.py` | Gate, shell rules, audits |
+| `gate/engine.py`, `gate/shell_guard.py`, `gate/ledger.py` | Gate, shell rules, audits |
 | `harness/media.mjs`, `harness/transcribe.py` | Image paths and lazy speech input |
 | `ROADMAP.md`, `tasks/` | Completed and remaining work |
 

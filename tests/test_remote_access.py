@@ -84,7 +84,7 @@ class TailscaleServeTest(unittest.TestCase):
         import os, subprocess, sys
         directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
         root = Path(directory.name)
-        env = {**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA': str(root / 'data'), 'PI_WEB_DATA': str(root / 'web'),
+        env = {**os.environ, 'PI_GATE_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA': str(root / 'data'), 'PI_WEB_DATA': str(root / 'web'),
                'PI_WEB_REMOTE_HOSTS': HOST, 'PI_WEB_REMOTE_USERS': USER, 'PI_TAILSCALE': tailscale}
         process = subprocess.Popen([sys.executable, 'harness/services.py'], cwd=Path(__file__).resolve().parent.parent, env=env,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -20,7 +20,7 @@
 ## Harness implementation
 
 - [ ] [14-Website Agent Interaction](tasks/14-agent-interaction.md) — UI/API exist; website LLM integration and persona remain open.
-- [ ] [15-Laya Core](tasks/15-implement-laya-core.md) — allow/block and audits work; revise/escalate behavior and full integration coverage remain open.
+- [ ] [15-Gate Core](tasks/15-implement-gate-core.md) — allow/block and audits work; revise/escalate behavior and full integration coverage remain open.
 - [x] [16-Sentinel Reliability Checks](tasks/16-sentinel.md)
 - [ ] [17-Pilot Console](tasks/17-pilot-console.md) — pi status display exists; supervisory web dashboard remains open.
 - [ ] [18-Data Model Protocols](tasks/18-data-model.md) — basic dataclasses exist; richer structured protocols remain open.
@@ -83,7 +83,7 @@ and harness/README.md for the installed pi workflow.
 
 - [x] [53-Durable test evidence](tasks/53-durable-test-evidence.md)
 - [x] [54-Task kinds decide the required steps](tasks/54-task-kinds.md)
-- [ ] [55-Laya guides each step](tasks/55-step-guide.md)
+- [ ] [55-Gate guides each step](tasks/55-step-guide.md)
 - [ ] [56-Discussion, planning, implementation, check](tasks/56-work-phases.md)
 - [ ] [57-Show phase, task, step, and a manual release](tasks/57-phase-visibility.md)
 
@@ -135,3 +135,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [93-System chrome font](tasks/93-system-chrome-font.md)
 - [x] [94-Show resolved row](tasks/94-show-resolved-row.md)
 - [x] [95-Breakpoint overflow](tasks/95-breakpoint-overflow.md)
+- [x] [96-Laya renamed Gate](tasks/96-rename-gate.md)

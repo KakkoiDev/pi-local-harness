@@ -38,7 +38,7 @@ class ProposalLedger:
         outcome = self.engine.gatekeep(proposal, auth_level)
         response = {'outcome': outcome.value}
         if outcome != ActionOutcome.ALLOW:
-            response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Laya policy.'
+            response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Gate policy.'
             self.record_event('gate', outcome.value, proposal, response['reason'], tool_call=tool_call_id)
             return response
         command = args.get('command') if tool_name == 'execute_command' else None

@@ -115,7 +115,7 @@ textarea.pw-field{resize:none;padding:10px 12px}
 .pw-row--nested{padding-left:36px}
 .pw-empty{font-family:var(--font-chrome);font-size:14px;margin:24px 16px;text-align:center}
 
-/* Tables (Activity, Laya) */
+/* Tables (Activity, Gate) */
 .pw-table{display:flex;flex-direction:column;min-width:0}
 .pw-table__row{display:grid;grid-template-columns:var(--pw-cols,150px minmax(0,1fr) 190px 120px 90px 80px);align-items:center;gap:12px;min-height:36px;padding:0 14px;border-bottom:1px dotted var(--ink);font-family:var(--font-chrome);font-size:15px;color:var(--ink);text-decoration:none;background:none;width:100%;text-align:left;border-left:0;border-right:0;border-top:0;cursor:default}
 .pw-table__row:hover{background:var(--wash)}

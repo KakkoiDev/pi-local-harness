@@ -3,7 +3,7 @@
 Required since the last commit: a failing (red) test run, a code change, a passing (green)
 test run on exactly the code being committed, a newly checked box in tasks/, and a newly
 checked box in ROADMAP.md. Commits that change only Markdown or tasks/ skip the tests.
-Evidence is git state plus test runs Laya observed. This checks the protocol; it is not a sandbox.
+Evidence is git state plus test runs Gate observed. This checks the protocol; it is not a sandbox.
 """
 import hashlib
 import json

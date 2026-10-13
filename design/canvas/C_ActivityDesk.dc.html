@@ -16,7 +16,7 @@
 <section class="pw-window" aria-label="Activity" style="flex: 1">
 <div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Activity</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-toolbar">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html" aria-current="page">Activity<kbd>⌘3</kbd></a><a href="Laya.dc.html">Laya<kbd>⌘4</kbd></a></nav>
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html" aria-current="page">Activity<kbd>⌘3</kbd></a><a href="Gate.dc.html">Gate<kbd>⌘4</kbd></a></nav>
 <span style="flex: 1"></span>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center">Show <select class="pw-popup"><option>{{filterLabel}}</option></select></label>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center">Project <select class="pw-popup"><option>All Projects</option></select></label>
@@ -51,7 +51,7 @@
 <dl style="margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; font-size: 14px">
 <dt>Phase</dt><dd style="margin: 0">{{dPhase}}</dd>
 <dt>Last command</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">{{dCommand}}</dd>
-<dt>Laya</dt><dd style="margin: 0">{{dLaya}}</dd>
+<dt>Gate</dt><dd style="margin: 0">{{dGate}}</dd>
 </dl>
 <sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/><path d="M4.5 8h7" stroke="#fff" stroke-width="2"/></svg>backup.sh exited with code 1: /mnt/backup is not mounted.</div></sc-if>
 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto">
@@ -93,7 +93,7 @@ dTitle: attention ? 'Failed in home-server' : 'Running in pi-local-harness',
 dRequest: attention ? 'Run the backup script and report disk usage' : 'The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?',
 dPhase: attention ? 'Verify — stopped at the first failing step' : 'Verify — running tests',
 dCommand: attention ? './backup.sh --report' : 'python3 -m pytest tests/test_work_queue.py',
-dLaya: attention ? '3 approved · 1 audit failed (exit 1)' : '4 approved · 0 blocked',
+dGate: attention ? '3 approved · 1 audit failed (exit 1)' : '4 approved · 0 blocked',
 recordPath: attention ? 'work/2026-10-13-1340.md' : 'work/2026-10-13-1402.md',
 record: attention ? '## Request 13:40 · home-server · chat\nState: failed\nPhase: verify\n\n- [x] Read backup.sh\n- [x] Run ./backup.sh --report\n- [ ] Report disk usage\n\nError: exit 1 — /mnt/backup is not mounted.' : '## Request 14:02 · pi-local-harness · chat\nState: running\nPhase: verify\n\n- [x] Read harness/work_queue.py\n- [x] Narrow badge count to running + waiting\n- [x] Add regression test\n- [ ] Green: tests/test_work_queue.py'
 };

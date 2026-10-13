@@ -15,7 +15,7 @@ class PiStartupTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='pi-startup-') as directory:
             Path(directory, 'AGENTS.md').write_text('Start every response with [CANARY].')
             process = subprocess.Popen(['python3', str(ROOT / 'plh.py'), '--mode', 'rpc', '--no-session'], cwd=ROOT,
-                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_AGENT_DATA':str(Path(directory)/'workspace'), 'PI_LAYA_PORT':'0', 'PI_WEB_PORT':'0', 'PI_WEB_DATA':str(Path(directory)/'web')},
+                env={**os.environ, 'PI_CODING_AGENT_DIR':directory, 'PI_AGENT_DATA':str(Path(directory)/'workspace'), 'PI_GATE_PORT':'0', 'PI_WEB_PORT':'0', 'PI_WEB_DATA':str(Path(directory)/'web')},
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             try:
                 process.stdin.write(json.dumps({'id':'state','type':'get_state'})+'\n')
@@ -39,7 +39,7 @@ class PiStartupTest(unittest.TestCase):
                 self.assertEqual(state['data']['model']['id'],'gemma4:26b-mlx')
                 self.assertIn('image',state['data']['model']['input'])
                 self.assertEqual(state['data']['thinkingLevel'], 'high')
-                self.assertTrue(any('Laya:' in line and 'Web:' in line for line in lines),lines)
+                self.assertTrue(any('Gate:' in line and 'Web:' in line for line in lines),lines)
             finally:
                 process.terminate()
                 process.wait(timeout=10)

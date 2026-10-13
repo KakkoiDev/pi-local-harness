@@ -3,14 +3,14 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from laya.engine import LayaEngine
-from laya.ledger import ProposalLedger
+from gate.engine import GateEngine
+from gate.ledger import ProposalLedger
 
 class EnforcementTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.root=Path(self.temp.name)
-        self.engine=LayaEngine('',str(self.root/'audit.log'))
+        self.engine=GateEngine('',str(self.root/'audit.log'))
         self.ledger=ProposalLedger(self.engine,clock=lambda:100,limit=2)
     def tearDown(self): self.temp.cleanup()
     def test_original_is_immutable_and_drift_is_detected(self):

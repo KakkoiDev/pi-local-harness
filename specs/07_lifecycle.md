@@ -1,6 +1,6 @@
 # Spec: The Operational Lifecycle
 
-Current implementation: the global pi extension starts Laya/API and the Pi Workbench web server (`plh`; the portfolio webserver was removed in task 65), displays bound ports, loads memory, and starts deterministic monitoring. Whisper loads only for audio input. See `tasks/20-boot-sequence.md` and `harness/README.md`. The PostgreSQL, analytics, and supervisory dashboard architecture below remains a future proposal.
+Current implementation: the global pi extension starts Gate/API and the Pi Workbench web server (`plh`; the portfolio webserver was removed in task 65), displays bound ports, loads memory, and starts deterministic monitoring. Whisper loads only for audio input. See `tasks/20-boot-sequence.md` and `harness/README.md`. The PostgreSQL, analytics, and supervisory dashboard architecture below remains a future proposal.
 
 > 2026-10-13: everything below is the original proposal, not the running system. `sentinel.py` is retired (its checks live in `harness/watch.mjs` and `harness/memory.mjs`, see `specs/03_sentinel.md`); there is no PostgreSQL.
 
@@ -18,7 +18,7 @@ The startup script orchestrates the launch of the high-reliability ecosystem. It
 2.  **`sentinel.py` (The Watchdog)**:
     - Launches as a background daemon.
     - Starts monitoring the `session.log` for loop detection and stall detection.
-3.  **`laya_monitor.py` (The Analytics Engine)**:
+3.  **`gate_monitor.py` (The Analytics Engine)**:
     - Aggregates `audit.jsonl` and `session.log` into a real-time stream.
     - Provides the data source for the Pilot Console.
 4.  **`pilot_console.py` (The UI)**:
@@ -40,10 +40,10 @@ A "Run" is the lifecycle of a single user request/workflow.
 2.  **Planning Phase**: The Agent generates an execution plan.
 3.  **The Interception Cycle (The Core Loop)**:
     - **Actor Proposes**: Agent generates `ActionProposal`.
-    - **Laya Gatekeeper**: (Interceptor) Validates proposal against `judges.md`.
+    - **Gate**: (Interceptor) Validates proposal against `judges.md`.
     - **Action**: If allowed, the tool is executed. If blocked/revised, the loop returns to the Actor.
     - **Sentinel Monitor**: Continuous background check for loops/stalls.
-    - **Laya Auditor**: (Post-turn) Analy
+    - **Gate Auditor**: (Post-turn) Analy
 4.  **Conclusion**: The workflow reaches a terminal state (Success, Failure, or Escalation).
 
 ---
@@ -55,7 +55,7 @@ The system supports a graceful shutdown to prevent data loss and corruption.
 ### 3.1 Graceful Shutdown
 Triggered by `SIGINT` (Ctrl+C) or a `SHUTDOWN` command.
 - **Actor**: Holds current turns until completion or state-flush.
-- **Laya**: Finalizes the current audit/judgment entries and flushes them to `audit.jsonl`.
+- **Gate**: Finalizes the current audit/judgment entries and flushes them to `audit.jsonl`.
 - **Sentinel**: Closes the file handle for `session.log` and terminates.
 - **Pilot Console**: Closes SSE connections and terminates.
 

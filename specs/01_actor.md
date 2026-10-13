@@ -11,7 +11,7 @@ The Actor is the LLM-driven core of the system. Its primary responsibility is to
 ## Execution Protocol
 
 ### 1. The Proposal Phase
-The Actor does not execute a tool directly. Instead, it prepares an `ActionProposal` which is passed to the **Laya Gatekeeper**.
+The Actor does not execute a tool directly. Instead, it prepares an `ActionProposal` which is passed to the **Gate**.
 
 ### 2. The Input Format
 The Actor receives a `Context` containing:
@@ -21,7 +21,7 @@ The Actor receives a `Context` containing:
 - Current `Authorization` (as provided by the coordinator).
 
 ### 3. The Output Format
-The Actor must emit a structured tool-call block. In the context of the Laya framework, this tool block is intercepted to extract the actor-supplied side-channels:
+The Actor must emit a structured tool-call block. In the context of the Gate framework, this tool block is intercepted to extract the actor-supplied side-channels:
 - `reason`: The "why" behind the tool call.
 - `evidence`: The "what" that supports the decision.
 - `authorization`: A pointer to the permission level being used.

@@ -16,8 +16,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  const ctx={ui:{notify:text=>notices.push(text),setWidget:(name,lines)=>{if(name==='local-harness')widget=lines;},setStatus:(name,value)=>{status=value;}},
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
- const previous={laya:process.env.PI_LAYA_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,workspace:process.env.PI_AGENT_DATA,log:process.env.PI_HARNESS_LOG_FILE};
- process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_AGENT_DATA=join(dir,'workspace');process.env.PI_LAYA_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
+ const previous={gate:process.env.PI_GATE_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,workspace:process.env.PI_AGENT_DATA,log:process.env.PI_HARNESS_LOG_FILE};
+ process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_AGENT_DATA=join(dir,'workspace');process.env.PI_GATE_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
  harness(pi,{root:dir+'/',setInterval:(callback,ms)=>{tick=callback;interval=ms;return {unref(){}};}});
  try {
   await handlers.session_start({},ctx);
@@ -28,8 +28,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const startup=entries.filter(entry=>entry.type==='harness-startup');
   assert.equal(startup.length,1);
   const lines=renderers['harness-startup'](startup[0]).render(80);
-  assert.match(lines.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,''),/Laya: http.*Web: http/s);
-  for (const [index,label] of ['Laya','Web'].entries()) {
+  assert.match(lines.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,''),/Gate: http.*Web: http/s);
+  for (const [index,label] of ['Gate','Web'].entries()) {
    const url=lines[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
    assert.equal(lines[index], `${label}: \x1b[4;36m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[0m`);
   }
@@ -44,7 +44,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'whoami'}};
   assert.equal(await handlers.tool_call(bash),undefined);
   assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);
-  const web=lines[1].match(/http:\/\/127\.0\.0\.1:\d+/)[0],checked=(await (await fetch(web+'/api/laya')).json()).events.filter(event=>event.tool_call==='bash-regression');
+  const web=lines[1].match(/http:\/\/127\.0\.0\.1:\d+/)[0],checked=(await (await fetch(web+'/api/gate')).json()).events.filter(event=>event.tool_call==='bash-regression');
   assert.deepEqual(checked.map(event=>event.phase+' '+event.outcome),['gate ALLOW','audit SUCCESS']);
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
@@ -92,12 +92,12 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   execFileSync('git',['init','-q',dir]);writeFileSync(join(dir,'app.py'),'x = 1\n');
   const commit=await handlers.tool_call({toolCallId:'commit',toolName:'bash',input:{command:'git commit -qam work'}});
   assert.equal(commit.block,true);
-  assert.match(commit.reason,/Laya pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
+  assert.match(commit.reason,/Gate pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
   assert.match(commit.reason,/then retry/);assert.doesNotMatch(commit.reason,/destructive/);
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {
-   const name={laya:'PI_LAYA_PORT',web:'PI_WEB_PORT',data:'PI_WEB_DATA',workspace:'PI_AGENT_DATA',log:'PI_HARNESS_LOG_FILE'}[key];
+   const name={gate:'PI_GATE_PORT',web:'PI_WEB_PORT',data:'PI_WEB_DATA',workspace:'PI_AGENT_DATA',log:'PI_HARNESS_LOG_FILE'}[key];
    if(value===undefined) delete process.env[name]; else process.env[name]=value;
   }
   rmSync(dir,{recursive:true});

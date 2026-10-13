@@ -1,4 +1,4 @@
-"""Persistent web conversations backed by isolated Pi RPC sessions, sharing Laya."""
+"""Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
 import base64
 from datetime import datetime
 from harness.documents import DocumentStore, DocumentConflict
@@ -104,8 +104,8 @@ def pi_command(session):
         '--session',str(session),'--provider',PROVIDER,'--model',MODEL,'--thinking',os.getenv('PI_WEB_EFFORT','high')]
 
 class WebChat:
-    def __init__(self, root, laya_port, web_port, data_root=None, laya_token=''):
-        self.store=ConversationStore(root);self.laya_port=laya_port;self.web_port=web_port;self.laya_token=laya_token
+    def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
+        self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
         self.lock=threading.Lock();self.active={};self.closed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
@@ -188,7 +188,7 @@ class WebChat:
             self.store.append(identifier,{'role':'user','content':data.get('message','') or ('Comment task: '+self.documents.get(comment['path'])['title'] if comment else ''),'attachments':display})
             emit({'type':'conversation','conversation':self.store.get(identifier)})
             command=pi_command(folder/'session.jsonl')
-            env={**os.environ,'PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.laya_port),'PI_HARNESS_TOKEN':self.laya_token,'PI_WEB_PORT':str(self.web_port)}
+            env={**os.environ,'PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
@@ -243,7 +243,7 @@ class WebChat:
             with self.lock:self.active.pop(identifier,None)
 
 def with_checks(jobs,events):
-    """Copies of the jobs where each tool call lists the Laya events recorded for it (gate, then audit)."""
+    """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""
     checks={}
     for event in events:
         if event.get('tool_call'):checks.setdefault(event['tool_call'],[]).append({'event':event['id'],'phase':event['phase'],'outcome':event['outcome'],'reason':event['reason']})
@@ -299,8 +299,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
-            if path=='/api/laya':
-                self.reply({'events':self.chat.ledger.recent_events(),'laya_port':self.chat.laya_port});return
+            if path=='/api/gate':
+                self.reply({'events':self.chat.ledger.recent_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
             if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
             if path.startswith('/api/conversations/'):

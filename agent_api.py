@@ -12,12 +12,12 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             return False
         if not require_token:
             return True
-        supplied = self.headers.get('X-Laya-Token', '')
+        supplied = self.headers.get('X-Gate-Token', '')
         return bool(self.token) and hmac.compare_digest(supplied.encode(), self.token.encode())
 
     def do_POST(self):
         if not self.trusted():
-            self.send_error_response(403, 'Laya accepts only local harness requests')
+            self.send_error_response(403, 'Gate accepts only local harness requests')
             return
         if self.path == '/gatekeep':
             self.handle_gatekeep()
@@ -29,9 +29,9 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         if not self.trusted(require_token=False):
-            self.send_error_response(403, 'Laya accepts only local harness requests')
+            self.send_error_response(403, 'Gate accepts only local harness requests')
         elif self.path == '/health':
-            self.send_json_response({'status': 'ready', 'laya': True})
+            self.send_json_response({'status': 'ready', 'gate': True})
         else:
             self.send_response(404)
             self.end_headers()

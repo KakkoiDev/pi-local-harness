@@ -8,7 +8,7 @@ Request 2026-10-13: work cycles through four phases per project.
 |---|---|---|
 | discussion | read, talk; no writes | project start, or the user asks for changes in check |
 | planning | write ROADMAP.md and tasks/ only; each new task needs `Kind:` and checkboxes | the user says to plan |
-| implementation | follow Laya's steps (task 55) through every unchecked roadmap item | the user approves the plan |
+| implementation | follow Gate's steps (task 55) through every unchecked roadmap item | the user approves the plan |
 | check | read only; waits for the user | the last roadmap item is committed |
 
 - [ ] Red: each phase blocks the tools listed as not allowed, with a reason naming the phase.
@@ -20,6 +20,6 @@ Request 2026-10-13: work cycles through four phases per project.
 - [ ] Red: `- [~] Blocked: <reason>` stops the run and moves the project to check.
 - [ ] Green: full suite.
 
-Decided 2026-10-13: one Laya token for web and CLI. The goal is keeping a forgetful model
+Decided 2026-10-13: one Gate token for web and CLI. The goal is keeping a forgetful model
 on track, not stopping a model that tries to cheat; no extra guard against the model
-calling Laya's phase endpoint itself.
+calling Gate's phase endpoint itself.
