@@ -94,6 +94,10 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
         files.append({'name':name,'mime':mime,'size':len(data),'path':str(path)})
     return '\n\n'.join(parts),images,files
 
+def pi_command(session):
+    return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
+        '--session',str(session),'--provider',os.getenv('PI_WEB_PROVIDER','ollama'),'--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+
 class WebChat:
     def __init__(self, root, laya_port, web_port, data_root=None, laya_token=''):
         self.store=ConversationStore(root);self.laya_port=laya_port;self.web_port=web_port;self.laya_token=laya_token
@@ -177,8 +181,7 @@ class WebChat:
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             self.store.append(identifier,{'role':'user','content':data.get('message','') or ('Comment task: '+self.documents.get(comment['path'])['title'] if comment else ''),'attachments':display})
             emit({'type':'conversation','conversation':self.store.get(identifier)})
-            command=['pi','--offline','--mode','rpc','--no-mcp','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-                '--session',str(folder/'session.jsonl'),'--provider',os.getenv('PI_WEB_PROVIDER','ollama'),'--model',os.getenv('PI_WEB_MODEL','gemma4:26b-mlx'),'--thinking',os.getenv('PI_WEB_EFFORT','high')]
+            command=pi_command(folder/'session.jsonl')
             env={**os.environ,'PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.laya_port),'PI_HARNESS_TOKEN':self.laya_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)

@@ -71,3 +71,4 @@ and harness/README.md for the installed pi workflow.
 ## Audit 2026-10-13 fixes
 
 - [x] [45-Laya API lockdown](tasks/45-laya-api-lockdown.md)
+- [x] [46-Pi CLI compatibility](tasks/46-pi-cli-compatibility.md)

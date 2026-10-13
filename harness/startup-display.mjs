@@ -20,6 +20,7 @@ export function renderStartup(lines, width) {
 }
 
 export function installStartupDisplay(pi) {
+  if (!pi.registerEntryRenderer || !pi.appendEntry) return undefined;
   pi.registerEntryRenderer('harness-startup', entry => ({
     render: width => renderStartup(entry.data.lines, width),
     invalidate() {},

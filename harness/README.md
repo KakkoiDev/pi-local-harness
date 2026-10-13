@@ -61,7 +61,9 @@ NODE_PATH=/path/to/node_modules node tests/browser/chat.cjs
 
 Set `PI_TEST_CHROME` to an installed Chromium executable if needed. Browser checks
 use temporary files and a labeled fake Pi RPC boundary fixture; startup tests use
-the installed real Pi runtime without making an LLM request. HTTP/browser tests
+the installed real Pi runtime without making an LLM request, so the `pi` and `node`
+first on `PATH` must match (verified: Pi 0.87.1 on Node 24.16). The web chat's exact
+Pi command is checked against that installed Pi. HTTP/browser tests
 need permission to bind localhost sockets in restricted environments.
 
 The legacy Laya `/chat` route is a demo echo. The workbench uses project APIs and
