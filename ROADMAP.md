@@ -133,3 +133,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [91-Kind chore](tasks/91-kind-chore.md)
 - [x] [92-Open decisions 2026-10-13](tasks/92-decisions-2026-10-13.md)
 - [x] [93-System chrome font](tasks/93-system-chrome-font.md)
+- [x] [94-Show resolved row](tasks/94-show-resolved-row.md)

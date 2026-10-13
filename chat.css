@@ -109,7 +109,7 @@ body[data-view="work"] .window-projects{display:none}
 .pw-thread__note{margin:0;padding:6px 14px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
 .pw-thread__msg p{margin:0}
 .pw-review-item__actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pw-label-row{display:flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:13px}
+.pw-label-row{display:flex;flex-direction:row;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:13px}
 #selection-bar{position:fixed;z-index:40}
 /* Activity detail pane under the table */
 .activity-detail{border-top:1px solid var(--ink);padding:12px 14px;display:flex;flex-direction:column;gap:8px;max-height:45%;overflow:auto}
