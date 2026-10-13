@@ -20,6 +20,16 @@ Everything about the Pi Workbench System 1 interface lives here: the source desi
 
 The server allowlist is in `harness/web_chat.py` (`allowed` in `do_GET`, plus `FONTS`). Anything not listed there returns 404. `harness/install.py` copies `design/` and `fonts/` into the installed package.
 
+## Backup of the two artifacts
+
+This folder is the backup of both claude.ai artifacts, for everything their authors wrote:
+
+- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/5e247b7487a244ef2ab08d4d7de05685.css` (the boards link it as `/_blob/<id>`).
+- Design system: `system/README.md`, `tokens.json`, `design-system.json`, every component card (`components/<Name>/README.md`, `preview.html`), `components/bundle.css`, and the 26 icon uploads as `system/assets/Icons/*.svg` (names from `design-system.json`).
+- The old checker name is mapped to Gate in the copies (task 96).
+
+Not backed up: each artifact's `index.html`, `artifact-type/` files and runtime. They belong to the claude.ai artifact types, not to this project, and this repo is public. To look at the boards locally, save the canvas artifact's `artifact-type/dc-runtime.js` as `canvas/support.js` (git ignores it) and run `python3 design/view.py`.
+
 ## Where the originals are
 
 - Design system "Pi Workbench System 1": https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1
