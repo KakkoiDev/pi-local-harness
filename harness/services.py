@@ -63,7 +63,7 @@ def main():
         ready = {'laya': api.server_port, 'web': web.server_port, 'token': token}
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
-            if serve: ready['remote'] = 'https://' + sorted(WebHandler.remote_hosts)[0]
+            if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]
             else: ready['remote_error'] = problem
         stopped = threading.Event()
         for sig in (signal.SIGTERM, signal.SIGINT):

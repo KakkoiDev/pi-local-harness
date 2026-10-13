@@ -5,7 +5,7 @@ import { ask } from './dialogs.mjs';
 hydrateIcons();
 const $=id=>document.getElementById(id);
 const node=(tag,className,text)=>{const element=document.createElement(tag);if(className)element.className=className;if(text!==undefined)element.textContent=text;return element;};
-let selected=null,current=null,sending=false,workspace,view='chat',panes={work:'document',activity:'list',laya:'list'},live=null,recorder,recordStream,maxFileBytes=12*1024*1024;
+let selected=null,current=null,sending=false,workspace,phoneUrl='',view='chat',panes={work:'document',activity:'list',laya:'list'},live=null,recorder,recordStream,maxFileBytes=12*1024*1024;
 const drafts=new Map();let messageSignature='';
 function draft(){if(!drafts.has(selected))drafts.set(selected,{text:readState('chat-draft.'+selected,'')||'',files:[]});return drafts.get(selected);}
 function error(message){$('error').replaceChildren(...(message?[icon('caution'),message]:[]));$('error').hidden=!message;}
@@ -82,6 +82,7 @@ $('settings-form').addEventListener('submit',event=>{if(event.submitter?.value!=
 function phoneBar(){const state=workspace?.status(),pane=view==='work'&&!state?.page?'files':panes[view]||'';document.body.dataset.pane=pane;
  const back=view==='work'&&pane==='document'?'Files':pane==='detail'?{activity:'Activity',laya:'Laya'}[view]:'';$('phone-back').hidden=!back;$('open-menu').hidden=Boolean(back);$('phone-back-label').textContent=back||'';
  $('phone-comments').hidden=!(view==='work'&&pane==='document'&&state?.page&&!state.textFile);$('phone-comment-count').textContent=$('comment-count').textContent||'0';}
+$('phone-copy').onclick=()=>navigator.clipboard.writeText(phoneUrl).then(()=>toast('Address copied'),e=>error(e.message));
 $('phone-back').onclick=()=>{panes[view]=view==='work'?'files':'list';phoneBar();};
 $('phone-comments').onclick=()=>{$('comments-panel').classList.add('is-sheet');$('backdrop').hidden=false;};
 const phoneViews=installPopup($('phone-view-menu'),item=>showView(item.dataset.view),()=>{for(const item of $('phone-view-menu').querySelectorAll('[data-view]'))item.setAttribute('aria-checked',String(item.dataset.view===view));$('phone-activity-count').textContent=$('activity-count').hidden?'':$('activity-count').textContent;});
@@ -91,6 +92,7 @@ const waitingJob=()=>{const state=workspace.status();return state.jobs.find(job=
 const commands={
  'cancel-waiting':async()=>{const job=waitingJob();if(job&&await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})==='danger')api('/api/jobs/cancel',{id:job.id}).then(()=>workspace.refresh(),e=>error(e.message));},
  settings:()=>openSettings(false),'desktop-pattern':()=>openSettings(true),
+ 'open-on-phone':()=>{$('phone-url').value=phoneUrl;$('phone-dialog').showModal();},
  about:()=>{$('about-model').textContent=$('model').textContent+' · '+document.querySelector('.effort').textContent;$('about-web').textContent=location.host;$('about-dialog').showModal();},
  'new-project':click('new-project'),'add-folder':click('add-folder'),'new-page':click('new-page'),'new-task':click('new-task'),
  save:()=>workspace.saveNow(),'reload-document':click('reload-document'),'download-draft':click('download-draft'),'trash-page':click('delete-page'),
@@ -108,7 +110,7 @@ const commands={
 function enabled(command,item){if(!commands[command])return false;const state=workspace.status(),markdown=state.page&&!state.textFile,when={
  'new-page':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
  'close-window':view==='work'&&document.body.dataset.review!=='closed','find-file':view==='work','mode-blocks':markdown,'mode-source':markdown,'mode-toggle':markdown,'block-up':markdown&&state.focusedBlock!==null&&view==='work','block-down':markdown&&state.focusedBlock!==null&&view==='work',
- 'toggle-review':view==='work','task-record':view==='activity'&&state.selectedJob,'undo-toast':toast.undo&&!textField(),'comment-selection':view==='work'&&state.anchor,'ask-selection':view==='work'&&state.anchor,'toggle-resolved':view==='work'&&markdown,'next-comment':view==='work'&&markdown&&state.comments,'previous-comment':view==='work'&&markdown&&state.comments,'project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
+ 'toggle-review':view==='work','open-on-phone':Boolean(phoneUrl),'task-record':view==='activity'&&state.selectedJob,'undo-toast':toast.undo&&!textField(),'comment-selection':view==='work'&&state.anchor,'ask-selection':view==='work'&&state.anchor,'toggle-resolved':view==='work'&&markdown,'next-comment':view==='work'&&markdown&&state.comments,'previous-comment':view==='work'&&markdown&&state.comments,'project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
  send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,'cancel-waiting':waitingJob(),reconnect:state.offline,
  'toggle-files':view==='work','toggle-projects':view!=='work'};return !(command in when)||Boolean(when[command]);}
 function updateMenus(){const state=workspace.status();$('menu-project-list').replaceChildren(...state.projects.map(item=>{const entry=node('button','pw-menu__item',item.name);entry.setAttribute('role','menuitemradio');entry.setAttribute('aria-checked',String(item.id===state.project));entry.dataset.command='project';entry.dataset.project=item.id;entry.tabIndex=-1;return entry;}));
@@ -118,4 +120,4 @@ installMenubar($('menubar'),{run:(command,item)=>commands[command]?.(item),enabl
  Comma:'settings',KeyN:'new-project',KeyO:'add-folder','shift+KeyN':'new-page',KeyT:'new-task',KeyS:'save',Backspace:'trash-page',KeyW:'close-window',KeyZ:'undo-toast',
  'shift+KeyM':'comment-selection',KeyF:'find-file',KeyK:'find-project',Digit1:'view-chat',Digit2:'view-work',Digit3:'view-activity',Digit4:'view-laya',
  'alt+KeyU':'mode-toggle','alt+ArrowUp':'block-up','alt+ArrowDown':'block-down','alt+KeyR':'toggle-review','alt+BracketRight':'next-comment','alt+BracketLeft':'previous-comment',Enter:'send','shift+KeyA':'attach','shift+KeyR':'record',Period:'stop'}});
-try{const config=await api('/api/config');$('model').textContent=config.model;document.querySelector('.effort').textContent=config.effort+' thinking';maxFileBytes=config.maxFileBytes;await workspace.start();controls();}catch(e){error(e.message);}
+try{const config=await api('/api/config');$('model').textContent=config.model;document.querySelector('.effort').textContent=config.effort+' thinking';maxFileBytes=config.maxFileBytes;phoneUrl=config.phoneUrl||'';await workspace.start();controls();}catch(e){error(e.message);}

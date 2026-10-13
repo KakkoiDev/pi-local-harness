@@ -162,3 +162,6 @@ button.laya-event{text-align:left;background:none;border-left:0;border-right:0;b
   #selection-bar{left:0!important;right:0;top:auto!important;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
   #selection-bar>.pw-btn{flex:1}
 }
+/* Open on Phone dialog */
+.phone-address{display:flex;gap:8px;align-items:center}
+.phone-address>.pw-field{flex:1;min-width:0;font-size:13px}

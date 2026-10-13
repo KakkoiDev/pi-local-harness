@@ -93,6 +93,10 @@ class TailscaleServeTest(unittest.TestCase):
         self.assertTrue(line, process.stderr.read() if process.poll() is not None else 'No readiness')
         return process, json.loads(line), root
 
+    def config(self, ready):
+        connection = http.client.HTTPConnection('127.0.0.1', ready['web'], timeout=10); self.addCleanup(connection.close)
+        connection.request('GET', '/api/config'); return json.loads(connection.getresponse().read())
+
     def fake(self, body):
         directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
         path = Path(directory.name, 'tailscale'); path.write_text('#!/bin/sh\n' + body); path.chmod(0o755)
@@ -103,6 +107,7 @@ class TailscaleServeTest(unittest.TestCase):
         record = Path(tempfile.mkdtemp()) / 'args'
         process, ready, _ = self.start(str(self.fake(f'echo "$$ $@" > {record}\nexec sleep 60\n')))
         self.assertEqual(ready['remote'], f'https://{HOST}')
+        self.assertEqual(self.config(ready)['phoneUrl'], f'https://{HOST}')
         for _ in range(50):
             if record.exists() and record.read_text().endswith('\n'): break
             time.sleep(0.1)
@@ -118,6 +123,7 @@ class TailscaleServeTest(unittest.TestCase):
     def test_failure_is_reported_and_the_web_still_starts(self):
         _, ready, _ = self.start(str(self.fake('echo "Serve is not enabled on your tailnet" >&2\nexit 1\n')))
         self.assertNotIn('remote', ready); self.assertIn('Serve is not enabled', ready['remote_error'])
+        self.assertIsNone(self.config(ready)['phoneUrl'])
         _, ready, _ = self.start('/nonexistent/tailscale')
         self.assertIn('tailscale', ready['remote_error']); self.assertTrue(ready['web'])
 

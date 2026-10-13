@@ -300,7 +300,13 @@
     <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn">Cancel</button><button value="save" class="pw-btn pw-btn--default">Save</button></div>
   </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
-  <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-title"><form method="dialog" class="window-column">
+    <h2 id="phone-title" class="pw-dialog__title">Open on Phone</h2>
+    <p class="pw-alert__detail">plh serves the workbench on your tailnet. Open this address on a phone signed in to the same Tailscale account.</p>
+    <div class="phone-address"><input id="phone-url" class="pw-field pw-mono" aria-label="Phone address" readonly><button id="phone-copy" type="button" class="pw-btn">Copy</button></div>
+    <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
+    <div class="pw-dialog__actions"><button value="done" class="pw-btn pw-btn--default">Done</button></div>
+  </form></dialog>
   <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="laya">Laya</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>

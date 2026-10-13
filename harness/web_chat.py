@@ -254,6 +254,7 @@ class WebHandler(BaseHTTPRequestHandler):
         self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
     remote_hosts=frozenset()
     remote_users=frozenset()
+    phone_url=None
     speech=staticmethod(transcribe)
     def trusted(self):
         host=self.headers.get('Host','');origin=self.headers.get('Origin')
@@ -294,7 +295,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/laya':
                 self.reply({'events':self.chat.ledger.recent_events(),'laya_port':self.chat.laya_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD});return
+            if path=='/api/config':self.reply({'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high'),'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):
