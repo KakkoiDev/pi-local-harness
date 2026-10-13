@@ -18,6 +18,11 @@ class TestFrontend(unittest.TestCase):
         for script in pathlib.Path('js').glob('*.mjs'):
             self.assertIsNone(re.search(r'\b(confirm|prompt|alert)\(',script.read_text()),f'{script}: use ask() or #name-dialog')
 
+    def test_copy_does_not_place_the_model_on_this_mac(self):
+        content=open('index.html').read()
+        self.assertNotIn('runs on this Mac',content.replace('Pi runs on this Mac',''))
+        self.assertIn('<span>Pi runs on this Mac</span>',content)
+
     def test_design_fonts_ship_with_licences(self):
         import pathlib, sys
         sys.path.insert(0,'harness');from web_chat import FONTS
