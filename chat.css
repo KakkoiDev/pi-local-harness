@@ -149,7 +149,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 .activity-detail pre{white-space:pre-wrap;margin:0;font-size:13px}
 .activity-empty{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:24px 14px}
 .activity-empty h3{margin:0}
-a.activity-task{color:inherit;text-decoration:none}
+a.activity-task,.activity-task{color:inherit;text-decoration:none;cursor:default}
 /* Gate Event Info window */
 .event-info{display:flex;flex-direction:column;gap:12px;padding:14px}
 .event-info__head{display:flex;gap:12px;align-items:flex-start}
@@ -289,3 +289,6 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 .pw-msg details{min-width:0;max-width:100%;box-sizing:border-box}
 .pw-msg__body--md,.pw-msg__body--md pre{overflow-wrap:anywhere}
 .pw-msg__body--md pre{max-width:100%;box-sizing:border-box}
+/* App windows (task 128): no project tabs; info bar note on the right */
+body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{display:none}
+.infobar-note{margin-left:auto}

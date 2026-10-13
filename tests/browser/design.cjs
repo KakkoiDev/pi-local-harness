@@ -264,7 +264,7 @@ const readline = require('node:readline');
   // 106: views and files are in the path; Back and Forward restore them; a reload lands in the same place.
   await page.locator('#file-tree .pw-row',{hasText:'notes.txt'}).click();
   await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
-  await page.locator('#activity-tab').click();await page.waitForURL(`${base}/activity`);
+  await page.keyboard.press('ControlOrMeta+Digit3');await page.waitForURL(`${base}/activity`);
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
   assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');assert.equal(await page.locator('#document-path').textContent(),'notes.txt');
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
@@ -297,6 +297,27 @@ const readline = require('node:readline');
   await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();
   await page.waitForURL(`${base}/p/${id}/chat`);
   await page.goto(`${base}/p/${id}/gate`);await page.waitForURL(`${base}/gate`);
+
+  // 128: the project window has Chat | Work; Activity and Gate are app windows (C_ActivityDesk, C_GateDesk, Menus).
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
+  assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2']);
+  await page.locator('#menubar [aria-controls="menu-window"]').click();
+  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Activity · All Projects⌘3','Gate · All Projects⌘4']);
+  await page.locator('#menu-window [data-command="view-activity"]').click();await page.waitForURL(`${base}/activity`);
+  assert.equal(await page.locator('#window-title').textContent(),'Activity · All Projects');
+  assert.equal(await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').getAttribute('aria-label'),'Close Activity and go back');
+  assert.equal(await page.locator('#workspace-bar').isVisible(),false,'no project tabs in an app window');
+  assert.match(await page.locator('#activity-panel .pw-infobar').textContent(),/One agent, one queue, first in first out\. Interrupted work is never repeated automatically\./);
+  assert.equal(await page.locator('#activity-project option').first().textContent(),'All Projects');
+  const projectLink=page.locator('#activity-list .pw-link').first();assert.equal(await projectLink.count(),1,'project names are links');
+  assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^Open in /);
+  await page.locator('#menubar [aria-controls="menu-view"]').click();
+  assert.equal(await page.locator('#menu-view [data-command="view-chat"]').getAttribute('aria-disabled'),'true','View › Chat waits for a project window');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ControlOrMeta+Digit4');await page.waitForURL(`${base}/gate`);
+  assert.equal(await page.locator('#window-title').textContent(),'Gate · All Projects');
+  assert.equal(await page.locator('#gate-panel .pw-infobar #gate-live').count(),1,'live status sits in the info bar');
+  await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();await page.waitForURL(new RegExp('/p/'));
 
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});

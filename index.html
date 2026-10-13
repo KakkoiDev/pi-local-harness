@@ -67,8 +67,6 @@
       <div id="menu-view" class="pw-menu" role="menu" aria-label="View" hidden>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity<span class="pw-menu__key">⌘3</span></button>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate<span class="pw-menu__key">⌘4</span></button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="true" data-command="mode-blocks">As Document</button>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="mode-source">As Markdown Source<span class="pw-menu__key">⌥⌘U</span></button>
@@ -104,6 +102,9 @@
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-files">Files</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-review">Review</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-event-info">Event Info</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity · All Projects<span class="pw-menu__key">⌘3</span></button><!-- app windows (task 128) -->
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
       </div></div>
     <span class="pw-menubar__spacer"></span>
     <span class="pw-menubar__status"><span><span id="model">Gemma 4</span> · <span class="effort">High thinking</span></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
@@ -165,8 +166,6 @@
         <nav class="view-tabs pw-seg" aria-label="Workspace view">
           <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌘1</kbd></button>
           <button id="work-tab" aria-pressed="false">Work<kbd>⌘2</kbd></button>
-          <button id="activity-tab" aria-pressed="false">Activity<span id="activity-count" class="activity-count" hidden></span><kbd>⌘3</kbd></button>
-          <button id="gate-tab" aria-pressed="false">Gate<kbd>⌘4</kbd></button>
         </nav>
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
@@ -237,10 +236,8 @@
           <div id="activity-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="pending">Active</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="attention">Attention</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="completed">Done</button></div>
           <label class="pw-label desk-filter">Show <select id="activity-filter" class="pw-popup"><option value="all">All Work</option><option value="pending">Running &amp; Waiting</option><option value="completed">Completed</option><option value="attention">Needs Attention</option></select></label>
           <label class="pw-label">Project <select id="activity-project" class="pw-popup"><option value="all">All Projects</option></select></label>
-          <span class="pw-menubar__spacer"></span>
-          <span id="activity-summary" class="pw-label" role="status"></span>
         </div>
-        <div class="pw-infobar"><span>One queue, first in, first out. Interrupted work is never repeated automatically.</span></div>
+        <div class="pw-infobar"><span id="activity-summary" role="status"></span><span class="infobar-note">One agent, one queue, first in first out. Interrupted work is never repeated automatically.</span></div>
         <div id="activity-list" class="pw-table pw-window__body" role="list"></div>
         <section id="activity-detail" class="activity-detail" aria-label="Task details" hidden></section>
         <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
@@ -252,10 +249,8 @@
           <div id="gate-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="gate">Before</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="audit">After</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="failures">Problems</button></div>
           <label class="pw-label desk-filter">Show <select id="gate-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
           <button id="gate-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
-          <span class="pw-menubar__spacer"></span>
-          <span id="gate-live" class="pw-label" role="status">Connecting…</span>
         </div>
-        <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span></div>
+        <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span id="gate-live" class="infobar-note" role="status">Connecting…</span></div>
         <div id="gate-events" class="pw-table pw-window__body" aria-live="polite"></div>
       </section>
     </main>
