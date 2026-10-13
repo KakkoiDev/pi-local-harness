@@ -6,6 +6,7 @@ checked box in ROADMAP.md. Commits that change only Markdown or tasks/ skip the 
 Evidence is git state plus test runs Laya observed. This checks the protocol; it is not a sandbox.
 """
 import hashlib
+import json
 from pathlib import Path
 import re
 import shlex
@@ -21,6 +22,7 @@ TEST_COMMANDS = [
 ]
 CHECKED = re.compile(r'- \[[xX]\]')
 LARGE = 1024 * 1024
+INTERRUPTED = ('Command aborted', 'Command terminated without an exit code', 'Command timed out after')
 
 class CheckFailed(Exception):
     pass
@@ -160,17 +162,41 @@ def newly_checked(root, paths, selected):
             return True
     return False
 
-class Protocol:
-    def __init__(self):
-        self.runs = {}
+def interrupted(output):
+    """True when Pi's bash tool reports a stopped, killed, or timed-out command instead of an exit code."""
+    if isinstance(output, list):
+        output = '\n'.join(block.get('text', '') for block in output if isinstance(block, dict))
+    lines = str(output or '').rstrip().splitlines()
+    return bool(lines) and lines[-1].startswith(INTERRUPTED)
 
-    def record(self, cwd, command, passed):
-        """Unreadable git state leaves the run unrecorded; the commit gate then names it as missing."""
+class Protocol:
+    def __init__(self, path=None):
+        self.path = Path(path) if path else None
+        self.runs = {}
+        if self.path and self.path.is_file():
+            try:
+                stored = json.loads(self.path.read_text())
+                self.runs = {Path(root): [(state, passed) for state, passed, *_ in runs] for root, runs in stored.items()}
+            except (OSError, ValueError, TypeError):
+                self.runs = {}
+
+    def save(self):
+        if not self.path:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.path.with_suffix('.tmp')
+        temporary.write_text(json.dumps({str(root): [list(run) for run in runs] for root, runs in self.runs.items()}))
+        temporary.replace(self.path)
+
+    def record(self, cwd, command, passed, output=None):
+        """Unreadable git state or an interrupted run leaves the run unrecorded; the commit gate then names it as missing."""
         committed = commit_folder(command, cwd)
         if committed:
             root = project_root(committed)
-            if root and passed:
-                self.runs.pop(root, None)
+            if root and passed and self.runs.pop(root, None) is not None:
+                self.save()
+            return
+        if interrupted(output):
             return
         folder = test_folder(command, cwd)
         root = project_root(folder) if folder else None
@@ -180,6 +206,7 @@ class Protocol:
             paths = changed_paths(root)
             if paths is not None:
                 self.runs.setdefault(root, []).append((code_state(root, paths)[0], passed))
+                self.save()
         except CheckFailed:
             return
 

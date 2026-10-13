@@ -81,7 +81,7 @@ and harness/README.md for the installed pi workflow.
 
 ## Laya as guide and judge
 
-- [ ] [53-Durable test evidence](tasks/53-durable-test-evidence.md)
+- [x] [53-Durable test evidence](tasks/53-durable-test-evidence.md)
 - [ ] [54-Task kinds decide the required steps](tasks/54-task-kinds.md)
 - [ ] [55-Laya guides each step](tasks/55-step-guide.md)
 - [ ] [56-Discussion, planning, implementation, check](tasks/56-work-phases.md)

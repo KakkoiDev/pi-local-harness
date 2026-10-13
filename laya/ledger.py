@@ -11,13 +11,13 @@ from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol
 
 class ProposalLedger:
-    def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600):
+    def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None):
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
         self.pending = {}
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
-        self.protocol = Protocol()
+        self.protocol = Protocol(protocol_file)
 
     def record_event(self, phase, outcome, proposal, reason, token=None):
         # Show scope, not uploaded file bodies or tool output.
@@ -88,6 +88,6 @@ class ProposalLedger:
         event = self.engine.audit(proposal, execution, postcondition_ok=postcondition_ok)
         command = proposal.args.get('command')
         if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
-            self.protocol.record(cwd, command, exit_code == 0)
+            self.protocol.record(cwd, command, exit_code == 0, output)
         self.record_event('audit', event.status, proposal, event.reasoning, token)
         return event

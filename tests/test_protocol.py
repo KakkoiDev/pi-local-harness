@@ -148,6 +148,24 @@ class ProtocolTest(unittest.TestCase):
         big.write_bytes(b'1' * (2 * 1024 * 1024 + 1))
         self.assertNotEqual(first, code_state(self.root, changed_paths(self.root))[0])
 
+    def test_interrupted_test_run_is_not_red(self):
+        for status in ['Command aborted', 'Command terminated without an exit code', 'Command timed out after 60 seconds']:
+            gate = self.ledger.propose('execute_command', {'command': 'pytest'}, 'admin', pi_tool='bash', cwd=str(self.root))
+            self.ledger.complete(gate['proposal_id'], 'execute_command', {'command': 'pytest'}, [{'type': 'text', 'text': f'partial\n\n{status}'}], 1)
+        (self.root / 'app.py').write_text('VALUE = 2\n')
+        self.run_bash('pytest'); self.check_boxes()
+        self.assertIn('failing (red) test', self.commit()['reason'])
+
+    def test_runs_survive_a_restart(self):
+        state = Path(tempfile.mkdtemp()) / 'laya-protocol.json'
+        self.ledger = ProposalLedger(self.ledger.engine, protocol_file=state)
+        self.run_bash('pytest', exit_code=1)
+        (self.root / 'app.py').write_text('VALUE = 2\n')
+        self.ledger = ProposalLedger(self.ledger.engine, protocol_file=state)
+        self.run_bash('pytest'); self.check_boxes()
+        self.assertEqual(self.commit()['outcome'], 'ALLOW')
+        self.assertEqual(ProposalLedger(self.ledger.engine, protocol_file=state).protocol.runs, {})
+
     def test_folders_without_roadmap_and_tasks_are_unaffected(self):
         (self.root / 'ROADMAP.md').unlink()
         (self.root / 'app.py').write_text('VALUE = 2\n')

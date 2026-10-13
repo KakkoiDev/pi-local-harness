@@ -22,7 +22,7 @@ def main():
     data_dir = Path(os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')))
     data_dir.mkdir(parents=True, exist_ok=True)
     laya = LayaEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(data_dir / 'laya-audit.log')))
-    ledger = ProposalLedger(laya)
+    ledger = ProposalLedger(laya, protocol_file=data_dir / 'laya-protocol.json')
     token = secrets.token_urlsafe(32)
     class Handler(AgentHandler):
         def __init__(self, *args):
