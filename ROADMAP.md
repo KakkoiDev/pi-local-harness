@@ -152,3 +152,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [110-Startup says how to turn on phone access](tasks/110-phone-off-hint.md)
 - [x] [111-Re-sync the design copies](tasks/111-design-resync.md)
 - [x] [112-Block types look different](tasks/112-block-type-styles.md)
+- [x] [113-Live Reasoning stays open](tasks/113-live-reasoning-stays-open.md)

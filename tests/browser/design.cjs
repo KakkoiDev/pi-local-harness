@@ -158,6 +158,16 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#document-prompt').isVisible(),false,'folded until opened');
   await page.locator('#document-discussion>summary').click();assert.equal(await page.locator('#document-prompt').isVisible(),true);
 
+  // 113: an open Reasoning panel stays open while reasoning streams in, and after the reply finishes.
+  await page.locator('#chat-tab').click();
+  await page.locator('#prompt').fill('Think it over. TEST_THINK');await page.locator('#send').click();
+  const live=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details');
+  await live.locator('summary').waitFor();await live.locator('summary').click();
+  await page.waitForFunction(()=>(document.querySelector('#messages .pw-msg:not(.pw-msg--user):last-of-type details pre')?.textContent||'').includes('Thinking step 3'));
+  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open after new reasoning');
+  await page.locator('#messages').getByText(/reply \d+/).last().waitFor({timeout:15000});
+  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open on the finished reply');
+
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();

@@ -32,6 +32,10 @@ if request['message'].rstrip().endswith('TEST_TOOL'):
     time.sleep(2)
     call_gate('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':{'command':'cat README.md'},'output':'readme','exit_code':0})
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
+if request['message'].rstrip().endswith('TEST_THINK'):
+    for step in range(8):
+        emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n'}})
+        time.sleep(0.6)
 if request['message'].rstrip().endswith('TEST_WAIT'):
     emit({'type':'tool_execution_start','toolName':'bash'})
     time.sleep(60)
