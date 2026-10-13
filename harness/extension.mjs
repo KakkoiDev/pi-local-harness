@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
@@ -51,8 +51,9 @@ export default function harness(pi, dependencies = {}) {
     if (pending || !lastQuestion) return;
     pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n')}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
     recordLesson(memoryPath, kind);
-    appendFileSync(`${root}incident_log.md`, `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
-    appendFileSync(`${root}session.log`, `${JSON.stringify({ event: 'recovery', reason, question: lastQuestion, reasoning: watch.lines })}\n`);
+    mkdirSync(dataDir, { recursive: true });
+    appendFileSync(join(dataDir, 'incident_log.md'), `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
+    appendFileSync(join(dataDir, 'session.log'), `${JSON.stringify({ event: 'recovery', reason, question: lastQuestion, reasoning: watch.lines })}\n`);
     notify(reason, 'warning');
     context.abort();
     watch.stop();
@@ -138,7 +139,7 @@ export default function harness(pi, dependencies = {}) {
     watch.stop();
     if (!pending) return;
     const recovery = pending; pending = undefined;
-    if (retries++ >= 1) { notify('Recovery repeated. Stopped automatic retries; the incident is saved in session.log.', 'error'); return; }
+    if (retries++ >= 1) { notify(`Recovery repeated. Stopped automatic retries; the incident is saved in ${join(dataDir, 'session.log')}.`, 'error'); return; }
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {

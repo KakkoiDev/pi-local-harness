@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import harness from '../../harness/extension.mjs';
@@ -58,6 +58,10 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.match(messages[0],/Fix my code/);assert.match(messages[0],/Previous reasoning/);
   assert.match(messages[0],/Reinjected AGENTS.md/);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: loop/);
+  // Incident records go to the data directory so normal use never dirties the repository.
+  assert.match(readFileSync(join(dir,'workspace','incident_log.md'),'utf8'),/Harness loop/);
+  assert.match(readFileSync(join(dir,'workspace','session.log'),'utf8'),/"event":"recovery"/);
+  assert.equal(existsSync(join(dir,'incident_log.md')),false);assert.equal(existsSync(join(dir,'session.log')),false);
   handlers.input({source:'interactive',text:'Next question'});
   handlers.agent_start({},ctx);
   handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'Forgot token'}]}});

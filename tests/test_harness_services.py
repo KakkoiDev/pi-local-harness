@@ -13,7 +13,7 @@ class ServicesTest(unittest.TestCase):
     def test_ready_gate_and_shutdown(self):
         temporary = tempfile.TemporaryDirectory()
         process = subprocess.Popen([sys.executable, 'harness/services.py'], cwd=ROOT,
-            env={**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA':str(Path(temporary.name)/'workspace'), 'PI_WEB_DATA':str(Path(temporary.name)/'web'), 'PI_HARNESS_LOG_FILE':str(Path(temporary.name)/'audit.log')},
+            env={**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA':str(Path(temporary.name)/'workspace'), 'PI_WEB_DATA':str(Path(temporary.name)/'web')},
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             line = process.stdout.readline()
@@ -50,6 +50,8 @@ class ServicesTest(unittest.TestCase):
                 post('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'read_file','args':{},'exit_code':0})
             self.assertEqual(error.exception.code,409)
             error.exception.close()
+            # Audit records belong to the data directory, never the tracked repository.
+            self.assertIn('DRIFT_DETECTED',(Path(temporary.name)/'workspace'/'laya-audit.log').read_text())
             web_base=f"http://127.0.0.1:{ports['web']}"
             def web_post(path,body,origin=None):
                 headers={'Content-Type':'application/json'}

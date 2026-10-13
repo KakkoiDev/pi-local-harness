@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .venv/
 .harness-venv/
+*.swp
+session.log
+test_laya_audit.log
