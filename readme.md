@@ -107,9 +107,14 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
   "effort": "high",
   "laya_port": 8000,
   "web_port": 3000,
-  "whisper_model": "mlx-community/whisper-base-mlx"
+  "whisper_model": "mlx-community/whisper-base-mlx",
+  "remote_hosts": [],
+  "remote_users": []
 }
 ```
+
+`remote_hosts` and `remote_users` open the web UI to your phone through
+`tailscale serve`; see [Phone access over Tailscale](harness/README.md#phone-access-over-tailscale-and-voice-input).
 
 Both terminal Pi and browser workers use this effort. The model is pinned to
 `ollama/gemma4:26b-mlx` in `harness/model.json`; a different `model` in `config.json`
@@ -192,7 +197,8 @@ or attach/drop/paste images and text files in web chat. Images are passed as byt
 Audio uses lazy local MLX Whisper speech transcription; the transcript goes to
 Gemma. This does not mean the 26B model consumes native audio or interprets
 non-speech sounds. First audio use may install dependencies/download weights;
-startup does not load Whisper. Microphone recording needs browser permission.
+startup does not load Whisper. Microphone recording needs browser permission;
+the recording is transcribed into the prompt box for review before sending.
 Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB each,
 20 MiB total in the UI. Unsupported binary formats return an error.
 

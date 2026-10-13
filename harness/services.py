@@ -39,6 +39,8 @@ def main():
         chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, laya_token=token)
         chat.ledger = ledger
         WebHandler.chat = chat
+        WebHandler.remote_hosts = frozenset(filter(None, os.getenv('PI_WEB_REMOTE_HOSTS', '').split(',')))
+        WebHandler.remote_users = frozenset(filter(None, os.getenv('PI_WEB_REMOTE_USERS', '').split(',')))
         servers.append(web)
         for server in servers:
             threading.Thread(target=server.serve_forever, daemon=True).start()

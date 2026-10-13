@@ -28,6 +28,8 @@ in Pi's global directory. Project-local Pi instructions can also apply.
 | `PI_HARNESS_MEMORY` | Data directory `AGENTS.md` | Advanced direct-extension override |
 | `PI_WEB_DATA` | Data directory `chats/` | Persistent web session/upload location |
 | `PI_WHISPER_MODEL` | Config: whisper-base-mlx | Lazy transcription model |
+| `PI_WEB_REMOTE_HOSTS` | Config: remote_hosts | Comma-separated tailnet hosts trusted by the web server |
+| `PI_WEB_REMOTE_USERS` | Config: remote_users | Comma-separated Tailscale logins trusted by the web server |
 
 The model is pinned in `harness/model.json` (`ollama/gemma4:26b-mlx`); terminal and
 browser workers both read it, and `config.json` cannot change it. PLH derives browser
@@ -45,6 +47,50 @@ Whisper only on demand. Japanese is supported by the multilingual Whisper model;
 the Japanese quality evaluation remains open. First-use delay depends on downloads.
 A previous cached two-second English recording took 1.35 seconds on this machine;
 that measurement is not a startup-delay guarantee.
+
+## Phone access over Tailscale and voice input
+
+The web server always binds to `127.0.0.1`. `tailscale serve` on the Mac runs an
+HTTPS proxy on the tailnet name and forwards to that loopback port. Nothing else
+listens on the network. Phones need HTTPS for the microphone; tailscale serve
+provides it.
+
+Setup, once, on the Mac that runs `plh`:
+
+1. `tailscale serve --bg 3000` (use `web_port` from config.json). `tailscale serve status`
+   prints the URL, e.g. `https://mini.example.ts.net`.
+2. In `~/pi-local-harness-data/config.json` add both lists, then restart `plh`:
+   `"remote_hosts": ["mini.example.ts.net"]`, `"remote_users": ["you@example.com"]`.
+   Hosts are bare names: no `https://`, no port. Users are Tailscale login names.
+   `plh` refuses to start with only one of the two lists set.
+3. On the phone (Tailscale app connected) open the URL.
+4. Undo: `tailscale serve reset`, or empty both lists.
+
+How a request is trusted (`WebHandler.trusted` in `harness/web_chat.py`):
+
+| Request | Rule |
+|---|---|
+| `Host: localhost:PORT` or `127.0.0.1:PORT` | Allowed; an `Origin`, if sent, must be `http://` that same host |
+| Any other Host | Host minus `:443` in `remote_hosts`, `Tailscale-User-Login` in `remote_users`, and `Origin`, if sent, exactly `https://<host>` |
+
+Tailscale serve sets `Tailscale-User-Login` from the tailnet identity and removes
+any copy the client sent. Funnel (public internet) requests carry no login, so they
+are refused. A refused remote request returns 403 with the received Host, login and
+Origin: copy those values into config.json if they are yours.
+
+Not verified on this machine (2026-10-13): which exact Host header tailscale serve
+forwards. The 403 message shows it; use what it says.
+
+Voice input: the mic button records with the browser's MediaRecorder (`audio/webm`
+on Chrome, `audio/mp4` on iOS Safari). On stop, `js/chat.mjs` `dictate()` posts the
+recording to `POST /api/transcribe` `{mime, data: base64}`; the server writes a temp
+file, runs `harness/transcribe.py` (MLX Whisper via `uv`, needs `ffmpeg`), deletes
+the file and returns `{text}`. The text is inserted at the cursor in the prompt box
+for review; nothing is sent until you press send. If transcription fails, the error
+shows and the recording is attached to the message instead (the old behavior).
+The first transcription downloads the Whisper model and can take minutes.
+
+Tests: `tests/test_remote_access.py`.
 
 Recovery uses deterministic repeated thought lines, Pi operation state, and stream
 timeouts. It aborts, compacts, reloads instructions, and reasks once. No backend

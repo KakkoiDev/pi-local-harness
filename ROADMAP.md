@@ -97,3 +97,7 @@ and harness/README.md for the installed pi workflow.
 - [ ] [63-Node version check at launch](tasks/63-node-version-check.md)
 - [ ] [64-Per-task report for check](tasks/64-task-report.md)
 - [x] [65-Remove portfolio leftovers](tasks/65-remove-portfolio-leftovers.md)
+
+## Remote use
+
+- [ ] [66-Phone access over Tailscale and voice input](tasks/66-tailscale-voice-input.md)

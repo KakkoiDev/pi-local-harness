@@ -250,14 +250,34 @@ class WebHandler(BaseHTTPRequestHandler):
     def reply(self, value, code=200):
         body=json.dumps(value,ensure_ascii=False).encode()
         self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
+    remote_hosts=frozenset()
+    remote_users=frozenset()
+    speech=staticmethod(transcribe)
     def trusted(self):
-        host=self.headers.get('Host','')
+        host=self.headers.get('Host','');origin=self.headers.get('Origin')
         allowed={f'localhost:{self.server.server_port}',f'127.0.0.1:{self.server.server_port}'}
-        if host not in allowed:return False
-        origin=self.headers.get('Origin')
-        return not origin or origin in {f'http://{value}' for value in allowed}
+        if host in allowed:return not origin or origin in {f'http://{value}' for value in allowed}
+        # tailscale serve proxies HTTPS on the tailnet name to loopback and sets Tailscale-User-Login.
+        host=host.removesuffix(':443')
+        if host not in self.remote_hosts or self.headers.get('Tailscale-User-Login') not in self.remote_users:return False
+        return not origin or origin==f'https://{host}'
+    def refusal(self):
+        host=self.headers.get('Host','');login=self.headers.get('Tailscale-User-Login')
+        if host.startswith(('localhost:','127.0.0.1:')) or not login:return 'Use the local web address; cross-origin requests are not allowed'
+        return f'Not allowed: Host {host}, login {login}, Origin {self.headers.get("Origin")}. Add the host (without :443) to remote_hosts and the login to remote_users in config.json, then restart plh.'
+    def transcription(self, data):
+        mime=str(data.get('mime',''))
+        if not mime.startswith('audio/'):raise ValueError('Voice input must be audio')
+        audio=base64.b64decode(data.get('data',''),validate=True)
+        if not audio:raise ValueError('The recording is empty')
+        if len(audio)>MAX_UPLOAD:raise ValueError('Each file must be at most 12 MiB')
+        suffix={'audio/mp4':'.m4a','audio/mpeg':'.mp3','audio/ogg':'.ogg','audio/wav':'.wav'}.get(mime.split(';')[0],'.webm')
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/('voice'+suffix);path.write_bytes(audio)
+            try:return {'text':self.speech(path)}
+            except RuntimeError as error:raise ValueError(str(error)) from error
     def do_GET(self):
-        if not self.trusted():self.reply({'error':'Use the local web address'},403);return
+        if not self.trusted():self.reply({'error':self.refusal()},403);return
         path=urlparse(self.path).path
         try:
             if path=='/api/directories':self.reply(self.chat.documents.directories(parse_qs(urlparse(self.path).query).get('path',[None])[0]));return
@@ -296,7 +316,7 @@ class WebHandler(BaseHTTPRequestHandler):
         except (FileNotFoundError,ValueError,KeyError):self.reply({'error':'Not found'},404)
         except Exception as error:self.reply({'error':f'Internal error: {type(error).__name__}'},500)
     def do_POST(self):
-        if not self.trusted():self.reply({'error':'Cross-origin requests are not allowed'},403);return
+        if not self.trusted():self.reply({'error':self.refusal()},403);return
         streaming=False
         try:
             size=int(self.headers.get('Content-Length','0'))
@@ -308,6 +328,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path=='/api/transcribe':self.reply(self.transcription(data));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
             if path.startswith('/api/documents/'):
