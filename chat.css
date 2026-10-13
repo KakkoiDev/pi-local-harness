@@ -200,3 +200,7 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 .pw-msg__body--md pre{font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .pw-msg__body--md blockquote{border:1px dotted var(--ink);padding:8px 14px;font-style:italic} /* as .pw-doc blockquote */
 .pw-msg__body--md a{color:var(--ink)}
+/* Block handle (task 105): the hover zone covers the gutter so the pointer can reach the handle; an open handle stays shown */
+.pw-block::before{content:"";position:absolute;left:-48px;top:0;bottom:0;width:48px}
+.pw-block__handle[aria-expanded="true"]{display:flex}
+#document-editor{min-height:calc(100% - 92px);cursor:text} /* the empty page below the last block takes a click */

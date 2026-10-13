@@ -70,6 +70,49 @@ const readline = require('node:readline');
   await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="trash-page"]').click();
   await page.locator('#alert-message').filter({hasText:'Move “ROADMAP.md” to the Trash?'}).waitFor();await page.keyboard.press('Escape');
 
+  // 105: blocks are added Notion-style: from the handle, at the page end, with Return; the handle is reachable by hover.
+  const blockCount=()=>page.locator('#document-editor>.pw-block').count();
+  const firstPara=page.locator('#document-editor>.pw-block.text').first();
+  const textBox=await firstPara.locator('.block-content').boundingBox();
+  await page.mouse.move(textBox.x+20,textBox.y+textBox.height/2);
+  const handle=firstPara.locator('.pw-block__handle');await handle.waitFor();
+  const handleBox=await handle.boundingBox();
+  for(let step=1;step<=8;step++){await page.mouse.move(textBox.x+20-(textBox.x+20-(handleBox.x+handleBox.width/2))*step/8,handleBox.y+handleBox.height/2);assert.equal(await handle.isVisible(),true,'handle stays while the pointer travels to it (step '+step+')');}
+  await page.mouse.down();await page.mouse.up();
+  await page.locator('#block-menu').waitFor();
+  const menuBox=await page.locator('#block-menu').boundingBox();
+  assert.ok(Math.abs(menuBox.x-handleBox.x)<=4&&menuBox.y>=handleBox.y,'menu opens at its handle');
+  assert.equal(await page.locator('#block-menu [data-action="add"]').textContent(),'Add Block Below');
+  assert.equal(await page.locator('#block-menu [data-action="delete"]').textContent(),'Delete Paragraph');
+  const before=await blockCount();
+  await page.locator('#block-menu [data-action="add"]').click();
+  assert.equal(await blockCount(),before+1);
+  const added=page.locator('#document-editor>.pw-block').nth(await firstPara.evaluate(row=>[...row.parentElement.querySelectorAll(':scope>.pw-block')].indexOf(row))+1);
+  assert.equal(await added.locator('.block-content').evaluate(element=>element===document.activeElement),true,'the new block has the caret');
+  await page.keyboard.type('Typed into the new block');
+  assert.equal(await added.locator('.block-content').textContent(),'Typed into the new block');
+  await page.keyboard.press('Enter');
+  assert.equal(await blockCount(),before+2,'Return at the end starts a block');
+  await page.keyboard.press('Backspace');
+  assert.equal(await blockCount(),before+1,'Backspace in an empty block removes it');
+  assert.equal(await added.locator('.block-content').evaluate(element=>element===document.activeElement),true,'the caret returns to the block above');
+  const checkRow=page.locator('#document-editor>.pw-block.check').first();
+  await checkRow.locator('.block-content').hover();await checkRow.locator('.pw-block__handle').click();
+  assert.equal(await page.locator('#block-menu [data-action="delete"]').textContent(),'Delete Task','labels name the block type');
+  await page.locator('#block-menu [data-action="delete"]').click();
+  await page.locator('#toast').filter({hasText:'Task deleted'}).waitFor();
+  const afterDelete=await blockCount();await page.locator('#toast-undo').click();
+  assert.equal(await blockCount(),afterDelete+1,'Undo brings the block back');
+  const last=await page.locator('#document-editor>.pw-block').last().boundingBox(),body=await page.locator('#work-panel .pw-window__body').boundingBox();
+  assert.ok(body.y+body.height-(last.y+last.height)>40,'there is room below the last block');
+  const total=await blockCount();
+  await page.mouse.click(last.x+60,Math.min(body.y+body.height-12,last.y+last.height+30));
+  assert.equal(await blockCount(),total+1,'clicking below the last block adds one');
+  assert.equal(await page.locator('#document-editor>.pw-block').last().locator('.block-content').evaluate(element=>element===document.activeElement),true);
+  await page.mouse.click(last.x+60,Math.min(body.y+body.height-12,last.y+last.height+60));
+  assert.equal(await blockCount(),total+1,'an empty last block is reused, not stacked');
+  await page.keyboard.press('Backspace');
+
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();

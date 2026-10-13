@@ -144,7 +144,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [102-Inline comment thread opens below its passage](tasks/102-inline-thread-below.md)
 - [x] [103-Chat renders Markdown and hides the reply marker](tasks/103-chat-markdown.md)
 - [x] [104-Work view drops the extra top buttons](tasks/104-work-chrome.md)
-- [ ] [105-Blocks are added from the handle and the page end](tasks/105-notion-blocks.md)
+- [x] [105-Blocks are added from the handle and the page end](tasks/105-notion-blocks.md)
 - [ ] [106-Views and selections live in the URL](tasks/106-url-routes.md)
 - [ ] [107-Projects home, then inside a project](tasks/107-projects-home.md)
 - [ ] [108-Comments reach Pi from the Review list](tasks/108-comments-to-pi.md)

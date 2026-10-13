@@ -18,6 +18,14 @@ export function installWorkspace(host){
    if(page===current){fileRevision=saved.revision;if(!textFile){page=saved;}dirty=content()!==markdown;notice(dirty?'Unsaved':'Saved');if(dirty)changed();else{saveDraft(localStorage,current.path,null);$('save-recovery').hidden=true;}}
   })();try{await saving;}finally{saving=null;}if(dirty)await save();
  }
+ // Notion-style keys: Return splits the block (lists continue, an empty list item becomes a paragraph); Backspace in an empty block removes it.
+ function caretOffset(element){const selection=getSelection();if(!selection.rangeCount||!element.contains(selection.anchorNode))return element.innerText.length;const range=document.createRange();range.selectNodeContents(element);range.setEnd(selection.anchorNode,selection.anchorOffset);return range.toString().length;}
+ function caretToEnd(index){const element=blockRows()[index]?.querySelector('[contenteditable]');if(!element)return;element.focus();const range=document.createRange();range.selectNodeContents(element);range.collapse(false);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);}
+ function blockKey(event,index,element){const block=blocks[index];if(event.isComposing||!block)return;
+  if(event.key==='Enter'&&!event.shiftKey&&!['code','raw'].includes(block.type)){event.preventDefault();const list=['bullet','number','check'].includes(block.type);
+   if(list&&!element.innerText.trim()){setType(index,'text');return;}
+   const at=caretOffset(element),value=element.innerText;block.text=value.slice(0,at);block.dirty=true;blocks.splice(index+1,0,{type:list?block.type:'text',text:value.slice(at),checked:false,level:block.level,dirty:true});changed();renderBlocks();refocus(index+1);focusBlock(index+1);}
+  else if(event.key==='Backspace'&&!element.innerText.length&&blocks.length>1){event.preventDefault();blocks.splice(index,1);changed();renderBlocks();caretToEnd(Math.max(0,index-1));focusBlock(Math.max(0,index-1));}}
  const blockRows=()=>[...$('document-editor').querySelectorAll(':scope>.pw-block')];
  function focusBlock(index){focusedBlock=index;blockRows().forEach((row,position)=>row.classList.toggle('pw-block--focused',position===index));$('block-style').value=blocks[index]?.type||'text';$('tool-bullet').setAttribute('aria-pressed',String(blocks[index]?.type==='bullet'));$('tool-check').setAttribute('aria-pressed',String(blocks[index]?.type==='check'));}
  function refocus(index){focusedBlock=index;blockRows()[index]?.querySelector('[contenteditable]')?.focus();}
@@ -26,7 +34,10 @@ export function installWorkspace(host){
  function reviewPassage(text){if(document.body.dataset.review==='closed')$('toggle-review').click();attachSelection(text);}
  function commentSelection(){if(!commentAnchor)return;reviewPassage(commentAnchor);$('selection-bar').hidden=true;$('comment-text').focus();}
  function askAbout(text){reviewPassage(text);$('selection-bar').hidden=true;$('document-prompt').value=`About “${text.slice(0,120)}”: `;$('document-prompt').focus();}
- const blockPopup=installPopup($('block-menu'),item=>{const index=focusedBlock,block=blocks[index];if(!block)return;if(item.dataset.type)setType(index,item.dataset.type);else if(item.dataset.action==='up')moveBlock(index,-1);else if(item.dataset.action==='down')moveBlock(index,1);else if(item.dataset.action==='delete'){blocks.splice(index,1);changed();renderBlocks();refocus(Math.min(index,blocks.length-1));}else if(item.dataset.action==='comment'){attachSelection(block.text.trim());commentSelection();}else if(item.dataset.action==='ask')askAbout(block.text.trim());},()=>{for(const item of $('block-menu').querySelectorAll('[data-type]'))item.setAttribute('aria-checked',String(item.dataset.type===blocks[focusedBlock]?.type));});
+ const NOUN={text:'Paragraph',heading:'Heading',check:'Task',bullet:'Bullet',number:'Numbered Item',quote:'Quote',code:'Code Block',raw:'Markdown'};
+ function deleteBlock(index){const [removed]=blocks.splice(index,1);if(!removed)return;changed();renderBlocks();refocus(Math.max(0,Math.min(index,blocks.length-1)));host.toast(NOUN[removed.type]+' deleted',()=>{blocks.splice(index,0,{...removed,dirty:true});changed();renderBlocks();refocus(index);});}
+ const blockPopup=installPopup($('block-menu'),item=>{const index=focusedBlock,block=blocks[index];if(!block)return;if(item.dataset.action==='add')addBlock(index);else if(item.dataset.type)setType(index,item.dataset.type);else if(item.dataset.action==='up')moveBlock(index,-1);else if(item.dataset.action==='down')moveBlock(index,1);else if(item.dataset.action==='delete')deleteBlock(index);else if(item.dataset.action==='comment'){attachSelection(block.text.trim());commentSelection();}else if(item.dataset.action==='ask')askAbout(block.text.trim());},()=>{const type=blocks[focusedBlock]?.type,noun=NOUN[type]||'Block';for(const item of $('block-menu').querySelectorAll('[data-type]'))item.setAttribute('aria-checked',String(item.dataset.type===type));
+  for(const [action,label] of [['comment','Comment on '+noun],['ask','Ask Pi About '+noun+'…'],['delete','Delete '+noun]])$('block-menu').querySelector(`[data-action="${action}"]`).textContent=label;});
  $('block-style').onchange=()=>{if(focusedBlock!==null)setType(focusedBlock,$('block-style').value);};
  // Work board list tools: press to make the focused block a bullet or a task, press again for a paragraph.
  for(const [id,type] of [['tool-bullet','bullet'],['tool-check','check']]){$(id).onpointerdown=event=>event.preventDefault();$(id).onclick=()=>{if(focusedBlock!==null)setType(focusedBlock,blocks[focusedBlock]?.type===type?'text':type);};}
@@ -37,7 +48,7 @@ export function installWorkspace(host){
    if(block.type==='check'){const check=node('input','pw-check');check.type='checkbox';check.checked=block.checked;check.setAttribute('aria-label','Task complete');check.onchange=()=>{block.checked=check.checked;block.dirty=true;changed();};row.append(check);}
    const text=node(block.type==='heading'?'h'+Math.min(block.level||2,6):block.type==='code'||block.type==='raw'?'pre':'div','block-content',block.text);
    text.contentEditable='plaintext-only';text.setAttribute('role','textbox');text.setAttribute('aria-label',block.type==='heading'?'Heading':'Block text');text.spellcheck=block.type!=='code';
-   highlightComments(text,block);text.oninput=()=>{block.text=text.innerText;block.dirty=true;changed();};row.append(text);$('document-editor').append(row);if(opened&&!threaded&&block.text.includes(opened.anchor)){threaded=true;$('document-editor').append(thread(opened));}
+   highlightComments(text,block);text.oninput=()=>{block.text=text.innerText;block.dirty=true;changed();};text.onkeydown=event=>blockKey(event,index,text);row.append(text);$('document-editor').append(row);if(opened&&!threaded&&block.text.includes(opened.anchor)){threaded=true;$('document-editor').append(thread(opened));}
   });
   if(focusedThread)$('document-editor').querySelector(`[data-thread="${focusedThread}"]`)?.focus();
  }
@@ -205,6 +216,7 @@ export function installWorkspace(host){
  function openProjectChat(){const item=selectedProject();if(item)host.selectChat(item.chat);}
  $('new-page').onclick=()=>newPage(false);$('new-task').onclick=()=>newPage(true);
  async function newPage(task){if(!project)return;const title=await askName(task?{title:'New Task',label:'Task name',help:'Adds a task file to this project and opens it.'}:{title:'New Page',label:'Page name',help:'Creates a Markdown page in this project and opens it.'});if(!title)return;try{await save();const created=await api('/api/documents/create',{project,title,parent:task?'projects/'+project+'/tasks.md':undefined});await refreshFiles();await openFile(created.path);}catch(e){notice(e.message,true);}}
+ $('document-editor').parentElement.addEventListener('click',event=>{if(!page||textFile||$('document-editor').hidden)return;const rows=blockRows(),last=rows.at(-1);if(event.target.closest('.pw-block,.pw-thread'))return;if(last&&event.clientY<last.getBoundingClientRect().bottom)return;const end=blocks.length-1;if(blocks[end]?.type==='text'&&!blocks[end].text.trim()){refocus(end);focusBlock(end);}else addBlock(end);});
  function addBlock(after=blocks.length-1){if(!page||textFile)return;const index=after+1;blocks.splice(index,0,{type:'text',text:'',dirty:true});changed();renderBlocks();refocus(index);focusBlock(index);}
  $('editor-mode').onchange=()=>{if(!page)return;if($('editor-mode').value==='source'){$('document-source').value=serializeMarkdown(blocks);$('document-editor').hidden=true;$('document-source').hidden=false;}else{blocks=parseMarkdown($('document-source').value);$('document-editor').hidden=false;$('document-source').hidden=true;renderBlocks();}};
  $('document-source').oninput=changed;
