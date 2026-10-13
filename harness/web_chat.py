@@ -342,6 +342,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 if action=='comment':self.reply(store.comment(data['path'],data['text'],data.get('anchor','')));return
                 if action=='reply':self.reply(store.reply(data['path'],data['id'],data['text']));return
                 if action=='resolve':self.reply(store.resolve(data['path'],data['id'],data['resolved']));return
+                if action=='delete-comment':self.reply(store.delete_comment(data['path'],data['id'],data['deleted']));return
                 raise ValueError('Unknown document action')
             if path=='/api/conversations':raise ValueError('Chats belong to projects. Create or select a project first.')
             parts=path.split('/')

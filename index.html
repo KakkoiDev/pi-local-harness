@@ -199,7 +199,6 @@
             <div id="document-toolbar" class="pw-ruler" role="toolbar" aria-label="Ruler">
               <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Text</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
               <button id="add-block" class="pw-btn">Add Block</button>
-              <button id="selection-comment" class="pw-btn" hidden>Comment<span class="pw-kbd">⇧⌘M</span></button>
               <span class="pw-menubar__spacer"></span>
               <select id="editor-mode" class="pw-popup" aria-label="Editor mode"><option value="blocks">Document</option><option value="source">Markdown Source</option></select>
               <button id="toggle-review" class="pw-btn" aria-pressed="true">Hide Review<span class="pw-kbd">⌥⌘R</span></button><!-- NEW -->
@@ -251,6 +250,7 @@
           <form id="comment-form" class="window-column"><label class="pw-label" for="comment-text">Comment</label><textarea id="comment-text" class="pw-field" rows="2" placeholder="Comment on the selected passage…"></textarea><button id="add-comment" class="pw-btn pw-btn--default" disabled>Add Comment</button></form>
         </div>
         <div id="document-comments" class="pw-window__body"></div>
+        <label class="window-section pw-label-row"><input id="show-resolved" type="checkbox" class="pw-check"> Show resolved in the text</label>
         <section id="document-discussion" class="window-section window-section--top">
           <h3 class="pw-label">Ask Pi about this whole document</h3>
           <form id="document-prompt-form" class="window-column"><textarea id="document-prompt" class="pw-field" rows="2" placeholder="e.g. Split the Red steps into separate tests" aria-label="Document request"></textarea><button class="pw-btn">Send Request</button></form>
@@ -281,6 +281,7 @@
   <dialog id="settings-dialog" class="pw-dialog"><!-- NEW --></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
     <span class="pw-menu__item" aria-disabled="true">Turn Into</span>
     <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>

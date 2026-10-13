@@ -87,7 +87,7 @@ class DocumentStore:
         path=self.sidecar(relative)
         body='# Comments on '+relative+'\n'
         for entry in comments:
-            body+='\n## Thread '+entry['id']+'\n\n'+('Resolved' if entry['resolved'] else 'Open')+' · '+entry['created']+'\n\n> '+entry['anchor'].replace('\n','\n> ')+'\n\n'+entry['text']+'\n'
+            body+='\n## Thread '+entry['id']+'\n\n'+('Deleted' if entry.get('deleted') else 'Resolved' if entry['resolved'] else 'Open')+' · '+entry['created']+'\n\n> '+entry['anchor'].replace('\n','\n> ')+'\n\n'+entry['text']+'\n'
             for reply in entry.get('replies',[]):body+='\n### Reply\n\n'+reply['text']+'\n'
             if entry.get('agent_reply'):body+='\n### Agent reply\n\n'+entry['agent_reply']+'\n'
         write_record(path,{'document':relative,'comments':comments},body)
@@ -107,6 +107,14 @@ class DocumentStore:
             entry=next((item for item in comments if item['id']==identifier),None)
             if not entry:raise ValueError('Comment not found')
             entry['resolved']=bool(resolved);self.write_comments(relative,comments);return entry
+    def delete_comment(self, relative, identifier, deleted):
+        with self.lock:
+            self.get(relative);comments=self.comments(relative)
+            entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('Comment not found')
+            if deleted and entry.get('chat_id'):raise ValueError('This comment was sent to Pi and cannot be deleted. Resolve it instead.')
+            entry['deleted']=datetime.now().astimezone().isoformat(timespec='seconds') if deleted else None
+            self.write_comments(relative,comments);return entry
     def reply(self, relative, identifier, text):
         if not isinstance(text,str) or not text.strip() or len(text)>10000:raise ValueError('Write a reply of at most 10,000 characters')
         with self.lock:
@@ -131,6 +139,7 @@ class DocumentStore:
         page=self.get(relative);entry=next((item for item in page['comments'] if item['id']==identifier),None)
         if not entry:raise ValueError('Comment not found')
         if entry['resolved']:raise ValueError('This comment is already resolved')
+        if entry.get('deleted'):raise ValueError('This comment is deleted. Restore it first.')
         return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
                 f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"

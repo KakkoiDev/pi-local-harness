@@ -39,6 +39,23 @@ class DocumentTest(unittest.TestCase):
             store.delete(page['path'])
             self.assertEqual(store.list(),[])
             self.assertTrue(list((Path(directory)/'.trash').rglob('*.md')))
+    def test_unsent_comments_soft_delete_and_restore(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store=DocumentStore(Path(directory));page=store.create('Project','Plan')
+            store.save(page['path'],'# Plan\n\nBuild it\n\nShip it\n',page['revision'])
+            comment=store.comment(page['path'],'Too vague','Build it')
+            deleted=store.delete_comment(page['path'],comment['id'],True)
+            self.assertRegex(deleted['deleted'],r'^\d{4}-\d\d-\d\dT')
+            kept=store.get(page['path'])['comments']
+            self.assertEqual([item['id'] for item in kept],[comment['id']])
+            self.assertTrue(kept[0]['deleted'])
+            self.assertIn('Deleted · ',store.sidecar(page['path']).read_text())
+            with self.assertRaisesRegex(ValueError,'deleted'):store.comment_prompt(page['path'],comment['id'])
+            self.assertIsNone(store.delete_comment(page['path'],comment['id'],False)['deleted'])
+            store.comment_prompt(page['path'],comment['id'])
+            sent=store.comment(page['path'],'Ship when green','Ship it');store.mark_sent(page['path'],sent['id'],'chat-1')
+            with self.assertRaisesRegex(ValueError,'sent to Pi'):store.delete_comment(page['path'],sent['id'],True)
+            with self.assertRaisesRegex(ValueError,'not found'):store.delete_comment(page['path'],'missing',True)
     def test_project_scoped_snapshot_and_live_code(self):
         with tempfile.TemporaryDirectory() as directory:
             store=DocumentStore(Path(directory));first=store.create_project('First');store.create_project('Second')

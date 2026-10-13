@@ -105,3 +105,10 @@ body[data-view="work"] .window-projects{display:none}
 /* Block handle menu: placed under its handle by js/menubar.mjs installPopup */
 #block-menu{position:fixed;top:0;left:0;z-index:45}
 #block-menu>span.pw-menu__item{padding-left:12px}
+/* Comments: marker numbers are CSS content so they stay out of the block's text */
+.pw-mark[data-n]::after{content:attr(data-n)}
+.pw-thread__note{margin:0;padding:6px 14px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
+.pw-thread__msg p{margin:0}
+.pw-review-item__actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pw-label-row{display:flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:13px}
+#selection-bar{position:fixed;z-index:40}
