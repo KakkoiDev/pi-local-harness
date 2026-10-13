@@ -209,3 +209,8 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 .review-footer>.pw-btn{width:100%}
 #document-discussion>summary{min-height:var(--size-control);display:flex;align-items:center;cursor:default}
 #document-discussion[open]>summary{margin-bottom:4px}
+/* Block types look like themselves (task 112), as .pw-doc styles blockquote and pre */
+.pw-block>.block-content{flex:1;min-width:0}
+.pw-block.quote>.block-content{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
+.pw-block.code>.block-content,.pw-block.raw>.block-content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
+.pw-block__marker{flex:none;min-width:18px;text-align:right;font-variant-numeric:tabular-nums}

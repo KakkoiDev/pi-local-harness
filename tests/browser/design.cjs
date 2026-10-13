@@ -43,6 +43,17 @@ const readline = require('node:readline');
   assert.deepEqual(await empty.evaluate(element=>{const style=getComputedStyle(element);return [style.marginTop,style.marginLeft,style.textAlign];}),['24px','16px','center']);
   assert.equal(await empty.textContent(),'No open comments.','Final board copy');
 
+  // 112: each block type looks like itself (quote, list markers, code), as .pw-doc styles them.
+  fs.writeFileSync(join(root,'TYPES.md'),'# Types\n\n> A quoted line\n\n- First bullet\n- Second bullet\n\n1. One\n2. Two\n\n```\ncode here\n```\n');
+  await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/TYPES.md`));
+  await page.locator('#document-editor .pw-block.quote').waitFor();
+  const look=await page.evaluate(()=>{const style=selector=>getComputedStyle(document.querySelector(selector));const quote=style('#document-editor .pw-block.quote .block-content'),code=style('#document-editor .pw-block.code .block-content');
+   return {quote:[quote.borderTopStyle,quote.fontStyle],bullets:[...document.querySelectorAll('#document-editor .pw-block.bullet .pw-block__marker')].map(item=>item.textContent),numbers:[...document.querySelectorAll('#document-editor .pw-block.number .pw-block__marker')].map(item=>item.textContent),
+    text:document.querySelector('#document-editor .pw-block.bullet .block-content').textContent,code:[code.borderTopStyle,code.fontFamily.includes('IBM Plex Mono')]};});
+  assert.deepEqual(look,{quote:['dotted','italic'],bullets:['•','•'],numbers:['1.','2.'],text:'First bullet',code:['solid',true]});
+  await page.goto(base);await page.locator('#work-tab').click();
+  await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+
   // 102: an open thread sits below its passage, as wide as the column minus the 24px indent.
   const path=`projects/${created.project}/ROADMAP.md`;
   await post('/api/documents/comment',{path,text:'Say who it is calm for.',anchor:'calm workbench'});

@@ -21,6 +21,8 @@ export function parseMarkdown(markdown) {
  return blocks;
 }
 export function serializeMarkdown(blocks){
+ // An empty paragraph someone just added is nothing in Markdown: it must not change the file.
+ blocks=blocks.filter(block=>!(block.dirty&&block.type==='text'&&!(block.text||'').trim()));
  return blocks.map((block,index)=>{
   if(!block.dirty)return block.raw;
   const text=block.text||'';

@@ -45,6 +45,8 @@ export function installWorkspace(host){
   $('document-editor').replaceChildren();
   blocks.forEach((block,index)=>{
    const row=node('div','editor-block pw-block '+block.type+(index===focusedBlock?' pw-block--focused':'')),handle=node('button','pw-block__handle');handle.type='button';handle.tabIndex=-1;handle.append(icon('handle'));handle.setAttribute('aria-label','Block actions');handle.setAttribute('aria-haspopup','menu');handle.setAttribute('aria-expanded','false');handle.onclick=()=>{focusBlock(index);blockPopup.open(handle);};row.append(handle);row.addEventListener('focusin',()=>focusBlock(index));
+   // List markers are chrome, not text (task 112): numbers count within a run of numbered blocks.
+   if(block.type==='bullet'||block.type==='number'){let n=1;for(let k=index-1;k>=0&&blocks[k].type==='number';k--)n++;const marker=node('span','pw-block__marker',block.type==='bullet'?'•':n+'.');marker.setAttribute('aria-hidden','true');row.append(marker);}
    if(block.type==='check'){const check=node('input','pw-check');check.type='checkbox';check.checked=block.checked;check.setAttribute('aria-label','Task complete');check.onchange=()=>{block.checked=check.checked;block.dirty=true;changed();};row.append(check);}
    const text=node(block.type==='heading'?'h'+Math.min(block.level||2,6):block.type==='code'||block.type==='raw'?'pre':'div','block-content',block.text);
    text.contentEditable='plaintext-only';text.setAttribute('role','textbox');text.setAttribute('aria-label',block.type==='heading'?'Heading':'Block text');text.spellcheck=block.type!=='code';

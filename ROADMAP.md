@@ -151,3 +151,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [109-New File… replaces New Page…](tasks/109-new-file.md)
 - [ ] [110-Startup says how to turn on phone access](tasks/110-phone-off-hint.md)
 - [x] [111-Re-sync the design copies](tasks/111-design-resync.md)
+- [x] [112-Block types look different](tasks/112-block-type-styles.md)
