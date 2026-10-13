@@ -5,7 +5,6 @@
    <html data-appearance="system"> and the OS prefers dark. Set by π › Settings…. */
 
 /* Fonts: ship these OFL files in /fonts so the workbench works offline. */
-@font-face{font-family:"Pixelify Sans";src:url("/fonts/PixelifySans-Variable.woff2") format("woff2");font-weight:400 700;font-display:swap}
 @font-face{font-family:"Source Serif 4";src:url("/fonts/SourceSerif4-Variable.woff2") format("woff2");font-weight:200 900;font-style:normal;font-display:swap}
 @font-face{font-family:"Source Serif 4";src:url("/fonts/SourceSerif4-Italic-Variable.woff2") format("woff2");font-weight:200 900;font-style:italic;font-display:swap}
 @font-face{font-family:"IBM Plex Mono";src:url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
@@ -54,7 +53,7 @@
   }
 }
 :root{
-  --font-chrome:"Pixelify Sans",Chicago,Charcoal,system-ui,sans-serif;
+  --font-chrome:system-ui,-apple-system,"Helvetica Neue",sans-serif;
   --font-text:"Source Serif 4","New York",Georgia,serif;
   --font-mono:"IBM Plex Mono",Monaco,ui-monospace,monospace;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;

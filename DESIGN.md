@@ -5,7 +5,7 @@ Pi Workbench follows *Human Interface Guidelines: The Apple Desktop Interface* (
 ## Rules
 
 - **Two colours.** `--paper` and `--ink`, and their inversion for selection. `--ink-disabled` only for disabled controls and placeholders. The Inverse theme swaps paper and ink. No other colours, no gradients, no blurred shadows.
-- **Three faces, three jobs.** Pixelify Sans for chrome (menus, buttons, labels), Source Serif 4 for what people and Pi write (chat, documents, comments), IBM Plex Mono for commands, code and paths. Shipped as local files.
+- **Three faces, three jobs.** The system font for chrome (menus, buttons, labels; 2026-10-13: Pixelify Sans in the handoff, dropped as too hard to read), Source Serif 4 for what people and Pi write (chat, documents, comments), IBM Plex Mono for commands, code and paths. Shipped as local files.
 - **One menu bar** holds every command: π, File, Edit, View, Project, Agent, Window. Commands are Title Case verbs; an ellipsis means a dialog follows. Shortcuts are accelerators, never the only way. No action depends on right-click or long press.
 - **Windows.** The active window has a striped title bar; inactive ones are blank. Views: Chat ⌘1, Work ⌘2, Activity ⌘3, Laya ⌘4. Side windows (Projects, Files, Review, Event Info) tile beside the main window; on phone they become full screens or bottom sheets.
 - **State is a glyph and a word**, never colour: Running, Waiting, Completed, Failed, Stopped, Interrupted, Cancelled; Approved, Blocked, Revise, Verified, Drift.

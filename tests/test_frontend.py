@@ -23,12 +23,17 @@ class TestFrontend(unittest.TestCase):
         self.assertNotIn('runs on this Mac',content.replace('Pi runs on this Mac',''))
         self.assertIn('<span>Pi runs on this Mac</span>',content)
 
+    def test_chrome_uses_the_system_font(self):
+        tokens=open('design/tokens.css').read()
+        self.assertIn('--font-chrome:system-ui,',tokens)
+        self.assertNotIn('Pixelify',tokens)
+
     def test_design_fonts_ship_with_licences(self):
         import pathlib, sys
         sys.path.insert(0,'harness');from web_chat import FONTS
         for name in FONTS:self.assertEqual(pathlib.Path('fonts',name+'.woff2').read_bytes()[:4],b'wOF2',name)
         licences=pathlib.Path('fonts/OFL.txt').read_text()
-        for holder in ('Pixelify Sans Project Authors','Adobe','IBM Corp.'):self.assertIn(holder,licences)
+        for holder in ('Adobe','IBM Corp.'):self.assertIn(holder,licences)
         self.assertIn('SIL Open Font License, Version 1.1',licences)
 
 if __name__ == "__main__":

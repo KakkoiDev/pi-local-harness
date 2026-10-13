@@ -253,7 +253,7 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, unquote, parse_qs
 import mimetypes
 mimetypes.add_type('font/woff2','.woff2')
-FONTS=['PixelifySans-Variable','SourceSerif4-Variable','SourceSerif4-Italic-Variable','IBMPlexMono-Regular','IBMPlexMono-Medium']
+FONTS=['SourceSerif4-Variable','SourceSerif4-Italic-Variable','IBMPlexMono-Regular','IBMPlexMono-Medium']
 
 class WebHandler(BaseHTTPRequestHandler):
     def reply(self, value, code=200):

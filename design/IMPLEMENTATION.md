@@ -34,7 +34,7 @@ When the canvas and this file disagree, this file wins for behaviour and ids; th
 design/tokens.css        new  (from this handoff)
 design/components.css    new
 design/icons.mjs         new  → served as /design/icons.mjs; js/ui.mjs re-exports it from '../design/icons.mjs'
-fonts/PixelifySans-Variable.woff2
+fonts/PixelifySans-Variable.woff2   (2026-10-13: dropped in task 93; chrome uses system-ui)
 fonts/SourceSerif4-Variable.woff2
 fonts/SourceSerif4-Italic-Variable.woff2
 fonts/IBMPlexMono-Regular.woff2

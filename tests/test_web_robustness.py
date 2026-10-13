@@ -68,10 +68,10 @@ class WebRobustnessTest(unittest.TestCase):
         import harness.web_chat as web
         from unittest import mock
         fake = Path(self.directory.name) / 'root'; (fake / 'fonts').mkdir(parents=True)
-        for name in ['PixelifySans-Variable', 'SourceSerif4-Variable', 'SourceSerif4-Italic-Variable', 'IBMPlexMono-Regular', 'IBMPlexMono-Medium']:
+        for name in ['SourceSerif4-Variable', 'SourceSerif4-Italic-Variable', 'IBMPlexMono-Regular', 'IBMPlexMono-Medium']:
             (fake / 'fonts' / f'{name}.woff2').write_bytes(b'wOF2')
         expected = {'/design/tokens.css': 'text/css', '/design/components.css': 'text/css', '/design/icons.mjs': 'text/javascript',
-                    '/fonts/PixelifySans-Variable.woff2': 'font/woff2', '/fonts/SourceSerif4-Variable.woff2': 'font/woff2',
+                    '/fonts/SourceSerif4-Variable.woff2': 'font/woff2',
                     '/fonts/SourceSerif4-Italic-Variable.woff2': 'font/woff2', '/fonts/IBMPlexMono-Regular.woff2': 'font/woff2',
                     '/fonts/IBMPlexMono-Medium.woff2': 'font/woff2'}
         for path in expected:

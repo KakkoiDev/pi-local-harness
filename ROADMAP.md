@@ -132,3 +132,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [90-Design Tablet Layout](tasks/90-design-tablet.md)
 - [x] [91-Kind chore](tasks/91-kind-chore.md)
 - [x] [92-Open decisions 2026-10-13](tasks/92-decisions-2026-10-13.md)
+- [x] [93-System chrome font](tasks/93-system-chrome-font.md)
