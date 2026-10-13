@@ -101,7 +101,7 @@ and harness/README.md for the installed pi workflow.
 ## Remote use
 
 - [ ] [66-Phone access over Tailscale and voice input](tasks/66-tailscale-voice-input.md)
-- [ ] [67-Parallel inference experiment (check MLX fix first)](tasks/67-parallel-inference-experiment.md)
+- [x] [67-Parallel inference experiment (check MLX fix first)](tasks/67-parallel-inference-experiment.md)
 
 ## Pi Workbench System 1
 

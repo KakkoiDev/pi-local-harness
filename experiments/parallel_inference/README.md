@@ -1,6 +1,6 @@
 # Parallel inference on one Ollama model
 
-Status 2026-10-13: set up, not run. Waiting for the MLX runner fix (see "Check next time").
+Status 2026-10-13: run on the Mac mini with Ollama 0.40.3: **serialized**. The MLX runner still answers one request at a time (see Results).
 
 ## Question
 
@@ -70,7 +70,24 @@ Monitor during step 3.
 
 ## Results
 
-None yet.
+### 2026-10-13, Mac mini (32 GB), Ollama 0.40.3, gemma4:26b-mlx, `--ctx 16384`
+
+Ollama was started by hand with `OLLAMA_NUM_PARALLEL=2 ollama serve` (its log confirmed
+`OLLAMA_NUM_PARALLEL:2`), no other client on the model.
+
+```
+alone:  46.5 tok/s, first token 0.1s
+req 1: 48.4 tok/s, first token 6.5s, done 12.7s
+req 2: 48.1 tok/s, first token 0.2s, done 6.5s
+combined: 48.0 tok/s vs 46.5 alone (1.03x)
+overlap: 0% -> SERIALIZED
+```
+
+Request 1 got its first token exactly when request 2 finished: the second request waited.
+Parallel slots give nothing on the MLX runner in 0.40.3, so the one-agent rule stays.
+A run with the app's default settings gave the same numbers (1.01x, SERIALIZED).
+The `--ctx 8192` run was skipped: with no overlap at 16k, a smaller slot cannot change the verdict.
+Next: repeat after an Ollama release that mentions parallel requests on the MLX runner (step 1 of "Check next time").
 
 ## Files
 
