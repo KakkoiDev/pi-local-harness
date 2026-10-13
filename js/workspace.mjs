@@ -60,7 +60,9 @@ export function installWorkspace(host){
  async function commentAction(url,body,after){try{await api(url,{path:page.path,...body});await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
  async function applySuggestion(comment){try{await save();const path=page.path;await api('/api/documents/apply-suggestion',{path,id:comment.id,revision:fileRevision});saveDraft(localStorage,path,null);dirty=false;page=null;await openFile(path);host.toast('Change applied');}catch(e){notice(e.message,true);}}
  function deleteComment(comment){if(openThread===comment.id)openThread=null;commentAction('/api/documents/delete-comment',{id:comment.id,deleted:true},()=>host.toast('Comment deleted. It’s kept under Deleted in Review.',()=>commentAction('/api/documents/delete-comment',{id:comment.id,deleted:false})));}
- async function askPi(comment,button){button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:'Comment: '+comment.text,document_comment:{path:page.path,id:comment.id}});await poll();await refreshPageComments();notice('Text comment sent to the agent');}catch(e){notice(e.message,true);button.disabled=false;}}
+ async function askPi(comment,button){if(button)button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:'Comment: '+comment.text,document_comment:{path:page.path,id:comment.id}});await poll();await refreshPageComments();notice('Comment sent to Pi');return true;}catch(e){notice(e.message,true);if(button)button.disabled=false;return false;}}
+ const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&!comment.chat_id);
+ $('send-unsent').onclick=async()=>{$('send-unsent').disabled=true;for(const comment of unsent())if(!await askPi(comment))break;renderComments();};
  function showThread(id){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();}
  function stepComment(delta){if(commentFilter==='deleted')commentFilter='open';const list=orderedComments().filter(comment=>commentState(comment)===commentFilter);if(!list.length)return;const index=list.findIndex(comment=>comment.id===currentComment),next=list[index<0?(delta>0?0:list.length-1):(index+delta+list.length)%list.length];showThread(next.id);document.getElementById('comment-'+next.id)?.scrollIntoView({block:'nearest'});}
  function button(label,onclick,className='pw-btn'){const item=node('button',className,label);item.type='button';item.onclick=onclick;return item;}
@@ -83,7 +85,7 @@ export function installWorkspace(host){
  function renderComments(){
   if(unchanged('comments',[page?.path,page?.comments,commentFilter,currentComment,openThread,showResolved]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
   const list=orderedComments(),numbered=numbers(),counts={open:0,resolved:0,deleted:0};for(const comment of list)counts[commentState(comment)]++;
-  $('comment-count').textContent=counts.open;
+  $('comment-count').textContent=counts.open;const waiting=unsent().length;$('send-unsent').disabled=!waiting;$('send-unsent').textContent=waiting?`Send ${waiting} Unsent Comment${waiting>1?'s':''} to Pi`:'No unsent comments';
   for(const item of $('comment-filter').querySelectorAll('[data-filter]')){const filter=item.dataset.filter;item.textContent={open:'Open',resolved:'Resolved',deleted:'Deleted'}[filter]+' '+counts[filter];item.setAttribute('aria-checked',String(filter===commentFilter));}
   $('document-comments').replaceChildren();const shown=list.filter(comment=>commentState(comment)===commentFilter);
   if(page&&!shown.length)$('document-comments').append(node('p','list-empty pw-empty',{open:'No open comments.',resolved:'Nothing resolved yet.',deleted:'No deleted comments.'}[commentFilter]));
@@ -94,6 +96,7 @@ export function installWorkspace(host){
    if(page.markdown&&!page.markdown.includes(comment.anchor))item.append(node('p','pw-help','Passage changed on disk; this thread keeps the original quote.'));
    item.append(node('p','pw-review-item__text',comment.text));
    const actions=node('div','pw-review-item__actions'),state=commentState(comment);
+   if(state==='open'&&!comment.chat_id){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
    if(state==='open')actions.append(button('Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:true})));
    if(state==='open'&&!comment.chat_id)actions.append(button('Delete',()=>deleteComment(comment)));
    if(state==='resolved')actions.append(button('Reopen',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:false})));

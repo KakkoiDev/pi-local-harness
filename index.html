@@ -252,13 +252,16 @@
           <form id="comment-form" class="window-column"><label class="pw-label" for="comment-text">Comment</label><textarea id="comment-text" class="pw-field" rows="2" placeholder="Comment on the selected passage…"></textarea><button id="add-comment" class="pw-btn pw-btn--default" disabled>Add Comment</button></form>
         </div>
         <div id="document-comments" class="pw-window__body"></div>
-        <label class="window-section pw-label-row"><input id="show-resolved" type="checkbox" class="pw-check"> Show resolved in the text</label>
-        <section id="document-discussion" class="window-section window-section--top">
-          <h3 class="pw-label">Ask Pi about this whole document</h3>
-          <form id="document-prompt-form" class="window-column"><textarea id="document-prompt" class="pw-field" rows="2" placeholder="e.g. Split the Red steps into separate tests" aria-label="Document request"></textarea><button class="pw-btn">Send Request</button></form>
-          <p class="pw-help">Includes this document and the project context.</p>
+        <div class="window-section review-footer"><!-- Final board: Show resolved, then the send-all button -->
+          <label class="pw-label-row"><input id="show-resolved" type="checkbox" class="pw-check"> Show resolved in the text</label>
+          <button id="send-unsent" type="button" class="pw-btn" disabled>No unsent comments</button>
+        </div>
+        <details id="document-discussion" class="window-section window-section--top"><!-- collapsed: a question about the whole file, not about one passage (task 108) -->
+          <summary class="pw-label">Ask Pi about this whole file</summary>
+          <form id="document-prompt-form" class="window-column"><textarea id="document-prompt" class="pw-field" rows="2" placeholder="e.g. Split the Red steps into separate tests" aria-label="Request about this whole file"></textarea><button class="pw-btn">Send Request</button></form>
+          <p class="pw-help">Includes this file and the project context. To ask about one passage, comment on it and choose Ask Pi.</p>
           <details id="document-request-history" hidden><summary id="document-request-summary" class="pw-label">Recent requests</summary><div id="document-requests"></div></details>
-        </section>
+        </details>
       </aside>
 
     <!-- NEW: Event Info window (Gate detail) -->

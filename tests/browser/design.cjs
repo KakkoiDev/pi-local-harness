@@ -129,6 +129,24 @@ const readline = require('node:readline');
   await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:'tasks/002-phone-layouts.md'}).waitFor();
   assert.match(fs.readFileSync(join(root,'ROADMAP.md'),'utf8'),/- \[ \] \[002-Phone layouts\]\(tasks\/002-phone-layouts\.md\)\n$/);
 
+  // 108: comments reach Pi from the Review list, one at a time or all unsent at once; the whole-file request is separate and folded.
+  await post('/api/documents/comment',{path,text:'Name the reader.',anchor:'Design check'});
+  await page.reload();await page.locator('#work-tab').click();
+  await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  const review=page.locator('#document-comments');
+  await review.locator('.pw-review-item').nth(1).waitFor();
+  assert.equal(await review.getByRole('button',{name:'Ask Pi',exact:true}).count(),2,'each unsent comment offers Ask Pi');
+  assert.equal(await page.locator('#send-unsent').textContent(),'Send 2 Unsent Comments to Pi');
+  await review.getByRole('button',{name:'Ask Pi',exact:true}).first().click();
+  await page.locator('#send-unsent').filter({hasText:'Send 1 Unsent Comment to Pi'}).waitFor();
+  assert.equal(await review.getByText('Sent to Pi',{exact:false}).count()>=1,true);
+  await page.locator('#send-unsent').click();
+  await page.locator('#send-unsent').filter({hasText:'No unsent comments'}).waitFor();
+  assert.equal(await page.locator('#send-unsent').isDisabled(),true);
+  assert.equal(await page.locator('#document-discussion>summary').textContent(),'Ask Pi about this whole file');
+  assert.equal(await page.locator('#document-prompt').isVisible(),false,'folded until opened');
+  await page.locator('#document-discussion>summary').click();assert.equal(await page.locator('#document-prompt').isVisible(),true);
+
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();

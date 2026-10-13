@@ -107,7 +107,7 @@ const commands={
  'view-chat':()=>showView('chat'),'view-work':()=>showView('work'),'view-activity':()=>showView('activity'),'view-gate':()=>showView('gate'),
  'mode-blocks':()=>editorMode('blocks'),'mode-source':()=>editorMode('source'),'mode-toggle':()=>editorMode($('editor-mode').value==='blocks'?'source':'blocks'),'block-up':()=>workspace.moveBlock(-1),'block-down':()=>workspace.moveBlock(1),
  'toggle-review':click('toggle-review'),'task-record':()=>workspace.showRecord(),'comment-selection':()=>workspace.commentSelection(),'ask-selection':()=>workspace.askSelection(),'toggle-resolved':()=>workspace.toggleResolved(),'next-comment':()=>{reviewOpen(true);workspace.stepComment(1);},'previous-comment':()=>{reviewOpen(true);workspace.stepComment(-1);},
- 'project-chat':()=>workspace.openProjectChat(),'ask-document':()=>{showView('work');reviewOpen(true);$('document-prompt').focus();},
+ 'project-chat':()=>workspace.openProjectChat(),'ask-document':()=>{showView('work');reviewOpen(true);$('document-discussion').open=true;$('document-prompt').focus();},
  'copy-folder-path':()=>navigator.clipboard.writeText($('project-folder').textContent).then(()=>toast('Path copied'),e=>error(e.message)),
  send:()=>$('composer').requestSubmit(),attach:click('attach'),record:click('record'),stop:click('stop'),reconnect:click('connection-retry'),
  'toggle-projects':()=>{$('sidebar').hidden=!$('sidebar').hidden;},'toggle-files':()=>{const files=document.querySelector('.window-files');files.hidden=!files.hidden;},

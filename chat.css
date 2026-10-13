@@ -204,3 +204,8 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 .pw-block::before{content:"";position:absolute;left:-48px;top:0;bottom:0;width:48px}
 .pw-block__handle[aria-expanded="true"]{display:flex}
 #document-editor{min-height:calc(100% - 92px);cursor:text} /* the empty page below the last block takes a click */
+/* Review footer and the whole-file request (task 108) */
+.review-footer{border-bottom:0;border-top:1px solid var(--ink)}
+.review-footer>.pw-btn{width:100%}
+#document-discussion>summary{min-height:var(--size-control);display:flex;align-items:center;cursor:default}
+#document-discussion[open]>summary{margin-bottom:4px}

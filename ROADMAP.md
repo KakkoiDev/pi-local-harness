@@ -147,7 +147,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [105-Blocks are added from the handle and the page end](tasks/105-notion-blocks.md)
 - [ ] [106-Views and selections live in the URL](tasks/106-url-routes.md)
 - [ ] [107-Projects home, then inside a project](tasks/107-projects-home.md)
-- [ ] [108-Comments reach Pi from the Review list](tasks/108-comments-to-pi.md)
+- [x] [108-Comments reach Pi from the Review list](tasks/108-comments-to-pi.md)
 - [x] [109-New File… replaces New Page…](tasks/109-new-file.md)
 - [ ] [110-Startup says how to turn on phone access](tasks/110-phone-off-hint.md)
 - [x] [111-Re-sync the design copies](tasks/111-design-resync.md)
