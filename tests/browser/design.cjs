@@ -56,6 +56,20 @@ const readline = require('node:readline');
   assert.ok(Math.abs(layout.width)<=1,'thread reaches the column edge');
   assert.ok(layout.whoHeight<=20,'author and time stay on one line');
 
+  // 104: Work view chrome is the Work board's: tabs + Saved, ruler without file commands, path in the status bar.
+  await page.locator('#work-tab').click();
+  const ruler=page.locator('#document-toolbar');
+  for(const name of ['Add Block','Reload','Move to Trash…'])assert.equal(await ruler.getByRole('button',{name,exact:true}).count(),0,name+' is a File menu command, not a ruler button');
+  assert.equal(await page.locator('.work-header').count(),0,'no agent-status strip in Work (the menu bar shows it)');
+  assert.equal(await page.locator('#workspace-bar #save-status').isVisible(),true,'save status sits in the toolbar beside the view tabs');
+  assert.equal(await page.locator('#workspace-bar #project-folder').isVisible(),false,'the folder path is Chat\'s');
+  assert.equal(await page.locator('#document-path').textContent(),'ROADMAP.md','status bar shows the file path');
+  assert.equal(await page.locator('#window-title').textContent(),'ROADMAP.md');
+  assert.deepEqual(await ruler.locator('.pw-tools button').evaluateAll(items=>items.map(item=>item.getAttribute('aria-label'))),['Bulleted list','Task checkbox']);
+  assert.equal(await page.locator('#block-style option[value=text]').textContent(),'Paragraph','Work board label');
+  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="trash-page"]').click();
+  await page.locator('#alert-message').filter({hasText:'Move “ROADMAP.md” to the Trash?'}).waitFor();await page.keyboard.press('Escape');
+
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();

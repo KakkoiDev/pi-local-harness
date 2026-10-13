@@ -160,6 +160,7 @@
         </nav>
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
+        <span id="save-status" class="pw-label" role="status"></span><!-- Work view only (Work board) -->
       </div>
       <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
 
@@ -195,30 +196,21 @@
 
       <!-- Work -->
       <section id="work-panel" class="work-panel" hidden>
-        <div class="work-header pw-infobar">
-          <span id="work-status" aria-live="polite"></span><span id="work-queue"></span>
-          <span class="pw-menubar__spacer"></span>
-          <button id="project-chat" class="pw-btn">Open Project Chat</button>
-        </div>
         <div class="work-layout">
           <div class="document-pane">
-            <div class="pw-infobar"><h2 class="pw-label" style="margin:0"><span id="document-name">Choose a document</span></h2><span id="file-kind" class="pw-help"></span></div><!-- JS also mirrors the file name into #window-title -->
             <div id="document-toolbar" class="pw-ruler" role="toolbar" aria-label="Ruler">
-              <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Text</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
-              <button id="add-block" class="pw-btn">Add Block</button>
+              <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Paragraph</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
+              <div class="pw-tools"><button id="tool-bullet" type="button" aria-label="Bulleted list" aria-pressed="false"><span data-icon="list-bullet"></span></button><button id="tool-check" type="button" aria-label="Task checkbox" aria-pressed="false"><span data-icon="list-check"></span></button></div><!-- B / I / { } wait for inline marks (IMPLEMENTATION.md § ruler) -->
               <span class="pw-menubar__spacer"></span>
               <select id="editor-mode" class="pw-popup" aria-label="Editor mode"><option value="blocks">Document</option><option value="source">Markdown Source</option></select>
               <button id="toggle-review" class="pw-btn" aria-pressed="true">Hide Review<span class="pw-kbd">⌥⌘R</span></button><!-- NEW -->
-              <button id="reload-document" class="pw-btn">Reload</button>
-              <button id="delete-page" class="pw-btn">Move to Trash…</button>
-              <span id="save-status" class="pw-label" role="status"></span>
             </div>
             <div id="save-recovery" class="pw-alert-line" hidden role="alert"><span data-icon="caution"></span><p id="save-recovery-message"></p><button id="discard-draft" class="pw-btn">Reload from Disk</button><button id="retry-save" class="pw-btn">Retry Save</button><button id="download-draft" class="pw-btn pw-btn--default">Download Draft…</button></div>
             <div class="pw-window__body">
               <div id="document-editor" class="pw-doc" aria-label="Document editor"></div>
               <textarea id="document-source" class="pw-source" aria-label="File source" hidden spellcheck="false"></textarea>
             </div>
-            <div class="pw-statusbar"><span>⌘S saves · changes save as you type</span></div>
+            <div class="pw-statusbar"><span>⌘S saves · changes save as you type</span><span id="document-path" class="pw-mono">No document open</span></div>
           </div>
         </div>
       </section>

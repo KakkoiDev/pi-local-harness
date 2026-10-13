@@ -30,6 +30,9 @@ html[data-pattern="plain"] #desk{background-image:none}
 .window-column{display:flex;flex-direction:column;gap:8px}
 .pw-statusbar{justify-content:space-between}
 #project-folder{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Work board: the toolbar shows Saved beside the view tabs; Chat shows the folder path there */
+body:not([data-view="work"]) #save-status,body[data-view="work"] #project-folder{display:none}
+#document-path{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Main window: one view at a time (the JS toggles [hidden]) */
 #thread{flex:1;min-height:0;overflow:auto}
