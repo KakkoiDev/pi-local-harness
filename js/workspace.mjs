@@ -167,7 +167,7 @@ export function installWorkspace(host){
   if(unchanged('projects',[state.projects,project,$('project-search').value]))return;const query=$('project-search').value.trim().toLocaleLowerCase();$('project-count').textContent=state.projects.length;$('project-list').replaceChildren();
   const matches=state.projects.filter(item=>(item.name+' '+item.path).toLocaleLowerCase().includes(query));
   if(!matches.length)$('project-list').append(node('p','list-empty',query?'No matching projects':'Your projects will appear here.'));
-  for(const item of matches){const row=node('div','conversation'+(item.id===project?' active':''));const button=node('button','conversation-select');button.append(icon('folder'),node('span','',item.name));button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=()=>selectProject(item.id);row.append(button);$('project-list').append(row);}
+  for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=()=>selectProject(item.id);$('project-list').append(button);}
  }
  function renderFiles(){
   if(unchanged('files',[files,page?.path,$('file-search').value]))return;const query=$('file-search').value.trim().toLocaleLowerCase();$('file-tree').replaceChildren();

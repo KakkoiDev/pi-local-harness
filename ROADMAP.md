@@ -125,3 +125,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [83-Design Activity and Laya Fields](tasks/83-design-activity-laya-fields.md)
 - [x] [84-Design Turn Into Submenu](tasks/84-design-turn-into.md)
 - [x] [85-Design Phone Filters](tasks/85-design-phone-filters.md)
+- [x] [86-Design Project Rows](tasks/86-design-project-rows.md)
