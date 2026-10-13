@@ -65,7 +65,8 @@ Setup, once, on the Mac that runs `plh`:
    `plh` refuses to start with only one of the two lists set.
 3. `plh` starts `tailscale serve <web port>` itself (`tailscale_serve` in
    `harness/services.py`) and prints `Phone: https://<first remote_hosts entry>` in
-   the Pi startup lines. If serve fails, the line reads `Phone access off: <reason>`
+   the Pi startup lines, followed by a QR code of that address to scan with the phone (hidden when the
+   terminal is narrower than about 41 columns). If serve fails, the line reads `Phone access off: <reason>`
    and the local web UI still works.
 4. On the phone (Tailscale app connected) open the Phone URL.
 
