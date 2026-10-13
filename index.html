@@ -226,7 +226,8 @@
       <!-- Activity -->
       <section id="activity-panel" class="activity-panel" hidden aria-label="Agent activity">
         <div class="pw-toolbar">
-          <label class="pw-label">Show <select id="activity-filter" class="pw-popup"><option value="all">All Work</option><option value="pending">Running &amp; Waiting</option><option value="completed">Completed</option><option value="attention">Needs Attention</option></select></label>
+          <div id="activity-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="pending">Active</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="attention">Attention</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="completed">Done</button></div>
+          <label class="pw-label desk-filter">Show <select id="activity-filter" class="pw-popup"><option value="all">All Work</option><option value="pending">Running &amp; Waiting</option><option value="completed">Completed</option><option value="attention">Needs Attention</option></select></label>
           <label class="pw-label">Project <select id="activity-project" class="pw-popup"><option value="all">All Projects</option></select></label>
           <span class="pw-menubar__spacer"></span>
           <span id="activity-summary" class="pw-label" role="status"></span>
@@ -240,7 +241,8 @@
       <!-- Laya -->
       <section id="laya-panel" class="laya-panel" hidden aria-label="Laya activity">
         <div class="pw-toolbar">
-          <label class="pw-label">Show <select id="laya-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
+          <div id="laya-seg" class="pw-seg pw-seg--fill phone-filter" role="radiogroup" aria-label="Show"><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="all">All</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="gate">Before</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="audit">After</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="failures">Problems</button></div>
+          <label class="pw-label desk-filter">Show <select id="laya-filter" class="pw-popup"><option value="all">All Checks</option><option value="gate">Before Execution</option><option value="audit">After Execution</option><option value="failures">Blocks &amp; Failures</option></select></label>
           <button id="laya-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
           <span class="pw-menubar__spacer"></span>
           <span id="laya-live" class="pw-label" role="status">Connecting…</span>

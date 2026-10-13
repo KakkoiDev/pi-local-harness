@@ -1,4 +1,4 @@
-import { hydrateIcons,icon,stateGlyph,toolCard,readState,writeState } from './ui.mjs';
+import { hydrateIcons,icon,stateGlyph,toolCard,segmentFor,readState,writeState } from './ui.mjs';
 import { installWorkspace } from './workspace.mjs';
 import { installMenubar,installPopup } from './menubar.mjs';
 import { ask } from './dialogs.mjs';
@@ -52,7 +52,7 @@ function renderEventInfo(event){$('event-info').hidden=!event;const body=$('even
 function showLayaEvent(id){selectedEvent=id;$('laya-filter').value='all';renderLaya.signature='';showView('laya');}
 const phone=()=>matchMedia('(max-width:760px)').matches;
 function renderLayaChosen(){if(phone())panes.laya='detail';phoneBar();}
-function renderLaya(){const filter=$('laya-filter').value,events=layaEvents.filter(event=>filter==='all'||event.phase===filter||(filter==='failures'&&!benign(event))).slice().reverse();
+function renderLaya(){syncLayaSeg();const filter=$('laya-filter').value,events=layaEvents.filter(event=>filter==='all'||event.phase===filter||(filter==='failures'&&!benign(event))).slice().reverse();
  if(!events.some(event=>event.id===selectedEvent))selectedEvent=events.find(event=>!benign(event))?.id??null;
  const signature=JSON.stringify([filter,selectedEvent,events.map(event=>[event.id,eventJob(event)?.project,eventJob(event)?.from])]);if(signature===renderLaya.signature)return;renderLaya.signature=signature;
  const list=$('laya-events'),focused=list.contains(document.activeElement),head=node('div','pw-table__row pw-table__head');head.setAttribute('aria-hidden','true');for(const label of ['Time','Check','Decision','Command','Project','From'])head.append(node('span','',label));list.replaceChildren(head);
@@ -63,7 +63,7 @@ function renderLaya(){const filter=$('laya-filter').value,events=layaEvents.filt
  if(focused)list.querySelector('[aria-current="true"]')?.focus();
  renderEventInfo(events.find(event=>event.id===selectedEvent));}
 async function refreshLaya(){if(layaLoading)return;layaLoading=true;try{const data=await api('/api/laya');layaEvents=data.events;renderLaya();$('laya-live').textContent='● Live · Laya :'+data.laya_port;}catch(e){$('laya-live').textContent=e.message;}finally{layaLoading=false;}}
-$('activity-tab').onclick=()=>showView('activity');$('chat-tab').onclick=()=>showView('chat');$('laya-tab').onclick=()=>showView('laya');$('laya-refresh').onclick=refreshLaya;$('laya-filter').onchange=renderLaya;setInterval(()=>{if(view==='laya'&&!document.hidden)refreshLaya();},2000);
+$('activity-tab').onclick=()=>showView('activity');$('chat-tab').onclick=()=>showView('chat');$('laya-tab').onclick=()=>showView('laya');$('laya-refresh').onclick=refreshLaya;$('laya-filter').onchange=renderLaya;const syncLayaSeg=segmentFor($('laya-seg'),$('laya-filter'));setInterval(()=>{if(view==='laya'&&!document.hidden)refreshLaya();},2000);
 $('offline-reconnect').onclick=()=>$('connection-retry').click();
 workspace=installWorkspace({api,node,error,selectChat,showLayaEvent:id=>showLayaEvent(id),documentOpened(){panes.work='document';phoneBar();},jobOpened(){if(phone())panes.activity='detail';phoneBar();},toast:(text,undo)=>toast(text,undo),connection(online){$('offline-banner').hidden=online;controls();},openMenu:()=>menu(true),restoreView:showView,showActivity:()=>showView('activity'),showWorkspace:()=>showView('work'),async updateWork(state){if(!selected)return;live=state.jobs.find(job=>job.chat===selected&&job.status==='running')||state.jobs.find(job=>job.chat===selected&&job.status==='queued')||null;const chat=selected;const updated=await api(`/api/conversations/${chat}`);if(chat!==selected)return;current=updated;if(view==='chat')renderMessages();controls();}});
 // Every command in the menu bar; shortcuts map to the same names. A name missing here is shown disabled.

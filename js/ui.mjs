@@ -12,5 +12,13 @@ export function toolCard(tool,{live=false,showEvent}={}){
  card.append(checks);
  if(gate&&gate.outcome!=='ALLOW'){const reason=document.createElement('p');reason.className='pw-tool__reason';reason.append(icon('caution'),gate.reason||'');card.append(reason);}
  return card;}
+// SegmentedControl filter on phone for a desk <select>: a radio sets the select and fires change; the returned sync() shows the select's value.
+export function segmentFor(seg,select){
+ const radios=[...seg.querySelectorAll('[role="radio"]')];
+ const sync=()=>{for(const radio of radios){const on=radio.dataset.value===select.value;radio.setAttribute('aria-checked',String(on));radio.tabIndex=on?0:-1;}};
+ const choose=radio=>{if(select.value!==radio.dataset.value){select.value=radio.dataset.value;select.dispatchEvent(new Event('change'));}sync();radio.focus();};
+ seg.onclick=event=>{const radio=event.target.closest('[role="radio"]');if(radio)choose(radio);};
+ seg.onkeydown=event=>{const step={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[event.key];if(!step)return;event.preventDefault();const index=radios.findIndex(radio=>radio.dataset.value===select.value);choose(radios[(index+step+radios.length)%radios.length]);};
+ sync();return sync;}
 export function readState(key,fallback=null){try{return JSON.parse(localStorage.getItem('plh.'+key))??fallback;}catch{return fallback;}}
 export function writeState(key,value){try{if(value===null)localStorage.removeItem('plh.'+key);else localStorage.setItem('plh.'+key,JSON.stringify(value));return true;}catch{return false;}}

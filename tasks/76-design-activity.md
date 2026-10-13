@@ -9,5 +9,5 @@ Request 2026-10-13: "implement this new design." Build step 9 of [design/IMPLEME
 - [x] `js/chat.mjs`: `task-record` command, enabled in Activity with a selected job.
 - [x] `index.html`: `#activity-detail`. `chat.css`: `--pw-cols` moves to `#activity-panel` so the header row shares the columns.
 - Test chose the § 11 option "select the row first and find the buttons in the detail pane".
-- Differs from the spec: no Phase, Last command or Laya counts. Jobs do not record them; the detail shows the job's `progress` text instead. Stop has no ⌘. hint, because ⌘. stops the selected chat, not the selected job.
+- Differs from the spec: no Phase, Last command or Laya counts. Jobs do not record them; the detail shows the job's `progress` text instead. 2026-10-13: Phase, Last command and Laya counts added in task 83. Stop has no ⌘. hint, because ⌘. stops the selected chat, not the selected job.
 - Not tested: the empty state, the failed-job error line, Home/End.

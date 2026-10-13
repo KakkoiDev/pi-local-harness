@@ -10,5 +10,5 @@ Request 2026-10-13: "implement this new design." Build step 7 of [design/IMPLEME
 - [x] `index.html`: `#block-menu` with Turn Into (eight types as `menuitemradio`), Move Up ⌥⌘↑, Move Down ⌥⌘↓, Comment on Paragraph, Ask Pi About Paragraph…, Delete Paragraph.
 - [x] `js/chat.mjs`: `block-up` / `block-down` commands and ⌥⌘↑ / ⌥⌘↓ shortcuts, enabled only in Work with a Markdown page and a focused block.
 - [x] `chat.css`: the legacy `.block-tools` rules are gone.
-- Differs from the spec: Turn Into is a disabled label followed by the eight types, not a submenu. Delete Paragraph has no undo (the spec gives undo only for comments).
+- Differs from the spec: Turn Into is a disabled label followed by the eight types, not a submenu. 2026-10-13: submenu added in task 84. Delete Paragraph has no undo (the spec gives undo only for comments).
 - Not tested: Comment on Paragraph, Ask Pi About Paragraph…, Delete Paragraph, keyboard navigation inside the popup.

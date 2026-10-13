@@ -10,5 +10,5 @@ Request 2026-10-13: "implement this new design." Build step 12 of [design/IMPLEM
 - [x] `js/workspace.mjs`: hooks `documentOpened` (also when the open file is tapped again) and `jobOpened`; a pointer press no longer re-renders the Activity table on focus, which swallowed the row's click.
 - [x] `chat.css`: view tabs hide; Activity detail and Laya Event Info are full screens; the π sheet opens in Work too; Close window and Zoom hide; sheet close boxes, table rows and file rows are 44px; the selection bar sits at the bottom.
 - [x] `design/components.css` and the Popup README: popups are 44px on phone.
-- Differs from the spec: Activity and Laya keep the popup filter, not the segmented filter of [Ph_Activity] and [Ph_Laya].
+- Differs from the spec: Activity and Laya keep the popup filter, not the segmented filter of [Ph_Activity] and [Ph_Laya]. 2026-10-13: segmented filter added in task 85.
 - Not tested: the selection bar on a real phone, safe-area insets, Offline banner on phone, About from the π sheet.

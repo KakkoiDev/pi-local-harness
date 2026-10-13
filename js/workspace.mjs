@@ -1,5 +1,5 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
-import { icon,stateGlyph,toolCard,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
+import { icon,stateGlyph,toolCard,segmentFor,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
@@ -123,7 +123,9 @@ export function installWorkspace(host){
   const record=node('button','pw-btn','Show Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
  }
  function renderActivity(){
-  const filter=$('activity-filter').value,scope=$('activity-project').value;if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob]))return;
+  const filter=$('activity-filter').value,scope=$('activity-project').value;syncActivitySeg();if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob]))return;
+  const inScope=state.jobs.filter(job=>scope==='all'||job.project===scope),counts={pending:inScope.filter(job=>['running','queued'].includes(job.status)).length,attention:inScope.filter(needsAttention).length};
+  for(const radio of $('activity-seg').querySelectorAll('[data-value="pending"],[data-value="attention"]'))radio.textContent=(radio.dataset.value==='pending'?'Active':'Attention')+(counts[radio.dataset.value]?' '+counts[radio.dataset.value]:'');
   const visible=state.jobs.filter(job=>(scope==='all'||job.project===scope)&&(filter==='all'||filter==='pending'&&['running','queued'].includes(job.status)||filter==='completed'&&job.status==='completed'||filter==='attention'&&needsAttention(job)));
   const ordered=visible.slice().sort((a,b)=>{const ranks={running:0,queued:1};return (ranks[a.status]??2)-(ranks[b.status]??2)||(['queued','running'].includes(a.status)?a.order-b.order:b.order-a.order);});
   if(!ordered.some(job=>job.id===selectedJob))selectedJob=ordered[0]?.id||null;
@@ -141,7 +143,7 @@ export function installWorkspace(host){
   $('activity-summary').textContent=parts.join(' · ');$('activity-count').textContent=running+waiting;$('activity-count').hidden=!(running+waiting);
  }
  $('activity-list').onkeydown=event=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;const rows=[...$('activity-list').querySelectorAll('a.activity-task')];if(!rows.length)return;event.preventDefault();const index=rows.findIndex(row=>row.getAttribute('aria-current')==='true'),next=event.key==='Home'?0:event.key==='End'?rows.length-1:Math.max(0,Math.min(rows.length-1,index+(event.key==='ArrowDown'?1:-1)));selectJob(rows[next].id.slice(4));$('activity-list').querySelector('[aria-current="true"]')?.focus();};
- $('activity-filter').onchange=$('activity-project').onchange=renderActivity;
+ $('activity-filter').onchange=$('activity-project').onchange=renderActivity;const syncActivitySeg=segmentFor($('activity-seg'),$('activity-filter'));
  async function refreshPageComments(){if(page&&!textFile){const fresh=await api('/api/document?path='+encodeURIComponent(page.path));page.comments=fresh.comments;renderComments();}}
  async function openFile(path){
   if(page?.path===path&&!dirty){host.documentOpened();return;}const sequence=++fileSequence;
