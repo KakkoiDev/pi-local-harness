@@ -117,3 +117,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [75-Design comments](tasks/75-design-comments.md)
 - [x] [76-Design Activity](tasks/76-design-activity.md)
 - [x] [77-Design Laya](tasks/77-design-laya.md)
+- [x] [78-Design Settings](tasks/78-design-settings.md)

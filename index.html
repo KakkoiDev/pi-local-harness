@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="en" data-appearance="light">
+<html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff"><title>Pi Workbench</title>
+  <script>/* Settings apply before first paint; js/chat.mjs applySettings() does the same after Save. */try{const read=key=>JSON.parse(localStorage.getItem('plh.'+key)),appearance=read('appearance'),root=document.documentElement;if(appearance==='system')root.dataset.appearance='system';else root.dataset.theme=appearance==='inverse'?'dark':'light';root.dataset.pattern=read('desktopPattern')||'dots';}catch{}</script>
   <link rel="stylesheet" href="/design/tokens.css">
   <link rel="stylesheet" href="/design/components.css">
   <link rel="stylesheet" href="/chat.css"><!-- layout: design/layout.css plus the legacy section -->
@@ -279,7 +280,19 @@
   <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- NEW: replaces window.confirm -->
     <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
   </dialog>
-  <dialog id="settings-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <dialog id="settings-dialog" class="pw-dialog" aria-labelledby="settings-title"><form id="settings-form" method="dialog" class="window-column">
+    <h2 id="settings-title" class="pw-dialog__title">Settings</h2>
+    <fieldset class="settings-group"><legend class="pw-label">Appearance</legend>
+      <label class="pw-label settings-option"><input type="radio" name="appearance" value="paper">Paper (black on white)</label>
+      <label class="pw-label settings-option"><input type="radio" name="appearance" value="inverse">Inverse (white on black)</label>
+      <label class="pw-label settings-option"><input type="radio" name="appearance" value="system">Match System</label>
+    </fieldset>
+    <fieldset class="settings-group"><legend class="pw-label">Desktop pattern</legend>
+      <div id="settings-pattern" role="radiogroup" aria-label="Desktop pattern" class="settings-patterns"><button type="button" role="radio" aria-checked="true" aria-label="Dots" data-pattern="dots" class="pw-desk"></button><button type="button" role="radio" aria-checked="false" aria-label="Gray" data-pattern="gray" class="pw-desk pw-desk--gray"></button><button type="button" role="radio" aria-checked="false" aria-label="Plain" data-pattern="plain" class="pw-desk pw-desk--plain"></button></div>
+    </fieldset>
+    <label class="pw-label settings-option"><input id="settings-return" type="checkbox" class="pw-check">Return sends a message (Shift-Return adds a line)</label>
+    <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn">Cancel</button><button value="save" class="pw-btn pw-btn--default">Save</button></div>
+  </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
