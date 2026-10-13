@@ -431,6 +431,14 @@ const readline = require('node:readline');
   await page.goto(`${base}/gate`);await page.locator('#project-list .pw-row',{hasText:'Design check'}).click();await page.waitForURL(`${base}/p/${id}/chat`);
   await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.waitForURL(/\/work\/ROADMAP\.md$/);
 
+  // Selection › Ask Pi… shows the question box (folded in Review) with the passage quoted and the cursor after it.
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);const passage=page.locator('#document-editor .pw-block').filter({hasText:'calm workbench'}).locator('[contenteditable]').first();await passage.waitFor();
+  if(await page.evaluate(()=>document.body.dataset.review)==='open')await page.locator('#toggle-review').click(); // Review hidden: Ask Pi must show it
+  await passage.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+  await page.locator('#selection-bar-ask').waitFor();await page.locator('#selection-bar-ask').click();
+  assert.equal(await page.locator('#document-prompt').isVisible(),true,'the question box is shown');assert.match(await page.locator('#document-prompt').inputValue(),/^About “/);
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'document-prompt');
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
