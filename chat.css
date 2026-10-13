@@ -49,6 +49,7 @@ body{margin:0;display:flex;flex-direction:column;overflow:hidden;background:var(
 .window-files{width:290px;flex:none}
 .window-review{width:var(--size-review);flex:none}
 .window-review[hidden]{display:none}
+body[data-review="closed"] .window-review{display:none!important}
 /* Side windows belong to one view; the Projects window steps aside in Work */
 [data-view-only]{display:none}
 body[data-view="work"] [data-view-only="work"],body[data-view="laya"] [data-view-only="laya"]:not([hidden]){display:flex}

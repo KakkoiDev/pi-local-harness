@@ -1,5 +1,6 @@
 import { hydrateIcons,icon,readState,writeState } from './ui.mjs';
 import { installWorkspace } from './workspace.mjs';
+import { installMenubar } from './menubar.mjs';
 hydrateIcons();
 const $=id=>document.getElementById(id);
 const node=(tag,className,text)=>{const element=document.createElement(tag);if(className)element.className=className;if(text!==undefined)element.textContent=text;return element;};
@@ -35,4 +36,37 @@ function renderLaya(){const filter=$('laya-filter').value,events=layaEvents.filt
 async function refreshLaya(){if(layaLoading)return;layaLoading=true;try{const data=await api('/api/laya');layaEvents=data.events;renderLaya();$('laya-live').textContent='● Live · Laya :'+data.laya_port;}catch(e){$('laya-live').textContent=e.message;}finally{layaLoading=false;}}
 $('activity-tab').onclick=()=>showView('activity');$('chat-tab').onclick=()=>showView('chat');$('laya-tab').onclick=()=>showView('laya');$('laya-refresh').onclick=refreshLaya;$('laya-filter').onchange=renderLaya;setInterval(()=>{if(view==='laya'&&!document.hidden)refreshLaya();},2000);
 workspace=installWorkspace({api,node,error,selectChat,openMenu:()=>menu(true),restoreView:showView,showActivity:()=>showView('activity'),showWorkspace:()=>showView('work'),async updateWork(state){if(!selected)return;live=state.jobs.find(job=>job.chat===selected&&job.status==='running')||state.jobs.find(job=>job.chat===selected&&job.status==='queued')||null;const chat=selected;const updated=await api(`/api/conversations/${chat}`);if(chat!==selected)return;current=updated;if(view==='chat')renderMessages();controls();}});
+// Every command in the menu bar; shortcuts map to the same names. A name missing here is shown disabled.
+const click=id=>()=>$(id).click(),textField=()=>document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
+function toast(text){$('toast-text').textContent=text;$('toast-undo').hidden=true;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>{$('toast').hidden=true;},4000);}
+function reviewOpen(open){writeState('review',open);document.body.dataset.review=open?'open':'closed';$('toggle-review').setAttribute('aria-pressed',String(open));$('toggle-review').firstChild.textContent=open?'Hide Review':'Show Review';}
+$('toggle-review').onclick=()=>reviewOpen(document.body.dataset.review==='closed');reviewOpen(readState('review',true));
+function editorMode(mode){$('editor-mode').value=mode;$('editor-mode').dispatchEvent(new Event('change'));}
+const commands={
+ 'new-project':click('new-project'),'add-folder':click('add-folder'),'new-page':click('new-page'),'new-task':click('new-task'),
+ save:()=>workspace.saveNow(),'reload-document':click('reload-document'),'download-draft':click('download-draft'),'trash-page':click('delete-page'),
+ 'close-window':()=>reviewOpen(false),
+ undo:()=>document.execCommand('undo'),cut:()=>document.execCommand('cut'),copy:()=>document.execCommand('copy'),paste:()=>document.execCommand('paste'),'select-all':()=>document.execCommand('selectAll'),
+ 'find-file':()=>$('file-search').focus(),'find-project':()=>{menu(true);$('project-search').focus();},
+ 'view-chat':()=>showView('chat'),'view-work':()=>showView('work'),'view-activity':()=>showView('activity'),'view-laya':()=>showView('laya'),
+ 'mode-blocks':()=>editorMode('blocks'),'mode-source':()=>editorMode('source'),'mode-toggle':()=>editorMode($('editor-mode').value==='blocks'?'source':'blocks'),
+ 'toggle-review':click('toggle-review'),
+ 'project-chat':click('project-chat'),'ask-document':()=>{showView('work');reviewOpen(true);$('document-prompt').focus();},
+ 'copy-folder-path':()=>navigator.clipboard.writeText($('project-folder').textContent).then(()=>toast('Path copied'),e=>error(e.message)),
+ send:()=>$('composer').requestSubmit(),attach:click('attach'),record:click('record'),stop:click('stop'),reconnect:click('connection-retry'),
+ 'toggle-projects':()=>{$('sidebar').hidden=!$('sidebar').hidden;},'toggle-files':()=>{const files=document.querySelector('.window-files');files.hidden=!files.hidden;},
+ project:(item)=>workspace.selectProject(item.dataset.project)};
+function enabled(command,item){if(!commands[command])return false;const state=workspace.status(),markdown=state.page&&!state.textFile,when={
+ 'new-page':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
+ 'close-window':view==='work'&&document.body.dataset.review!=='closed','find-file':view==='work','mode-blocks':markdown,'mode-source':markdown,'mode-toggle':markdown,
+ 'toggle-review':view==='work','project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
+ send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,reconnect:state.offline,
+ 'toggle-files':view==='work','toggle-projects':view!=='work'};return !(command in when)||Boolean(when[command]);}
+function updateMenus(){const state=workspace.status();$('menu-project-list').replaceChildren(...state.projects.map(item=>{const entry=node('button','pw-menu__item',item.name);entry.setAttribute('role','menuitemradio');entry.setAttribute('aria-checked',String(item.id===state.project));entry.dataset.command='project';entry.dataset.project=item.id;entry.tabIndex=-1;return entry;}));
+ for(const [command,checked] of [['mode-blocks',$('editor-mode').value==='blocks'],['mode-source',$('editor-mode').value==='source'],['toggle-review',document.body.dataset.review!=='closed'],['toggle-projects',!$('sidebar').hidden],['toggle-files',!document.querySelector('.window-files').hidden]])for(const item of document.querySelectorAll(`#menubar [data-command="${command}"][aria-checked]`))item.setAttribute('aria-checked',String(checked));}
+for(const item of document.querySelectorAll('#menubar .pw-menu__item'))item.tabIndex=-1;
+installMenubar($('menubar'),{run:(command,item)=>commands[command]?.(item),enabled,update:updateMenus,shortcuts:{
+ Comma:'settings',KeyN:'new-project',KeyO:'add-folder','shift+KeyN':'new-page',KeyT:'new-task',KeyS:'save',Backspace:'trash-page',KeyW:'close-window',
+ 'shift+KeyM':'comment-selection',KeyF:'find-file',KeyK:'find-project',Digit1:'view-chat',Digit2:'view-work',Digit3:'view-activity',Digit4:'view-laya',
+ 'alt+KeyU':'mode-toggle','alt+KeyR':'toggle-review','alt+BracketRight':'next-comment','alt+BracketLeft':'previous-comment',Enter:'send','shift+KeyA':'attach','shift+KeyR':'record',Period:'stop'}});
 try{const config=await api('/api/config');$('model').textContent=config.model;document.querySelector('.effort').textContent=config.effort+' thinking';maxFileBytes=config.maxFileBytes;await workspace.start();controls();}catch(e){error(e.message);}
