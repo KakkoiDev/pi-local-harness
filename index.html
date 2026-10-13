@@ -38,7 +38,7 @@
         <button class="pw-menu__item" role="menuitem" data-command="new-project">New Project…<span class="pw-menu__key">⌘N</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="add-folder">Add Existing Folder…<span class="pw-menu__key">⌘O</span></button>
         <div class="pw-menu__sep" role="separator"></div>
-        <button class="pw-menu__item" role="menuitem" data-command="new-page">New Page…<span class="pw-menu__key">⇧⌘N</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="new-file">New File…<span class="pw-menu__key">⇧⌘N</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="new-task">New Task…<span class="pw-menu__key">⌘T</span></button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="save">Save<span class="pw-menu__key">⌘S</span></button>
@@ -143,7 +143,7 @@
     <!-- Files window (Work view only; replaces the Projects window there) -->
       <aside class="file-pane pw-window window-files" aria-label="Project files" data-view-only="work">
         <div class="window-section">
-          <div class="window-row"><button id="new-page" class="pw-btn">New Page…</button><button id="new-task" class="pw-btn">New Task…</button></div>
+          <div class="window-row"><button id="new-file" class="pw-btn">New File…</button><button id="new-task" class="pw-btn">New Task…</button></div>
           <label class="pw-search file-search"><span data-icon="search"></span><input id="file-search" type="search" placeholder="Find a file" aria-label="Search project files"><kbd class="pw-kbd">⌘F</kbd></label>
         </div>
         <nav id="file-tree" class="pw-list pw-window__body" aria-label="Project files"></nav>
@@ -274,8 +274,8 @@
     <p id="folder-error" class="pw-help" role="alert"></p>
     <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
   </dialog>
-  <dialog id="name-dialog" class="pw-dialog"><!-- NEW: replaces window.prompt for New Page / New Task -->
-    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New Page</h2><label class="pw-label window-column"><span id="name-dialog-label">Page name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
+  <dialog id="name-dialog" class="pw-dialog"><!-- NEW: replaces window.prompt for New File / New Task -->
+    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New File</h2><label class="pw-label window-column"><span id="name-dialog-label">File name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
   </dialog>
   <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- NEW: replaces window.confirm -->
     <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>

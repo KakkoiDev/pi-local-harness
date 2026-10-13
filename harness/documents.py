@@ -70,6 +70,36 @@ class DocumentStore:
             path=self.path(relative);path.parent.mkdir(parents=True,exist_ok=True)
             with path.open('x',encoding='utf-8') as handle:handle.write('# '+str(title).strip()+'\n\n')
             return self.get(relative)
+    def create_file(self, project, name):
+        """New File…: any name inside the project, Markdown when it has no extension, never overwriting."""
+        name=str(name).strip().rstrip('/')
+        parts=Path(name).parts
+        if not name or Path(name).is_absolute() or any(part in {'.','..','.git'} for part in parts):raise ValueError('Give the file a name inside the project folder')
+        if not Path(name).suffix:name+='.md'
+        root=self.project_path(project);file=(root/name).resolve()
+        if not file.is_relative_to(root):raise ValueError('Give the file a name inside the project folder')
+        with self.lock:
+            file.parent.mkdir(parents=True,exist_ok=True)
+            try:
+                with file.open('x',encoding='utf-8') as handle:handle.write('# '+file.stem+'\n\n' if file.suffix.lower()=='.md' else '')
+            except FileExistsError as error:raise ValueError(f'“{name}” already exists') from error
+        return {'path':'projects/'+project+'/'+str(file.relative_to(root))}
+    def create_task(self, project, title):
+        """New Task…: tasks/NNN-slug.md with the next number, the task template, and a line in ROADMAP.md."""
+        title=str(title).strip()
+        stem=re.sub(r'[^\w]+','-',title.lower()).strip('-')[:60]
+        if not stem:raise ValueError('Give the task a name')
+        root=self.project_path(project);tasks=root/'tasks'
+        with self.lock:
+            tasks.mkdir(exist_ok=True)
+            numbers=[int(match.group(1)) for item in tasks.iterdir() if (match:=re.match(r'(\d+)-',item.name))]
+            number=f'{max(numbers,default=0)+1:03d}';name=f'{number}-{stem}.md'
+            with (tasks/name).open('x',encoding='utf-8') as handle:handle.write(f'# {title}\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n')
+            roadmap=root/'ROADMAP.md'
+            if roadmap.is_file():
+                text=roadmap.read_text(encoding='utf-8')
+                roadmap.write_text(text+('' if text.endswith('\n') or not text else '\n')+f'- [ ] [{number}-{title}](tasks/{name})\n',encoding='utf-8')
+        return {'path':f'projects/{project}/tasks/{name}'}
     def save(self, relative, markdown, revision):
         if not isinstance(markdown,str) or len(markdown)>150000:raise ValueError('Page must be at most 150,000 characters')
         with self.lock:

@@ -344,6 +344,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/documents/'):
                 action=path.rsplit('/',1)[-1];store=self.chat.documents
                 if action=='create':self.reply(store.create(data['project'],data['title'],data.get('parent')));return
+                if action=='create-file':self.reply(store.create_file(data['project'],data['name']));return
+                if action=='create-task':self.reply(store.create_task(data['project'],data['title']));return
                 if action=='save':self.reply(store.save(data['path'],data['markdown'],data['revision']));return
                 if action=='save-file':self.reply(store.save_file(data['path'],data['text'],data['revision']));return
                 if action=='delete':store.delete(data['path']);self.reply({'deleted':True});return

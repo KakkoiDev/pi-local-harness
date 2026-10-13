@@ -127,3 +127,36 @@ class DocumentTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Select'):store.comment(page['path'],'No selection','')
             store.agent_result(page['path'],'old','Verified outcome')
             self.assertIn('Verified outcome',record.read_text())
+
+
+class NewFileAndTaskTest(unittest.TestCase):
+    """New File… takes any name (Markdown by default); New Task… numbers the task and links it in the roadmap (task 109)."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.store = DocumentStore(Path(self.temp.name) / 'data')
+        parent = Path(self.temp.name) / 'code'; parent.mkdir()
+        self.project = self.store.create_project('Demo', str(parent)); self.root = parent / 'Demo'
+
+    def test_file_names_default_to_markdown_and_keep_other_extensions(self):
+        self.assertEqual(self.store.create_file(self.project, 'notes')['path'], f'projects/{self.project}/notes.md')
+        self.assertEqual((self.root / 'notes.md').read_text(), '# notes\n\n')
+        self.assertEqual(self.store.create_file(self.project, 'script.py')['path'], f'projects/{self.project}/script.py')
+        self.assertEqual((self.root / 'script.py').read_text(), '')
+        self.assertEqual(self.store.create_file(self.project, 'docs/plan.md')['path'], f'projects/{self.project}/docs/plan.md')
+        self.assertTrue((self.root / 'docs/plan.md').is_file())
+
+    def test_file_names_cannot_escape_or_overwrite(self):
+        for name in ['../outside.md', '/etc/x.md', 'a/../../b.md', '', '   ', '.git/config']:
+            with self.assertRaises(ValueError, msg=name): self.store.create_file(self.project, name)
+        self.store.create_file(self.project, 'once.md')
+        with self.assertRaises(ValueError): self.store.create_file(self.project, 'once.md')
+        self.assertFalse((Path(self.temp.name) / 'code' / 'outside.md').exists())
+
+    def test_tasks_take_the_next_number_a_template_and_a_roadmap_line(self):
+        created = self.store.create_task(self.project, 'Phone layouts')
+        self.assertEqual(created['path'], f'projects/{self.project}/tasks/002-phone-layouts.md')
+        self.assertEqual((self.root / 'tasks/002-phone-layouts.md').read_text(),
+                         '# Phone layouts\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n')
+        self.assertTrue((self.root / 'ROADMAP.md').read_text().endswith('- [ ] Define the first task\n- [ ] [002-Phone layouts](tasks/002-phone-layouts.md)\n'))
+        (self.root / 'tasks/041-later.md').write_text('# Later\n')
+        self.assertEqual(self.store.create_task(self.project, 'Ünïcode & symbols!')['path'], f'projects/{self.project}/tasks/042-ünïcode-symbols.md')

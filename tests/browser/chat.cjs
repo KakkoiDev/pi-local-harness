@@ -30,7 +30,7 @@ const readline = require('node:readline');
   await page.getByRole('button',{name:'Create Your First Project…',exact:true}).waitFor();
   assert.deepEqual(await page.evaluate(()=>Promise.all(['16px "Source Serif 4"','italic 16px "Source Serif 4"','13px "IBM Plex Mono"','500 13px "IBM Plex Mono"'].map(font=>document.fonts.load(font).then(faces=>faces.length>0&&faces.every(face=>face.status==='loaded'),()=>false)))),[true,true,true,true],'the design fonts load from /fonts');assert.match(await page.evaluate(()=>getComputedStyle(document.getElementById('menubar')).fontFamily),/^system-ui/,'chrome uses the system font');
   assert.equal(await page.locator('#prompt').isDisabled(),true);
-  await page.locator('#menubar [aria-controls="menu-file"]').click();assert.equal(await page.locator('#menu-file [data-command="new-page"]').getAttribute('aria-disabled'),'true','New Page needs a project');assert.equal(await page.locator('#menu-file [data-command="new-project"]').getAttribute('aria-disabled'),'false');await page.keyboard.press('Escape');
+  await page.locator('#menubar [aria-controls="menu-file"]').click();assert.equal(await page.locator('#menu-file [data-command="new-file"]').getAttribute('aria-disabled'),'true','New File needs a project');assert.equal(await page.locator('#menu-file [data-command="new-project"]').getAttribute('aria-disabled'),'false');await page.keyboard.press('Escape');
   async function createProject(name){
    await page.locator('#new-project').click();await page.waitForFunction(()=>document.querySelector('#folder-path').value.length>0);await page.locator('#folder-path').fill(directory);
    const browsed=page.waitForResponse(response=>response.url().includes('/api/directories?path='));await page.locator('#folder-go').click();await browsed;
@@ -153,7 +153,7 @@ const readline = require('node:readline');
    await phone.goto(page.url());await phone.waitForFunction(()=>/gemma/i.test(document.getElementById('model').textContent));await phone.locator('#menubar [aria-controls="menu-pi"]').click();await phone.locator('#menu-pi [data-command="open-on-phone"]:not([aria-disabled="true"])').click();
    await phone.locator('#phone-dialog').getByText('plh serves the workbench on your tailnet',{exact:false}).waitFor();assert.equal(await phone.locator('#phone-url').inputValue(),'https://pi.example.ts.net');assert.equal(await phone.locator('#phone-dialog').getByRole('button',{name:'Copy',exact:true}).isVisible(),true);
    await phone.keyboard.press('Enter');await phone.locator('#phone-dialog').waitFor({state:'hidden'});await phone.close();}
-  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-page"]').click();await page.locator('#name-dialog-title').filter({hasText:'New Page'}).waitFor();
+  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();await page.locator('#name-dialog-title').filter({hasText:'New File'}).waitFor();
   await page.locator('#name-dialog-input').fill('Meeting notes');await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:/meeting/i}).waitFor();
   await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator('#menu-project [data-command="project-chat"]').click();await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();
   await page.reload();await page.locator('#messages').getByText('reply 4',{exact:true}).waitFor();

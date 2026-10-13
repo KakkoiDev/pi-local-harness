@@ -99,7 +99,7 @@ const commands={
  settings:()=>openSettings(false),'desktop-pattern':()=>openSettings(true),
  'open-on-phone':()=>{$('phone-url').value=phoneUrl;$('phone-dialog').showModal();},
  about:()=>{$('about-model').textContent=$('model').textContent+' · '+document.querySelector('.effort').textContent;$('about-web').textContent=location.host;$('about-dialog').showModal();},
- 'new-project':click('new-project'),'add-folder':click('add-folder'),'new-page':click('new-page'),'new-task':click('new-task'),
+ 'new-project':click('new-project'),'add-folder':click('add-folder'),'new-file':click('new-file'),'new-task':click('new-task'),
  save:()=>workspace.saveNow(),'reload-document':()=>workspace.reloadDocument(),'download-draft':click('download-draft'),'trash-page':()=>workspace.trashPage(),
  'close-window':()=>reviewOpen(false),
  undo:()=>toast.undo&&!textField()?$('toast-undo').click():document.execCommand('undo'),'undo-toast':click('toast-undo'),cut:()=>document.execCommand('cut'),copy:()=>document.execCommand('copy'),paste:()=>document.execCommand('paste'),'select-all':()=>document.execCommand('selectAll'),
@@ -113,7 +113,7 @@ const commands={
  'toggle-projects':()=>{$('sidebar').hidden=!$('sidebar').hidden;},'toggle-files':()=>{const files=document.querySelector('.window-files');files.hidden=!files.hidden;},
  project:(item)=>workspace.selectProject(item.dataset.project)};
 function enabled(command,item){if(!commands[command])return false;const state=workspace.status(),markdown=state.page&&!state.textFile,when={
- 'new-page':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
+ 'new-file':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
  'close-window':view==='work'&&document.body.dataset.review!=='closed','find-file':view==='work','mode-blocks':markdown,'mode-source':markdown,'mode-toggle':markdown,'block-up':markdown&&state.focusedBlock!==null&&view==='work','block-down':markdown&&state.focusedBlock!==null&&view==='work',
  'toggle-review':view==='work','open-on-phone':Boolean(phoneUrl),'task-record':view==='activity'&&state.selectedJob,'undo-toast':toast.undo&&!textField(),'comment-selection':view==='work'&&state.anchor,'ask-selection':view==='work'&&state.anchor,'toggle-resolved':view==='work'&&markdown,'next-comment':view==='work'&&markdown&&state.comments,'previous-comment':view==='work'&&markdown&&state.comments,'project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
  send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,'cancel-waiting':waitingJob(),reconnect:state.offline,
@@ -122,7 +122,7 @@ function updateMenus(){const state=workspace.status();$('menu-project-list').rep
  for(const [command,checked] of [['mode-blocks',$('editor-mode').value==='blocks'],['mode-source',$('editor-mode').value==='source'],['toggle-review',document.body.dataset.review!=='closed'],['toggle-resolved',$('show-resolved').checked],['toggle-projects',!$('sidebar').hidden],['toggle-files',!document.querySelector('.window-files').hidden]])for(const item of document.querySelectorAll(`#menubar [data-command="${command}"][aria-checked]`))item.setAttribute('aria-checked',String(checked));}
 for(const item of document.querySelectorAll('#menubar .pw-menu__item'))item.tabIndex=-1;
 installMenubar($('menubar'),{run:(command,item)=>commands[command]?.(item),enabled,update:updateMenus,shortcuts:{
- Comma:'settings',KeyN:'new-project',KeyO:'add-folder','shift+KeyN':'new-page',KeyT:'new-task',KeyS:'save',Backspace:'trash-page',KeyW:'close-window',KeyZ:'undo-toast',
+ Comma:'settings',KeyN:'new-project',KeyO:'add-folder','shift+KeyN':'new-file',KeyT:'new-task',KeyS:'save',Backspace:'trash-page',KeyW:'close-window',KeyZ:'undo-toast',
  'shift+KeyM':'comment-selection',KeyF:'find-file',KeyK:'find-project',Digit1:'view-chat',Digit2:'view-work',Digit3:'view-activity',Digit4:'view-gate',
  'alt+KeyU':'mode-toggle','alt+ArrowUp':'block-up','alt+ArrowDown':'block-down','alt+KeyR':'toggle-review','alt+BracketRight':'next-comment','alt+BracketLeft':'previous-comment',Enter:'send','shift+KeyA':'attach','shift+KeyR':'record',Period:'stop'}});
 try{const config=await api('/api/config');$('model').textContent=config.model;document.querySelector('.effort').textContent=config.effort+' thinking';maxFileBytes=config.maxFileBytes;phoneUrl=config.phoneUrl||'';await workspace.start();controls();}catch(e){error(e.message);}

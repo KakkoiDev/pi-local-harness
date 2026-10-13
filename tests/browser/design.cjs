@@ -113,6 +113,22 @@ const readline = require('node:readline');
   assert.equal(await blockCount(),total+1,'an empty last block is reused, not stacked');
   await page.keyboard.press('Backspace');
 
+  // 109: New File… names the real file; New Task… numbers it and adds it to the roadmap.
+  await page.locator('#menubar [aria-controls="menu-file"]').click();
+  assert.equal((await page.locator('#menu-file [data-command="new-file"]').textContent()).replace('⇧⌘N',''),'New File…');
+  await page.locator('#menu-file [data-command="new-file"]').click();
+  await page.locator('#name-dialog-input').fill('notes');
+  assert.equal(await page.locator('#name-dialog-help').textContent(),'Creates “notes.md” in Design check and opens it.');
+  await page.locator('#name-dialog-input').fill('tools/check.py');
+  assert.equal(await page.locator('#name-dialog-help').textContent(),'Creates “tools/check.py” in Design check and opens it.');
+  await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:'tools/check.py'}).waitFor();
+  assert.equal(fs.existsSync(join(root,'tools/check.py')),true,'a real file in the project folder');
+  await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-task"]').click();
+  await page.locator('#name-dialog-input').fill('Phone layouts');
+  assert.equal(await page.locator('#name-dialog-help').textContent(),'Creates “tasks/002-phone-layouts.md” in Design check, adds it to ROADMAP.md, and opens it.');
+  await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:'tasks/002-phone-layouts.md'}).waitFor();
+  assert.match(fs.readFileSync(join(root,'ROADMAP.md'),'utf8'),/- \[ \] \[002-Phone layouts\]\(tasks\/002-phone-layouts\.md\)\n$/);
+
   // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();
@@ -129,5 +145,5 @@ const readline = require('node:readline');
 
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
- }finally{await browser?.close();server.kill();fs.rmSync(directory,{recursive:true,force:true});}
+ }finally{await browser?.close();const exited=new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 })().catch(error=>{console.error(error);process.exit(1);});
