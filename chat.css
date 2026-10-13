@@ -107,7 +107,11 @@ body[data-view="work"] .window-projects{display:none}
 /* Comments: marker numbers are CSS content so they stay out of the block's text */
 .pw-mark[data-n]::after{content:attr(data-n)}
 .pw-thread__note{margin:0;padding:6px 14px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
+.pw-thread__line{flex-basis:100%;font-size:13px;display:flex;align-items:center;gap:6px} /* Final: the state line above a thread's buttons */
+.pw-thread__gap{flex:1}
+.pw-block>.pw-check{margin-top:7px} /* DocumentBlock preview: the box sits on the first line of text */
 .pw-thread__msg p{margin:0}
+.pw-thread__who{width:auto;min-width:76px;white-space:nowrap} /* design: 76px column; a 12-hour time (06:38 PM) must not wrap */
 .pw-review-item__actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pw-label-row{display:flex;flex-direction:row;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:13px}
 #selection-bar{position:fixed;z-index:40}

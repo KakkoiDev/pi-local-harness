@@ -18,8 +18,9 @@ export function installWorkspace(host){
    if(page===current){fileRevision=saved.revision;if(!textFile){page=saved;}dirty=content()!==markdown;notice(dirty?'Unsaved':'Saved');if(dirty)changed();else{saveDraft(localStorage,current.path,null);$('save-recovery').hidden=true;}}
   })();try{await saving;}finally{saving=null;}if(dirty)await save();
  }
- function focusBlock(index){focusedBlock=index;[...$('document-editor').children].forEach((row,position)=>row.classList.toggle('pw-block--focused',position===index));$('block-style').value=blocks[index]?.type||'text';}
- function refocus(index){focusedBlock=index;$('document-editor').children[index]?.querySelector('[contenteditable]')?.focus();}
+ const blockRows=()=>[...$('document-editor').querySelectorAll(':scope>.pw-block')];
+ function focusBlock(index){focusedBlock=index;blockRows().forEach((row,position)=>row.classList.toggle('pw-block--focused',position===index));$('block-style').value=blocks[index]?.type||'text';}
+ function refocus(index){focusedBlock=index;blockRows()[index]?.querySelector('[contenteditable]')?.focus();}
  function setType(index,type){const block=blocks[index];if(!block)return;block.type=type;block.level=block.level||2;block.dirty=true;changed();renderBlocks();refocus(index);}
  function moveBlock(index,delta){const target=index+delta;if(index===null||target<0||target>=blocks.length)return;[blocks[index],blocks[target]]=[blocks[target],blocks[index]];blocks[index].dirty=blocks[target].dirty=true;changed();renderBlocks();refocus(target);}
  function reviewPassage(text){if(document.body.dataset.review==='closed')$('toggle-review').click();attachSelection(text);}
@@ -31,10 +32,10 @@ export function installWorkspace(host){
   $('document-editor').replaceChildren();
   blocks.forEach((block,index)=>{
    const row=node('div','editor-block pw-block '+block.type+(index===focusedBlock?' pw-block--focused':'')),handle=node('button','pw-block__handle');handle.type='button';handle.tabIndex=-1;handle.append(icon('handle'));handle.setAttribute('aria-label','Block actions');handle.setAttribute('aria-haspopup','menu');handle.setAttribute('aria-expanded','false');handle.onclick=()=>{focusBlock(index);blockPopup.open(handle);};row.append(handle);row.addEventListener('focusin',()=>focusBlock(index));
-   if(block.type==='check'){const check=node('input');check.type='checkbox';check.checked=block.checked;check.setAttribute('aria-label','Task complete');check.onchange=()=>{block.checked=check.checked;block.dirty=true;changed();};row.append(check);}
+   if(block.type==='check'){const check=node('input','pw-check');check.type='checkbox';check.checked=block.checked;check.setAttribute('aria-label','Task complete');check.onchange=()=>{block.checked=check.checked;block.dirty=true;changed();};row.append(check);}
    const text=node(block.type==='heading'?'h'+Math.min(block.level||2,6):block.type==='code'||block.type==='raw'?'pre':'div','block-content',block.text);
    text.contentEditable='plaintext-only';text.setAttribute('role','textbox');text.setAttribute('aria-label',block.type==='heading'?'Heading':'Block text');text.spellcheck=block.type!=='code';
-   highlightComments(text,block);text.oninput=()=>{block.text=text.innerText;block.dirty=true;changed();};row.append(text);if(opened&&!threaded&&block.text.includes(opened.anchor)){threaded=true;row.append(thread(opened));}$('document-editor').append(row);
+   highlightComments(text,block);text.oninput=()=>{block.text=text.innerText;block.dirty=true;changed();};row.append(text);$('document-editor').append(row);if(opened&&!threaded&&block.text.includes(opened.anchor)){threaded=true;$('document-editor').append(thread(opened));}
   });
   if(focusedThread)$('document-editor').querySelector(`[data-thread="${focusedThread}"]`)?.focus();
  }
@@ -58,11 +59,13 @@ export function installWorkspace(host){
   const suggestion=comment.suggestion;
   if(suggestion?.applied)box.append(node('p','pw-thread__note','Pi’s suggested change was applied.'));else if(suggestion?.kept)box.append(node('p','pw-thread__note','Pi suggested a rewrite. You kept your text.'));
   else if(suggestion&&!comment.resolved){const change=node('div','pw-suggest');change.setAttribute('aria-label','Suggested change');change.append(node('del','',suggestion.anchor),node('ins','',suggestion.replacement));const choices=node('div','pw-suggest__actions');choices.append(button('Keep Mine',()=>commentAction('/api/documents/keep-suggestion',{id:comment.id})),button('Apply Change',()=>applySuggestion(comment),'pw-btn pw-btn--default'));change.append(choices);box.append(change);}
-  if(comment.resolved)box.append(node('p','pw-thread__note','Resolved'));else if(comment.chat_id)box.append(node('p','pw-thread__note','Sent to Pi · can no longer be deleted'));
-  const actions=replyForm(comment);
-  if(!comment.resolved&&!comment.chat_id){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
-  actions.append(button(comment.resolved?'Reopen':'Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:!comment.resolved})));
-  if(!comment.resolved&&!comment.chat_id)actions.append(button('Delete',()=>deleteComment(comment)));
+  // Final board: a note line, then the actions; Delete sits apart at the end.
+  if(comment.resolved){const actions=node('div','pw-thread__actions');actions.append(node('span','pw-thread__line','Resolved'),button('Reopen',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:false})));box.append(actions);return box;}
+  const actions=replyForm(comment),line=node('span','pw-thread__line');actions.prepend(line);
+  if(comment.chat_id){const job=state.jobs.find(job=>job.comment_id===comment.id),phase={queued:'waiting in queue',running:'Pi is working on it'}[job?.status]||'answered';if(job?.status==='running')line.append(icon('running'));line.append('Sent to Pi · '+phase+' · can no longer be deleted');}
+  else{line.textContent='Saved with the file · not sent to Pi';const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
+  actions.append(button('Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:true})));
+  if(!comment.chat_id)actions.append(node('span','pw-thread__gap'),button('Delete',()=>deleteComment(comment)));
   box.append(actions);return box;}
  function renderComments(){
   if(unchanged('comments',[page?.path,page?.comments,commentFilter,currentComment,openThread,showResolved]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
@@ -70,7 +73,7 @@ export function installWorkspace(host){
   $('comment-count').textContent=counts.open;
   for(const item of $('comment-filter').querySelectorAll('[data-filter]')){const filter=item.dataset.filter;item.textContent={open:'Open',resolved:'Resolved',deleted:'Deleted'}[filter]+' '+counts[filter];item.setAttribute('aria-checked',String(filter===commentFilter));}
   $('document-comments').replaceChildren();const shown=list.filter(comment=>commentState(comment)===commentFilter);
-  if(page&&!shown.length)$('document-comments').append(node('p','list-empty',{open:'No open comments. Select a passage in the document to comment on it.',resolved:'No resolved comments',deleted:'No deleted comments'}[commentFilter]));
+  if(page&&!shown.length)$('document-comments').append(node('p','list-empty pw-empty',{open:'No open comments.',resolved:'Nothing resolved yet.',deleted:'No deleted comments.'}[commentFilter]));
   for(const comment of shown){
    const item=node('div','pw-review-item');item.id='comment-'+comment.id;if(comment.id===currentComment)item.setAttribute('aria-current','true');
    const head=node('button','pw-review-item__head');head.type='button';head.append(node('span','',(numbered.has(comment.id)?numbered.get(comment.id)+' · ':'')+stateLine(comment)),node('span','',when(comment.created)));head.onclick=()=>showThread(comment.id);
@@ -130,7 +133,7 @@ export function installWorkspace(host){
   const ordered=visible.slice().sort((a,b)=>{const ranks={running:0,queued:1};return (ranks[a.status]??2)-(ranks[b.status]??2)||(['queued','running'].includes(a.status)?a.order-b.order:b.order-a.order);});
   if(!ordered.some(job=>job.id===selectedJob))selectedJob=ordered[0]?.id||null;
   const list=$('activity-list'),focused=list.contains(document.activeElement),head=node('div','pw-table__row pw-table__head');head.setAttribute('aria-hidden','true');for(const label of ['State','Request','Project','Source','Started','Time'])head.append(node('span','',label));list.replaceChildren(head);
-  if(!ordered.length){if(!state.jobs.length||filter==='pending'){const empty=node('div','activity-empty'),open=node('button','pw-btn pw-btn--default','Open Project Chat');open.type='button';open.onclick=()=>$('project-chat').click();empty.append(node('h3','pw-label','All caught up'),node('p','pw-help','Send a chat message or a document request. Its progress and result will appear here.'),open);list.append(empty);}else list.append(node('p','list-empty','No tasks match these filters.'));}
+  if(!ordered.length){if(!state.jobs.length||filter==='pending'){const empty=node('div','activity-empty'),open=node('button','pw-btn pw-btn--default','Open Project Chat');open.type='button';open.onclick=()=>$('project-chat').click();empty.append(node('h3','pw-label','All caught up'),node('p','pw-help','Send a chat message or a document request. Its progress and result will appear here.'),open);list.append(empty);}else list.append(node('p','list-empty pw-empty','No tasks match these filters.'));}
   for(const job of ordered){const item=state.projects.find(project=>project.id===job.project),row=node('a','activity-task pw-table__row');row.id='job-'+job.id;row.href='/?job='+job.id;row.setAttribute('role','listitem');row.tabIndex=job.id===selectedJob?0:-1;if(job.id===selectedJob)row.setAttribute('aria-current','true');
    const glyph=stateGlyph(job.status);glyph.classList.add('task-state',job.status);
    row.append(glyph,node('span','pw-table__cell--text activity-request',job.message||'Attached files'),node('span','',item?.name||job.project),node('span','',job.document?job.document.split('/').pop():'Chat'),node('span','',job.status==='queued'?'queued '+clock(job.created):clock(job.started||job.created)),node('span','',duration(job)));
@@ -166,13 +169,13 @@ export function installWorkspace(host){
  function renderProjects(){
   if(unchanged('projects',[state.projects,project,$('project-search').value]))return;const query=$('project-search').value.trim().toLocaleLowerCase();$('project-count').textContent=state.projects.length;$('project-list').replaceChildren();
   const matches=state.projects.filter(item=>(item.name+' '+item.path).toLocaleLowerCase().includes(query));
-  if(!matches.length)$('project-list').append(node('p','list-empty',query?'No matching projects':'Your projects will appear here.'));
+  if(!matches.length)$('project-list').append(node('p','list-empty pw-empty',query?'No matching projects':'Your projects will appear here.'));
   for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=()=>selectProject(item.id);$('project-list').append(button);}
  }
  function renderFiles(){
   if(unchanged('files',[files,page?.path,$('file-search').value]))return;const query=$('file-search').value.trim().toLocaleLowerCase();$('file-tree').replaceChildren();
   const matches=files.filter(file=>file.name.toLocaleLowerCase().includes(query));
-  if(!matches.length)$('file-tree').append(node('p','list-empty',query?'No matching files':'This folder is empty. Create a page or task to begin.'));
+  if(!matches.length)$('file-tree').append(node('p','list-empty pw-empty',query?'No matching files':'This folder is empty. Create a page or task to begin.'));
   for(const file of matches){const button=node('button','pw-row file-item');button.type='button';button.append(icon('file'),node('span','pw-row__label',file.name));button.title=file.name;button.setAttribute('aria-current',file.path===page?.path?'page':'false');button.onclick=()=>openFile(file.path);$('file-tree').append(button);}
  }
  async function refreshFiles(){
@@ -206,7 +209,7 @@ export function installWorkspace(host){
  $('project-chat').onclick=()=>{const item=selectedProject();if(item)host.selectChat(item.chat);};
  $('new-page').onclick=()=>newPage(false);$('new-task').onclick=()=>newPage(true);
  async function newPage(task){if(!project)return;const title=await askName(task?{title:'New Task',label:'Task name',help:'Adds a task file to this project and opens it.'}:{title:'New Page',label:'Page name',help:'Creates a Markdown page in this project and opens it.'});if(!title)return;try{await save();const created=await api('/api/documents/create',{project,title,parent:task?'projects/'+project+'/tasks.md':undefined});await refreshFiles();await openFile(created.path);}catch(e){notice(e.message,true);}}
- $('add-block').onclick=()=>{blocks.push({type:'text',text:'',dirty:true});changed();renderBlocks();$('document-editor').lastElementChild.querySelector('[contenteditable]').focus();};
+ $('add-block').onclick=()=>{blocks.push({type:'text',text:'',dirty:true});changed();renderBlocks();blockRows().at(-1).querySelector('[contenteditable]').focus();};
  $('editor-mode').onchange=()=>{if(!page)return;if($('editor-mode').value==='source'){$('document-source').value=serializeMarkdown(blocks);$('document-editor').hidden=true;$('document-source').hidden=false;}else{blocks=parseMarkdown($('document-source').value);$('document-editor').hidden=false;$('document-source').hidden=true;renderBlocks();}};
  $('document-source').oninput=changed;
  $('reload-document').onclick=async()=>{const name=page?.path.split('/').pop();if(page&&(!dirty||await ask({message:`Reload “${name}” from disk?`,detail:'Your unsaved changes in this window will be replaced by the file on disk.',danger:'Reload',safe:'Keep Editing'})==='danger')){const path=page.path;saveDraft(localStorage,path,null);dirty=false;page=null;openFile(path);}};
