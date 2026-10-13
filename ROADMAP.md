@@ -155,7 +155,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [113-Live Reasoning stays open](tasks/113-live-reasoning-stays-open.md)
 - [x] [114-Small, chosen context per request](tasks/114-smart-context.md)
 - [x] [115-Comments and whole-file questions run in their own context](tasks/115-separate-document-context.md)
-- [ ] [116-The harness compacts long chats before they overflow](tasks/116-compaction-policy.md)
+- [x] [116-The harness compacts long chats before they overflow](tasks/116-compaction-policy.md)
 - [ ] [117-Show what Pi sees and how full the chat is](tasks/117-context-visible.md)
 - [ ] [118-Activity and Gate are app-level windows](tasks/118-agent-scope.md)
 - [ ] [119-Brief for the designer: agent scope and context](tasks/119-designer-brief.md)

@@ -109,3 +109,25 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   rmSync(dir,{recursive:true});
  }
 });
+
+test('a long chat is compacted after the turn that passes 60% of the window, once (task 116)',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-compact-'));writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+ const handlers={},compactions=[];let usage={tokens:10000,contextWindow:32768,percent:30};
+ const pi={on:(name,fn)=>{handlers[name]=fn;},sendUserMessage(){}};
+ const ctx={ui:{notify(){},setWidget(){},setStatus(){}},abort(){},isIdle:()=>true,getContextUsage:()=>usage,compact:options=>compactions.push(options)};
+ const previous=process.env.PI_AGENT_DATA;process.env.PI_AGENT_DATA=join(dir,'workspace');
+ harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
+ try{
+  handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(compactions.length,0,'30% is fine');
+  usage={tokens:21000,contextWindow:32768,percent:64};handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(compactions.length,1,'above 60% after a turn: compact');
+  assert.match(compactions[0].customInstructions,/open work/);
+  handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(compactions.length,1,'not twice in a row: the usage reading is stale until the next reply');
+  handlers.agent_start({},ctx);usage={tokens:null,contextWindow:32768,percent:null};handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(compactions.length,1,'unknown usage: nothing');
+  handlers.agent_start({},ctx);usage={tokens:25000,contextWindow:32768,percent:76};handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(compactions.length,2,'a new turn above the line compacts again');
+ }finally{handlers.session_shutdown?.();if(previous===undefined)delete process.env.PI_AGENT_DATA;else process.env.PI_AGENT_DATA=previous;rmSync(dir,{recursive:true,force:true});}
+});

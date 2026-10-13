@@ -126,7 +126,8 @@ export default function harness(pi, dependencies = {}) {
       return attached;
     } catch (error) { notify(`Media attachment failed: ${error.message}`, 'error'); return { action: 'handled' }; }
   });
-  pi.on('agent_start', (_event, ctx) => { context = ctx; watch.start(); });
+  let compactedThisTurn = false; // task 116
+  pi.on('agent_start', (_event, ctx) => { context = ctx; compactedThisTurn = false; watch.start(); });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
     watch.touch();
@@ -138,9 +139,23 @@ export default function harness(pi, dependencies = {}) {
   pi.on('tool_execution_start', () => { watch.thinking = false; watch.touch(); });
   pi.on('tool_execution_update', () => watch.touch());
   pi.on('tool_execution_end', () => watch.touch());
+  // Task 116: compact a long chat after the turn that passes 60% of the window, once per turn, before Pi's own
+  // threshold (window - 16,384) is reached. Uses the extension API, so plain pi's settings stay untouched.
+  const COMPACT_AT = 0.6;
   pi.on('agent_end', (_event, ctx) => {
     watch.stop();
-    if (!pending) return;
+    if (!pending) {
+      const usage = ctx?.getContextUsage?.();
+      if (!compactedThisTurn && usage?.tokens && usage.tokens > COMPACT_AT * usage.contextWindow) {
+        compactedThisTurn = true;
+        setTimeout(() => {
+          if (closing) return;
+          ctx.compact({ customInstructions: 'Keep the open work: what the person asked for, decisions made, files touched, and what is left to do. Drop finished detail.',
+            onError: error => notify(`Compaction failed: ${error.message}`, 'warning') });
+        }, 0);
+      }
+      return;
+    }
     const recovery = pending; pending = undefined;
     if (retries++ >= 1) { notify(`Recovery repeated. Stopped automatic retries; the incident is saved in ${join(dataDir, 'session.log')}.`, 'error'); return; }
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
