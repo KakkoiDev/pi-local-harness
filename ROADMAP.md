@@ -166,7 +166,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [124-Phone comment composer and thread sheets](tasks/124-phone-comment-sheets.md)
 - [x] [125-Reasoning renders Markdown and wraps](tasks/125-reasoning-markdown.md)
 - [x] [126-Re-sync the design after the agent-scope brief](tasks/126-design-resync-2.md)
-- [ ] [127-Routes /activity and /gate](tasks/127-app-routes.md)
+- [x] [127-Routes /activity and /gate](tasks/127-app-routes.md)
 - [ ] [128-Activity and Gate are app windows; the project window has Chat | Work](tasks/128-app-windows.md)
 - [ ] [129-Gate events know their project and source](tasks/129-gate-project-source.md)
 - [ ] [130-Projects window: Projects group and Agent section](tasks/130-agent-section.md)

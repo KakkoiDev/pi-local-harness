@@ -67,7 +67,7 @@ class WebRobustnessTest(unittest.TestCase):
     def test_app_paths_serve_the_workbench_and_unknown_paths_do_not(self):
         """Task 106: /projects and /p/<project>/<view>[/<file>] are the app; anything else stays 404."""
         import urllib.error
-        for path in ['/projects', '/p/abc/chat', '/p/abc/work/tasks/001-first%20task.md', '/p/abc/activity', '/p/abc/gate', '/js/router.mjs', '/js/files-window.mjs']:
+        for path in ['/projects', '/activity', '/gate', '/p/abc/chat', '/p/abc/work/tasks/001-first%20task.md', '/p/abc/activity', '/p/abc/gate', '/js/router.mjs', '/js/files-window.mjs']:
             with urllib.request.urlopen(self.base + path, timeout=5) as response:
                 self.assertEqual(response.status, 200, path)
         with urllib.request.urlopen(self.base + '/p/abc/work/x.md', timeout=5) as response:

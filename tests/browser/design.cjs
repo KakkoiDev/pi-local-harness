@@ -264,7 +264,7 @@ const readline = require('node:readline');
   // 106: views and files are in the path; Back and Forward restore them; a reload lands in the same place.
   await page.locator('#file-tree .pw-row',{hasText:'notes.txt'}).click();
   await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
-  await page.locator('#activity-tab').click();await page.waitForURL(`${base}/p/${registered.project}/activity`);
+  await page.locator('#activity-tab').click();await page.waitForURL(`${base}/activity`);
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
   assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');assert.equal(await page.locator('#document-path').textContent(),'notes.txt');
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
@@ -289,6 +289,14 @@ const readline = require('node:readline');
   await page.locator('#file-search').fill('a');
   assert.match(await seg.getByRole('radio').first().textContent(),/^Plan · \d+$/,'search shows match counts on both segments');
   await page.locator('#file-search').fill('');await page.setViewportSize({width:1440,height:900});
+
+  // 127: Activity and Gate have their own addresses, show the Projects home, and their close box goes back.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
+  await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.body.dataset.view==='activity');
+  assert.equal(await page.evaluate(()=>document.body.dataset.level),'projects','app windows show the Projects home');
+  await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();
+  await page.waitForURL(`${base}/p/${id}/chat`);
+  await page.goto(`${base}/p/${id}/gate`);await page.waitForURL(`${base}/gate`);
 
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
