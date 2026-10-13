@@ -151,6 +151,7 @@ export default function harness(pi, dependencies = {}) {
   pi.on('tool_call', async event => {
     try {
       const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, cwd: context.cwd || root, auth_level: process.env.PI_LAYA_AUTH || 'admin' });
+      if (result.outcome === 'REVISE') return { block: true, reason: `Laya pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Laya pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
     } catch (error) { return { block: true, reason: error.message }; }

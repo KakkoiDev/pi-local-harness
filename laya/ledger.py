@@ -8,6 +8,7 @@ import threading
 import time
 import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
+from .protocol import Protocol
 
 class ProposalLedger:
     def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600):
@@ -16,6 +17,7 @@ class ProposalLedger:
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
+        self.protocol = Protocol()
 
     def record_event(self, phase, outcome, proposal, reason, token=None):
         # Show scope, not uploaded file bodies or tool output.
@@ -39,6 +41,11 @@ class ProposalLedger:
             response['reason'] = self.engine.rejection_reason(proposal, auth_level) or 'Action denied by Laya policy.'
             self.record_event('gate', outcome.value, proposal, response['reason'])
             return response
+        command = args.get('command') if tool_name == 'execute_command' else None
+        reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
+        if reason:
+            self.record_event('gate', 'REVISE', proposal, reason)
+            return {'outcome': 'REVISE', 'reason': reason}
         expected = None
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()
@@ -60,14 +67,14 @@ class ProposalLedger:
             if len(self.pending) >= self.limit:
                 raise ValueError('Too many pending proposals')
             token = str(uuid.uuid4())
-            self.pending[token] = (now, proposal, expected)
+            self.pending[token] = (now, proposal, expected, cwd)
         self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token)
         response['proposal_id'] = token
         return response
 
     def complete(self, token, tool_name, args, output, exit_code):
         with self.lock:
-            created, proposal, expected = self.pending.pop(token)
+            created, proposal, expected, cwd = self.pending.pop(token)
         if self.clock() - created >= self.ttl:
             raise KeyError('Proposal expired')
         execution = ExecutionResult(tool_name, copy.deepcopy(args), output, exit_code)
@@ -79,5 +86,8 @@ class ProposalLedger:
             except OSError:
                 postcondition_ok = False
         event = self.engine.audit(proposal, execution, postcondition_ok=postcondition_ok)
+        command = proposal.args.get('command')
+        if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+            self.protocol.record(cwd, command, exit_code == 0)
         self.record_event('audit', event.status, proposal, event.reasoning, token)
         return event

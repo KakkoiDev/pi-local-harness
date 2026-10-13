@@ -158,6 +158,18 @@ reasons, and timestamps. Its latest 200 events reset when services restart.
 
 ## Recovery, memory, media, and timestamps
 
+### Commit protocol
+
+In a project folder with `ROADMAP.md` and `tasks/`, Laya revises any `git commit`
+until it has seen, since the last commit: a failing test run, a code change, a
+passing test run on exactly the code being committed, a newly checked `- [x]` box in
+a `tasks/*.md` file, and one in `ROADMAP.md`. Markdown/`tasks/`-only commits skip the
+test runs. Test runs count only when the runner (unittest, pytest, `node --test`,
+npm/yarn/pnpm/bun test, vitest, jest, go/cargo/make test) is the last command and
+no pipe or `||` hides its exit code. Evidence is git state plus runs Laya observed
+in memory, so restarting services restarts the cycle. It checks the protocol; a
+commit made outside Pi's tools, or through an unrecognized wrapper, is not seen.
+
 Every **10 seconds**, the watchdog checks the latest 100 nonempty thought lines.
 Two non-overlapping occurrences of the same consecutive three lines trigger
 recovery. A thought phase with no active Pi operation, or 60 seconds without

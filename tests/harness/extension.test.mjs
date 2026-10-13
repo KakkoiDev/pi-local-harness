@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import harness from '../../harness/extension.mjs';
@@ -84,6 +85,13 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   await new Promise(resolve=>setTimeout(resolve,10));
   assert.match(messages[2],/no active model operation/);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: hang/);
+  // Protocol gate: a commit without red/green/task/roadmap evidence is revised, not treated as destructive.
+  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'- [ ] [01](tasks/01.md)\n');writeFileSync(join(dir,'tasks','01.md'),'- [ ] Do\n');
+  execFileSync('git',['init','-q',dir]);writeFileSync(join(dir,'app.py'),'x = 1\n');
+  const commit=await handlers.tool_call({toolCallId:'commit',toolName:'bash',input:{command:'git commit -qam work'}});
+  assert.equal(commit.block,true);
+  assert.match(commit.reason,/Laya pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
+  assert.match(commit.reason,/then retry/);assert.doesNotMatch(commit.reason,/destructive/);
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {

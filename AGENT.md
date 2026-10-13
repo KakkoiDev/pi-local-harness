@@ -12,7 +12,9 @@ Workers share Laya and never start duplicate services. Shared runtime memory is
 
 Create numbered tasks under tasks/ and link them in ROADMAP.md. Implement authorized
 work, preserve unrelated edits, add meaningful regression coverage, and commit at
-the end of each task. Mark only verified work complete. Run tests/verify_workflow.py
+the end of each task. Mark only verified work complete. Laya enforces this order before `git commit`
+in any folder with ROADMAP.md and tasks/: test red, implementation, test green,
+check task, check roadmap, commit (see laya/protocol.py). Run tests/verify_workflow.py
 before completion. Keep README instructions aligned with actual behavior.
 
 Use accessible local paths directly. Inspect relevant files before changes. Treat
