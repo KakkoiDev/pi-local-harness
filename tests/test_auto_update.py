@@ -18,6 +18,10 @@ class AutoUpdateTest(unittest.TestCase):
     """An installed plh follows the checkout it was installed from: committed HEAD only."""
 
     def setUp(self):
+        # No background git (fsmonitor daemon, auto gc or maintenance) may write into .git while tearDown deletes it: that made this test fail now and then.
+        from unittest.mock import patch
+        quiet = {'GIT_CONFIG_COUNT': '3', 'GIT_CONFIG_KEY_0': 'core.fsmonitor', 'GIT_CONFIG_VALUE_0': 'false', 'GIT_CONFIG_KEY_1': 'gc.auto', 'GIT_CONFIG_VALUE_1': '0', 'GIT_CONFIG_KEY_2': 'maintenance.auto', 'GIT_CONFIG_VALUE_2': 'false'}
+        patcher = patch.dict(os.environ, quiet); patcher.start(); self.addCleanup(patcher.stop)
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name).resolve()
         self.source = self.root / 'checkout'
