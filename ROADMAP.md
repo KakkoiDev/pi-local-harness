@@ -86,3 +86,14 @@ and harness/README.md for the installed pi workflow.
 - [ ] [55-Laya guides each step](tasks/55-step-guide.md)
 - [ ] [56-Discussion, planning, implementation, check](tasks/56-work-phases.md)
 - [ ] [57-Show phase, task, step, and a manual release](tasks/57-phase-visibility.md)
+
+## Unattended runs
+
+- [ ] [58-Fresh context per task](tasks/58-fresh-context-per-task.md)
+- [ ] [59-Stuck detection](tasks/59-stuck-detection.md)
+- [ ] [60-ntfy notifications](tasks/60-ntfy-notifications.md)
+- [ ] [61-Red means a test failure](tasks/61-real-exit-codes.md)
+- [ ] [62-Stale agent lock recovery](tasks/62-stale-agent-lock.md)
+- [ ] [63-Node version check at launch](tasks/63-node-version-check.md)
+- [ ] [64-Per-task report for check](tasks/64-task-report.md)
+- [ ] [65-Remove portfolio leftovers](tasks/65-remove-portfolio-leftovers.md)
