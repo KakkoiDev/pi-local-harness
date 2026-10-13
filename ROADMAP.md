@@ -134,3 +134,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [92-Open decisions 2026-10-13](tasks/92-decisions-2026-10-13.md)
 - [x] [93-System chrome font](tasks/93-system-chrome-font.md)
 - [x] [94-Show resolved row](tasks/94-show-resolved-row.md)
+- [x] [95-Breakpoint overflow](tasks/95-breakpoint-overflow.md)
