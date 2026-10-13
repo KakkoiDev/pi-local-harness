@@ -13,5 +13,5 @@ Waiting on the user: "go" for all five, or which to cut. Each is its own code ta
 - [ ] Phone: segmented Plan · N open | Files · N.
 
 Notes:
-- The canvas still says Laya; the repo copy takes Gate names (task 96).
+- The canvas still uses the old checker name; the repo copy takes Gate names (task 96).
 - Tablet: the design keeps Files at 220px; task 95 set 256px for the old button row. With the `+` actions 220 fits; the overflow assertion in `tests/browser/chat.cjs` guards it.

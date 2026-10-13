@@ -6,7 +6,7 @@ Date: 2026-10-13. For: the designer AI that made the Pi Workbench System 1 hando
 
 The Files window (Work view) lists every file of the project folder in one list. Two kinds of file are mixed:
 
-- **Plan**: `ROADMAP.md` and `tasks/*.md`. The agent and the user keep these current; Laya's commit gate reads them.
+- **Plan**: `ROADMAP.md` and `tasks/*.md`. The agent and the user keep these current; Gate's commit check reads them.
 - **Files**: everything else in the folder (code, notes, specs).
 
 They live in the same folder on disk and must stay there (no storage change). Only the window should separate them.
@@ -34,7 +34,7 @@ Decide and show:
    - Files group empty.
 7. **New Page… / New Task…**: stay at the top, or move New Task into the Plan header?
 8. **Selected row** (`aria-current="page"`, inverted) and keyboard: does ArrowUp/Down cross the group boundary?
-9. **Phone**: same two groups on `Ph_Files`, or a segmented control (Plan / Files) like the Activity and Laya filters?
+9. **Phone**: same two groups on `Ph_Files`, or a segmented control (Plan / Files) like the Activity and Gate filters?
 
 ## Deliverables
 
