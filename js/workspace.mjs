@@ -78,7 +78,9 @@ export function installWorkspace(host){
  const pendingReplies=comment=>Boolean(comment.chat_id)&&!busyComment(comment)&&(comment.replies||[]).some(reply=>reply.author!=='pi'&&(reply.created||'')>(comment.sent_at||''));
  const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&(!comment.chat_id||pendingReplies(comment)));
  $('send-unsent').onclick=async()=>{$('send-unsent').disabled=true;for(const comment of unsent())if(!await askPi(comment))break;renderComments();};
- function showThread(id){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();}
+ // Choosing a comment in Review opens its thread under the passage and brings it into view with focus (the person: clicking a comment did not show it).
+ function showThread(id,{reveal=false}={}){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();
+  if(reveal&&openThread){const box=document.querySelector('#document-editor .pw-thread');if(box){box.tabIndex=-1;box.scrollIntoView({block:'center'});box.focus({preventScroll:true});}}}
  function stepComment(delta){if(commentFilter==='deleted')commentFilter='open';const list=orderedComments().filter(comment=>commentState(comment)===commentFilter);if(!list.length)return;const index=list.findIndex(comment=>comment.id===currentComment),next=list[index<0?(delta>0?0:list.length-1):(index+delta+list.length)%list.length];showThread(next.id);document.getElementById('comment-'+next.id)?.scrollIntoView({block:'nearest'});}
  function button(label,onclick,className='pw-btn'){const item=node('button',className,label);item.type='button';item.onclick=onclick;return item;}
  function replyForm(comment){const form=node('form','pw-thread__actions'),reply=node('input','pw-field');reply.placeholder='Reply…';reply.setAttribute('aria-label','Reply to text comment');reply.maxLength=10000;reply.required=true;reply.dataset.thread=comment.id;reply.value=replyDrafts.get(comment.id)||'';reply.oninput=()=>replyDrafts.set(comment.id,reply.value);
@@ -112,7 +114,7 @@ export function installWorkspace(host){
   if(page&&!shown.length)$('document-comments').append(node('p','list-empty pw-empty',{open:'No open comments.',resolved:'Nothing resolved yet.',deleted:'No deleted comments.'}[commentFilter]));
   for(const comment of shown){
    const item=node('div','pw-review-item');item.id='comment-'+comment.id;if(comment.id===currentComment)item.setAttribute('aria-current','true');
-   const head=node('button','pw-review-item__head');head.type='button';head.append(node('span','',(numbered.has(comment.id)?numbered.get(comment.id)+' · ':'')+stateLine(comment)),node('span','',when(comment.created)));head.onclick=()=>showThread(comment.id);
+   const head=node('button','pw-review-item__head');head.type='button';head.append(node('span','',(numbered.has(comment.id)?numbered.get(comment.id)+' · ':'')+stateLine(comment)),node('span','',when(comment.created)));head.onclick=()=>showThread(comment.id,{reveal:true});item.onclick=event=>{if(!event.target.closest('button,a,input,textarea'))showThread(comment.id,{reveal:true});};
    item.append(head,node('p','pw-review-item__quote','“'+comment.anchor+'”'));
    if(page.markdown&&!page.markdown.includes(comment.anchor))item.append(node('p','pw-help','Passage changed on disk; this thread keeps the original quote.'));
    item.append(node('p','pw-review-item__text',comment.text));

@@ -439,6 +439,12 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#document-prompt').isVisible(),true,'the question box is shown');assert.match(await page.locator('#document-prompt').inputValue(),/^About “/);
   assert.equal(await page.evaluate(()=>document.activeElement.id),'document-prompt');
 
+  // Clicking a comment in Review opens its thread under the passage, scrolled into view, with focus.
+  if(await page.evaluate(()=>document.body.dataset.review)==='closed')await page.locator('#toggle-review').click();
+  await page.locator('#document-comments .pw-review-item .pw-review-item__quote').first().click();
+  await page.waitForFunction(()=>document.activeElement?.classList.contains('pw-thread'));
+  assert.equal(await page.locator('#document-editor .pw-thread').evaluate(box=>{const r=box.getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;}),true,'the thread is on screen');
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
