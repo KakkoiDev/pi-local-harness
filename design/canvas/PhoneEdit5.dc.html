@@ -26,26 +26,27 @@ a{color:#000}a:hover{color:#000}
 <h2 style="margin: 18px 0 14px; font-size: 26px; font-weight: 600; line-height: 1.2">Workbench design</h2>
 <p style="margin: 0 0 14px">Preserve the established dark workspace and pale green accent. Use a warm charcoal canvas, a darker navigation rail.</p>
 <div style="position: absolute; left: 10px; top: 268px; width: 22px; height: 28px; background: #000"></div>
-<p style="margin: 0; outline: 2px solid #000; outline-offset: 5px">Projects live in the left rail. Chat, Work, and Gate remain the main views.</p>
+<p style="margin: 0; outline: 2px solid #000; outline-offset: 5px; display: flex; gap: 10px; align-items: baseline"><span style="flex: none; width: 14px; height: 14px; border: 1px solid #000; transform: translateY(2px)"></span>Check every phone layout against 44 px targets.</p>
 </div>
 <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 330px; bottom: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div>
 
 <section role="dialog" aria-modal="true" aria-labelledby="bk-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 340px; background: #fff; border-top: 1px solid #000; box-shadow: inset 0 2px 0 #fff, inset 0 5px 0 #000; padding: 18px 16px 34px; display: flex; flex-direction: column; gap: 12px">
-<h2 id="bk-title" style="margin: 0; font-size: 17px; font-weight: 600">Paragraph</h2>
+<h2 id="bk-title" style="margin: 0; font-size: 17px; font-weight: 400">Task</h2>
 <div role="radiogroup" aria-label="Turn into" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
-<button class="type on" role="radio" aria-checked="true">Text</button>
+<button class="type" role="radio" aria-checked="false">Paragraph</button>
 <button class="type" role="radio" aria-checked="false">Heading</button>
 <button class="type" role="radio" aria-checked="false">Quote</button>
 <button class="type" role="radio" aria-checked="false">Bullet</button>
 <button class="type" role="radio" aria-checked="false">Number</button>
-<button class="type" role="radio" aria-checked="false">Checkbox</button>
+<button class="type on" role="radio" aria-checked="true">Task</button>
 </div>
 <div style="display: flex; flex-direction: column; border-top: 1px solid #000">
+<button class="mi">Add Block Below</button>
 <button class="mi">Move Up</button>
 <button class="mi">Move Down</button>
-<button class="mi">Comment on Paragraph</button>
-<button class="mi">Ask Pi About Paragraph…</button>
-<button class="mi" style="border-bottom: 0">Delete Paragraph<svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" fill="#000"/><path d="M4 7h6" stroke="#fff" stroke-width="2"/></svg></button>
+<button class="mi">Comment on Task</button>
+<button class="mi">Ask Pi About Task…</button>
+<button class="mi" style="border-bottom: 0">Delete Task<svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" fill="#000"/><path d="M4 7h6" stroke="#fff" stroke-width="2"/></svg></button>
 </div>
 <div style="flex: 1"></div>
 <button class="btn" style="width: 100%">Cancel</button>

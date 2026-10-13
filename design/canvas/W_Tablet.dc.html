@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Work on a tablet</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -18,8 +18,8 @@
 <div class="pw-root pw-desk" style="position: absolute; top: 28px; left: 0; width: 1024px; height: 740px; box-sizing: border-box; padding: 20px; display: flex; gap: 20px; color: #000">
 
 <section class="pw-window" aria-label="Project files" style="width: 220px; flex: none">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Japanese study app</h2><div class="pw-titlebar__stripes"></div></div>
-<div class="pw-infobar"><span>1 open task</span></div>
+<div class="pw-titlebar"><a href="Projects.dc.html" class="pw-box" aria-label="Close project and show Projects"></a><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Japanese study app</h2><div class="pw-titlebar__stripes"></div></div>
+<div class="pw-infobar"><a href="Projects.dc.html" class="pw-infobar__back">‹ Projects</a><span style="margin-left: auto">1 open task · 1 folder · 2 files</span></div>
 <div style="padding: 8px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"></path></svg><input type="search" aria-label="Find a file" placeholder="Find a file"></label></div>
 <nav class="pw-window__body" aria-label="Files">
 <section class="pw-group" aria-labelledby="t-plan">
@@ -30,7 +30,7 @@
 </div>
 </section>
 <section class="pw-group" aria-labelledby="t-files">
-<div class="pw-group__head"><h3 class="pw-group__title" id="t-files"><button class="pw-group__toggle" aria-expanded="true" aria-controls="t-files-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"></path></svg>Files<span class="pw-group__count">0</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New Page…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"></path></svg></a></div>
+<div class="pw-group__head"><h3 class="pw-group__title" id="t-files"><button class="pw-group__toggle" aria-expanded="true" aria-controls="t-files-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"></path></svg>Files<span class="pw-group__count">0</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New File…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"></path></svg></a></div>
 <div class="pw-group__body" id="t-files-body" role="list"><p class="pw-group__empty">No other files yet.</p></div>
 </section>
 </nav>
@@ -39,13 +39,14 @@
 <section class="pw-window" aria-label="Document" style="flex: 1">
 <div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">001-first-task.md</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-toolbar">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat</a><a href="Final.dc.html" aria-current="page">Work</a><a href="Activity.dc.html">Activity</a><a href="Gate.dc.html">Gate</a></nav>
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat</a><a href="Final.dc.html" aria-current="page">Work</a></nav>
 <span style="flex: 1"></span>
 <span class="pw-label" role="status">Saved</span>
 </div>
 <div class="pw-ruler" role="toolbar" aria-label="Ruler">
 <select class="pw-popup" aria-label="Block style" style="min-width: 130px"><option>Task Checkbox</option></select>
 <span style="flex: 1"></span>
+<select class="pw-popup" aria-label="Editor mode"><option>Document</option></select>
 <button class="pw-btn" aria-pressed="false">Show Review<span class="pw-kbd">⌥⌘R</span></button>
 </div>
 <div class="pw-window__body">
@@ -56,7 +57,7 @@
 <div class="pw-block"><input type="checkbox" class="pw-check" style="margin-top: 7px" aria-label="Task complete"><span>Verify</span></div>
 </article>
 </div>
-<div class="pw-statusbar"><span>⌘S saves · changes save as you type</span><span style="margin-left: auto" class="pw-mono">tasks/001-first-task.md</span></div>
+<div class="pw-statusbar"><span>Task</span><span style="margin-left: auto" class="pw-mono">tasks/001-first-task.md</span></div>
 </section>
 </div>
 </div>

@@ -24,7 +24,7 @@
       "expand": "fill",
       "h": 900,
       "is_interactive": true,
-      "title": "Activity",
+      "title": "Activity · All Projects",
       "w": 1440,
       "x": 0,
       "y": 1020
@@ -32,7 +32,7 @@
     "C_ActivityDesk.dc.html": {
       "h": 872,
       "page": "system",
-      "title": "ActivityDesk (state)",
+      "title": "ActivityDesk (state) · app-level window",
       "w": 1440,
       "x": 0,
       "y": 1472
@@ -48,7 +48,7 @@
     "C_GateDesk.dc.html": {
       "h": 872,
       "page": "system",
-      "title": "GateDesk (state)",
+      "title": "GateDesk (state) · app-level window",
       "w": 1440,
       "x": 1520,
       "y": 1472
@@ -77,9 +77,9 @@
       "y": 2040
     },
     "Dialogs2.dc.html": {
-      "h": 900,
+      "h": 1160,
       "page": "states",
-      "title": "More dialogs: folder, page, settings, about, phone, startup",
+      "title": "More dialogs: folder, New File, New Task, settings, about, phone on/off, startup",
       "w": 1440,
       "x": 0,
       "y": 8040
@@ -139,7 +139,7 @@
       "expand": "fill",
       "h": 900,
       "is_interactive": true,
-      "title": "Gate",
+      "title": "Gate · All Projects",
       "w": 1440,
       "x": 1520,
       "y": 1020
@@ -472,7 +472,7 @@
       "title": "Files window · folder with no Plan",
       "w": 1440,
       "x": 0,
-      "y": 9300
+      "y": 9560
     },
     "W_Reload.dc.html": {
       "h": 900,
@@ -517,7 +517,7 @@
       "title": "Files window · tablet 1024 (220px), Files empty",
       "w": 1024,
       "x": 1520,
-      "y": 9300
+      "y": 9560
     },
     "W_Trash.dc.html": {
       "h": 900,
@@ -535,6 +535,110 @@
       "w": 1440,
       "x": 1520,
       "y": 0
+    },
+    "Projects.dc.html": {
+      "x": 3040,
+      "y": 1020,
+      "w": 1440,
+      "h": 900,
+      "title": "Projects home · Agent section",
+      "is_interactive": true
+    },
+    "C_ProjectsWin.dc.html": {
+      "x": 3040,
+      "y": 480,
+      "w": 290,
+      "h": 824,
+      "title": "ProjectsWin (agent, current)",
+      "page": "system"
+    },
+    "C_ProjectWin.dc.html": {
+      "x": 3410,
+      "y": 480,
+      "w": 290,
+      "h": 824,
+      "title": "ProjectWin (state)",
+      "page": "system"
+    },
+    "S_Near.dc.html": {
+      "x": 0,
+      "y": 10820,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · near the summary line (meter)",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_Compacted.dc.html": {
+      "x": 1520,
+      "y": 10820,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · just compacted (marker closed)",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_Summary.dc.html": {
+      "x": 3040,
+      "y": 10820,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · summary opened",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_NewConversation.dc.html": {
+      "x": 4560,
+      "y": 10820,
+      "w": 1440,
+      "h": 900,
+      "title": "Agent › New Conversation… alert",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_Fresh.dc.html": {
+      "x": 0,
+      "y": 11840,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · new conversation, earlier one kept",
+      "page": "states",
+      "is_interactive": true
+    },
+    "W_Comment.dc.html": {
+      "x": 1520,
+      "y": 11840,
+      "w": 1440,
+      "h": 900,
+      "title": "Work · writing a comment (Pi sees)",
+      "page": "states",
+      "is_interactive": true
+    },
+    "W_Blocks.dc.html": {
+      "x": 3040,
+      "y": 11840,
+      "w": 1440,
+      "h": 900,
+      "title": "Work · adding blocks, block types",
+      "page": "states",
+      "is_interactive": true
+    },
+    "G_Tablet.dc.html": {
+      "x": 4560,
+      "y": 11840,
+      "w": 1024,
+      "h": 768,
+      "title": "Gate · tablet 1024, Event Info floats",
+      "page": "states",
+      "is_interactive": true
+    },
+    "MB_Status.dc.html": {
+      "x": 0,
+      "y": 12860,
+      "w": 1440,
+      "h": 1180,
+      "title": "Menu bar status + Agent section states",
+      "page": "states"
     }
   },
   "createdOnFiles": {
@@ -616,7 +720,7 @@
       "text": "Files window — Plan above Files",
       "w": 240,
       "x": 0,
-      "y": 9040
+      "y": 9300
     },
     "t1": {
       "kind": "title1",
@@ -652,6 +756,15 @@
       "w": 240,
       "x": 0,
       "y": 2000
+    },
+    "s6": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Agent scope & what Pi sees — task 119",
+      "w": 240,
+      "x": 0,
+      "y": 10560
     }
   },
   "order": [
@@ -717,7 +830,19 @@
     "Ph_Activity.dc.html",
     "Ph_ActivityDetail.dc.html",
     "Ph_Gate.dc.html",
-    "Ph_GateDetail.dc.html"
+    "Ph_GateDetail.dc.html",
+    "Projects.dc.html",
+    "C_ProjectsWin.dc.html",
+    "C_ProjectWin.dc.html",
+    "S_Near.dc.html",
+    "S_Compacted.dc.html",
+    "S_Summary.dc.html",
+    "S_NewConversation.dc.html",
+    "S_Fresh.dc.html",
+    "W_Comment.dc.html",
+    "W_Blocks.dc.html",
+    "G_Tablet.dc.html",
+    "MB_Status.dc.html"
   ],
   "pages": [
     {

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Editing — inline threads with Review window</title>
 <script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -32,7 +33,9 @@ a{color:#000}a:hover{color:#000}
 .anchor{border-bottom:2px solid #000}
 .anchor-res{border-bottom:1px dotted #000}
 .hl{background:#000;color:#fff}
-.thread{position:relative;border:1px solid #000;box-shadow:2px 2px 0 #000;font-size:15px;line-height:1.45;margin:2px 0 4px 24px;background:#fff}
+.thread{position:relative;border:1px solid #000;box-shadow:2px 2px 0 #000;font-size:15px;line-height:1.45;margin:2px 0 4px;background:#fff}
+.state{flex-basis:100%;font-size:13px;display:flex;align-items:center;gap:6px}
+.tacts .pw-context{flex-basis:100%}
 .thread.res{border-style:dotted;box-shadow:none}
 .tmsg{padding:10px 14px;border-bottom:1px solid #000;display:flex;gap:12px;align-items:baseline}
 .who{font-family:system-ui,sans-serif;font-size:13px;flex:none;width:76px}
@@ -49,9 +52,9 @@ a{color:#000}a:hover{color:#000}
 
 <nav aria-label="Menu bar" style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px">
 <button class="mb-item" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</button>
-<button class="mb-item">File</button><button class="mb-item">Edit</button><button class="mb-item">View</button><button class="mb-item">Project</button><button class="mb-item">Agent</button><button class="mb-item">Format</button><button class="mb-item" onClick="{{toggleReview}}">Window</button>
+<button class="mb-item">File</button><button class="mb-item">Edit</button><button class="mb-item">View</button><button class="mb-item">Project</button><button class="mb-item">Agent</button><button class="mb-item" onClick="{{toggleReview}}">Window</button>
 <div style="flex: 1"></div>
-<span style="font-size: 14px; padding: 0 8px">Gemma 4 · Idle</span>
+<span style="font-size: 14px; padding: 0 8px; display: flex; gap: 16px; align-items: center"><span>Gemma 4 · High thinking</span><a href="Activity.dc.html" class="pw-statusbtn" aria-label="Agent status: Ready. Open Activity"><span role="status">Ready</span><span class="pw-statusbtn__more"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></a></span>
 </nav>
 
 <div style="flex: 1; min-height: 0; display: flex; gap: 20px; padding: 20px">
@@ -63,13 +66,13 @@ a{color:#000}a:hover{color:#000}
 <h1 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px">DESIGN.md</h1>
 <div class="tb-stripes"></div><button class="box-btn" aria-label="Zoom window"><span></span></button>
 </div>
+<div class="pw-toolbar"><nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="#" aria-current="page">Work<kbd>⌘2</kbd></a></nav><span style="flex: 1"></span><span class="pw-label" role="status">Saved</span></div>
 <div role="toolbar" aria-label="Ruler" style="flex: none; border-bottom: 3px double #000; display: flex; align-items: center; gap: 8px; padding: 8px 12px">
 <button class="popup" aria-label="Block style: Paragraph" style="min-width: 140px; justify-content: space-between">Paragraph<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
-<div style="display: flex"><button class="tool" aria-label="Bold" style="font-weight: 700">B</button><button class="tool" aria-label="Italic" style="font-style: italic; border-left: 0">I</button><button class="tool mono" aria-label="Code" style="border-left: 0; font-size: 13px">{ }</button></div>
-<div style="display: flex"><button class="tool" aria-label="Bulleted list"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M0 1h2v2H0zM0 5h2v2H0zM0 9h2v2H0z" fill="#000"/><path d="M5 2h11M5 6h11M5 10h11" stroke="#000"/></svg></button><button class="tool" aria-label="Task checkbox" style="border-left: 0"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x=".5" y=".5" width="11" height="11" fill="none" stroke="#000"/></svg></button><button class="tool" aria-label="Quote" style="border-left: 0">“</button></div>
+<div style="display: flex"><button class="tool" aria-label="Bulleted list" aria-pressed="false"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M0 1h2v2H0zM0 5h2v2H0zM0 9h2v2H0z" fill="#000"/><path d="M5 2h11M5 6h11M5 10h11" stroke="#000"/></svg></button><button class="tool" aria-label="Task checkbox" aria-pressed="false" style="border-left: 0"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x=".5" y=".5" width="11" height="11" fill="none" stroke="#000"/></svg></button></div>
 <div style="flex: 1"></div>
+<button class="popup" aria-label="Editor mode: Document" style="justify-content: space-between; gap: 18px">Document<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
 <button class="btn" onClick="{{toggleReview}}" aria-pressed="{{review}}">{{reviewLabel}}<span style="font-size: 13px">⌥⌘R</span></button>
-<span role="status" style="font-size: 14px; border-left: 1px solid #000; padding-left: 10px">Saved</span>
 </div>
 
 <div style="flex: 1; min-height: 0; overflow: auto; display: flex; justify-content: center">
@@ -91,13 +94,14 @@ a{color:#000}a:hover{color:#000}
 <div class="tmsg" style="flex-direction: column; gap: 8px"><span class="who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span>
 <p style="margin: 0; border: 1px dotted #000; padding: 8px 10px"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></p>
 <div style="display: flex; gap: 10px; align-items: center; font-family: system-ui, sans-serif"><button class="btn" onClick="{{keep}}">Keep Mine</button><div style="flex: 1"></div><button class="btn btn-def" onClick="{{apply}}">Apply Change</button></div>
+<p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN-SYSTEM.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tokens.css</a></span></span></p>
 </div>
 </sc-if>
 <sc-if value="{{kept}}" hint-placeholder-val="{{false}}">
 <div class="tmsg"><span class="who"><b>Pi</b> 14:21</span><p style="margin: 0; font-style: italic">Suggested a rewrite — you kept your text.</p></div>
 </sc-if>
 <sc-if value="{{t1.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><input aria-label="Reply to comment 1" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t1.resolve}}">Resolve</button></div>
+<div class="tacts"><span class="state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input aria-label="Reply to comment 1" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t1.resolve}}">Resolve</button></div>
 </sc-if>
 <sc-if value="{{t1.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t1.noteLine}}</span><button class="btn" onClick="{{t1.reopen}}">Reopen</button></div>
@@ -120,7 +124,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t2.threadClass}}" role="region" aria-label="Comment 2">
 <div class="tmsg"><span class="who"><b>You</b> 14:31</span><p style="margin: 0">Activity is missing from this list.</p></div>
 <sc-if value="{{t2.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span style="font-size: 13px; display: flex; align-items: center; gap: 6px; flex-basis: 100%"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Sent to Pi · waiting in queue · can no longer be deleted</span><input aria-label="Reply to comment 2" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t2.resolve}}">Resolve</button></div>
+<div class="tacts"><span class="state"><svg width="10" height="12" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Sent to Pi · waiting in queue · can no longer be deleted</span><input aria-label="Reply to comment 2" placeholder="Reply…"><button class="btn">Reply</button><button class="btn" onClick="{{t2.resolve}}">Resolve</button><div style="flex: 1"></div><a href="Activity.dc.html" style="font-size: 13px">Show in Activity</a></div>
 </sc-if>
 <sc-if value="{{t2.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t2.noteLine}}</span><button class="btn" onClick="{{t2.reopen}}">Reopen</button></div>
@@ -132,7 +136,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t5.threadClass}}" role="region" aria-label="Comment 3">
 <div class="tmsg"><span class="who"><b>You</b> now</span><p style="margin: 0">Say 44 px, so the phone layouts can be checked against it.</p></div>
 <sc-if value="{{t5.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span style="font-size: 13px; flex-basis: 100%">Saved with the file · not sent to Pi</span><button class="btn">Ask Pi</button><button class="btn" onClick="{{t5.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t5.del}}">Delete</button></div>
+<div class="tacts"><span class="state">Saved with the file · not sent to Pi</span><input aria-label="Reply to comment 3" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t5.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t5.del}}">Delete</button><p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p></div>
 </sc-if>
 <sc-if value="{{t5.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t5.noteLine}}</span><button class="btn" onClick="{{t5.reopen}}">Reopen</button></div>
@@ -159,7 +163,7 @@ a{color:#000}a:hover{color:#000}
 <div class="{{t4.threadClass}}" role="region" aria-label="Comment 5">
 <div class="tmsg"><span class="who"><b>You</b> 14:15</span><p style="margin: 0">Add a CJK fixture for the block editor.</p></div>
 <sc-if value="{{t4.isOpen}}" hint-placeholder-val="{{true}}">
-<div class="tacts"><span style="font-size: 13px; flex-basis: 100%">Restored · not sent to Pi</span><button class="btn">Ask Pi</button><button class="btn" onClick="{{t4.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t4.del}}">Delete</button></div>
+<div class="tacts"><span class="state">Restored · not sent to Pi</span><input aria-label="Reply to comment 5" placeholder="Reply…"><button class="btn">Reply</button><button class="btn">Ask Pi</button><button class="btn" onClick="{{t4.resolve}}">Resolve</button><div style="flex: 1"></div><button class="btn" onClick="{{t4.del}}">Delete</button></div>
 </sc-if>
 <sc-if value="{{t4.isRes}}" hint-placeholder-val="{{false}}">
 <div class="tacts"><span style="font-size: 13px; flex: 1">{{t4.noteLine}}</span><button class="btn" onClick="{{t4.reopen}}">Reopen</button></div>
@@ -175,7 +179,7 @@ a{color:#000}a:hover{color:#000}
 </sc-if>
 <sc-if value="{{hasFlash}}" hint-placeholder-val="{{false}}"><span>{{flash}}</span></sc-if>
 <sc-if value="{{idle}}" hint-placeholder-val="{{true}}"><span>Paragraph · {{openCount}} open comments</span></sc-if>
-<span style="margin-left: auto; font-size: 13px">⌘⌥] next comment</span>
+<span class="mono" style="margin-left: auto; font-size: 13px">~/code/pi-local-harness/DESIGN.md</span>
 </div>
 </section>
 
@@ -192,6 +196,15 @@ a{color:#000}a:hover{color:#000}
 <button class="{{segRes}}" role="radio" aria-checked="{{fRes}}" onClick="{{showResolvedList}}" style="border-left: 0">Resolved {{resCount}}</button>
 <button class="{{segDel}}" role="radio" aria-checked="{{fDel}}" onClick="{{showDeleted}}" style="border-left: 0; border-radius: 0 8px 8px 0">Deleted {{delCount}}</button>
 </div>
+<sc-if value="{{sel}}" hint-placeholder-val="{{true}}">
+<form aria-label="New comment" style="flex: none; border-bottom: 3px double #000; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 14px; line-height: 1.35">“touch-sized targets”</p>
+<label for="cm" style="font-size: 14px">Comment</label>
+<textarea id="cm" rows="2" style="resize: none; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 6px 8px; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">Say 44 px, so the phone layouts can be checked against it.</textarea>
+<p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p>
+<div style="display: flex; gap: 8px; align-items: center"><button type="button" class="btn">Clear Selection</button><div style="flex: 1"></div><button type="button" class="btn btn-def" onClick="{{comment}}">Add Comment</button></div>
+</form>
+</sc-if>
 <div style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column">
 <sc-for list="{{items}}" as="it" hint-placeholder-count="3">
 <div class="{{it.itemClass}}">
@@ -199,21 +212,30 @@ a{color:#000}a:hover{color:#000}
 <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 14px; line-height: 1.35">“{{it.quote}}”</p>
 <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.4">{{it.text}}</p>
 <div style="display: flex; gap: 8px; flex-wrap: wrap">
-<sc-if value="{{it.isOpen}}" hint-placeholder-val="{{true}}"><button class="btn" onClick="{{it.resolve}}">Resolve</button></sc-if>
+<sc-if value="{{it.canAsk}}" hint-placeholder-val="{{false}}"><button class="btn">Ask Pi</button></sc-if><sc-if value="{{it.isOpen}}" hint-placeholder-val="{{true}}"><button class="btn" onClick="{{it.resolve}}">Resolve</button></sc-if>
 <sc-if value="{{it.canDelete}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.del}}">Delete</button></sc-if>
 <sc-if value="{{it.isRes}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.reopen}}">Reopen</button></sc-if>
-<sc-if value="{{it.isDel}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.restore}}">Restore</button></sc-if>
+<sc-if value="{{it.isDel}}" hint-placeholder-val="{{false}}"><button class="btn" onClick="{{it.restore}}">Restore</button></sc-if><sc-if value="{{it.showAct}}" hint-placeholder-val="{{false}}"><a href="Activity.dc.html" style="font-size: 13px; margin-left: auto; align-self: center">Show in Activity</a></sc-if>
 </div>
 </div>
 </sc-for>
 <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
-<p style="margin: 24px 16px; font-size: 14px; text-align: center">{{emptyText}}</p>
+<p class="pw-empty">{{emptyText}}</p>
 </sc-if>
 </div>
 <div style="flex: none; border-top: 1px solid #000; padding: 12px; display: flex; flex-direction: column; gap: 10px">
 <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; min-height: 28px"><input type="checkbox" checked="{{showRes}}" onChange="{{toggleShowRes}}" style="width: 16px; height: 16px; accent-color: #000">Show resolved in the text</label>
 <button class="btn" disabled="{{sendDisabled}}">{{sendLabel}}</button>
 </div>
+<details style="flex: none; border-top: 3px double #000; padding: 0 12px 12px">
+<summary style="min-height: 32px; display: flex; align-items: center; font-size: 14px; cursor: default">Ask Pi about this whole file</summary>
+<form aria-label="Request about this whole file" style="display: flex; flex-direction: column; gap: 8px">
+<textarea rows="2" aria-label="Request about this whole file" placeholder="e.g. Split the Red steps into separate tests" style="resize: none; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 6px 8px; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px"></textarea>
+<p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem">11 open tasks</span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 3 more">+3</button></p>
+<div style="display: flex; gap: 8px; align-items: center"><span style="flex: 1; font-size: 13px">The answer appears here, not in Chat.</span><button type="button" class="btn">Send Request</button></div>
+</form>
+</details>
+
 </section>
 </sc-if>
 
@@ -242,7 +264,7 @@ const DEFS = [
 ];
 const openNote = {
 t1: s.kept ? 'Suggestion declined' : 'Pi suggested a change',
-t2: 'Sent to Pi · waiting',
+t2: 'Sent to Pi · waiting in queue',
 t5: 'Not sent to Pi',
 t3: 'Open',
 t4: 'Not sent to Pi'
@@ -263,6 +285,8 @@ threadClass: 'thread' + (status === 'resolved' ? ' res' : ''),
 itemClass: 'item' + (s.open === d.id ? ' sel' : ''),
 shown: s.open === d.id && visible,
 canDelete: status === 'open' && !d.sent,
+canAsk: status === 'open' && !d.sent,
+showAct: status === 'open' && d.sent && d.id === 't2',
 toggle: () => this.setState({ open: s.open === d.id ? null : d.id, flash: '' }),
 resolve: () => this.setSt(d.id, 'resolved', { open: s.open === d.id ? null : s.open, flash: 'Comment ' + d.n + ' resolved. Find it under Resolved.', undo: null }),
 reopen: () => this.setSt(d.id, 'open', { open: d.id, flash: '', filter: 'open' }),

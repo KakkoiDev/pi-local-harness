@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Phone — write a comment</title>
 <script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -30,13 +31,14 @@ a{color:#000}a:hover{color:#000}
 <form role="dialog" aria-modal="true" aria-labelledby="sheet-title" style="position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #000; box-shadow: inset 0 2px 0 #fff, inset 0 5px 0 #000; padding: 18px 16px 34px; display: flex; flex-direction: column; gap: 14px">
 <div style="display: flex; align-items: center; justify-content: space-between">
 <button type="button" class="btn" style="border: 0; padding: 0 4px">Cancel</button>
-<h2 id="sheet-title" style="margin: 0; font-size: 17px; font-weight: 600">Comment</h2>
+<h2 id="sheet-title" style="margin: 0; font-size: 17px; font-weight: 400">Comment</h2>
 <span style="width: 64px"></span>
 </div>
 <blockquote style="margin: 0; border: 1px dotted #000; padding: 10px 12px; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 16px; line-height: 1.4">“touch-sized targets”</blockquote>
 <label for="c" style="font-size: 14px">Your comment</label>
 <textarea id="c" rows="4" style="resize: none; border: 1px solid #000; box-shadow: inset 1px 1px 0 #000; padding: 10px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.4">Say 44 px, so the phone layouts can be checked against it.</textarea>
 <span style="font-size: 13px">Saved with the file. Pi sees it only when you ask.</span>
+<p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p>
 <div style="display: flex; gap: 8px; align-items: center">
 <button type="button" class="btn" style="flex: 1">Add &amp; Ask Pi</button>
 <button type="submit" class="btn btn-def" style="flex: 1">Add Comment</button>

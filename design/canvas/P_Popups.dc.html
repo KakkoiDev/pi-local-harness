@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Every popup open</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -18,7 +18,7 @@
 <span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Ruler › Block style</span>
 <button class="pw-popup" style="align-self: flex-start; min-width: 150px; text-align: left" aria-expanded="true">Paragraph</button>
 <div class="pw-menu" role="listbox" aria-label="Block style" style="position: static; width: 220px">
-<span class="pw-menu__item" role="option" aria-checked="true">Text</span>
+<span class="pw-menu__item" role="option" aria-checked="true">Paragraph</span>
 <span class="pw-menu__item" role="option">Heading</span>
 <span class="pw-menu__item" role="option" data-active="true">Task Checkbox</span>
 <span class="pw-menu__item" role="option">Bullet</span>
@@ -40,7 +40,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity › Show</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity · All Projects › Show</span>
 <button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Work</button>
 <div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 240px">
 <span class="pw-menu__item" role="option" aria-checked="true">All Work</span>
@@ -51,7 +51,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity › Project</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Activity, Gate › Project</span>
 <button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Projects</button>
 <div class="pw-menu" role="listbox" aria-label="Project" style="position: static; width: 240px">
 <span class="pw-menu__item" role="option" aria-checked="true">All Projects</span>
@@ -63,7 +63,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Gate › Show</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Gate · All Projects › Show</span>
 <button class="pw-popup" style="align-self: flex-start; text-align: left" aria-expanded="true">All Checks</button>
 <div class="pw-menu" role="listbox" aria-label="Show" style="position: static; width: 260px">
 <span class="pw-menu__item" role="option" aria-checked="true">All Checks</span>
@@ -74,19 +74,20 @@
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 6px">
-<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Document › Block handle</span>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Document › Block handle (a task)</span>
 <div style="display: flex; gap: 8px; align-items: flex-start">
-<button class="pw-btn pw-btn--icon" aria-pressed="true" aria-label="Paragraph options" style="width: 28px; min-height: 28px; border-radius: 0"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"></path></svg></button>
-<div class="pw-menu" role="menu" aria-label="Paragraph" style="position: static; width: 250px">
+<button class="pw-btn pw-btn--icon" aria-pressed="true" aria-label="Task options" style="width: 28px; min-height: 28px; border-radius: 0"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"></path></svg></button>
+<div class="pw-menu" role="menu" aria-label="Task" style="position: static; width: 250px">
 <span class="pw-menu__item" role="menuitem">Turn Into<span class="pw-menu__key">▸</span></span>
+<span class="pw-menu__item" role="menuitem" data-active="true">Add Block Below</span>
 <div class="pw-menu__sep"></div>
 <span class="pw-menu__item" role="menuitem">Move Up<span class="pw-menu__key">⌥⌘↑</span></span>
 <span class="pw-menu__item" role="menuitem">Move Down<span class="pw-menu__key">⌥⌘↓</span></span>
 <div class="pw-menu__sep"></div>
-<span class="pw-menu__item" role="menuitem" data-active="true">Comment on Paragraph</span>
-<span class="pw-menu__item" role="menuitem">Ask Pi About Paragraph…</span>
+<span class="pw-menu__item" role="menuitem">Comment on Task</span>
+<span class="pw-menu__item" role="menuitem">Ask Pi About Task…</span>
 <div class="pw-menu__sep"></div>
-<span class="pw-menu__item" role="menuitem">Delete Paragraph</span>
+<span class="pw-menu__item" role="menuitem">Delete Task</span>
 </div>
 </div>
 </div>

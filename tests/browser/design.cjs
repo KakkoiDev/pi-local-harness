@@ -63,7 +63,7 @@ const readline = require('node:readline');
   const layout=await thread.evaluate(element=>{const block=[...document.querySelectorAll('#document-editor .pw-block')].find(row=>row.textContent.includes('calm workbench')),text=block.querySelector('.block-content').getBoundingClientRect(),box=element.getBoundingClientRect(),who=element.querySelector('.pw-thread__who').getBoundingClientRect(),editor=document.querySelector('#document-editor .pw-block').getBoundingClientRect();return {inside:block.contains(element),below:box.top>=text.bottom-1,indent:Math.round(box.left-text.left),width:Math.round(box.right-editor.right),whoHeight:Math.round(who.height)};});
   assert.equal(layout.inside,false,'thread is not inside the block row');
   assert.equal(layout.below,true,'thread starts below the passage');
-  assert.equal(layout.indent,24,'thread is indented 24px like Final');
+  assert.equal(layout.indent,0,'full column width, no indent (InlineThread card, re-synced task 126)');
   assert.ok(Math.abs(layout.width)<=1,'thread reaches the column edge');
   assert.ok(layout.whoHeight<=20,'author and time stay on one line');
 

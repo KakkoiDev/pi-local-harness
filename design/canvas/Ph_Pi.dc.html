@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Phone Pi sheet</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -21,12 +21,16 @@
 
 <section class="pw-sheet" role="dialog" aria-modal="true" aria-labelledby="pi-t" style="position: absolute; top: 120px; max-height: none; padding-bottom: 34px">
 <div class="pw-sheet__head"><h2 id="pi-t" class="pw-dialog__title" style="display: flex; gap: 8px; align-items: baseline"><span style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 22px">π</span>Pi Workbench</h2><button class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div>
-<div class="pw-alert-line" role="status" style="justify-content: space-between; min-height: 44px"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Working · 1 waiting</span><button class="pw-btn pw-btn--touch">Stop</button></div>
 <label class="pw-search" style="height: 44px"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a project" placeholder="Find a project" style="font-size: 16px"></label>
 <div class="pw-list" role="list" style="border: 1px solid #000; padding: 0">
 <a href="#" class="pw-row" aria-current="page" style="min-height: 44px; font-size: 16px"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">pi-local-harness</span></a>
 <a href="#" class="pw-row" style="min-height: 44px; font-size: 16px; border-top: 1px dotted #000"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Japanese study app</span><span class="pw-row__meta">waiting</span></a>
 <a href="#" class="pw-row" style="min-height: 44px; font-size: 16px; border-top: 1px dotted #000"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">home-server</span></a>
+</div>
+<div style="display: flex; flex-direction: column; border: 1px solid #000">
+<h3 class="pw-label" style="margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid #000; font-size: 14px; font-weight: 400">Agent<span>All projects</span></h3>
+<a href="Ph_Activity.dc.html" class="pw-row" style="min-height: 44px; font-size: 16px"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/></svg><span class="pw-row__label">Activity</span><span class="pw-row__meta"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>1 running · 1 waiting</span></a>
+<a href="Ph_Gate.dc.html" class="pw-row" style="min-height: 44px; font-size: 16px; border-top: 1px dotted #000"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 1v14M13.5 1v14M2.5 4.5h11M2.5 9.5h11" fill="none" stroke="currentColor"/><path d="M5 4.5v5M8 4.5v5M11 4.5v5" stroke="currentColor"/></svg><span class="pw-row__label">Gate</span><span class="pw-row__meta"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg>12 checks · 1 blocked</span></a>
 </div>
 <div style="display: flex; gap: 8px"><button class="pw-btn pw-btn--touch" style="flex: 1">New Project…</button><button class="pw-btn pw-btn--touch" style="flex: 1">Add Folder…</button></div>
 <div style="display: flex; flex-direction: column; border-top: 3px double #000">

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Project window component</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="height: {{h}}; display: flex">
+<section class="{{winClass}}" aria-label="Project" style="flex: 1; min-width: 0">
+<div class="pw-titlebar"><a href="Projects.dc.html" class="pw-box" aria-label="Close project and show Projects"></a><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">{{project}}</h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div>
+<div class="pw-infobar"><a href="Projects.dc.html" class="pw-infobar__back">‹ Projects</a><span style="margin-left: auto">{{summary}}</span></div>
+<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a file" placeholder="Find a file" value="{{query}}"><kbd class="pw-kbd">⌘F</kbd></label></div>
+<nav class="pw-window__body" aria-label="Files">
+<sc-if value="{{showPlan}}" hint-placeholder-val="{{true}}">
+<section class="pw-group" aria-labelledby="g-plan">
+<div class="pw-group__head"><h3 class="pw-group__title" id="g-plan"><button class="pw-group__toggle" aria-expanded="{{planOpen}}" aria-controls="g-plan-body"><sc-if value="{{planOpen}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{planShut}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if>Plan<span class="pw-group__count">{{planCount}}</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New Task…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/></svg></a></div>
+<sc-if value="{{planOpen}}" hint-placeholder-val="{{true}}"><div class="pw-group__body" id="g-plan-body" role="list">
+<sc-if value="{{planEmpty}}" hint-placeholder-val="{{false}}"><div class="pw-group__empty"><p style="margin: 0">No roadmap or tasks in this folder.</p><button class="pw-btn">Create Roadmap</button><p class="pw-help" style="margin: 0">Adds ROADMAP.md and tasks/001-first-task.md. Nothing else changes.</p></div></sc-if>
+<sc-for list="{{planRows}}" as="r" hint-placeholder-count="6"><a href="#" class="{{r.cls}}" role="listitem" aria-current="{{r.current}}" aria-expanded="{{r.expanded}}"><sc-if value="{{r.open}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.closed}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.folder}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.file}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg></sc-if><span class="pw-row__label">{{r.label}}</span><span class="pw-row__meta"><sc-if value="{{r.done}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{r.blocked}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{r.meta}}</span></a></sc-for>
+</div></sc-if>
+</section>
+</sc-if>
+<sc-if value="{{showFiles}}" hint-placeholder-val="{{true}}">
+<section class="pw-group" aria-labelledby="g-files">
+<div class="pw-group__head"><h3 class="pw-group__title" id="g-files"><button class="pw-group__toggle" aria-expanded="{{filesOpen}}" aria-controls="g-files-body"><sc-if value="{{filesOpen}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{filesShut}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if>Files<span class="pw-group__count">{{filesCount}}</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New File…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/></svg></a></div>
+<sc-if value="{{filesOpen}}" hint-placeholder-val="{{true}}"><div class="pw-group__body" id="g-files-body" role="list">
+<sc-if value="{{filesEmpty}}" hint-placeholder-val="{{false}}"><p class="pw-group__empty">No other files yet.</p></sc-if>
+<sc-for list="{{filesRows}}" as="r" hint-placeholder-count="6"><a href="#" class="{{r.cls}}" role="listitem" aria-current="{{r.current}}" aria-expanded="{{r.expanded}}"><sc-if value="{{r.open}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.closed}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.folder}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.file}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg></sc-if><span class="pw-row__label">{{r.label}}</span><span class="pw-row__meta"><sc-if value="{{r.done}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{r.blocked}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{r.meta}}</span></a></sc-for>
+</div></sc-if>
+</section>
+</sc-if>
+<sc-if value="{{searching}}" hint-placeholder-val="{{false}}"><p class="pw-help" style="padding: 8px 10px; margin: 0; border-top: 1px dotted #000">{{searchNote}}</p></sc-if>
+</nav>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["chat", "doc", "code", "search", "noplan", "empty"], "default": "doc"}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "$preview": {"width": 290, "height": 824}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.props.state ?? 'doc';
+const chat = s === 'chat';
+const code = s === 'code', empty = (s === 'empty' || s === 'noplan'), source = s === 'source', search = s === 'search', noplan = s === 'noplan';
+const R = (label, o) => Object.assign({ cls: 'pw-row file-item', current: 'false', expanded: null, open: false, closed: false, folder: false, file: true, done: false, blocked: false, meta: '', label: label }, o || {});
+const F = (label, isOpen) => R(label, { folder: true, file: false, open: !!isOpen, closed: !isOpen, expanded: isOpen ? 'true' : 'false' });
+const N = (label, o) => R(label, Object.assign({ cls: 'pw-row pw-row--nested file-item' }, o || {}));
+const docOpen = !code && !empty && !noplan && !chat;
+let plan, files;
+if (search) {
+  plan = [R('62-stale-agent-lock', { meta: '0/3' })];
+  files = [R('harness/agent-lock.mjs'), R('tests/harness/agent-lock.test.mjs')];
+} else if (noplan) {
+  plan = [];
+  files = [F('config'), F('scripts'), R('backup.sh'), R('docker-compose.yml'), R('notes.md'), R('README.md')];
+} else {
+  plan = [R('ROADMAP.md', { meta: '47/68' }), R('67-parallel-inference-experiment', { meta: '3/4' }), R('66-tailscale-voice-input', { meta: '6/7' }), R('64-task-report', { meta: '0/3' }), R('63-node-version-check', { meta: '0/2' }), R('62-stale-agent-lock', { meta: '0/3' }), R('61-real-exit-codes', { meta: '0/3' }), R('60-ntfy-notifications', { meta: '0/4' }), R('59-stuck-detection', { meta: '0/3' }), R('58-fresh-context-per-task', { meta: '0/3' }), R('57-phase-visibility', { meta: '0/3' }), R('56-work-phases', { meta: '0/8' }), R('Done', { cls: 'pw-row pw-row--summary', file: false, closed: true, expanded: 'false', meta: '56 tasks', done: true })];
+  const harness = ['AGENTS.md', 'README.md', 'agent-lock.mjs', 'configure_startup.py', 'documents.py', 'extension.mjs', 'install.py', 'legacy-AGENTS.md', 'markdown_records.py', 'media.mjs', 'memory.mjs', 'model.json', 'model.py', 'provider.mjs', 'services.py', 'startup-display.mjs', 'timestamps.mjs', 'transcribe.py', 'watch.mjs', 'web_chat.py', 'work_queue.py'].map((n) => N(n, { current: (code && n === 'work_queue.py') ? 'page' : 'false' }));
+  files = [F('experiments'), F('harness', code)].concat(code ? harness : []).concat([F('js'), F('gate'), F('specs'), F('tests'), R('AGENT.md'), R('AUDIT.md'), R('DESIGN.md', { current: docOpen ? 'page' : 'false' }), R('PRODUCT.md'), R('Screenshot 2026-10-11 at 15.05.36.png'), R('agent_api.py'), R('chat.css'), R('ideas.md'), R('incident_log.md'), R('index.html'), R('plh.py'), R('readme.md'), R('start.sh')]);
+}
+return {
+project: noplan ? 'home-server' : 'pi-local-harness',
+query: search ? 'lock' : '',
+searching: search, searchNote: '3 matches for “lock” in both groups. Esc clears.',
+showPlan: true, showFiles: true,
+planOpen: !code, planShut: code, filesOpen: true, filesShut: false,
+planEmpty: noplan, filesEmpty: false,
+planCount: noplan ? '' : search ? '1' : '11 open',
+filesCount: search ? '2' : noplan ? '6' : '19',
+planRows: plan, filesRows: files,
+h: this.props.h ?? '824px',
+winClass: 'pw-window' + (this.props.active ? '' : ' pw-window--inactive'),
+summary: noplan ? 'No plan yet · 2 folders · 4 files' : '11 open tasks · 6 folders · 13 files'
+};
+}
+}
+</script>
+</body>
+</html>

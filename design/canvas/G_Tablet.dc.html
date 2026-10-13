@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gate on a tablet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1024px; height: 768px; position: relative; overflow: hidden; background: #fff">
+<div style="position: absolute; top: 0; left: 0; width: 1024px; z-index: 5"><dc-import name="C_MenuBar" open="none" view="gate" status="Working · 1 waiting" hint-size="1024px,28px"></dc-import></div>
+<div class="pw-root pw-desk" style="position: absolute; top: 28px; left: 0; width: 1024px; height: 740px; box-sizing: border-box; padding: 20px; display: flex; gap: 20px; color: #000">
+<div style="width: 220px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="working" current="gate" h="700px" hint-size="220px,700px"></dc-import></div>
+<section class="pw-window" aria-label="Gate · All Projects" style="flex: 1; min-width: 0">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close Gate and go back"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Gate · All Projects</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<div class="pw-toolbar"><label class="pw-label" style="display: flex; gap: 8px; align-items: center">Show <select class="pw-popup"><option>Blocks &amp; Failures</option></select></label><label class="pw-label" style="display: flex; gap: 8px; align-items: center">Project <select class="pw-popup"><option>All Projects</option></select></label></div>
+<div class="pw-infobar"><span>Before a command runs: approve, revise or block. After: verify.</span><span role="status" style="margin-left: auto">Live · Gate :8000</span></div>
+<div class="pw-table" role="table" style="--pw-cols: 46px 104px minmax(0,1fr) 130px; flex: 1; min-height: 0; overflow: auto">
+<div class="pw-table__row pw-table__head" role="row"><span>Time</span><span>Decision</span><span>Command</span><span>Project</span></div>
+<div class="pw-table__row" role="row" tabindex="0" aria-current="false" style="font-size: 14px"><span>14:03</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Approved</span><span class="pw-table__cell--mono">python3 -m pytest tests/test_work_queue.py</span><span><a href="Main.dc.html" class="pw-link">pi-local-harness</a></span></div><div class="pw-table__row" role="row" tabindex="0" aria-current="true" style="font-size: 14px"><span>14:02</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg>Blocked</span><span class="pw-table__cell--mono">rm -rf ~/.local/share/pi-local-harness/work</span><span><a href="Main.dc.html" class="pw-link">pi-local-harness</a></span></div><div class="pw-table__row" role="row" tabindex="0" aria-current="false" style="font-size: 14px"><span>14:02</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>Revise</span><span class="pw-table__cell--mono">write ../other-project/ROADMAP.md</span><span><a href="Main.dc.html" class="pw-link">pi-local-harness</a></span></div><div class="pw-table__row" role="row" tabindex="0" aria-current="false" style="font-size: 14px"><span>13:42</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>Exit ≠ 0</span><span class="pw-table__cell--mono">./backup.sh --report</span><span><a href="Main.dc.html" class="pw-link">home-server</a></span></div><div class="pw-table__row" role="row" tabindex="0" aria-current="false" style="font-size: 14px"><span>11:18</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg>Blocked</span><span class="pw-table__cell--mono">git commit -m "wip"</span><span><a href="Main.dc.html" class="pw-link">Japanese study app</a></span></div>
+</div>
+<div class="pw-statusbar">5 checks shown · Before/After and From move to Event Info at this width</div>
+</section>
+<!-- Event Info floats over the main window (761–1100px) -->
+<section class="pw-window" aria-label="Event info" style="position: absolute; right: 36px; top: 250px; width: 340px; z-index: 3">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close Event Info"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Event Info</h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg><p class="pw-alert__detail" style="margin: 0">Blocked before it ran. Recursive delete outside the project folder.</p></div>
+<pre class="pw-mono" style="margin: 0; border: 1px solid #000; padding: 8px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere">rm -rf ~/.local/share/pi-local-harness/work</pre>
+<dl style="margin: 0; display: grid; grid-template-columns: 80px 1fr; gap: 4px 10px; font-size: 14px"><dt>Check</dt><dd style="margin: 0">Before execution</dd><dt>Tool</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">execute_command</dd><dt>Project</dt><dd style="margin: 0"><a href="Main.dc.html" class="pw-link">pi-local-harness</a></dd><dt>From</dt><dd style="margin: 0">Web · request 14:02</dd></dl>
+<div style="display: flex; gap: 8px"><a href="Activity.dc.html" class="pw-btn">Show in Activity</a><button class="pw-btn">Copy Command</button></div>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1024, "height": 768}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

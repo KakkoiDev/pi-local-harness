@@ -17,14 +17,14 @@ A titled, collapsible section of a list. The Files window has two: **Plan** (ROA
     </div>
     <div class="pw-group__body" id="files-plan" role="list"> …ListRows… </div>
   </section>
-  <section class="pw-group" aria-labelledby="files-other-title"> …same, “Files”, action New Page… </section>
+  <section class="pw-group" aria-labelledby="files-other-title"> …same, “Files”, action New File… </section>
 </nav>
 ```
 
 - Disclosure pattern: a `<button aria-expanded aria-controls>` inside a heading. Collapsed sets `hidden` on `.pw-group__body` and swaps the icon to `disclosure-closed`.
 - Header: drawn like the table and info-bar headers elsewhere — chrome-meta (13px/18px) at regular weight, row height `size-row` (44px at phone width), 1px ink rule under it, and a 3px double rule between the two groups (the same rule that closes every info bar). Headers are sticky at the top of the scrolling list.
 - Count on the right (`.pw-group__count`): Plan “N open”, Files the number of entries at the top level; during search, the number of matches.
-- Action (`.pw-group__action`): one `plus` button per group, with an `aria-label` naming the command (New Task… on Plan, New Page… on Files). It is outside the toggle (never nest buttons). The same commands stay in the File menu (⌘T, ⇧⌘N).
+- Action (`.pw-group__action`): one `plus` button per group, with an `aria-label` naming the command (New Task… on Plan, New File… on Files). It is outside the toggle (never nest buttons). The same commands stay in the File menu (⌘T, ⇧⌘N).
 
 ## Behaviour
 
@@ -36,4 +36,19 @@ A titled, collapsible section of a list. The Files window has two: **Plan** (ROA
 
 ## Phone (≤760px)
 
-The two groups become a segmented control at the top of the Files screen: **Plan · 11 open** | **Files · 19**, with the `+` action beside it for the selected segment (New Task… or New Page…). Search filters both; the segment labels show match counts so matches in the other segment are visible.
+The two groups become a segmented control at the top of the Files screen: **Plan · 11 open** | **Files · 19**, with the `+` action beside it for the selected segment (New Task… or New File…). Search filters both; the segment labels show match counts so matches in the other segment are visible.
+
+## In the Projects window: Projects and Agent
+
+The Projects home (`/projects`, `body[data-level="projects"]`) has two groups: **Projects** (count = number of projects; rows carry the running glyph, “running”, “waiting” or “failed”) and **Agent** (count “All projects”, no action). Agent has two rows, both app-level windows:
+
+| Row | Opens | Meta (live, today) |
+| --- | --- | --- |
+| Activity | `/activity`, ⌘3 | “1 running · 1 waiting” + running glyph · “Nothing running” · “1 needs attention” + caution glyph |
+| Gate | `/gate`, ⌘4 | “12 checks · 1 blocked” + stop glyph · “12 checks today” |
+
+The open window's row has `aria-current="page"`. Opening Activity or Gate always shows the Projects home in the left window. On phone the π sheet shows the same two groups at 44px.
+
+## In the project window
+
+The project window (`body[data-level="project"]`) shows in every view: title = project name (close box returns to Projects), info bar “‹ Projects” + “11 open tasks · 6 folders · 13 files”, Find a file, then Plan above Files.

@@ -2,160 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Pi Workbench — Activity</title>
+<title>Activity · All Projects</title>
 <script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
-<style>
-body{margin:0}
-a{color:#000}a:hover{color:#000}
-.desk-dots{background-color:#fff;background-image:radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px);background-size:4px 4px}
-.desk-gray{background:#fff repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/2px 2px}
-.desk-plain{background:#fff}
-.mb-item{font:inherit;color:#000;background:none;border:0;height:28px;padding:0 10px;display:flex;align-items:center;gap:6px;cursor:default}
-.mb-item:hover{background:#000;color:#fff}
-.tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
-.box-btn{width:28px;height:26px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;cursor:default}
-.box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
-.btn{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default;text-decoration:none}
-.btn:active{background:#000;color:#fff}
-.popup{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px;cursor:default}
-.vtab{font-family:system-ui,sans-serif;font-size:15px;color:#000;text-decoration:none;height:30px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid #000;background:#fff}
-.vtab:hover{background:#eee}
-.vtab.on{background:#000;color:#fff}
-.vtab kbd{font:inherit;font-size:13px;opacity:.75}
-.tr{display:grid;grid-template-columns:150px minmax(0,1fr) 190px 120px 90px 80px;align-items:center;min-height:36px;padding:0 14px;gap:12px;font-size:15px;text-decoration:none;color:#000;border-bottom:1px dotted #000}
-.tr:hover{background:#eee}
-.tr.sel{background:#000;color:#fff}
-.tr.sel svg path,.tr.sel svg circle,.tr.sel svg rect{stroke:#fff}
-.tr.sel svg .fill{fill:#fff}
-.st{display:flex;align-items:center;gap:8px}
-.sb{width:16px;flex:none;border-left:1px solid #000;display:flex;flex-direction:column}
-.sb-arrow{height:16px;border-bottom:1px solid #000;display:flex;align-items:center;justify-content:center}
-.sb-arrow.dn{border-bottom:0;border-top:1px solid #000}
-.sb-track{flex:1;background:#fff}
-.mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
-.btn:focus-visible,.vtab:focus-visible,.tr:focus-visible,.popup:focus-visible{outline:2px solid #000;outline-offset:2px}
-@media (max-width:900px){.tr{grid-template-columns:130px minmax(0,1fr)}.tr .hide-md{display:none}.hide-md{display:none !important}}
-</style>
+<style>body{margin:0}</style>
 </helmet>
-<div class="{{deskClass}}" style="min-height: 100vh; display: flex; flex-direction: column; font-family: system-ui, sans-serif; color: #000">
-
-<nav aria-label="Menu bar" style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px; overflow-x: auto">
-<button class="mb-item" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</button>
-<button class="mb-item">File</button>
-<button class="mb-item">Edit</button>
-<button class="mb-item">View</button>
-<button class="mb-item">Project</button>
-<button class="mb-item">Agent</button>
-<button class="mb-item">Window</button>
-<div style="flex: 1"></div>
-<span style="font-size: 14px; padding: 0 8px">Working · 1 waiting</span>
-</nav>
-
-<div style="flex: 1; display: flex; padding: 24px; box-sizing: border-box">
-<section aria-label="Agent activity" style="flex: 1; min-width: 0; height: 820px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
-<div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
-<button class="box-btn" aria-label="Close window"><span></span></button>
-<div class="tb-stripes"></div>
-<h1 style="margin: 0; font-size: 15px; font-weight: 400; padding: 0 10px; white-space: nowrap">Activity</h1>
-<div class="tb-stripes"></div>
-<button class="box-btn" aria-label="Zoom window"><span style="background: linear-gradient(#000,#000) 0 0/7px 7px no-repeat #fff"></span></button>
-</div>
-<div style="flex: none; border-bottom: 1px solid #000; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px">
-<nav aria-label="Project view" style="display: flex">
-<a href="Main.dc.html" class="vtab" style="border-radius: 8px 0 0 8px">Chat<kbd>⌘1</kbd></a>
-<a href="Work.dc.html" class="vtab" style="border-left: 0">Work<kbd>⌘2</kbd></a>
-<a href="Activity.dc.html" class="vtab on" aria-current="page" style="border-left: 0">Activity<kbd>⌘3</kbd></a>
-<a href="Gate.dc.html" class="vtab" style="border-left: 0; border-radius: 0 8px 8px 0">Gate<kbd>⌘4</kbd></a>
-</nav>
-<div style="flex: 1"></div>
-<span style="font-size: 14px">Show</span><button class="popup">All Work<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
-<span style="font-size: 14px">Project</span><button class="popup">All Projects<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M0 0h9L4.5 6z" fill="#000"/></svg></button>
-</div>
-<div role="status" style="flex: none; border-bottom: 3px double #000; display: flex; flex-wrap: wrap; gap: 20px; padding: 6px 14px; font-size: 14px">
-<span>1 running</span><span>1 waiting</span><span>1 needs attention</span><span style="margin-left: auto">One queue, first in, first out. Interrupted work is never repeated automatically.</span>
-</div>
-
-<div class="tr hide-md" style="min-height: 28px; font-size: 13px; border-bottom: 1px solid #000">
-<span>State</span><span style="text-decoration: underline">Request</span><span class="hide-md">Project</span><span class="hide-md">Source</span><span class="hide-md">Started</span><span class="hide-md">Time</span>
-</div>
-
-<div style="flex: 1; min-height: 0; display: flex">
-<div style="flex: 1; min-width: 0; overflow: auto" role="list">
-<a href="#" role="listitem" class="tr sel" aria-current="true">
-<span class="st"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><path d="M1.5 .5h11M1.5 15.5h11M2.5 .5c0 5 4 5 4 7.5s-4 2.5-4 7.5M11.5 .5c0 5-4 5-4 7.5s4 2.5 4 7.5" fill="none" stroke="#000"/></svg>Running</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">The Activity badge still counts interrupted jobs after a restart…</span>
-<span class="hide-md">pi-local-harness</span><span class="hide-md">Chat</span><span class="hide-md">14:02</span><span class="hide-md">0:48</span>
-</a>
-<a href="#" role="listitem" class="tr">
-<span class="st"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="none" stroke="#000"/><path d="M7 3.5V7h3" fill="none" stroke="#000"/></svg>Waiting</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Add a furigana toggle to the flashcard view</span>
-<span class="hide-md">Japanese study app</span><span class="hide-md">Chat</span><span class="hide-md">queued 14:05</span><span class="hide-md">—</span>
-</a>
-<a href="#" role="listitem" class="tr">
-<span class="st"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M4.5.5h5l4 4v5l-4 4h-5l-4-4v-5z" class="fill" fill="#000" stroke="#000"/></svg>Failed</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Run the backup script and report disk usage</span>
-<span class="hide-md">home-server</span><span class="hide-md">Chat</span><span class="hide-md">13:40</span><span class="hide-md">2:11</span>
-</a>
-<a href="#" role="listitem" class="tr">
-<span class="st"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7l3 3 7-7" fill="none" stroke="#000" stroke-width="2"/></svg>Completed</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Should a stuck task also send a notification?</span>
-<span class="hide-md">pi-local-harness</span><span class="hide-md">59-stuck-detection</span><span class="hide-md">14:20</span><span class="hide-md">0:31</span>
-</a>
-<a href="#" role="listitem" class="tr">
-<span class="st"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M.5 7h5M8.5 7h5M5.5 4l3 6" fill="none" stroke="#000" stroke-width="1.5"/></svg>Interrupted</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Rewrite the roadmap summary for tasks 55–58</span>
-<span class="hide-md">pi-local-harness</span><span class="hide-md">ROADMAP.md</span><span class="hide-md">Yesterday</span><span class="hide-md">4:02</span>
-</a>
-<a href="#" role="listitem" class="tr">
-<span class="st"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2.5" width="9" height="9" class="fill" fill="#000" stroke="#000"/></svg>Stopped</span>
-<span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Transcribe the attached voice memo</span>
-<span class="hide-md">Japanese study app</span><span class="hide-md">Chat</span><span class="hide-md">Yesterday</span><span class="hide-md">0:09</span>
-</a>
-</div>
-<div class="sb" aria-hidden="true"><div class="sb-arrow"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M.5 5.5L4.5 .5l4 5z" fill="#fff" stroke="#000"/></svg></div><div class="sb-track"></div><div class="sb-arrow dn"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M.5 .5L4.5 5.5l4-5z" fill="#fff" stroke="#000"/></svg></div></div>
-</div>
-
-<!-- Detail pane -->
-<div style="flex: none; height: 300px; border-top: 3px double #000; display: flex; flex-wrap: wrap; min-height: 0">
-<div style="flex: 1 1 340px; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-right: 1px solid #000">
-<h2 style="margin: 0; font-size: 18px; font-weight: 600">Running in pi-local-harness</h2>
-<p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.45; text-wrap: pretty">“The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?”</p>
-<dl style="margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; font-size: 14px">
-<dt>Phase</dt><dd style="margin: 0">Verify — running tests</dd>
-<dt>Last command</dt><dd class="mono" style="margin: 0; font-size: 13px">python3 -m pytest tests/test_work_queue.py</dd>
-<dt>Gate</dt><dd style="margin: 0">4 approved · 0 blocked</dd>
-</dl>
-<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto">
-<a href="Main.dc.html" class="btn">Open Chat</a>
-<button class="btn">Stop<span style="font-size: 13px">⌘.</span></button>
-</div>
-</div>
-<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column">
-<div style="flex: none; padding: 6px 14px; border-bottom: 1px solid #000; font-size: 13px; display: flex; justify-content: space-between"><span>Markdown task record</span><span class="mono">work/2026-10-13-1402.md</span></div>
-<pre class="mono" style="margin: 0; flex: 1; overflow: auto; padding: 12px 14px; font-size: 13px; line-height: 1.55; white-space: pre-wrap">## Request 14:02 · pi-local-harness · chat
-State: running
-Phase: verify
-
-- [x] Read harness/work_queue.py
-- [x] Narrow badge count to running + waiting
-- [x] Add regression test
-- [ ] Green: tests/test_work_queue.py</pre>
-</div>
-</div>
-</section>
-</div>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #fff">
+<div style="position: absolute; top: 28px; left: 0; width: 1440px"><dc-import name="C_ActivityDesk" state="running" hint-size="1440px,872px"></dc-import></div>
+<div style="position: absolute; top: 0; left: 0; width: 1440px; z-index: 5"><dc-import name="C_MenuBar" open="none" view="activity" status="Working · 1 waiting" statusState="rest" hint-size="1440px,28px"></dc-import></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"pattern":{"editor":"enum","options":["dots","gray","plain"],"default":"dots"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
 class Component extends DCLogic {
-renderVals() {
-return { deskClass: 'desk-' + (this.props.pattern ?? 'dots') };
-}
+renderVals() { return {}; }
 }
 </script>
 </body>

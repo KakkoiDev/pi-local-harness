@@ -24,7 +24,7 @@ The server allowlist is in `harness/web_chat.py` (`allowed` in `do_GET`, plus `F
 
 This folder is the backup of both claude.ai artifacts, for everything their authors wrote:
 
-- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/5e247b7487a244ef2ab08d4d7de05685.css` (the boards link it as `/_blob/<id>`).
+- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/0bee260e58c72bbc496b29ca68796cdc.css` (the boards link it as `/_blob/<id>`).
 - Design system: `system/README.md`, `tokens.json`, `design-system.json`, every component card (`components/<Name>/README.md`, `preview.html`), `components/bundle.css`, and the 26 icon uploads as `system/assets/Icons/*.svg` (names from `design-system.json`).
 - The old checker name is mapped to Gate in the copies (task 96).
 

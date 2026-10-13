@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Adding blocks and block types</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 40px; display: flex; gap: 40px; color: #000">
+<section class="pw-window" aria-label="Document" style="flex: 1; min-width: 0">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">phone-layouts.md</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<div class="pw-ruler" role="toolbar" aria-label="Ruler"><select class="pw-popup" aria-label="Block style" style="min-width: 130px"><option>Paragraph</option></select><div class="pw-tools"><button aria-label="Bulleted list" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/></svg></button><button aria-label="Task checkbox" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="none" stroke="currentColor"/></svg></button></div><span style="flex: 1"></span><select class="pw-popup" aria-label="Editor mode"><option>Document</option></select><button class="pw-btn" aria-pressed="true">Hide Review<span class="pw-kbd">⌥⌘R</span></button></div>
+<div class="pw-window__body" style="position: relative"><article class="pw-doc" style="padding-left: 72px">
+<h2>Phone layouts</h2>
+<div class="pw-block" style="outline: 1px dotted #000; outline-offset: 0; margin-left: -48px; padding-left: 48px"><button class="pw-block__handle" aria-label="Paragraph options" aria-haspopup="menu" style="display: flex; left: 8px"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"/></svg></button><p class="pw-block__content">Every control on the phone is at least 44 px tall.</p><span class="pw-mark" style="position: absolute; right: -36px; top: 4px">1</span></div>
+<div class="pw-block pw-block--empty pw-block--focused"><p class="pw-block__content" data-placeholder="Write, or choose a style in the ruler"></p><span class="pw-mark" style="position: absolute; right: -36px; top: 4px">2</span></div>
+<div class="pw-block"><span class="pw-block__marker">•</span><p class="pw-block__content">Plan above Files becomes two segments</p></div>
+<div class="pw-block"><span class="pw-block__marker">•</span><p class="pw-block__content">The π sheet holds the Agent section</p></div>
+<div class="pw-block pw-block--empty pw-block--focused"><span class="pw-block__marker">•</span><p class="pw-block__content" data-placeholder="List item"></p><span class="pw-mark" style="position: absolute; right: -36px; top: 4px">3</span></div>
+<div class="pw-block"><span class="pw-block__marker">1.</span><p class="pw-block__content">Open the view popup</p></div>
+<div class="pw-block"><span class="pw-block__marker">2.</span><p class="pw-block__content">Choose Activity · all</p></div>
+<div class="pw-block"><input type="checkbox" class="pw-check" aria-label="Task complete" checked><p class="pw-block__content">Check the sheet at 390 px</p></div>
+<div class="pw-block pw-block--quote"><p class="pw-block__content">Clean and clear: one bit, one column, one thing at a time.</p></div>
+<div class="pw-block pw-block--code"><pre class="pw-block__content">@media (max-width: 760px) { .pw-row { min-height: 44px } }</pre></div>
+<div class="pw-doc__tail" style="border: 1px dashed #000; display: grid; place-content: center; font-family: var(--font-chrome); font-size: 13px; position: relative">Click here: adds a paragraph<span class="pw-mark" style="position: absolute; right: -36px; top: 4px">4</span></div>
+</article>
+<div class="pw-toast" role="status" style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); width: 360px"><span>Task deleted.</span><button class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div>
+</div>
+<div class="pw-statusbar"><span>Paragraph</span><span class="pw-mono" style="margin-left: auto">~/code/pi-local-harness/phone-layouts.md</span></div>
+</section>
+<section class="pw-window" aria-label="How blocks are added" style="width: 420px; flex: none; padding: 20px; gap: 14px">
+<h2 class="pw-dialog__title" style="margin: 0">Adding and removing blocks</h2>
+<div style="display: flex; gap: 10px; align-items: baseline"><span class="pw-mark" style="flex: none">1</span><p style="margin: 0; font-size: 14px; line-height: 20px">The handle appears when the pointer is anywhere in the 48 px gutter or on the block. Its menu: Turn Into ▸, <b>Add Block Below</b>, Move Up/Down, Comment on <i>Type</i>, Ask Pi About <i>Type</i>…, Delete <i>Type</i>. Items name the block’s type: Task, Heading, Bullet, Quote, Code. “Paragraph” is only the plain type.</p></div>
+<div style="display: flex; gap: 10px; align-items: baseline"><span class="pw-mark" style="flex: none">2</span><p style="margin: 0; font-size: 14px; line-height: 20px">Return at the end of a block starts a new Paragraph below it, with the placeholder “Write, or choose a style in the ruler”. Return in the middle splits the block. The Enter that confirms Japanese input never splits.</p></div>
+<div style="display: flex; gap: 10px; align-items: baseline"><span class="pw-mark" style="flex: none">3</span><p style="margin: 0; font-size: 14px; line-height: 20px">Lists continue: Return in a bullet, number or task makes another of the same type; numbers count 1., 2. within a run. Return on an empty list item turns it into a Paragraph. Backspace in an empty block removes it and puts the caret at the end of the block above.</p></div>
+<div style="display: flex; gap: 10px; align-items: baseline"><span class="pw-mark" style="flex: none">4</span><p style="margin: 0; font-size: 14px; line-height: 20px">A click on the empty page below the last block adds a Paragraph there (or focuses the last block if it is already an empty Paragraph).</p></div>
+<p style="margin: 0; font-size: 14px; line-height: 20px">Deleting a block from its menu shows a toast, “Task deleted.”, with Undo ⌘Z, for 8 seconds. Types look like themselves: quote italic in a dotted frame, code mono in an ink frame, bullets “•”, numbers “1.”, tasks a checkbox.</p>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Phone view popup</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -17,13 +17,14 @@
 <button class="pw-phonebar__btn" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button>
 <button class="pw-phonebar__btn" aria-expanded="true" style="background: #000; color: #fff">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button>
 <span style="flex: 1"></span>
-<span class="pw-glyph" role="status" style="padding: 0 12px; font-size: 14px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Working</span>
+<a href="Ph_Activity.dc.html" class="pw-statusbtn" aria-label="Agent status: Working, 1 waiting. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><span role="status">Working</span></a>
 </nav>
-<div class="pw-menu" role="menu" aria-label="View" style="top: 92px; left: 48px; width: 230px">
+<div class="pw-menu" role="menu" aria-label="View" style="top: 92px; left: 48px; width: 280px">
 <button class="pw-menu__item" role="menuitemradio" aria-checked="true" style="height: 44px; font-size: 16px">Chat</button>
 <button class="pw-menu__item" role="menuitemradio" style="height: 44px; font-size: 16px">Work</button>
-<button class="pw-menu__item" role="menuitemradio" style="height: 44px; font-size: 16px">Activity<span class="pw-menu__key">1 running · 1 waiting</span></button>
-<button class="pw-menu__item" role="menuitemradio" style="height: 44px; font-size: 16px">Gate</button>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="Ph_Activity.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="false" style="height: 44px; font-size: 16px">Activity · all<span class="pw-menu__key">1 running · 1 waiting</span></a>
+<a href="Ph_Gate.dc.html" class="pw-menu__item" role="menuitemradio" aria-checked="false" style="height: 44px; font-size: 16px">Gate · all<span class="pw-menu__key">1 blocked</span></a>
 </div>
 <div aria-hidden="true" style="padding: 18px 16px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.5; display: flex; flex-direction: column; gap: 22px">
 <div style="align-self: flex-end; max-width: 300px; border: 1px solid #000; border-radius: 12px; padding: 10px 14px">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</div>

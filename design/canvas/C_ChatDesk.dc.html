@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Chat desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -12,35 +12,17 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; align-items: stretch; color: #000">
+<div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; align-items: stretch; position: relative; color: #000">
 
-<!-- Projects window (inactive) -->
-<section class="pw-window pw-window--inactive" aria-label="Projects" style="width: 290px; flex: none">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
-<div class="pw-infobar" style="justify-content: space-between"><span>{{projectCount}}</span><span>on this Mac</span></div>
-<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a project" placeholder="Find a project"><kbd class="pw-kbd">⌘K</kbd></label></div>
-<div class="pw-window__body">
-<sc-if value="{{noProjects}}" hint-placeholder-val="{{false}}"><p class="pw-empty">Your projects will appear here.</p></sc-if>
-<sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}">
-<div class="pw-list" role="list">
-<a href="#" class="pw-row" aria-current="page"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">pi-local-harness</span><sc-if value="{{working}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-label="Working"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if></a>
-<a href="#" class="pw-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Japanese study app</span><span class="pw-row__meta">{{jsaMeta}}</span></a>
-<a href="#" class="pw-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">home-server</span></a>
-</div>
-</sc-if>
-</div>
-<div style="flex: none; border-top: 1px solid #000; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px">
-<a href="Dialogs.dc.html" class="pw-btn" style="justify-content: space-between">New Project…<span class="pw-kbd">⌘N</span></a>
-<a href="Dialogs2.dc.html" class="pw-btn" style="justify-content: space-between">Add Existing Folder…<span class="pw-kbd">⌘O</span></a>
-</div>
-<div class="pw-statusbar" style="justify-content: space-between"><span>Local AI</span><span>Nothing leaves this Mac</span></div>
-</section>
+<!-- Left window: Projects home or the project window (body[data-level]) -->
+<sc-if value="{{levelProjects}}" hint-placeholder-val="{{false}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="{{pcurrent}}" empty="{{noProjects}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
+<sc-if value="{{levelProject}}" hint-placeholder-val="{{true}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectWin" state="chat" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
 
 <!-- Chat window (active) -->
 <section class="pw-window" aria-label="Chat" style="flex: 1">
 <div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">{{title}}</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-infobar" style="padding: 8px 12px">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html" aria-current="page">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Gate.dc.html">Gate<kbd>⌘4</kbd></a></nav>
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html" aria-current="page">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a></nav>
 <span style="flex: 1"></span>
 <span class="pw-mono" style="font-size: 13px">{{folder}}</span>
 </div>
@@ -54,6 +36,7 @@
 </sc-if>
 
 <div class="pw-window__body" tabindex="0" aria-label="Messages">
+<sc-if value="{{fresh}}" hint-placeholder-val="{{false}}"><div style="display: flex; justify-content: center; padding-top: 24px"><p class="pw-convline" style="margin: 0"><a href="#" class="pw-link">‹ Earlier conversation</a><span>13 Oct · 84 messages · kept, read only</span></p></div></sc-if>
 <sc-if value="{{showWelcome}}" hint-placeholder-val="{{false}}">
 <div style="max-width: 520px; margin: 120px auto 0; padding: 0 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
 <div aria-hidden="true" style="width: 72px; height: 72px; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 44px">π</div>
@@ -70,19 +53,25 @@
 
 <sc-if value="{{hasMessages}}" hint-placeholder-val="{{true}}">
 <div class="pw-transcript">
+<sc-if value="{{compacted}}" hint-placeholder-val="{{false}}">
+<article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>13:10</time></div><p class="pw-msg__body">Why does the queue keep the interrupted job after a restart?</p></article>
+<details class="pw-compacted" open="{{summaryOpen}}"><summary><span class="pw-compacted__label">Earlier conversation summarised · 14:01 · 38 messages <span class="pw-compacted__toggle">{{summaryToggle}}</span></span></summary>
+<div class="pw-compacted__body"><p>Pi now remembers everything above as this summary. The messages stay here for you.</p><ul><li>Interrupted jobs are kept on purpose and never re-run automatically.</li><li>The Activity badge counted every unfinished state; you asked Pi to fix it.</li><li>Open question: should a stuck task also send a notification (task 59)?</li></ul></div></details>
+</sc-if>
 <article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>14:02</time></div><p class="pw-msg__body">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</p></article>
 <article class="pw-msg">
 <div class="pw-msg__label"><b>Pi</b><time>14:02</time></div>
-<details><summary>Reasoning</summary><p style="margin: 6px 0 0">The badge reads every unfinished state. Interrupted is terminal, so it should not count.</p></details>
+<details open="{{working}}"><summary>Reasoning</summary><p style="margin: 6px 0 0">The badge reads every unfinished state. Interrupted is terminal, so it should not count.</p></details>
 <p class="pw-msg__body">Interrupted work is kept on purpose — it is never repeated automatically — but the badge should only count running and waiting requests. Checking the queue first.</p>
-<div class="pw-tool"><div class="pw-tool__cmd">$ grep -n "interrupted" harness/work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span><a href="Gate.dc.html">Show in Gate</a></div></div>
+<div class="pw-tool"><div class="pw-tool__cmd">$ grep -n "interrupted" harness/work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span><a href="Gate.dc.html" class="pw-link">Show in Gate</a></div></div>
 <p class="pw-msg__body">The counter includes every unfinished state. I’ve narrowed it to running and waiting, and added a regression test. Running the queue tests now.</p>
 <sc-if value="{{working}}" hint-placeholder-val="{{true}}">
 <div class="pw-tool pw-tool--live"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks" role="status"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Running · 0:12</span></div></div>
 </sc-if>
 <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
 <div class="pw-tool"><div class="pw-tool__cmd">$ python3 -m pytest tests/test_work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span></div></div>
-<p class="pw-msg__body">All 14 queue tests pass. The badge now shows only running and waiting requests.</p>
+<div class="pw-msg__body pw-msg__body--md"><h3>Fixed</h3><p>All 14 queue tests pass. The badge now counts <strong>only running and waiting</strong> requests.</p><ul><li>Counts <code>running</code> and <code>queued</code></li><li>Regression test in <code>tests/test_work_queue.py</code></li></ul><ul class="pw-msg__tasks"><li class="pw-msg__task"><input type="checkbox" class="pw-check" checked disabled aria-label="Done">Badge ignores interrupted jobs</li><li class="pw-msg__task"><input type="checkbox" class="pw-check" disabled aria-label="Not done">Decide on stuck-task notifications (task 59)</li></ul></div>
+<p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">harness/work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">tests/test_work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">harness/web_chat.py</a></span></span></p>
 </sc-if>
 </article>
 <sc-if value="{{working}}" hint-placeholder-val="{{true}}"><div class="pw-queue-note">Next: 1 request waiting in Japanese study app</div></sc-if>
@@ -108,19 +97,31 @@
 <sc-if value="{{working}}" hint-placeholder-val="{{true}}"><button type="button" class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></sc-if>
 <button type="submit" class="pw-btn pw-btn--default" disabled="{{noProjects}}">{{sendLabel}}</button>
 </div>
+<sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}"><p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem">11 open tasks</span><span class="pw-context__item" role="listitem"><a href="#">harness/work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">tests/test_work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">agent-lock.mjs</a><span class="pw-context__kind">(related)</span></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 3 more">+3</button></p></sc-if>
 </form>
-<div class="pw-statusbar" style="justify-content: space-between"><span>Local models can make mistakes. Review important answers.</span><span>{{session}}</span></div>
+<div class="pw-statusbar" style="justify-content: space-between"><span>Local models can make mistakes. Review important answers.</span><sc-if value="{{hasProjects}}" hint-placeholder-val="{{true}}"><span class="{{meterClass}}" role="meter" aria-label="Conversation context" aria-valuemin="0" aria-valuemax="32" aria-valuenow="{{ctxK}}" aria-valuetext="{{meterText}}">Context {{ctxK}}k of 32k<span class="pw-meter__bar" aria-hidden="true" style="--pw-meter: {{ctxPct}}"><span class="pw-meter__fill"></span><span class="pw-meter__line"></span></span>{{meterNote}}</span></sc-if></div>
 </section>
+<sc-if value="{{newconv}}" hint-placeholder-val="{{false}}">
+<div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
+<div role="alertdialog" aria-labelledby="nc-msg" aria-describedby="nc-det" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 500px">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Note" class="pw-alert__icon"><rect x="2" y="2" width="32" height="32" fill="#fff" stroke="currentColor" stroke-width="2"/><path d="M18 9v3M18 16v12" stroke="currentColor" stroke-width="3.5"/></svg>
+<div><p id="nc-msg" class="pw-alert__message">Start a new conversation in pi-local-harness?</p><p id="nc-det" class="pw-alert__detail">Pi starts fresh with only the project context. This conversation is kept, read only: open it from the top of the new one or from Agent › Earlier Conversations.</p></div></div>
+<div class="pw-dialog__actions"><button class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">New Conversation</button></div>
+</div>
+</sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline"],"default":"working"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'working';
 const welcome = s === 'welcome';
 const empty = s === 'empty';
 const working = s === 'working';
-const hasMessages = !welcome && !empty;
+const fresh = s === 'fresh';
+const hasMessages = !welcome && !empty && !fresh;
+const lvl = welcome ? 'projects' : (this.props.level ?? 'project');
+const K = { near: 20, compacted: 6, summary: 6, fresh: 0, empty: 0 }[s] ?? 14;
 const hints = {
 working: 'Return queues · Shift-Return adds a line',
 recording: 'Recording · 0:07 — the text lands at the cursor for review',
@@ -129,7 +130,14 @@ dragging: 'Text, images, audio & files',
 attachments: '2 files · 1.4 MiB of 20 MiB'
 };
 return {
-working: working,
+levelProjects: lvl === 'projects', levelProject: lvl === 'project',
+agent: working ? 'working' : 'idle', pcurrent: welcome ? 'none' : 'project',
+fresh: fresh, compacted: s === 'compacted' || s === 'summary', summaryOpen: s === 'summary', summaryToggle: s === 'summary' ? 'Hide Summary' : 'Show Summary',
+newconv: s === 'newconv',
+ctxK: String(K), ctxPct: Math.round(K / 32 * 100) + '%',
+meterClass: 'pw-meter' + (K >= 16 ? ' pw-meter--near' : ''),
+meterNote: K >= 16 ? '· earlier turns are summarised after this answer' : (s === 'compacted' || s === 'summary') ? '· summarised 14:01' : '',
+meterText: K + 'k of 32k tokens' + (K >= 16 ? ', earlier turns are summarised after this answer' : ''),
 done: hasMessages && !working,
 noProjects: welcome, hasProjects: !welcome,
 projectCount: welcome ? 'No projects' : '3 projects',
@@ -137,9 +145,9 @@ jsaMeta: working ? 'waiting' : '',
 title: welcome ? 'Pi Workbench' : 'pi-local-harness',
 folder: welcome ? '' : '~/code/pi-local-harness',
 offline: s === 'offline',
-showWelcome: welcome || empty,
-welcomeTitle: welcome ? 'What are we working on?' : 'pi-local-harness',
-welcomeCopy: welcome ? 'Give your agent a place to work. Keep its conversation, plan, and files together.' : 'This project has its own conversation. Ask a question or attach a file.',
+showWelcome: welcome || empty || fresh,
+welcomeTitle: welcome ? 'What are we working on?' : fresh ? 'New conversation' : 'pi-local-harness',
+welcomeCopy: welcome ? 'Give your agent a place to work. Keep its conversation, plan, and files together.' : fresh ? 'Pi starts with the project context only. The earlier conversation is kept above, read only.' : 'This project has its own conversation. Ask a question or attach a file.',
 hasMessages: hasMessages,
 composerClass: 'pw-composer' + (s === 'dragging' ? ' pw-composer--dragging' : ''),
 error: s === 'error',

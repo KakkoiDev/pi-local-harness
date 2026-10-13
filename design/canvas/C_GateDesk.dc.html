@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Gate desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -13,12 +13,14 @@
 <style>body{margin:0}</style>
 </helmet>
 <div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; color: #000">
-<section class="pw-window" aria-label="Gate" style="flex: 1">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Gate</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
+<!-- Projects home: Activity and Gate cover every project -->
+<div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="gate" h="824px" hint-size="290px,824px"></dc-import></div>
+<section class="pw-window" aria-label="Gate · All Projects" style="flex: 1; min-width: 0">
+<div class="pw-titlebar"><a href="Main.dc.html" class="pw-box" aria-label="Close Gate and go back"></a><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Gate · All Projects</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-toolbar">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Gate.dc.html" aria-current="page">Gate<kbd>⌘4</kbd></a></nav>
-<span style="flex: 1"></span>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center">Show <select class="pw-popup"><option>{{filterLabel}}</option></select></label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center">Project <select class="pw-popup"><option>All Projects</option></select></label>
+<span style="flex: 1"></span>
 <button class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
 </div>
 <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span role="status" style="margin-left: auto">{{live}}</span></div>
@@ -32,16 +34,15 @@
 </sc-if>
 
 <sc-if value="{{notEmpty}}" hint-placeholder-val="{{true}}">
-<div class="pw-table" style="--pw-cols: 74px 72px 120px 110px minmax(0,1fr) 150px 80px; flex: 1; min-height: 0; overflow: auto">
-<div class="pw-table__row pw-table__head"><span>Time</span><span>Check</span><span>Decision</span><span>Tool</span><span>Arguments</span><span>Project</span><span>From</span></div>
+<div class="pw-table" style="--pw-cols: 70px 58px 104px minmax(0,1fr) 150px 70px; flex: 1; min-height: 0; overflow: auto">
+<div class="pw-table__row pw-table__head"><span>Time</span><span>Check</span><span>Decision</span><span>Command</span><span>Project</span><span>From</span></div>
 <sc-for list="{{rows}}" as="e" hint-placeholder-count="6">
-<a href="#" class="pw-table__row" aria-current="{{e.current}}" style="font-size: 14px">
+<div class="pw-table__row" role="row" tabindex="0" aria-current="{{e.current}}" style="font-size: 14px">
 <span>{{e.time}}</span><span>{{e.phase}}</span>
 <span class="pw-glyph"><sc-if value="{{e.ok}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{e.block}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/></svg></sc-if><sc-if value="{{e.warn}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{e.decision}}</span>
-<span class="pw-table__cell--mono">{{e.tool}}</span>
 <span class="pw-table__cell--mono">{{e.args}}</span>
-<span>{{e.project}}</span><span>{{e.from}}</span>
-</a>
+<span><a href="Main.dc.html" class="pw-link">{{e.project}}</a></span><span>{{e.from}}</span>
+</div>
 </sc-for>
 </div>
 <div class="pw-statusbar">{{count}} · latest 200 · updates every 2 s while this view is open</div>
@@ -58,10 +59,10 @@
 <dt>Decision</dt><dd style="margin: 0">BLOCK · before execution</dd>
 <dt>Tool</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">execute_command</dd>
 <dt>Rule</dt><dd style="margin: 0">Destructive shell guard</dd>
-<dt>Project</dt><dd style="margin: 0">pi-local-harness · web request 14:02</dd>
+<dt>Project</dt><dd style="margin: 0"><a href="Main.dc.html" class="pw-link">pi-local-harness</a> · web request 14:02</dd>
 <dt>Proposal</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">p-7f3a91</dd>
 </dl>
-<div style="display: flex; flex-wrap: wrap; gap: 8px"><a href="Activity.dc.html" class="pw-btn">Open Request</a><button class="pw-btn">Copy Command</button></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><a href="Activity.dc.html" class="pw-btn">Show in Activity</a><button class="pw-btn">Copy Command</button></div>
 </div>
 </section>
 </sc-if>
@@ -84,6 +85,7 @@ const all = [
 const blocked = s === 'blocked';
 const rows = (blocked ? all.filter((e) => e.k !== 'ok' || e.time === '14:03:10') : all).map((e) => Object.assign({}, e, { ok: e.k === 'ok', block: e.k === 'block', warn: e.k === 'warn', current: (blocked && e.time === '14:02:51') ? 'true' : 'false' }));
 return {
+agent: s === 'empty' ? 'idle' : 'working',
 empty: s === 'empty', notEmpty: s !== 'empty', info: blocked,
 filterLabel: blocked ? 'Blocks & Failures' : 'All Checks',
 live: s === 'empty' ? 'Connecting to Gate :8000…' : 'Live · Gate :8000',

@@ -263,3 +263,97 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-group__action{width:var(--size-touch)}
   .pw-group__empty{padding:var(--space-3) var(--space-4)}
 }
+
+/* ---- 2026-10-13 · Agent scope, what Pi sees, catching up (brief task 119) ---- */
+
+/* StatusButton: the menu bar status opens Activity. Reads as status first: no frame at rest. */
+.pw-statusbtn{font-family:var(--font-chrome);font-size:14px;line-height:18px;color:var(--ink);background:none;border:1px solid transparent;border-radius:0;height:22px;padding:0 var(--space-2);display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:default;text-decoration:none}
+.pw-statusbtn__more{flex:none;display:inline-flex;opacity:0}
+.pw-statusbtn:hover,.pw-statusbtn[data-state="hover"]{border-color:var(--ink)}
+.pw-statusbtn:hover .pw-statusbtn__more,.pw-statusbtn[data-state="hover"] .pw-statusbtn__more,.pw-statusbtn--attention .pw-statusbtn__more{opacity:1}
+.pw-statusbtn:active,.pw-statusbtn[data-state="pressed"]{background:var(--selection-bg);color:var(--selection-fg);border-color:var(--ink)}
+.pw-statusbtn:active .pw-statusbtn__more,.pw-statusbtn[data-state="pressed"] .pw-statusbtn__more{opacity:1}
+.pw-statusbtn--attention{border-color:var(--ink);box-shadow:var(--shadow-popup)}
+.pw-statusbtn:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+/* InfoBar back link ("‹ Projects"), moved from chat.css */
+.pw-infobar__back{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:default;text-decoration:none;white-space:nowrap}
+.pw-infobar__back:hover{text-decoration:underline}
+
+/* Plain text link inside chrome (Project column, "Show in Activity") */
+.pw-link{color:var(--ink);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px;cursor:default}
+.pw-link:hover{text-decoration-thickness:2px}
+
+/* ContextLine: "Pi sees: …" before sending, "Also read: …" after a reply. One line; overflow folds into "+N". */
+.pw-context{display:flex;align-items:baseline;gap:var(--space-1);min-width:0;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px;color:var(--ink)}
+.pw-context__label{flex:none;white-space:nowrap}
+.pw-context__list{display:flex;align-items:baseline;min-width:0;margin:0;padding:0;list-style:none;white-space:nowrap;overflow:hidden}
+.pw-context__item{flex:none;min-width:0}
+.pw-context__item+.pw-context__item::before{content:"·";padding:0 6px}
+.pw-context__item[hidden]{display:none}
+.pw-context__item a,.pw-context__item button{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline dotted;text-underline-offset:3px;cursor:default}
+.pw-context__item a:hover,.pw-context__item button:hover{text-decoration-style:solid}
+.pw-context__kind{padding-left:4px}
+.pw-context__more{flex:none;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:0;height:18px;padding:0 5px;margin-left:6px;display:inline-flex;align-items:center;cursor:default}
+.pw-context__more[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-context[data-expanded] .pw-context__list{flex-wrap:wrap;white-space:normal;row-gap:2px}
+.pw-context--after{padding-top:var(--space-2);border-top:1px dotted var(--ink)}
+
+/* ContextMeter: how full the conversation is. A tick marks the 60% line where the harness compacts. */
+.pw-meter{display:inline-flex;align-items:center;gap:var(--space-2);font-family:var(--font-chrome);font-size:13px;line-height:18px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pw-meter__bar{position:relative;flex:none;width:64px;height:8px;border:1px solid var(--ink);background:var(--paper)}
+.pw-meter__fill{position:absolute;top:0;bottom:0;left:0;width:var(--pw-meter,0%);background:var(--ink)}
+.pw-meter__line{position:absolute;top:-4px;bottom:-4px;left:60%;border-left:1px solid var(--ink)}
+
+/* CompactionMarker: where the harness summarised earlier turns. A disclosure opens the summary. */
+.pw-compacted{align-self:stretch;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-compacted>summary{list-style:none;display:flex;align-items:center;gap:var(--space-3);cursor:default}
+.pw-compacted>summary::-webkit-details-marker{display:none}
+.pw-compacted>summary::before,.pw-compacted>summary::after{content:"";flex:1;border-top:3px double var(--ink)}
+.pw-compacted__label{display:inline-flex;align-items:center;gap:var(--space-2);white-space:nowrap}
+.pw-compacted__toggle{text-decoration:underline;text-underline-offset:2px}
+.pw-compacted__body{margin-top:var(--space-3);border:1px dotted var(--ink);padding:var(--space-3) var(--space-4);font-family:var(--font-text);font-size:15px;line-height:1.5;display:flex;flex-direction:column;gap:var(--space-2)}
+.pw-compacted__body p,.pw-compacted__body ul{margin:0}
+.pw-compacted__body ul{padding-left:20px}
+
+/* Conversation line at the top of a fresh conversation, and the read-only bar of an earlier one */
+.pw-convline{align-self:center;display:inline-flex;align-items:center;gap:var(--space-2);font-family:var(--font-chrome);font-size:13px;line-height:18px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4px 14px}
+
+/* Thread state line (moved from chat.css .pw-thread__line) */
+.pw-thread__state{flex-basis:100%;display:flex;align-items:center;gap:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-thread__gap{flex:1}
+.pw-thread{margin-left:0}
+
+/* Composer row variants: the Pi sees line sits under the buttons */
+.pw-composer>.pw-context{margin-top:-2px}
+
+@media (max-width:760px){
+  .pw-statusbtn{height:44px}
+  .pw-context{font-size:14px;line-height:20px}
+  .pw-context__more{height:28px;min-width:44px;justify-content:center}
+}
+
+/* DocumentBlock types (task 112, moved from chat.css): each type looks like itself */
+.pw-block>.pw-block__content{flex:1;min-width:0}
+.pw-block::before{content:"";position:absolute;top:0;bottom:0;left:-48px;width:48px} /* the handle's hover zone covers the gutter */
+.pw-block__marker{flex:none;min-width:18px;text-align:right;font-variant-numeric:tabular-nums}
+.pw-block>.pw-check{margin-top:7px}
+.pw-block--quote>.pw-block__content{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
+.pw-block--code>.pw-block__content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
+.pw-block--empty>.pw-block__content::before{content:attr(data-placeholder);color:var(--ink-disabled)}
+.pw-doc__tail{min-height:96px;cursor:text} /* a click on the empty page below the last block adds a paragraph */
+
+/* Message body rendered from Markdown (task 113, moved from chat.css) */
+.pw-msg__body--md{white-space:normal}
+.pw-msg__body--md>*{margin:0}
+.pw-msg__body--md>*+*{margin-top:10px}
+.pw-msg__body--md h2,.pw-msg__body--md h3,.pw-msg__body--md h4{font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
+.pw-msg__body--md ul,.pw-msg__body--md ol{padding-left:24px}
+.pw-msg__body--md li+li{margin-top:4px}
+.pw-msg__body--md code{font-family:var(--font-mono);font-size:15px;border:1px solid var(--ink);padding:0 4px}
+.pw-msg__body--md pre{font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-msg__body--md blockquote{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
+.pw-msg__body--md a{color:var(--ink)}
+.pw-msg__tasks{list-style:none;padding-left:0!important}
+.pw-msg__task{display:flex;gap:8px;align-items:baseline}
+.pw-msg__task .pw-check{transform:translateY(2px)}

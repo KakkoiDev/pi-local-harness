@@ -8,7 +8,7 @@ Start here, then read a component's card before using it. The implementation han
 
 1. **See and point.** Every command lives in a menu, on a button, or both. Nothing is reachable only by a gesture, a right-click or a long press. Right-click and keyboard shortcuts are accelerators for things you can also find.
 2. **Select, then command.** Select a project, a file, a passage or a task, then choose what to do with it. The phone works the same way: the phone's own long press selects text, and every app action is a tap.
-3. **Modeless by default.** You can always type, select or comment. The only mode is the agent working, and it is always visible in the menu bar.
+3. **Modeless by default.** You can always type, select or comment. The only mode is the agent working, and it is always visible in the menu bar, one click from Activity.
 4. **Feedback for everything.** Saving says Saved. Queueing says Waiting. Gate's decisions are shown next to the command they judged.
 5. **Forgiveness.** Destructive actions ask with an alert whose default button is the safe one. Deleting a comment can be undone, and deleted comments are kept for good. Nothing the agent was interrupted doing is repeated automatically.
 6. **Perceived stability.** The menu bar never changes shape. Windows stay where they are. Live polling never moves focus or the text under the cursor.
@@ -57,8 +57,10 @@ The two named faces are SIL Open Font License fonts; the repo ships them as loca
 | --- | --- | --- | --- |
 | Chat | ⌘1 | project name | The project's single conversation and the composer. |
 | Work | ⌘2 | file name | Files window, document editor with inline comment threads, Review window. |
-| Activity | ⌘3 | Activity | The one request queue: Running, Waiting, Completed, Failed, Stopped, Interrupted. |
-| Gate | ⌘4 | Gate | Gate and audit checks from terminal and web Pi sessions. |
+| Activity | ⌘3 | Activity · All Projects | App-level. The one queue of the one agent: every request from every project, comment and terminal Pi. Running, Waiting, Completed, Failed, Stopped, Interrupted. |
+| Gate | ⌘4 | Gate · All Projects | App-level. Every command check, before and after execution, from every project and terminal Pi. |
+
+Chat and Work belong to the project named in the title bar; their tabs are the only tabs in that window. Activity and Gate cover every project: they open from the Agent section of the Projects window, the menu bar status (Activity) and the Window menu, and they show the Projects home on the left. Their close box (⌘W) goes back to where you were. Addresses: `/projects`, `/p/<project>/chat`, `/p/<project>/work/<file>`, `/activity`, `/gate`.
 
 ## Iconography
 
@@ -69,14 +71,15 @@ The two named faces are SIL Open Font License fonts; the repo ships them as loca
 | Keys | Command |
 | --- | --- |
 | ⌘N / ⌘O | New Project… / Add Existing Folder… |
-| ⇧⌘N / ⌘T | New Page / New Task |
+| ⇧⌘N / ⌘T | New File… / New Task… |
 | ⌘S | Save |
 | ⌘⌫ | Move to Trash |
 | ⌘W | Close Window |
 | ⌘Z | Undo (including Undo Delete Comment) |
 | ⇧⌘M | Comment on Selection |
 | ⌘F / ⌘K | Find in Files… / Find Project… |
-| ⌘1–⌘4 | Chat, Work, Activity, Gate |
+| ⌘1 / ⌘2 | Chat, Work (the project window) |
+| ⌘3 / ⌘4 | Activity · All Projects, Gate · All Projects (app-level windows) |
 | ⌥⌘R | Show or hide Review |
 | ⌘⌥] / ⌘⌥[ | Next / previous comment |
 | Return / ⇧Return | Queue message / new line (desktop only) |
@@ -92,3 +95,7 @@ On Windows and Linux, ⌘ is Ctrl.
 - Every control is a real `<button>`, `<a href>`, `<input>`, `<select>` or `<textarea>`; the menu bar follows the ARIA menubar pattern with arrow keys.
 - Focus is a 2px ink outline at 2px offset.
 - Reduced motion: there is no motion to reduce; transitions are off.
+
+## What Pi sees
+
+Each request carries a small chosen context (about 4k tokens) that never enters the chat history. The interface shows it twice: **Pi sees: …** (ContextLine) under every place you can send something to Pi, and **Also read: …** at the end of each answer for the files Pi opened itself. The Chat status bar shows how full the conversation is (ContextMeter); when the harness summarises earlier turns, a CompactionMarker marks the place. Comments and whole-file questions run outside the chat: their answers appear in the thread or under the Review window, never in Chat.

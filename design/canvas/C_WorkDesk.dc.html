@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Work desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
+<link rel="stylesheet" href="/_blob/0bee260e58c72bbc496b29ca68796cdc">
 </head>
 <body>
 <x-dc>
@@ -14,48 +14,24 @@
 </helmet>
 <div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; align-items: stretch; position: relative; color: #000">
 
-<!-- Files window: Plan group above Files group -->
-<section class="pw-window pw-window--inactive" aria-label="Project files" style="width: 290px; flex: none">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">{{project}}</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
-<div class="pw-infobar" style="justify-content: space-between"><span>{{infoLeft}}</span><span>{{infoRight}}</span></div>
-<div style="padding: 10px; border-bottom: 1px solid #000"><label class="pw-search"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><input type="search" aria-label="Find a file" placeholder="Find a file" value="{{query}}"><kbd class="pw-kbd">⌘F</kbd></label></div>
-<nav class="pw-window__body" aria-label="Files">
-<sc-if value="{{showPlan}}" hint-placeholder-val="{{true}}">
-<section class="pw-group" aria-labelledby="g-plan">
-<div class="pw-group__head"><h3 class="pw-group__title" id="g-plan"><button class="pw-group__toggle" aria-expanded="{{planOpen}}" aria-controls="g-plan-body"><sc-if value="{{planOpen}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{planShut}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if>Plan<span class="pw-group__count">{{planCount}}</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New Task…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/></svg></a></div>
-<sc-if value="{{planOpen}}" hint-placeholder-val="{{true}}"><div class="pw-group__body" id="g-plan-body" role="list">
-<sc-if value="{{planEmpty}}" hint-placeholder-val="{{false}}"><div class="pw-group__empty"><p style="margin: 0">No roadmap or tasks in this folder.</p><button class="pw-btn">Create Roadmap</button><p class="pw-help" style="margin: 0">Adds ROADMAP.md and tasks/001-first-task.md. Nothing else changes.</p></div></sc-if>
-<sc-for list="{{planRows}}" as="r" hint-placeholder-count="6"><a href="#" class="{{r.cls}}" role="listitem" aria-current="{{r.current}}" aria-expanded="{{r.expanded}}"><sc-if value="{{r.open}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.closed}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.folder}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.file}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg></sc-if><span class="pw-row__label">{{r.label}}</span><span class="pw-row__meta"><sc-if value="{{r.done}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{r.blocked}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{r.meta}}</span></a></sc-for>
-</div></sc-if>
-</section>
-</sc-if>
-<sc-if value="{{showFiles}}" hint-placeholder-val="{{true}}">
-<section class="pw-group" aria-labelledby="g-files">
-<div class="pw-group__head"><h3 class="pw-group__title" id="g-files"><button class="pw-group__toggle" aria-expanded="{{filesOpen}}" aria-controls="g-files-body"><sc-if value="{{filesOpen}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{filesShut}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if>Files<span class="pw-group__count">{{filesCount}}</span></button></h3><a href="Dialogs2.dc.html" class="pw-group__action" aria-label="New Page…"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/></svg></a></div>
-<sc-if value="{{filesOpen}}" hint-placeholder-val="{{true}}"><div class="pw-group__body" id="g-files-body" role="list">
-<sc-if value="{{filesEmpty}}" hint-placeholder-val="{{false}}"><p class="pw-group__empty">No other files yet.</p></sc-if>
-<sc-for list="{{filesRows}}" as="r" hint-placeholder-count="6"><a href="#" class="{{r.cls}}" role="listitem" aria-current="{{r.current}}" aria-expanded="{{r.expanded}}"><sc-if value="{{r.open}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.closed}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M5 3.5v9l6-4.5z" fill="currentColor"/></svg></sc-if><sc-if value="{{r.folder}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{r.file}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg></sc-if><span class="pw-row__label">{{r.label}}</span><span class="pw-row__meta"><sc-if value="{{r.done}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></sc-if><sc-if value="{{r.blocked}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{r.meta}}</span></a></sc-for>
-</div></sc-if>
-</section>
-</sc-if>
-<sc-if value="{{searching}}" hint-placeholder-val="{{false}}"><p class="pw-help" style="padding: 8px 10px; margin: 0; border-top: 1px dotted #000">{{searchNote}}</p></sc-if>
-</nav>
-</section>
+<!-- Project window (shared component) -->
+<div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectWin" state="{{pwState}}" h="824px" hint-size="290px,824px"></dc-import></div>
 
 <!-- Document window -->
 <section class="pw-window" aria-label="Document" style="flex: 1">
 <div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">{{docTitle}}</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div>
 <div class="pw-toolbar">
-<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html" aria-current="page">Work<kbd>⌘2</kbd></a><a href="Activity.dc.html">Activity<kbd>⌘3</kbd></a><a href="Gate.dc.html">Gate<kbd>⌘4</kbd></a></nav>
+<nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html" aria-current="page">Work<kbd>⌘2</kbd></a></nav>
 <span style="flex: 1"></span>
 <span class="pw-label" role="status">{{saveStatus}}</span>
 </div>
 <div class="pw-ruler" role="toolbar" aria-label="Ruler">
 <select class="pw-popup" aria-label="Block style" style="min-width: 130px" disabled="{{rulerOff}}"><option>Paragraph</option></select>
-<div class="pw-tools"><button aria-label="Bold" style="font-weight: 700" disabled="{{rulerOff}}">B</button><button aria-label="Italic" style="font-style: italic" disabled="{{rulerOff}}">I</button><button aria-label="Code" class="pw-mono" style="font-size: 13px" disabled="{{rulerOff}}">{ }</button></div>
+
 <div class="pw-tools"><button aria-label="Bulleted list" disabled="{{rulerOff}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/></svg></button><button aria-label="Task checkbox" disabled="{{rulerOff}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" fill="none" stroke="currentColor"/></svg></button></div>
 <span style="flex: 1"></span>
 <select class="pw-popup" aria-label="Editor mode" disabled="{{modeOff}}"><option>{{modeLabel}}</option></select>
+<button class="pw-btn" aria-pressed="{{showReview}}" disabled="{{modeOff}}">{{reviewLabel}}<span class="pw-kbd">⌥⌘R</span></button>
 </div>
 
 <div class="pw-window__body">
@@ -65,8 +41,8 @@
 <p>Preserve the <span class="pw-anchor">established dark workspace and pale green accent</span><button class="pw-mark" aria-expanded="true">1</button>. Use a warm charcoal canvas, a darker navigation rail, legible muted text, and restrained borders.</p>
 <div class="pw-thread">
 <div class="pw-thread__msg"><span class="pw-thread__who"><b>You</b> 14:20</span><p style="margin: 0">Out of date after the 1-bit redesign. Rewrite this sentence.</p></div>
-<div class="pw-thread__msg" style="flex-direction: column; gap: 8px"><span class="pw-thread__who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span><p class="pw-suggest"><del>Preserve the established dark workspace and pale green accent.</del> <ins>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</ins></p><div style="display: flex; gap: 10px; align-items: center"><button class="pw-btn">Keep Mine</button><span style="flex: 1"></span><button class="pw-btn pw-btn--default">Apply Change</button></div></div>
-<div class="pw-thread__actions"><input class="pw-field" aria-label="Reply to comment 1" placeholder="Reply…"><button class="pw-btn">Reply</button><button class="pw-btn">Resolve</button></div>
+<div class="pw-thread__msg" style="flex-direction: column; gap: 8px"><span class="pw-thread__who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span><p class="pw-suggest"><del>Preserve the established dark workspace and pale green accent.</del> <ins>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</ins></p><div style="display: flex; gap: 10px; align-items: center"><button class="pw-btn">Keep Mine</button><span style="flex: 1"></span><button class="pw-btn pw-btn--default">Apply Change</button></div><p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN-SYSTEM.md</a></span><span class="pw-context__item" role="listitem"><a href="#">tokens.css</a></span></span></p></div>
+<div class="pw-thread__actions"><span class="pw-thread__state"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Pi answered · 14:21 · can no longer be deleted</span><input class="pw-field" aria-label="Reply to comment 1" placeholder="Reply…"><button class="pw-btn">Reply</button><button class="pw-btn">Ask Pi</button><button class="pw-btn">Resolve</button></div>
 </div>
 <p>Projects live in the left rail. <span class="pw-anchor pw-anchor--sent">Chat, Work, and Gate remain the main views.</span><button class="pw-mark">2</button> The active project and selected file must be clear. Search scopes to its adjacent list.</p>
 <p>Applied Impeccable polish and harden guidance; refine the existing product rather than replacing its visual identity.</p>
@@ -95,7 +71,7 @@ def finish(job, status):
 <div style="max-width: 420px; margin: 140px auto 0; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center">
 <svg viewBox="0 0 16 16" width="40" height="40" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor" stroke-width=".6"/></svg>
 <p style="margin: 0; font-size: 17px">Choose a roadmap, task, or file.</p>
-<p class="pw-help">Or start one: New Page… ⇧⌘N, New Task… ⌘T.</p>
+<p class="pw-help">Or start one: New File… ⇧⌘N, New Task… ⌘T.</p>
 </div>
 </sc-if>
 </div>
@@ -104,28 +80,38 @@ def finish(job, status):
 
 <!-- Review window -->
 <sc-if value="{{showReview}}" hint-placeholder-val="{{true}}">
-<section class="pw-window pw-window--inactive" aria-label="Review" style="width: 330px; flex: none">
-<div class="pw-titlebar"><button class="pw-box" aria-label="Close Review"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Review</h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div>
-<div style="padding: 10px 12px; border-bottom: 3px double #000"><div class="pw-seg pw-seg--fill" role="radiogroup" aria-label="Show"><button role="radio" aria-checked="true">Open 2</button><button role="radio" aria-checked="false">Resolved 1</button><button role="radio" aria-checked="false">Deleted 1</button></div></div>
-<div class="pw-window__body">
-<div class="pw-review-item" aria-current="true"><button class="pw-review-item__head"><span>1 · Pi suggested a change</span><span>14:21</span></button><p class="pw-review-item__quote">“established dark workspace and pale green accent”</p><p class="pw-review-item__text">Out of date after the 1-bit redesign. Rewrite this sentence.</p><div style="display: flex; gap: 8px"><button class="pw-btn">Resolve</button></div></div>
-<div class="pw-review-item"><button class="pw-review-item__head"><span>2 · Sent to Pi · waiting</span><span>14:31</span></button><p class="pw-review-item__quote">“Chat, Work, and Gate remain the main views.”</p><p class="pw-review-item__text">Activity is missing from this list.</p><div style="display: flex; gap: 8px"><button class="pw-btn">Resolve</button></div></div>
-</div>
-<form aria-label="Document request" style="flex: none; border-top: 3px double #000; padding: 12px; display: flex; flex-direction: column; gap: 8px">
-<label class="pw-label" for="docask">Ask Pi about this whole document</label>
-<textarea id="docask" class="pw-field" rows="2" placeholder="e.g. Split the Red steps into separate tests"></textarea>
-<div style="display: flex; gap: 8px; align-items: center"><span class="pw-help" style="flex: 1">Includes this document and the project context.</span><button class="pw-btn">Send Request</button></div>
-<sc-if value="{{requestsOpen}}" hint-placeholder-val="{{false}}">
-<details open="{{true}}" style="border-top: 1px solid #000; padding-top: 8px">
-<summary class="pw-label">2 recent document requests</summary>
-<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
-<div style="border: 1px solid #000; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px"><span class="pw-glyph pw-help"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Completed · 13:58</span><p class="pw-review-item__text">Tighten the second paragraph.</p><p class="pw-review-item__text" style="font-style: italic">Shortened it to four sentences.</p><a href="Activity.dc.html" class="pw-btn" style="align-self: flex-start">View Task</a></div>
-<div style="border: 1px solid #000; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px"><span class="pw-glyph pw-help"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg>Waiting · queued 14:40</span><p class="pw-review-item__text">Add a section on phone layouts.</p><a href="Activity.dc.html" class="pw-btn" style="align-self: flex-start">View Task</a></div>
-</div>
-</details>
-</sc-if>
-<sc-if value="{{requestsClosed}}" hint-placeholder-val="{{true}}"><a href="W_Requests.dc.html" class="pw-help">2 recent document requests ›</a></sc-if>
+<section class="pw-window pw-window--inactive" aria-label="Review" style="width: 380px; flex: none">
+<div class="pw-titlebar"><button class="pw-box" aria-label="Close Review"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Review <span>3</span></h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div>
+<div style="padding: 10px 12px; border-bottom: 3px double #000"><div class="pw-seg pw-seg--fill" role="radiogroup" aria-label="Show"><button role="radio" aria-checked="true">Open 3</button><button role="radio" aria-checked="false">Resolved 1</button><button role="radio" aria-checked="false">Deleted 1</button></div></div>
+<sc-if value="{{composing}}" hint-placeholder-val="{{false}}">
+<form aria-label="New comment" style="flex: none; border-bottom: 3px double #000; padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<p class="pw-review-item__quote">“touch-sized targets”</p>
+<label class="pw-label" for="cm-new">Comment</label>
+<textarea id="cm-new" class="pw-field" rows="2">Say 44 px, so the phone layouts can be checked against it.</textarea>
+<p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem"><a href="#">tasks/066-tailscale-voice-input.md</a></span><span class="pw-context__item" role="listitem"><a href="#">specs/phone.md</a></span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 2 more">+2</button></p>
+<div style="display: flex; gap: 8px; align-items: center"><button type="button" class="pw-btn">Clear Selection</button><span style="flex: 1"></span><button class="pw-btn pw-btn--default">Add Comment</button></div>
+<p class="pw-help">Comments stay with the file until you choose Ask Pi.</p>
 </form>
+</sc-if>
+<div class="pw-window__body">
+<div class="pw-review-item" aria-current="true"><button class="pw-review-item__head"><span>1 · Pi suggested a change</span><span>14:21</span></button><p class="pw-review-item__quote">“established dark workspace and pale green accent”</p><p class="pw-review-item__text">Out of date after the 1-bit redesign. Rewrite this sentence.</p><div class="pw-review-item__actions" style="display: flex; gap: 8px"><button class="pw-btn">Resolve</button></div></div>
+<div class="pw-review-item"><button class="pw-review-item__head"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg>2 · Sent to Pi · waiting in queue</span><span>14:31</span></button><p class="pw-review-item__quote">“Chat, Work, and Gate remain the main views.”</p><p class="pw-review-item__text">Activity is missing from this list.</p><div style="display: flex; gap: 8px; align-items: center"><button class="pw-btn">Resolve</button><span style="flex: 1"></span><a href="Activity.dc.html" class="pw-link" style="font-size: 13px">Show in Activity</a></div></div>
+<div class="pw-review-item"><button class="pw-review-item__head"><span>3 · Not sent to Pi</span><span>14:40</span></button><p class="pw-review-item__quote">“long/CJK text”</p><p class="pw-review-item__text">Add a CJK fixture for the block editor.</p><div style="display: flex; gap: 8px"><button class="pw-btn">Ask Pi</button><button class="pw-btn">Resolve</button><span style="flex: 1"></span><button class="pw-btn">Delete</button></div></div>
+</div>
+<div style="flex: none; border-top: 1px solid #000; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<label class="pw-label" style="display: flex; align-items: center; gap: 8px"><input type="checkbox" class="pw-check">Show resolved in the text</label>
+<button class="pw-btn" style="width: 100%">Send 1 Unsent Comment to Pi</button>
+</div>
+<details open="{{requestsOpen}}" style="flex: none; border-top: 3px double #000; padding: 0 12px 12px">
+<summary class="pw-label" style="min-height: 32px; display: flex; align-items: center; gap: 6px">Ask Pi about this whole file</summary>
+<form aria-label="Request about this whole file" style="display: flex; flex-direction: column; gap: 8px">
+<textarea class="pw-field" rows="2" aria-label="Request about this whole file">Split the Red steps into separate tests</textarea>
+<p class="pw-context"><span class="pw-context__label">Pi sees:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">DESIGN.md</a><span class="pw-context__kind">(this file)</span></span><span class="pw-context__item" role="listitem"><a href="#">ROADMAP.md</a><span class="pw-context__kind">(plan)</span></span><span class="pw-context__item" role="listitem">11 open tasks</span></span><button type="button" class="pw-context__more" aria-expanded="false" aria-label="Show 3 more">+3</button></p>
+<div style="display: flex; gap: 8px; align-items: center"><span class="pw-help" style="flex: 1">The answer appears here, not in Chat.</span><button class="pw-btn">Send Request</button></div>
+<div style="border: 1px solid #000; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px"><span class="pw-glyph pw-help"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Answered · 13:58</span><p class="pw-review-item__text">Tighten the second paragraph.</p><p class="pw-review-item__text" style="font-style: italic">Shortened it to four sentences.</p><p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">PRODUCT.md</a></span><span class="pw-context__item" role="listitem"><a href="#">specs/review.md</a></span></span></p></div>
+<div style="border: 1px solid #000; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px"><span class="pw-glyph pw-help"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg>Waiting · queued 14:40</span><p class="pw-review-item__text">Add a section on phone layouts.</p><a href="Activity.dc.html" class="pw-link" style="font-size: 13px; align-self: flex-start">Show in Activity</a></div>
+</form>
+</details>
 </section>
 </sc-if>
 
@@ -147,7 +133,7 @@ def finish(job, status):
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["doc","source","code","empty","search","requests","conflict","trash","reload","noplan"],"default":"doc"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["doc","source","code","empty","search","requests","conflict","trash","reload","noplan","comment"],"default":"doc"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'doc';
@@ -175,6 +161,9 @@ reload: { m: 'Reload “DESIGN.md” from disk?', d: 'Your unsaved changes in th
 };
 const a = alerts[s];
 return {
+pwState: search ? 'search' : code ? 'code' : noplan ? 'noplan' : empty ? 'empty' : 'doc',
+composing: s === 'comment',
+reviewLabel: (!code && !empty) ? 'Hide Review' : 'Show Review',
 project: noplan ? 'home-server' : 'pi-local-harness',
 infoLeft: noplan ? 'No plan yet' : search ? '3 matches' : '11 open tasks',
 infoRight: noplan ? '2 folders · 4 files' : '6 folders · 13 files',
@@ -195,8 +184,8 @@ showDoc: !code && !empty && !source,
 showSource: source, showCode: code, showEmpty: empty,
 showReview: !code && !empty,
 requestsOpen: s === 'requests', requestsClosed: s !== 'requests',
-statusLeft: code ? 'Text and code files have no comments' : empty ? 'No document open' : '⌘S saves · changes save as you type',
-path: code ? 'harness/work_queue.py' : empty ? '' : 'DESIGN.md',
+statusLeft: code ? 'Text and code files have no comments' : empty ? 'No document open' : s === 'conflict' ? 'Not saved' : 'Paragraph · 3 open comments',
+path: code ? '~/code/pi-local-harness/harness/work_queue.py' : empty ? '' : '~/code/pi-local-harness/DESIGN.md',
 hasAlert: !!a,
 alertCaution: !!(a && a.caution), alertStop: !!(a && !a.caution),
 alertMessage: a ? a.m : '', alertDetail: a ? a.d : '', alertDanger: a ? a.danger : '', alertDefault: a ? a.def : ''

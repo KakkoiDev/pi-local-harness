@@ -165,3 +165,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [123-The phone matches the phone boards](tasks/123-phone-matches-boards.md)
 - [ ] [124-Phone comment composer and thread sheets](tasks/124-phone-comment-sheets.md)
 - [x] [125-Reasoning renders Markdown and wraps](tasks/125-reasoning-markdown.md)
+- [x] [126-Re-sync the design after the agent-scope brief](tasks/126-design-resync-2.md)
