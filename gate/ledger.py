@@ -3,6 +3,7 @@ from collections import deque
 from datetime import datetime
 import copy
 import hashlib
+import json
 from pathlib import Path
 import threading
 import time
@@ -11,13 +12,22 @@ from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol
 
 class ProposalLedger:
-    def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None):
+    def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None, events_file=None):
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
         self.pending = {}
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
         self.protocol = Protocol(protocol_file)
+        # Checks survive a restart of plh: one JSON line per event, the last 200 read back (the person lost them on restart).
+        self.events_file = Path(events_file) if events_file else None
+        if self.events_file and self.events_file.exists():
+            lines = self.events_file.read_text(encoding='utf-8').splitlines()
+            for line in lines[-200:]:
+                try: self.events.append(json.loads(line))
+                except ValueError: continue
+            self.event_sequence = max((event.get('id', 0) for event in self.events), default=0)
+            if len(lines) > 2000: self.events_file.write_text(''.join(json.dumps(event) + '\n' for event in self.events), encoding='utf-8')
 
     def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None, cwd=None, source=None):
         # Show scope, not uploaded file bodies or tool output.
@@ -29,6 +39,8 @@ class ProposalLedger:
                                 'phase': phase, 'outcome': outcome, 'tool': proposal.tool_name,
                                 'args': args, 'reason': reason, 'proposal_id': token, 'tool_call': tool_call,
                                 'cwd': cwd, 'source': source})  # task 129: where it ran, web or terminal
+            if self.events_file:
+                with self.events_file.open('a', encoding='utf-8') as handle: handle.write(json.dumps(self.events[-1]) + '\n')
 
     def recent_events(self):
         with self.lock:

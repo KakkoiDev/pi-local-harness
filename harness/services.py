@@ -51,7 +51,7 @@ def main():
     data_dir = Path(os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')))
     data_dir.mkdir(parents=True, exist_ok=True)
     gate = GateEngine(str(ROOT / 'specs/judges.md'), os.getenv('PI_HARNESS_LOG_FILE', str(data_dir / 'gate-audit.log')))
-    ledger = ProposalLedger(gate, protocol_file=data_dir / 'gate-protocol.json')
+    ledger = ProposalLedger(gate, protocol_file=data_dir / 'gate-protocol.json', events_file=data_dir / 'gate-events.jsonl')
     token = secrets.token_urlsafe(32)
     class Handler(AgentHandler):
         def __init__(self, *args):

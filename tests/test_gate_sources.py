@@ -22,6 +22,15 @@ class GateSourceTest(unittest.TestCase):
         self.assertEqual([(event['phase'], event['cwd'], event['source']) for event in events],
                          [('gate', '/work/app', 'web'), ('audit', '/work/app', 'web'), ('gate', '/work/other', 'terminal')])
 
+    def test_checks_survive_a_restart(self):
+        events = Path(self.temp.name) / 'gate-events.jsonl'; engine = GateEngine(str(ROOT / 'specs/judges.md'), str(Path(self.temp.name) / 'audit.log'))
+        first = ProposalLedger(engine, events_file=events)
+        first.propose('execute_command', {'command': 'ls'}, 'admin', cwd='/work/app', source='web')
+        restarted = ProposalLedger(engine, events_file=events)
+        self.assertEqual([(event['phase'], event['cwd']) for event in restarted.recent_events()], [('gate', '/work/app')])
+        restarted.propose('execute_command', {'command': 'pwd'}, 'admin', cwd='/work/app', source='web')
+        self.assertEqual([event['id'] for event in restarted.recent_events()], [1, 2], 'ids keep counting')
+
     def test_web_view_maps_folders_to_projects_and_counts_today(self):
         from harness.web_chat import WebChat
         chat = WebChat(Path(self.temp.name) / 'chats', 1, 2, data_root=Path(self.temp.name) / 'data'); self.addCleanup(chat.close)
