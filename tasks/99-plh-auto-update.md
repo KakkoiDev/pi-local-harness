@@ -10,4 +10,4 @@ Why: `plh` runs the copy `harness/install.py` made in `~/.local/share/pi-local-h
 - [x] `harness/install.py`: writes `install.json` (`source`, `commit`, `prefix`, `agent`, `data`); keeps the three newest `pi-local-harness.before-*`.
 - [x] `plh.py`: on launch, if the checkout's HEAD differs, install `git archive HEAD` and re-exec the new `plh`; any failure warns and starts the installed build.
 - [x] readme: auto-update, `auto_update`, restart still needed for a running session.
-- [ ] Reinstall on this Mac and launch the new build.
+- [x] Reinstall on this Mac and launch the new build. 2026-10-13: installed c768944; `plh -p` answered through gemma4:26b-mlx; the next launch updated itself to the commit recording this.
