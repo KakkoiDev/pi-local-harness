@@ -19,7 +19,7 @@ html[data-pattern="gray"] #desk{background-image:repeating-conic-gradient(var(--
 html[data-pattern="plain"] #desk{background-image:none}
 .window-projects{width:var(--size-sidebar);min-width:260px;flex:none}
 #main-window{flex:1;min-width:320px}
-/* 761-1100px: Files + main + Review do not fit; the desk scrolls sideways instead of crushing the main window. */
+/* Desk wider than the three windows: the desk scrolls sideways instead of crushing the main window. */
 #desk{overflow-x:auto}
 .window-info{width:340px;flex:none}
 .window-section{padding:10px;border-bottom:1px solid var(--ink);display:flex;flex-direction:column;gap:8px}
@@ -171,3 +171,12 @@ button.laya-event{text-align:left;background:none;border-left:0;border-right:0;b
 .activity-detail__tools{display:flex;flex-direction:column;gap:8px}
 .activity-detail__tools h4{margin:0}
 .pw-tool__reason{display:flex;gap:8px;align-items:flex-start;margin:0;padding:6px 12px;border-top:1px solid var(--ink);font-size:13px}
+/* 761-1100px (tablet, small laptop): narrower Projects and Files; Review and Event Info float over the lower right of the main window instead of taking a column. */
+@media (min-width:761px) and (max-width:1100px){
+  #desk{position:relative}
+  .window-projects{width:240px;min-width:0}
+  .window-files{width:220px}
+  #laya-events{--pw-cols:84px 64px 120px minmax(0,1fr)} /* Project and From move to Event Info */
+  #laya-events .pw-table__row>:nth-child(n+5){display:none}
+  .window-review,.window-info{position:absolute;top:45%;right:var(--space-6);bottom:var(--space-6);z-index:25;width:min(var(--size-review),calc(100% - 2 * var(--space-6)))} /* below the main window title, view tabs and document bar */
+}

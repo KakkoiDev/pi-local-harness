@@ -9,7 +9,7 @@ Request 2026-10-13: "implement this new design." Build step 3 of [design/IMPLEME
 - [x] `index.html` = `design/index.reference.html` minus its header comment, plus `hidden` on the empty `#event-info` (otherwise it takes 340px and crushes the Laya view to 0 width; step 10 shows it on selection).
 - [x] `chat.css` = `design/layout.css` plus:
   - `[hidden]{display:none!important}`, carried over from the old CSS. Without it `body[data-view="work"] [data-view-only="work"]{display:flex}` outranks `.window-review[hidden]` and the Review window shows for text files.
-  - `#main-window{min-width:320px}` and `#desk{overflow-x:auto}`: at 768px Files (290) + Review (380) + gaps leave the main window 0px wide. The desk scrolls sideways instead. Open with the user: a real tablet layout.
+  - `#main-window{min-width:320px}` and `#desk{overflow-x:auto}`: at 768px Files (290) + Review (380) + gaps leave the main window 0px wide. The desk scrolls sideways instead. Open with the user: a real tablet layout. 2026-10-13: done in task 90.
   - `#project-folder` ellipsis: a long path overflowed 390px.
   - Phone: `#workspace-bar` stays (shortcut hints hidden) until step 12 builds the phone-view popup; hiding it now would leave no way to change views on the phone.
   - A "Legacy" section for `.block-tools` until step 7 replaces them.
