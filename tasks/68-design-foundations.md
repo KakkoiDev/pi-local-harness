@@ -12,4 +12,4 @@ Build step 1 of [design/IMPLEMENTATION.md](../design/IMPLEMENTATION.md) § 12. N
 - [x] `harness/web_chat.py`: allowlist `/design/tokens.css`, `/design/components.css`, `/js/icons.mjs` (2026-10-13, task 69: replaced by `/design/icons.mjs`) and the five `/fonts/*.woff2` (`FONTS`); `mimetypes.add_type('font/woff2','.woff2')` (Python 3.14 here already knows it; kept for older Pythons the handoff warns about, so reverting it does not fail the test on this machine).
 - [x] `harness/install.py` copies `design` and `fonts`.
 - [x] `fonts/README.md`: file names, families, sources, licence, fallback behaviour.
-- [ ] Font files and `fonts/OFL.txt`: need the user's permission to download. Until then the fallback stacks in `tokens.css` apply.
+- [x] Font files and `fonts/OFL.txt`: need the user's permission to download. Until then the fallback stacks in `tokens.css` apply. 2026-10-13: permission given ("yes"), shipped in task 87.

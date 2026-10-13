@@ -11,7 +11,7 @@
 | 5 Runtime writes into repo | Fixed, task 48. |
 | 6 Canary abort | Not changed. Waiting on your call. |
 | 7 Identical profiles | Withdrawn. Task 31 made bash non-high-risk on purpose; README already says both profiles share the shell rules. |
-| 8 Drift audit | Not changed. Unverified whether Pi can deliver different input at tool_result. |
+| 8 Drift audit | Not changed. 2026-10-13: verified, see #8. Executed args are the audited args; in-place mutation after the gate is detected. |
 | 9 Shell deny-list | Not changed. Waiting on your call. |
 | 10 Dropped connections | Fixed, task 49. |
 | 11 Stale lock | Not changed. Waiting on your call. |
@@ -54,7 +54,7 @@ Evidence column: V = reproduced this session, R = read in source only.
 ## Medium
 
 7. **Laya profiles are identical** (R): no tool maps to `HIGH_RISK` (`laya/engine.py:12-21`), so `standard` == `admin`. Auth level is chosen by the client (`extension.mjs:144`). The "restricted standard profile" in `incident_log.md` does not exist.
-8. **Drift audit cannot detect drift** (R): proposal and execution args both come from the same `event.input` (`extension.mjs:144,155`).
+8. **Drift audit cannot detect drift** (R): proposal and execution args both come from the same `event.input` (`extension.mjs:144,155`). 2026-10-13, verified in pi-agent-core `dist/agent-loop.js` 370-450 and pi-coding-agent `dist/core/agent-session.js` 177-211: one `validatedArgs` object goes to `tool_call`, to `tool.execute` and to `tool_result`, so the executed args are the audited args. `/gatekeep` serializes the args when it is called, so the only drift path, a later `tool_call` handler or the tool mutating `event.input` in place, does show as DRIFT_DETECTED. Downgraded to Low: kept as is.
 9. **Shell guard is a string deny-list** (R): `python3 -c "shutil.rmtree(...)"`, `git clean -fdx ~`, `rm -rf ~/Code` all pass. Documented as "not a sandbox"; fine only if nobody relies on it.
 10. **Unhandled exceptions drop connections** (R): `web_chat.py:334` catches ValueError/KeyError/FileNotFound/FileExists only. TypeError (non-string `path`), PermissionError, StopIteration (`project_chat` `next()` line 119, `mark_sent` line 464) -> no HTTP response.
 11. **Stale agent lock** (R): `.agent-lock` liveness via `kill(pid,0)`; PID reuse or EPERM -> queue blocked until manual delete (`web_chat.py:106-111`, `agent-lock.mjs:5`).

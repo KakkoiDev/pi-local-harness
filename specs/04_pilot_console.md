@@ -1,5 +1,7 @@
 # Spec: The Pilot Console (The Supervisory UI)
 
+> 2026-10-13: proposal, not built. The Pi Workbench (tasks 68-90) covers supervision of one agent: Activity (jobs, phases, commands) and Laya (gate and audit per tool call). The multi-agent dashboard below stays open as task 17.
+
 ## Overview
 The Pilot Console is a centralized, web-based dashboard designed for human oversight. It provides a high-level "Command and Control" view of the entire Agentic Ecosystem.
 

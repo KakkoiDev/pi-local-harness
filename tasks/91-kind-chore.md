@@ -7,4 +7,4 @@ Request 2026-10-13: "make best call decisions" on the open item "rename kind con
 - [x] Red (`tests/test_protocol.py`): a `Kind: chore` task commits after a green run without red; `Kind: config` is now unknown and the reason lists `Kind: code|chore|docs|planning`. Fails with `laya/protocol.py` stashed.
 - [x] `laya/protocol.py` `KINDS`, `KIND_FIX` and the code-in-docs reason.
 - [x] `readme.md`, task 54 table (dated note), task 65 `Kind: chore`.
-- No alias for `config`: no task file in this repo or `~/pi-local-harness-data` uses it. A project that does gets the REVISE reason naming the fix.
+- No alias for `config`: no task file in this repo uses it (only task 65, renamed). `~/pi-local-harness-data` does not exist on this Mac; other project folders were not checked. A project that does gets the REVISE reason naming the fix.

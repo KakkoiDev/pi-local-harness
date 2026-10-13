@@ -1,6 +1,8 @@
 # Spec: The Operational Lifecycle
 
-Current implementation: the global pi extension starts Laya/API and the portfolio webserver, displays bound ports, loads memory, and starts deterministic monitoring. Whisper loads only for audio input. See `tasks/20-boot-sequence.md` and `harness/README.md`. The PostgreSQL, analytics, and supervisory dashboard architecture below remains a future proposal.
+Current implementation: the global pi extension starts Laya/API and the Pi Workbench web server (`plh`; the portfolio webserver was removed in task 65), displays bound ports, loads memory, and starts deterministic monitoring. Whisper loads only for audio input. See `tasks/20-boot-sequence.md` and `harness/README.md`. The PostgreSQL, analytics, and supervisory dashboard architecture below remains a future proposal.
+
+> 2026-10-13: everything below is the original proposal, not the running system. `sentinel.py` is retired (its checks live in `harness/watch.mjs` and `harness/memory.mjs`, see `specs/03_sentinel.md`); there is no PostgreSQL.
 
 This specification defines how the entire "Guardian Trio" is initialized, executed, and terminated.
 
