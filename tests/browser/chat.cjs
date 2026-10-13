@@ -28,6 +28,7 @@ const readline = require('node:readline');
   await page.unroute('**/js/ui.mjs');
   await page.goto(`http://127.0.0.1:${ports.web}`);
   await page.getByRole('button',{name:'Create Your First Project…',exact:true}).waitFor();
+  assert.deepEqual(await page.evaluate(()=>Promise.all(['15px "Pixelify Sans"','16px "Source Serif 4"','italic 16px "Source Serif 4"','13px "IBM Plex Mono"','500 13px "IBM Plex Mono"'].map(font=>document.fonts.load(font).then(faces=>faces.length>0&&faces.every(face=>face.status==='loaded'),()=>false)))),[true,true,true,true,true],'the design fonts load from /fonts');
   assert.equal(await page.locator('#prompt').isDisabled(),true);
   await page.locator('#menubar [aria-controls="menu-file"]').click();assert.equal(await page.locator('#menu-file [data-command="new-page"]').getAttribute('aria-disabled'),'true','New Page needs a project');assert.equal(await page.locator('#menu-file [data-command="new-project"]').getAttribute('aria-disabled'),'false');await page.keyboard.press('Escape');
   async function createProject(name){
