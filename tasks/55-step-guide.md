@@ -11,5 +11,11 @@ given and never skips one.
 - [ ] Step state is derived from the persisted record (task 53) and git, so it survives interruptions and restarts.
 - [ ] Green: full suite.
 
-Open: test paths are `tests/`, `test_*`, `*_test.*`, `*.test.*`; other layouts need a
-`Tests:` line in the task file.
+Decided 2026-10-13: test settings live in the ROADMAP.md header, written during planning
+and shown at approval:
+
+    Tests: tests/
+    Test command: python3 -m unittest discover -s tests
+
+- [ ] Red: the red step allows edits only under `Tests:`; only `Test command:` counts as a red or green run.
+- [ ] Red: without the header, defaults apply (`tests/`, `test_*`, `*_test.*`, `*.test.*`, any known runner).
