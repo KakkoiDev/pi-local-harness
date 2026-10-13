@@ -78,6 +78,49 @@ class RemoteAccessTest(unittest.TestCase):
                                   {'mime': 'audio/webm', 'data': base64.b64encode(b'x').decode()})
         self.assertEqual(status, 400); self.assertIn('No speech', value['error'])
 
+class TailscaleServeTest(unittest.TestCase):
+    """plh's services start `tailscale serve <web port>` in the foreground and stop it on exit."""
+    def start(self, tailscale):
+        import os, subprocess, sys
+        directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
+        root = Path(directory.name)
+        env = {**os.environ, 'PI_LAYA_PORT': '0', 'PI_WEB_PORT': '0', 'PI_AGENT_DATA': str(root / 'data'), 'PI_WEB_DATA': str(root / 'web'),
+               'PI_WEB_REMOTE_HOSTS': HOST, 'PI_WEB_REMOTE_USERS': USER, 'PI_TAILSCALE': tailscale}
+        process = subprocess.Popen([sys.executable, 'harness/services.py'], cwd=Path(__file__).resolve().parent.parent, env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.addCleanup(lambda: (process.poll() is None and process.kill(), process.wait(), process.stdout.close(), process.stderr.close()))
+        line = process.stdout.readline()
+        self.assertTrue(line, process.stderr.read() if process.poll() is not None else 'No readiness')
+        return process, json.loads(line), root
+
+    def fake(self, body):
+        directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
+        path = Path(directory.name, 'tailscale'); path.write_text('#!/bin/sh\n' + body); path.chmod(0o755)
+        return path
+
+    def test_serve_runs_with_the_web_port_and_stops_with_services(self):
+        import os, signal, time
+        record = Path(tempfile.mkdtemp()) / 'args'
+        process, ready, _ = self.start(str(self.fake(f'echo "$$ $@" > {record}\nexec sleep 60\n')))
+        self.assertEqual(ready['remote'], f'https://{HOST}')
+        for _ in range(50):
+            if record.exists() and record.read_text().endswith('\n'): break
+            time.sleep(0.1)
+        pid, *args = record.read_text().split()
+        self.assertEqual(args, ['serve', str(ready['web'])])
+        process.send_signal(signal.SIGTERM); process.wait(timeout=10)
+        for _ in range(50):
+            try: os.kill(int(pid), 0)
+            except ProcessLookupError: break
+            time.sleep(0.1)
+        else: self.fail('tailscale serve still running after services stopped')
+
+    def test_failure_is_reported_and_the_web_still_starts(self):
+        _, ready, _ = self.start(str(self.fake('echo "Serve is not enabled on your tailnet" >&2\nexit 1\n')))
+        self.assertNotIn('remote', ready); self.assertIn('Serve is not enabled', ready['remote_error'])
+        _, ready, _ = self.start('/nonexistent/tailscale')
+        self.assertIn('tailscale', ready['remote_error']); self.assertTrue(ready['web'])
+
 class RemoteConfigTest(unittest.TestCase):
     def test_plh_validates_and_exports_remote_settings(self):
         from plh import configuration, environment

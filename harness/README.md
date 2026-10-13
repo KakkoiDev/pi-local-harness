@@ -57,14 +57,27 @@ provides it.
 
 Setup, once, on the Mac that runs `plh`:
 
-1. `tailscale serve --bg 3000` (use `web_port` from config.json). `tailscale serve status`
-   prints the URL, e.g. `https://mini.example.ts.net`.
+1. Tailscale running and logged in (`tailscale status` lists this Mac). HTTPS
+   certificates enabled for the tailnet (admin console, DNS page).
 2. In `~/pi-local-harness-data/config.json` add both lists, then restart `plh`:
    `"remote_hosts": ["mini.example.ts.net"]`, `"remote_users": ["you@example.com"]`.
    Hosts are bare names: no `https://`, no port. Users are Tailscale login names.
    `plh` refuses to start with only one of the two lists set.
-3. On the phone (Tailscale app connected) open the URL.
-4. Undo: `tailscale serve reset`, or empty both lists.
+3. `plh` starts `tailscale serve <web port>` itself (`tailscale_serve` in
+   `harness/services.py`) and prints `Phone: https://<first remote_hosts entry>` in
+   the Pi startup lines. If serve fails, the line reads `Phone access off: <reason>`
+   and the local web UI still works.
+4. On the phone (Tailscale app connected) open the Phone URL.
+
+Lifecycle: serve runs in the foreground (no `--bg`) as a child of the services
+process; quitting Pi terminates it. Nothing is left in the tailnet config, unless
+you also ran `tailscale serve --bg` yourself: undo that with `tailscale serve reset`.
+Set `PI_TAILSCALE` to use a different tailscale binary (tests use a fake).
+
+Not verified (2026-10-13, Tailscale was stopped on the dev Mac):
+- that a foreground serve removes its config on exit (check `tailscale serve status` after quitting Pi);
+- what serve does when HTTPS is not enabled: if it waits for you to enable it instead
+  of exiting within 1 second, Pi shows the Phone URL anyway and the phone gets an error.
 
 How a request is trusted (`WebHandler.trusted` in `harness/web_chat.py`):
 

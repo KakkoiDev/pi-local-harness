@@ -2,7 +2,7 @@
 export function renderStartup(lines, width) {
   const columns = Math.max(1, width);
   return lines.flatMap(line => {
-    const match = /http:\/\/127\.0\.0\.1:\d+/.exec(line);
+    const match = /https?:\/\/\S+/.exec(line);
     const rows = [];
     for (let offset = 0; offset < line.length; offset += columns) {
       let text = line.slice(offset, offset + columns);
@@ -17,6 +17,13 @@ export function renderStartup(lines, width) {
     }
     return rows;
   });
+}
+
+export function startupLines(ports) {
+  const lines = [`Laya: http://127.0.0.1:${ports.laya}`, `Web: http://127.0.0.1:${ports.web}`];
+  if (ports.remote) lines.push(`Phone: ${ports.remote}`);
+  if (ports.remote_error) lines.push(`Phone access off: ${ports.remote_error}`);
+  return [...lines, 'Loop check: every 10 seconds'];
 }
 
 export function installStartupDisplay(pi) {

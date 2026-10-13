@@ -5,6 +5,7 @@ import json
 import os
 import secrets
 import signal
+import subprocess
 import sys
 import threading
 from pathlib import Path
@@ -16,6 +17,20 @@ from laya.engine import LayaEngine
 from laya.ledger import ProposalLedger
 from harness.web_chat import WebChat, WebHandler
 
+
+def tailscale_serve(port):
+    """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process."""
+    try:
+        process = subprocess.Popen([os.getenv('PI_TAILSCALE', 'tailscale'), 'serve', str(port)],
+                                   stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    except OSError as error:
+        return None, f'cannot run tailscale: {error}'
+    try:
+        process.wait(1)
+    except subprocess.TimeoutExpired:
+        threading.Thread(target=process.stderr.read, daemon=True).start()
+        return process, None
+    return None, f'tailscale serve exited ({process.returncode}): {process.stderr.read().strip()[-500:]}'
 
 def main():
     os.chdir(ROOT)
@@ -32,6 +47,7 @@ def main():
             super().__init__(*args)
     servers = []
     chat = None
+    serve = None
     try:
         api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_LAYA_PORT', '8000'))), Handler)
         servers.append(api)
@@ -44,15 +60,24 @@ def main():
         servers.append(web)
         for server in servers:
             threading.Thread(target=server.serve_forever, daemon=True).start()
+        ready = {'laya': api.server_port, 'web': web.server_port, 'token': token}
+        if WebHandler.remote_hosts:
+            serve, problem = tailscale_serve(web.server_port)
+            if serve: ready['remote'] = 'https://' + sorted(WebHandler.remote_hosts)[0]
+            else: ready['remote_error'] = problem
         stopped = threading.Event()
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, lambda *_: stopped.set())
-        print(json.dumps({'laya': api.server_port, 'web': web.server_port, 'token': token}), flush=True)
+        print(json.dumps(ready), flush=True)
         owner = os.getppid()
         while not stopped.wait(1):
             if os.getppid() != owner:
                 break
     finally:
+        if serve:
+            serve.terminate()
+            try: serve.wait(5)
+            except subprocess.TimeoutExpired: serve.kill()
         if chat: chat.close()
         for server in servers:
             server.server_close()

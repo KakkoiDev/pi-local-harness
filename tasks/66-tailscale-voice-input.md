@@ -9,4 +9,5 @@ Request 2026-10-13: "access the local ui through tailscale and be able to send a
 - [x] `POST /api/transcribe` returns `{text}`; the mic button inserts it at the cursor, falls back to attaching the recording.
 - [x] `remote_hosts` / `remote_users` in config.json, exported as `PI_WEB_REMOTE_HOSTS` / `PI_WEB_REMOTE_USERS`.
 - [x] Documented in harness/README.md (setup, trust rules, voice flow) and readme.md.
-- [ ] On the phone: `tailscale serve --bg 3000`, open the URL, record, check the text lands in the box. Not run by the agent: it changes the tailnet configuration.
+- [x] Follow-up 2026-10-13: "I want it to be started with the plh command. and show the url in the pi cli". Services run `tailscale serve <web port>` in the foreground and stop it on exit; Pi prints `Phone: https://...` or `Phone access off: <reason>`. Tests: `TailscaleServeTest`, `tests/harness/startup-display.test.mjs`.
+- [ ] On the phone: start plh, open the Phone URL, record, check the text lands in the box. Not run: Tailscale is stopped on the dev Mac.

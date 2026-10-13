@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { localModels } from './provider.mjs';
 import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
-import { installStartupDisplay } from './startup-display.mjs';
+import { installStartupDisplay, startupLines } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
@@ -87,7 +87,7 @@ export default function harness(pi, dependencies = {}) {
           }
         });
       });
-      const lines = [`Laya: http://127.0.0.1:${ports.laya}`, `Web: http://127.0.0.1:${ports.web}`, 'Loop check: every 10 seconds'];
+      const lines = startupLines(ports);
       ctx.ui.setWidget('local-harness', undefined);
       ctx.ui.setStatus('local-harness', undefined);
       showStartup?.(lines);
