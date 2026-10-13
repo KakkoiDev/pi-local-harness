@@ -410,6 +410,15 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#effort-button').getAttribute('aria-disabled'),'true');assert.equal(await page.locator('#effort-button').textContent(),'No thinking');
   await page.unroute('**/api/models');await page.unroute('**/api/model');fs.rmSync(join(directory,'workspace','model.json'));
 
+  // Messages sent while Pi works join the chat's waiting message: one request, not many.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Hold on TEST_WAIT');await page.locator('#send').click();
+  await page.waitForFunction(()=>document.querySelector('#send').textContent==='Queue');
+  for(const text of ['First follow-up','Second follow-up']){await page.locator('#prompt').fill(text);await page.locator('#send').click();await page.waitForFunction(()=>!document.querySelector('#prompt').value);}
+  assert.match(await page.locator('#toast-text').textContent(),/Added to your waiting message/);
+  const waitingJobs=(await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()))).jobs.filter(job=>job.status==='queued'&&!job.document);
+  assert.deepEqual(waitingJobs.map(job=>job.message),['First follow-up\n\nSecond follow-up']);
+  await stopAll();
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();

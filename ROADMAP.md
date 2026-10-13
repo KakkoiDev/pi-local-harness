@@ -187,3 +187,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [145-Re-sync the design after round 3](tasks/145-design-resync-3.md)
 - [x] [146-Rename, move and trash files and folders](tasks/146-rename-move-trash-files.md)
 - [x] [147-Choose the model and the thinking level from the menu bar](tasks/147-model-and-thinking-menus.md)
+- [x] [148-Messages sent while Pi works join one waiting request](tasks/148-join-waiting-messages.md)

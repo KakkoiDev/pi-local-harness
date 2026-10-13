@@ -40,6 +40,18 @@ class QueueTest(unittest.TestCase):
             self.assertEqual(restored.list()[-1]['status'],'interrupted');self.assertFalse(restored.run_one())
             self.assertNotIn('data',restored.list()[-1])
 
+    def test_chat_messages_sent_while_waiting_join_one_request(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);queue=WorkQueue(root/'queue.json',lambda job,emit:None,start=False)
+            first=queue.add('p','chat-1',{'message':'Fix the header'})
+            second=queue.add('p','chat-1',{'message':'and the footer','attachments':[{'name':'a.txt','data':'eA=='}]})
+            self.assertEqual(second['id'],first['id']);self.assertTrue(second['merged'])
+            self.assertEqual(queue.list()[0]['message'],'Fix the header\n\nand the footer');self.assertEqual(queue.list()[0]['files'],['a.txt'])
+            self.assertEqual(len(queue.list()),1)
+            other=queue.add('p','chat-2',{'message':'Another chat'});comment=queue.add('p','chat-1',{'message':'Comment','document_comment':{'path':'x','id':'c'}})
+            self.assertNotEqual(other['id'],first['id']);self.assertNotEqual(comment['id'],first['id']);self.assertEqual(len(queue.list()),3)
+            self.assertEqual(WorkQueue(root/'queue.json',lambda job,emit:None,start=False).list()[0]['message'],'Fix the header\n\nand the footer','kept across a restart')
+
     def test_tasks_are_saved_as_markdown_with_document_and_chat_links(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);queue=WorkQueue(root/'queue.json',lambda job,emit:None,start=False)
@@ -65,7 +77,7 @@ class QueueTest(unittest.TestCase):
     def test_same_second_tasks_preserve_fifo_after_restart(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'queue.json';queue=WorkQueue(path,lambda job,emit:None,start=False)
-            for message in ['first','second','third']:queue.add('One','chat',{'message':message})
+            for message in ['first','second','third']:queue.add('One','chat-'+message,{'message':message}) # one chat each: messages to one waiting chat join (test above)
             calls=[];restored=WorkQueue(path,lambda job,emit:calls.append(job['data']['message']),start=False)
             for _ in range(3):restored.run_one()
             self.assertEqual(calls,['first','second','third'])

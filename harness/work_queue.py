@@ -50,6 +50,13 @@ class WorkQueue:
         with self.condition:
             if self.closed:raise ValueError('Queue is shutting down')
             if sum(job['status']=='queued' for job in self.jobs)>=100:raise ValueError('Queue is full')
+            # Chat messages sent while the chat's earlier message still waits join it: one request, not many (the person, 2026-10-13).
+            plain=lambda value:not value.get('document') and not value.get('document_comment')
+            waiting=next((item for item in reversed(self.jobs) if item['status']=='queued' and item['chat']==chat and plain(item['data'])),None) if plain(data) else None
+            if waiting and len(waiting['data'].get('attachments',[]))+len(data.get('attachments',[]))<=8:
+                joined=[part for part in (waiting['data'].get('message','').strip(),data.get('message','').strip()) if part]
+                waiting['data']['message']='\n\n'.join(joined);waiting['data']['attachments']=[*waiting['data'].get('attachments',[]),*copy.deepcopy(data.get('attachments',[]))]
+                self.save(waiting);return {**self.public(waiting),'merged':True}
             job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':copy.deepcopy(data),'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':''}
             self.jobs.append(job);self.save(job);self.condition.notify_all();return self.public(job)
     def public(self, job):
