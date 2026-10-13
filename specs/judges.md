@@ -7,7 +7,6 @@
 | `read_file` | `read_only` | Reading content from files. |
 | `write_file` | `reversible_write` | Overwriting or creating files. |
 | `execute_command` | `high_risk` | Running shell commands. |
-| `get_news` | `read_only` | Fetching external news. |
 
 ## Authorization Policies
 

@@ -12,8 +12,7 @@ class LayaEngine:
             "tools": {
                 "read_file": ToolRiskCategory.READ_ONLY,
                 "write_file": ToolRiskCategory.REVERSIBLE_WRITE,
-                "execute_command": ToolRiskCategory.REVERSIBLE_WRITE,
-                "get_news": ToolRiskCategory.READ_ONLY
+                "execute_command": ToolRiskCategory.REVERSIBLE_WRITE
             },
             "auth_levels": {
                 "standard": [ToolRiskCategory.READ_ONLY, ToolRiskCategory.REVERSIBLE_WRITE],

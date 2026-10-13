@@ -48,7 +48,7 @@ that measurement is not a startup-delay guarantee.
 
 Recovery uses deterministic repeated thought lines, Pi operation state, and stream
 timeouts. It aborts, compacts, reloads instructions, and reasks once. No backend
-GPU-running signal is inferred. The retired standalone log sentinel is unused.
+GPU-running signal is inferred.
 
 ## Validation
 
@@ -67,8 +67,8 @@ first on `PATH` must match (verified: Pi 0.87.1 on Node 24.16). The web chat's e
 Pi command is checked against that installed Pi. HTTP/browser tests
 need permission to bind localhost sockets in restricted environments.
 
-The legacy Laya `/chat` route is a demo echo. The workbench uses project APIs and
-real Pi RPC workers; never connect model conversations to that demo route.
+Laya serves only `/health`, `/gatekeep`, and `/audit`. The workbench uses project
+APIs and real Pi RPC workers.
 
 ## Activity and comment records
 
