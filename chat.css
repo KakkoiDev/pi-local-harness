@@ -261,6 +261,8 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
   #hint,.composer-wrap .footnote{display:none}
   .composer-wrap .pw-composer__row{flex-wrap:nowrap}
   #attach,#record{width:var(--size-touch);padding:0}
+  .app-back{display:none} /* the phone's view popup has Chat and Work */
+  #record[aria-pressed="true"]{width:auto;padding:0 10px;gap:6px;font-variant-numeric:tabular-nums} /* recording: the dot and the time, nothing spills */
   #prompt{max-height:96px!important;overflow-y:auto} /* task 144: four lines, then the field scrolls */
   .composer-wrap .pw-composer{padding:10px 12px;gap:8px}
   /* Document (PhoneEdit1): the name sits in the phone bar; no desk ruler; an edit bar at the bottom while editing */
@@ -284,7 +286,8 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
   .phone-title .pw-titlebar__stripes{flex:1;min-width:12px}
   .phone-title .pw-titlebar__title{flex:none;max-width:60%}
   #open-menu{font-family:var(--font-text);font-style:italic;font-weight:600;font-size:24px}
-  #project-list.pw-list{padding:0}
+  #project-list{padding:0}
+  .window-projects [data-group="projects"]>.pw-group__head{display:none} /* Ph_Pi: the list is the sheet's first thing */
 }
 /* Reasoning renders Markdown and wraps (task 125) */
 .pw-msg__reasoning{margin-top:6px;font-family:var(--font-text);font-size:15px;line-height:1.45;overflow-wrap:anywhere;min-width:0}

@@ -34,6 +34,8 @@ if request['message'].rstrip().endswith('TEST_TOOL'):
     time.sleep(2)
     call_gate('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':{'command':'cat README.md'},'output':'readme','exit_code':0})
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
+if request['message'].rstrip().endswith('TEST_FAIL'):
+    sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
         emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})

@@ -311,7 +311,7 @@ const readline = require('node:readline');
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
   assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2']);
   await page.locator('#menubar [aria-controls="menu-window"]').click();
-  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Activity · All Projects⌘3','Gate · All Projects⌘4']);
+  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2','Activity · All Projects⌘3','Gate · All Projects⌘4']);
   await page.locator('#menu-window [data-command="view-activity"]').click();await page.waitForURL(`${base}/activity`);
   assert.equal(await page.locator('#window-title').textContent(),'Activity · All Projects');
   assert.equal(await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').getAttribute('aria-label'),'Close Activity and go back');
@@ -321,7 +321,7 @@ const readline = require('node:readline');
   const projectLink=page.locator('#activity-list .pw-link').first();assert.equal(await projectLink.count(),1,'project names are links');
   assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^Open in /);
   await page.locator('#menubar [aria-controls="menu-view"]').click();
-  assert.equal(await page.locator('#menu-view [data-command="view-chat"]').getAttribute('aria-disabled'),'true','View › Chat waits for a project window');
+  assert.notEqual(await page.locator('#menu-view [data-command="view-chat"]').getAttribute('aria-disabled'),'true','View › Chat opens the last project (round 3)');
   await page.keyboard.press('Escape');
   await page.keyboard.press('ControlOrMeta+Digit4');await page.waitForURL(`${base}/gate`);
   assert.equal(await page.locator('#window-title').textContent(),'Gate · All Projects');
@@ -334,6 +334,29 @@ const readline = require('node:readline');
   assert.equal(await webRow.locator('.pw-link').textContent(),'Design check');assert.equal(await webRow.locator('span').last().textContent(),'Web');
   await page.locator('#gate-project').selectOption({label:'Bare folder'});await page.waitForFunction(()=>!document.querySelector('#gate-events .gate-event'));
   await page.locator('#gate-project').selectOption('all');
+
+  // 130: the Projects window has a Projects group and an Agent section over every project (C_ProjectsWin).
+  const stopAll=async()=>{const {jobs}=await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()));for(const job of jobs.filter(job=>job.status==='queued'))await post('/api/jobs/cancel',{id:job.id});for(const job of jobs.filter(job=>job.status==='running'))await post(`/api/conversations/${job.chat}/stop`,{});};
+  await stopAll();await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.querySelector('#agent-activity-meta').textContent==='Nothing running',null,{timeout:20000});
+  await page.goto(`${base}/projects`);await page.locator('#agent-activity').waitFor();
+  assert.equal(await page.locator('#pg-agent .pw-group__count').textContent(),'All projects');
+  assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running');
+  assert.match(await page.locator('#agent-gate-meta').textContent(),/^\d+ checks? today$/,'no blocked check yet');
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Wait here TEST_WAIT');await page.locator('#send').click();
+  await page.locator('#prompt').fill('Then this');await page.locator('#send').click();
+  await page.goto(`${base}/projects`);await page.waitForFunction(()=>document.querySelector('#agent-activity-meta').textContent==='1 running · 1 waiting');
+  assert.equal(await page.locator('#project-list .pw-row',{hasText:'Design check'}).locator('.pw-row__meta').textContent(),'running');
+  await stopAll();
+  await page.waitForFunction(()=>document.querySelector('#agent-activity-meta').textContent==='1 needs attention',null,{timeout:20000});
+  assert.equal(await page.locator('#project-list .pw-row',{hasText:'Design check'}).locator('.pw-row__meta').textContent(),'failed');
+  await page.locator('#agent-activity').click();await page.waitForURL(`${base}/activity`);
+  assert.equal(await page.locator('#agent-activity').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running','opening Activity marks attention seen');
+  // From Activity or Gate, Chat and Work (Window menu, ⌘1/⌘2) and the ‹ project link go back into the project.
+  assert.equal(await page.locator('#activity-panel .app-back').textContent(),'‹ Design check');
+  await page.locator('#menubar [aria-controls="menu-window"]').click();await page.locator('#menu-window [data-command="view-work"]').click();
+  await page.waitForURL(new RegExp(`/p/${id}/work`));assert.equal(await page.evaluate(()=>document.body.dataset.level),'project');
+  await page.goto(`${base}/gate`);await page.locator('#gate-panel .app-back').click();await page.waitForURL(new RegExp(`/p/${id}/`));
 
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});

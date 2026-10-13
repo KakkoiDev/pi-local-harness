@@ -103,6 +103,9 @@
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-review">Review</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-event-info">Event Info</button>
         <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button><!-- the project's views; from Activity or Gate they go back to the last project -->
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity · All Projects<span class="pw-menu__key">⌘3</span></button><!-- app windows (task 128) -->
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
       </div></div>
@@ -133,7 +136,15 @@
       <div class="pw-titlebar"><button id="close-menu" class="pw-box" aria-label="Close menu"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
       <div class="pw-infobar"><span id="project-count"></span><span>on this Mac</span></div>
       <div class="window-section"><label class="pw-search"><span data-icon="search"></span><input id="project-search" type="search" placeholder="Find a project" aria-label="Search projects"><kbd class="pw-kbd">⌘K</kbd></label></div>
-      <nav id="project-list" class="pw-list pw-window__body" aria-label="Projects"></nav>
+      <nav id="projects-nav" class="pw-window__body" aria-label="Projects and agent"><!-- C_ProjectsWin: Projects, then the Agent section over every project (task 130) -->
+        <section class="pw-group" data-group="projects" aria-labelledby="pg-projects"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-projects"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="project-list"><span data-icon="disclosure-open"></span>Projects<span id="project-n" class="pw-group__count"></span></button></h3></div>
+          <div id="project-list" class="pw-group__body" role="list"></div></section>
+        <section class="pw-group" data-group="agent" aria-labelledby="pg-agent"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-agent"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="agent-list"><span data-icon="disclosure-open"></span>Agent<span class="pw-group__count">All projects</span></button></h3></div>
+          <div id="agent-list" class="pw-group__body" role="list">
+            <a id="agent-activity" href="/activity" class="pw-row" role="listitem" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
+            <a id="agent-gate" href="/gate" class="pw-row" role="listitem" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="fence"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
+          </div></section>
+      </nav>
       <div class="window-section window-section--actions">
         <button id="new-project" class="pw-btn">New Project…<span class="pw-kbd">⌘N</span></button>
         <button id="add-folder" class="pw-btn">Add Existing Folder…<span class="pw-kbd">⌘O</span></button>
@@ -237,7 +248,7 @@
           <label class="pw-label desk-filter">Show <select id="activity-filter" class="pw-popup"><option value="all">All Work</option><option value="pending">Running &amp; Waiting</option><option value="completed">Completed</option><option value="attention">Needs Attention</option></select></label>
           <label class="pw-label">Project <select id="activity-project" class="pw-popup"><option value="all">All Projects</option></select></label>
         </div>
-        <div class="pw-infobar"><span id="activity-summary" role="status"></span><span class="infobar-note">One agent, one queue, first in first out. Interrupted work is never repeated automatically.</span></div>
+        <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span id="activity-summary" role="status"></span><span class="infobar-note">One agent, one queue, first in first out. Interrupted work is never repeated automatically.</span></div>
         <div id="activity-list" class="pw-table pw-window__body" role="list"></div>
         <section id="activity-detail" class="activity-detail" aria-label="Task details" hidden></section>
         <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
@@ -251,7 +262,7 @@
           <label class="pw-label">Project <select id="gate-project" class="pw-popup"><option value="all">All Projects</option></select></label><!-- C_GateDesk (task 129) -->
           <button id="gate-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
         </div>
-        <div class="pw-infobar"><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span id="gate-live" class="infobar-note" role="status">Connecting…</span></div>
+        <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span id="gate-live" class="infobar-note" role="status">Connecting…</span></div>
         <div id="gate-events" class="pw-table pw-window__body" aria-live="polite"></div>
       </section>
     </main>
