@@ -123,3 +123,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [81-Design Laya Checks](tasks/81-design-laya-checks.md)
 - [x] [82-Design Apply Change](tasks/82-design-apply-change.md)
 - [x] [83-Design Activity and Laya Fields](tasks/83-design-activity-laya-fields.md)
+- [x] [84-Design Turn Into Submenu](tasks/84-design-turn-into.md)

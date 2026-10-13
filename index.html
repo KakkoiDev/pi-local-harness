@@ -310,15 +310,17 @@
   <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="laya">Laya</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
-    <span class="pw-menu__item" aria-disabled="true">Turn Into</span>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="heading">Heading</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check">Task Checkbox</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="bullet">Bullet</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="number">Number</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="quote">Quote</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="code">Code</button>
-    <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="raw">Raw Markdown</button>
+    <button class="pw-menu__item" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="turn-into-menu">Turn Into<span class="pw-menu__key" aria-hidden="true">▸</span></button>
+    <div id="turn-into-menu" class="pw-menu pw-menu--sub" role="menu" aria-label="Turn Into" hidden>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="heading">Heading</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check">Task Checkbox</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="bullet">Bullet</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="number">Number</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="quote">Quote</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="code">Code</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="raw">Raw Markdown</button>
+    </div>
     <div class="pw-menu__sep" role="separator"></div>
     <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="up">Move Up<span class="pw-menu__key">⌥⌘↑</span></button>
     <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="down">Move Down<span class="pw-menu__key">⌥⌘↓</span></button>

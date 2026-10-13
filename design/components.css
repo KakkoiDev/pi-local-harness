@@ -36,6 +36,8 @@
 .pw-menu__item[aria-disabled="true"],.pw-menu__item:disabled{color:var(--ink-disabled);background:none}
 .pw-menu__item[aria-checked="true"]::before{content:"✓";position:absolute;left:8px}
 .pw-menu__key{font-size:14px}
+.pw-menu--sub{left:calc(100% - 4px);top:0}
+.pw-menu__item[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
 .pw-menu__sep{height:0;border-top:1px dotted var(--ink);margin:4px 0}
 
 /* ---------- Windows ---------- */
@@ -233,6 +235,7 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-field{min-height:var(--size-touch);font-size:17px}
   .pw-popup{min-height:var(--size-touch);font-size:16px}
   .pw-menu__item{height:var(--size-touch);font-size:16px}
+  .pw-menu--sub{position:static;box-shadow:none;border:0;border-top:1px dotted var(--ink);padding-left:16px;min-width:0}
   .pw-transcript{padding:18px 16px;gap:22px}
   .pw-doc{padding:18px 16px 48px 52px;font-size:17px;line-height:1.55}
   .pw-doc h1,.pw-doc h2{font-size:26px;line-height:31px}

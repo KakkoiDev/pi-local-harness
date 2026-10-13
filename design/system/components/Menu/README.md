@@ -6,3 +6,4 @@ A pull-down menu under a menu-bar title, and the same list inside the phone's π
 - Shortcut on the right in `.pw-menu__key`. Separators are dotted (`.pw-menu__sep`).
 - Labels are Title Case verbs; an ellipsis means a dialog follows.
 - The full command map is in IMPLEMENTATION.md § Menus.
+- Submenu: an item with `aria-haspopup="menu"`, `aria-controls` and a `▸` key opens a nested `.pw-menu--sub` (Block › Turn Into). Click, hover or Right opens it; Left or Esc returns to the item. On phone it opens inline under the item. `installPopup` in `js/menubar.mjs` handles one level.
