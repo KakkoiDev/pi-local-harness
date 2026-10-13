@@ -12,3 +12,4 @@ Progress 2026-10-13 (the person: "had a comment conversation. Me -> Pi -> Me, bu
 - The comment prompt gives the thread oldest first and asks Pi to answer the latest message.
 - Ask Pi stays on answered threads and sends what is typed in the reply field with it; Reply alone only adds a note.
 - State lines follow the latest request for the comment: waiting (· follow-up), working, answered · HH:MM, or could not answer.
+- Then (the person: "comment … is not triggering the model … when sent in response to a thread and still show 'No unsent comments'"): once a thread went to Pi, Reply sends your message to Pi with the thread; Ask Pi shows on unsent threads and on threads with replies not yet sent. A thread with replies written after its last request counts as unsent ("Reply not sent to Pi" in Review, "Reply saved · not sent to Pi" in the thread) and goes with Send N Unsent.

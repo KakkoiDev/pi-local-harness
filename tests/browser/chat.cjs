@@ -111,7 +111,7 @@ const readline = require('node:readline');
   await page.locator('#composer').dispatchEvent('dragover',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),1);assert.equal(await page.locator('#hint').textContent(),'Drop to attach 2 files');
   await page.locator('#composer').dispatchEvent('dragleave',{dataTransfer:dragged});assert.equal(await page.locator('#composer.pw-composer--dragging').count(),0);assert.match(await page.locator('#hint').textContent(),/^3 files/);
   await page.getByRole('button',{name:'Remove voice.wav'}).click();await page.locator('#send').click();
-  await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
+  await page.locator('#messages').getByText('reply 1',{exact:true}).first().waitFor(); // the live and the finished message can both show it for a moment
   const reasoning=page.locator('#messages details').first();await reasoning.locator('summary').click();for(let i=0;i<2;i++)await page.waitForResponse(response=>response.url().endsWith('/api/workspace'));assert.equal(await reasoning.getAttribute('open'),'');
   assert.equal(await page.locator('.message.user.pw-msg.pw-msg--user').count(),1,'only what was typed in Chat (task 115)');assert.equal(await page.locator('.message.assistant .pw-msg__label b').first().textContent(),'Pi');assert.equal(await page.locator('#send').textContent(),'Send');assert.equal(await page.locator('.message img').count(),1);
   await createProject('Second project');await leaveApp();await page.locator('#chat-tab').click();

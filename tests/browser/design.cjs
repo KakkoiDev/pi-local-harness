@@ -158,14 +158,20 @@ const readline = require('node:readline');
   await page.locator('#prompt').evaluate(()=>{});await page.locator('#chat-tab').click();
   await page.waitForFunction(()=>!document.querySelector('#messages [data-live]'));
   assert.equal(await page.locator('#messages').evaluate(element=>/Name the reader|Say who it is calm for|Comment:/.test(element.textContent)),false,'the chat holds only chat');
-  // 135: a thread is one conversation in order; after Pi answers, Ask Pi sends a follow-up (with the typed reply) and the new answer is appended.
+  // 135: a thread is one conversation in order; after Pi answers, Reply sends the follow-up to Pi and the new answer is appended.
   await page.locator('#work-tab').click();
   const mark=page.locator('.pw-mark').first();await mark.click();const answered=page.locator('.pw-thread').first();
   await answered.getByText('Pi answered',{exact:false}).waitFor({timeout:20000});
-  await answered.locator('input').fill('And one more thing?');await answered.getByRole('button',{name:'Ask Pi',exact:true}).click();
+  assert.equal(await answered.getByRole('button',{name:'Ask Pi',exact:true}).count(),0,'an answered thread with nothing new has no Ask Pi');
+  await answered.locator('input').fill('And one more thing?');await answered.getByRole('button',{name:'Reply',exact:true}).click(); // a reply to a sent thread reaches Pi
   await page.waitForFunction(()=>[...document.querySelectorAll('.pw-thread .pw-thread__who b')].filter(b=>b.textContent==='Pi').length===2,null,{timeout:20000});
   assert.deepEqual(await page.locator('.pw-thread').first().locator('.pw-thread__who b').allTextContents(),['You','Pi','You','Pi'],'messages read in order');
   assert.match(await page.locator('.pw-thread').first().locator('.pw-thread__msg').nth(2).textContent(),/And one more thing\?/);
+  // A reply saved while nothing was sent (older builds, or an API reply) counts as unsent and goes with Send N Unsent.
+  const first=(await page.evaluate(p=>fetch('/api/document?path='+encodeURIComponent(p)).then(r=>r.json()),path)).comments.find(c=>c.chat_id);
+  await post('/api/documents/reply',{path,id:first.id,text:'Saved, not sent'});await page.reload();await page.locator('#work-tab').click();
+  await page.locator('#send-unsent').filter({hasText:'Send 1 Unsent Comment to Pi'}).waitFor();await page.locator('#send-unsent').click();
+  await page.locator('#send-unsent').filter({hasText:'No unsent comments'}).waitFor();
   await page.locator('#work-tab').click();
   assert.equal(await page.locator('#document-discussion>summary').textContent(),'Ask Pi about this whole file');
   assert.equal(await page.locator('#document-prompt').isVisible(),false,'folded until opened');
