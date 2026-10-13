@@ -8,7 +8,7 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
 <style>
 body{margin:0}
 a{color:#000}a:hover{color:#000}
@@ -17,15 +17,15 @@ a{color:#000}a:hover{color:#000}
 .box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
 .mb-item{font:inherit;color:#000;background:none;border:0;height:28px;padding:0 10px;display:flex;align-items:center}
 .mb-item:hover{background:#000;color:#fff}
-.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
 .btn:active{background:#000;color:#fff}
 .btn[disabled]{color:#767676;border-color:#767676;cursor:default}
 .btn-def{border-radius:9px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
-.popup{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px}
+.popup{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px}
 .tool{width:32px;height:30px;border:1px solid #000;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Source Serif 4',Georgia,serif;font-size:16px;padding:0;color:#000}
-.seg{flex:1;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:14px;height:30px;padding:0 8px;border:1px solid #000;background:#fff;color:#000;cursor:pointer}
+.seg{flex:1;font-family:system-ui,sans-serif;font-size:14px;height:30px;padding:0 8px;border:1px solid #000;background:#fff;color:#000;cursor:pointer}
 .seg.on{background:#000;color:#fff}
-.mark{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;line-height:16px;display:inline-block;background:#fff;color:#000;cursor:pointer}
+.mark{font-family:system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;line-height:16px;display:inline-block;background:#fff;color:#000;cursor:pointer}
 .mark.on{background:#000;color:#fff}
 .mark.res{border-style:dotted}
 .mark.res.on{background:#fff;color:#000;border:2px dotted #000}
@@ -35,17 +35,17 @@ a{color:#000}a:hover{color:#000}
 .thread{position:relative;border:1px solid #000;box-shadow:2px 2px 0 #000;font-size:15px;line-height:1.45;margin:2px 0 4px 24px;background:#fff}
 .thread.res{border-style:dotted;box-shadow:none}
 .tmsg{padding:10px 14px;border-bottom:1px solid #000;display:flex;gap:12px;align-items:baseline}
-.who{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:13px;flex:none;width:76px}
-.tacts{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:'Pixelify Sans',system-ui,sans-serif}
+.who{font-family:system-ui,sans-serif;font-size:13px;flex:none;width:76px}
+.tacts{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:system-ui,sans-serif}
 .tacts input{flex:1 1 180px;min-width:0;height:32px;box-sizing:border-box;border:1px solid #000;box-shadow:inset 1px 1px 0 #000;padding:0 8px;font-family:'Source Serif 4',Georgia,serif;font-size:15px}
 .item{border-bottom:1px solid #000;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 .item.sel{outline:2px solid #000;outline-offset:-3px}
-.ihead{display:flex;justify-content:space-between;gap:8px;font-family:'Pixelify Sans',system-ui,sans-serif;font-size:13px;background:none;border:0;padding:0;text-align:left;color:#000;cursor:pointer}
+.ihead{display:flex;justify-content:space-between;gap:8px;font-family:system-ui,sans-serif;font-size:13px;background:none;border:0;padding:0;text-align:left;color:#000;cursor:pointer}
 .mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
 .btn:focus-visible,.popup:focus-visible,.tool:focus-visible,.seg:focus-visible,.mark:focus-visible,.ihead:focus-visible,input:focus-visible{outline:2px solid #000;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 1440px; height: 860px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; display: flex; flex-direction: column; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000">
+<div style="width: 1440px; height: 860px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; display: flex; flex-direction: column; font-family: system-ui, sans-serif; color: #000">
 
 <nav aria-label="Menu bar" style="height: 28px; flex: none; background: #fff; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; font-size: 15px">
 <button class="mb-item" aria-label="Pi menu" style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-style: italic; font-weight: 600; padding: 0 12px">π</button>
@@ -90,7 +90,7 @@ a{color:#000}a:hover{color:#000}
 <sc-if value="{{showSuggestion}}" hint-placeholder-val="{{true}}">
 <div class="tmsg" style="flex-direction: column; gap: 8px"><span class="who" style="width: auto"><b>Pi</b> 14:21 · suggested change</span>
 <p style="margin: 0; border: 1px dotted #000; padding: 8px 10px"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></p>
-<div style="display: flex; gap: 10px; align-items: center; font-family: 'Pixelify Sans', system-ui, sans-serif"><button class="btn" onClick="{{keep}}">Keep Mine</button><div style="flex: 1"></div><button class="btn btn-def" onClick="{{apply}}">Apply Change</button></div>
+<div style="display: flex; gap: 10px; align-items: center; font-family: system-ui, sans-serif"><button class="btn" onClick="{{keep}}">Keep Mine</button><div style="flex: 1"></div><button class="btn btn-def" onClick="{{apply}}">Apply Change</button></div>
 </div>
 </sc-if>
 <sc-if value="{{kept}}" hint-placeholder-val="{{false}}">

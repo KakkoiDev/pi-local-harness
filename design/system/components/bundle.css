@@ -1,11 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap");
 /* Pi Workbench System 1 — components.
    Every colour, shadow, length and family comes from tokens.css (var(--…)).
    Class prefix: pw-. State is carried by ARIA attributes wherever one exists
    (aria-pressed, aria-checked, aria-current, aria-expanded, aria-disabled, :disabled). */
 
 /* ---------- Base ---------- */
-.pw-root{font-family:var(--font-chrome);font-size:15px;line-height:20px;color:var(--ink);background:var(--paper);-webkit-font-smoothing:none}
+.pw-root{font-family:var(--font-chrome);font-size:15px;line-height:20px;color:var(--ink);background:var(--paper)}
 .pw-root *,.pw-root *::before,.pw-root *::after{box-sizing:border-box}
 .pw-root ::selection{background:var(--selection-bg);color:var(--selection-fg)}
 .pw-root :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -208,7 +208,6 @@ textarea.pw-field{resize:none;padding:10px 12px}
 
 /* ---------- Dialogs, alerts, sheets, toasts ---------- */
 .pw-dialog{background:var(--paper);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-dialog);padding:24px 26px;display:flex;flex-direction:column;gap:16px;max-width:min(520px,calc(100vw - 32px))}
-dialog.pw-dialog:not([open]){display:none} /* .pw-dialog's display:flex would otherwise show closed dialogs */
 dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#000) 0 25%,transparent 0 50%) 0 0/4px 4px;opacity:.35}
 .pw-dialog__title{margin:0;font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
 .pw-dialog__actions{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:10px}
@@ -237,4 +236,30 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-doc h1,.pw-doc h2{font-size:26px;line-height:31px}
   .pw-block__handle{display:flex;left:-42px;width:34px;height:44px;border:0;top:-6px}
   .pw-window{border-left:0;border-right:0;box-shadow:none}
+}
+
+/* ---------- List groups (Files window: Plan / Files) ----------
+   A section of a list with a disclosure header, drawn like the table and info-bar headers:
+   chrome-meta, regular weight, 1px rule under it, double rule between groups.
+   Colours, spacing and sizes are tokens only. */
+.pw-group{display:flex;flex-direction:column}
+.pw-group+.pw-group{border-top:3px double var(--ink)}
+.pw-group__head{position:sticky;top:0;z-index:1;display:flex;align-items:stretch;background:var(--paper);border-bottom:1px solid var(--ink)}
+.pw-group__title{flex:1;min-width:0;margin:0;font:inherit}
+.pw-group__toggle{width:100%;min-height:var(--size-row);display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-2);border:0;background:none;color:var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px;font-weight:400;text-align:left;cursor:default}
+.pw-group__toggle:hover{background:var(--wash)}
+.pw-group__toggle svg{flex:none}
+.pw-group__count{margin-left:auto;font-weight:400;font-variant-numeric:tabular-nums}
+.pw-group__action{flex:none;width:var(--size-row);border:0;border-left:1px dotted var(--ink);background:none;color:var(--ink);display:grid;place-content:center;padding:0;cursor:default}
+.pw-group__action:hover{background:var(--wash)}
+.pw-group__action:active{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-group__body{display:flex;flex-direction:column;padding:var(--space-1) 0}
+.pw-group__body[hidden]{display:none}
+.pw-group__empty{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2);padding:var(--space-3) var(--space-2);margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-row__meta{display:inline-flex;align-items:center;gap:var(--space-1);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pw-row--summary{font-size:13px}
+@media (max-width:760px){
+  .pw-group__toggle{min-height:var(--size-touch);font-size:14px;padding:0 var(--space-4)}
+  .pw-group__action{width:var(--size-touch)}
+  .pw-group__empty{padding:var(--space-3) var(--space-4)}
 }

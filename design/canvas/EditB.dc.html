@@ -8,26 +8,26 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap">
 <style>
 body{margin:0}
 a{color:#000}a:hover{color:#000}
 .tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
 .box-btn{width:28px;height:26px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center}
 .box-btn span{display:block;width:13px;height:13px;border:1px solid #000;background:#fff;box-shadow:0 0 0 2px #fff}
-.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;border-radius:8px;min-height:32px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn-def{border-radius:9px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
-.popup{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px}
+.popup{font-family:system-ui,sans-serif;font-size:15px;color:#000;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #000;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:10px}
 .tool{width:32px;height:30px;border:1px solid #000;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Source Serif 4',Georgia,serif;font-size:16px;padding:0;color:#000}
 .tool.on{background:#000;color:#fff}
-.mark{font-family:'Pixelify Sans',system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;background:#fff;color:#000;line-height:16px;display:inline-block}
+.mark{font-family:system-ui,sans-serif;font-size:12px;border:1px solid #000;padding:0 5px;margin-left:4px;vertical-align:3px;background:#fff;color:#000;line-height:16px;display:inline-block}
 .mark.on{background:#000;color:#fff}
 .anchor{border-bottom:2px solid #000}
 .mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
 .btn:focus-visible,.popup:focus-visible,.tool:focus-visible,.mark:focus-visible{outline:2px solid #000;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 1200px; height: 780px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; padding: 20px; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000">
+<div style="width: 1200px; height: 780px; box-sizing: border-box; background-color: #fff; background-image: radial-gradient(circle at 1px 1px,#000 .7px,transparent .9px); background-size: 4px 4px; padding: 20px; font-family: system-ui, sans-serif; color: #000">
 <section aria-label="DESIGN.md" style="width: 1158px; height: 738px; background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; display: flex; flex-direction: column">
 <div style="height: 26px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 6px">
 <button class="box-btn" aria-label="Close window"><span></span></button><div class="tb-stripes"></div>
@@ -43,11 +43,11 @@ a{color:#000}a:hover{color:#000}
 <button class="tool" aria-label="Bold" style="font-weight: 700">B</button>
 <button class="tool" aria-label="Italic" style="font-style: italic; border-left: 0">I</button>
 <button class="tool mono" aria-label="Code" style="border-left: 0; font-size: 13px">{ }</button>
-<button class="tool" aria-label="Link" style="border-left: 0; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px">Link</button>
+<button class="tool" aria-label="Link" style="border-left: 0; font-family: system-ui, sans-serif; font-size: 13px">Link</button>
 </div>
 <div style="display: flex">
 <button class="tool" aria-label="Bulleted list"><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M0 1h2v2H0zM0 5h2v2H0zM0 9h2v2H0z" fill="currentColor"/><path d="M5 2h11M5 6h11M5 10h11" stroke="currentColor"/></svg></button>
-<button class="tool" aria-label="Numbered list" style="border-left: 0; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px">1.</button>
+<button class="tool" aria-label="Numbered list" style="border-left: 0; font-family: system-ui, sans-serif; font-size: 13px">1.</button>
 <button class="tool" aria-label="Task checkbox" style="border-left: 0"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x=".5" y=".5" width="11" height="11" fill="none" stroke="currentColor"/></svg></button>
 <button class="tool" aria-label="Quote" style="border-left: 0">“</button>
 </div>
@@ -67,15 +67,15 @@ a{color:#000}a:hover{color:#000}
 <div role="region" aria-label="Comment thread" style="position: relative; border: 1px solid #000; box-shadow: 2px 2px 0 #000; font-size: 15px; line-height: 1.45; margin-left: 24px">
 <svg width="16" height="9" viewBox="0 0 16 9" aria-hidden="true" style="position: absolute; top: -9px; left: 300px"><path d="M0 9L8 1l8 8" fill="#fff" stroke="#000"/></svg>
 <div style="padding: 10px 14px; border-bottom: 1px solid #000; display: flex; gap: 12px; align-items: baseline">
-<span style="font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px; flex: none; width: 70px"><span style="font-weight: 600">You</span> 14:20</span>
+<span style="font-family: system-ui, sans-serif; font-size: 13px; flex: none; width: 70px"><span style="font-weight: 600">You</span> 14:20</span>
 <p style="margin: 0">Out of date after the 1-bit redesign. Rewrite this sentence.</p>
 </div>
 <div style="padding: 10px 14px; display: flex; gap: 12px; align-items: baseline">
-<span style="font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px; flex: none; width: 70px"><span style="font-weight: 600">Pi</span> 14:21</span>
+<span style="font-family: system-ui, sans-serif; font-size: 13px; flex: none; width: 70px"><span style="font-weight: 600">Pi</span> 14:21</span>
 <div style="display: flex; flex-direction: column; gap: 10px; flex: 1">
 <p style="margin: 0">Suggested change:</p>
 <p style="margin: 0; border: 1px dotted #000; padding: 8px 10px"><s>Preserve the established dark workspace and pale green accent.</s> <u>Use one-bit black on white: a dotted desktop, striped active title bars, and inverted selection.</u></p>
-<div style="display: flex; gap: 10px; align-items: center; font-family: 'Pixelify Sans', system-ui, sans-serif">
+<div style="display: flex; gap: 10px; align-items: center; font-family: system-ui, sans-serif">
 <button class="btn">Reply</button>
 <button class="btn">Keep Mine</button>
 <div style="flex: 1"></div>

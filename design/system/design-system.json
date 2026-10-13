@@ -211,8 +211,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-13T13:30:00+09:00",
+  "at": "2026-10-13T18:45:00+09:00",
   "via": "Claude (Cowork)",
-  "note": "First version: tokens, 27 components, icons, built from the Pi Workbench canvas and pi-local-harness."
+  "note": "ListGroup header restyled to match table and info-bar headers (regular weight, solid rule, double rule between groups)."
  }
 }

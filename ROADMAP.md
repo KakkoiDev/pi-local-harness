@@ -150,3 +150,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [108-Comments reach Pi from the Review list](tasks/108-comments-to-pi.md)
 - [ ] [109-New File… replaces New Page…](tasks/109-new-file.md)
 - [ ] [110-Startup says how to turn on phone access](tasks/110-phone-off-hint.md)
+- [x] [111-Re-sync the design copies](tasks/111-design-resync.md)

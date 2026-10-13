@@ -25,7 +25,7 @@ The server allowlist is in `harness/web_chat.py` (`allowed` in `do_GET`, plus `F
 - Design system "Pi Workbench System 1": https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1
 - Design canvas "Pi Workbench, Desktop Interface": https://claude.ai/artifact/Re2trGpSgYLrd2anCHTRyK
 
-The copies here are from 2026-10-13. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
+The copies here are from 2026-10-13 18:45 JST (re-synced for task 97: ListGroup, W_NoPlan, W_Tablet). `components.css` keeps four repo additions over the bundle: `.pw-menu--sub` (desk and phone), the expanded submenu item, the 44px phone popup, and the closed-dialog fix. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
 
 ## Progress
 

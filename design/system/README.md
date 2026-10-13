@@ -30,11 +30,11 @@ Start here, then read a component's card before using it. The implementation han
 
 | Family | Token | Used for |
 | --- | --- | --- |
-| Pixelify Sans | `--font-chrome` | Menus, buttons, labels, status, window titles. A bitmap-style face standing in for Chicago. |
+| system-ui | `--font-chrome` | Menus, buttons, labels, status, window titles. The platform’s own interface face (San Francisco, Segoe UI, Cantarell…). |
 | Source Serif 4 | `--font-text` | What people and Pi write: chat messages, documents, comments. A text face standing in for New York. |
 | IBM Plex Mono | `--font-mono` | Commands, code, paths, Markdown source. |
 
-All three are SIL Open Font License faces on Google Fonts. The repo should ship them as local woff2 files so the app works offline (see IMPLEMENTATION.md).
+The two named faces are SIL Open Font License fonts; the repo ships them as local woff2 files so the app works offline (see IMPLEMENTATION.md). The chrome face needs no file.
 
 **Lines, not shadows.** Borders are 1px `ink`. Window shadows are a 2px offset of solid ink (`shadow-window`), never a blur. Header separators are a 3px double rule. Separators inside lists are dotted. Corners are square except buttons (`radius-button`), touch buttons (`radius-touch`) and your own chat messages (`radius-bubble`).
 

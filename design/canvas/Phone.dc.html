@@ -8,17 +8,17 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>
 body{margin:0}
 a{color:#000}a:hover{color:#000}
 .tb-stripes{flex:1;height:11px;background:repeating-linear-gradient(to bottom,#000 0 1px,transparent 1px 2px)}
-.btn{font-family:'Pixelify Sans',Chicago,system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default}
+.btn{font-family:system-ui,sans-serif;font-size:16px;color:#000;background:#fff;border:1px solid #000;border-radius:10px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default}
 .btn-def{border-radius:11px;box-shadow:0 0 0 2px #fff,0 0 0 5px #000;margin:5px}
 .mono{font-family:'IBM Plex Mono',Monaco,ui-monospace,monospace}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fff; font-family: 'Pixelify Sans', Chicago, system-ui, sans-serif; color: #000; overflow: hidden">
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fff; font-family: system-ui, sans-serif; color: #000; overflow: hidden">
 
 <nav aria-label="Menu bar" style="height: 48px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 4px; gap: 2px; margin-top: 44px">
 <button aria-label="Pi menu: projects and settings" style="width: 48px; height: 44px; border: 0; background: none; font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; font-style: italic; font-weight: 600; color: #000">π</button>
@@ -35,15 +35,15 @@ a{color:#000}a:hover{color:#000}
 
 <div tabindex="0" aria-label="Messages" style="flex: 1; min-height: 0; overflow: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 22px; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.5">
 <article style="align-self: flex-end; max-width: 300px; border: 1px solid #000; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px">
-<span style="font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px"><span style="font-weight: 600">You</span> · 14:02</span>
+<span style="font-family: system-ui, sans-serif; font-size: 13px"><span style="font-weight: 600">You</span> · 14:02</span>
 <p style="margin: 0">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</p>
 </article>
 <article style="display: flex; flex-direction: column; gap: 10px">
-<span style="font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px"><span style="font-weight: 600">Pi</span> · 14:02</span>
+<span style="font-family: system-ui, sans-serif; font-size: 13px"><span style="font-weight: 600">Pi</span> · 14:02</span>
 <p style="margin: 0; text-wrap: pretty">The counter includes every unfinished state. I’ve narrowed it to running and waiting, and added a regression test. Running the queue tests now.</p>
 <div style="border: 2px solid #000">
 <div class="mono" style="padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #000; overflow-wrap: anywhere">$ python3 -m pytest tests/test_work_queue.py</div>
-<div style="display: flex; gap: 14px; padding: 6px 10px; font-family: 'Pixelify Sans', system-ui, sans-serif; font-size: 13px">
+<div style="display: flex; gap: 14px; padding: 6px 10px; font-family: system-ui, sans-serif; font-size: 13px">
 <span>✓ Gate approved</span><span>Running · 0:12</span>
 </div>
 </div>

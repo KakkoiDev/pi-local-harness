@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <title>More dialogs</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/ba63d997bf1b505a513e8d57167ab068">
+<link rel="stylesheet" href="/_blob/5e247b7487a244ef2ab08d4d7de05685">
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
 <div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 36px 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; align-items: start; color: #000">
@@ -20,10 +20,10 @@
 <div style="display: flex; gap: 8px; align-items: center"><select class="pw-popup" aria-label="Location" style="flex: 1"><option>code</option></select><button type="button" class="pw-btn">Parent</button></div>
 <div style="border: 1px solid #000; height: 150px; display: flex">
 <div class="pw-list" role="listbox" aria-label="Folders in code" style="flex: 1">
-<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>dotfiles</div>
-<div class="pw-row" role="option" aria-selected="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>home-server</div>
-<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>learning</div>
-<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>pi-local-harness</div>
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"></path></svg>dotfiles</div>
+<div class="pw-row" role="option" aria-selected="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"></path></svg>home-server</div>
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"></path></svg>learning</div>
+<div class="pw-row" role="option"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"></path></svg>pi-local-harness</div>
 </div>
 <div class="pw-dither" aria-hidden="true" style="width: 16px; border-left: 1px solid #000"></div>
 </div>
@@ -44,7 +44,7 @@
 
 <!-- Startup error -->
 <div role="alertdialog" aria-labelledby="d-start" class="pw-dialog" style="max-width: none">
-<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg><div><p id="d-start" class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, then reload this page.</p></div></div>
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"></path><path d="M10 18h16" stroke="#fff" stroke-width="4"></path></svg><div><p id="d-start" class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, then reload this page.</p></div></div>
 <div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Reload Page</button></div>
 </div>
 </div>
@@ -69,7 +69,7 @@
 <h2 id="d-set" class="pw-dialog__title">Settings</h2>
 <fieldset style="border: 1px solid #000; padding: 10px 14px; margin: 0; display: flex; flex-direction: column; gap: 6px">
 <legend class="pw-label" style="padding: 0 6px">Appearance</legend>
-<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" checked style="accent-color: #000">Paper (black on white)</label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" checked="" style="accent-color: #000">Paper (black on white)</label>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" style="accent-color: #000">Inverse (white on black)</label>
 <label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="radio" name="ap" style="accent-color: #000">Match System</label>
 </fieldset>
@@ -81,7 +81,7 @@
 <button type="button" role="radio" aria-checked="false" aria-label="Plain" class="pw-desk pw-desk--plain" style="width: 64px; height: 40px; border: 1px solid #000"></button>
 </div>
 </fieldset>
-<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="checkbox" class="pw-check" checked>Return sends a message (Shift-Return adds a line)</label>
+<label class="pw-label" style="display: flex; gap: 8px; align-items: center"><input type="checkbox" class="pw-check" checked="">Return sends a message (Shift-Return adds a line)</label>
 <div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Save</button></div>
 </form>
 
@@ -89,7 +89,7 @@
 <div role="dialog" aria-labelledby="d-phone" class="pw-dialog" style="max-width: none">
 <h2 id="d-phone" class="pw-dialog__title">Open on Phone</h2>
 <p class="pw-alert__detail" style="margin: 0">plh serves the workbench on your tailnet. Open this address on a phone signed in to the same Tailscale account.</p>
-<div style="display: flex; gap: 8px; align-items: center"><input class="pw-field" aria-label="Phone address" readonly value="https://[YOUR-MACHINE].[TAILNET].ts.net" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px"><button class="pw-btn">Copy</button></div>
+<div style="display: flex; gap: 8px; align-items: center"><input class="pw-field" aria-label="Phone address" readonly="" value="https://[YOUR-MACHINE].[TAILNET].ts.net" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px"><button class="pw-btn">Copy</button></div>
 <p class="pw-help">Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.</p>
 <div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Done</button></div>
 </div>

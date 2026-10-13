@@ -1,79 +1,749 @@
-{"v":3,"createdOnFiles":{"v":1,"at":"2026-10-13T09:00:00Z"},"title":"Pi Workbench — Desktop Interface","launch":{"view":"canvas","page":"states"},
-"pages":[{"id":"screens","name":"Screens"},{"id":"states","name":"Every menu & state"},{"id":"phone","name":"Phone pages"},{"id":"edit","name":"Edit & comment"},{"id":"system","name":"Components"},{"id":"archive","name":"Archive — not chosen"}],
-"boards":{
-"Main.dc.html":{"x":0,"y":0,"w":1440,"h":900,"title":"Chat","expand":"fill","is_interactive":true},
-"Work.dc.html":{"x":1520,"y":0,"w":1440,"h":900,"title":"Work — document","is_interactive":true},
-"Phone.dc.html":{"x":3040,"y":0,"w":390,"h":844,"title":"Chat — phone"},
-"Activity.dc.html":{"x":0,"y":1020,"w":1440,"h":900,"title":"Activity","expand":"fill","is_interactive":true},
-"Gate.dc.html":{"x":1520,"y":1020,"w":1440,"h":900,"title":"Gate","expand":"fill","is_interactive":true},
-"Menus.dc.html":{"x":0,"y":2040,"w":1440,"h":640,"title":"Menu bar — command map"},
-"Dialogs.dc.html":{"x":1520,"y":2040,"w":1440,"h":640,"title":"Dialogs & alerts"},
-"EditA.dc.html":{"x":0,"y":0,"w":1200,"h":780,"title":"A · Margin notes","page":"archive"},
-"EditB.dc.html":{"x":0,"y":0,"w":1200,"h":780,"title":"B · Inline threads + ruler","page":"edit"},
-"EditC.dc.html":{"x":1280,"y":0,"w":1200,"h":780,"title":"C · Edit / Review modes","page":"edit"},
-"PhoneEdit1.dc.html":{"x":0,"y":1160,"w":390,"h":844,"title":"1 · Read & edit","page":"edit"},
-"PhoneEdit2.dc.html":{"x":470,"y":1160,"w":390,"h":844,"title":"2 · Long press selects","page":"edit"},
-"PhoneEdit3.dc.html":{"x":940,"y":1160,"w":390,"h":844,"title":"3 · Write the comment","page":"edit"},
-"PhoneEdit4.dc.html":{"x":1410,"y":1160,"w":390,"h":844,"title":"4 · Open a thread","page":"edit"},
-"PhoneEdit5.dc.html":{"x":1880,"y":1160,"w":390,"h":844,"title":"5 · Block handle menu","page":"edit"},
-"Final.dc.html":{"x":0,"y":2260,"w":1440,"h":860,"title":"B + Review — clickable prototype","page":"edit","is_interactive":true},
-"PhoneEdit6.dc.html":{"x":1520,"y":2260,"w":390,"h":844,"title":"6 · Comments: Open / Resolved / Deleted","page":"edit"},
-"PhoneEdit7.dc.html":{"x":1990,"y":2260,"w":390,"h":844,"title":"7 · Delete, with Undo","page":"edit"},
-"C_MenuBar.dc.html":{"x":0,"y":0,"w":1440,"h":360,"title":"MenuBar (open: none…window)","page":"system"},
-"C_ChatDesk.dc.html":{"x":0,"y":480,"w":1440,"h":872,"title":"ChatDesk (state)","page":"system"},
-"C_WorkDesk.dc.html":{"x":1520,"y":480,"w":1440,"h":872,"title":"WorkDesk (state)","page":"system"},
-"C_ActivityDesk.dc.html":{"x":0,"y":1472,"w":1440,"h":872,"title":"ActivityDesk (state)","page":"system"},
-"C_GateDesk.dc.html":{"x":1520,"y":1472,"w":1440,"h":872,"title":"GateDesk (state)","page":"system"},
-"M_Pi.dc.html":{"x":0,"y":0,"w":1440,"h":900,"title":"π menu","page":"states","is_interactive":true},
-"M_File.dc.html":{"x":1520,"y":0,"w":1440,"h":900,"title":"File menu","page":"states","is_interactive":true},
-"M_Edit.dc.html":{"x":3040,"y":0,"w":1440,"h":900,"title":"Edit menu","page":"states","is_interactive":true},
-"M_View.dc.html":{"x":4560,"y":0,"w":1440,"h":900,"title":"View menu","page":"states","is_interactive":true},
-"M_Project.dc.html":{"x":0,"y":1020,"w":1440,"h":900,"title":"Project menu","page":"states","is_interactive":true},
-"M_Agent.dc.html":{"x":1520,"y":1020,"w":1440,"h":900,"title":"Agent menu","page":"states","is_interactive":true},
-"M_Window.dc.html":{"x":3040,"y":1020,"w":1440,"h":900,"title":"Window menu","page":"states","is_interactive":true},
-"P_Popups.dc.html":{"x":4560,"y":1020,"w":1440,"h":900,"title":"Every popup, open","page":"states"},
-"S_Welcome.dc.html":{"x":0,"y":2340,"w":1440,"h":900,"title":"Chat · first run, no projects","page":"states","is_interactive":true},
-"S_Empty.dc.html":{"x":1520,"y":2340,"w":1440,"h":900,"title":"Chat · new project, no messages","page":"states","is_interactive":true},
-"S_Idle.dc.html":{"x":3040,"y":2340,"w":1440,"h":900,"title":"Chat · idle, answer finished","page":"states","is_interactive":true},
-"S_Attachments.dc.html":{"x":4560,"y":2340,"w":1440,"h":900,"title":"Chat · files attached","page":"states","is_interactive":true},
-"S_Dragging.dc.html":{"x":0,"y":3360,"w":1440,"h":900,"title":"Chat · dragging a file in","page":"states","is_interactive":true},
-"S_Recording.dc.html":{"x":1520,"y":3360,"w":1440,"h":900,"title":"Chat · recording audio","page":"states","is_interactive":true},
-"S_Error.dc.html":{"x":3040,"y":3360,"w":1440,"h":900,"title":"Chat · attachment error","page":"states","is_interactive":true},
-"S_Offline.dc.html":{"x":4560,"y":3360,"w":1440,"h":900,"title":"Chat · connection interrupted","page":"states","is_interactive":true},
-"W_Source.dc.html":{"x":0,"y":4680,"w":1440,"h":900,"title":"Work · Markdown source","page":"states","is_interactive":true},
-"W_Code.dc.html":{"x":1520,"y":4680,"w":1440,"h":900,"title":"Work · text / code file","page":"states","is_interactive":true},
-"W_Empty.dc.html":{"x":3040,"y":4680,"w":1440,"h":900,"title":"Work · no document open","page":"states","is_interactive":true},
-"W_Search.dc.html":{"x":4560,"y":4680,"w":1440,"h":900,"title":"Work · finding a file","page":"states","is_interactive":true},
-"W_Requests.dc.html":{"x":0,"y":5700,"w":1440,"h":900,"title":"Work · document requests","page":"states","is_interactive":true},
-"W_Conflict.dc.html":{"x":1520,"y":5700,"w":1440,"h":900,"title":"Work · save conflict","page":"states","is_interactive":true},
-"W_Trash.dc.html":{"x":3040,"y":5700,"w":1440,"h":900,"title":"Work · Move to Trash","page":"states","is_interactive":true},
-"W_Reload.dc.html":{"x":4560,"y":5700,"w":1440,"h":900,"title":"Work · Reload from Disk","page":"states","is_interactive":true},
-"A_Attention.dc.html":{"x":0,"y":7020,"w":1440,"h":900,"title":"Activity · needs attention","page":"states","is_interactive":true},
-"A_Empty.dc.html":{"x":1520,"y":7020,"w":1440,"h":900,"title":"Activity · all caught up","page":"states","is_interactive":true},
-"G_All.dc.html":{"x":3040,"y":7020,"w":1440,"h":900,"title":"Gate · all checks","page":"states","is_interactive":true},
-"G_Empty.dc.html":{"x":4560,"y":7020,"w":1440,"h":900,"title":"Gate · connecting, no checks","page":"states","is_interactive":true},
-"Dialogs2.dc.html":{"x":0,"y":8040,"w":1440,"h":900,"title":"More dialogs: folder, page, settings, about, phone, startup","page":"states"},
-"Ph_Pi.dc.html":{"x":0,"y":0,"w":390,"h":844,"title":"π sheet: projects & commands","page":"phone"},
-"Ph_Views.dc.html":{"x":470,"y":0,"w":390,"h":844,"title":"View popup","page":"phone"},
-"Ph_Welcome.dc.html":{"x":940,"y":0,"w":390,"h":844,"title":"First run","page":"phone"},
-"Ph_Offline.dc.html":{"x":1410,"y":0,"w":390,"h":844,"title":"Connection interrupted","page":"phone"},
-"Ph_Files.dc.html":{"x":1880,"y":0,"w":390,"h":844,"title":"Work · files","page":"phone"},
-"Ph_Activity.dc.html":{"x":2350,"y":0,"w":390,"h":844,"title":"Activity","page":"phone"},
-"Ph_ActivityDetail.dc.html":{"x":2820,"y":0,"w":390,"h":844,"title":"Activity · request detail","page":"phone"},
-"Ph_Gate.dc.html":{"x":3290,"y":0,"w":390,"h":844,"title":"Gate","page":"phone"},
-"Ph_GateDetail.dc.html":{"x":3760,"y":0,"w":390,"h":844,"title":"Gate · event info","page":"phone"}
-},
-"order":["Main.dc.html","Work.dc.html","Phone.dc.html","Activity.dc.html","Gate.dc.html","Menus.dc.html","Dialogs.dc.html","EditA.dc.html","EditB.dc.html","EditC.dc.html","PhoneEdit1.dc.html","PhoneEdit2.dc.html","PhoneEdit3.dc.html","PhoneEdit4.dc.html","PhoneEdit5.dc.html","Final.dc.html","PhoneEdit6.dc.html","PhoneEdit7.dc.html","C_MenuBar.dc.html","C_ChatDesk.dc.html","C_WorkDesk.dc.html","C_ActivityDesk.dc.html","C_GateDesk.dc.html","M_Pi.dc.html","M_File.dc.html","M_Edit.dc.html","M_View.dc.html","M_Project.dc.html","M_Agent.dc.html","M_Window.dc.html","P_Popups.dc.html","S_Welcome.dc.html","S_Empty.dc.html","S_Idle.dc.html","S_Attachments.dc.html","S_Dragging.dc.html","S_Recording.dc.html","S_Error.dc.html","S_Offline.dc.html","W_Source.dc.html","W_Code.dc.html","W_Empty.dc.html","W_Search.dc.html","W_Requests.dc.html","W_Conflict.dc.html","W_Trash.dc.html","W_Reload.dc.html","A_Attention.dc.html","A_Empty.dc.html","G_All.dc.html","G_Empty.dc.html","Dialogs2.dc.html","Ph_Pi.dc.html","Ph_Views.dc.html","Ph_Welcome.dc.html","Ph_Offline.dc.html","Ph_Files.dc.html","Ph_Activity.dc.html","Ph_ActivityDetail.dc.html","Ph_Gate.dc.html","Ph_GateDetail.dc.html"],
-"notes":{
-"t1":{"x":0,"y":-260,"text":"Pi Workbench — The Desktop Interface, 1-bit","kind":"title1","maxW":3430},
-"t2":{"x":0,"y":-260,"text":"Editing & commenting — B inline threads + C Review","kind":"title1","maxW":2480,"page":"edit"},
-"t3":{"x":0,"y":900,"text":"Phone — long press selects, a visible handle does the rest","kind":"title1","maxW":2270,"page":"edit"},
-"t4":{"x":0,"y":2000,"text":"Chosen: B + Review window — resolve, delete, undo","kind":"title1","maxW":2380,"page":"edit"},
-"s1":{"x":0,"y":-260,"text":"Every menu, open in place","kind":"title1","maxW":6000,"page":"states"},
-"s2":{"x":0,"y":2080,"text":"Chat — every state","kind":"title1","maxW":6000,"page":"states"},
-"s3":{"x":0,"y":4420,"text":"Work — every state","kind":"title1","maxW":6000,"page":"states"},
-"s4":{"x":0,"y":6760,"text":"Activity, Gate and the remaining dialogs","kind":"title1","maxW":6000,"page":"states"},
-"p1":{"x":0,"y":-260,"text":"Phone — every page","kind":"title1","maxW":4150,"page":"phone"},
-"c1":{"x":0,"y":-260,"text":"Shared components — every state screen mounts these","kind":"title1","maxW":2960,"page":"system"}
-},
-"designSystems":[{"title":"Pi Workbench System 1","namespace":"piworkbench","artifact":"https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1","version":null,"copiedAt":"2026-10-13T13:45:00+09:00"}]}
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "A_Attention.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Activity · needs attention",
+      "w": 1440,
+      "x": 0,
+      "y": 7020
+    },
+    "A_Empty.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Activity · all caught up",
+      "w": 1440,
+      "x": 1520,
+      "y": 7020
+    },
+    "Activity.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Activity",
+      "w": 1440,
+      "x": 0,
+      "y": 1020
+    },
+    "C_ActivityDesk.dc.html": {
+      "h": 872,
+      "page": "system",
+      "title": "ActivityDesk (state)",
+      "w": 1440,
+      "x": 0,
+      "y": 1472
+    },
+    "C_ChatDesk.dc.html": {
+      "h": 872,
+      "page": "system",
+      "title": "ChatDesk (state)",
+      "w": 1440,
+      "x": 0,
+      "y": 480
+    },
+    "C_GateDesk.dc.html": {
+      "h": 872,
+      "page": "system",
+      "title": "GateDesk (state)",
+      "w": 1440,
+      "x": 1520,
+      "y": 1472
+    },
+    "C_MenuBar.dc.html": {
+      "h": 360,
+      "page": "system",
+      "title": "MenuBar (open: none…window)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "C_WorkDesk.dc.html": {
+      "h": 872,
+      "page": "system",
+      "title": "WorkDesk (state)",
+      "w": 1440,
+      "x": 1520,
+      "y": 480
+    },
+    "Dialogs.dc.html": {
+      "h": 640,
+      "title": "Dialogs & alerts",
+      "w": 1440,
+      "x": 1520,
+      "y": 2040
+    },
+    "Dialogs2.dc.html": {
+      "h": 900,
+      "page": "states",
+      "title": "More dialogs: folder, page, settings, about, phone, startup",
+      "w": 1440,
+      "x": 0,
+      "y": 8040
+    },
+    "EditA.dc.html": {
+      "h": 780,
+      "page": "archive",
+      "title": "A · Margin notes",
+      "w": 1200,
+      "x": 0,
+      "y": 0
+    },
+    "EditB.dc.html": {
+      "h": 780,
+      "page": "edit",
+      "title": "B · Inline threads + ruler",
+      "w": 1200,
+      "x": 0,
+      "y": 0
+    },
+    "EditC.dc.html": {
+      "h": 780,
+      "page": "edit",
+      "title": "C · Edit / Review modes",
+      "w": 1200,
+      "x": 1280,
+      "y": 0
+    },
+    "Final.dc.html": {
+      "h": 860,
+      "is_interactive": true,
+      "page": "edit",
+      "title": "B + Review — clickable prototype",
+      "w": 1440,
+      "x": 0,
+      "y": 2260
+    },
+    "G_All.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Gate · all checks",
+      "w": 1440,
+      "x": 3040,
+      "y": 7020
+    },
+    "G_Empty.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Gate · connecting, no checks",
+      "w": 1440,
+      "x": 4560,
+      "y": 7020
+    },
+    "Gate.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Gate",
+      "w": 1440,
+      "x": 1520,
+      "y": 1020
+    },
+    "M_Agent.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Agent menu",
+      "w": 1440,
+      "x": 1520,
+      "y": 1020
+    },
+    "M_Edit.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Edit menu",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "M_File.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "File menu",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "M_Pi.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "π menu",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "M_Project.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Project menu",
+      "w": 1440,
+      "x": 0,
+      "y": 1020
+    },
+    "M_View.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "View menu",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "M_Window.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Window menu",
+      "w": 1440,
+      "x": 3040,
+      "y": 1020
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "Chat",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Menus.dc.html": {
+      "h": 640,
+      "title": "Menu bar — command map",
+      "w": 1440,
+      "x": 0,
+      "y": 2040
+    },
+    "P_Popups.dc.html": {
+      "h": 900,
+      "page": "states",
+      "title": "Every popup, open",
+      "w": 1440,
+      "x": 4560,
+      "y": 1020
+    },
+    "Ph_Activity.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Activity",
+      "w": 390,
+      "x": 2350,
+      "y": 0
+    },
+    "Ph_ActivityDetail.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Activity · request detail",
+      "w": 390,
+      "x": 2820,
+      "y": 0
+    },
+    "Ph_Files.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Work · files",
+      "w": 390,
+      "x": 1880,
+      "y": 0
+    },
+    "Ph_Gate.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Gate",
+      "w": 390,
+      "x": 3290,
+      "y": 0
+    },
+    "Ph_GateDetail.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Gate · event info",
+      "w": 390,
+      "x": 3760,
+      "y": 0
+    },
+    "Ph_Offline.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "Connection interrupted",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "Ph_Pi.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "π sheet: projects & commands",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Ph_Views.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "View popup",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "Ph_Welcome.dc.html": {
+      "h": 844,
+      "page": "phone",
+      "title": "First run",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Phone.dc.html": {
+      "h": 844,
+      "title": "Chat — phone",
+      "w": 390,
+      "x": 3040,
+      "y": 0
+    },
+    "PhoneEdit1.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "1 · Read & edit",
+      "w": 390,
+      "x": 0,
+      "y": 1160
+    },
+    "PhoneEdit2.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "2 · Long press selects",
+      "w": 390,
+      "x": 470,
+      "y": 1160
+    },
+    "PhoneEdit3.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "3 · Write the comment",
+      "w": 390,
+      "x": 940,
+      "y": 1160
+    },
+    "PhoneEdit4.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "4 · Open a thread",
+      "w": 390,
+      "x": 1410,
+      "y": 1160
+    },
+    "PhoneEdit5.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "5 · Block handle menu",
+      "w": 390,
+      "x": 1880,
+      "y": 1160
+    },
+    "PhoneEdit6.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "6 · Comments: Open / Resolved / Deleted",
+      "w": 390,
+      "x": 1520,
+      "y": 2260
+    },
+    "PhoneEdit7.dc.html": {
+      "h": 844,
+      "page": "edit",
+      "title": "7 · Delete, with Undo",
+      "w": 390,
+      "x": 1990,
+      "y": 2260
+    },
+    "S_Attachments.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · files attached",
+      "w": 1440,
+      "x": 4560,
+      "y": 2340
+    },
+    "S_Dragging.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · dragging a file in",
+      "w": 1440,
+      "x": 0,
+      "y": 3360
+    },
+    "S_Empty.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · new project, no messages",
+      "w": 1440,
+      "x": 1520,
+      "y": 2340
+    },
+    "S_Error.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · attachment error",
+      "w": 1440,
+      "x": 3040,
+      "y": 3360
+    },
+    "S_Idle.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · idle, answer finished",
+      "w": 1440,
+      "x": 3040,
+      "y": 2340
+    },
+    "S_Offline.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · connection interrupted",
+      "w": 1440,
+      "x": 4560,
+      "y": 3360
+    },
+    "S_Recording.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · recording audio",
+      "w": 1440,
+      "x": 1520,
+      "y": 3360
+    },
+    "S_Welcome.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Chat · first run, no projects",
+      "w": 1440,
+      "x": 0,
+      "y": 2340
+    },
+    "W_Code.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · text / code file",
+      "w": 1440,
+      "x": 1520,
+      "y": 4680
+    },
+    "W_Conflict.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · save conflict",
+      "w": 1440,
+      "x": 1520,
+      "y": 5700
+    },
+    "W_Empty.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · no document open",
+      "w": 1440,
+      "x": 3040,
+      "y": 4680
+    },
+    "W_NoPlan.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Files window · folder with no Plan",
+      "w": 1440,
+      "x": 0,
+      "y": 9300
+    },
+    "W_Reload.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · Reload from Disk",
+      "w": 1440,
+      "x": 4560,
+      "y": 5700
+    },
+    "W_Requests.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · document requests",
+      "w": 1440,
+      "x": 0,
+      "y": 5700
+    },
+    "W_Search.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · finding a file",
+      "w": 1440,
+      "x": 4560,
+      "y": 4680
+    },
+    "W_Source.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · Markdown source",
+      "w": 1440,
+      "x": 0,
+      "y": 4680
+    },
+    "W_Tablet.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Files window · tablet 1024 (220px), Files empty",
+      "w": 1024,
+      "x": 1520,
+      "y": 9300
+    },
+    "W_Trash.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Work · Move to Trash",
+      "w": 1440,
+      "x": 3040,
+      "y": 5700
+    },
+    "Work.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "title": "Work — document",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-13T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1",
+      "copiedAt": "2026-10-13T13:45:00+09:00",
+      "namespace": "piworkbench",
+      "title": "Pi Workbench System 1",
+      "version": null
+    }
+  ],
+  "launch": {
+    "page": "states",
+    "view": "canvas"
+  },
+  "notes": {
+    "c1": {
+      "kind": "title1",
+      "maxW": 2960,
+      "page": "system",
+      "text": "Shared components — every state screen mounts these",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "p1": {
+      "kind": "title1",
+      "maxW": 4150,
+      "page": "phone",
+      "text": "Phone — every page",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "s1": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Every menu, open in place",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "s2": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Chat — every state",
+      "w": 240,
+      "x": 0,
+      "y": 2080
+    },
+    "s3": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Work — every state",
+      "w": 240,
+      "x": 0,
+      "y": 4420
+    },
+    "s4": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Activity, Gate and the remaining dialogs",
+      "w": 240,
+      "x": 0,
+      "y": 6760
+    },
+    "s5": {
+      "kind": "title1",
+      "maxW": 2544,
+      "page": "states",
+      "text": "Files window — Plan above Files",
+      "w": 240,
+      "x": 0,
+      "y": 9040
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 3430,
+      "text": "Pi Workbench — The Desktop Interface, 1-bit",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 2480,
+      "page": "edit",
+      "text": "Editing & commenting — B inline threads + C Review",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "edit",
+      "text": "Phone — long press selects, a visible handle does the rest",
+      "w": 240,
+      "x": 0,
+      "y": 900
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 2380,
+      "page": "edit",
+      "text": "Chosen: B + Review window — resolve, delete, undo",
+      "w": 240,
+      "x": 0,
+      "y": 2000
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Work.dc.html",
+    "Phone.dc.html",
+    "Activity.dc.html",
+    "Gate.dc.html",
+    "Menus.dc.html",
+    "Dialogs.dc.html",
+    "EditA.dc.html",
+    "EditB.dc.html",
+    "EditC.dc.html",
+    "PhoneEdit1.dc.html",
+    "PhoneEdit2.dc.html",
+    "PhoneEdit3.dc.html",
+    "PhoneEdit4.dc.html",
+    "PhoneEdit5.dc.html",
+    "Final.dc.html",
+    "PhoneEdit6.dc.html",
+    "PhoneEdit7.dc.html",
+    "C_MenuBar.dc.html",
+    "C_ChatDesk.dc.html",
+    "C_WorkDesk.dc.html",
+    "C_ActivityDesk.dc.html",
+    "C_GateDesk.dc.html",
+    "M_Pi.dc.html",
+    "M_File.dc.html",
+    "M_Edit.dc.html",
+    "M_View.dc.html",
+    "M_Project.dc.html",
+    "M_Agent.dc.html",
+    "M_Window.dc.html",
+    "P_Popups.dc.html",
+    "S_Welcome.dc.html",
+    "S_Empty.dc.html",
+    "S_Idle.dc.html",
+    "S_Attachments.dc.html",
+    "S_Dragging.dc.html",
+    "S_Recording.dc.html",
+    "S_Error.dc.html",
+    "S_Offline.dc.html",
+    "W_Source.dc.html",
+    "W_Code.dc.html",
+    "W_Empty.dc.html",
+    "W_Search.dc.html",
+    "W_Requests.dc.html",
+    "W_Conflict.dc.html",
+    "W_Trash.dc.html",
+    "W_Reload.dc.html",
+    "A_Attention.dc.html",
+    "A_Empty.dc.html",
+    "G_All.dc.html",
+    "G_Empty.dc.html",
+    "Dialogs2.dc.html",
+    "W_NoPlan.dc.html",
+    "W_Tablet.dc.html",
+    "Ph_Pi.dc.html",
+    "Ph_Views.dc.html",
+    "Ph_Welcome.dc.html",
+    "Ph_Offline.dc.html",
+    "Ph_Files.dc.html",
+    "Ph_Activity.dc.html",
+    "Ph_ActivityDetail.dc.html",
+    "Ph_Gate.dc.html",
+    "Ph_GateDetail.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "screens",
+      "name": "Screens"
+    },
+    {
+      "id": "states",
+      "name": "Every menu & state"
+    },
+    {
+      "id": "phone",
+      "name": "Phone pages"
+    },
+    {
+      "id": "edit",
+      "name": "Edit & comment"
+    },
+    {
+      "id": "system",
+      "name": "Components"
+    },
+    {
+      "id": "archive",
+      "name": "Archive — not chosen"
+    }
+  ],
+  "title": "Pi Workbench — Desktop Interface"
+}
