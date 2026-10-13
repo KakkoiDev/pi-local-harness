@@ -1,4 +1,5 @@
 """The completion gate must fail when a test fails, not only when checkboxes disagree."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 from pathlib import Path
 import subprocess
 import sys

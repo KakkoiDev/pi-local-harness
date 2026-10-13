@@ -1,3 +1,4 @@
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 from pathlib import Path
 import tempfile
 import unittest

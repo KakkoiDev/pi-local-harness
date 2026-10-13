@@ -59,3 +59,15 @@ def switch(previous, model, url=None):
         try: ollama('/api/generate', {'model': previous, 'keep_alive': 0}, url=url)
         except OSError: pass
     ollama('/api/generate', {'model': model, 'keep_alive': '30m'}, timeout=600, url=url)
+
+
+def assumed(model):
+    """Capabilities when Ollama cannot tell: the default model is known to think and see; others are assumed plain."""
+    return {'id': model, 'tools': True, 'thinking': model == MODEL, 'vision': model == MODEL}
+
+
+def effective(choice, capabilities):
+    """What Pi runs with: the chosen model and level, thinking off for a model that does not think. Shared by the web and plh."""
+    known = capabilities(choice['model'])
+    return {**choice, 'effort': choice['effort'] if known.get('thinking') else 'off', 'thinking': bool(known.get('thinking')),
+            'vision': bool(known.get('vision')), 'chosenEffort': choice['effort']}

@@ -65,13 +65,13 @@ def main():
             os.execve(sys.executable,[sys.executable,str(ROOT/'plh.py'),*sys.argv[1:]],{**os.environ,'PLH_UPDATED':commit})
     memory=directory/'AGENTS.md'
     if not memory.exists():memory.write_text((ROOT/'harness/AGENTS.md').read_text())
-    # The model and thinking level chosen in the web menu bar (task 147), else the pin and config.json's effort.
-    choice=models.current(directory,settings['effort']);provider,model=choice['provider'],choice['model']
-    try:known=next((item for item in models.local_models() if item['id']==model),{})
-    except OSError:known={}
-    thinking=known.get('thinking',model==models.MODEL);effort=choice['effort'] if thinking else 'off'
+    # The model and thinking level chosen in the web menu bar (task 147), else harness/model.json's default and config.json's effort.
+    def capabilities(model):
+        try:return next((item for item in models.local_models() if item['id']==model),None) or models.assumed(model)
+        except OSError:return models.assumed(model)
+    choice=models.effective(models.current(directory,settings['effort']),capabilities);provider,model,effort=choice['provider'],choice['model'],choice['effort']
     env={**environment(settings),**os.environ,'PI_AGENT_DATA':str(directory),'PI_HARNESS_MEMORY':str(memory),'PI_WEB_EFFORT':settings['effort'],
-         'PI_HARNESS_MODEL':model,'PI_HARNESS_MODEL_THINKING':'1' if thinking else '','PI_HARNESS_MODEL_VISION':'1' if known.get('vision',model==models.MODEL) else ''}
+         'PI_HARNESS_MODEL':model,'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else ''}
     os.chdir(Path.home())
     arguments=['pi','--offline','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),'--provider',provider,'--model',model,'--thinking',effort,*sys.argv[1:]]
     os.execvpe('pi',arguments,env)

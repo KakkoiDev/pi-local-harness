@@ -1,3 +1,4 @@
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import tempfile
 import unittest
 from pathlib import Path
@@ -51,6 +52,34 @@ class QueueTest(unittest.TestCase):
             other=queue.add('p','chat-2',{'message':'Another chat'});comment=queue.add('p','chat-1',{'message':'Comment','document_comment':{'path':'x','id':'c'}})
             self.assertNotEqual(other['id'],first['id']);self.assertNotEqual(comment['id'],first['id']);self.assertEqual(len(queue.list()),3)
             self.assertEqual(WorkQueue(root/'queue.json',lambda job,emit:None,start=False).list()[0]['message'],'Fix the header\n\nand the footer','kept across a restart')
+
+    def test_joining_after_a_restart_keeps_the_earlier_attachments_and_payloads_are_removed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);path=root/'queue.json'
+            WorkQueue(path,lambda job,emit:None,start=False).add('p','chat',{'message':'one','attachments':[{'name':'A.txt','data':'QQ=='}]})
+            restarted=WorkQueue(path,lambda job,emit:None,start=False)
+            self.assertEqual(restarted.list()[0]['files'],['A.txt'])
+            restarted.add('p','chat',{'message':'two','attachments':[{'name':'B.txt','data':'Qg=='}]})
+            seen=[];WorkQueue(path,lambda job,emit:seen.append(job['data']),start=False).run_one()
+            self.assertEqual([item['name'] for item in seen[0]['attachments']],['A.txt','B.txt'])
+            self.assertEqual(list((root/'activity').glob('*.attachments.json')),[],'the payload is deleted once the job ends')
+
+    def test_a_failing_job_record_does_not_stop_the_worker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ran=[];queue=WorkQueue(Path(directory)/'queue.json',lambda job,emit:ran.append(job['id']),start=False)
+            first=queue.add('p','a',{'message':'first'});second=queue.add('p','b',{'message':'second'})
+            original=queue.save;calls=[0]
+            def flaky(current=None):
+                calls[0]+=1
+                if calls[0]==1:raise OSError('disk hiccup')
+                return original(current)
+            queue.save=flaky;queue.closed=False
+            import threading
+            worker=threading.Thread(target=queue.run,daemon=True);worker.start()
+            for _ in range(50):
+                if second['id'] in ran:break
+                import time;time.sleep(0.1)
+            queue.close();self.assertIn(second['id'],ran,'the worker kept going after an error')
 
     def test_tasks_are_saved_as_markdown_with_document_and_chat_links(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -114,41 +114,48 @@ def pi_command(session, choice=None):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.active={};self.closed=False
+        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self._capabilities={};self._capabilities_at=-1e9
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
+    # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
+    # cannot stall every request.
     def capabilities(self, model):
-        cached=getattr(self,'_capabilities',{})
-        if model not in cached:
-            try:cached.update({item['id']:item for item in models.local_models()})
+        if model not in self._capabilities and time.monotonic()-self._capabilities_at>60:
+            self._capabilities_at=time.monotonic()
+            try:self._capabilities={item['id']:item for item in models.local_models()}
             except OSError:pass
-            self._capabilities=cached
-        return cached.get(model,{'id':model,'tools':True,'thinking':model==MODEL,'vision':model==MODEL})
+        return self._capabilities.get(model) or models.assumed(model)
     def choice(self):
-        value=models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high'));known=self.capabilities(value['model'])
-        return {**value,'effort':value['effort'] if known.get('thinking') else 'off','thinking':bool(known.get('thinking')),'vision':bool(known.get('vision')),'chosenEffort':value['effort']}
+        return models.effective(models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high')),self.capabilities)
     def model_list(self):
-        listed=models.local_models();self._capabilities={item['id']:item for item in listed}
+        listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic()
         return {'models':listed,'current':self.choice()}
     def choose_model(self, model):
         listed={item['id']:item for item in models.local_models()}
         if model not in listed:raise ValueError(f'“{model}” is not installed in Ollama')
         if not listed[model]['tools']:raise ValueError(f'“{model}” cannot use tools, so Pi cannot work with it')
-        if self.busy():raise ValueError('Pi is working. Switch models when the queue is empty.')
-        with self.lock:
-            if getattr(self,'switching',None):raise ValueError('Already switching models')
+        with self.lock:  # claimed atomically: while switching, busy() holds the queue back (no job starts on the old model)
+            if self.switching:raise ValueError('Already switching models')
+            if self.active or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
             self.switching=model
         try:models.switch(models.current(self.documents.root)['model'],model);models.save(self.documents.root,model=model)
         finally:
             with self.lock:self.switching=None
-        self._capabilities=listed;return self.choice()
+        self._capabilities=listed;self._capabilities_at=time.monotonic();return self.choice()
     def choose_effort(self, effort):
         if effort not in EFFORTS:raise ValueError('Unknown thinking level')
         models.save(self.documents.root,effort=effort);return self.choice()
     def busy(self):
         with self.lock:
-            if self.active:return True
+            if self.active or self.switching:return True
+        return self.agent_running()
+    def ensure_idle_path(self, path):
+        """A file or folder Pi is answering a comment in, or will, stays where it is until that request ends."""
+        busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('document') and (job['document']==path or job['document'].startswith(path.rstrip('/')+'/'))]
+        if busy:raise ValueError('Pi is working on a comment or question in this file. Move or trash it when that request ends.')
+    def agent_running(self):
+        """Terminal Pi holds <data>/.agent-lock while it works (one agent at a time)."""
         lock=self.documents.root/'.agent-lock'
         if lock.exists():
             try:
@@ -168,6 +175,10 @@ class WebChat:
     def enqueue(self, data):
         if not isinstance(data.get('message',''),str):raise ValueError('Message must be text')
         if not isinstance(data.get('attachments',[]),list) or len(data.get('attachments',[]))>8:raise ValueError('Attach at most eight files')
+        if not all(isinstance(item,dict) for item in data.get('attachments',[])):raise ValueError('Each attachment must be a file')
+        comment=data.get('document_comment')
+        if comment is not None and not (isinstance(comment,dict) and isinstance(comment.get('path'),str) and isinstance(comment.get('id'),str)):raise ValueError('Choose a comment')
+        if data.get('document') is not None and not isinstance(data.get('document'),str):raise ValueError('Choose a document')
         project=data['project'];chat=self.project_chat(project)
         if not data.get('message','').strip() and not data.get('attachments') and not data.get('document_comment'):raise ValueError('Write a prompt or choose a comment')
         if data.get('document_comment'):
@@ -193,7 +204,7 @@ class WebChat:
     def workspace(self):
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
-            projects.append({**project,'chat':self.project_chat(project['id'],summaries)['id']})
+            projects.append({**project,'chat':None if project.get('missing') else self.project_chat(project['id'],summaries)['id']})
         return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         with self.lock:
@@ -347,7 +358,7 @@ class WebHandler(BaseHTTPRequestHandler):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/('voice'+suffix);path.write_bytes(audio)
             try:return {'text':self.speech(path)}
-            except RuntimeError as error:raise ValueError(str(error)) from error
+            except subprocess.TimeoutExpired as error:raise ValueError('Transcription took longer than three minutes; the recording is attached instead.') from error
     def do_GET(self):
         if not self.trusted():self.reply({'error':self.refusal()},403);return
         path=urlparse(self.path).path
@@ -388,7 +399,9 @@ class WebHandler(BaseHTTPRequestHandler):
             self.send_header('Cache-Control','no-store')
             if disposition:self.send_header('Content-Disposition',disposition)
             self.end_headers();self.wfile.write(body)
-        except (FileNotFoundError,ValueError,KeyError):self.reply({'error':'Not found'},404)
+        except (FileNotFoundError,KeyError):self.reply({'error':'Not found'},404)
+        except ValueError as error:self.reply({'error':str(error)},400)  # e.g. "This is a binary file", not a bare Not found
+        except OSError as error:self.reply({'error':'Ollama is not reachable: '+str(error)},503)  # /api/models when Ollama is down
         except Exception as error:self.reply({'error':f'Internal error: {type(error).__name__}'},500)
     def do_POST(self):
         if not self.trusted():self.reply({'error':self.refusal()},403);return
@@ -403,6 +416,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path=='/api/projects/forget':self.reply(self.chat.documents.forget(data.get('project')));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
@@ -412,6 +426,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 action=path.rsplit('/',1)[-1];store=self.chat.documents
                 if action=='create':self.reply(store.create(data['project'],data['title'],data.get('parent')));return
                 if action=='create-file':self.reply(store.create_file(data['project'],data['name']));return
+                if action in ('move','delete'):self.chat.ensure_idle_path(data['path'])
                 if action=='move':self.reply(store.move(data['path'],data['name']));return
                 if action=='create-task':self.reply(store.create_task(data['project'],data['title']));return
                 if action=='create-roadmap':self.reply(store.create_roadmap(data['project']));return

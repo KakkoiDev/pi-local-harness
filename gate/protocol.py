@@ -11,6 +11,8 @@ from pathlib import Path
 import re
 import shlex
 import subprocess
+import threading
+import uuid
 
 WRAPPERS = {'sudo', 'command', 'exec', 'nohup', 'time', 'env'}
 SHELLS = {'sh', 'bash', 'zsh', 'dash', 'ksh'}
@@ -189,6 +191,8 @@ class Protocol:
     def __init__(self, path=None):
         self.path = Path(path) if path else None
         self.runs = {}
+        # Gate serves /gatekeep and /audit on parallel threads: every read and write of the runs goes through this lock.
+        self.lock = threading.RLock()
         if self.path and self.path.is_file():
             try:
                 stored = json.loads(self.path.read_text())
@@ -199,18 +203,20 @@ class Protocol:
     def save(self):
         if not self.path:
             return
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.path.with_suffix('.tmp')
-        temporary.write_text(json.dumps({str(root): [list(run) for run in runs] for root, runs in self.runs.items()}))
-        temporary.replace(self.path)
+        with self.lock:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = self.path.with_name(f'.{self.path.name}.{uuid.uuid4().hex}.tmp')
+            temporary.write_text(json.dumps({str(root): [list(run) for run in runs] for root, runs in self.runs.items()}))
+            temporary.replace(self.path)
 
     def record(self, cwd, command, passed, output=None):
         """Unreadable git state or an interrupted run leaves the run unrecorded; the commit gate then names it as missing."""
         committed = commit_folder(command, cwd)
         if committed:
             root = project_root(committed)
-            if root and passed and self.runs.pop(root, None) is not None:
-                self.save()
+            with self.lock:
+                if root and passed and self.runs.pop(root, None) is not None:
+                    self.save()
             return
         if interrupted(output):
             return
@@ -221,8 +227,10 @@ class Protocol:
         try:
             paths = changed_paths(root)
             if paths is not None:
-                self.runs.setdefault(root, []).append((code_state(root, paths)[0], passed))
-                self.save()
+                state = code_state(root, paths)[0]
+                with self.lock:
+                    self.runs.setdefault(root, []).append((state, passed))
+                    self.save()
         except CheckFailed:
             return
 
@@ -256,7 +264,8 @@ class Protocol:
         if code and known and known <= {'docs', 'planning'}:
             missing.append(f'code changes in a Kind: {"/".join(sorted(known))} task; set Kind: code or Kind: chore, or revert the code')
         elif code:
-            runs = self.runs.get(root, [])
+            with self.lock:
+                runs = list(self.runs.get(root, []))
             green = next((index for index in range(len(runs) - 1, -1, -1) if runs[index] == (state, True)), None)
             if (not known or 'code' in known) and (green is None or not any(not passed and before != state for before, passed in runs[:green])):
                 missing.append('a failing (red) test run before the implementation, made by running the tests without pipes or `|| true`')

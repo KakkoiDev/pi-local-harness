@@ -1,8 +1,9 @@
-"""Small single-user Markdown workspace. No identities, collaboration, or sync."""
+"""Small single-user Markdown workspace: one person (and Pi in comment threads), no accounts, collaboration or sync."""
 from harness.markdown_records import read_record,write_record
 import hashlib
 import json
 import re
+import shutil
 import threading
 import uuid
 from pathlib import Path
@@ -51,14 +52,15 @@ class DocumentStore:
         legacy=path.with_suffix('.json')
         if legacy.exists():
             if not legacy.resolve().is_relative_to(path.parent.resolve()):raise ValueError('Comment record is outside the workspace')
-            values=json.loads(legacy.read_text());self.write_comments(relative,values);legacy.rename(legacy.with_name(legacy.name+'.before-markdown'));return values
+            values=json.loads(legacy.read_text());self.write_comments(relative,values);legacy.rename(legacy.with_name(legacy.name+'.before-markdown'))
+            return values if raw else [self.thread(entry) for entry in values]  # the first read is normalised like every later one
         return []
     def get(self, relative):
         with self.lock:
             path=self.path(relative);text=path.read_text(encoding='utf-8')
             title=next((line[2:].strip() for line in text.splitlines() if line.startswith('# ')),path.stem)
             parts=Path(relative).parts
-            return {'path':relative,'title':title,'project':parts[1] if len(parts)>2 else 'Pages','markdown':text,
+            return {'path':relative,'title':title,'project':parts[1],'markdown':text,
                     'revision':hashlib.sha256(text.encode()).hexdigest(),'comments':self.comments(relative)}
     def list(self):
         values=[]
@@ -70,7 +72,8 @@ class DocumentStore:
         return values
     def create(self, project, title, parent=None):
         with self.lock:
-            directory=self.project_path(project) if (project in self.registry or (self.projects/project).exists()) else self.projects/slug(project)
+            if not (project in self.registry or (self.projects/project).exists()):project=slug(project)  # one id for the folder and the page path
+            directory=self.project_path(project) if (project in self.registry or (self.projects/project).exists()) else self.projects/project
             directory.mkdir(parents=True,exist_ok=True)
             if parent:
                 parent_path=self.path(parent)
@@ -93,7 +96,8 @@ class DocumentStore:
             try:
                 with file.open('x',encoding='utf-8') as handle:handle.write('# '+file.stem+'\n\n' if file.suffix.lower()=='.md' else '')
             except FileExistsError as error:raise ValueError(f'“{name}” already exists') from error
-        return {'path':'projects/'+project+'/'+str(file.relative_to(root))}
+            created='projects/'+project+'/'+str(file.relative_to(root));self.sidecar(created).unlink(missing_ok=True)  # a new file starts without threads
+        return {'path':created}
     def create_task(self, project, title):
         """New Task…: tasks/NNN-slug.md with the next number, the task template, and a line in ROADMAP.md."""
         title=str(title).strip()
@@ -140,13 +144,24 @@ class DocumentStore:
             notes={base+str(item.relative_to(project)):self.comments(base+str(item.relative_to(project))) for item in inside}
             target.parent.mkdir(parents=True,exist_ok=True);file.rename(target)
             for old,comments in notes.items():
-                if comments:self.write_comments(moved+old[len(base+str(file.relative_to(project))):],comments);self.sidecar(old).unlink(missing_ok=True)
+                new=moved+old[len(base+str(file.relative_to(project))):]
+                self.sidecar(new).unlink(missing_ok=True)  # a thread left at the new path by an older file must not attach to this one
+                if comments:self.write_comments(new,comments)
+                self.sidecar(old).unlink(missing_ok=True)
         return {'path':moved}
     def delete(self, relative):
+        """Move to Trash: the file or folder goes to <data>/.trash/<id>-<name>, its comment threads beside it in
+        <id>-<name>.comments/, so they never come back on a new file with the same name. Works across drives."""
         with self.lock:
-            _,file=self.project_file(relative,folders=True);trash=self.root/'.trash';trash.mkdir(exist_ok=True)
+            project,file=self.project_file(relative,folders=True);trash=self.root/'.trash';trash.mkdir(exist_ok=True)
             if not trash.resolve().is_relative_to(self.root):raise ValueError('Trash directory is outside the workspace')
-            file.replace(trash/(uuid.uuid4().hex+'-'+file.name))
+            base='projects/'+Path(relative).parts[1]+'/';entry=trash/(uuid.uuid4().hex+'-'+file.name)
+            sidecars=[self.sidecar(base+str(item.relative_to(project))) for item in ([file] if file.is_file() else file.rglob('*')) if item.is_file()]
+            shutil.move(str(file),str(entry))
+            kept=[sidecar for sidecar in sidecars if sidecar.exists()]
+            if kept:
+                folder=entry.with_name(entry.name+'.comments');folder.mkdir()
+                for sidecar in kept:shutil.move(str(sidecar),str(folder/sidecar.name))
     def write_comments(self, relative, comments):
         path=self.sidecar(relative)
         body='# Comments on '+relative+'\n'
@@ -217,22 +232,23 @@ class DocumentStore:
         with self.lock:
             comments=self.comments(relative,raw=True)
             entry=next((item for item in comments if item['id']==identifier),None)
-            if entry:
-                written=entry.get('agent_reply','');answer=written if written not in ('',previous) else str(text)[:50000]
-                replies=self.thread({**entry,'agent_reply':previous})['replies']
-                replies.append({'author':'pi','text':answer,'created':datetime.now().astimezone().isoformat(timespec='seconds')})
-                entry.update(replies=replies,agent_reply=answer);self.write_comments(relative,comments)
+            if not entry:raise ValueError('The commented page was moved or deleted while Pi worked; the answer is kept in Activity.')
+            written=entry.get('agent_reply','');answer=written if written not in ('',previous) else str(text)[:50000]
+            replies=self.thread({**entry,'agent_reply':previous})['replies']
+            replies.append({'author':'pi','text':answer,'created':datetime.now().astimezone().isoformat(timespec='seconds')})
+            entry.update(replies=replies,agent_reply=answer);self.write_comments(relative,comments)
     def mark_sent(self, relative, identifier, chat):
         with self.lock:
             comments=self.comments(relative)
-            entry=next(item for item in comments if item['id']==identifier)
+            entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('The comment is gone: its page was moved or deleted after it was sent.')
             entry['chat_id']=chat;entry['sent_at']=datetime.now().astimezone().isoformat(timespec='seconds');self.write_comments(relative,comments)
     def comment_prompt(self, relative, identifier):
         page=self.get(relative);entry=next((item for item in page['comments'] if item['id']==identifier),None)
         if not entry:raise ValueError('Comment not found')
         if entry['resolved']:raise ValueError('This comment is already resolved')
         if entry.get('deleted'):raise ValueError('This comment is deleted. Restore it first.')
-        return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
+        return (f"Act on this project-page comment. Read the current page before editing; the page and the project context are in your context.\n"
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
                 f"The thread so far, oldest first:\n"+'\n'.join(('Pi' if item['author']=='pi' else 'Person')+': '+item['text'] for item in [{'author':'you','text':entry['text']},*entry['replies']])+"\n"
                 f"Answer the latest message from the person. The page text is in your context.\n\n"
@@ -248,7 +264,8 @@ class DocumentStore:
         return path
     def list_projects(self):
         with self.lock:
-            result=[{'id':key,**value} for key,value in self.registry.items()]
+            # A registered folder that is gone (unplugged drive, renamed) is listed as missing instead of failing the whole workspace.
+            result=[{'id':key,**value,**({} if Path(value['path']).is_dir() else {'missing':True})} for key,value in self.registry.items()]
             for path in sorted(self.projects.iterdir()):
                 if path.is_dir() and not path.is_symlink() and path.name not in self.registry:
                     result.append({'id':path.name,'name':path.name,'path':str(path.resolve())})
@@ -263,8 +280,16 @@ class DocumentStore:
                 if Path(project['path']).resolve()==path:return project['id']
             identifier=uuid.uuid4().hex
             self.registry[identifier]={'name':slug(name or path.name),'path':str(path)}
-            temporary=self.registry_file.with_suffix('.tmp');temporary.write_text(json.dumps(self.registry,ensure_ascii=False,indent=2));temporary.replace(self.registry_file)
+            self.save_registry()
             return identifier
+    def save_registry(self):
+        temporary=self.registry_file.with_suffix('.tmp');temporary.write_text(json.dumps(self.registry,ensure_ascii=False,indent=2));temporary.replace(self.registry_file)
+    def forget(self, project):
+        """Remove a registered folder from the list (Remove from List). The folder itself is never touched."""
+        with self.lock:
+            if project not in self.registry:raise ValueError('Only added folders can be removed from the list')
+            del self.registry[project];self.save_registry()
+        return {'project':project}
     def create_project(self, name, parent=None):
         name=slug(name)
         base=Path(parent).expanduser().resolve() if parent else self.projects
@@ -332,7 +357,7 @@ class DocumentStore:
             current=self.read_file(relative)
             if current['revision']!=revision:raise DocumentConflict('File changed on disk; reload before saving.')
             if not isinstance(text,str) or len(text.encode())>512000:raise ValueError('File is too large')
-            file=(self.project_path(Path(relative).parts[1])/Path(*Path(relative).parts[2:]));temporary=file.with_name('.'+file.name+'.'+uuid.uuid4().hex+'.tmp')
+            _,file=self.project_file(relative);temporary=file.with_name('.'+file.name+'.'+uuid.uuid4().hex+'.tmp')  # the real file, also through an in-project link
             temporary.write_text(text,encoding='utf-8');temporary.replace(file)
             return self.read_file(relative)
     def snapshot(self, project):

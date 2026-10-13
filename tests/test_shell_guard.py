@@ -1,3 +1,4 @@
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import unittest
 from gate.shell_guard import destructive_reason
 from gate.engine import GateEngine

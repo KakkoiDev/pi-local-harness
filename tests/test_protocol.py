@@ -1,5 +1,6 @@
 """Gate allows `git commit` in a ROADMAP.md + tasks/ project only after the AGENT.md protocol:
 red test run, implementation, green test run on the final code, checked task, checked roadmap."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 from pathlib import Path
 import subprocess
 import tempfile

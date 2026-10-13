@@ -2,6 +2,7 @@
 
 Remote requests arrive from tailscale serve on loopback with the tailnet Host and the
 Tailscale-User-Login header; only configured hosts and logins are trusted."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import base64
 import http.client
 import http.server
@@ -72,7 +73,7 @@ class RemoteAccessTest(unittest.TestCase):
         self.assertEqual(self.call('/api/transcribe', local, {'mime': 'audio/webm', 'data': ''})[0], 400)
 
     def test_no_speech_is_a_clear_error(self):
-        def silent(path): raise RuntimeError('No speech was recognized in this audio file')
+        def silent(path): raise ValueError('Audio transcription failed: No speech was recognized in this audio file')  # as web_chat.transcribe reports it
         self.handler.speech = staticmethod(silent)
         status, value = self.call('/api/transcribe', {'Host': f'127.0.0.1:{self.server.server_port}'},
                                   {'mime': 'audio/webm', 'data': base64.b64encode(b'x').decode()})

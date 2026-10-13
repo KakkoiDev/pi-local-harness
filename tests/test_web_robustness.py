@@ -1,4 +1,5 @@
 """Malformed input gets an HTTP error, never a dropped connection; one bad chat file cannot hide the workspace."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import base64
 import http.server
 import json

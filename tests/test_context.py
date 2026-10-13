@@ -1,4 +1,5 @@
 """Task 114: a small, chosen context per request instead of the whole project snapshot."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import os
 from pathlib import Path
 import tempfile

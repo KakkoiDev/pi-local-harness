@@ -1,4 +1,5 @@
 """Smoke test the installed pi runtime without making an LLM request."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import json
 import os
 from pathlib import Path

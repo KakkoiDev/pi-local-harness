@@ -1,4 +1,5 @@
 """Overlap analysis for experiments/parallel_inference/run.py."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import unittest
 from experiments.parallel_inference.run import overlap, verdict
 

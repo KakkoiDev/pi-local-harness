@@ -1,4 +1,5 @@
 """Task 147: the person chooses the model and thinking level; one model stays in Ollama's memory."""
+import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 import json
 import os
 import tempfile
@@ -52,6 +53,22 @@ class ModelChoiceTest(unittest.TestCase):
         for name in ['tiny:1b', 'missing:1b']:
             with self.assertRaises(ValueError): self.chat.choose_model(name)
         self.assertEqual(FakeOllama.calls, [])
+
+    def test_no_job_starts_while_a_model_loads(self):
+        started = threading.Event(); release = threading.Event(); original = models.switch
+        def slow(previous, model, url=None): started.set(); release.wait(5); original(previous, model, url)
+        with patch.object(models, 'switch', slow):
+            worker = threading.Thread(target=self.chat.choose_model, args=('qwen3:8b',)); worker.start()
+            started.wait(5); self.assertTrue(self.chat.busy(), 'the queue waits while the new model loads')
+            with self.assertRaisesRegex(ValueError, 'Already switching'): self.chat.choose_model('gemma4:26b-mlx')
+            release.set(); worker.join(5)
+        self.assertFalse(self.chat.busy())
+
+    def test_an_unreachable_ollama_is_asked_at_most_once_a_minute(self):
+        with patch.dict(os.environ, {'PI_OLLAMA_URL': 'http://127.0.0.1:9'}), patch.object(models, 'local_models', side_effect=OSError('down')) as listing:
+            self.chat._capabilities = {}; self.chat._capabilities_at = -1e9
+            for _ in range(5): self.chat.choice()
+            self.assertEqual(listing.call_count, 1)
 
     def test_thinking_level_is_kept_and_used(self):
         self.assertEqual(self.chat.choose_effort('low')['effort'], 'low')

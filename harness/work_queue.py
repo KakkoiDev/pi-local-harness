@@ -20,6 +20,10 @@ class WorkQueue:
         self.jobs=sorted([read_record(path) for path in documents],key=lambda job:(job['created'],job.get('order',0))) if documents else json.loads(self.path.read_text()) if self.path.exists() else []
         for index,job in enumerate(self.jobs):
             job.setdefault('order',index)
+            if job['data'].get('attachments'):self.store_attachments(job,job['data'].pop('attachments'))  # older records kept them inline
+            elif job['data'].get('attachment_file') and 'attachment_names' not in job['data']:
+                try:job['data']['attachment_names']=[item.get('name','file') for item in self.load_attachments(job)]
+                except (OSError,ValueError):job['data']['attachment_names']=[]
             if job['status']=='running':job.update(status='interrupted',progress='Agent stopped before this task completed; review before retrying.')
         self.save()
         if legacy:self.path.rename(self.path.with_name(self.path.name+'.before-markdown-'+uuid.uuid4().hex[:8]))
@@ -28,23 +32,34 @@ class WorkQueue:
         if start:self.thread=threading.Thread(target=self.run,daemon=True);self.thread.start()
     def save(self, current=None):
         for job in ([current] if current is not None else self.jobs):
-            data=job['data'];origin=data.get('document') or data.get('document_comment',{}).get('path')
+            data=job['data'];origin=data.get('document') or (data.get('document_comment') or {}).get('path')
             body=f"# {data.get('message') or 'Attached files'}\n\nStatus: **{job['status']}**\n\nProject: {job['project']}\n\nChat: [Open chat](/?chat={job['chat']})\n"
             if origin:body+=f"\nDocument: [Open document](/?document={quote(origin,safe='')})\n"
             body+=f"\nCreated: {job['created']}\n\n## Request\n\n{data.get('message','')}\n\n## Result\n\n{job.get('text') or job.get('progress','')}\n"
             if job.get('thinking'):body+='\n## Reasoning\n\n'+job['thinking']+'\n'
             record=copy.deepcopy(job)
-            if record['data'].get('attachments'):
-                payload=self.records/(job['id']+'.attachments.json')
-                temporary=payload.with_suffix('.tmp');temporary.write_text(json.dumps(record['data'].pop('attachments')));temporary.replace(payload)
-                record['data']['attachment_file']=payload.name
             write_record(self.records/(job['id']+'.md'),record,body)
+    # Attachments live in one payload file per job, written when the job is added or joined, read when it runs and deleted
+    # when it ends. The job itself only keeps the file name and the attachment names (no megabytes rewritten on every save).
+    def payload(self, job):
+        name=job['data'].get('attachment_file')
+        if not name:return None
+        if Path(name).name!=name:raise ValueError('Invalid attachment record')
+        return self.records/name
+    def load_attachments(self, job):
+        path=self.payload(job);return json.loads(path.read_text()) if path and path.exists() else []
+    def store_attachments(self, job, attachments):
+        path=self.records/(job['id']+'.attachments.json');temporary=path.with_suffix('.tmp')
+        temporary.write_text(json.dumps(attachments));temporary.replace(path)
+        job['data'].update(attachment_file=path.name,attachment_names=[item.get('name','file') for item in attachments])
+    def drop_attachments(self, job):
+        path=self.payload(job)
+        if path:path.unlink(missing_ok=True)
+        for key in ('attachment_file','attachment_names'):job['data'].pop(key,None)
     def hydrate(self, job):
-        job=copy.deepcopy(job)
-        name=job['data'].pop('attachment_file',None)
-        if name:
-            if Path(name).name!=name:raise ValueError('Invalid attachment record')
-            job['data']['attachments']=json.loads((self.records/name).read_text())
+        job=copy.deepcopy(job);attachments=self.load_attachments(job)
+        for key in ('attachment_file','attachment_names'):job['data'].pop(key,None)
+        if attachments:job['data']['attachments']=attachments
         return job
     def add(self, project, chat, data):
         with self.condition:
@@ -53,14 +68,18 @@ class WorkQueue:
             # Chat messages sent while the chat's earlier message still waits join it: one request, not many (the person, 2026-10-13).
             plain=lambda value:not value.get('document') and not value.get('document_comment')
             waiting=next((item for item in reversed(self.jobs) if item['status']=='queued' and item['chat']==chat and plain(item['data'])),None) if plain(data) else None
-            if waiting and len(waiting['data'].get('attachments',[]))+len(data.get('attachments',[]))<=8:
+            incoming=copy.deepcopy(data.get('attachments',[]))
+            if waiting and len(waiting['data'].get('attachment_names',[]))+len(incoming)<=8:
                 joined=[part for part in (waiting['data'].get('message','').strip(),data.get('message','').strip()) if part]
-                waiting['data']['message']='\n\n'.join(joined);waiting['data']['attachments']=[*waiting['data'].get('attachments',[]),*copy.deepcopy(data.get('attachments',[]))]
+                waiting['data']['message']='\n\n'.join(joined)
+                if incoming:self.store_attachments(waiting,[*self.load_attachments(waiting),*incoming])  # earlier attachments survive a restart
                 self.save(waiting);return {**self.public(waiting),'merged':True}
-            job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':copy.deepcopy(data),'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':''}
-            self.jobs.append(job);self.save(job);self.condition.notify_all();return self.public(job)
+            job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':{key:copy.deepcopy(value) for key,value in data.items() if key!='attachments'},'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':''}
+            if incoming:self.store_attachments(job,incoming)
+            self.save(job)  # written before it joins the list: a record that cannot be saved never enters the queue
+            self.jobs.append(job);self.condition.notify_all();return self.public(job)
     def public(self, job):
-        return {**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or job['data'].get('document_comment',{}).get('path'),'comment_id':job['data'].get('document_comment',{}).get('id'),'message':job['data'].get('message',''),'files':[item.get('name','file') for item in job['data'].get('attachments',[])]}
+        return {**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),'files':list(job['data'].get('attachment_names',[]))}
     def list(self):
         with self.condition:return [self.public(job) for job in self.jobs]
     def cancel(self, identifier):
@@ -68,7 +87,7 @@ class WorkQueue:
             job=next((job for job in self.jobs if job['id']==identifier),None)
             if not job:raise ValueError('Task not found')
             if job['status']!='queued':raise ValueError('Only queued tasks can be cancelled here; use Stop for active work')
-            job.update(status='cancelled',progress='Cancelled before execution');self.save(job);return self.public(job)
+            job.update(status='cancelled',progress='Cancelled before execution');self.drop_attachments(job);self.save(job);return self.public(job)
     def update(self, job, event):
         with self.condition:
             kind=event.get('type')
@@ -101,11 +120,14 @@ class WorkQueue:
             with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
         finally:
             with self.condition:
-                job['data'].pop('attachments',None);job['data'].pop('attachment_file',None);self.save(job)
+                self.drop_attachments(job);self.save(job)
         return True
     def run(self):
         while not self.closed:
-            if not self.run_one():
+            try:ran=self.run_one()
+            except Exception as error:  # one bad record must never stop the worker for every later request
+                print(f'Work queue: {error!r}',flush=True);ran=False
+            if not ran:
                 with self.condition:self.condition.wait(timeout=1)
     def close(self):
         with self.condition:self.closed=True;self.condition.notify_all()
