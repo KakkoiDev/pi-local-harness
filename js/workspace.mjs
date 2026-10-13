@@ -173,7 +173,7 @@ export function installWorkspace(host){
   if(unchanged('files',[files,page?.path,$('file-search').value]))return;const query=$('file-search').value.trim().toLocaleLowerCase();$('file-tree').replaceChildren();
   const matches=files.filter(file=>file.name.toLocaleLowerCase().includes(query));
   if(!matches.length)$('file-tree').append(node('p','list-empty',query?'No matching files':'This folder is empty. Create a page or task to begin.'));
-  for(const file of matches){const button=node('button','file-item'+(file.path===page?.path?' active':''));button.append(icon('file'),node('span','',file.name));button.title=file.name;button.setAttribute('aria-current',file.path===page?.path?'page':'false');button.onclick=()=>openFile(file.path);$('file-tree').append(button);}
+  for(const file of matches){const button=node('button','pw-row file-item');button.type='button';button.append(icon('file'),node('span','pw-row__label',file.name));button.title=file.name;button.setAttribute('aria-current',file.path===page?.path?'page':'false');button.onclick=()=>openFile(file.path);$('file-tree').append(button);}
  }
  async function refreshFiles(){
   if(!project)return;files=await api('/api/project-files?project='+encodeURIComponent(project));files.sort((a,b)=>a.name==='ROADMAP.md'?-1:b.name==='ROADMAP.md'?1:a.name.localeCompare(b.name));renderFiles();
