@@ -66,6 +66,10 @@ body[data-view="work"] .window-projects{display:none}
 #activity-list{--pw-cols:150px minmax(0,1fr) 190px 150px 90px 70px}
 #laya-events{--pw-cols:74px 72px 120px 110px minmax(0,1fr) 150px 80px}
 
+/* About dialog */
+#about-dialog .welcome-mark{width:56px;height:56px;font-size:34px;align-self:center}
+.about-facts{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+.about-facts dd{margin:0}
 /* Folder dialog */
 .folder-list{border:1px solid var(--ink);height:180px;overflow:auto;padding:0}
 

@@ -1,6 +1,7 @@
 import { hydrateIcons,icon,readState,writeState } from './ui.mjs';
 import { installWorkspace } from './workspace.mjs';
 import { installMenubar } from './menubar.mjs';
+import { ask } from './dialogs.mjs';
 hydrateIcons();
 const $=id=>document.getElementById(id);
 const node=(tag,className,text)=>{const element=document.createElement(tag);if(className)element.className=className;if(text!==undefined)element.textContent=text;return element;};
@@ -42,7 +43,10 @@ function toast(text){$('toast-text').textContent=text;$('toast-undo').hidden=tru
 function reviewOpen(open){writeState('review',open);document.body.dataset.review=open?'open':'closed';$('toggle-review').setAttribute('aria-pressed',String(open));$('toggle-review').firstChild.textContent=open?'Hide Review':'Show Review';}
 $('toggle-review').onclick=()=>reviewOpen(document.body.dataset.review==='closed');reviewOpen(readState('review',true));
 function editorMode(mode){$('editor-mode').value=mode;$('editor-mode').dispatchEvent(new Event('change'));}
+const waitingJob=()=>{const state=workspace.status();return state.jobs.find(job=>job.project===state.project&&job.status==='queued');};
 const commands={
+ 'cancel-waiting':async()=>{const job=waitingJob();if(job&&await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})==='danger')api('/api/jobs/cancel',{id:job.id}).then(()=>workspace.refresh(),e=>error(e.message));},
+ about:()=>{$('about-model').textContent=$('model').textContent+' · '+document.querySelector('.effort').textContent;$('about-web').textContent=location.host;$('about-dialog').showModal();},
  'new-project':click('new-project'),'add-folder':click('add-folder'),'new-page':click('new-page'),'new-task':click('new-task'),
  save:()=>workspace.saveNow(),'reload-document':click('reload-document'),'download-draft':click('download-draft'),'trash-page':click('delete-page'),
  'close-window':()=>reviewOpen(false),
@@ -60,7 +64,7 @@ function enabled(command,item){if(!commands[command])return false;const state=wo
  'new-page':state.project,'new-task':state.project,save:state.page,'reload-document':state.page,'download-draft':state.dirty,'trash-page':markdown&&(item||!textField()),
  'close-window':view==='work'&&document.body.dataset.review!=='closed','find-file':view==='work','mode-blocks':markdown,'mode-source':markdown,'mode-toggle':markdown,
  'toggle-review':view==='work','project-chat':state.project,'ask-document':markdown,'copy-folder-path':state.project,
- send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,reconnect:state.offline,
+ send:selected&&!sending&&($('prompt').value.trim()||draft().files.length),attach:selected,record:selected,stop:!$('stop').hidden,'cancel-waiting':waitingJob(),reconnect:state.offline,
  'toggle-files':view==='work','toggle-projects':view!=='work'};return !(command in when)||Boolean(when[command]);}
 function updateMenus(){const state=workspace.status();$('menu-project-list').replaceChildren(...state.projects.map(item=>{const entry=node('button','pw-menu__item',item.name);entry.setAttribute('role','menuitemradio');entry.setAttribute('aria-checked',String(item.id===state.project));entry.dataset.command='project';entry.dataset.project=item.id;entry.tabIndex=-1;return entry;}));
  for(const [command,checked] of [['mode-blocks',$('editor-mode').value==='blocks'],['mode-source',$('editor-mode').value==='source'],['toggle-review',document.body.dataset.review!=='closed'],['toggle-projects',!$('sidebar').hidden],['toggle-files',!document.querySelector('.window-files').hidden]])for(const item of document.querySelectorAll(`#menubar [data-command="${command}"][aria-checked]`))item.setAttribute('aria-checked',String(checked));}

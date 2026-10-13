@@ -13,5 +13,10 @@ class TestFrontend(unittest.TestCase):
             self.assertLess(content.index('/design/tokens.css'),content.index('/design/components.css'))
             self.assertLess(content.index('/design/components.css'),content.index('/chat.css'))
 
+    def test_no_browser_modal_dialogs(self):
+        import pathlib, re
+        for script in pathlib.Path('js').glob('*.mjs'):
+            self.assertIsNone(re.search(r'\b(confirm|prompt|alert)\(',script.read_text()),f'{script}: use ask() or #name-dialog')
+
 if __name__ == "__main__":
     unittest.main()

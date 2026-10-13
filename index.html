@@ -130,7 +130,7 @@
         <button id="new-project" class="pw-btn">New Project…<span class="pw-kbd">⌘N</span></button>
         <button id="add-folder" class="pw-btn">Add Existing Folder…<span class="pw-kbd">⌘O</span></button>
       </div>
-      <div class="pw-statusbar"><span>Local AI</span><span>Nothing leaves this Mac</span></div>
+      <div class="pw-statusbar"><span>Local AI</span><span>Model runs on this Mac</span></div>
     </aside>
 
     <!-- Files window (Work view only; replaces the Projects window there) -->
@@ -272,13 +272,13 @@
     <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
   </dialog>
   <dialog id="name-dialog" class="pw-dialog"><!-- NEW: replaces window.prompt for New Page / New Task -->
-    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New Page</h2><label class="pw-label window-column"><span id="name-dialog-label">Page name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button value="cancel" class="pw-btn" formnovalidate>Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
+    <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New Page</h2><label class="pw-label window-column"><span id="name-dialog-label">Page name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button value="ok" class="pw-btn pw-btn--default">Create</button></div></form>
   </dialog>
   <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- NEW: replaces window.confirm -->
     <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
   </dialog>
   <dialog id="settings-dialog" class="pw-dialog"><!-- NEW --></dialog>
-  <dialog id="about-dialog" class="pw-dialog"><!-- NEW --></dialog>
+  <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one local agent. The model runs on this Mac.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog"><!-- NEW --></dialog>
   <div id="toast" class="pw-toast" role="status" hidden><span id="toast-text"></span><button id="toast-undo" class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div><!-- NEW -->
 </body>
