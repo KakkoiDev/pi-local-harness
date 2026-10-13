@@ -1,6 +1,6 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
 import { icon,stateGlyph,toolCard,segmentFor,readState,writeState } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
-import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';
+import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
  let state={projects:[],jobs:[]},project=null,page=null,blocks=[],focusedBlock=null,selectedJob=null,commentFilter='open',openThread=null,currentComment=null,showResolved=readState('showResolved',false),dirty=false,saving=null,saveTimer,folderMode='register',folder=null,polling=false,fileRevision='',textFile=false,commentAnchor='',browseSequence=0,fileSequence=0;
@@ -55,7 +55,7 @@ export function installWorkspace(host){
   const submit=node('button','pw-btn','Reply');form.append(reply,submit);form.onsubmit=async event=>{event.preventDefault();submit.disabled=true;try{await api('/api/documents/reply',{path:page.path,id:comment.id,text:reply.value||replyDrafts.get(comment.id)||''});replyDrafts.delete(comment.id);await refreshPageComments();}catch(e){notice(e.message,true);}finally{submit.disabled=false;}};return form;}
  function thread(comment){const box=node('div','pw-thread'+(comment.resolved?' pw-thread--resolved':''));box.setAttribute('role','group');box.setAttribute('aria-label','Comment thread');
   const message=(who,time,text)=>{const row=node('div','pw-thread__msg'),label=node('span','pw-thread__who');label.append(node('b','',who),time?' '+time:'');row.append(label,node('p','',text));return row;};
-  box.append(message('You',when(comment.created),comment.text));for(const reply of comment.replies||[])box.append(message('You',when(reply.created),reply.text));if(comment.agent_reply)box.append(message('Pi','',comment.agent_reply));
+  box.append(message('You',when(comment.created),comment.text));for(const reply of comment.replies||[])box.append(message('You',when(reply.created),reply.text));if(comment.agent_reply)box.append(message('Pi','',spoken(comment.agent_reply)));
   const suggestion=comment.suggestion;
   if(suggestion?.applied)box.append(node('p','pw-thread__note','Pi’s suggested change was applied.'));else if(suggestion?.kept)box.append(node('p','pw-thread__note','Pi suggested a rewrite. You kept your text.'));
   else if(suggestion&&!comment.resolved){const change=node('div','pw-suggest');change.setAttribute('aria-label','Suggested change');change.append(node('del','',suggestion.anchor),node('ins','',suggestion.replacement));const choices=node('div','pw-suggest__actions');choices.append(button('Keep Mine',()=>commentAction('/api/documents/keep-suggestion',{id:comment.id})),button('Apply Change',()=>applySuggestion(comment),'pw-btn pw-btn--default'));change.append(choices);box.append(change);}
@@ -94,7 +94,7 @@ export function installWorkspace(host){
  function renderDocumentRequests(){
   if(unchanged('requests',[page?.path,state.jobs.filter(job=>job.document===page?.path&&!job.comment_id)]))return;$('document-request-history').hidden=true;$('document-requests').replaceChildren();if(!page)return;
   const jobs=state.jobs.filter(job=>job.document===page.path&&!job.comment_id).slice(-5);$('document-request-history').hidden=!jobs.length;$('document-request-summary').textContent=jobs.length+' recent document '+(jobs.length===1?'request':'requests');
-  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',job.text));const open=node('button','','View task');open.onclick=()=>{host.showActivity();$('activity-filter').value='all';selectJob(job.id);document.getElementById('job-'+job.id)?.scrollIntoView({block:'center'});};thread.append(open);$('document-requests').append(thread);}
+  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',spoken(job.text)));const open=node('button','','View task');open.onclick=()=>{host.showActivity();$('activity-filter').value='all';selectJob(job.id);document.getElementById('job-'+job.id)?.scrollIntoView({block:'center'});};thread.append(open);$('document-requests').append(thread);}
  }
  function highlightComments(text,block){
   const numbered=numbers(),matches=(page?.comments||[]).filter(comment=>!comment.deleted&&(!comment.resolved||showResolved||comment.id===openThread)&&comment.anchor&&block.text.includes(comment.anchor)).map(comment=>({comment,at:block.text.indexOf(comment.anchor)})).sort((a,b)=>a.at-b.at);
@@ -118,7 +118,7 @@ export function installWorkspace(host){
   if(job.status!=='failed')fact('Phase',job.progress);const tools=job.tools||[],gates=tools.map(tool=>tool.checks?.find(check=>check.phase==='gate')).filter(Boolean);fact('Last command',tools.at(-1)?.detail||'');if(gates.length)fact('Gate',gates.filter(check=>check.outcome==='ALLOW').length+' approved · '+gates.filter(check=>check.outcome!=='ALLOW').length+' blocked');fact('Started',job.started?new Date(job.started).toLocaleString():'');fact('Files',(job.files||[]).join(', '));detail.append(facts);
   if(job.status==='failed'){const line=node('p','pw-error');line.append(icon('alert-caution'),job.progress);detail.append(line);}
   if(job.tools?.length){const tools=node('section','activity-detail__tools');tools.setAttribute('aria-label','Commands');tools.append(node('h4','pw-label','Commands'));for(const tool of job.tools)tools.append(toolCard(tool,{showEvent:host.showGateEvent}));detail.append(tools);}
-  if(job.text){const result=node('details');result.append(node('summary','pw-label','Result'),node('pre','pw-mono',job.text));detail.append(result);}
+  if(job.text){const result=node('details');result.append(node('summary','pw-label','Result'),node('pre','pw-mono',spoken(job.text)));detail.append(result);}
   const actions=node('div','activity-detail__actions'),chat=node('a','pw-btn','Open Chat');chat.href='/?chat='+job.chat;chat.onclick=event=>{event.preventDefault();host.selectChat(job.chat);};actions.append(chat);
   if(job.document){const doc=node('a','pw-btn','Open Document');doc.href='/?document='+encodeURIComponent(job.document);doc.onclick=async event=>{event.preventDefault();await selectProject(job.project);await openFile(job.document);host.showWorkspace();if(job.comment_id)document.getElementById('comment-'+job.comment_id)?.scrollIntoView({block:'center'});};actions.append(doc);}
   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api(`/api/conversations/${job.chat}/stop`,{}).catch(e=>error(e.message));actions.append(stop);}

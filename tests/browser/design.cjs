@@ -56,6 +56,20 @@ const readline = require('node:readline');
   assert.ok(Math.abs(layout.width)<=1,'thread reaches the column edge');
   assert.ok(layout.whoHeight<=20,'author and time stay on one line');
 
+  // 103: Pi's reply renders its Markdown and hides the harness's reply marker.
+  await page.locator('#chat-tab').click();
+  await page.locator('#prompt').fill('Summarise the check. TEST_MARKDOWN');await page.locator('#send').click();
+  const reply=page.locator('#messages .pw-msg:not(.pw-msg--user) .pw-msg__body--md').last();
+  await reply.locator('h3').waitFor({timeout:15000});
+  assert.equal(await page.locator('#messages').evaluate(element=>element.textContent.includes('[CANARY]')),false,'the marker is not shown');
+  assert.equal(await reply.locator('h3').textContent(),'Result');
+  assert.equal(await reply.locator('strong').first().textContent(),'verified');
+  assert.equal(await reply.locator('strong code').textContent(),'ROADMAP.md','code inside bold is code');
+  assert.equal(await reply.locator('code').first().textContent(),'hello.py');
+  assert.equal(await reply.locator('ol>li').count(),2);
+  assert.equal(await reply.locator('input.pw-check').isChecked(),true);
+  assert.equal(await reply.evaluate(element=>element.innerHTML.includes('**')),false,'no raw Markdown marks');
+
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();server.kill();fs.rmSync(directory,{recursive:true,force:true});}

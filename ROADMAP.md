@@ -142,7 +142,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [100-Document checkboxes use pw-check](tasks/100-document-checkbox.md)
 - [x] [101-Empty states use pw-empty](tasks/101-empty-states.md)
 - [x] [102-Inline comment thread opens below its passage](tasks/102-inline-thread-below.md)
-- [ ] [103-Chat renders Markdown and hides the reply marker](tasks/103-chat-markdown.md)
+- [x] [103-Chat renders Markdown and hides the reply marker](tasks/103-chat-markdown.md)
 - [ ] [104-Work view drops the extra top buttons](tasks/104-work-chrome.md)
 - [ ] [105-Blocks are added from the handle and the page end](tasks/105-notion-blocks.md)
 - [ ] [106-Views and selections live in the URL](tasks/106-url-routes.md)

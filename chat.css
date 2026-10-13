@@ -185,3 +185,15 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
   #gate-events .pw-table__row>:nth-child(n+5){display:none}
   .window-review,.window-info{position:absolute;top:45%;right:var(--space-6);bottom:var(--space-6);z-index:25;width:min(var(--size-review),calc(100% - 2 * var(--space-6)))} /* below the main window title, view tabs and document bar */
 }
+/* Pi's replies render Markdown (js/message-markdown.mjs); user messages stay plain text */
+.pw-msg__body--md{white-space:normal}
+.pw-msg__body--md>*{margin:0}
+.pw-msg__body--md>*+*{margin-top:10px}
+.pw-msg__body--md h2,.pw-msg__body--md h3,.pw-msg__body--md h4,.pw-msg__body--md h5,.pw-msg__body--md h6{font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
+.pw-msg__body--md ul,.pw-msg__body--md ol{padding-left:24px}
+.pw-msg__body--md li+li{margin-top:4px}
+.pw-msg__task{list-style:none;margin-left:-20px;display:flex;gap:8px;align-items:baseline}
+.pw-msg__body--md code{font-family:var(--font-mono);font-size:15px;border:1px solid var(--ink);padding:0 4px} /* as .pw-doc code */
+.pw-msg__body--md pre{font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-msg__body--md blockquote{border:1px dotted var(--ink);padding:8px 14px;font-style:italic} /* as .pw-doc blockquote */
+.pw-msg__body--md a{color:var(--ink)}

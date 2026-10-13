@@ -38,6 +38,7 @@ if request['message'].rstrip().endswith('TEST_WAIT'):
 else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})
     text=f'[CANARY] reply {count}'
+    if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
     emit({'type':'agent_settled'})
