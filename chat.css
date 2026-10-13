@@ -66,7 +66,7 @@ body[data-view="work"] .window-projects{display:none}
 .activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
 .activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
 #activity-panel{--pw-cols:150px minmax(0,1fr) 190px 150px 90px 70px}
-#laya-events{--pw-cols:84px 64px 120px 130px minmax(0,1fr)}
+#laya-events{--pw-cols:84px 64px 120px minmax(0,1fr) 140px 90px}
 
 /* About dialog */
 #about-dialog .welcome-mark{width:56px;height:56px;font-size:34px;align-self:center}

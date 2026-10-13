@@ -41,21 +41,24 @@ let layaEvents=[],layaLoading=false;
 let selectedEvent=null;
 const benign=event=>['ALLOW','SUCCESS'].includes(event.outcome),alertFor={BLOCK:'stop',DRIFT_DETECTED:'stop',REVISE:'caution',EXECUTION_FAILED:'caution',POSTCONDITION_FAILED:'caution',ESCALATE:'note'};
 const argsText=event=>Object.entries(event.args||{}).map(([key,value])=>`${key}: ${value}`).join('\n');
+// Laya events name a Pi tool call; the job that ran it gives the Project and From columns.
+function eventJob(event){if(!event.tool_call)return null;const state=workspace?.status();const job=state?.jobs.find(job=>job.tools?.some(tool=>tool.id===event.tool_call));if(!job)return null;return {job,project:state.projects.find(project=>project.id===job.project)?.name||job.project,from:job.document?job.document.split('/').pop():'Chat'};}
 function renderEventInfo(event){$('event-info').hidden=!event;const body=$('event-info-body');body.replaceChildren();if(!event)return;
  const head=node('div','event-info__head');if(alertFor[event.outcome])head.append(icon('alert-'+alertFor[event.outcome]));head.append(node('p','event-info__reason',event.reason||''));body.append(head);
  if(argsText(event))body.append(node('pre','pw-mono event-info__args',argsText(event)));
- const facts=node('dl','event-info__facts');for(const [name,value] of [['Decision',event.outcome],['Check',event.phase==='gate'?'Before execution':'After execution'],['Tool',event.tool],['Time',new Date(event.timestamp).toLocaleString()],['Proposal',event.proposal_id]])if(value)facts.append(node('dt','',name),node('dd','',value));body.append(facts);
+ const facts=node('dl','event-info__facts');for(const [name,value] of [['Decision',event.outcome],['Check',event.phase==='gate'?'Before execution':'After execution'],['Tool',event.tool],['Project',eventJob(event)?.project],['From',eventJob(event)?.from],['Time',new Date(event.timestamp).toLocaleString()],['Proposal',event.proposal_id]])if(value)facts.append(node('dt','',name),node('dd','',value));body.append(facts);
+ const origin=eventJob(event);if(origin){const open=node('button','pw-btn','Open Request');open.type='button';open.onclick=()=>workspace.openJob(origin.job.id);body.append(open);}
  if(event.args?.command){const copy=node('button','pw-btn','Copy Command');copy.type='button';copy.onclick=()=>navigator.clipboard.writeText(event.args.command).then(()=>toast('Command copied'),e=>error(e.message));body.append(copy);}}
 function showLayaEvent(id){selectedEvent=id;$('laya-filter').value='all';renderLaya.signature='';showView('laya');}
 const phone=()=>matchMedia('(max-width:760px)').matches;
 function renderLayaChosen(){if(phone())panes.laya='detail';phoneBar();}
 function renderLaya(){const filter=$('laya-filter').value,events=layaEvents.filter(event=>filter==='all'||event.phase===filter||(filter==='failures'&&!benign(event))).slice().reverse();
  if(!events.some(event=>event.id===selectedEvent))selectedEvent=events.find(event=>!benign(event))?.id??null;
- const signature=JSON.stringify([filter,selectedEvent,events.map(event=>event.id)]);if(signature===renderLaya.signature)return;renderLaya.signature=signature;
- const list=$('laya-events'),focused=list.contains(document.activeElement),head=node('div','pw-table__row pw-table__head');head.setAttribute('aria-hidden','true');for(const label of ['Time','Check','Decision','Tool','Arguments'])head.append(node('span','',label));list.replaceChildren(head);
+ const signature=JSON.stringify([filter,selectedEvent,events.map(event=>[event.id,eventJob(event)?.project,eventJob(event)?.from])]);if(signature===renderLaya.signature)return;renderLaya.signature=signature;
+ const list=$('laya-events'),focused=list.contains(document.activeElement),head=node('div','pw-table__row pw-table__head');head.setAttribute('aria-hidden','true');for(const label of ['Time','Check','Decision','Command','Project','From'])head.append(node('span','',label));list.replaceChildren(head);
  if(!events.length){const empty=node('div','laya-empty');empty.append(node('h3','pw-label',layaEvents.length?'No checks match this filter':'No checks yet'),node('p','pw-help','Laya checks every command before it runs and verifies the result after. Checks appear here while Pi works.'));list.append(empty);}
  for(const event of events){const row=node('button','laya-event pw-table__row');row.type='button';if(event.id===selectedEvent)row.setAttribute('aria-current','true');const decision=stateGlyph(event.outcome);decision.classList.add('outcome');
-  row.append(node('span','',new Date(event.timestamp).toLocaleTimeString()),node('span','',event.phase==='gate'?'Before':'After'),decision,node('span','pw-table__cell--mono',event.tool),node('span','pw-table__cell--mono',argsText(event).replace(/\n/g,' · ')));
+  row.append(node('span','',new Date(event.timestamp).toLocaleTimeString()),node('span','',event.phase==='gate'?'Before':'After'),decision,node('span','pw-table__cell--mono',argsText(event).replace(/^(command|cmd|script|path|pattern): /gm,'').replace(/\n/g,' · ')||event.tool),node('span','',eventJob(event)?.project||''),node('span','',eventJob(event)?.from||''));
   row.onclick=()=>{selectedEvent=event.id;renderLaya();renderLayaChosen();};list.append(row);}
  if(focused)list.querySelector('[aria-current="true"]')?.focus();
  renderEventInfo(events.find(event=>event.id===selectedEvent));}
