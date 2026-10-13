@@ -36,6 +36,11 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(lines[2],'Phone access off: set remote_hosts and remote_users in config.json');
   assert.equal(lines[3],'Loop check: every 10 seconds');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
+  // Task 114: the web worker's chosen context joins the system prompt for this turn only.
+  writeFileSync(join(dir,'context.md'),'Plan: only open items, unique-context-marker');process.env.PI_HARNESS_CONTEXT=join(dir,'context.md');
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Context for this request:\nPlan: only open items, unique-context-marker/);
+  process.env.PI_HARNESS_CONTEXT='';assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/unique-context-marker/);
+  delete process.env.PI_HARNESS_CONTEXT;
   const blocked=await handlers.tool_call({toolCallId:'danger',toolName:'bash',input:{command:'sudo rm -fr *'}});
   assert.equal(blocked.block,true);
   assert.match(blocked.reason,/not executed/);

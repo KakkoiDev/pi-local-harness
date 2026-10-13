@@ -106,7 +106,10 @@ export default function harness(pi, dependencies = {}) {
   pi.on('before_agent_start', event => {
     agentLock.acquire();
     if (!lastQuestion && event.prompt) lastQuestion = event.prompt;
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}` };
+    // Task 114: the web worker's chosen context for this turn; the system prompt is rebuilt each turn, so it never piles up in history.
+    let chosen = '';
+    try { if (process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
+    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${chosen}` };
   });
   pi.on('message_end', event => {
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');

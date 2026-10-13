@@ -197,7 +197,8 @@ class DocumentStore:
         if entry.get('deleted'):raise ValueError('This comment is deleted. Restore it first.')
         return (f"Act on this project-page comment. Read the current page before editing; the attached snapshot is context.\n"
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
-                f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"
+                f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n"
+                f"Pi's earlier answer: {entry.get('agent_reply') or 'none'}\nThe page text is in your context.\n\n"
                 f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in the comments frontmatter array of {self.sidecar(relative)}. "
                 "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply. "
                 f"If the request only rewrites the selected text, do not edit the page: add a suggestion field to this comment, "

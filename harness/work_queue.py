@@ -66,6 +66,7 @@ class WorkQueue:
         with self.condition:
             kind=event.get('type')
             if kind=='status':job['progress']=event['text']
+            if kind=='context':job['context']={'included':event['included'],'omitted':event['omitted'],'chars':event['chars']}
             elif kind=='message_update':
                 delta=event['assistantMessageEvent']
                 if delta['type']=='text_start':job['text']=''

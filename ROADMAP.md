@@ -153,7 +153,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [111-Re-sync the design copies](tasks/111-design-resync.md)
 - [x] [112-Block types look different](tasks/112-block-type-styles.md)
 - [x] [113-Live Reasoning stays open](tasks/113-live-reasoning-stays-open.md)
-- [ ] [114-Small, chosen context per request](tasks/114-smart-context.md)
+- [x] [114-Small, chosen context per request](tasks/114-smart-context.md)
 - [ ] [115-Comments and whole-file questions run in their own context](tasks/115-separate-document-context.md)
 - [ ] [116-The harness compacts long chats before they overflow](tasks/116-compaction-policy.md)
 - [ ] [117-Show what Pi sees and how full the chat is](tasks/117-context-visible.md)

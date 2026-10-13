@@ -79,7 +79,10 @@ from disk. ⌘/Ctrl S saves; live polling preserves unchanged content and thread
 reply drafts. A Reconnect action appears after service connection failures.
 
 Every queued turn starts a Pi RPC worker in that project's folder, resumes **only
-that project's Pi session**, and includes fresh roadmap/tasks and file inventory.
+that project's Pi session**, and gives Pi a small context chosen for the request
+(`harness/context.py`): the compressed roadmap and open tasks, the current document,
+files you mention, a few related files, and the file names, within about 4k tokens.
+It goes into the system prompt for that turn only, so it never fills the chat history.
 Document requests also include the selected current document. Switching back
 restores that project's conversation; it never merges other project chats. Older
 conversation context can be compacted by Pi. Scope is an instruction and cwd, not
@@ -88,8 +91,9 @@ a filesystem sandbox.
 Files and work progress refresh roughly every two seconds. Text/code files are
 viewable and editable; binary files are listed but not rendered as text. The tree
 skips `.git`, dependency/cache folders, and symlinks, with a 2,000-file limit.
-The text viewer limits files to 512 KB. Roadmap/task context is bounded to 60,000
-characters per turn, with a 12,000-character limit per document.
+The text viewer limits files to 512 KB. The chosen context is bounded to 16,000
+characters per turn, with 3,000 per chosen file and 6,000 for the current document
+(a larger one is cut to the passage's section plus its headings).
 
 ## Data and configuration
 

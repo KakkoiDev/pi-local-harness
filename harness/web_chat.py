@@ -1,6 +1,7 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
 import base64
 from datetime import datetime
+from harness.context import build_context
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL
 from harness.work_queue import WorkQueue
@@ -178,17 +179,26 @@ class WebChat:
             if data.get('document'):
                 document=self.documents.get(data['document'])
                 if document['project']!=project:raise ValueError('Document belongs to another project')
-                user_text+='\n\nCurrent document: '+str(self.documents.path(data['document']))+'\n'+document['markdown']
+                user_text+='\n\nCurrent document: '+str(self.documents.path(data['document']))+' (its text is in your context)'
             prompt,images,files=prepare_prompt(user_text,data.get('attachments',[]),folder/'uploads')
+            context_file=None
             if project:
-                prompt=self.documents.snapshot(project)+'\n\nCurrent request:\n'+prompt
+                # Task 114: a small chosen context in the system prompt for this turn (harness/extension.mjs), never in the session history.
+                entry=self.documents.get(comment['path'])['comments'] if comment else []
+                thread=next((item for item in entry if item['id']==comment['id']),None) if comment else None
+                chosen=build_context(self.documents,project,data.get('message','') or (thread or {}).get('text',''),current=(comment or {}).get('path') or data.get('document'),
+                    passage=(thread or {}).get('anchor',''),thread=json.dumps(thread,ensure_ascii=False) if thread else '')
+                header=(f"Active project folder: {self.documents.project_path(project)}\nWork in this folder. Do not read other projects or their chat histories without an explicit request. "
+                        "The context below was chosen for this request and is current; it overrides older context in this conversation.\n\n")
+                context_file=folder/'context.md';context_file.write_text(header+chosen['text'],encoding='utf-8')
+                emit({'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'chars':len(chosen['text'])})
             if not prompt.strip():raise ValueError('Write a message or attach a file')
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             self.store.append(identifier,{'role':'user','content':data.get('message','') or ('Comment task: '+self.documents.get(comment['path'])['title'] if comment else ''),'attachments':display})
             emit({'type':'conversation','conversation':self.store.get(identifier)})
             command=pi_command(folder/'session.jsonl')
-            env={**os.environ,'PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            env={**os.environ,'PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
