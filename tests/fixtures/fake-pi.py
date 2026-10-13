@@ -17,6 +17,15 @@ def laya(path,body):
     import urllib.request
     call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Laya-Token':os.environ['PI_HARNESS_TOKEN']})
     with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
+if '\nUser comment: Tighten this TEST_SUGGEST\n' in request['message']:
+    import re
+    message=request['message'];anchor=message.split('\nSelected text: ',1)[1].split('\nUser comment: ',1)[0]
+    sidecar=Path(re.search(r'comments frontmatter array of (.+?\.md)\. Preserve',message).group(1))
+    lines=sidecar.read_text().split('\n')
+    index=next(i for i,line in enumerate(lines) if line.startswith('comments: '));comments=json.loads(lines[index][10:])
+    for comment in comments:
+        if comment['text']=='Tighten this TEST_SUGGEST':comment.update(suggestion={'anchor':anchor,'replacement':'State the goal in one line.'},agent_reply='Suggested a shorter sentence.')
+    lines[index]='comments: '+json.dumps(comments,ensure_ascii=False);sidecar.write_text('\n'.join(lines))
 if request['message'].rstrip().endswith('TEST_TOOL'):
     gate=laya('/gatekeep',{'tool_name':'execute_command','args':{'command':'cat README.md'},'auth_level':'admin','tool_call_id':'call-read'})
     emit({'type':'tool_execution_start','toolCallId':'call-read','toolName':'bash','args':{'command':'cat README.md'}})

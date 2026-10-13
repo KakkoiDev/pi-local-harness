@@ -90,6 +90,8 @@ class DocumentStore:
             body+='\n## Thread '+entry['id']+'\n\n'+('Deleted' if entry.get('deleted') else 'Resolved' if entry['resolved'] else 'Open')+' · '+entry['created']+'\n\n> '+entry['anchor'].replace('\n','\n> ')+'\n\n'+entry['text']+'\n'
             for reply in entry.get('replies',[]):body+='\n### Reply\n\n'+reply['text']+'\n'
             if entry.get('agent_reply'):body+='\n### Agent reply\n\n'+entry['agent_reply']+'\n'
+            suggestion=entry.get('suggestion')
+            if isinstance(suggestion,dict):body+='\n### Suggested change'+(' (applied)' if suggestion.get('applied') else ' (kept the original)' if suggestion.get('kept') else '')+'\n\n'+str(suggestion.get('replacement',''))+'\n'
         write_record(path,{'document':relative,'comments':comments},body)
     def comment(self, relative, text, anchor=''):
         if not isinstance(text,str) or not text.strip() or len(text)>10000:raise ValueError('Write a comment of at most 10,000 characters')
@@ -123,6 +125,29 @@ class DocumentStore:
             if not entry:raise ValueError('Comment not found')
             entry.setdefault('replies',[]).append({'text':text.strip(),'created':datetime.now().astimezone().isoformat(timespec='seconds')})
             self.write_comments(relative,comments);return entry
+    def pending_suggestion(self, entry):
+        suggestion=entry.get('suggestion')
+        if not isinstance(suggestion,dict) or not isinstance(suggestion.get('anchor'),str) or not suggestion['anchor'] or not isinstance(suggestion.get('replacement'),str):raise ValueError('This comment has no suggested change')
+        if suggestion.get('applied') or suggestion.get('kept'):raise ValueError('This suggested change was already applied or kept')
+        return suggestion
+    def apply_suggestion(self, relative, identifier, revision):
+        """Replace the suggestion's anchor with its replacement (revision-checked like save), then resolve the comment."""
+        with self.lock:
+            page=self.get(relative)
+            if page['revision']!=revision:raise DocumentConflict('This page changed on disk. Reload before applying the change.')
+            comments=self.comments(relative);entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('Comment not found')
+            suggestion=self.pending_suggestion(entry)
+            if page['markdown'].count(suggestion['anchor'])!=1:raise ValueError('The suggested passage is no longer in the page exactly once. Edit the page by hand.')
+            self.save(relative,page['markdown'].replace(suggestion['anchor'],suggestion['replacement'],1),revision)
+            suggestion['applied']=datetime.now().astimezone().isoformat(timespec='seconds');entry['resolved']=True
+            self.write_comments(relative,comments);return self.get(relative)
+    def keep_suggestion(self, relative, identifier):
+        with self.lock:
+            self.get(relative);comments=self.comments(relative);entry=next((item for item in comments if item['id']==identifier),None)
+            if not entry:raise ValueError('Comment not found')
+            self.pending_suggestion(entry)['kept']=datetime.now().astimezone().isoformat(timespec='seconds')
+            self.write_comments(relative,comments);return entry
     def agent_result(self, relative, identifier, text):
         with self.lock:
             comments=self.comments(relative)
@@ -144,7 +169,9 @@ class DocumentStore:
                 f"Page file: {self.path(relative)}\nComment ID: {identifier}\nSelected text: {entry['anchor']}\n"
                 f"User comment: {entry['text']}\nReplies: {json.dumps(entry.get('replies',[]),ensure_ascii=False)}\n\nMarkdown snapshot:\n{page['markdown']}\n\n"
                 f"Make the requested changes and verify them. Record your result in the agent_reply field of this comment in the comments frontmatter array of {self.sidecar(relative)}. "
-                "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply.")
+                "Preserve other comments and fields. Do not mark completed without evidence. Explain any blocker in your reply. "
+                f"If the request only rewrites the selected text, do not edit the page: add a suggestion field to this comment, "
+                f"{{\"anchor\": <the selected text exactly>, \"replacement\": <the new text>}}, and say so in agent_reply. The person applies it with Apply Change.")
     def project_path(self, project):
         if not isinstance(project,str) or Path(project).name!=project or project in {'.','..'}:raise ValueError('Invalid project')
         path=Path(self.registry[project]['path']).resolve() if project in self.registry else (self.projects/project).resolve()

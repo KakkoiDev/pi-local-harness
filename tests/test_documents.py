@@ -39,6 +39,31 @@ class DocumentTest(unittest.TestCase):
             store.delete(page['path'])
             self.assertEqual(store.list(),[])
             self.assertTrue(list((Path(directory)/'.trash').rglob('*.md')))
+    def test_suggested_change_is_applied_or_kept(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store=DocumentStore(Path(directory));page=store.create('Project','Plan')
+            page=store.save(page['path'],'# Plan\n\nBuild it\n\nShip it\n',page['revision'])
+            first=store.comment(page['path'],'Tighten','Build it');second=store.comment(page['path'],'Rewrite','Ship it')
+            self.assertIn('"replacement"',store.comment_prompt(page['path'],first['id']))
+            with self.assertRaisesRegex(ValueError,'no suggested change'):store.apply_suggestion(page['path'],first['id'],page['revision'])
+            comments=store.comments(page['path'])
+            comments[0]['suggestion']={'anchor':'Build it','replacement':'Build it twice'};comments[1]['suggestion']={'anchor':'Ship it','replacement':'Ship it now'}
+            store.write_comments(page['path'],comments)
+            self.assertIn('Build it twice',store.sidecar(page['path']).read_text())
+            with self.assertRaises(DocumentConflict):store.apply_suggestion(page['path'],first['id'],'stale')
+            applied=store.apply_suggestion(page['path'],first['id'],page['revision'])
+            self.assertEqual(applied['markdown'],'# Plan\n\nBuild it twice\n\nShip it\n')
+            entry=applied['comments'][0];self.assertTrue(entry['resolved']);self.assertRegex(entry['suggestion']['applied'],r'^\d{4}-')
+            with self.assertRaisesRegex(ValueError,'already'):store.apply_suggestion(page['path'],first['id'],applied['revision'])
+            kept=store.keep_suggestion(page['path'],second['id'])
+            self.assertFalse(kept['resolved']);self.assertRegex(kept['suggestion']['kept'],r'^\d{4}-')
+            with self.assertRaisesRegex(ValueError,'already'):store.apply_suggestion(page['path'],second['id'],applied['revision'])
+            self.assertEqual(store.get(page['path'])['markdown'],applied['markdown'])
+            third=store.comment(page['path'],'Again','Ship it');comments=store.comments(page['path'])
+            comments[2]['suggestion']={'anchor':'Not in the page','replacement':'x'};store.write_comments(page['path'],comments)
+            with self.assertRaisesRegex(ValueError,'no longer'):store.apply_suggestion(page['path'],third['id'],applied['revision'])
+            comments[2]['suggestion']={'anchor':'Ship it','replacement':42};store.write_comments(page['path'],comments)
+            with self.assertRaisesRegex(ValueError,'no suggested change'):store.keep_suggestion(page['path'],third['id'])
     def test_unsent_comments_soft_delete_and_restore(self):
         with tempfile.TemporaryDirectory() as directory:
             store=DocumentStore(Path(directory));page=store.create('Project','Plan')

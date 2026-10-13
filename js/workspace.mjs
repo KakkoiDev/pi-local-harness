@@ -44,6 +44,7 @@ export function installWorkspace(host){
  function orderedComments(){const text=page?.markdown||'',at=comment=>{const found=text.indexOf(comment.anchor);return found<0?Infinity:found;};return (page?.comments||[]).map((comment,index)=>({comment,index,at:at(comment)})).sort((a,b)=>a.at-b.at||a.index-b.index).map(item=>item.comment);}
  function numbers(){const result=new Map();orderedComments().filter(comment=>!comment.deleted).forEach((comment,index)=>result.set(comment.id,index+1));return result;}
  async function commentAction(url,body,after){try{await api(url,{path:page.path,...body});await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
+ async function applySuggestion(comment){try{await save();const path=page.path;await api('/api/documents/apply-suggestion',{path,id:comment.id,revision:fileRevision});saveDraft(localStorage,path,null);dirty=false;page=null;await openFile(path);host.toast('Change applied');}catch(e){notice(e.message,true);}}
  function deleteComment(comment){if(openThread===comment.id)openThread=null;commentAction('/api/documents/delete-comment',{id:comment.id,deleted:true},()=>host.toast('Comment deleted. It’s kept under Deleted in Review.',()=>commentAction('/api/documents/delete-comment',{id:comment.id,deleted:false})));}
  async function askPi(comment,button){button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:'Comment: '+comment.text,document_comment:{path:page.path,id:comment.id}});await poll();await refreshPageComments();notice('Text comment sent to the agent');}catch(e){notice(e.message,true);button.disabled=false;}}
  function showThread(id){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();}
@@ -54,6 +55,9 @@ export function installWorkspace(host){
  function thread(comment){const box=node('div','pw-thread'+(comment.resolved?' pw-thread--resolved':''));box.setAttribute('role','group');box.setAttribute('aria-label','Comment thread');
   const message=(who,time,text)=>{const row=node('div','pw-thread__msg'),label=node('span','pw-thread__who');label.append(node('b','',who),time?' '+time:'');row.append(label,node('p','',text));return row;};
   box.append(message('You',when(comment.created),comment.text));for(const reply of comment.replies||[])box.append(message('You',when(reply.created),reply.text));if(comment.agent_reply)box.append(message('Pi','',comment.agent_reply));
+  const suggestion=comment.suggestion;
+  if(suggestion?.applied)box.append(node('p','pw-thread__note','Pi’s suggested change was applied.'));else if(suggestion?.kept)box.append(node('p','pw-thread__note','Pi suggested a rewrite. You kept your text.'));
+  else if(suggestion&&!comment.resolved){const change=node('div','pw-suggest');change.setAttribute('aria-label','Suggested change');change.append(node('del','',suggestion.anchor),node('ins','',suggestion.replacement));const choices=node('div','pw-suggest__actions');choices.append(button('Keep Mine',()=>commentAction('/api/documents/keep-suggestion',{id:comment.id})),button('Apply Change',()=>applySuggestion(comment),'pw-btn pw-btn--default'));change.append(choices);box.append(change);}
   if(comment.resolved)box.append(node('p','pw-thread__note','Resolved'));else if(comment.chat_id)box.append(node('p','pw-thread__note','Sent to Pi · can no longer be deleted'));
   const actions=replyForm(comment);
   if(!comment.resolved&&!comment.chat_id){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
