@@ -102,11 +102,22 @@ $('settings-form').addEventListener('submit',event=>{if(event.submitter?.value!=
 // Phone (<=760px): the phone bar's view popup, back button and Comments sheet. body[data-pane] picks the full screen.
 function phoneBar(){const state=workspace?.status(),pane=view==='work'&&!state?.page?'files':panes[view]||'';document.body.dataset.pane=pane;
  const back=view==='work'&&pane==='document'?'Files':pane==='detail'?{activity:'Activity',gate:'Gate'}[view]:'';$('phone-back').hidden=!back;$('open-menu').hidden=Boolean(back);$('phone-back-label').textContent=back||'';
- $('phone-comments').hidden=!(view==='work'&&pane==='document'&&state?.page&&!state.textFile);$('phone-comment-count').textContent=$('comment-count').textContent||'0';}
+ // PhoneEdit1/6: a document screen shows its name, then Comments N (when it has comments) or the save status.
+ const documentScreen=Boolean(phone()&&view==='work'&&pane==='document'&&state?.page),comments=Number($('comment-count').textContent||0);
+ $('phone-view').hidden=documentScreen;$('phone-title').hidden=!documentScreen;$('phone-title-text').textContent=state?.page?.split('/').pop()||'';
+ $('phone-comments').hidden=!(documentScreen&&!state.textFile&&comments);$('phone-comment-count').textContent=String(comments);
+ $('phone-saved').hidden=!documentScreen||!$('phone-comments').hidden;$('phone-saved').textContent=$('phone-saved').hidden?'':$('save-status').textContent;$('phone-status').hidden=documentScreen;}
+// The agent status shows on the phone bar and in the π sheet as on the desk menu bar (Phone, Ph_Pi).
+function mirrorStatus(){const copy=()=>[...$('agent-state').childNodes].map(child=>child.cloneNode(true));$('phone-status').replaceChildren(...copy());$('pi-status-text').replaceChildren(...copy());const running=workspace?.status().jobs.find(job=>job.status==='running');$('pi-stop').hidden=!running;}
+new MutationObserver(mirrorStatus).observe($('agent-state'),{childList:true,characterData:true,subtree:true});new MutationObserver(()=>phoneBar()).observe($('save-status'),{childList:true,characterData:true,subtree:true});
+$('pi-stop').onclick=()=>{const running=workspace.status().jobs.find(job=>job.status==='running');if(running)api(`/api/conversations/${running.chat}/stop`,{}).catch(e=>error(e.message));};
+$('pi-close').onclick=()=>menu(false);
+function closeCommentsSheet(){$('comments-panel').classList.remove('is-sheet');$('backdrop').hidden=true;$('phone-comments').setAttribute('aria-pressed','false');}
+$('comments-close').onclick=closeCommentsSheet;
 $('phone-copy').onclick=()=>navigator.clipboard.writeText(phoneUrl).then(()=>toast('Address copied'),e=>error(e.message));
 $('phone-back').onclick=()=>{panes[view]=view==='work'?'files':'list';phoneBar();};
-$('phone-comments').onclick=()=>{$('comments-panel').classList.add('is-sheet');$('backdrop').hidden=false;};
-const phoneViews=installPopup($('phone-view-menu'),item=>showView(item.dataset.view),()=>{for(const item of $('phone-view-menu').querySelectorAll('[data-view]'))item.setAttribute('aria-checked',String(item.dataset.view===view));$('phone-activity-count').textContent=$('activity-count').hidden?'':$('activity-count').textContent;});
+$('phone-comments').onclick=()=>{if($('comments-panel').classList.contains('is-sheet')){closeCommentsSheet();return;}$('comments-panel').classList.add('is-sheet');$('backdrop').hidden=false;$('phone-comments').setAttribute('aria-pressed','true');};
+const phoneViews=installPopup($('phone-view-menu'),item=>showView(item.dataset.view),()=>{for(const item of $('phone-view-menu').querySelectorAll('[data-view]'))item.setAttribute('aria-checked',String(item.dataset.view===view));const jobs=workspace.status().jobs,running=jobs.filter(job=>job.status==='running').length,waiting=jobs.filter(job=>job.status==='queued').length;$('phone-activity-count').textContent=[running&&running+' running',waiting&&waiting+' waiting'].filter(Boolean).join(' · ');});
 $('phone-view').onclick=()=>phoneViews.open($('phone-view'));
 $('pi-settings').onclick=()=>{menu(false);openSettings(false);};$('pi-about').onclick=()=>{menu(false);commands.about();};
 const waitingJob=()=>{const state=workspace.status();return state.jobs.find(job=>job.project===state.project&&job.status==='queued');};

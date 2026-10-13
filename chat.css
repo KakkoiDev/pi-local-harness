@@ -234,3 +234,53 @@ button.gate-event{text-align:left;background:none;border-left:0;border-right:0;b
 .pw-block.quote>.block-content{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
 .pw-block.code>.block-content,.pw-block.raw>.block-content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
 .pw-block__marker{flex:none;min-width:18px;text-align:right;font-variant-numeric:tabular-nums}
+/* ---------- Phone follows the phone boards (task 123) ---------- */
+.sheet-head,.pi-status,.phone-only,.phone-edit-bar,.block-menu-title,.block-menu-cancel{display:none}
+.phone-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 4px}
+.phone-title .pw-titlebar__title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+.phone-status{padding:0 12px;font-size:14px;white-space:nowrap}
+@media (max-width:760px){
+  .phone-only{display:inline-flex}
+  .desk-only{display:none}
+  /* Sheets: a plain head with the title and Close (Ph_Pi, PhoneEdit6) instead of a desk title bar */
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 4px 0 16px;flex:none}
+  .sheet-head__title{margin:0;font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
+  .pi-mark{font-family:var(--font-text);font-style:italic}
+  .window-review.is-sheet>.pw-titlebar,body.menu-open .window-projects>.pw-titlebar,body.menu-open .window-projects>.pw-infobar,body.menu-open .window-projects>.pw-statusbar,.window-projects .pw-kbd{display:none}
+  /* π sheet (Ph_Pi): status card, projects, two actions side by side, Settings and About as rows */
+  .pi-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 16px 12px;padding:8px 8px 8px 14px;border:1px solid var(--ink);min-height:44px;font-size:15px}
+  .window-projects>.window-section:not(.window-section--actions){border-bottom:0;padding:0 16px 12px}
+  #project-list{margin:0 16px;border:1px solid var(--ink);flex:none;max-height:45vh;overflow:auto}
+  #project-list .pw-row{min-height:44px;padding:0 10px;border-bottom:1px dotted var(--ink)}
+  .window-projects>.window-section--actions:not(.pi-sheet-extra){flex-direction:row;border-top:0;margin-top:0;padding:12px 16px}
+  .window-projects>.window-section--actions:not(.pi-sheet-extra)>.pw-btn{flex:1;justify-content:center}
+  .pi-sheet-extra{border-top:3px double var(--ink);margin:0 16px;padding:0}
+  .pi-sheet-extra>.pw-btn{border:0;border-radius:0;justify-content:flex-start;padding:0 4px;border-bottom:1px dotted var(--ink)}
+  /* Chat composer in one row (Phone): +, mic, …, Stop, Queue/Send; no label, hint or footnote */
+  .composer-wrap .pw-composer>.pw-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #hint,.composer-wrap .footnote{display:none}
+  .composer-wrap .pw-composer__row{flex-wrap:nowrap}
+  #attach,#record{width:var(--size-touch);padding:0}
+  /* Document (PhoneEdit1): the name sits in the phone bar; no desk ruler; an edit bar at the bottom while editing */
+  body[data-view="work"][data-pane="document"] #main-window>.pw-titlebar,#document-toolbar,.document-pane>.pw-statusbar{display:none}
+  .phone-edit-bar:not([hidden]){display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--ink);background:var(--paper);flex:none}
+  #phone-block-style{min-width:150px}
+  .pw-block:not(.pw-block--focused) .pw-block__handle{display:none}
+  /* Block handle menu as a bottom sheet (PhoneEdit5): title, Turn Into as a 3×2 grid, rows, Cancel */
+  #block-menu{left:0!important;right:0;top:auto!important;bottom:0;max-height:85vh;overflow:auto;border:0;border-top:3px double var(--ink);box-shadow:none;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));gap:0}
+  .block-menu-title{display:block;padding:4px 0 10px}
+  #block-menu [aria-controls="turn-into-menu"],#block-menu>.pw-menu__sep{display:none}
+  #turn-into-menu,#turn-into-menu[hidden]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border:0;border-bottom:1px solid var(--ink);padding:0 0 12px;margin-bottom:4px}
+  #turn-into-menu>.pw-menu__item{border:1px solid var(--ink);min-height:44px;justify-content:center;padding:0 6px}
+  #turn-into-menu>.pw-menu__item[aria-checked="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+  #turn-into-menu>[data-type="code"],#turn-into-menu>[data-type="raw"]{display:none} /* PhoneEdit5: six types */
+  #block-menu>.pw-menu__item{min-height:46px;border-bottom:1px dotted var(--ink);padding:0 4px}
+  .block-menu-cancel{display:flex;width:100%;margin-top:16px}
+  #turn-into-menu>.pw-menu__item::before,#block-menu .pw-menu__key{display:none}
+  #turn-into-menu>[data-type="quote"]{order:2}#turn-into-menu>[data-type="bullet"]{order:3}#turn-into-menu>[data-type="number"]{order:4}#turn-into-menu>[data-type="check"]{order:5}
+  #phonebar:has(#phone-title:not([hidden]))>.pw-menubar__spacer{display:none}
+  .phone-title .pw-titlebar__stripes{flex:1;min-width:12px}
+  .phone-title .pw-titlebar__title{flex:none;max-width:60%}
+  #open-menu{font-family:var(--font-text);font-style:italic;font-weight:600;font-size:24px}
+  #project-list.pw-list{padding:0}
+}

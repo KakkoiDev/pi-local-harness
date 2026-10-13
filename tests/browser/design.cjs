@@ -284,6 +284,42 @@ const readline = require('node:readline');
   assert.match(await seg.getByRole('radio').first().textContent(),/^Plan · \d+$/,'search shows match counts on both segments');
   await page.locator('#file-search').fill('');await page.setViewportSize({width:1440,height:900});
 
+  // 123: the phone follows the phone boards.
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
+  await page.locator('#open-menu').click();await page.locator('#project-list .pw-row',{hasText:'Design check'}).click();
+  await page.waitForURL(new RegExp(`/p/${id}/`),{timeout:5000});
+  assert.equal(await page.evaluate(()=>document.body.dataset.level),'project','a project chosen in the π sheet is entered');
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();
+  await page.locator('#phone-comments').click();
+  const sheet=page.locator('#comments-panel');
+  assert.ok(await sheet.locator('.pw-review-item').count()>0||await sheet.locator('.pw-empty').isVisible(),'the Comments sheet shows its list');
+  assert.ok((await sheet.locator('.pw-review-item').first().boundingBox())?.height>20,'review items are laid out');
+  await sheet.getByRole('button',{name:'Close',exact:true}).click();
+  await sheet.waitFor({state:'hidden'});
+  // Phone bar on a document (PhoneEdit1/6): ‹ Files, the name, Comments N; the status shows elsewhere.
+  assert.equal(await page.locator('#phone-back').isVisible(),true);assert.equal(await page.locator('#phone-title-text').textContent(),'ROADMAP.md');
+  assert.equal(await page.locator('#phone-view').isVisible(),false);assert.equal(await page.locator('#document-toolbar').isVisible(),false,'no desk ruler');
+  // Editing shows the bottom bar; Done hides it.
+  await page.locator('#document-editor>.pw-block.text .block-content').first().click();
+  await page.locator('#phone-edit-bar').waitFor();assert.equal(await page.locator('#phone-block-style').inputValue(),'text');
+  await page.locator('#phone-edit-done').click();await page.locator('#phone-edit-bar').waitFor({state:'hidden'});
+  // Block handle sheet (PhoneEdit5): title, six types in a grid, Cancel.
+  await page.locator('#document-editor>.pw-block.text .block-content').first().click();await page.locator('.pw-block--focused .pw-block__handle').click();
+  assert.equal(await page.locator('#block-menu-title').textContent(),'Paragraph');
+  assert.deepEqual(await page.locator('#turn-into-menu>.pw-menu__item:visible').evaluateAll(items=>items.map(item=>({text:item.innerText.trim(),box:item.getBoundingClientRect()})).sort((a,b)=>a.box.top-b.box.top||a.box.left-b.box.left).map(item=>item.text)),['Text','Heading','Quote','Bullet','Number','Checkbox'],'PhoneEdit5 order');
+  const sheetBox=await page.locator('#block-menu').boundingBox();assert.ok(Math.round(sheetBox.y+sheetBox.height)===844&&Math.round(sheetBox.width)===390,'a bottom sheet');
+  await page.locator('#block-menu [data-action="cancel"]').click();await page.locator('#block-menu').waitFor({state:'hidden'});
+  // Phone bar elsewhere shows the agent status; the π sheet is Ph_Pi; the composer is one row.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#phone-status').filter({hasText:/Ready|Working|waiting/}).waitFor();
+  assert.equal(await page.locator('#hint').isVisible(),false);assert.equal(await page.locator('.composer-wrap .footnote').isVisible(),false);
+  assert.equal(new Set(await page.locator('.pw-composer__row>*').evaluateAll(items=>items.filter(item=>item.getClientRects().length&&item.offsetHeight).map(item=>Math.round(item.getBoundingClientRect().top)))).size,1,'composer controls in one row');
+  await page.locator('#open-menu').click();
+  assert.equal(await page.locator('#sidebar .sheet-head__title').textContent(),'π Pi Workbench');assert.equal(await page.locator('#sidebar>.pw-titlebar').isVisible(),false);
+  assert.equal(await page.locator('#pi-status').isVisible(),true);await page.locator('#pi-close').click();
+  await page.setViewportSize({width:1440,height:900});
+  assert.equal(await page.locator('.sheet-head').first().isVisible(),false,'sheet heads are phone only');
+
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();const exited=new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

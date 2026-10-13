@@ -114,9 +114,11 @@
     <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π</button>
     <button id="phone-view" class="pw-phonebar__btn" aria-haspopup="menu" aria-expanded="false"><span id="phone-view-label">Chat</span><span data-icon="popup-arrow"></span></button>
     <button id="phone-back" class="pw-phonebar__btn" hidden>‹ <span id="phone-back-label">Files</span></button>
+    <span id="phone-title" class="phone-title" hidden><span class="pw-titlebar__stripes"></span><span id="phone-title-text" class="pw-titlebar__title"></span><span class="pw-titlebar__stripes"></span></span><!-- PhoneEdit1: the document's name in the bar -->
     <span class="pw-menubar__spacer"></span>
-    <button id="phone-comments" class="pw-phonebar__btn" hidden>Comments <span id="phone-comment-count">0</span></button>
-    <span id="phone-status" class="pw-glyph" role="status"></span>
+    <button id="phone-comments" class="pw-phonebar__btn" aria-pressed="false" hidden>Comments <span id="phone-comment-count">0</span></button>
+    <span id="phone-saved" class="phone-status" hidden></span>
+    <span id="phone-status" class="pw-glyph phone-status" role="status"></span>
   </nav>
 
   <button id="backdrop" class="pw-scrim" aria-label="Close menu" hidden></button>
@@ -125,6 +127,8 @@
 
     <!-- Projects window (phone: the π sheet) -->
     <aside id="sidebar" class="pw-window window-projects" aria-label="Project navigation">
+      <div class="sheet-head"><h2 class="sheet-head__title"><span class="pi-mark" aria-hidden="true">π</span> Pi Workbench</h2><button id="pi-close" type="button" class="pw-btn pw-btn--plain">Close</button></div><!-- phone (Ph_Pi) -->
+      <div id="pi-status" class="pi-status"><span id="pi-status-text" class="pw-glyph"></span><button id="pi-stop" type="button" class="pw-btn" hidden>Stop</button></div><!-- phone (Ph_Pi) -->
       <div class="pw-titlebar"><button id="close-menu" class="pw-box" aria-label="Close menu"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
       <div class="pw-infobar"><span id="project-count"></span><span>on this Mac</span></div>
       <div class="window-section"><label class="pw-search"><span data-icon="search"></span><input id="project-search" type="search" placeholder="Find a project" aria-label="Search projects"><kbd class="pw-kbd">⌘K</kbd></label></div>
@@ -188,8 +192,8 @@
           <label class="pw-label" for="prompt">Message to Pi</label>
           <textarea id="prompt" class="pw-field" rows="3" disabled placeholder="Ask anything, or drop a file here"></textarea>
           <div class="pw-composer__row">
-            <button id="attach" type="button" class="pw-btn" disabled>Attach…</button>
-            <button id="record" type="button" class="pw-btn" aria-pressed="false" disabled><span data-icon="mic"></span>Record</button>
+            <button id="attach" type="button" class="pw-btn" aria-label="Attach…" disabled><span class="phone-only" data-icon="plus"></span><span class="desk-only">Attach…</span></button>
+            <button id="record" type="button" class="pw-btn" aria-pressed="false" aria-label="Record" disabled><span data-icon="mic"></span><span class="desk-only">Record</span></button>
             <span id="hint" class="pw-help">Text, images, audio &amp; files</span>
             <span class="pw-menubar__spacer"></span>
             <button id="stop" type="button" class="pw-btn" hidden>Stop<span class="pw-kbd">⌘.</span></button>
@@ -215,6 +219,12 @@
             <div class="pw-window__body">
               <div id="document-editor" class="pw-doc" aria-label="Document editor"></div>
               <textarea id="document-source" class="pw-source" aria-label="File source" hidden spellcheck="false"></textarea>
+            </div>
+            <div id="phone-edit-bar" class="phone-edit-bar" role="toolbar" aria-label="Edit" hidden><!-- PhoneEdit1: while a block is being edited -->
+              <select id="phone-block-style" class="pw-popup" aria-label="Block style"><option value="text">Paragraph</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select>
+              <button id="phone-tool-check" type="button" class="pw-btn pw-btn--icon pw-btn--touch" aria-label="Task checkbox" aria-pressed="false"><span data-icon="list-check"></span></button>
+              <span class="pw-menubar__spacer"></span>
+              <button id="phone-edit-done" type="button" class="pw-btn pw-btn--touch">Done</button>
             </div>
             <div class="pw-statusbar"><span>⌘S saves · changes save as you type</span><span id="document-path" class="pw-mono">No document open</span></div>
           </div>
@@ -253,6 +263,7 @@
       <!-- Review window: comments + document requests -->
       <aside id="comments-panel" class="pw-window window-review" aria-label="Review" data-view-only="work">
         <div class="pw-titlebar"><button class="pw-box" aria-label="Close Review" data-command="toggle-review"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Review <span id="comment-count"></span></h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
+        <div class="sheet-head"><h2 class="sheet-head__title">Comments</h2><button id="comments-close" type="button" class="pw-btn pw-btn--plain">Close</button></div><!-- phone (PhoneEdit6) -->
         <div class="window-section"><div id="comment-filter" class="pw-seg pw-seg--fill" role="radiogroup" aria-label="Show"><button role="radio" aria-checked="true" data-filter="open">Open</button><button role="radio" aria-checked="false" data-filter="resolved">Resolved</button><button role="radio" aria-checked="false" data-filter="deleted">Deleted</button></div></div><!-- NEW -->
         <div id="selected-passage" class="window-section" hidden><blockquote id="comment-anchor" class="pw-review-item__quote"></blockquote><button id="clear-anchor" class="pw-btn" aria-label="Clear selected passage">Clear Selection</button>
           <form id="comment-form" class="window-column"><label class="pw-label" for="comment-text">Comment</label><textarea id="comment-text" class="pw-field" rows="2" placeholder="Comment on the selected passage…"></textarea><button id="add-comment" class="pw-btn pw-btn--default" disabled>Add Comment</button></form>
@@ -313,11 +324,12 @@
   <div id="phone-view-menu" class="pw-menu" role="menu" aria-label="Views" hidden><button class="pw-menu__item" role="menuitemradio" aria-checked="true" tabindex="-1" data-view="chat">Chat</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="work">Work</button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="activity">Activity <span id="phone-activity-count"></span></button><button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-view="gate">Gate</button></div>
   <div id="selection-bar" class="pw-floatbar" role="toolbar" aria-label="Selection" hidden><button id="selection-bar-comment" class="pw-btn" type="button">Comment<span class="pw-kbd">⇧⌘M</span></button><button id="selection-bar-ask" class="pw-btn" type="button">Ask Pi…</button></div>
   <div id="block-menu" class="pw-menu" role="menu" aria-label="Block" hidden>
+    <div id="block-menu-title" class="sheet-head__title block-menu-title" aria-hidden="true">Paragraph</div><!-- phone (PhoneEdit5) -->
     <button class="pw-menu__item" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="turn-into-menu">Turn Into<span class="pw-menu__key" aria-hidden="true">▸</span></button>
     <div id="turn-into-menu" class="pw-menu pw-menu--sub" role="menu" aria-label="Turn Into" hidden>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="heading">Heading</button>
-      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check">Task Checkbox</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check"><span class="desk-only">Task&nbsp;</span>Checkbox</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="bullet">Bullet</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="number">Number</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="quote">Quote</button>
@@ -333,6 +345,7 @@
     <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="ask">Ask Pi About Paragraph…</button>
     <div class="pw-menu__sep" role="separator"></div>
     <button class="pw-menu__item" role="menuitem" tabindex="-1" data-action="delete">Delete Paragraph</button>
+    <button class="pw-btn pw-btn--touch block-menu-cancel" type="button" data-action="cancel">Cancel</button><!-- phone (PhoneEdit5) -->
   </div>
   <div id="toast" class="pw-toast" role="status" hidden><span id="toast-text"></span><button id="toast-undo" class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div><!-- NEW -->
 </body>

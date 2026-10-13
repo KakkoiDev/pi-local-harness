@@ -162,3 +162,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [120-Back up the design artifacts](tasks/120-design-backup.md)
 - [x] [121-Enter that confirms Japanese input never sends](tasks/121-ime-enter.md)
 - [x] [122-Phone address as a QR code](tasks/122-phone-qr.md)
+- [x] [123-The phone matches the phone boards](tasks/123-phone-matches-boards.md)
+- [ ] [124-Phone comment composer and thread sheets](tasks/124-phone-comment-sheets.md)
