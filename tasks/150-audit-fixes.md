@@ -16,7 +16,7 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 - [x] The first read of an old JSON comment file is normalised; `create()` with an unslugged name leaves no stray project; saving through an in-project link writes the real file.
 - [x] GET errors say what happened (400 with the message, 503 when Ollama is down) instead of "Not found"; a transcription timeout is a clear error; stale prompt text and docstrings fixed.
 - [x] Tests import `tests/isolation.py` first: no real Ollama, tailnet or live harness from the test process.
-- [ ] Not done, low: `gate_today` counts only the 200 events in memory; an interrupted comment job leaves the comment undeletable.
+- [x] Low items: Gate's "today" counts every check of the day (a per-day counter in the ledger, rebuilt from `gate-events.jsonl`), not only the 200 in memory. Kept by design: a comment sent to Pi "can no longer be deleted" (InlineThread card), also after an interrupted request; Resolve is the way out.
 
 ## Front end (document editor, comments, Review)
 
@@ -41,8 +41,15 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 - [x] Phone: Gate and Activity rows are two lines as Ph_Gate / Ph_Activity (header hidden); sheets draw their double rule as a border (Close no longer covers it); segments stay on one line; comment markers have a 44px touch area, Review heads 44px, document checkboxes 22px; wrapped code chips keep their box; a code file disables Review (button and menu).
 - [x] Block types use the card names and one order everywhere (Paragraph, Heading, Task, Bullet, Number, Quote, Code, Raw Markdown; the phone grid shows them all); toasts read "Task deleted."; duplicate `phone-title` id removed; info bars as drawn.
 
-- [ ] New Project folder list; phone Gate and Activity rows; duplicate `phone-title` id; Add & Ask Pi in the composer; block and thread class names from the cards; chat.css duplicates of components.css removed; tablet columns and widths; Window menu order; copy from the boards.
+- [x] New Project folder list; phone Gate and Activity rows; duplicate `phone-title` id; Add & Ask Pi in the composer; thread class names from the cards; chat.css duplicates of components.css removed; tablet columns and widths; Window menu order; copy from the boards. The block class names (`pw-block--<type>`, `pw-block__content`) belong to task 140; the phone items below to task 132.
 
 ## Tests and docs
 
 - [x] Browser suites fail when the server dies (proven: a dead server used to exit 0, now 1); no `tailscale serve` from tests; docs for the model choice, Gate history, comments, Activity and trash; `config` → `chore` in harness/AGENTS.md; ROADMAP state for tasks 130, 117, 118; verify_workflow flags open lines whose task is complete. Also: tests run from any folder and as single modules (`tests/isolation.py` sets the folder and path), extension tests never read the real `~/.pi/agent`, chat isolation checks use text only one project has, browser test blocks get their own scope, the file list is shared per project (a background poll could make a project switch open no document), a diagnostic prints state if the intermittent deep-link step fails again.
+
+## Handed on
+
+- Task 132 (phone): dialogs as sheets on a phone (IMPLEMENTATION § 7, Ph_NewProject), the bullet tool in the phone edit bar (PhoneEdit1), the Activity detail bar showing both "Activity ▾" and "‹ Activity" (Ph_ActivityDetail), the view popup's separator and "Activity · all" / "Gate · all" labels (Ph_Views), and the π sheet's old status strip (Ph_Pi).
+- Task 140: block classes from the DocumentBlock card.
+- Task 124: the phone thread as a sheet (Ph_ThreadAnswered, PhoneEdit4).
+- Two intermittent browser-suite steps (a deep link to a file, and creating a second project) print diagnostics when they fail; investigate from that output.

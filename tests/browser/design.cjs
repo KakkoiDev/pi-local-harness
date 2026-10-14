@@ -504,9 +504,9 @@ const readline = require('node:readline');
 
   { // Audit (task 150): Review's filter is a radio group: Arrow keys choose.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);if(await page.evaluate(()=>document.body.dataset.review)==='closed')await page.locator('#toggle-review').click();
-  const open=page.locator('#comment-filter [aria-checked="true"]');await open.focus();await page.keyboard.press('ArrowRight');
+  await page.locator('#document-comments .pw-review-item').first().waitFor();/* Review rendered */await page.locator('#comment-filter [data-filter="open"]').press('ArrowRight');
   await page.waitForFunction(()=>document.querySelector('#comment-filter [aria-checked="true"]').dataset.filter==='resolved');
-  assert.equal(await page.evaluate(()=>document.activeElement.dataset.filter),'resolved');await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.evaluate(()=>document.activeElement.dataset.filter),'resolved');await page.locator('#comment-filter [data-filter="resolved"]').press('ArrowLeft');
   }
 
   // 123: the phone follows the phone boards.

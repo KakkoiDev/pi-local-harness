@@ -189,6 +189,6 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [147-Choose the model and the thinking level from the menu bar](tasks/147-model-and-thinking-menus.md)
 - [x] [148-Messages sent while Pi works join one waiting request](tasks/148-join-waiting-messages.md)
 - [ ] [149-Re-sync the design after round 4, and build its changes](tasks/149-design-resync-4.md)
-- [ ] [150-Fix what the 2026-10-14 audit found](tasks/150-audit-fixes.md)
+- [x] [150-Fix what the 2026-10-14 audit found](tasks/150-audit-fixes.md)
 - [ ] [151-Plan a reusable UI component library](tasks/151-ui-component-library.md)
 - [ ] [152-Plan the move to htmx 4 with server-sent events](tasks/152-htmx-sse.md)

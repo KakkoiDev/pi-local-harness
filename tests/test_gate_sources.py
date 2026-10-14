@@ -35,6 +35,14 @@ class GateSourceTest(unittest.TestCase):
         restarted.propose('execute_command', {'command': 'pwd'}, 'admin', cwd='/work/app', source='web')
         self.assertEqual([event['id'] for event in restarted.recent_events()], [1, 2], 'ids keep counting')
 
+    def test_today_counts_every_check_beyond_the_200_kept(self):
+        events = Path(self.temp.name) / 'gate-events.jsonl'; engine = GateEngine(str(ROOT / 'specs/judges.md'), str(Path(self.temp.name) / 'audit.log'))
+        ledger = ProposalLedger(engine, events_file=events)
+        for index in range(205): ledger.propose('execute_command', {'command': f'echo {index}'}, 'admin', cwd='/w', source='web')
+        ledger.propose('execute_command', {'command': 'rm -rf /'}, 'admin', cwd='/w', source='web')
+        self.assertEqual(ledger.counts_today(), {'today': 206, 'blocked_today': 1})
+        self.assertEqual(ProposalLedger(engine, events_file=events).counts_today(), {'today': 206, 'blocked_today': 1}, 'rebuilt after a restart')
+
     def test_web_view_maps_folders_to_projects_and_counts_today(self):
         from harness.web_chat import WebChat
         chat = WebChat(Path(self.temp.name) / 'chats', 1, 2, data_root=Path(self.temp.name) / 'data'); self.addCleanup(chat.close)

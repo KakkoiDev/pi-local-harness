@@ -21,13 +21,25 @@ class ProposalLedger:
         self.protocol = Protocol(protocol_file)
         # Checks survive a restart of plh: one JSON line per event, the last 200 read back (the person lost them on restart).
         self.events_file = Path(events_file) if events_file else None
+        self.day = {}  # 'YYYY-MM-DD' -> {'today': n, 'blocked_today': n}: before-execution checks per day, beyond the 200 kept in memory
         if self.events_file and self.events_file.exists():
             lines = self.events_file.read_text(encoding='utf-8').splitlines()
+            for line in lines:  # every saved check counts toward its own day
+                try: self.count(json.loads(line))
+                except ValueError: continue
             for line in lines[-200:]:
                 try: self.events.append(json.loads(line))
                 except ValueError: continue
             self.event_sequence = max((event.get('id', 0) for event in self.events), default=0)
             if len(lines) > 2000: self.events_file.write_text(''.join(json.dumps(event) + '\n' for event in self.events), encoding='utf-8')
+
+    def count(self, event):
+        if event.get('phase') != 'gate': return
+        counts = self.day.setdefault(str(event.get('timestamp', ''))[:10], {'today': 0, 'blocked_today': 0})
+        counts['today'] += 1; counts['blocked_today'] += event.get('outcome') != 'ALLOW'
+
+    def counts_today(self):
+        with self.lock: return dict(self.day.get(datetime.now().astimezone().date().isoformat(), {'today': 0, 'blocked_today': 0}))
 
     def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None, cwd=None, source=None):
         # Show scope, not uploaded file bodies or tool output.
@@ -39,6 +51,7 @@ class ProposalLedger:
                                 'phase': phase, 'outcome': outcome, 'tool': proposal.tool_name,
                                 'args': args, 'reason': reason, 'proposal_id': token, 'tool_call': tool_call,
                                 'cwd': cwd, 'source': source})  # task 129: where it ran, web or terminal
+            self.count(self.events[-1])
             if self.events_file:
                 with self.events_file.open('a', encoding='utf-8') as handle: handle.write(json.dumps(self.events[-1]) + '\n')
 

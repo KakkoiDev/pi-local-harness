@@ -198,9 +198,8 @@ class WebChat:
         ledger=getattr(self,'ledger',None)
         return [{**event,'project':owner(event.get('cwd')),'from':{'web':'Web','terminal':'Terminal'}.get(event.get('source'),'')} for event in (ledger.recent_events() if ledger else [])]
     def gate_today(self):
-        today=datetime.now().astimezone().date().isoformat()
-        events=[event for event in self.gate_events() if event['timestamp'].startswith(today) and event['phase']=='gate']
-        return {'today':len(events),'blocked_today':sum(event['outcome']!='ALLOW' for event in events)}
+        ledger=getattr(self,'ledger',None)
+        return ledger.counts_today() if ledger else {'today':0,'blocked_today':0}  # every check today, not only the 200 in memory
     def workspace(self):
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
