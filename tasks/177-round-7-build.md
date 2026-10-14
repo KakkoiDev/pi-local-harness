@@ -6,7 +6,7 @@ Request 2026-10-15: the designer redrew the Terminal page with the repo's names,
 Ph_ActivityRecord) and answered the round 6 notes (`design/IMPLEMENTATION.md`, "2026-10-15 · Round 6 notes").
 
 - [x] Re-synced `design/`: 15 boards and canvas.json, the TerminalOutput, MenuBar and Table cards, design-system.json,
-  IMPLEMENTATION.md. The canvas's own tokens.json is an older copy (it still says Laya): the repo keeps the design
+  IMPLEMENTATION.md. The canvas's own tokens.json is an older copy with old names: the repo keeps the design
   system's.
 - [ ] 3 `/doctor`: a fix row ends with an existing command that asks first (`→ /ollama restart`,
   `→ /config set effort high`, `→ /models pull <name>`); a stale agent lock is a `! note` ("clears itself when the next
