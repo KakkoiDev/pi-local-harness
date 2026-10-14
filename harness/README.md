@@ -71,7 +71,8 @@ Setup, once, on the Mac that runs `plh`:
    `harness/services.py`) and prints `Phone: https://<first remote_hosts entry>` in
    the Pi startup lines, followed by a QR code of that address to scan with the phone (hidden when the
    terminal is narrower than about 41 columns). If serve fails, the line reads `Phone access off: <reason>`
-   and the local web UI still works.
+   and the local web UI still works. π › Open on Phone… then says "Phone access is off." with the reason, and
+   links the page where Serve is enabled for the tailnet when Tailscale's message names it (Copy Link).
 4. On the phone (Tailscale app connected) open the Phone URL.
 
 Lifecycle: serve runs in the foreground (no `--bg`) as a child of the services

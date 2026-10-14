@@ -26,6 +26,13 @@ TEXT_SUFFIXES = {'.txt', '.md', '.py', '.js', '.ts', '.json', '.yaml', '.yml', '
 def timestamp():
     return datetime.now().astimezone().isoformat(timespec='seconds')
 
+def serve_link(problem):
+    """The page where Serve is enabled for this tailnet, from the `tailscale serve` error (Dialogs2, phone access off)."""
+    if not problem:return None
+    found=re.search(r'https://login\.tailscale\.com/f/serve\S*',problem)
+    return found.group(0).rstrip('.,)') if found else None
+
+
 class ProjectBusy(ValueError):
     """A project command refused while Pi works in that project (task 154); `job` is the request to show in Activity."""
     def __init__(self, job):
@@ -392,6 +399,7 @@ class WebHandler(BaseHTTPRequestHandler):
     remote_hosts=frozenset()
     remote_users=frozenset()
     phone_url=None
+    phone_error=None  # why `tailscale serve` did not start (task 141): Open on Phone shows the off state
     speech=staticmethod(transcribe)
     def trusted(self):
         host=self.headers.get('Host','');origin=self.headers.get('Origin')
@@ -432,7 +440,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/gate':
                 self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
+            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'phoneError':self.phone_error,'phoneEnable':serve_link(self.phone_error),'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
             if path=='/api/models':self.reply(self.chat.model_list());return
             if path=='/api/context-preview':
                 query={key:values[0] for key,values in parse_qs(urlparse(self.path).query).items()}

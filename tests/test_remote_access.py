@@ -175,3 +175,13 @@ class TranscriptTextTest(unittest.TestCase):
             fake.write_text('#!/bin/sh\necho "Detected language: English"\necho \'{"text": "Test, 日本語"}\'\n'); fake.chmod(0o755)
             with patch.dict(os.environ, {'PATH': directory + os.pathsep + os.environ['PATH']}):
                 self.assertEqual(transcribe(Path(directory) / 'audio.webm'), 'Test, 日本語')
+
+
+class PhoneOffTest(unittest.TestCase):
+    def test_the_enable_link_comes_from_the_serve_error(self):
+        """Task 141: Open on Phone says phone access is off and links where Serve is enabled."""
+        from harness.web_chat import serve_link
+        problem = 'tailscale serve exited (1): Serve is not enabled on your tailnet.\nTo enable, visit:\n\n         https://login.tailscale.com/f/serve?node=abc123\n'
+        self.assertEqual(serve_link(problem), 'https://login.tailscale.com/f/serve?node=abc123')
+        self.assertIsNone(serve_link('tailscale serve exited (1): not running'))
+        self.assertIsNone(serve_link(None))

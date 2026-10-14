@@ -671,6 +671,16 @@ const readline = require('node:readline');
   assert.equal(await card.locator('.pw-link',{hasText:'Show in Activity'}).count(),1,'a whole-file request is a card with one way into Activity');
   await stopAll();
   }
+  { // Task 141: Open on Phone when tailscale serve did not start (Dialogs2): the reason, the enable link, Copy Link, Done.
+  await page.route('**/api/config',async route=>{const response=await route.fetch();const config=await response.json();await route.fulfill({response,json:{...config,phoneUrl:null,phoneError:'tailscale serve exited (1): Serve is not enabled on your tailnet. To enable, visit: https://login.tailscale.com/f/serve?node=abc',phoneEnable:'https://login.tailscale.com/f/serve?node=abc'}});});
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#menubar [aria-controls="menu-pi"]').click();
+  const phoneItem=page.locator('#menu-pi [data-command="open-on-phone"]');assert.equal(await phoneItem.getAttribute('aria-disabled'),'false','enabled, so it can say why');await phoneItem.click();
+  await page.locator('#phone-off').waitFor();assert.equal(await page.locator('#phone-off .pw-alert__message').textContent(),'Phone access is off.');
+  assert.equal(await page.locator('#phone-off-detail').textContent(),'Serve is not enabled on your tailnet. Enable it once at login.tailscale.com/f/serve, then quit plh and start it again.');
+  assert.equal(await page.locator('#phone-off-detail a').getAttribute('href'),'https://login.tailscale.com/f/serve?node=abc');
+  assert.equal(await page.locator('#phone-copy-link').isVisible(),true);assert.equal(await page.locator('.phone-address').isVisible(),false,'no address to copy');assert.equal(await page.locator('#phone-qr').isVisible(),false);
+  await page.locator('#phone-dialog .pw-btn--default').click();await page.unroute('**/api/config');
+  }
   { // Task 154: rename, move, remove, trash and locate a project from the Project menu; the phone ⋯ sheet.
   const made=await post('/api/projects/create',{name:'Rename me',parent:directory});const pid=made.project;
   const projectMenu=async command=>{await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator(`#menu-project [data-command="${command}"]`).click();};

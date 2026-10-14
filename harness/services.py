@@ -85,7 +85,7 @@ def main():
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
             if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]
-            else: ready['remote_error'] = problem
+            else: ready['remote_error'] = WebHandler.phone_error = problem
         stopped = threading.Event()
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, lambda *_: stopped.set())
