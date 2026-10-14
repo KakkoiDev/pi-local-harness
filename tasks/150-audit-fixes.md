@@ -31,6 +31,11 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 
 ## Design and markup
 
+- [x] New Project / Add Existing Folder: real folder rows (icon, name, full height, the list scrolls), the path field gets the room, the help names the result; a new project opens its Chat (F1). Mono fields keep the mono face (16px+ on phones).
+- [x] Activity and Gate columns as C_ActivityDesk / C_GateDesk; at tablet width Gate hides Check and From (G_Tablet) and Activity keeps the request; the Projects window is 220px there; Review starts closed at tablet width (W_Tablet).
+- [x] A link in a selected row inverts with it; in Activity or Gate only the Agent row is current; the composer measures itself when shown (no collapse after Activity); the selection bar goes away with a mode or view change; the thread help sits in the actions and only while Ask Pi is offered.
+- [x] Block types use the card names and one order everywhere (Paragraph, Heading, Task, Bullet, Number, Quote, Code, Raw Markdown; the phone grid shows them all); toasts read "Task deleted."; duplicate `phone-title` id removed; info bars as drawn.
+
 - [ ] New Project folder list; phone Gate and Activity rows; duplicate `phone-title` id; Add & Ask Pi in the composer; block and thread class names from the cards; chat.css duplicates of components.css removed; tablet columns and widths; Window menu order; copy from the boards.
 
 ## Tests and docs

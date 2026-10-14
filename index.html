@@ -218,7 +218,7 @@
         <div class="work-layout">
           <div class="document-pane">
             <div id="document-toolbar" class="pw-ruler" role="toolbar" aria-label="Ruler">
-              <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Paragraph</option><option value="heading">Heading</option><option value="check">Task Checkbox</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
+              <select id="block-style" class="pw-popup" aria-label="Block style"><option value="text">Paragraph</option><option value="heading">Heading</option><option value="check">Task</option><option value="bullet">Bullet</option><option value="number">Number</option><option value="quote">Quote</option><option value="code">Code</option><option value="raw">Raw Markdown</option></select><!-- NEW: replaces the per-block select -->
               <div class="pw-tools"><button id="tool-bullet" type="button" aria-label="Bulleted list" aria-pressed="false"><span data-icon="list-bullet"></span></button><button id="tool-check" type="button" aria-label="Task checkbox" aria-pressed="false"><span data-icon="list-check"></span></button></div><!-- B / I / { } wait for inline marks (IMPLEMENTATION.md § ruler) -->
               <span class="pw-menubar__spacer"></span>
               <select id="editor-mode" class="pw-popup" aria-label="Editor mode"><option value="blocks">Document</option><option value="source">Markdown Source</option></select>
@@ -295,8 +295,9 @@
   <dialog id="folder-dialog" class="pw-dialog">
     <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
     <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
-    <div class="folder-location window-row"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
-    <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav>
+    <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
+    <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav><!-- rows: .pw-row with the folder icon (Dialogs2) -->
+    <p id="folder-help" class="pw-help"></p>
     <p id="folder-error" class="pw-help" role="alert"></p>
     <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
   </dialog>
@@ -320,8 +321,8 @@
     <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn">Cancel</button><button value="save" class="pw-btn pw-btn--default">Save</button></div>
   </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd></dl><p class="pw-help">One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
-  <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-title"><form method="dialog" class="window-column">
-    <h2 id="phone-title" class="pw-dialog__title">Open on Phone</h2>
+  <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-dialog-title"><form method="dialog" class="window-column">
+    <h2 id="phone-dialog-title" class="pw-dialog__title">Open on Phone</h2>
     <p class="pw-alert__detail">plh serves the workbench on your tailnet. Open this address on a phone signed in to the same Tailscale account.</p>
     <div id="phone-qr" class="phone-qr" role="img" aria-label="QR code of the phone address"></div><!-- the same code the terminal prints at startup -->
     <div class="phone-address"><input id="phone-url" class="pw-field pw-mono" aria-label="Phone address" readonly><button id="phone-copy" type="button" class="pw-btn">Copy</button></div>
@@ -339,9 +340,9 @@
     <div id="block-menu-title" class="sheet-head__title block-menu-title" aria-hidden="true">Paragraph</div><!-- phone (PhoneEdit5) -->
     <button class="pw-menu__item" role="menuitem" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-controls="turn-into-menu">Turn Into<span class="pw-menu__key" aria-hidden="true">▸</span></button>
     <div id="turn-into-menu" class="pw-menu pw-menu--sub" role="menu" aria-label="Turn Into" hidden>
-      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Text</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="text">Paragraph</button><!-- the Menu card and PhoneEdit5 order: Paragraph, Heading, Task, Bullet, Number, Quote, (Table), Code, Raw Markdown -->
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="heading">Heading</button>
-      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check"><span class="desk-only">Task&nbsp;</span>Checkbox</button>
+      <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="check">Task</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="bullet">Bullet</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="number">Number</button>
       <button class="pw-menu__item" role="menuitemradio" aria-checked="false" tabindex="-1" data-type="quote">Quote</button>

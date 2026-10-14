@@ -76,8 +76,10 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 .activity-panel,.gate-panel{flex:1;min-height:0;display:flex;flex-direction:column}
 .activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
 .activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
-#activity-panel{--pw-cols:150px minmax(0,1fr) 190px 150px 90px 70px}
-#gate-events{--pw-cols:84px 64px 120px minmax(0,1fr) 140px 90px}
+#activity-panel{--pw-cols:130px minmax(0,1fr) 170px 130px 90px 56px} /* C_ActivityDesk */
+#gate-events{--pw-cols:70px 58px 104px minmax(0,1fr) 150px 70px} /* C_GateDesk */
+/* A link in the selected (inverted) row inverts with it */
+.pw-table__row[aria-current="true"] .pw-link,.pw-table__row[aria-selected="true"] .pw-link{color:inherit}
 
 /* About dialog */
 #about-dialog .welcome-mark{width:56px;height:56px;font-size:34px;align-self:center}
@@ -85,6 +87,9 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 .about-facts dd{margin:0}
 /* Folder dialog */
 .folder-list{border:1px solid var(--ink);height:180px;overflow:auto;padding:0}
+.folder-list>.pw-row{flex:none} /* a full row each; the list scrolls instead of squeezing them */
+.folder-location{display:flex;gap:8px;align-items:center}
+.folder-location>.pw-field{flex:1;min-width:0}
 
 /* Toast */
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;min-width:320px}
@@ -202,10 +207,12 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
 @media (min-width:1101px) and (max-width:1140px){.view-tabs kbd{display:none}} /* side windows (Files 290 + Review 380, Event Info) leave the main window narrower than the view tabs */
 @media (min-width:761px) and (max-width:1100px){
   #desk{position:relative}
-  .window-projects{width:240px;min-width:0}
+  .window-projects{width:220px;min-width:0} /* G_Tablet */
   .window-files{width:220px} /* W_Tablet: 220px now that the + actions replace the button row */
-  #gate-events{--pw-cols:84px 64px 120px minmax(0,1fr)} /* Project and From move to Event Info */
-  #gate-events .pw-table__row>:nth-child(n+5){display:none}
+  #gate-events{--pw-cols:46px 104px minmax(0,1fr) 130px} /* G_Tablet: Check and From move to Event Info */
+  #gate-events .pw-table__row>:nth-child(2),#gate-events .pw-table__row>:nth-child(6){display:none}
+  #activity-panel{--pw-cols:120px minmax(0,1fr) 150px 56px} /* Source and Started move to the detail; the request keeps its room */
+  #activity-panel .pw-table__row>:nth-child(4),#activity-panel .pw-table__row>:nth-child(5){display:none}
   .window-review,.window-info{position:absolute;top:45%;right:var(--space-6);bottom:var(--space-6);z-index:25;width:min(var(--size-review),calc(100% - 2 * var(--space-6)))} /* below the main window title, view tabs and document bar */
 }
 /* Pi's replies render Markdown (js/message-markdown.mjs); user messages stay plain text */
@@ -277,11 +284,9 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
   #turn-into-menu,#turn-into-menu[hidden]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border:0;border-bottom:1px solid var(--ink);padding:0 0 12px;margin-bottom:4px}
   #turn-into-menu>.pw-menu__item{border:1px solid var(--ink);min-height:44px;justify-content:center;padding:0 6px}
   #turn-into-menu>.pw-menu__item[aria-checked="true"]{background:var(--selection-bg);color:var(--selection-fg)}
-  #turn-into-menu>[data-type="code"],#turn-into-menu>[data-type="raw"]{display:none} /* PhoneEdit5: six types */
   #block-menu>.pw-menu__item{min-height:46px;border-bottom:1px dotted var(--ink);padding:0 4px}
   .block-menu-cancel{display:flex;width:100%;margin-top:16px}
   #turn-into-menu>.pw-menu__item::before,#block-menu .pw-menu__key{display:none}
-  #turn-into-menu>[data-type="quote"]{order:2}#turn-into-menu>[data-type="bullet"]{order:3}#turn-into-menu>[data-type="number"]{order:4}#turn-into-menu>[data-type="check"]{order:5}
   #phonebar:has(#phone-title:not([hidden]))>.pw-menubar__spacer{display:none}
   .phone-title .pw-titlebar__stripes{flex:1;min-width:12px}
   .phone-title .pw-titlebar__title{flex:none;max-width:60%}
@@ -319,3 +324,10 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 #model-menu,#effort-menu{position:fixed;z-index:60}
 /* A registered folder that is gone: dimmed, still choosable (it offers Remove from List) */
 .pw-row--missing .pw-row__label{color:var(--ink-disabled)}
+/* Info bars as drawn: Projects puts its two labels at the ends (C_ProjectsWin); Files stays one line, the summary ellipsized (W_Tablet) */
+.window-projects>.pw-infobar{justify-content:space-between}
+.window-files>.pw-infobar{flex-wrap:nowrap}
+#files-summary{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* A mono field (paths: folder chooser, Rename or Move) keeps the mono face over .pw-field's text face */
+.pw-field.pw-mono{font-family:var(--font-mono)}
+@media (min-width:761px){.pw-field.pw-mono{font-size:14px}} /* phones keep 16px+: smaller fields make iOS zoom on focus */

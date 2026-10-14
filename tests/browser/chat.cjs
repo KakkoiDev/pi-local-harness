@@ -37,7 +37,8 @@ const readline = require('node:readline');
    const browsed=page.waitForResponse(response=>response.url().includes('/api/directories?path='));await page.locator('#folder-go').click();await browsed;
    await page.waitForFunction(path=>document.querySelector('#folder-path').value===path,directory);
    await page.locator('#folder-name').fill(name);await page.locator('#folder-use').click();
-   await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor();
+   await page.waitForFunction(()=>document.body.dataset.view==='chat'&&/\/chat$/.test(location.pathname));/* a new project opens its Chat (F1) */
+   await page.locator('#work-tab').click();await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor();
   }
   await createProject('First project');
   const heading=page.getByRole('textbox',{name:'Heading',exact:true}).first();await heading.fill('Edited roadmap');
@@ -55,9 +56,9 @@ const readline = require('node:readline');
   await page.locator('#block-style').selectOption('quote');
   await page.waitForFunction(()=>document.querySelectorAll('#document-editor .pw-block')[2]?.classList.contains('quote'));await page.getByText('Saved',{exact:true}).waitFor();assert.match(roadmapFile(),/\n> Describe what we are building\./);
   await page.locator('.pw-block--focused .pw-block__handle').click();assert.equal(await page.locator('#turn-into-menu').isVisible(),false,'Turn Into is a submenu');
-  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Turn Into▸');await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.activeElement.closest('#turn-into-menu')&&document.activeElement.textContent==='Text');
+  assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Turn Into▸');await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.activeElement.closest('#turn-into-menu')&&document.activeElement.textContent==='Paragraph');
   await page.keyboard.press('ArrowLeft');await page.locator('#turn-into-menu').waitFor({state:'hidden'});assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-expanded')),'false');assert.equal(await page.locator('#block-menu').isVisible(),true);
-  await page.locator('#block-menu').getByRole('menuitem',{name:'Turn Into'}).click();await page.locator('#turn-into-menu').getByRole('menuitemradio',{name:'Text'}).click();await page.waitForFunction(()=>!document.querySelectorAll('#document-editor .pw-block')[2]?.classList.contains('quote'));
+  await page.locator('#block-menu').getByRole('menuitem',{name:'Turn Into'}).click();await page.locator('#turn-into-menu').getByRole('menuitemradio',{name:'Paragraph'}).click();await page.waitForFunction(()=>!document.querySelectorAll('#document-editor .pw-block')[2]?.classList.contains('quote'));
   await page.getByText('Saved',{exact:true}).waitFor();assert.deepEqual((await texts()).slice(0,3),['Edited roadmap','Goal','Describe what we are building.']);
   await heading.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
   await page.locator('#selection-bar').waitFor();assert.equal(await page.locator('#selection-comment').count(),0,'the ruler Comment button is replaced by the float bar');

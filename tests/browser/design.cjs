@@ -459,6 +459,19 @@ const readline = require('node:readline');
   assert.match(await missing.textContent(),/folder missing/);await missing.click();
   await page.getByRole('button',{name:'Remove from List',exact:true}).click();await missing.waitFor({state:'detached'});
 
+  // Audit (task 150): the folder browser lists real rows (icon and name, full height), the path field gets the room, the help says what happens.
+  await page.goto(`${base}/projects`);await page.locator('#new-project').click();await page.locator('#folder-list .pw-row').first().waitFor();
+  const folderRows=await page.locator('#folder-list .pw-row').evaluateAll(rows=>rows.slice(0,3).map(row=>({height:Math.round(row.getBoundingClientRect().height),icon:Boolean(row.querySelector('svg')),label:row.querySelector('.pw-row__label')?.textContent})));
+  assert.ok(folderRows.every(row=>row.height>=28&&row.icon&&row.label),'folder rows: '+JSON.stringify(folderRows));
+  assert.ok((await page.locator('#folder-path').boundingBox()).width>=240,'the path field is not squeezed');
+  await page.locator('#folder-name').fill('Shop');assert.match(await page.locator('#folder-help').textContent(),/^Creates the folder “.+\/Shop” with ROADMAP\.md and tasks\/001-first-task\.md, then opens its Chat\.$/);
+  await page.locator('#folder-cancel').click();
+
+  // Audit (task 150): at tablet width Activity keeps the request readable (Source and Started move to the detail).
+  await page.setViewportSize({width:1024,height:768});await page.goto(`${base}/activity`);await page.locator('#activity-list .pw-table__row').first().waitFor();
+  assert.ok(await page.locator('#activity-list .activity-request').first().evaluate(cell=>cell.getBoundingClientRect().width)>=150,'the Request column has room');
+  await page.setViewportSize({width:1440,height:900});
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
@@ -482,7 +495,7 @@ const readline = require('node:readline');
   // Block handle sheet (PhoneEdit5): title, six types in a grid, Cancel.
   await page.locator('#document-editor>.pw-block.text .block-content').first().click();await page.locator('.pw-block--focused .pw-block__handle').click();
   assert.equal(await page.locator('#block-menu-title').textContent(),'Paragraph');
-  assert.deepEqual(await page.locator('#turn-into-menu>.pw-menu__item:visible').evaluateAll(items=>items.map(item=>({text:item.innerText.trim(),box:item.getBoundingClientRect()})).sort((a,b)=>a.box.top-b.box.top||a.box.left-b.box.left).map(item=>item.text)),['Text','Heading','Quote','Bullet','Number','Checkbox'],'PhoneEdit5 order');
+  assert.deepEqual(await page.locator('#turn-into-menu>.pw-menu__item:visible').evaluateAll(items=>items.map(item=>({text:item.innerText.trim(),box:item.getBoundingClientRect()})).sort((a,b)=>a.box.top-b.box.top||a.box.left-b.box.left).map(item=>item.text)),['Paragraph','Heading','Task','Bullet','Number','Quote','Code','Raw Markdown'],'PhoneEdit5 order (Table not built yet)');
   const sheetBox=await page.locator('#block-menu').boundingBox();assert.ok(Math.round(sheetBox.y+sheetBox.height)===844&&Math.round(sheetBox.width)===390,'a bottom sheet');
   await page.locator('#block-menu [data-action="cancel"]').click();await page.locator('#block-menu').waitFor({state:'hidden'});
   // Phone bar elsewhere shows the agent status; the π sheet is Ph_Pi; the composer is one row.
