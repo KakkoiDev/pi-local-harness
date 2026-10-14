@@ -130,6 +130,13 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(commit.block,true);
   assert.match(commit.reason,/Gate pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
   assert.match(commit.reason,/then retry/);assert.doesNotMatch(commit.reason,/destructive/);
+  // task_box (task 183, L-003): a box is ticked by the start of its label; Gate checks it as the exact edit it becomes.
+  const box={toolCallId:'box-1',toolName:'task_box',input:{path:'tasks/01.md',box:'do'}};
+  assert.equal(await handlers.tool_call(box),undefined,'allowed as an edit of that one line');
+  writeFileSync(join(dir,'tasks','01.md'),'- [x] Do\n');
+  assert.equal(await handlers.tool_result({...box,content:[{type:'text',text:'Ticked'}],isError:false}),undefined,'and verified: the file is what Gate approved');
+  const vague=await handlers.tool_call({toolCallId:'box-2',toolName:'task_box',input:{path:'tasks/01.md',box:'Nothing'}});
+  assert.equal(vague.block,true);assert.match(vague.reason,/No open box starts with “Nothing”/);
   // G-012 for terminal Pi (plan 179, L-005): a turn that changed code and ran no passing test after it ends marked.
   await handlers.input({source:'interactive',text:'Change the code'},ctx);
   writeFileSync(join(dir,'app.py'),'x = 3\n');

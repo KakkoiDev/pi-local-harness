@@ -225,3 +225,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [180-One command runs the browser suites, or says they did not run](tasks/180-browser-runner.md)
 - [x] [181-Terminal Pi turns are marked "Not verified" too (G-012)](tasks/181-unverified-terminal-turns.md)
 - [x] [182-/gate rules shows how often each rule fired](tasks/182-rule-firing-counts.md)
+- [x] [183-Tick a task box by its label (task_box)](tasks/183-task-box-tool.md)

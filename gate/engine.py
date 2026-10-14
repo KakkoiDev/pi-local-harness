@@ -38,7 +38,7 @@ class GateEngine:
         if risk not in self.policies['auth_levels'].get(auth_level, []):
             return broke('G-002', f"Profile {auth_level} does not authorize {proposal.tool_name}.")
         if proposal.tool_name == 'execute_command' and rules.shell_writes_plan(command):
-            return broke('G-008', 'this command writes ROADMAP.md or a task file from the shell. Use the edit tool (or write for a new file), so Gate can check the change.')
+            return broke('G-008', 'this command writes ROADMAP.md or a task file from the shell. Use the edit tool (write for a new file, task_box to tick a box by its label), so Gate can check the change.')
         return None, None
 
     def rejection_reason(self, proposal: ActionProposal, auth_level: str = "standard"):

@@ -8,7 +8,7 @@ When a rule sends an action back, do what its message says; never work around it
 - G-005 Commit order: git commit needs, since the last commit: a failing test run, the change, a passing run on that code, a ticked box in the task and in ROADMAP.md (Markdown-only commits skip the tests).
 - G-006 Runs as approved: The tool that ran must be the one Gate approved, with the same arguments.
 - G-007 Written file matches: After a write or edit, the file on disk must be exactly what Gate approved.
-- G-008 Plan files change through edit or write: ROADMAP.md and tasks/*.md are changed with the edit or write tool, never by a shell command (redirects, sed -i, tee, scripts), so Gate checks the change.
+- G-008 Plan files change through edit or write: ROADMAP.md and tasks/*.md are changed with edit, write or task_box (ticks a box by its label), never by a shell command (redirects, sed -i, tee, scripts), so Gate checks the change.
 - G-009 Plan files keep their content: A write over an existing ROADMAP.md or task file may not drop ticked boxes or more than 5 lines; change it with edit.
 - G-010 Red and Green are ticked after the runs: A task's Red box is ticked only after Gate saw a test run fail, its Green box only when the last test run passed.
 - G-011 A Gate failure stops the turn: If Gate cannot check a tool call (an error, not a decision), the turn stops and the person is told; nothing works around Gate.

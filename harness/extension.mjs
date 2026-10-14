@@ -16,10 +16,11 @@ import { installConsole } from './console.mjs';
 import { installFooter } from './footer.mjs';
 import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
+import { installTaskBox, boxProposal } from './task-box.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   installTimestamps(pi, dependencies.timestamps);
@@ -78,6 +79,8 @@ export default function harness(pi, dependencies = {}) {
   };
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
   installConsole(pi, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
+  installTaskBox(pi, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
+  const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     loadMemory(memoryPath);
@@ -204,8 +207,15 @@ export default function harness(pi, dependencies = {}) {
     }, 0);
   });
   pi.on('tool_call', async event => {
+    // task_box: Gate checks the exact edit it becomes (G-004, G-009, G-010); a vague label is answered with the list.
+    let args = event.input, piTool = event.toolName;
+    if (event.toolName === 'task_box') {
+      const proposal = boxProposal(event.input || {}, context?.cwd || root);
+      if (proposal.error) return { block: true, reason: proposal.error };
+      args = proposal; piTool = 'edit'; boxes.set(event.toolCallId, proposal);
+    }
     try {
-      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
@@ -228,7 +238,8 @@ export default function harness(pi, dependencies = {}) {
     try {
       const started = checks.get(event.toolCallId)?.started, seconds = started ? (Date.now() - started) / 1000 : undefined;
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
-        args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+        args: boxes.get(event.toolCallId) || event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+      boxes.delete(event.toolCallId);
       // Round 6 (T_Gate): Gate's verdict and the command's own result are separate words. A command that exits with an
       // error was still allowed: say so, without an alarm. Only Gate's own findings (the command changed) are Gate's.
       if (result.status === 'EXECUTION_FAILED') {

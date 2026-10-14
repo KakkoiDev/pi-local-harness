@@ -17,4 +17,8 @@ Enforced (plan 179, rule G-008): shell commands that write `ROADMAP.md` or `task
 `perl -i`, scripts that open them for writing) are sent back: "Use the edit tool (or write for a new file), so Gate can
 check the change." Test: `tests/test_gate_rules.py`.
 
+Made easy (task 183): a `task_box` tool ticks or unticks a box by the start of its label (`{path, box: "Red"}`): the
+harness finds the exact line, so the model never retypes it; none or several matches return the list of boxes. Gate
+checks it as the edit it becomes (G-004, G-009, G-010). Tests: `tests/harness/task-box.test.mjs`, the extension test.
+
 **Open** `chmod` on project files is not checked (Gate cannot ask the person yet; a refusal would loop).

@@ -34,7 +34,7 @@ task closes.
 | --- | --- |
 | [L-001 Ran the console from the wrong folder](L-001-console-from-wrong-folder.md) | Made easy |
 | [L-002 Routed around a Gate error](L-002-routed-around-gate.md) | Enforced (G-011) |
-| [L-003 An edit did not match; a script rewrote the file](L-003-edit-mismatch-script-rewrite.md) | Enforced (G-004, G-008) |
+| [L-003 An edit did not match; a script rewrote the file](L-003-edit-mismatch-script-rewrite.md) | Enforced (G-004, G-008); made easy (task_box) |
 | [L-004 Overwrote a whole file and lost what was in it](L-004-overwrote-whole-file.md) | Enforced for plan files (G-009) |
 | [L-005 Claimed a fix was verified without running its test](L-005-claimed-verified.md) | Checked (G-012); made easy (task 180); enforced for task boxes (G-010) |
 | [L-006 A test that could not pass, and a fix for a guessed cause](L-006-unreproduced-fix.md) | Enforced in part (G-010) |
