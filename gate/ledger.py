@@ -12,6 +12,7 @@ import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol, project_root
 from . import rules
+from harness import reports
 
 def apply_edits(original, args, name='the file'):
     """The file after Pi's edit, as Pi applies it: each edits[].oldText matched once against the original, no overlaps.
@@ -87,20 +88,23 @@ class ProposalLedger:
             if self.events_file:
                 with self.events_file.open('a', encoding='utf-8') as handle: handle.write(json.dumps(self.events[-1]) + '\n')
 
+    def report(self, kind, detail, **fields):
+        if self.events_file: reports.report(self.events_file.parent, kind, detail, **fields)
+
     def recent_events(self):
         with self.lock:
             return copy.deepcopy(list(self.events))
 
     def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None):
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
-        def refuse(rule_id, reason):
-            outcome, said = rules.BY_ID[rule_id].outcome, rules.decided(rule_id, reason)
+        def refuse(rule_id, reason, said=None):
+            outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
             self.record_event('gate', outcome, proposal, said, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule_id)
+            self.report('rule', said, rule=rule_id, tool=tool_name, source=source, cwd=cwd)  # plan 184: for the later analysis
             return {'outcome': outcome, 'reason': said, 'rule': rule_id}
         rule, reason = self.engine.rejection(proposal, auth_level)
         if rule:
-            self.record_event('gate', rule.outcome, proposal, reason, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule.id)
-            return {'outcome': rule.outcome, 'reason': reason, 'rule': rule.id}
+            return refuse(rule.id, None, reason)
         response = {'outcome': 'ALLOW'}
         command = args.get('command') if tool_name == 'execute_command' else None
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None

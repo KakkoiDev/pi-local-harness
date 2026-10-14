@@ -10,6 +10,7 @@ by hand: they read live data.
 | `/status` | Services, model, queue and Gate counts, data folder, build. |
 | `/queue [all\|running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request (the first 8 characters of its id are enough). |
+| `/reports [kind]` | Incidents the harness met while Pi worked alone (a rule sent something back, Gate failed, a recovery, a wake-up, an unverified end, a stop), for the analysis. |
 | `/gate [n] [blocked]` · `/gate why <id>` · `/gate rules [id]` | Gate checks, newest first; one check in full (with the rule that decided it); the rules Gate always enforces. |
 | `/models` · `/models use <name> [effort]` · `/models check [name] [--all] [--force]` · `/models pull <name>` · `/models remove <name>` | Installed Ollama models: tools, thinking, vision, whether it answers two requests at once, size; the chosen one. `use` switches the model (asks first); `check` measures "at once" (about half a minute per model); `pull` downloads, `remove` moves it to the Trash (both ask first). |
 | `/ollama` · `/ollama set <key> <value>` · `/ollama restart` | Ollama: version, models folder, parallel slots, loaded models. `set` changes `num_parallel`, `keep_alive`, `context_length` or `models_folder` and restarts Ollama (asks first). |

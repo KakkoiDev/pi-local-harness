@@ -435,6 +435,7 @@ COMMANDS = {
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
+    'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
     'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
 }
 
@@ -583,6 +584,15 @@ def build(console, command, args, yes=False):
         settings = {'kind': 'table', 'columns': ['KEY', 'VALUE', 'FROM'], 'flex': 1, 'rows': [[key, value['environment'][key] if key in value['environment'] else shown(item), source(key)] for key, item in value['values'].items()]}  # the value in force
         internal = {'kind': 'kv', 'heading': '── Harness variables · read only', 'rows': [[name, item['value'] or '—'] for name, item in value['internal'].items()]}
         return value, view('Settings', settings, internal, summary=f"{len(value['values'])} settings · {changed_count} changed", hint='/config <key> explains one · /config set <key> <value> asks first · Ollama’s own: /ollama')
+    if command == 'reports':  # plan 184: what went wrong while Pi worked alone
+        from harness import reports as incident
+        found = incident.read(console.data); found = [item for item in found if not args or item.get('kind') == args[0]]
+        counts = {}
+        for item in found: counts[item['kind']] = counts.get(item['kind'], 0) + 1
+        latest = {'kind': 'table', 'heading': 'Latest', 'columns': ['WHEN', 'KIND', 'WHAT'], 'flex': 2,
+                  'rows': [[short_time(item.get('time')), item['kind'] + (f" {item['rule']}" if item.get('rule') else ''), item.get('detail', '').replace('\n', ' ')] for item in found[-20:][::-1]], 'empty': 'Nothing reported.'}
+        return {'counts': counts, 'reports': found[-200:]}, view('Reports', kv(*[[kind, str(count)] for kind, count in sorted(counts.items(), key=lambda pair: -pair[1])]) if counts else {'kind': 'lines', 'lines': ['Nothing reported yet.']}, latest,
+                                                               summary=f'{len(found)} reported', hint='/reports <kind> · /gate rules · docs/lessons/ turns them into fixes')
     if command == 'paths':
         value = console.paths(); return value, view('Paths', kv(*[[key, path.replace(str(Path.home()), '~')] for key, path in value.items()]), hint='/config · /doctor')
     if command == 'doctor':
@@ -607,6 +617,7 @@ def completions(console, command):
         return [[topic, section.splitlines()[0]] for topic, section in zip(GUIDE_TOPICS, sections)]
     if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
     if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
+    if command == 'reports': return [[kind, ''] for kind in ('rule', 'gate-failed', 'recovery', 'wake-up', 'unverified', 'stopped')]
     if command == 'queue': return [[state, ''] for state in ('all', 'running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
     if command == 'gate':
         from gate import rules as gate_rules

@@ -21,6 +21,7 @@ export const CONSOLE_COMMANDS = {
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
   undo: 'Undo the last change made from the console (asks first).',
+  reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
   guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
 };
 
@@ -44,7 +45,7 @@ export function completeAdmin(command, { webPort } = {}) {
     });
   });
 }
-const COMPLETES = ['queue', 'job', 'gate', 'models', 'ollama', 'config', 'guide'];
+const COMPLETES = ['queue', 'job', 'gate', 'models', 'ollama', 'config', 'guide', 'reports'];
 
 /** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
 export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin } = {}) {
