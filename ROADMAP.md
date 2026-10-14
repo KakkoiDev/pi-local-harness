@@ -221,3 +221,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [176-Gate says which edit does not match, and why](tasks/176-gate-says-which-edit.md)
 - [ ] [177-Build the designer's round 7 (answers to the round 6 notes)](tasks/177-round-7-build.md)
 - [ ] [178-Lessons from the local model's errors](tasks/178-lessons-from-model-errors.md)
+- [ ] [179-Plan Gate's rules as one always-enforced system](tasks/179-plan-gate-rules.md)

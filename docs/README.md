@@ -14,3 +14,4 @@ Plans for larger projects (not started; each needs the person's go-ahead):
 - [plans/152-htmx-4-sse.md](plans/152-htmx-4-sse.md): htmx 4 with server-sent events instead of JSON polling; depends on plan 151.
 - [plans/156-chat-orchestrates-worker.md](plans/156-chat-orchestrates-worker.md): each project gets a chat (first mate) and a worker; Gate starts the worker; one-at-a-time and parallel modes from a measured model capability.
 - [plans/158-terminal-console.md](plans/158-terminal-console.md): terminal Pi as the harness console: slash commands, raw data, self-knowledge, admin changes (settings, models, Ollama) with confirmation, backup and log.
+- [plans/179-gate-rules.md](plans/179-gate-rules.md): Gate's rules as one always-enforced registry in code (each with a message, a lesson and a test), listed by `/gate rules`, summarised into the prompt from the same source; AGENT.md keeps only what cannot be enforced.
