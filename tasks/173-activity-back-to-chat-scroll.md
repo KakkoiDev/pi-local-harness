@@ -42,32 +42,28 @@ the chat, the view is lifted up. There is white at the bottom of the screen." Sc
 - The `· Open in Chat` / *Show in Activity* round-trip lands on the same request's answer, not a
   half-hidden user message.
 
+## What it really was (2026-10-15)
+
+The scroll analysis above was a reasonable first guess, but the thread itself came back at its newest message. What
+lifted was the **desk**, the area behind the windows. `#chat-announce` (the hidden line that announces new messages to
+screen readers, `.pw-sr-only`, `position:absolute`) sits inside `#thread` after the messages. Between 761 and 1100px
+wide `#desk` is `position:relative` (tablet layout), so the announcer was positioned against the desk, below the whole
+conversation (2392px tall in a 740px desk). The desk, `overflow-x:auto` and so scrollable both ways, then had that much
+to scroll; any scroll into view (sending, Open in Chat) moved it, lifting every window and leaving empty desk below.
+Reproduced in the browser pane at 1024px: after sending, `#desk.scrollTop` was 205.
+
 ## Plan
 
-- [ ] Red (browser, `tests/browser/chat.cjs`, near the Activity round-trip at line 99): start a
-      running request, click its live `Show in Activity`, open its detail, click **Open in Chat**;
-      assert `#thread` is scrolled to (or within a small tolerance of) its bottom
-      (`scrollTop + clientHeight ≈ scrollHeight`) with no hidden trailing space, and the answer
-      message (the `.pw-msg--found` / last assistant message) is in view — not the user message
-      centered with a gap.
-- [ ] Preserve the thread's scroll position across `hidden`, or on `showView('chat')` after a
-      project switch, scroll the thread to the bottom (`#thread.scrollTop = scrollHeight`) instead
-      of leaving it at 0.
-- [ ] In `showMessage`, reveal the request's *answer* (scroll the latest assistant/live message into
-      view, or scroll to the bottom) rather than `scrollIntoView({block:'center'})` on the user
-      message that can leave the answer off-screen.
-- [ ] Confirm the `.pw-msg--found` outline still lands on the intended message after the fix.
-- [ ] Grey: run `run.sh` / the chat browser suite; confirm the round-trip shows no white gap at the
-      bottom across 320/390/768/1440 widths (reuses the width loop at `tests/browser/chat.cjs:240`).
-
-## Files to touch
-
-- `js/chat.mjs` — `showView`, `showMessage`, `renderMessages`
-- `js/workspace.mjs` — `openOrigin`
-- `chat.css` — only if the thread's scroll/size needs a rule
-- `tests/browser/chat.cjs` — the Red assertion
+- [x] Red (browser, `tests/browser/chat.cjs`, at 1024×560 with a conversation taller than the thread): a running
+      answer's **Show in Activity**, then **Open in Chat**; nothing around the thread is scrolled, the desk has nothing
+      to scroll (it had 418px), the thread is at its newest message and the answer being written is in view.
+- [x] `chat.css`: `#thread{position:relative}`, so the announcer is placed and clipped inside the thread.
+- [x] Seen in the browser pane at 1024px: after sending and after the Activity round trip the desk stays at 0.
+- [x] Not needed: the first attempt's changes to `showView` and `showMessage` (restore a saved scroll, scroll to the
+      bottom) treated the thread, which was not lifted. Its test clicked "Open in Chat" on a whole-file request (whose
+      button is "Show in Review") and could not pass with or without the change; it was never run.
 
 ## Notes
 
-- The link label in code is **Open in Chat** (user-facing "See chat"); the forward link is
-  **Show in Activity**. Task 157 implemented this round-trip; this bug is its scroll restoration.
+- The link label in code is **Open in Chat** (user-facing "See chat"); the forward link is **Show in Activity**.
+  Task 157 implemented this round trip.

@@ -35,7 +35,7 @@ body:not([data-view="work"]) #save-status,body[data-view="work"] #project-folder
 #document-path{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Main window: one view at a time (the JS toggles [hidden]) */
-#thread{flex:1;min-height:0;overflow:auto}
+#thread{flex:1;min-height:0;overflow:auto;position:relative} /* bug 173: holds #chat-announce (sr-only, absolute); without it, under 1100px the desk took its offset and lifted the window */
 .composer-wrap{flex:none}
 .composer-wrap .footnote{margin:0}
 .welcome{max-width:520px;margin:120px auto 0;padding:0 24px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}

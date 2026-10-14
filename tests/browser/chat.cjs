@@ -207,6 +207,24 @@ const readline = require('node:readline');
   await page.screenshot({path:'/private/tmp/pi-gate-desktop.png'});
   await leaveApp();await page.locator('#chat-tab').click();
   await page.screenshot({path:'/private/tmp/pi-chat-desktop.png'});
+  { // Bug 173: Show in Activity on the answer being written, then Open in Chat: the thread is back at its newest message,
+    // with no white band under it (it came back scrolled to the top, or centred on the question).
+  await page.setViewportSize({width:1024,height:560});/* short: the conversation is taller than the thread; 761-1100px makes #desk position:relative */
+  await page.locator('#prompt').fill('Long answer TEST_SLOW');await page.locator('#send').click();
+  const liveLink=page.locator('#messages [data-live]').getByRole('link',{name:'Show in Activity'});await liveLink.click();await page.locator('#activity-panel').waitFor();
+  await page.locator('#activity-detail').getByRole('link',{name:'Open in Chat',exact:true}).click();await page.locator('#thread').waitFor();
+  await page.waitForTimeout(300);/* a frame for any late scroll */
+  const back=await page.locator('#thread').evaluate(thread=>{const last=[...thread.querySelectorAll('#messages > .pw-msg')].at(-1).getBoundingClientRect(),box=thread.getBoundingClientRect();return{gap:thread.scrollHeight-thread.scrollTop-thread.clientHeight,tall:thread.scrollHeight>thread.clientHeight,lastBottom:last.bottom,boxBottom:box.bottom};});
+  const lifted=await page.evaluate(()=>{const shifted=[document.scrollingElement,document.body,...document.querySelectorAll('#main-window,#main-window *')].filter(element=>element!==document.getElementById('thread')&&!document.getElementById('thread').contains(element)&&element.scrollTop>0);return shifted.map(element=>(element.id||element.className||element.tagName)+':'+element.scrollTop);});
+  assert.deepEqual(lifted,[],'bug 173: nothing around the thread is scrolled (the window was lifted, white at the bottom)');
+  const desk=await page.locator('#desk').evaluate(element=>({extra:element.scrollHeight-element.clientHeight}));
+  assert.ok(desk.extra<=1,'bug 173: the desk has nothing to scroll (the hidden #chat-announce under a long conversation made it '+desk.extra+'px taller, and the window lifted)');
+  assert.ok(back.tall,'the conversation is taller than the thread: '+JSON.stringify(back));
+  assert.ok(back.gap<=3,'bug 173: back at the newest message: '+JSON.stringify(back));
+  assert.ok(back.lastBottom<=back.boxBottom+1&&back.lastBottom>back.boxBottom-200,'the answer being written is in view at the bottom: '+JSON.stringify(back));
+  await page.locator('#stop').click();await page.locator('#messages [data-live]').waitFor({state:'detached'});
+  await page.setViewportSize({width:1440,height:950});
+  }
   await page.setViewportSize({width:390,height:844});await page.locator('#open-menu').click();
   assert.equal(await page.locator('#backdrop').isVisible(),true);
   await page.getByRole('button',{name:'Second project',exact:true}).click();await page.locator('#phone-view').click();await page.locator('#phone-view-menu [data-view="chat"]').click();
