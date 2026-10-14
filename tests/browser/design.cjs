@@ -445,6 +445,20 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.activeElement?.classList.contains('pw-thread'));
   assert.equal(await page.locator('#document-editor .pw-thread').evaluate(box=>{const r=box.getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;}),true,'the thread is on screen');
 
+  // Audit (task 150): Undo after deleting a block never writes into another document.
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);const firstText=page.locator('#document-editor .pw-block').filter({hasText:'calm workbench'}).first();await firstText.waitFor();
+  await firstText.hover();await firstText.locator('.pw-block__handle').click();await page.locator('#block-menu [data-action="delete"]').click();
+  await page.locator('#toast-undo').waitFor();await page.getByRole('button',{name:'ROADMAP.md',exact:true}).waitFor();
+  const otherTask=page.locator('#file-tree .file-item').filter({hasNotText:'ROADMAP.md'}).first();await otherTask.click();await page.waitForFunction(()=>!location.pathname.endsWith('ROADMAP.md'));
+  const otherPath=await page.evaluate(()=>location.pathname);await page.locator('#toast-undo').click();
+  await page.waitForTimeout(900);assert.equal(fs.readFileSync(join(root,decodeURIComponent(otherPath.split('/work/')[1])),'utf8').includes('calm workbench'),false,'not inserted into the other document');
+
+  // Audit (task 150): a registered folder that is gone is listed as missing and can be removed from the list.
+  const gone=join(directory,'Gone folder');fs.mkdirSync(gone);await post('/api/projects/register',{path:gone});fs.rmSync(gone,{recursive:true});
+  await page.goto(`${base}/projects`);const missing=page.locator('#project-list .pw-row',{hasText:'Gone'});await missing.waitFor();
+  assert.match(await missing.textContent(),/folder missing/);await missing.click();
+  await page.getByRole('button',{name:'Remove from List',exact:true}).click();await missing.waitFor({state:'detached'});
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();

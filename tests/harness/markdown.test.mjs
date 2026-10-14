@@ -13,3 +13,5 @@ test('an empty new block adds nothing to the file (clicking below the last block
  blocks.push({type:'text',text:'',dirty:true});assert.equal(serializeMarkdown(blocks),text);
  blocks.splice(1,0,{type:'text',text:'  ',dirty:true});assert.equal(serializeMarkdown(blocks),text);
 });
+test('a block added after the last line stays its own paragraph',()=>{const blocks=parseMarkdown('# T\n\nHello\nWorld\n');blocks.push({type:'text',text:'New',dirty:true});assert.equal(serializeMarkdown(blocks),'# T\n\nHello\nWorld\n\nNew\n');assert.equal(parseMarkdown(serializeMarkdown(blocks)).length,3);});
+test('editing one item of a tight list keeps the list tight',()=>{const blocks=parseMarkdown('- a\n- b\n- c\n');blocks[1]={...blocks[1],text:'B',dirty:true};assert.equal(serializeMarkdown(blocks),'- a\n- B\n- c\n');});

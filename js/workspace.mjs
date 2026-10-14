@@ -3,20 +3,23 @@ import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } fro
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
- let state={projects:[],jobs:[]},project=null,page=null,blocks=[],focusedBlock=null,selectedJob=null,commentFilter='open',openThread=null,currentComment=null,showResolved=readState('showResolved',false),dirty=false,saving=null,saveTimer,folderMode='register',folder=null,polling=false,fileRevision='',textFile=false,commentAnchor='',browseSequence=0,fileSequence=0;
+ let state={projects:[],jobs:[]},project=null,page=null,blocks=[],focusedBlock=null,selectedJob=null,commentFilter='open',openThread=null,currentComment=null,showResolved=readState('showResolved',false),dirty=false,saving=null,saveTimer,folderMode='register',folder=null,fileRevision='',textFile=false,commentAnchor='',browseSequence=0,fileSequence=0;
  const agentState=(glyph,text)=>$('agent-state').replaceChildren(...(glyph?[icon(glyph)]:[]),text);
  const notice=(text,failed=false)=>{$('save-status').textContent=text;$('save-status').classList.toggle('failed',failed);if(failed&&dirty){$('save-recovery-message').textContent=text;$('save-recovery').hidden=false;}};
  const navigation=readState('navigation',{});let files=[];const replyDrafts=new Map();const signatures={};const unchanged=(key,value)=>{const signature=JSON.stringify(value);if(signatures[key]===signature)return true;signatures[key]=signature;return false;};
  const remember=()=>writeState('navigation',{...readState('navigation',{}),project,files:{...readState('navigation',{}).files,...(page?.path?{[project]:page.path}:{})}});
  const selectedProject=()=>state.projects.find(item=>item.id===project);
- function changed(){dirty=true;if(page&&!saveDraft(localStorage,page.path,content(),fileRevision))notice('Draft is only in this tab; browser storage is unavailable.',true);notice('Unsaved');clearTimeout(saveTimer);saveTimer=setTimeout(()=>save().catch(e=>notice(e.message,true)),700);}
+ function changed(){dirty=true;if(page&&!saveDraft(localStorage,page.path,content(),fileRevision))notice('Unsaved · draft only in this tab (browser storage is unavailable)',true);else notice('Unsaved');clearTimeout(saveTimer);saveTimer=setTimeout(()=>save().catch(e=>notice(e.message,true)),700);}
  function content(){return $('editor-mode').value==='source'||textFile?$('document-source').value:serializeMarkdown(blocks);}
+ // One save at a time: later callers wait for the running one (and any newer one), then save what is still unsaved, so two
+ // saves never race with the same revision (that raised a false "changed on disk"). A text file keeps its revision too.
  async function save(){
-  clearTimeout(saveTimer);if(saving)await saving;if(!dirty||!page)return;
+  clearTimeout(saveTimer);while(saving)await saving.catch(()=>{});if(!dirty||!page)return;
   const current=page,markdown=content();
-  saving=(async()=>{notice('Saving…');const saved=await api('/api/documents/'+(textFile?'save-file':'save'),textFile?{path:current.path,text:markdown,revision:fileRevision}:{path:current.path,markdown,revision:current.revision});
-   if(page===current){fileRevision=saved.revision;if(!textFile){page=saved;}dirty=content()!==markdown;notice(dirty?'Unsaved':'Saved');if(dirty)changed();else{saveDraft(localStorage,current.path,null);$('save-recovery').hidden=true;}}
-  })();try{await saving;}finally{saving=null;}if(dirty)await save();
+  const run=(async()=>{notice('Saving…');const saved=await api('/api/documents/'+(textFile?'save-file':'save'),textFile?{path:current.path,text:markdown,revision:fileRevision}:{path:current.path,markdown,revision:current.revision});
+   if(page===current){fileRevision=saved.revision;if(textFile)page.revision=saved.revision;else page=saved;dirty=content()!==markdown;notice(dirty?'Unsaved':'Saved');if(dirty)changed();else{saveDraft(localStorage,current.path,null);$('save-recovery').hidden=true;}}
+  })();
+  saving=run;try{await run;}finally{if(saving===run)saving=null;}if(dirty&&page===current)await save();
  }
  // Notion-style keys: Return splits the block (lists continue, an empty list item becomes a paragraph); Backspace in an empty block removes it.
  function caretOffset(element){const selection=getSelection();if(!selection.rangeCount||!element.contains(selection.anchorNode))return element.innerText.length;const range=document.createRange();range.selectNodeContents(element);range.setEnd(selection.anchorNode,selection.anchorOffset);return range.toString().length;}
@@ -37,14 +40,14 @@ export function installWorkspace(host){
  function refocus(index){focusedBlock=index;blockRows()[index]?.querySelector('[contenteditable]')?.focus();}
  function setType(index,type){const block=blocks[index];if(!block)return;block.type=type;block.level=block.level||2;block.dirty=true;changed();renderBlocks();refocus(index);}
  function moveBlock(index,delta){const target=index+delta;if(index===null||target<0||target>=blocks.length)return;[blocks[index],blocks[target]]=[blocks[target],blocks[index]];blocks[index].dirty=blocks[target].dirty=true;changed();renderBlocks();refocus(target);}
- function reviewPassage(text){if(document.body.dataset.review==='closed')$('toggle-review').click();attachSelection(text);}
+ function reviewPassage(text){if(document.body.dataset.review==='closed')$('toggle-review').click();if(matchMedia('(max-width:760px)').matches&&!$('comments-panel').classList.contains('is-sheet'))$('phone-comments').click();attachSelection(text);}/* Comment and Ask Pi on a phone: the Comments sheet */
  function commentSelection(){if(!commentAnchor)return;reviewPassage(commentAnchor);$('selection-bar').hidden=true;$('comment-text').focus();}
  // Ask Pi… on a selection: the question box lives folded in Review (task 108), so show Review (the Comments sheet on a phone),
  // unfold the box, quote the passage and put the cursor after it. Before, the folded box took the text and nothing showed.
- function askAbout(text){reviewPassage(text);$('selection-bar').hidden=true;if(matchMedia('(max-width:760px)').matches&&!$('comments-panel').classList.contains('is-sheet'))$('phone-comments').click();
+ function askAbout(text){reviewPassage(text);$('selection-bar').hidden=true;
   $('document-discussion').open=true;const box=$('document-prompt');box.value=`About “${text.slice(0,120)}”: `;box.scrollIntoView({block:'nearest'});box.focus();box.setSelectionRange(box.value.length,box.value.length);}
  const NOUN={text:'Paragraph',heading:'Heading',check:'Task',bullet:'Bullet',number:'Numbered Item',quote:'Quote',code:'Code Block',raw:'Markdown'};
- function deleteBlock(index){const [removed]=blocks.splice(index,1);if(!removed)return;changed();renderBlocks();refocus(Math.max(0,Math.min(index,blocks.length-1)));host.toast(NOUN[removed.type]+' deleted',()=>{blocks.splice(index,0,{...removed,dirty:true});changed();renderBlocks();refocus(index);});}
+ function deleteBlock(index){const [removed]=blocks.splice(index,1);if(!removed)return;const origin=page?.path;changed();renderBlocks();refocus(Math.max(0,Math.min(index,blocks.length-1)));host.toast(NOUN[removed.type]+' deleted',()=>{if(page?.path!==origin){notice('Undo applies to the document the block was deleted from.',true);return;}/* never into another document */blocks.splice(index,0,{...removed,dirty:true});changed();renderBlocks();refocus(index);});}
  const blockPopup=installPopup($('block-menu'),item=>{const index=focusedBlock,block=blocks[index];if(!block)return;if(item.dataset.action==='add')addBlock(index);else if(item.dataset.type)setType(index,item.dataset.type);else if(item.dataset.action==='up')moveBlock(index,-1);else if(item.dataset.action==='down')moveBlock(index,1);else if(item.dataset.action==='delete')deleteBlock(index);else if(item.dataset.action==='comment'){attachSelection(block.text.trim());commentSelection();}else if(item.dataset.action==='ask')askAbout(block.text.trim());},()=>{const type=blocks[focusedBlock]?.type,noun=NOUN[type]||'Block';for(const item of $('block-menu').querySelectorAll('[data-type]'))item.setAttribute('aria-checked',String(item.dataset.type===type));
   for(const [action,label] of [['comment','Comment on '+noun],['ask','Ask Pi About '+noun+'…'],['delete','Delete '+noun]])$('block-menu').querySelector(`[data-action="${action}"]`).textContent=label;$('block-menu-title').textContent=noun;});
  $('block-menu').querySelector('[data-action="cancel"]').onclick=()=>blockPopup.close(true);
@@ -66,22 +69,24 @@ export function installWorkspace(host){
  }
  const when=iso=>iso?new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
  const commentState=comment=>comment.deleted?'deleted':comment.resolved?'resolved':'open';
- const stateLine=comment=>comment.deleted?'Deleted':comment.resolved?'Resolved':comment.chat_id?(pendingReplies(comment)?'Reply not sent to Pi':'Sent to Pi'):'Not sent to Pi';
+ const stateLine=comment=>comment.deleted?'Deleted':comment.resolved?'Resolved':sent(comment)?(pendingReplies(comment)?'Reply not sent to Pi':'Sent to Pi'):'Not sent to Pi';
  function orderedComments(){const text=page?.markdown||'',at=comment=>{const found=text.indexOf(comment.anchor);return found<0?Infinity:found;};return (page?.comments||[]).map((comment,index)=>({comment,index,at:at(comment)})).sort((a,b)=>a.at-b.at||a.index-b.index).map(item=>item.comment);}
  function numbers(){const result=new Map();orderedComments().filter(comment=>!comment.deleted).forEach((comment,index)=>result.set(comment.id,index+1));return result;}
- async function commentAction(url,body,after){try{await api(url,{path:page.path,...body});await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
+ async function commentAction(url,body,after){try{await api(url,{path:page?.path,...body});if(!body.path||body.path===page?.path)await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
  async function applySuggestion(comment){try{await save();const path=page.path;await api('/api/documents/apply-suggestion',{path,id:comment.id,revision:fileRevision});saveDraft(localStorage,path,null);dirty=false;page=null;await openFile(path);host.toast('Change applied');}catch(e){notice(e.message,true);}}
- function deleteComment(comment){if(openThread===comment.id)openThread=null;commentAction('/api/documents/delete-comment',{id:comment.id,deleted:true},()=>host.toast('Comment deleted. It’s kept under Deleted in Review.',()=>commentAction('/api/documents/delete-comment',{id:comment.id,deleted:false})));}
+ function deleteComment(comment){if(openThread===comment.id)openThread=null;const path=page.path;commentAction('/api/documents/delete-comment',{path,id:comment.id,deleted:true},()=>host.toast('Comment deleted. It’s kept under Deleted in Review.',()=>commentAction('/api/documents/delete-comment',{path,id:comment.id,deleted:false})));}
  async function askPi(comment,button){if(button)button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:'Comment: '+comment.text,document_comment:{path:page.path,id:comment.id}});await poll();await refreshPageComments();notice('Comment sent to Pi');return true;}catch(e){notice(e.message,true);if(button)button.disabled=false;return false;}}
  // A thread is unsent when it never went to Pi, or when you wrote in it after its last request and nothing is queued for it.
  const busyComment=comment=>state.jobs.some(job=>job.comment_id===comment.id&&['queued','running'].includes(job.status));
+ // Sent = it reached Pi (chat_id, set when the job starts) or waits in Pi's queue: a waiting comment must not be sent twice or deleted.
+ const sent=comment=>Boolean(comment.chat_id)||busyComment(comment);
  const pendingReplies=comment=>Boolean(comment.chat_id)&&!busyComment(comment)&&(comment.replies||[]).some(reply=>reply.author!=='pi'&&(reply.created||'')>(comment.sent_at||''));
- const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&(!comment.chat_id||pendingReplies(comment)));
- $('send-unsent').onclick=async()=>{$('send-unsent').disabled=true;for(const comment of unsent())if(!await askPi(comment))break;renderComments();};
+ const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&(!sent(comment)||pendingReplies(comment)));
+ $('send-unsent').onclick=async()=>{$('send-unsent').disabled=true;for(const comment of unsent())if(!await askPi(comment))break;delete signatures.comments;renderComments();};
  // Choosing a comment in Review opens its thread under the passage and brings it into view with focus (the person: clicking a comment did not show it).
  function showThread(id,{reveal=false}={}){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();
   if(reveal&&openThread){const box=document.querySelector('#document-editor .pw-thread');if(box){box.tabIndex=-1;box.scrollIntoView({block:'center'});box.focus({preventScroll:true});}}}
- function stepComment(delta){if(commentFilter==='deleted')commentFilter='open';const list=orderedComments().filter(comment=>commentState(comment)===commentFilter);if(!list.length)return;const index=list.findIndex(comment=>comment.id===currentComment),next=list[index<0?(delta>0?0:list.length-1):(index+delta+list.length)%list.length];showThread(next.id);document.getElementById('comment-'+next.id)?.scrollIntoView({block:'nearest'});}
+ function stepComment(delta){if(commentFilter==='deleted'){commentFilter='open';renderComments();}const list=orderedComments().filter(comment=>commentState(comment)===commentFilter);if(!list.length)return;const index=list.findIndex(comment=>comment.id===currentComment),next=list[index<0?(delta>0?0:list.length-1):(index+delta+list.length)%list.length];showThread(next.id);document.getElementById('comment-'+next.id)?.scrollIntoView({block:'nearest'});}
  function button(label,onclick,className='pw-btn'){const item=node('button',className,label);item.type='button';item.onclick=onclick;return item;}
  function replyForm(comment){const form=node('form','pw-thread__actions'),reply=node('input','pw-field');reply.placeholder='Reply…';reply.setAttribute('aria-label','Reply to text comment');reply.maxLength=10000;reply.required=true;reply.dataset.thread=comment.id;reply.value=replyDrafts.get(comment.id)||'';reply.oninput=()=>replyDrafts.set(comment.id,reply.value);
   // InlineThread round 4: Add Note keeps what you typed with the file (Pi does not see it); Ask Pi sends the thread with it,
@@ -99,14 +104,14 @@ export function installWorkspace(host){
   const actions=replyForm(comment),line=node('span','pw-thread__line');actions.prepend(line);
   // InlineThread states; Ask Pi stays after an answer: it sends the whole thread again (a follow-up), with what is typed in the reply field.
   const jobs=state.jobs.filter(job=>job.comment_id===comment.id),job=jobs.at(-1),busy=['queued','running'].includes(job?.status),answers=(comment.replies||[]).filter(reply=>reply.author==='pi');
-  if(comment.chat_id){if(job?.status==='running'){line.append(icon('running'),'Pi is working on it');}else if(job?.status==='queued'){line.append(icon('waiting'),'Sent to Pi · waiting in queue · '+(answers.length?'follow-up':'can no longer be deleted'));}else if(['failed','stopped','interrupted'].includes(job?.status)){line.append(icon('caution'),'Pi could not answer · '+job.status);}else if(pendingReplies(comment)){line.append(icon('note'),'Reply saved · not sent to Pi');}else{const last=answers.at(-1);line.append(icon('done'),'Pi answered'+(last?.created?' · '+new Date(last.created).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'')+' · can no longer be deleted');}}
+  if(sent(comment)){if(job?.status==='running'){line.append(icon('running'),'Pi is working on it');}else if(job?.status==='queued'){line.append(icon('waiting'),'Sent to Pi · waiting in queue · '+(answers.length?'follow-up':'can no longer be deleted'));}else if(['failed','stopped','interrupted'].includes(job?.status)){line.append(icon('caution'),'Pi could not answer · '+job.status);}else if(pendingReplies(comment)){line.append(icon('note'),'Reply saved · not sent to Pi');}else{const last=answers.at(-1);line.append(icon('done'),'Pi answered'+(last?.created?' · '+new Date(last.created).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'')+' · can no longer be deleted');}}
   else line.textContent='Saved with the file · not sent to Pi';
   if(!busy){const ask=button('Ask Pi',async()=>{const field=actions.querySelector('input'),text=field.value.trim();ask.disabled=true;try{if(text){await api('/api/documents/reply',{path:page.path,id:comment.id,text});replyDrafts.delete(comment.id);field.value='';}}catch(e){notice(e.message,true);ask.disabled=false;return;}await askPi(comment,ask);});actions.append(ask);const field=actions.querySelector('input'),mark=()=>ask.classList.toggle('pw-btn--default',Boolean(field.value.trim()));field.addEventListener('input',mark);mark();}
   actions.append(button('Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:true})));
-  if(!comment.chat_id)actions.append(node('span','pw-thread__gap'),button('Delete',()=>deleteComment(comment)));
+  if(!sent(comment))actions.append(node('span','pw-thread__gap'),button('Delete',()=>deleteComment(comment)));
   box.append(actions,node('p','pw-help pw-thread__help','Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.'));return box;}
  function renderComments(){
-  if(unchanged('comments',[page?.path,page?.comments,commentFilter,currentComment,openThread,showResolved]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
+  if(unchanged('comments',[page?.path,page?.revision,page?.comments,commentFilter,currentComment,openThread,showResolved,state.jobs.filter(job=>job.comment_id).map(job=>[job.comment_id,job.status])]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
   const list=orderedComments(),numbered=numbers(),counts={open:0,resolved:0,deleted:0};for(const comment of list)counts[commentState(comment)]++;
   $('comment-count').textContent=counts.open;const waiting=unsent().length;$('send-unsent').disabled=!waiting;$('send-unsent').textContent=waiting?`Send ${waiting} Unsent Comment${waiting>1?'s':''} to Pi`:'No unsent comments';
   for(const item of $('comment-filter').querySelectorAll('[data-filter]')){const filter=item.dataset.filter;item.textContent={open:'Open',resolved:'Resolved',deleted:'Deleted'}[filter]+' '+counts[filter];item.setAttribute('aria-checked',String(filter===commentFilter));}
@@ -119,9 +124,9 @@ export function installWorkspace(host){
    if(page.markdown&&!page.markdown.includes(comment.anchor))item.append(node('p','pw-help','Passage changed on disk; this thread keeps the original quote.'));
    item.append(node('p','pw-review-item__text',comment.text));
    const actions=node('div','pw-review-item__actions'),state=commentState(comment);
-   if(state==='open'&&!comment.chat_id){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
+   if(state==='open'&&!sent(comment)){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
    if(state==='open')actions.append(button('Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:true})));
-   if(state==='open'&&!comment.chat_id)actions.append(button('Delete',()=>deleteComment(comment)));
+   if(state==='open'&&!sent(comment))actions.append(button('Delete',()=>deleteComment(comment)));
    if(state==='resolved')actions.append(button('Reopen',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:false})));
    if(state==='deleted')actions.append(button('Restore',()=>commentAction('/api/documents/delete-comment',{id:comment.id,deleted:false})));
    item.append(actions);$('document-comments').append(item);
@@ -132,13 +137,13 @@ export function installWorkspace(host){
  function renderDocumentRequests(){
   if(unchanged('requests',[page?.path,state.jobs.filter(job=>job.document===page?.path&&!job.comment_id)]))return;$('document-request-history').hidden=true;$('document-requests').replaceChildren();if(!page)return;
   const jobs=state.jobs.filter(job=>job.document===page.path&&!job.comment_id).slice(-5);$('document-request-history').hidden=!jobs.length;$('document-request-summary').textContent=jobs.length+' recent document '+(jobs.length===1?'request':'requests');
-  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',spoken(job.text)));const open=node('button','','View task');open.onclick=()=>{host.showActivity();$('activity-filter').value='all';selectJob(job.id);document.getElementById('job-'+job.id)?.scrollIntoView({block:'center'});};thread.append(open);$('document-requests').append(thread);}
+  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',spoken(job.text)));const open=node('a','pw-link','Show in Activity');open.href='/activity';open.onclick=event=>{event.preventDefault();openJob(job.id);};thread.append(open);/* F4 card: one way into Activity, filters cleared */$('document-requests').append(thread);}
  }
  function highlightComments(text,block){
   const numbered=numbers(),matches=(page?.comments||[]).filter(comment=>!comment.deleted&&(!comment.resolved||showResolved||comment.id===openThread)&&comment.anchor&&block.text.includes(comment.anchor)).map(comment=>({comment,at:block.text.indexOf(comment.anchor)})).sort((a,b)=>a.at-b.at);
   if(!matches.length)return;text.replaceChildren();let cursor=0;
   for(const {comment,at} of matches){if(at<cursor)continue;text.append(document.createTextNode(block.text.slice(cursor,at)));
-   const anchor=node('span','pw-anchor'+(comment.resolved?' pw-anchor--resolved':comment.chat_id?' pw-anchor--sent':''),comment.anchor);anchor.dataset.comment=comment.id;
+   const anchor=node('span','pw-anchor'+(comment.resolved?' pw-anchor--resolved':sent(comment)?' pw-anchor--sent':''),comment.anchor);anchor.dataset.comment=comment.id;
    const mark=node('button','pw-mark'+(comment.resolved?' pw-mark--resolved':''));mark.type='button';mark.contentEditable='false';mark.dataset.n=numbered.get(comment.id);mark.setAttribute('aria-label','Comment '+numbered.get(comment.id));mark.setAttribute('aria-expanded',String(openThread===comment.id));
    mark.onclick=event=>{event.preventDefault();if(openThread===comment.id){openThread=null;renderBlocks();renderComments();}else showThread(comment.id);};
    text.append(anchor,mark);cursor=at+comment.anchor.length;}
@@ -164,7 +169,7 @@ export function installWorkspace(host){
   const record=node('button','pw-btn','Show Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
  }
  function renderActivity(){
-  const filter=$('activity-filter').value,scope=$('activity-project').value;syncActivitySeg();if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob]))return;
+  const filter=$('activity-filter').value,scope=$('activity-project').value;syncActivitySeg();if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob,state.jobs.some(job=>job.status==='running')&&Math.floor(Date.now()/10000)]))return;/* a running time keeps moving */
   const inScope=state.jobs.filter(job=>scope==='all'||job.project===scope),counts={pending:inScope.filter(job=>['running','queued'].includes(job.status)).length,attention:inScope.filter(needsAttention).length};
   for(const radio of $('activity-seg').querySelectorAll('[data-value="pending"],[data-value="attention"]'))radio.textContent=(radio.dataset.value==='pending'?'Active':'Attention')+(counts[radio.dataset.value]?' '+counts[radio.dataset.value]:'');
   const visible=state.jobs.filter(job=>(scope==='all'||job.project===scope)&&(filter==='all'||filter==='pending'&&['running','queued'].includes(job.status)||filter==='completed'&&job.status==='completed'||filter==='attention'&&needsAttention(job)));
@@ -186,11 +191,11 @@ export function installWorkspace(host){
  }
  $('activity-list').onkeydown=event=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;const rows=[...$('activity-list').querySelectorAll('.activity-task')];if(!rows.length)return;event.preventDefault();const index=rows.findIndex(row=>row.getAttribute('aria-current')==='true'),next=event.key==='Home'?0:event.key==='End'?rows.length-1:Math.max(0,Math.min(rows.length-1,index+(event.key==='ArrowDown'?1:-1)));selectJob(rows[next].id.slice(4));$('activity-list').querySelector('[aria-current="true"]')?.focus();};
  $('activity-filter').onchange=$('activity-project').onchange=renderActivity;const syncActivitySeg=segmentFor($('activity-seg'),$('activity-filter'));
- async function refreshPageComments(){if(page&&!textFile){const fresh=await api('/api/document?path='+encodeURIComponent(page.path));page.comments=fresh.comments;renderComments();}}
+ async function refreshPageComments(){if(page&&!textFile){const current=page;const fresh=await api('/api/document?path='+encodeURIComponent(current.path));if(page!==current)return;page.comments=fresh.comments;renderComments();}}
  async function openFile(path){
   if(page?.path===path&&!dirty){host.documentOpened();return;}const sequence=++fileSequence;
   try{await save();if(sequence!==fileSequence)return;textFile=!path.toLowerCase().endsWith('.md');
-   const value=await api((textFile?'/api/project-file':'/api/document')+'?path='+encodeURIComponent(path));if(sequence!==fileSequence)return;page=value;dirty=false;commentAnchor='';
+   const value=await api((textFile?'/api/project-file':'/api/document')+'?path='+encodeURIComponent(path));if(sequence!==fileSequence)return;page=value;dirty=false;commentAnchor='';focusedBlock=null;openThread=currentComment=null;
    fileRevision=value.revision;$('document-source').value=textFile?value.text:value.markdown;blocks=textFile?[]:parseMarkdown(value.markdown);
    $('document-prompt').disabled=false;$('comment-text').disabled=false;$('document-source').disabled=false;$('editor-mode').value=textFile?'source':'blocks';$('editor-mode').disabled=textFile;$('block-style').disabled=textFile;$('tool-bullet').disabled=$('tool-check').disabled=textFile;
    $('document-editor').hidden=textFile;$('document-source').hidden=!textFile;$('comments-panel').hidden=textFile;
@@ -199,9 +204,9 @@ export function installWorkspace(host){
   }catch(e){notice(e.message,true);}
  }
  async function selectProject(id,{view}={}){
-  try{await save();fileSequence++;project=id;page=null;dirty=false;const item=selectedProject();
+  try{await save();fileSequence++;project=id;const item=selectedProject();
    $('project-title').textContent=item.name;$('files-title').textContent=item.name;$('project-folder').textContent=item.path;$('file-search').value='';filesWindow.search('');
-   $('document-path').textContent='No document open';host.documentTitle(item.name);$('document-prompt').disabled=true;$('comment-text').disabled=true;$('document-source').disabled=true;$('editor-mode').disabled=true;$('block-style').disabled=true;$('tool-bullet').disabled=$('tool-check').disabled=true;$('document-editor').hidden=false;$('document-source').hidden=true;clearAnchor();renderDocumentRequests();$('document-editor').replaceChildren(node('p','list-empty','Choose a roadmap, task, or file.')); $('document-source').value='';$('document-comments').replaceChildren();
+   resetDocument();
    await host.selectChat(item.chat,false);if(view)host.showView(view);await refreshFiles();renderProjects();renderQueue();remember();const target=readState('navigation',{}).files?.[id]||files.find(file=>file.name==='ROADMAP.md')?.path;if(target&&files.some(file=>file.path===target))await openFile(target);
   }catch(e){notice(e.message,true);}
  }
@@ -211,6 +216,8 @@ export function installWorkspace(host){
   return {running:jobs.filter(job=>job.status==='running').length,waiting:jobs.filter(job=>job.status==='queued').length,attention,any:jobs.length>0,gate:state.gate||{today:0,blocked_today:0}};}
  function markActivitySeen(){writeState('activitySeen',(state.jobs||[]).filter(job=>ATTENTION.includes(job.status)).map(job=>job.id));renderProjects();host.agentChanged?.();}
  const plural=(n,word)=>n+' '+word+(n===1?'':'s');
+ // A registered folder that is gone (unplugged drive, renamed): offer to remove it from the list; the folder is never touched.
+ async function forgetMissing(item){if(await ask({icon:'caution',message:`The folder for “${item.name}” is missing.`,detail:`${item.path} is not there any more (an unplugged drive, or renamed). Remove from List forgets it here; nothing is deleted.`,danger:'Remove from List',safe:'Keep'})!=='danger')return;try{await api('/api/projects/forget',{project:item.id});await poll();}catch(e){notice(e.message,true);}}
  function renderProjects(){
   const projectState=item=>state.jobs.some(job=>job.project===item.id&&job.status==='running')?'running':state.jobs.some(job=>job.project===item.id&&job.status==='queued')?'waiting':summary.attention.some(job=>job.project===item.id)?'failed':'';
   if(document.body.dataset.view==='activity'&&agentSummary().attention.length)writeState('activitySeen',state.jobs.filter(job=>ATTENTION.includes(job.status)).map(job=>job.id)); // seen while Activity is open
@@ -219,7 +226,7 @@ export function installWorkspace(host){
   const query=$('project-search').value.trim().toLocaleLowerCase();$('project-count').textContent=state.projects.length?plural(state.projects.length,'project'):'No projects';$('project-n').textContent=String(state.projects.length);$('project-list').replaceChildren();
   const matches=state.projects.filter(item=>(item.name+' '+item.path).toLocaleLowerCase().includes(query));
   if(!matches.length)$('project-list').append(node('p','pw-group__empty',query?'No matching projects':'Your projects will appear here.'));
-  for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));const meta=busy[item.id];if(meta){const cell=node('span','pw-row__meta');if(meta==='running')cell.append(icon('running',{size:12}));if(meta==='failed')cell.append(icon('caution',{size:12}));cell.append(meta);button.append(cell);}button.classList.add('conversation');button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=async()=>{const fromApp=['activity','gate'].includes(document.body.dataset.view);await selectProject(item.id);host.setLevel('project');if(fromApp)host.showView('chat');};/* from Activity or Gate a project opens its Chat (round 3, B10) */$('project-list').append(button);}
+  for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));const meta=busy[item.id];if(meta){const cell=node('span','pw-row__meta');if(meta==='running')cell.append(icon('running',{size:12}));if(meta==='failed')cell.append(icon('caution',{size:12}));cell.append(meta);button.append(cell);}button.classList.add('conversation');button.title=item.path;button.setAttribute('aria-current',item.id===project?'page':'false');button.onclick=async()=>{if(item.missing){await forgetMissing(item);return;}const fromApp=['activity','gate'].includes(document.body.dataset.view);await selectProject(item.id);host.setLevel('project');if(fromApp)host.showView('chat');};if(item.missing){button.classList.add('pw-row--missing');button.querySelector('.pw-row__meta')?.remove();button.append(node('span','pw-row__meta','folder missing'));button.title=item.path+' is missing. Choose to remove it from the list.';}/* from Activity or Gate a project opens its Chat (round 3, B10) */$('project-list').append(button);}
   const empty=!state.projects.length&&!summary.any,attention=summary.attention.length,activity=$('agent-activity-meta'),gate=$('agent-gate-meta'),g=summary.gate;
   activity.replaceChildren();if(attention)activity.append(icon('caution',{size:12}),attention+' needs attention');else if(summary.running||summary.waiting){if(summary.running)activity.append(icon('running',{size:12}));activity.append([summary.running&&summary.running+' running',summary.waiting&&summary.waiting+' waiting'].filter(Boolean).join(' · '));}else activity.append(empty?'Nothing yet':'Nothing running');
   gate.replaceChildren();if(!g.today)gate.append('No checks yet');else if(g.blocked_today)gate.append(icon('failed',{size:12}),plural(g.today,'check')+' · '+g.blocked_today+' blocked');else gate.append(plural(g.today,'check')+' today');
@@ -230,8 +237,9 @@ export function installWorkspace(host){
  const filesWindow=installFilesWindow({tree:$('file-tree'),note:$('file-search-note'),seg:$('file-seg'),add:$('file-seg-add'),node,open:async path=>{await openFile(path);host.showView('work');},newTask:()=>newTask(),newFile:()=>newFile(),createRoadmap:()=>createRoadmap(),selected:()=>host.selectionChanged?.()});
  function renderFiles(){if(unchanged('files',[project,files,page?.path]))return;filesWindow.update({project,files,current:page?.path||null});$('files-summary').textContent=filesWindow.summary();}
  async function createRoadmap(){if(!project)return;await createAndOpen('/api/documents/create-roadmap',{project});}
+ let filesSequence=0;
  async function refreshFiles(){
-  if(!project)return;files=await api('/api/project-files?project='+encodeURIComponent(project));files.sort((a,b)=>a.name==='ROADMAP.md'?-1:b.name==='ROADMAP.md'?1:a.name.localeCompare(b.name));renderFiles();
+  if(!project)return;const asked=project,sequence=++filesSequence;const listed=await api('/api/project-files?project='+encodeURIComponent(asked));if(asked!==project||sequence!==filesSequence)return;/* a slower answer for another project never wins */files=listed;files.sort((a,b)=>a.name==='ROADMAP.md'?-1:b.name==='ROADMAP.md'?1:a.name.localeCompare(b.name));renderFiles();
  }
  $('connection-retry').onclick=poll;
  $('project-search').oninput=renderProjects;$('file-search').oninput=()=>filesWindow.search($('file-search').value);$('file-search').onkeydown=event=>{if(event.key==='Escape'&&$('file-search').value){event.preventDefault();event.stopPropagation();$('file-search').value='';filesWindow.search('');}};
@@ -239,20 +247,23 @@ export function installWorkspace(host){
  $('welcome-create').onclick=()=>$('new-project').click();$('welcome-folder').onclick=()=>$('add-folder').click();
  
  function renderQueue(){const activeCount=state.jobs.filter(job=>job.status==='queued').length;agentState(...(state.busy?['running','Working'+(activeCount?' · '+activeCount+' waiting':'')]:activeCount?['waiting',activeCount+' waiting']:[null,'Ready']));}
- async function poll(){
-  if(polling)return;polling=true;
+ // One poll at a time; a caller during a poll waits for it (await poll() always sees fresh state).
+ let pollRun=null;
+ function poll(){return pollRun||(pollRun=pollOnce().finally(()=>{pollRun=null;}));}
+ async function pollOnce(){
   try{state=await api('/api/workspace');$('agent-state').classList.remove('offline');$('connection-retry').hidden=true;host.connection(true);renderProjects();renderQueue();renderActivity();renderDocumentRequests();const scope=$('activity-project').value;if(JSON.stringify(state.projects.map(item=>item.id))!==$('activity-project').dataset.ids){$('activity-project').dataset.ids=JSON.stringify(state.projects.map(item=>item.id));$('activity-project').replaceChildren(node('option','','All Projects'));$('activity-project').firstChild.value='all';for(const item of state.projects){const option=node('option','',item.name);option.value=item.id;$('activity-project').append(option);}$('activity-project').value=state.projects.some(item=>item.id===scope)?scope:'all';}await host.updateWork(state);
    if(project&&!$('work-panel').hidden){await refreshFiles();if(page&&!dirty&&!saving&&!$('document-editor').contains(document.activeElement)&&document.activeElement!==$('document-source')){
-    const current=page;const fresh=await api((textFile?'/api/project-file':'/api/document')+'?path='+encodeURIComponent(current.path));if(page!==current||dirty||saving)return;
+    const current=page;const fresh=await api((textFile?'/api/project-file':'/api/document')+'?path='+encodeURIComponent(current.path));if(page!==current||dirty||saving||$('document-editor').contains(document.activeElement)||document.activeElement===$('document-source'))return;/* the person started editing meanwhile */
     if(fresh.revision!==page.revision){page=fresh;fileRevision=fresh.revision;blocks=textFile?[]:parseMarkdown(fresh.markdown);focusedBlock=null;$('document-source').value=textFile?fresh.text:fresh.markdown;renderBlocks();notice('Updated by agent / filesystem');}
     if(!textFile){page.comments=fresh.comments;renderComments();}
    }}
-  }catch(e){agentState('caution','Connection interrupted');$('agent-state').classList.add('offline');$('connection-retry').hidden=false;host.connection(false);}finally{polling=false;}
+  }catch(e){agentState('caution','Connection interrupted');$('agent-state').classList.add('offline');$('connection-retry').hidden=false;host.connection(false);}
  }
  async function browse(path){const sequence=++browseSequence;$('folder-use').disabled=true;try{const result=await api('/api/directories'+(path?'?path='+encodeURIComponent(path):''));if(sequence!==browseSequence)return;folder=result;$('folder-path').value=folder.path;$('folder-list').replaceChildren();for(const child of folder.directories){const button=node('button','folder-item',child.name);button.prepend(icon('folder'));button.onclick=()=>browse(child.path);$('folder-list').append(button);}$('folder-error').textContent='';}catch(e){if(sequence===browseSequence)$('folder-error').textContent=e.message;}finally{if(sequence===browseSequence)$('folder-use').disabled=false;}}
  async function choose(mode){folderMode=mode;$('folder-dialog-title').textContent=mode==='create'?'New Project':'Make This Folder a Project';$('folder-name').value='';$('folder-path').value='';$('folder-use').textContent=mode==='create'?'Create':'Use This Folder';$('folder-dialog').showModal();await browse();}
  $('new-project').onclick=()=>choose('create');$('add-folder').onclick=()=>choose('register');$('folder-cancel').onclick=()=>$('folder-dialog').close();$('folder-up').onclick=()=>browse(folder.parent);$('folder-go').onclick=()=>browse($('folder-path').value);
- $('folder-use').onclick=async()=>{try{const data=folderMode==='create'?{name:$('folder-name').value,parent:folder.path}:{path:folder.path,name:$('folder-name').value||undefined};const created=await api('/api/projects/'+(folderMode==='create'?'create':'register'),data);$('folder-dialog').close();await poll();await selectProject(created.project,{view:'work'});host.setLevel('project');const files=await api('/api/project-files?project='+encodeURIComponent(created.project));const roadmap=files.find(item=>item.name==='ROADMAP.md');if(roadmap)await openFile(roadmap.path);}catch(e){$('folder-error').textContent=e.message;}};
+ $('folder-use').onclick=async()=>{try{const data=folderMode==='create'?{name:$('folder-name').value,parent:folder.path}:{path:folder.path,name:$('folder-name').value||undefined};const created=await api('/api/projects/'+(folderMode==='create'?'create':'register'),data);$('folder-dialog').close();await poll();await selectProject(created.project,{view:'work'});host.setLevel('project');}/* selectProject opens ROADMAP.md */catch(e){$('folder-error').textContent=e.message;}};
+ function openJob(id){host.showActivity();$('activity-filter').value='all';$('activity-project').value='all';selectJob(id);document.getElementById('job-'+id)?.scrollIntoView({block:'center'});}
  // From Activity or Gate into a project (task 128): its window, the view, and a file when the request had one.
  async function goToProject(id,view,file){await selectProject(id,{view});host.setLevel('project');if(file)await openFile(file);host.showView(view);}
  function openProjectChat(){const item=selectedProject();if(item)host.selectChat(item.chat);}
@@ -273,7 +284,13 @@ export function installWorkspace(host){
  
  // Rename or Move… and Move to Trash… for a file or a folder (task 146). Without a path they act on the open file.
  const inProject=path=>path.split('/').slice(2).join('/'),isOpenUnder=path=>page&&(page.path===path||page.path.startsWith(path+'/'));
- function closeOpenFile(){page=null;dirty=false;$('document-editor').replaceChildren();$('document-source').value='';$('document-path').textContent='No document open';host.documentTitle(selectedProject()?.name||'');}
+ // No document open: one routine for switching project, trashing the open file and arriving from a chat link. It clears
+ // the editor, Review, the request history, the render caches, the pending save and the draft of the file that is gone.
+ function resetDocument(){const gone=page?.path;clearTimeout(saveTimer);if(gone)saveDraft(localStorage,gone,null);page=null;dirty=false;focusedBlock=null;openThread=currentComment=null;commentAnchor='';$('save-recovery').hidden=true;
+  $('document-path').textContent='No document open';host.documentTitle(selectedProject()?.name||'');for(const id of ['document-prompt','comment-text','document-source','editor-mode','block-style','tool-bullet','tool-check'])$(id).disabled=true;
+  $('document-editor').hidden=false;$('document-source').hidden=true;$('document-source').value='';clearAnchor();$('document-editor').replaceChildren(node('p','list-empty','Choose a roadmap, task, or file.'));$('document-comments').replaceChildren();
+  delete signatures.comments;delete signatures.requests;renderDocumentRequests();renderComments();}
+ const closeOpenFile=resetDocument;
  async function renameFile(path=page?.path,folder=false){if(!path)return;const old=inProject(path),where=selectedProject()?.name||'the project',kind=folder?'folder':'file';
   const dir=value=>value.includes('/')?value.slice(0,value.lastIndexOf('/')):'',full=value=>!folder&&value&&!/\.[^/]+$/.test(value)&&/\.[^/]+$/.test(old)?value+old.slice(old.lastIndexOf('.')):value;
   const name=await askName({title:folder?'Rename or Move Folder':'Rename or Move',label:`New name or path in ${where}`,value:old,mono:true,selectStem:!folder,actionFor:value=>value&&dir(value)!==dir(old)?'Move':'Rename',
@@ -293,5 +310,5 @@ export function installWorkspace(host){
  window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
  $('work-tab').onclick=()=>host.showWorkspace();
  setInterval(()=>{if(!document.hidden)poll();},1800);
- return {refresh:poll,renderProjects,agentSummary,markActivitySeen,goToProject,openProjectChat,reloadDocument,trashPage:()=>{const item=filesWindow.selection();return item?trashPage(item.path,item.folder):trashPage();},renameFile:()=>{const item=filesWindow.selection();return item?renameFile(item.path,item.folder):renameFile();},selection:()=>filesWindow.selection(),addBlock,openJob(id){host.showActivity();$('activity-filter').value='all';$('activity-project').value='all';selectJob(id);document.getElementById('job-'+id)?.scrollIntoView({block:'center'});},async start(){await poll();return state.projects;},openFile,newFile:()=>newFile(),newTask:()=>newTask(),async selectChatProject(id){const item=state.projects.find(item=>item.chat===id);if(item){const switched=project!==item.id;project=item.id;$('files-title').textContent=item.name;$('project-title').textContent=item.name;$('project-folder').textContent=item.path;if(switched){page=null;dirty=false;await refreshFiles();const target=readState('navigation',{}).files?.[project]||files.find(file=>file.name==='ROADMAP.md')?.path;if(target)await openFile(target);}renderProjects();remember();}},moveBlock:delta=>moveBlock(focusedBlock,delta),showRecord:()=>{if(selectedJob)showRecord(selectedJob);},commentSelection,askSelection:()=>askAbout(commentAnchor),stepComment,toggleResolved:()=>$('show-resolved').click(),save,saveNow:()=>save().catch(e=>notice(e.message,true)),selectProject,status:()=>({project,projects:state.projects,jobs:state.jobs,page:page?.path||null,focusedBlock,selectedJob,anchor:Boolean(commentAnchor),comments:(page?.comments||[]).some(comment=>!comment.deleted),textFile,dirty,offline:!$('connection-retry').hidden})};
+ return {refresh:poll,renderProjects,agentSummary,markActivitySeen,goToProject,openProjectChat,reloadDocument,trashPage:()=>{const item=filesWindow.selection();return item?trashPage(item.path,item.folder):trashPage();},renameFile:()=>{const item=filesWindow.selection();return item?renameFile(item.path,item.folder):renameFile();},selection:()=>filesWindow.selection(),addBlock,openJob,async start(){await poll();return state.projects;},openFile,newFile:()=>newFile(),newTask:()=>newTask(),async selectChatProject(id){const item=state.projects.find(item=>item.chat===id);if(item){const switched=project!==item.id;if(switched)await save();project=item.id;$('files-title').textContent=item.name;$('project-title').textContent=item.name;$('project-folder').textContent=item.path;if(switched){resetDocument();await refreshFiles();const target=readState('navigation',{}).files?.[project]||files.find(file=>file.name==='ROADMAP.md')?.path;if(target)await openFile(target);}renderProjects();remember();}},moveBlock:delta=>moveBlock(focusedBlock,delta),showRecord:()=>{if(selectedJob)showRecord(selectedJob);},commentSelection,askSelection:()=>askAbout(commentAnchor),stepComment,toggleResolved:()=>$('show-resolved').click(),save,saveNow:()=>save().catch(e=>notice(e.message,true)),selectProject,status:()=>({project,projects:state.projects,jobs:state.jobs,page:page?.path||null,focusedBlock,selectedJob,anchor:Boolean(commentAnchor),comments:(page?.comments||[]).some(comment=>!comment.deleted),textFile,dirty,offline:!$('connection-retry').hidden})};
 }

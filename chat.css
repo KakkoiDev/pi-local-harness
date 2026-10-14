@@ -317,3 +317,5 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .pw-menubar__pick[aria-disabled="true"]{color:var(--ink-disabled)}
 .pw-menubar__pick[aria-disabled="true"]:hover{background:none}
 #model-menu,#effort-menu{position:fixed;z-index:60}
+/* A registered folder that is gone: dimmed, still choosable (it offers Remove from List) */
+.pw-row--missing .pw-row__label{color:var(--ink-disabled)}

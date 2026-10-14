@@ -20,8 +20,10 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 
 ## Front end (document editor, comments, Review)
 
-- [ ] Saves never overlap; Undo only acts on the document it came from; queued comments read as sent; Review re-renders on job and text changes; re-selecting a project keeps Review.
-- [ ] Polls are shared, not skipped; `focusedBlock` resets per document; trashing the open file clears Review and its draft; text file saves keep the revision; file lists ignore stale responses; new blocks keep their blank line; Send Unsent re-enables after a failure; comments refresh only the page they came from; Comment on a phone opens the sheet.
+- [x] Saves never overlap; Undo only acts on the document it came from; queued comments read as sent; Review re-renders on job and text changes; re-selecting a project keeps Review.
+- [x] Polls are shared, not skipped; `focusedBlock` resets per document; trashing the open file clears Review and its draft; text file saves keep the revision; file lists ignore stale responses; new blocks keep their blank line; Send Unsent re-enables after a failure; comments refresh only the page they came from; Comment on a phone opens the sheet.
+- [x] A missing project shows "folder missing" (dimmed, still choosable) and offers Remove from List; the document's "View task" is "Show in Activity" through one `openJob`; a running job's time keeps moving; ⌥] from Deleted re-renders Review.
+- [ ] Accessibility: rows inside `role=list` without listitems (Projects, Files), Activity rows as `row` without a table, `aria-current` used for selection, the phone Plan/Files segment and the comment filter without arrow keys.
 
 ## App shell and Pi extension
 
