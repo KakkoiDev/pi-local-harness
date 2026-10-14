@@ -52,4 +52,4 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 - Task 132 (phone): dialogs as sheets on a phone (IMPLEMENTATION § 7, Ph_NewProject), the bullet tool in the phone edit bar (PhoneEdit1), the Activity detail bar showing both "Activity ▾" and "‹ Activity" (Ph_ActivityDetail), the view popup's separator and "Activity · all" / "Gate · all" labels (Ph_Views), and the π sheet's old status strip (Ph_Pi).
 - Task 140: block classes from the DocumentBlock card.
 - Task 124: the phone thread as a sheet (Ph_ThreadAnswered, PhoneEdit4).
-- Two intermittent browser-suite steps (a deep link to a file, and creating a second project) print diagnostics when they fail; investigate from that output.
+- Two intermittent browser-suite steps (a deep link to a file, and creating a second project) print diagnostics when they fail. Explained in task 134: the suites never read the server log (the server stalled once the pipe filled), and a late chat selection could show Chat over Work. Both fixed.

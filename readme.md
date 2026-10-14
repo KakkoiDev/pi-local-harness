@@ -101,7 +101,8 @@ characters per turn, with 3,000 per chosen file and 6,000 for the current docume
 (a larger one is cut to the passage's section plus its headings). `GET /api/context-preview?project=&text=`
 (with `document=`, or `path=&comment=` for a thread) returns what that request would carry:
 the file names with their kind (plan, this file, mentioned, related), the open-task count
-and the size in tokens.
+and the size in tokens. The "Pi sees:" line under the chat composer, the comment composer, an unsent
+thread and the whole-file box shows those items before you send.
 
 ## Data and configuration
 

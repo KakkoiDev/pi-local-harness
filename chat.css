@@ -210,6 +210,7 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
 }
 /* Block handle (task 105): the hover zone covers the gutter so the pointer can reach the handle; an open handle stays shown */
 .pw-block__handle[aria-expanded="true"]{display:flex}
+.pw-block__handle{cursor:pointer} /* task 155: the hand says the handle can be pressed (the person asked; in the brief) */
 #document-editor{cursor:text} /* the empty page below the last block (.pw-doc__tail, components.css) takes a click */
 /* Review footer and the whole-file request (task 108) */
 .review-footer{border-bottom:0;border-top:1px solid var(--ink)}
@@ -321,6 +322,7 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 @media (max-width:760px){
   #activity-seg>*,#gate-seg>*{flex:1 1 auto;white-space:nowrap} /* "Attention 1" stays on one line */
   .pw-mark{position:relative}.pw-mark::after{content:"";position:absolute;inset:-13px} /* a 44px touch area around the small marker */
+  .pw-context__more{position:relative}.pw-context__more::after{content:"";position:absolute;inset:-8px 0} /* drawn 28px tall (ContextLine card), touched as 44px (task 134; asked in the brief) */
   .pw-review-item__head{min-height:var(--size-touch)}
   #document-editor .pw-check{width:22px;height:22px}
 }

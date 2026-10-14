@@ -173,7 +173,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [131-The menu bar status is a button](tasks/131-status-button.md)
 - [x] [132-Phone and tablet for app-level Activity and Gate](tasks/132-phone-agent.md)
 - [x] [133-Server: the context preview Pi will get](tasks/133-context-preview.md)
-- [ ] [134-"Pi sees:" lines](tasks/134-context-line.md)
+- [x] [134-"Pi sees:" lines](tasks/134-context-line.md)
 - [ ] [135-Thread and Review states, Show in Activity, whole-file answer cards](tasks/135-comment-states.md)
 - [ ] [136-"Also read:" after answers](tasks/136-also-read.md)
 - [ ] [137-Context meter in Chat](tasks/137-context-meter.md)
@@ -194,3 +194,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [152-Plan the move to htmx 4 with server-sent events](tasks/152-htmx-sse.md)
 - [x] [153-A removed model falls back; voice input in comments; the thinking menu keeps its width](tasks/153-missing-model-and-comment-voice.md)
 - [ ] [154-Rename, move, remove and trash a project](tasks/154-project-commands.md)
+- [x] [155-The block handle shows the hand](tasks/155-block-handle-cursor.md)

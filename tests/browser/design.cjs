@@ -21,6 +21,9 @@ const readline = require('node:readline');
   browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  // The server's stderr (its request log) must be read: an unread pipe fills up and the server stalls mid-request.
+  const serverLog=[];server.stderr.on('data',chunk=>{serverLog.push(...String(chunk).split('\n').filter(line=>line&&!/" (200|304) -/.test(line)));serverLog.splice(0,Math.max(0,serverLog.length-40));});
+  process.on('exit',code=>{if(code)console.log('Page errors:',JSON.stringify(errors),'\nLast console lines:\n'+consoleLines.slice(-15).join('\n'),'\nServer log (not 200/304):\n'+serverLog.join('\n'));});
   const consoleLines=[];page.on('console',message=>consoleLines.push(message.type()+': '+message.text()));
   await page.goto(base);
   const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]);
@@ -620,8 +623,36 @@ const readline = require('node:readline');
   }
   await page.setViewportSize({width:1440,height:900});
   assert.equal(await page.locator('.sheet-head').first().isVisible(),false,'sheet heads are phone only');
+  { // Task 134: "Pi sees:" (ContextLine) under the chat composer, the comment composer, an unsent thread and the whole-file box.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Read ROADMAP.md please');
+  const seen=page.locator('#chat-context');await seen.locator('.pw-context__item').first().waitFor();
+  assert.equal(await seen.locator('.pw-context__label').textContent(),'Pi sees:');
+  assert.equal(await seen.locator('.pw-context__item').first().textContent(),'ROADMAP.md(plan)','the plan first in Chat');
+  assert.equal(await seen.locator('a').first().getAttribute('href'),`/p/${id}/work/ROADMAP.md`);
+  assert.match(await seen.innerText(),/\d+ open tasks?/);
+  await seen.evaluate(line=>{line.parentElement.style.width='200px';});/* less room: the counter appears */await page.waitForFunction(()=>!document.querySelector('#chat-context .pw-context__more').hidden);
+  const more=seen.locator('.pw-context__more');assert.match(await more.textContent(),/^\+\d+$/);assert.match(await more.getAttribute('aria-label'),/^Show \d+ more$/);
+  await more.click();assert.equal(await more.textContent(),'Less');assert.equal(await seen.getAttribute('data-expanded'),'');assert.equal(await more.getAttribute('aria-expanded'),'true');
+  assert.equal(await seen.locator('.pw-context__item[hidden]').count(),0,'expanded shows every item');
+  await more.click();await seen.evaluate(line=>{line.parentElement.style.width='';});
+  await seen.locator('a').first().click();await page.waitForURL(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#document-editor .pw-block').first().waitFor();
+  assert.equal(await page.locator('#document-editor .pw-block__handle').first().evaluate(handle=>getComputedStyle(handle).cursor),'pointer','task 155: the handle shows the hand');
+  const passage=page.locator('#document-editor .pw-block--paragraph .pw-block__content').first();
+  await passage.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+  await page.locator('#selection-bar-comment').click();const composer=page.locator('#comment-context');await composer.locator('.pw-context__item').first().waitFor();
+  assert.equal(await composer.locator('.pw-context__item').first().textContent(),'ROADMAP.md(this file)','comments: the current file first');
+  await page.locator('#clear-anchor').click();
+  await page.locator('#document-discussion>summary').click();assert.equal(await page.locator('#document-context .pw-context__item').first().textContent(),'ROADMAP.md(this file)');
+  await post('/api/documents/comment',{path:`projects/${id}/ROADMAP.md`,text:'Unsent context check',anchor:await passage.textContent()});
+  await page.reload();const thread=page.locator('#document-comments .pw-review-item',{hasText:'Unsent context check'});await thread.locator('.pw-review-item__head').click();
+  const inThread=page.locator('.pw-thread .pw-thread__actions > .pw-context').first();await inThread.locator('.pw-context__item').first().waitFor();
+  assert.equal(await inThread.locator('.pw-context__item').first().textContent(),'ROADMAP.md(this file)','an unsent thread says what Pi would get');
+  const empty=join(directory,'Empty folder');fs.mkdirSync(empty);const added=await post('/api/projects/register',{path:empty});
+  await page.goto(`${base}/p/${added.project}/chat`);await page.locator('#prompt').fill('Hello');
+  await page.waitForFunction(()=>document.querySelector('#chat-context').textContent==='Pi sees: nothing from this project');
+  }
 
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
- }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
+ }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,6 +1,6 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
 import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
-import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';
+import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext } from './context-line.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
  let state={projects:[],jobs:[]},project=null,page=null,blocks=[],focusedBlock=null,selectedJob=null,commentFilter='open',openThread=null,currentComment=null,showResolved=readState('showResolved',false),dirty=false,saving=null,saveTimer,folderMode='register',folder=null,fileRevision='',textFile=false,commentAnchor='',browseSequence=0,fileSequence=0;
@@ -126,6 +126,7 @@ export function installWorkspace(host){
   if(!sent(comment))actions.append(node('span','pw-thread__gap'),button('Delete',()=>deleteComment(comment)));
   if(busy&&job){const show=node('a','pw-link','Show in Activity');show.href='/activity';show.onclick=event=>{event.preventDefault();openJob(job.id);};actions.append(show);}/* a sent, unanswered thread (InlineThread card) */
   if(!busy)actions.append(node('p','pw-help pw-thread__help','Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.'));/* inside the actions, only while Ask Pi is offered */
+  if(!sent(comment)){const seen=contextLine();actions.append(seen);showContext(seen,{project,path:page.path,comment:comment.id},{delay:0});}/* an unsent thread says what Pi would get (ContextLine card) */
   box.append(actions);return box;}
  function renderComments(){
   if(unchanged('comments',[page?.path,page?.revision,page?.comments,commentFilter,currentComment,openThread,showResolved,state.jobs.filter(job=>job.comment_id).map(job=>[job.comment_id,job.status])]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
@@ -218,7 +219,7 @@ export function installWorkspace(host){
    $('document-prompt').disabled=false;$('comment-text').disabled=false;$('document-source').disabled=false;$('editor-mode').value=textFile?'source':'blocks';$('editor-mode').disabled=textFile;$('block-style').disabled=textFile;$('tool-bullet').disabled=$('tool-check').disabled=textFile;$('toggle-review').disabled=textFile;/* a code file has no Review */
    $('document-editor').hidden=textFile;$('document-source').hidden=!textFile;$('comments-panel').hidden=textFile;
    const restored=loadDraft(localStorage,path,value.revision);$('save-recovery').hidden=true;if(restored){dirty=true;$('document-source').value=restored.text;blocks=textFile?[]:parseMarkdown(restored.text);focusedBlock=null;openThread=currentComment=null;notice(restored.conflict?'Your saved draft differs from the file on disk. Download it before reloading.':'Restored your unsaved draft',restored.conflict);if(!restored.conflict)changed();}
-   renderBlocks();renderComments();renderDocumentRequests();$('document-discussion').hidden=textFile;clearAnchor();host.documentOpened();if(!restored)notice(textFile?'Live text/code file':'Saved');$('document-toolbar').dataset.path=path;$('document-path').textContent=path.split('/').slice(2).join('/');host.documentTitle(path.split('/').pop());renderFiles();remember();
+   renderBlocks();renderComments();renderDocumentRequests();documentContext(0);$('document-discussion').hidden=textFile;clearAnchor();host.documentOpened();if(!restored)notice(textFile?'Live text/code file':'Saved');$('document-toolbar').dataset.path=path;$('document-path').textContent=path.split('/').slice(2).join('/');host.documentTitle(path.split('/').pop());renderFiles();remember();
   }catch(e){notice(e.message,true);}
  }
  async function selectProject(id,{view}={}){
@@ -337,7 +338,11 @@ export function installWorkspace(host){
  $('comment-form').querySelector('.comment-actions').prepend(dictateButton($('comment-text'),{api,report:message=>notice(message,true)}));$('document-prompt-form').querySelector('.comment-actions').prepend(dictateButton($('document-prompt'),{api,report:message=>notice(message,true)}));/* voice input for comments and the whole-file question */$('add-ask').onclick=()=>addComment(true);
  $('document-prompt-form').onsubmit=async event=>{event.preventDefault();if(!project||!page)return;const button=event.currentTarget.querySelector('button');button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:$('document-prompt').value,document:page&&!textFile?page.path:undefined});$('document-prompt').value='';await poll();notice('Document request sent');}catch(e){notice(e.message,true);}finally{button.disabled=false;}};
  function clearAnchor(){document.body.classList.remove('composing');commentAnchor='';$('selected-passage').hidden=true;$('selection-bar').hidden=true;$('add-comment').disabled=$('add-ask').disabled=true;}
- function attachSelection(text){document.body.classList.add('composing');/* phone: the Comment sheet (PhoneEdit3) */commentAnchor=text;$('comment-anchor').textContent=text;$('selected-passage').hidden=false;$('add-comment').disabled=$('add-ask').disabled=false;}
+ function attachSelection(text){document.body.classList.add('composing');/* phone: the Comment sheet (PhoneEdit3) */commentAnchor=text;$('comment-anchor').textContent=text;$('selected-passage').hidden=false;$('add-comment').disabled=$('add-ask').disabled=false;commentContext(0);}
+ /* "Pi sees:" under the comment composer and the whole-file box (task 134): the current file first, then the plan */
+ function commentContext(delay){showContext($('comment-context'),{project,document:page?.path,text:$('comment-text').value},{delay});}
+ function documentContext(delay){showContext($('document-context'),{project:page&&!textFile?project:null,document:page?.path,text:$('document-prompt').value},{delay});}
+ $('comment-text').addEventListener('input',()=>commentContext());$('document-prompt').addEventListener('input',()=>documentContext());
  $('clear-anchor').onclick=clearAnchor;$('compose-cancel').onclick=()=>{clearAnchor();host.closeCommentsSheet?.();};$('selection-bar-comment').onclick=commentSelection;$('selection-bar-ask').onclick=()=>askAbout(commentAnchor);$('selection-bar').onpointerdown=event=>event.preventDefault();
  document.addEventListener('selectionchange',()=>{const selection=window.getSelection();if(!selection||selection.isCollapsed){$('selection-bar').hidden=true;return;}const a=selection.anchorNode,b=selection.focusNode;if(!$('document-editor').contains(a)||!$('document-editor').contains(b)||!selection.toString().trim())return;attachSelection(selection.toString().trim());
   const box=selection.getRangeAt(0).getBoundingClientRect(),bar=$('selection-bar');bar.hidden=false;bar.style.left=Math.max(4,Math.min(box.left,innerWidth-bar.offsetWidth-4))+'px';bar.style.top=Math.min(box.bottom+6,innerHeight-bar.offsetHeight-4)+'px';});
