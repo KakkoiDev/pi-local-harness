@@ -15,7 +15,9 @@ import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
 import { installConsole } from './console.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
-const names = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+// Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   installTimestamps(pi, dependencies.timestamps);
   const showStartup = installStartupDisplay(pi);

@@ -20,6 +20,7 @@ export const CONSOLE_COMMANDS = {
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
   undo: 'Undo the last change made from the console (asks first).',
+  guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
 };
 
 /** python3 -m harness.admin <command> <args>, with the live web port when the services run. */
@@ -33,8 +34,23 @@ export function runAdmin(command, args, { webPort } = {}) {
   });
 }
 
-/** Register the slash commands. `ports()` returns the running services' ports (or undefined before they start). */
+/** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
 export function installConsole(pi, { ports = () => undefined, run = runAdmin } = {}) {
+  // The harness tool: the same commands for Pi, run from the harness's own folder (Pi once tried `python3 -m harness.admin`
+  // from the home folder, where it is not found). Reads only: a change returns its preview and asks Pi to have the person
+  // type the command, which then asks for their yes (plan 158, C1).
+  pi.registerTool?.({
+    name: 'harness', label: 'Harness console',
+    description: 'Ask the Pi Workbench harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes (config set, models use|pull|remove, ollama set, undo) are not applied: you get what would change, and the person types the command.',
+    promptSnippet: 'harness: the Pi Workbench console (status, doctor, queue, gate, models, config, guide for how-to questions)',
+    parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
+    async execute(_id, params) {
+      const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');
+      const { code, text } = await run(params.command, words, { webPort: ports()?.web });
+      const answer = code === 3 ? `Not changed. This needs the person's yes: ask them to type /${[params.command, ...words].join(' ')} in this terminal.\n\n${text}` : text || '(no output)';
+      return { content: [{ type: 'text', text: answer }], details: { command: params.command, code } };
+    },
+  });
   if (!pi.registerCommand) return;
   for (const [name, description] of Object.entries(CONSOLE_COMMANDS)) {
     pi.registerCommand(name, {

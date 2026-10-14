@@ -418,6 +418,7 @@ COMMANDS = {
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
+    'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
 }
 
 
@@ -491,6 +492,8 @@ def run(console, command, args, yes=False):
         return changed(console.set_config(args[1], ' '.join(args[2:]), yes))
     if command == 'undo':
         return changed(console.undo(yes))
+    if command == 'guide':
+        return guide(args)
     if command == 'config':
         value = console.config(); lines = [value['path'], 'Change one with /config set <key> <value>; each applies the next time plh starts.', '']
         for key, item in value['values'].items():
@@ -507,6 +510,17 @@ def run(console, command, args, yes=False):
         return rows, '\n'.join(f"{'ok ' if row['ok'] else 'NO '} {row['check']}: {row['detail']}" + ('' if row['ok'] else f"\n     → {row['fix']}") for row in rows)
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
 
+
+def guide(words):
+    """harness/GUIDE.md, or its sections (## questions) that mention every word; else the list of questions (task 167)."""
+    text = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8')
+    if not words: return {'guide': text}, text
+    sections = ['## ' + part for part in text.split('\n## ')[1:]]
+    matches = lambda part: all(word.lower() in part.lower() for word in words)
+    found = [section for section in sections if matches(section.splitlines()[0])] or [section for section in sections if matches(section)]  # questions first
+    if found: return {'sections': found}, '\n\n'.join(section.strip() for section in found)
+    questions = [section.splitlines()[0][3:] for section in sections]
+    return {'sections': [], 'questions': questions}, f"Nothing in the guide matches “{' '.join(words)}”. Its questions:\n" + '\n'.join('  ' + question for question in questions)
 
 def check_models(console, args):
     """/models check [name] [--all] [--force]: measure whether models answer two requests at once (plan 156 § 7)."""

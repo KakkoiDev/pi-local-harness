@@ -1,5 +1,9 @@
 # Pi local harness
 
+New here? [harness/GUIDE.md](harness/GUIDE.md) answers the common questions (starting, opening the workbench, projects,
+comments, models, the phone, settings, trouble). In terminal Pi, `/guide <words>` prints the matching answers, and Pi
+itself reads them when you ask how to do something.
+
 A local workbench for **one agent, one chat per project, and real Markdown files**.
 Start `plh` (or `pi-local-harness`) from any directory. It starts Pi in your home
 directory, Gate on port **8000**, and the web workbench on **3000**. Plain `pi` keeps

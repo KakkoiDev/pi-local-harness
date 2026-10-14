@@ -37,3 +37,25 @@ test('a change is shown and runs only after the person says yes (task 160)', asy
   await commands.config.handler('set effort low', { ui: { confirm: async () => true } });
   assert.equal(calls.at(-1), 'set effort low --yes'); assert.match(messages.at(-1).content, /Done\. effort: high → low/);
 });
+
+test('Pi gets a harness tool: it reads with the console and only proposes changes (task 167, plan 158 C1)', async () => {
+  const tools = {}, calls = [];
+  const run = async (name, words) => { calls.push([name, ...words].join(' '));
+    if (name === 'config' && words[0] === 'set') return { ok: false, code: 3, text: 'Change effort?\neffort: high → low' };
+    return { ok: true, code: 0, text: `output of ${name}` }; };
+  installConsole({ registerCommand() {}, registerTool: tool => { tools[tool.name] = tool; }, sendMessage() {} }, { run, ports: () => ({ web: 3100 }) });
+  const tool = tools.harness;
+  assert.ok(tool, 'registered'); assert.match(tool.description, /instead of bash/); assert.deepEqual(tool.parameters.properties.command.enum, Object.keys(CONSOLE_COMMANDS));
+  const status = await tool.execute('t1', { command: 'status' });
+  assert.equal(status.content[0].text, 'output of status');
+  const guide = await tool.execute('t2', { command: 'guide', args: 'phone' });
+  assert.deepEqual(calls.slice(0, 2), ['status', 'guide phone']);
+  const change = await tool.execute('t3', { command: 'config', args: 'set effort low' });
+  assert.match(change.content[0].text, /Not changed\. This needs the person's yes: ask them to type \/config set effort low/);
+  assert.equal(calls.some(call => call.includes('--yes')), false, 'Pi never applies a change');
+});
+
+test('Gate knows the harness tool as a read (task 167)', async () => {
+  const { GATE_TOOL_NAMES } = await import('../../harness/extension.mjs');
+  assert.equal(GATE_TOOL_NAMES.harness, 'read_file', 'otherwise Gate blocks it as an unknown tool');
+});

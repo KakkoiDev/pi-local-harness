@@ -18,8 +18,12 @@ by hand: they read live data.
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
 | `/undo` | Undo the last change made from the console (asks first). |
+| `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |
 
-The same commands run from any shell: `python3 -m harness.admin <command> [--json]`.
+You run the same commands with your **`harness` tool** (`command`, `args`). Use it instead of bash or searching the
+disk: it runs from the harness's own folder. For "how do I…?" questions about the workbench, call it with `guide` and
+a few words (`guide phone`, `guide model`); answer from that, in a few lines. The person can also run
+`python3 -m harness.admin <command> [--json]` from the harness folder.
 
 ## How the harness works (short)
 

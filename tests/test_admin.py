@@ -79,6 +79,23 @@ class AdminTest(unittest.TestCase):
 
 
 
+class GuideTest(unittest.TestCase):
+    """Task 167: "a readme or tutorial so that the pi harness can answer questions about how to use this tool"."""
+    def test_the_guide_answers_by_topic_and_lists_its_questions(self):
+        console = admin.Console(tempfile.mkdtemp())
+        value, text = admin.run(console, 'guide', ['phone'])
+        self.assertIn('Open on Phone', text); self.assertNotIn('How do I start it?', text, 'a question about it wins over a passing mention')
+        _, text = admin.run(console, 'guide', ['model'])
+        self.assertIn('/models use', text)
+        _, text = admin.run(console, 'guide', ['zebra'])
+        self.assertIn('Nothing in the guide matches “zebra”', text); self.assertIn('How do I open the workbench in the browser?', text, 'then the list of questions')
+        _, text = admin.run(console, 'guide', [])
+        self.assertTrue(text.startswith('# Pi Workbench guide'))
+        guide = Path('harness/GUIDE.md').read_text()
+        for name in admin.COMMANDS:
+            if name not in ('job',): self.assertIn(f'/{name}', guide, f'/{name} is in the guide')
+
+
 class AdminChangeTest(unittest.TestCase):
     """Task 160: a change shows what it will do and runs only with yes; it is backed up, logged and can be undone."""
     def setUp(self):
