@@ -31,9 +31,13 @@ in Pi's global directory. Project-local Pi instructions can also apply.
 | `PI_WEB_REMOTE_HOSTS` | Config: remote_hosts | Comma-separated tailnet hosts trusted by the web server |
 | `PI_WEB_REMOTE_USERS` | Config: remote_users | Comma-separated Tailscale logins trusted by the web server |
 
-The model is pinned in `harness/model.json` (`ollama/gemma4:26b-mlx`); terminal and
-browser workers both read it, and `config.json` cannot change it. PLH derives browser
-`PI_WEB_EFFORT` from config. Extra `plh` arguments such as `--model` still reach the
+`harness/model.json` holds the default model (`ollama/gemma4:26b-mlx`). The person chooses
+another installed Ollama model and the thinking level in the web menu bar; the choice lives in
+`<data>/model.json` and both terminal Pi (from its next start) and browser workers use it
+(`harness/model.py`: `current()`, `effective()`). Switching unloads the previous model
+(`keep_alive: 0`) before loading the new one. `config.json` cannot set the model; its `effort`
+is the default thinking level (`PI_WEB_EFFORT`). `PI_OLLAMA_URL` points at a different Ollama
+(tests use a closed port). Extra `plh` arguments such as `--model` still reach the
 terminal Pi for that one session only. `PI_WEB_CWD` is retained only for legacy
 nonproject sessions; project jobs always use their registered folder.
 
@@ -119,14 +123,17 @@ GPU-running signal is inferred.
 python3 tests/verify_workflow.py   # roadmap/task checkboxes + both suites below
 python3 -m unittest discover -s tests
 node --test tests/harness/*.test.mjs
-# Requires Playwright and Chromium:
-NODE_PATH=/path/to/node_modules node tests/browser/chat.cjs
+# Browser suites (Playwright and Chromium; setup in docs/contributing-for-agents.md § 3):
+NODE_PATH=/path/to/node_modules node tests/browser/design.cjs   # design conformance
+NODE_PATH=/path/to/node_modules node tests/browser/chat.cjs     # regression
 ```
+
+A browser suite passed only if it exits 0.
 
 Set `PI_TEST_CHROME` to an installed Chromium executable if needed. Browser checks
 use temporary files and a labeled fake Pi RPC boundary fixture; startup tests use
 the installed real Pi runtime without making an LLM request, so the `pi` and `node`
-first on `PATH` must match (verified: Pi 0.87.1 on Node 24.16). The web chat's exact
+first on `PATH` must match (verified: Pi 1.1.0 on Node 24.21). The web chat's exact
 Pi command is checked against that installed Pi. HTTP/browser tests
 need permission to bind localhost sockets in restricted environments.
 

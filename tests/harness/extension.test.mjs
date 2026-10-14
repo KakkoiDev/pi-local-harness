@@ -5,6 +5,9 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import harness from '../../harness/extension.mjs';
+// Never the developer's real Pi settings (models.json, AGENTS.md) or a running harness (task 150).
+process.env.PI_CODING_AGENT_DIR=mkdtempSync(join(tmpdir(),'pi-agent-dir-'));
+for(const key of Object.keys(process.env))if(/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))delete process.env[key];
 
 test('startup, ten-second loop check, abort/compact/reask, canary reinjection', async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-harness-'));

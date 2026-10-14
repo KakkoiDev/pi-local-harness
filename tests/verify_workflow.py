@@ -40,6 +40,12 @@ def verify_workflow():
                     if cb_status != 'x':
                         errors.append(f"Task {path} marked completed in todo.md but has unchecked boxes")
                         break
+        # The reverse: an open task whose every box is checked is finished work left open (task 150).
+        elif status == ' ':
+            with open(path, "r") as tf:
+                checkboxes = re.findall(r'- \[(.)\]', tf.read())
+            if checkboxes and all(cb_status == 'x' for cb_status in checkboxes):
+                errors.append(f"Task {path} has every box checked but is still open in ROADMAP.md; mark it done or add the open item")
     
     # Run the Python and Node suites; any failure fails the gate.
     suites = [('unittest', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests'])] if os.path.isdir('tests') else []

@@ -42,4 +42,4 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 
 ## Tests and docs
 
-- [ ] Browser suites fail when the server dies; no `tailscale serve` from tests; docs for the model choice and Gate history; `config` → `chore` in harness/AGENTS.md; ROADMAP state for task 130; verify_workflow flags open lines whose task is complete.
+- [x] Browser suites fail when the server dies (proven: a dead server used to exit 0, now 1); no `tailscale serve` from tests; docs for the model choice, Gate history, comments, Activity and trash; `config` → `chore` in harness/AGENTS.md; ROADMAP state for tasks 130, 117, 118; verify_workflow flags open lines whose task is complete. Also: tests run from any folder and as single modules (`tests/isolation.py` sets the folder and path), extension tests never read the real `~/.pi/agent`, chat isolation checks use text only one project has, browser test blocks get their own scope, the file list is shared per project (a background poll could make a project switch open no document), a diagnostic prints state if the intermittent deep-link step fails again.

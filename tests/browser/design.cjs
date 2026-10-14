@@ -12,7 +12,7 @@ const readline = require('node:readline');
  const python=execFileSync('which',['python3'],{encoding:'utf8'}).trim();
  const fake=join(directory,'pi');
  fs.writeFileSync(fake,`#!${python}\n`+fs.readFileSync('tests/fixtures/fake-pi.py','utf8'));fs.chmodSync(fake,0o755);
- const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
+ const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...Object.fromEntries(Object.entries(process.env).filter(([key])=>!/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))) /* never the live harness or phone access */,PATH:directory+':'+process.env.PATH,PI_TAILSCALE:'false',PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
  let browser;
  try{
   const lines=readline.createInterface({input:server.stdout});
@@ -21,6 +21,7 @@ const readline = require('node:readline');
   browser=await chromium.launch({headless:true,...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  const consoleLines=[];page.on('console',message=>consoleLines.push(message.type()+': '+message.text()));
   await page.goto(base);
   const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]);
   const created=await post('/api/projects/create',{name:'Design check',parent:directory});
@@ -294,7 +295,7 @@ const readline = require('node:readline');
   assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');assert.equal(await page.locator('#document-path').textContent(),'notes.txt');
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
   await page.goForward();await page.locator('#document-path').filter({hasText:'notes.txt'}).waitFor();
-  await page.goto(`${base}/p/${id}/work/TYPES.md`);await page.locator('#document-path').filter({hasText:'TYPES.md'}).waitFor();
+  await page.goto(`${base}/p/${id}/work/TYPES.md`);await page.locator('#document-path').filter({hasText:'TYPES.md'}).waitFor().catch(async error=>{console.error('DIAGNOSTIC deep link (intermittent, task 150):',JSON.stringify(await page.evaluate(()=>({url:location.pathname,path:document.querySelector('#document-path').textContent,view:document.body.dataset.view,level:document.body.dataset.level,project:document.querySelector('#files-title').textContent,files:[...document.querySelectorAll('#file-tree .file-item')].map(row=>row.textContent).slice(0,8)}))),consoleLines.slice(-20).join('\n'));throw error;});
   assert.equal(await page.locator('#files-title').textContent(),'Design check');assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');
   await page.goto(`${base}/?document=`+encodeURIComponent(`projects/${id}/TYPES.md`));await page.waitForURL(`${base}/p/${id}/work/TYPES.md`);
   await page.goto(base+'/');await page.waitForURL(url=>url.pathname!=='/');
@@ -529,5 +530,5 @@ const readline = require('node:readline');
 
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
- }finally{await browser?.close();const exited=new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
-})().catch(error=>{console.error(error);process.exit(1);});
+ }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
+})().catch(error=>{console.error(error);process.exitCode=1;});

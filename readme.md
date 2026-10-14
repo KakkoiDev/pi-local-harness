@@ -55,20 +55,24 @@ and task documents. Edit Markdown as heading, paragraph, list, checkbox, quote,
 and code blocks, or switch to Markdown source. Unsupported Markdown is retained
 as raw text; this is a small block editor, not a complete Notion renderer.
 Changes autosave to the actual files. Concurrent filesystem changes produce a
-version conflict rather than silently overwriting your draft. Trash moves Markdown
-pages into the data directory's `.trash`.
+version conflict rather than silently overwriting your draft. To rename, move or
+delete, select a file (click it) or a folder (click its row), then use File ›
+**Rename or Move…** or **Move to Trash…** (⌘⌫). Trash moves the file or folder, with
+its comment threads, into the data directory's `.trash`; nothing is deleted.
 
 **Ask Pi about this whole file**, at the bottom of Review, sends a request about the whole page.
 Its request and result remain attached to that document. Comment and whole-file requests run
-as one-off Pi requests with their own context; they never appear in, or use up, the project chat. For a specific passage,
-select its text, use **Comment on selection**, and add a text comment. The quoted
-passage is highlighted; clicking the quote returns to it. Threads support replies
-and Resolve/Reopen. Use **Ask agent about this passage** to send that thread;
-unsent comments do nothing. Anchors must match a unique passage in the current
-file. Changed passages retain the original quote rather than silently moving.
+as one-off Pi requests with their own context; they never appear in, or use up, the project chat.
+For a specific passage, select its text: a small bar offers **Comment** (⇧⌘M) and **Ask Pi…**.
+A comment stays with the file until you choose **Ask Pi** on it (in its thread or in Review), or
+**Send N Unsent Comments to Pi**. In a thread, **Add Note** keeps a reply with the file; **Ask Pi**
+sends the whole thread with what you typed, and Pi's answers are added below, in order.
+Anchors must match a unique passage in the current file. Changed passages retain the original
+quote rather than silently moving.
 
-The **Activity** tab shows running, waiting, completed, stopped, failed, and
-interrupted tasks. Filter by project or state, open the source chat/document,
+**Activity · All Projects** (Window menu ⌘3, the Agent section of the Projects window, or the
+status in the menu bar) shows running, waiting, completed, stopped, failed, and interrupted
+tasks of every project. Messages you send while Pi works join your waiting message. Filter by project or state, open the source chat/document,
 inspect the Markdown record, cancel waiting work, or stop active work. Requests
 enter one durable FIFO queue. You can browse another project while it runs.
 Interrupted work is never automatically repeated.
@@ -99,8 +103,9 @@ characters per turn, with 3,000 per chosen file and 6,000 for the current docume
 ## Data and configuration
 
 `~/pi-local-harness-data` contains shared `AGENTS.md`, `config.json`, `.projects.json`
-(folder registry), `activity/` (one Markdown task record per request),
-`.comments/` (Markdown threads), `.trash/`, and `chats/` (metadata,
+(folder registry), `model.json` (the model and thinking level chosen in the menu bar),
+`gate-events.jsonl` (Gate's checks, kept across restarts), `activity/` (one Markdown task
+record per request), `.comments/` (Markdown threads), `.trash/`, and `chats/` (metadata,
 Pi session files, uploads). `projects/` stores projects created through the API
 without a chosen external parent. Registered external projects stay in place.
 Task and comment records have authoritative frontmatter and readable Markdown
@@ -129,9 +134,13 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 `remote_hosts` and `remote_users` open the web UI to your phone through
 `tailscale serve`; see [Phone access over Tailscale](harness/README.md#phone-access-over-tailscale-and-voice-input).
 
-Both terminal Pi and browser workers use this effort. The model is pinned to
-`ollama/gemma4:26b-mlx` in `harness/model.json`; a different `model` in `config.json`
-stops `plh` with an error. Change the pin only in that file. Port `0`
+`effort` is the default thinking level. Choose the model and the thinking level from the
+menu bar (click the model name or "High thinking"): the menus list the installed Ollama
+models, switching unloads the previous model so only one stays in memory, and a model that
+does not think dims the thinking menu. The choice is saved in `model.json` in the data
+directory and used by terminal Pi (from its next start) and browser workers.
+`harness/model.json` is the default model (`ollama/gemma4:26b-mlx`); a `model` in
+`config.json` is not supported and stops `plh` with an error. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;
 `PI_GATE_PORT` and `PI_WEB_PORT` override ports. See the
 [operations guide](harness/README.md) for other environment settings.
@@ -171,8 +180,9 @@ tests, and scoped cleanup such as `rm -rf ./build`. Broad deletion (`rm -fr *`),
 root/home deletion, disk erasure, raw disk writes, and recursive system permission
 changes are blocked. Common shell wrappers are checked. This is an accident guard,
 not a sandbox for arbitrary scripts. [Rules and sources](specs/shell-safety.md).
-The **Gate** tab shows the actual shared ledger: checks, arguments, outcomes,
-reasons, and timestamps. Its latest 200 events reset when services restart.
+**Gate · All Projects** (Window menu ⌘4) shows the actual shared ledger: checks, arguments,
+outcomes, reasons, project and source (web or terminal). Checks are saved in
+`gate-events.jsonl` and the latest 200 come back after a restart.
 
 ## Recovery, memory, media, and timestamps
 

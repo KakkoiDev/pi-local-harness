@@ -34,3 +34,13 @@ class VerifyWorkflowTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             completed = self.run_gate(project(directory, '        pass\n'))
             self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+
+
+class FinishedButOpenTest(unittest.TestCase):
+    def test_an_open_roadmap_line_whose_task_is_complete_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = project(directory, '        pass\n')
+            (root / 'ROADMAP.md').write_text('- [ ] [01](tasks/01.md)\n')  # the task file has every box checked
+            completed = subprocess.run([sys.executable, str(SCRIPT)], cwd=root, capture_output=True, text=True, timeout=120)
+            self.assertEqual(completed.returncode, 1, completed.stdout)
+            self.assertIn('still open in ROADMAP.md', completed.stdout)

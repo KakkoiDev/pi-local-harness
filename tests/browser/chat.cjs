@@ -11,7 +11,7 @@ const readline = require('node:readline');
  const python=execFileSync('which',['python3'],{encoding:'utf8'}).trim();
  const fake=join(directory,'pi');
  writeFileSync(fake,`#!${python}\n`+require('node:fs').readFileSync('tests/fixtures/fake-pi.py','utf8'));chmodSync(fake,0o755);
- const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...process.env,PATH:directory+':'+process.env.PATH,PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
+ const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...Object.fromEntries(Object.entries(process.env).filter(([key])=>!/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))) /* never the live harness or phone access */,PATH:directory+':'+process.env.PATH,PI_TAILSCALE:'false',PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
  let browser;
  try{
   const lines=readline.createInterface({input:server.stdout});
@@ -118,12 +118,14 @@ const readline = require('node:readline');
   await createProject('Second project');await leaveApp();await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Second question');await page.locator('#send').click();
   await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
+  const onlyChat=async(mine,other)=>{await page.locator('#messages').getByText(mine,{exact:true}).waitFor();assert.equal(await page.locator('#messages').getByText(other,{exact:true}).count(),0,'each project shows only its own chat');};/* task 150: "reply 1" exists in both chats */
+  await onlyChat('Second question','First question');
   await page.locator('#show-projects').click();
   assert.equal(await page.locator('#project-list .pw-row').count(),2);
   await page.locator('#project-search').fill('missing project');await page.getByText('No matching projects',{exact:true}).waitFor();
   await page.locator('#project-search').fill('First');assert.equal(await page.locator('#project-list .pw-row').count(),1);await page.locator('#project-search').fill('');
   await page.getByRole('button',{name:'First project',exact:true}).click();await leaveApp();await page.locator('#chat-tab').click();
-  await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
+  await onlyChat('First question','Second question');
   assert.equal(await page.locator('#window-title').textContent(),'First project');
   // Menu bar: WAI-ARIA keyboard pattern, disabled items, shortcuts, project list, status.
   const focused=()=>page.evaluate(()=>document.activeElement.dataset.command||document.activeElement.getAttribute('aria-controls'));
@@ -160,7 +162,7 @@ const readline = require('node:readline');
   await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();await page.locator('#name-dialog-title').filter({hasText:'New File'}).waitFor();
   await page.locator('#name-dialog-input').fill('Meeting notes');await page.keyboard.press('Enter');await page.locator('#document-path').filter({hasText:/meeting/i}).waitFor();
   await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator('#menu-project [data-command="project-chat"]').click();await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
-  await page.reload();await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
+  await page.reload();await onlyChat('First question','Second question');
   await leaveApp();await page.locator('#work-tab').click();await page.locator('#file-search').fill('ROADMAP');assert.equal(await page.locator('.file-item').count(),1);await page.locator('#file-search').fill('');await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.getByRole('textbox',{name:'Heading',exact:true}).filter({hasText:'Edited roadmap'}).waitFor();
   const fileRow=page.locator('#file-tree [aria-current="page"]');assert.deepEqual(await fileRow.evaluate(row=>{const style=getComputedStyle(row);return [row.classList.contains('pw-row'),style.textAlign,style.color===getComputedStyle(document.body).backgroundColor,Math.round(row.getBoundingClientRect().width)===Math.round(document.getElementById('file-tree').clientWidth),row.querySelector('.pw-row__label')?.textContent];}),[true,'left',true,true,'ROADMAP.md'],'the open file is a left-aligned selected .pw-row');
   assert.deepEqual(await page.locator('label:has(#show-resolved)').evaluate(label=>{const box=label.getBoundingClientRect(),check=label.querySelector('input').getBoundingClientRect();return [check.left-box.left<=12,Math.abs((check.top+check.bottom)/2-(box.top+box.bottom)/2)<=2,box.height<=48];}),[true,true,true],'Show resolved: checkbox inline at the left of its label');
@@ -251,6 +253,6 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.body.dataset.view==='work');assert.equal(await page.locator('#work-panel').isVisible(),true,'a saved view that no longer exists restores Work');
   console.log('UX regression passed: document/text discussions, Markdown Activity, drafts/conflicts, reconnect, keyboard, attachments, live files and four tabs at 320/390/768/1101/1440px.');
  }finally{
-  if(browser)await browser.close();server.kill();await new Promise(resolve=>server.once('exit',resolve));rmSync(directory,{recursive:true,force:true});
+  if(browser)await browser.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();await exited;rmSync(directory,{recursive:true,force:true});
  }
 })().catch(error=>{console.error(error);process.exitCode=1;});

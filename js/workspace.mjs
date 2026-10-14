@@ -238,9 +238,13 @@ export function installWorkspace(host){
  const filesWindow=installFilesWindow({tree:$('file-tree'),note:$('file-search-note'),seg:$('file-seg'),add:$('file-seg-add'),node,open:async path=>{await openFile(path);host.showView('work');},newTask:()=>newTask(),newFile:()=>newFile(),createRoadmap:()=>createRoadmap(),selected:()=>host.selectionChanged?.()});
  function renderFiles(){if(unchanged('files',[project,files,page?.path]))return;filesWindow.update({project,files,current:page?.path||null});$('files-summary').textContent=filesWindow.summary();}
  async function createRoadmap(){if(!project)return;await createAndOpen('/api/documents/create-roadmap',{project});}
- let filesSequence=0;
- async function refreshFiles(){
-  if(!project)return;const asked=project,sequence=++filesSequence;const listed=await api('/api/project-files?project='+encodeURIComponent(asked));if(asked!==project||sequence!==filesSequence)return;/* a slower answer for another project never wins */files=listed;files.sort((a,b)=>a.name==='ROADMAP.md'?-1:b.name==='ROADMAP.md'?1:a.name.localeCompare(b.name));renderFiles();
+ // One file-list request per project at a time: callers share it, so a background poll can never make a project switch
+ // drop its own answer; an answer for a project that is no longer chosen is ignored.
+ let filesRun=null;
+ async function refreshFiles({fresh=false}={}){/* fresh: after a change, never reuse a list fetched before it */
+  if(!project)return;const asked=project;
+  if(fresh||filesRun?.project!==asked){const run={project:asked,promise:api('/api/project-files?project='+encodeURIComponent(asked)).finally(()=>{if(filesRun===run)filesRun=null;})};filesRun=run;}
+  const listed=await filesRun.promise;if(asked!==project)return;files=listed;files.sort((a,b)=>a.name==='ROADMAP.md'?-1:b.name==='ROADMAP.md'?1:a.name.localeCompare(b.name));renderFiles();
  }
  $('connection-retry').onclick=poll;
  $('project-search').oninput=renderProjects;$('file-search').oninput=()=>filesWindow.search($('file-search').value);$('file-search').onkeydown=event=>{if(event.key==='Escape'&&$('file-search').value){event.preventDefault();event.stopPropagation();$('file-search').value='';filesWindow.search('');}};
@@ -275,7 +279,7 @@ export function installWorkspace(host){
  // New File… makes any file in the project folder (Markdown unless the name has an extension); New Task… numbers it and links it in ROADMAP.md (harness/documents.py).
  const fileName=value=>/\.[^/.]+$/.test(value)?value:value+'.md',taskStem=value=>value.toLowerCase().replace(/[^\p{L}\p{N}_]+/gu,'-').replace(/^-+|-+$/g,'').slice(0,60);
  const nextTask=()=>String(Math.max(0,...files.map(file=>Number(file.name.match(/^tasks\/(\d+)-/)?.[1]||0)))+1).padStart(3,'0');
- async function createAndOpen(url,body){try{await save();const created=await api(url,body);await refreshFiles();await openFile(created.path);host.showView('work');}catch(e){notice(e.message,true);}}
+ async function createAndOpen(url,body){try{await save();const created=await api(url,body);await refreshFiles({fresh:true});await openFile(created.path);host.showView('work');}catch(e){notice(e.message,true);}}
  async function newFile(){if(!project)return;const where=selectedProject().name,name=await askName({title:'New File',label:'File name',describe:value=>value?`Creates “${fileName(value)}” in ${where} and opens it.`:`Markdown unless you add an extension: notes, script.py, docs/plan.md.`});if(name)await createAndOpen('/api/documents/create-file',{project,name});}
  async function newTask(){if(!project)return;const where=selectedProject().name,title=await askName({title:'New Task',label:'Task name',describe:value=>value&&taskStem(value)?`Creates “tasks/${nextTask()}-${taskStem(value)}.md” in ${where}, adds it to ROADMAP.md, and opens it.`:'Numbered after the last task and added to ROADMAP.md.'});if(title)await createAndOpen('/api/documents/create-task',{project,title});}
  $('document-editor').parentElement.addEventListener('click',event=>{if(!page||textFile||$('document-editor').hidden)return;const rows=blockRows(),last=rows.at(-1);if(event.target.closest('.pw-block,.pw-thread'))return;if(last&&event.clientY<last.getBoundingClientRect().bottom)return;const end=blocks.length-1;if(blocks[end]?.type==='text'&&!blocks[end].text.trim()){refocus(end);focusBlock(end);}else addBlock(end);});
@@ -299,11 +303,11 @@ export function installWorkspace(host){
   const dir=value=>value.includes('/')?value.slice(0,value.lastIndexOf('/')):'',full=value=>!folder&&value&&!/\.[^/]+$/.test(value)&&/\.[^/]+$/.test(old)?value+old.slice(old.lastIndexOf('.')):value;
   const name=await askName({title:folder?'Rename or Move Folder':'Rename or Move',label:`New name or path in ${where}`,value:old,mono:true,selectStem:!folder,actionFor:value=>value&&dir(value)!==dir(old)?'Move':'Rename',
    describe:value=>value&&value!==old?`Moves the ${kind} “${old}” to “${full(value)}”. Folders are created as needed. ${folder?'Their comments move with them.':'Its comments move with it.'}`:`Type a new name, or a path such as archive/${old.split('/').pop()} to move it.`});
-  if(!name||name===old)return;try{const open=isOpenUnder(path),tail=open?page.path.slice(path.length):'';if(open)await save();const moved=await api('/api/documents/move',{path,name});if(open){const target=moved.path+tail;page=null;dirty=false;await refreshFiles();await openFile(target);remember();}else await refreshFiles();host.toast(`Moved to “${inProject(moved.path)}”.`);}catch(e){notice(e.message,true);}}
+  if(!name||name===old)return;try{const open=isOpenUnder(path),tail=open?page.path.slice(path.length):'';if(open)await save();const moved=await api('/api/documents/move',{path,name});if(open){const target=moved.path+tail;page=null;dirty=false;await refreshFiles({fresh:true});await openFile(target);remember();}else await refreshFiles();host.toast(`Moved to “${inProject(moved.path)}”.`);}catch(e){notice(e.message,true);}}
  async function trashPage(path=page?.path,folder=false){if(!path)return;const name=inProject(path);
   const count=folder?files.filter(file=>file.path.startsWith(path+'/')).length:0;
   if(await ask({icon:'stop',message:folder?`Move the folder “${name.split('/').pop()}” and its ${count===1?'1 file':count+' files'} to the Trash?`:`Move “${name.split('/').pop()}” to the Trash?`,detail:folder?'Their comments go with them. You can restore them from the data folder’s .trash.':'Its comments go with it. You can restore it from the data folder’s .trash.',danger:'Move to Trash',safe:'Cancel'})!=='danger')return;
-  try{const open=isOpenUnder(path);await api('/api/documents/delete',{path});if(open)closeOpenFile();await refreshFiles();}catch(e){notice(e.message,true);}}
+  try{const open=isOpenUnder(path);await api('/api/documents/delete',{path});if(open)closeOpenFile();await refreshFiles({fresh:true});}catch(e){notice(e.message,true);}}
  $('comment-form').onsubmit=async event=>{event.preventDefault();if(!page||textFile||!commentAnchor)return;$('add-comment').disabled=true;try{await save();const anchor=commentAnchor;await api('/api/documents/comment',{path:page.path,text:$('comment-text').value,anchor});$('comment-text').value='';clearAnchor();await refreshPageComments();renderBlocks();}catch(e){notice(e.message,true);}finally{$('add-comment').disabled=!commentAnchor;}};
  $('document-prompt-form').onsubmit=async event=>{event.preventDefault();if(!project||!page)return;const button=event.currentTarget.querySelector('button');button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:$('document-prompt').value,document:page&&!textFile?page.path:undefined});$('document-prompt').value='';await poll();notice('Document request sent');}catch(e){notice(e.message,true);}finally{button.disabled=false;}};
  function clearAnchor(){commentAnchor='';$('selected-passage').hidden=true;$('selection-bar').hidden=true;$('add-comment').disabled=true;}

@@ -4,6 +4,13 @@ Pi often runs these tests from inside plh, so the environment can hold phone-acc
 services.py start `tailscale serve` on the real tailnet), the live Gate port and token, and the chosen model.
 """
 import os
+from pathlib import Path
+
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+os.chdir(ROOT)  # tests open repo files by relative path; run them from anywhere
+if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))  # `from harness import …` works from any folder
 
 for name in [key for key in os.environ if key.startswith(('PI_HARNESS_', 'PI_WEB_REMOTE_'))] + ['PI_AGENT_DATA', 'PI_WEB_DATA', 'PI_WEB_EFFORT']:
     os.environ.pop(name, None)
