@@ -192,7 +192,7 @@
           <div id="onboarding-actions" class="pw-dialog__actions"><button id="welcome-folder" class="pw-btn">Use an Existing Folder…</button><button id="welcome-create" class="pw-btn pw-btn--default">Create Your First Project…</button></div>
           <div class="suggestions" hidden><button class="pw-btn" data-prompt="Help me understand a piece of code">Understand some code</button><button class="pw-btn" data-prompt="Describe the image I attach">Explore an image</button><button class="pw-btn" data-prompt="Transcribe and summarize the audio I attach">Listen to a recording</button></div>
         </div>
-        <div id="messages" class="pw-transcript" aria-live="polite" aria-relevant="additions"></div>
+        <div id="messages" class="pw-transcript"></div><p id="chat-announce" class="pw-sr-only" role="status"></p><!-- the transcript is rebuilt on updates, so it is not a live region; this line announces new answers -->
       </section>
       <div class="composer-wrap">
         <div id="error" class="pw-alert-line" role="alert" hidden></div>
@@ -248,7 +248,7 @@
           <label class="pw-label">Project <select id="activity-project" class="pw-popup"><option value="all">All Projects</option></select></label>
         </div>
         <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span id="activity-summary" role="status"></span><span class="infobar-note">One agent, one queue, first in first out. Interrupted work is never repeated automatically.</span></div>
-        <div id="activity-list" class="pw-table pw-window__body" role="list"></div>
+        <div id="activity-list" class="pw-table pw-window__body" role="grid" aria-label="Requests"></div>
         <section id="activity-detail" class="activity-detail" aria-label="Task details" hidden></section>
         <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
       </section>
@@ -262,7 +262,7 @@
           <button id="gate-refresh" class="pw-btn">Refresh<span class="pw-kbd">⌘R</span></button>
         </div>
         <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span id="gate-live" class="infobar-note" role="status">Connecting…</span></div>
-        <div id="gate-events" class="pw-table pw-window__body" aria-live="polite"></div>
+        <div id="gate-events" class="pw-table pw-window__body" role="grid" aria-label="Gate checks"></div><!-- not aria-live: #gate-live announces; rows are re-rendered on refresh -->
       </section>
     </main>
 
@@ -288,7 +288,7 @@
       </aside>
 
     <!-- NEW: Event Info window (Gate detail) -->
-    <aside id="event-info" class="pw-window window-info" aria-label="Event info" data-view-only="gate" hidden><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Event Info</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div><div id="event-info-body" class="pw-window__body event-info"></div></aside>
+    <aside id="event-info" class="pw-window window-info" aria-label="Event info" data-view-only="gate" hidden><div class="pw-titlebar"><button class="pw-box" aria-label="Close Event Info" data-command="toggle-event-info"></button><!-- C_GateDesk, G_Tablet --><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Event Info</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div><div id="event-info-body" class="pw-window__body event-info"></div></aside>
   </div>
 
   <!-- Dialogs -->

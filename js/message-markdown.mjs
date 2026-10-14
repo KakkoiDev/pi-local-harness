@@ -37,19 +37,33 @@ function table(text) {
   const align = rule.map(cell => cell.startsWith(':') && cell.endsWith(':') ? 'center' : cell.endsWith(':') ? 'right' : 'left');
   return { tag: 'table', head, align, rows: lines.slice(2).map(line => cells(line).slice(0, head.length)) };
 }
+// Model replies often start a list right under a line of text ("Steps:\n1. …"). Markdown needs a blank line there;
+// add it (outside code fences) so the list renders as a list, not as one paragraph.
+const LIST_LINE = /^\s*(?:[-*] |\d+\. )/;
+function separateLists(markdown) {
+  const out = []; let fence = false;
+  for (const line of markdown.split('\n')) {
+    if (/^```/.test(line)) fence = !fence;
+    const previous = out.at(-1);
+    if (!fence && LIST_LINE.test(line) && previous && previous.trim() && !LIST_LINE.test(previous) && !/^```/.test(line)) out.push('');
+    out.push(line);
+  }
+  return out.join('\n');
+}
 export function messageBlocks(markdown) {
-  const result = [];
-  for (const block of parseMarkdown(markdown)) {
-    const list = LIST[block.type];
+  const result = []; let previous = null;
+  for (const block of parseMarkdown(separateLists(markdown))) {
+    const list = LIST[block.type], adjacent = previous && !/\n\s*\n/.test(previous.raw); previous = block;
     if (list) {
       const last = result.at(-1);
       const item = { text: block.text, checked: block.type === 'check' ? block.checked : undefined };
       if (last?.tag === list && last.kind === block.type) last.items.push(item);
-      else result.push({ tag: list, kind: block.type, items: [item] });
+      else result.push({ tag: list, kind: block.type, items: [item], start: block.type === 'number' ? Number(block.raw.match(/^\s*(\d+)\./)?.[1] || 1) : undefined }); // a list split by a code block keeps counting
     } else if (block.type === 'heading') result.push({ tag: 'h' + Math.min(block.level + 1, 6), text: block.text });
     else if (block.type === 'raw' && table(block.text)) result.push(table(block.text));
     else if (block.type === 'raw' && block.text.includes('|') && !/^\s*(<|~~~|---)/.test(block.text)) result.push({ tag: 'p', text: block.text }); // a pipe in prose is not raw Markdown
     else if (block.type === 'code' || block.type === 'raw') result.push({ tag: 'pre', text: block.text.trim() ? block.text : block.raw });
+    else if (block.type === 'quote' && adjacent && result.at(-1)?.tag === 'blockquote') result.at(-1).text += '\n' + block.text; // consecutive > lines: one quote
     else if (block.type === 'quote') result.push({ tag: 'blockquote', text: block.text });
     else if (block.text.trim()) result.push({ tag: 'p', text: block.text });
   }
@@ -79,12 +93,15 @@ export function renderMessage(document, markdown) {
       element.append(thead, tbody); box.append(element); fragment.append(box); continue;
     }
     const element = document.createElement(block.tag);
+    if (block.start > 1) element.start = block.start;
+    if (block.kind === 'check') element.className = 'pw-msg__tasks';
     if (block.items) for (const item of block.items) {
       const li = document.createElement('li');
       if (item.checked !== undefined) { const box = document.createElement('input'); box.type = 'checkbox'; box.className = 'pw-check'; box.checked = item.checked; box.disabled = true; box.setAttribute('aria-label', item.checked ? 'Done' : 'Not done'); li.className = 'pw-msg__task'; li.append(box); }
       inline(document, li, item.text); element.append(li);
     }
     else if (block.tag === 'pre') element.textContent = block.text;
+    else if (block.tag === 'blockquote') block.text.split('\n').forEach((line, index) => { if (index) element.append(document.createElement('br')); inline(document, element, line); });
     else inline(document, element, block.text);
     fragment.append(element);
   }

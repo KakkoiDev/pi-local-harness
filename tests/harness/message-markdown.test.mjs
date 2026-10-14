@@ -34,3 +34,8 @@ test('GFM tables become tables (task 143)', () => {
   assert.equal(messageBlocks('a | b\n--- | ---\n1 | 2')[0].tag, 'table', 'outer pipes are optional');
   assert.equal(messageBlocks('Costs | about 3 | hours')[0].tag, 'p', 'a pipe in a sentence is not a table');
 });
+test('model reply shapes: a list right under text, a numbered list split by code, a multi-line quote (task 150)',()=>{
+ assert.deepEqual(messageBlocks('Steps:\n1. one\n2. two').map(block=>block.tag),['p','ol']);
+ const split=messageBlocks('1. one\n\n```\ncode\n```\n\n2. two');assert.equal(split.at(-1).start,2,'keeps counting after the code block');
+ assert.deepEqual(messageBlocks('> a\n> b\n\n> c').map(block=>block.text),['a\nb','c']);
+});

@@ -34,6 +34,7 @@ test('canary checks completed text, not tools or aborted output', () => {
  assert.equal(missingCanary(message(' [CANARY] hello')),false);
  assert.equal(missingCanary({...message('Oops'),stopReason:'aborted'}),false);
  assert.equal(missingCanary({role:'assistant',content:[{type:'toolCall'}]}),false);
+ assert.equal(missingCanary({...message('Let me read the file.'),stopReason:'toolUse'}),false,'a preamble before a tool call is not the answer');
 });
 test('memory reloads edits and incident lessons are deduplicated', () => {
  const dir = mkdtempSync(join(tmpdir(),'pi-memory-'));
@@ -60,7 +61,8 @@ test('accessible quoted image paths attach bytes; audio paths attach transcripts
   const result=await attachMedia({text:`See "${image}" and ${audio}`},dir,{input:['text','image']},async path=>{assert.equal(path,audio);return 'Hello world';});
   assert.equal(result.action,'transform');assert.equal(result.images[0].data,Buffer.from('image bytes').toString('base64'));
   assert.match(result.text,/Hello world/);
-  await assert.rejects(attachMedia({text:`"${image}"`},dir,{input:['text']},async()=>''),/vision/);
+  const blind=await attachMedia({text:`Look at "${image}"`},dir,{input:['text']},async()=>'');
+  assert.equal(blind.images.length,0);assert.match(blind.text,/^Look at .*not attached: the chosen model does not see images/s,'the prompt is kept, the image skipped');
   assert.equal((await attachMedia({text:'/does/not/exist.png'},dir,{input:['text']},async()=>'' )).action,'continue');
  } finally {rmSync(dir,{recursive:true});}
 });

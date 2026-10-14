@@ -1,5 +1,8 @@
 """Regression tests for the 2026-10-14 backend audit (task 150)."""
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 import json
 import os
 import tempfile
@@ -85,6 +88,19 @@ class AuditBackendTest(unittest.TestCase):
         for thread in threads: thread.start()
         for thread in threads: thread.join()
         self.assertEqual(errors, []); self.assertEqual(len(json.loads((self.root / 'protocol.json').read_text())), 8)
+
+    def fake_pi(self):
+        import sys
+        executable = self.root / 'bin' / 'pi'; executable.parent.mkdir(exist_ok=True)
+        executable.write_text('#!' + sys.executable + '\n' + Path('tests/fixtures/fake-pi.py').read_text()); executable.chmod(0o755)
+        return patch.dict(os.environ, {'PATH': str(executable.parent) + os.pathsep + os.environ['PATH']})
+
+    def test_a_web_request_survives_the_extensions_recovery_and_reports_a_refusal(self):
+        conversation = self.chat.project_chat(self.project)
+        with self.fake_pi():
+            events = []; self.chat.send(conversation['id'], {'message': 'Think TEST_RECOVER'}, events.append)
+            self.assertEqual(self.chat.store.get(conversation['id'])['messages'][-1]['content'], '[CANARY] recovered answer')
+            with self.assertRaisesRegex(ValueError, 'One agent is already working'): self.chat.send(conversation['id'], {'message': 'Hi TEST_REFUSED'}, events.append)
 
     def test_create_with_an_unslugged_name_leaves_no_stray_project(self):
         store = DocumentStore(self.root / 'plain'); page = store.create('foo!', 'Plan')

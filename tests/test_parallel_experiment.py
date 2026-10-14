@@ -1,5 +1,8 @@
 """Overlap analysis for experiments/parallel_inference/run.py."""
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 import unittest
 from experiments.parallel_inference.run import overlap, verdict
 

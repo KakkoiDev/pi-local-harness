@@ -1,5 +1,8 @@
 """Task 129: Gate checks know their project folder and whether they came from the web workbench or terminal Pi."""
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 import tempfile
 import unittest
 from pathlib import Path

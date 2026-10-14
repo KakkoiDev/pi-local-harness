@@ -1,4 +1,7 @@
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 import unittest
 from gate.shell_guard import destructive_reason
 from gate.engine import GateEngine

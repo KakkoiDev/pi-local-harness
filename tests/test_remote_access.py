@@ -2,7 +2,10 @@
 
 Remote requests arrive from tailscale serve on loopback with the tailnet Host and the
 Tailscale-User-Login header; only configured hosts and logins are trusted."""
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 import base64
 import http.client
 import http.server

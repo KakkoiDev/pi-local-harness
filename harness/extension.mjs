@@ -54,7 +54,7 @@ export default function harness(pi, dependencies = {}) {
     mkdirSync(dataDir, { recursive: true });
     appendFileSync(join(dataDir, 'incident_log.md'), `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
     appendFileSync(join(dataDir, 'session.log'), `${JSON.stringify({ event: 'recovery', reason, question: lastQuestion, reasoning: watch.lines })}\n`);
-    notify(reason, 'warning');
+    notify(`Harness recovery: ${reason}`, 'warning'); // the web worker waits for the re-asked turn on this prefix
     context.abort();
     watch.stop();
   };
@@ -91,7 +91,9 @@ export default function harness(pi, dependencies = {}) {
       ctx.ui.setWidget('local-harness', undefined);
       ctx.ui.setStatus('local-harness', undefined);
       showStartup?.(lines);
-      if (!showStartup || ctx.hasUI === false || process.argv.some((arg, index) => arg === '--mode=rpc' || (arg === '--mode' && process.argv[index + 1] === 'rpc'))) notify(lines.join('\n'));
+      const rpc = process.argv.some((arg, index) => arg === '--mode=rpc' || (arg === '--mode' && process.argv[index + 1] === 'rpc'));
+      // Web workers (shared port) skip the banner: it would become the job's progress line on every request.
+      if (!sharedPort && (!showStartup || ctx.hasUI === false || rpc)) notify(lines.join('\n'));
       timer = schedule(() => {
         if (!watch.active || pending) return;
         const triple = watch.loop();
@@ -104,7 +106,7 @@ export default function harness(pi, dependencies = {}) {
     } catch (error) { notify(`Harness startup failed: ${error.message}`, 'error'); }
   });
   pi.on('before_agent_start', event => {
-    agentLock.acquire();
+    try { agentLock.acquire(); } catch {} // taken in 'input', which can refuse the turn; never let it drop the memory below
     if (!lastQuestion && event.prompt) lastQuestion = event.prompt;
     // Task 114: the web worker's chosen context for this turn; the system prompt is rebuilt each turn, so it never piles up in history.
     let chosen = '';
@@ -116,6 +118,8 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('input', async (event, ctx) => {
     if (event.source === 'extension') return { action: 'continue' };
+    // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
+    try { agentLock.acquire(); } catch (error) { (ctx?.ui || context?.ui)?.notify(`Harness refused: ${error.message}`, 'warning'); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
@@ -126,7 +130,8 @@ export default function harness(pi, dependencies = {}) {
       return attached;
     } catch (error) { notify(`Media attachment failed: ${error.message}`, 'error'); return { action: 'handled' }; }
   });
-  let compactedThisTurn = false; // task 116
+  // Task 116: agent_end can fire again before a new turn while the usage reading is still stale; compact at most once per turn.
+  let compactedThisTurn = false;
   pi.on('agent_start', (_event, ctx) => { context = ctx; compactedThisTurn = false; watch.start(); });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
@@ -157,7 +162,7 @@ export default function harness(pi, dependencies = {}) {
       return;
     }
     const recovery = pending; pending = undefined;
-    if (retries++ >= 1) { notify(`Recovery repeated. Stopped automatic retries; the incident is saved in ${join(dataDir, 'session.log')}.`, 'error'); return; }
+    if (retries++ >= 1) { notify(`Harness recovery stopped: recovery repeated. Stopped automatic retries; the incident is saved in ${join(dataDir, 'session.log')}.`, 'error'); return; }
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {

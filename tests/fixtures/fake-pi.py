@@ -36,6 +36,16 @@ if request['message'].rstrip().endswith('TEST_TOOL'):
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
+if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts a looping turn, compacts and re-asks (task 150)
+    notify=lambda text:emit({'type':'extension_ui_request','method':'notify','message':text})
+    notify('Harness recovery: Loop detected: the same three thought lines occurred twice.')
+    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}});emit({'type':'agent_settled'})
+    time.sleep(0.3);emit({'type':'agent_start'})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'[CANARY] recovered answer'}],'stopReason':'stop'}})
+    emit({'type':'agent_settled'});sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_REFUSED'):  # another agent holds the lock
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness refused: One agent is already working. Wait or stop the active task before starting another.'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
         emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})

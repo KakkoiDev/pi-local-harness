@@ -9,8 +9,9 @@ export function localModels(config = {}) {
   models: [...ids].map(id=>{
    const original = models.find(model=>model.id===id) || {};
    const known = id === chosen;
-   return {name:id, reasoning:known ? process.env.PI_HARNESS_MODEL_THINKING === '1' : id.startsWith('gemma4') || id.startsWith('gpt-oss'), contextWindow:32768,maxTokens:8192,
+   return {name:id, reasoning:id.startsWith('gemma4') || id.startsWith('gpt-oss'), contextWindow:32768,maxTokens:8192,
     cost:{input:0,output:0,cacheRead:0,cacheWrite:0}, ...original, id,
+    ...(known ? {reasoning:process.env.PI_HARNESS_MODEL_THINKING === '1'} : {}), // the menu's choice wins over models.json, as input does
     input:(known ? process.env.PI_HARNESS_MODEL_VISION === '1' : id.startsWith('gemma4'))?['text','image']:(original.input || ['text'])};
   })};
 }

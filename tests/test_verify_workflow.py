@@ -1,5 +1,8 @@
 """The completion gate must fail when a test fails, not only when checkboxes disagree."""
-import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+try:
+    import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
+except ModuleNotFoundError:  # run as tests.<module> from the repository root
+    from tests import isolation  # noqa: F401
 from pathlib import Path
 import subprocess
 import sys

@@ -278,6 +278,9 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             deadline=time.monotonic()+600;settled=False;reply='';thought=''
+            # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
+            # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
+            phase='answering'
             while time.monotonic()<deadline:
                 if cancelled.is_set():raise ValueError('Stopped')
                 try:event=events.get(timeout=1 if settled else .5)
@@ -287,12 +290,19 @@ class WebChat:
                 if event is None:
                     if cancelled.is_set():raise ValueError('Stopped')
                     diagnostics.seek(0);raise ValueError('Pi exited unexpectedly: '+diagnostics.read()[-1000:])
-                if event.get('type')=='agent_start':settled=False
-                if event.get('type')=='agent_settled':settled=True
+                if event.get('type')=='extension_ui_request' and event.get('method')=='notify':
+                    notice=str(event.get('message',''))
+                    if notice.startswith(('Harness recovery stopped:','Harness refused:')):raise ValueError(notice.split(':',1)[1].strip())
+                    if notice.startswith('Harness recovery:'):phase='recovering';settled=False
+                if event.get('type')=='agent_start':
+                    settled=False
+                    if phase=='recovering':phase='reasking'
+                if event.get('type')=='agent_settled' and phase!='recovering':settled=True
                 if event.get('type')=='response' and event.get('success') is False:raise ValueError(event.get('error','Pi request failed'))
                 if event.get('type')=='message_end':
                     message=event.get('message',{})
                     if message.get('role')=='assistant':
+                        if message.get('stopReason')=='aborted' and phase=='recovering':continue  # stopped to recover; wait for the re-ask
                         if message.get('stopReason') in ('error','aborted'):raise ValueError(message.get('errorMessage','Model response stopped'))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text

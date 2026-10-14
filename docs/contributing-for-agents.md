@@ -37,6 +37,7 @@ Run from the repository root.
 
 ```sh
 python3 -m unittest discover -s tests          # Python tests (fast)
+python3 -m unittest tests.test_documents        # one Python test module
 node --test tests/harness/*.test.mjs            # Node tests (fast)
 python3 tests/verify_workflow.py                # both of the above + ROADMAP/task checks; must end with "Workflow Verification Passed!"
 ```

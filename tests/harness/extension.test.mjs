@@ -131,3 +131,21 @@ test('a long chat is compacted after the turn that passes 60% of the window, onc
   assert.equal(compactions.length,2,'a new turn above the line compacts again');
  }finally{handlers.session_shutdown?.();if(previous===undefined)delete process.env.PI_AGENT_DATA;else process.env.PI_AGENT_DATA=previous;rmSync(dir,{recursive:true,force:true});}
 });
+
+test('a second agent is refused at input while another holds the lock (task 150)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-lock-'));writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+ const { AgentLock } = await import('../../harness/agent-lock.mjs');
+ const other=new AgentLock(join(dir,'.agent-lock'),()=>true);
+ const handlers={},notices=[];
+ const pi={appendEntry(){},registerEntryRenderer(){},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage(){}};
+ harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
+ try {
+  other.acquire(); // the other agent (terminal or web) works now
+  const refused=await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir});
+  assert.equal(refused.action,'handled','the turn does not run');assert.match(notices.join('\n'),/Harness refused: One agent is already working/);
+  other.release();
+  const allowed=await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir});
+  assert.equal(allowed.action,'continue');
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/,'memory still injected');
+ } finally { handlers.agent_settled?.(); rmSync(dir,{recursive:true}); }
+});

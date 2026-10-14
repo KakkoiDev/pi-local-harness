@@ -27,7 +27,9 @@ Request 2026-10-14: "I want you to do a full audit of the codebase, you are star
 
 ## App shell and Pi extension
 
-- [ ] One agent at a time really holds (the lock refuses the turn); recovery works for web requests; ⌘Return sends only from the chat composer; the chat transcript is not re-announced; Gate rows reachable by keyboard; Show in Gate clears the project scope; stale chat selections dropped; one failed conversation fetch is not "offline"; the poll leaves recording and dictation alone; the microphone is released on errors.
+- [x] One agent at a time really holds (the lock refuses the turn); recovery works for web requests; ⌘Return sends only from the chat composer; the chat transcript is not re-announced; Gate rows reachable by keyboard; Show in Gate clears the project scope; stale chat selections dropped; one failed conversation fetch is not "offline"; the poll leaves recording and dictation alone; the microphone is released on errors.
+- [x] Also: the canary check skips tool-call preambles; an image a non-vision model cannot see no longer swallows the prompt; web jobs no longer show the startup banner as progress; the menu's thinking choice wins over models.json; Event Info (menu and close box) and the zoom box work; the model menu closes with Escape while loading and gives up after 15 s; Activity and Gate are grids with column headers; Pi's lists keep their numbers, lists under a line of text render, multi-line quotes stay one quote; Escape only closes an open sheet.
+- [x] Checked and kept: the extension's once-per-turn compaction guard is not dead code (agent_end can repeat before a new turn; its test says so), and `ThoughtWatch.feed`'s loop check is tested API.
 
 ## Design and markup
 

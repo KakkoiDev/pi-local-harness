@@ -472,6 +472,25 @@ const readline = require('node:readline');
   assert.ok(await page.locator('#activity-list .activity-request').first().evaluate(cell=>cell.getBoundingClientRect().width)>=150,'the Request column has room');
   await page.setViewportSize({width:1440,height:900});
 
+  { // Audit (task 150): ⌘Return in another text field never sends the hidden chat draft.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Hidden draft TEST_WAIT');
+  const before=(await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()))).jobs.length;
+  await page.locator('#work-tab').click();await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('A question about this file');
+  await page.locator('#document-prompt').press('ControlOrMeta+Enter');await page.waitForTimeout(600);
+  const after=(await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()))).jobs;
+  assert.equal(after.some(job=>job.message==='Hidden draft TEST_WAIT'),false,'the chat draft was not sent');assert.ok(after.length<=before+1);
+  await stopAll();await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('');
+  }
+  { // Audit (task 150): Gate rows are a grid; Arrow keys move between checks.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Once more TEST_TOOL');await page.locator('#send').click();
+  await page.waitForFunction(async()=>(await fetch('/api/gate').then(r=>r.json())).events.length>=2,null,{timeout:20000,polling:500});
+  await page.goto(`${base}/gate`);await page.locator('#gate-filter').selectOption('all');await page.locator('#gate-events .gate-event').nth(1).waitFor();
+  assert.equal(await page.locator('#gate-events').getAttribute('role'),'grid');
+  await page.locator('#gate-events .gate-event[tabindex="0"]').focus();const first=await page.evaluate(()=>document.activeElement.textContent);
+  await page.keyboard.press('ArrowDown');await page.waitForFunction(text=>document.activeElement?.classList.contains('gate-event')&&document.activeElement.textContent!==text,first);
+  assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-current')),'true','the focused check is the selected one');
+  }
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
