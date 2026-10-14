@@ -569,7 +569,25 @@ const readline = require('node:readline');
   assert.equal(new Set(await page.locator('.pw-composer__row>*').evaluateAll(items=>items.filter(item=>item.getClientRects().length&&item.offsetHeight).map(item=>Math.round(item.getBoundingClientRect().top)))).size,1,'composer controls in one row');
   await page.locator('#open-menu').click();
   assert.equal(await page.locator('#sidebar .sheet-head__title').textContent(),'π Pi Workbench');assert.equal(await page.locator('#sidebar>.pw-titlebar').isVisible(),false);
-  assert.equal(await page.locator('#pi-status').isVisible(),true);await page.locator('#pi-close').click();
+  assert.equal(await page.locator('#pi-status').isVisible(),false,'Ph_Pi: no status strip');assert.equal(await page.locator('#agent-activity').isVisible(),true,'the Agent section shows the state');await page.locator('#pi-close').click();
+  { // Task 132: view popup (Ph_Views), detail bar (Ph_ActivityDetail), dialogs as sheets, the bullet tool (PhoneEdit1).
+  await page.locator('#phone-view').click();
+  assert.deepEqual(await page.locator('#phone-view-menu>*').evaluateAll(items=>items.map(item=>item.getAttribute('role')==='separator'?'—':item.firstChild.textContent.trim())),['Chat','Work','—','Activity · all','Gate · all']);
+  await page.locator('#phone-view-menu [data-view="activity"]').click();await page.waitForFunction(()=>document.body.dataset.view==='activity');
+  assert.equal(await page.locator('#phone-view-label').textContent(),'Activity · all');
+  await page.locator('#activity-list .activity-task').first().click();await page.waitForFunction(()=>document.body.dataset.pane==='detail');
+  assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#phone-back-label').textContent(),'Activity · all');
+  assert.equal(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().innerText(),'Open in Project');
+  await page.locator('#phone-back').click();
+  await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
+  assert.equal(await page.evaluate(()=>document.body.classList.contains('menu-open')),false,'the π sheet closes for a dialog');
+  const sheet=await page.locator('#folder-dialog').boundingBox();assert.ok(Math.round(sheet.y+sheet.height)>=840&&Math.round(sheet.width)===390,'a bottom sheet: '+JSON.stringify(sheet));
+  await page.locator('#folder-cancel').click();
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#document-editor .pw-block--paragraph .pw-block__content').first().click();
+  await page.locator('#phone-tool-bullet').waitFor();await page.locator('#phone-tool-bullet').click();
+  await page.waitForFunction(()=>document.querySelector('#document-editor .pw-block--focused')?.classList.contains('pw-block--bullet'));
+  await page.locator('#phone-tool-bullet').click();await page.locator('#phone-edit-done').click();
+  }
   await page.setViewportSize({width:1440,height:900});
   assert.equal(await page.locator('.sheet-head').first().isVisible(),false,'sheet heads are phone only');
 

@@ -332,3 +332,10 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .document-request .agent-reply{font-family:var(--font-text);font-size:15px;line-height:1.45}
 /* Raw Markdown looks like Code (DocumentBlock card); components.css only has the --code rule (told the designer) */
 .pw-block--raw>.pw-block__content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
+/* Phone (task 132): Ph_Pi has no status strip (the Agent section shows the state); dialogs are bottom sheets (IMPLEMENTATION § 7) */
+@media (max-width:760px){
+  .pi-status{display:none!important}
+  dialog.pw-dialog[open]{margin:auto 0 0;width:100%;max-width:none;max-height:88vh;overflow:auto;box-sizing:border-box;border:0;border-top:3px double var(--ink);box-shadow:none;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  dialog.pw-dialog[open] .pw-dialog__actions{gap:8px}
+  dialog.pw-dialog[open] .pw-dialog__actions>.pw-btn{flex:1;justify-content:center;min-height:var(--size-touch)}
+}
