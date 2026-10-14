@@ -224,6 +224,21 @@ class WebChat:
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
         self.queue.close()
+    def select_context(self, project, data):
+        """The context a request carries (task 114); the request and its preview (task 133) both use this."""
+        comment=data.get('document_comment')
+        entry=self.documents.get(comment['path'])['comments'] if comment else []
+        thread=next((item for item in entry if item['id']==comment['id']),None) if comment else None
+        return build_context(self.documents,project,data.get('message','') or (thread or {}).get('text',''),current=(comment or {}).get('path') or data.get('document'),
+            passage=(thread or {}).get('anchor',''),thread=json.dumps(thread,ensure_ascii=False) if thread else '')
+
+    def context_preview(self, project, data):
+        """What "Pi sees:" shows before sending: the items of the same selection and its size in tokens (about 4 characters each)."""
+        for path in [(data.get('document_comment') or {}).get('path'),data.get('document')]:
+            if path and (len(Path(path).parts)<3 or Path(path).parts[1]!=project):raise ValueError('Document belongs to another project')
+        chosen=self.select_context(project,data)
+        return {'items':chosen['items'],'tokens':len(chosen['text'])//4}
+
     def send(self, identifier, data, emit):
         self.store.get(identifier)
         cancelled=threading.Event()
@@ -255,8 +270,7 @@ class WebChat:
                 # Task 114: a small chosen context in the system prompt for this turn (harness/extension.mjs), never in the session history.
                 entry=self.documents.get(comment['path'])['comments'] if comment else []
                 thread=next((item for item in entry if item['id']==comment['id']),None) if comment else None
-                chosen=build_context(self.documents,project,data.get('message','') or (thread or {}).get('text',''),current=(comment or {}).get('path') or data.get('document'),
-                    passage=(thread or {}).get('anchor',''),thread=json.dumps(thread,ensure_ascii=False) if thread else '')
+                chosen=self.select_context(project,data)
                 header=(f"Active project folder: {self.documents.project_path(project)}\nWork in this folder. Do not read other projects or their chat histories without an explicit request. "
                         "The context below was chosen for this request and is current; it overrides older context in this conversation.\n\n")
                 context_file=folder/'context.md';context_file.write_text(header+chosen['text'],encoding='utf-8')
@@ -394,6 +408,12 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/conversations':self.reply(self.chat.store.list());return
             if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
             if path=='/api/models':self.reply(self.chat.model_list());return
+            if path=='/api/context-preview':
+                query={key:values[0] for key,values in parse_qs(urlparse(self.path).query).items()}
+                request={'message':query.get('text','')}
+                if query.get('document'):request['document']=query['document']
+                if query.get('comment'):request={'message':'','document_comment':{'path':query.get('path',''),'id':query['comment']}}
+                self.reply(self.chat.context_preview(query['project'],request));return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):

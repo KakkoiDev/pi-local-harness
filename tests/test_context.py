@@ -89,6 +89,20 @@ class ContextTest(unittest.TestCase):
         self.assertLess(len(result['text']), 16000 + 400)
         self.assertLess(len(result['text']) * 4, snapshot)
 
+    def test_items_name_each_part_with_its_kind_and_count_open_tasks(self):
+        """Task 133: the "Pi sees:" line reads these items, in the harness's priority for that kind of request."""
+        chat = self.build('Look at harness/other.py')
+        self.assertEqual([(item['kind'], item.get('path')) for item in chat['items']][:3], [('plan', 'ROADMAP.md'), ('tasks', None), ('mentioned', 'harness/other.py')])
+        self.assertEqual(chat['items'][1]['label'], '2 open tasks'); self.assertEqual(chat['open_tasks'], 2)
+        self.assertEqual(chat['items'][0]['label'], 'ROADMAP.md')
+        comment = self.build('Tighten this', current=f'projects/{self.project}/notes.md')
+        kinds = [(item['kind'], item.get('path')) for item in comment['items']]
+        self.assertEqual(kinds[0], ('this file', 'notes.md'), 'comments and whole-file requests: the current file first')
+        self.assertIn(('related', 'harness/work_queue.py'), kinds, 'a file the page links to')
+        self.assertEqual([path for kind, path in kinds if path and kind != 'tasks'], [comment['items'][0]['path']] + [name for name in comment['included'] if name != 'notes.md'])
+        empty = DocumentStore(Path(self.temp.name) / 'other'); bare = Path(self.temp.name) / 'bare'; bare.mkdir()
+        self.assertEqual(build_context(empty, empty.register(str(bare), 'Bare'), 'hi')['items'], [], 'nothing from this project')
+
 
 if __name__ == '__main__':
     unittest.main()

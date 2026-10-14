@@ -67,14 +67,14 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     root = store.project_path(project); now = now or time.time()
     files = store.files(project); names = [item['name'] for item in files]; meta = {item['name']: item for item in files}
     current_name = current.split('/', 2)[2] if current else None
-    sections, included, omitted = [], [], []
+    sections, included, omitted, items = [], [], [], []
     used = 0
 
     def read(name, cap):
         try: return (root / name).read_text(encoding='utf-8', errors='replace')[:cap]
         except OSError: return ''
 
-    def offer(title, body, name=None, required=False):
+    def offer(title, body, name=None, required=False, kind=None):
         nonlocal used
         block = f'## {title}\n{body.strip()}\n'
         if not required and used + len(block) > budget:
@@ -82,7 +82,8 @@ def build_context(store, project, request, current=None, passage='', thread='', 
             return False
         if required and used + len(block) > budget: block = block[:max(0, budget - used)]
         sections.append(block); used += len(block)
-        if name: included.append(name)
+        if name and name not in included:
+            included.append(name); items.append({'label': name.rsplit('/', 1)[-1], 'path': name, 'kind': kind})
         return True
 
     # 1. Plan
@@ -93,18 +94,22 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     if tasks:
         plan.append('Open tasks:\n' + '\n'.join(f"{name} {meta[name]['done']}/{meta[name]['total']}" + (' Blocked' if meta[name].get('blocked') else '') if meta[name].get('total') else name for name in open_tasks))
         if len(tasks) > len(open_tasks): finished = len(tasks) - len(open_tasks); plan.append(f"{finished} finished task{'' if finished == 1 else 's'}")
-    if plan: offer('Plan (ROADMAP.md, compressed)', '\n\n'.join(plan), 'ROADMAP.md' if 'ROADMAP.md' in meta else None, required=True)
+    if plan: offer('Plan (ROADMAP.md, compressed)', '\n\n'.join(plan), 'ROADMAP.md' if 'ROADMAP.md' in meta else None, required=True, kind='plan')
+    if open_tasks: items.append({'label': f"{len(open_tasks)} open task{'' if len(open_tasks) == 1 else 's'}", 'kind': 'tasks', 'count': len(open_tasks)})
 
     # 2. Current document
     document = ''
     if current_name and current_name in meta:
         document = read(current_name, 400000)
         body = document if len(document) <= WHOLE_DOCUMENT else section_around(document, passage)
-        offer(f'Current document: {current_name}', body, current_name)
+        if offer(f'Current document: {current_name}', body, current_name, kind='this file'):
+            # Comments and whole-file requests are about this file: it leads the "Pi sees:" line (ContextLine card).
+            mine = next((item for item in items if item.get('path') == current_name), None)
+            if mine: items.remove(mine); items.insert(0, {**mine, 'kind': 'this file'})
 
     # 3. Mentioned files, then 4. auto-selected while room is left
     chosen = [name for name in mentioned(f'{request}\n{passage}\n{thread}', names) if name != current_name]
-    for name in chosen: offer(f'Mentioned: {name}', read(name, FILE_CAP), name)
+    for name in chosen: offer(f'Mentioned: {name}', read(name, FILE_CAP), name, kind='mentioned')
     candidates = []
     if document:
         base = Path(current_name).parent
@@ -119,7 +124,7 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     candidates += [name for name in sorted(names) if words & set(re.split(r'[-_./]', name.lower()))][:3]
     for name in candidates:
         if name in included or name in omitted or name == current_name or name == 'ROADMAP.md': continue
-        offer(f'Related: {name}', read(name, FILE_CAP), name)
+        offer(f'Related: {name}', read(name, FILE_CAP), name, kind='related')
 
     # 5. File names only
     listed = names if len(names) <= NAMES_CAP else _compress_names(names)
@@ -133,7 +138,8 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     footer = 'Read other files with your tools when you need them.'
     if omitted: footer = f"Not included (over the context budget): {', '.join(omitted)}. " + footer
     sections.append(footer + '\n')
-    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted}
+    # items: what the "Pi sees:" line shows (task 133), files in the order Pi gets them plus the open-task count.
+    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted, 'items': items, 'open_tasks': len(open_tasks)}
 
 
 def _compress_names(names):

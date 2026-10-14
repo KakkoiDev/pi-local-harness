@@ -172,7 +172,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [130-Projects window: Projects group and Agent section](tasks/130-agent-section.md)
 - [x] [131-The menu bar status is a button](tasks/131-status-button.md)
 - [x] [132-Phone and tablet for app-level Activity and Gate](tasks/132-phone-agent.md)
-- [ ] [133-Server: the context preview Pi will get](tasks/133-context-preview.md)
+- [x] [133-Server: the context preview Pi will get](tasks/133-context-preview.md)
 - [ ] [134-"Pi sees:" lines](tasks/134-context-line.md)
 - [ ] [135-Thread and Review states, Show in Activity, whole-file answer cards](tasks/135-comment-states.md)
 - [ ] [136-"Also read:" after answers](tasks/136-also-read.md)

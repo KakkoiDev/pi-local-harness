@@ -148,6 +148,29 @@ class ProjectContextTest(unittest.TestCase):
             capture=json.loads((chat.store.folder(one['id'])/'session.environment.json').read_text())
             self.assertEqual(Path(capture['cwd']),chat.documents.project_path(first))
 
+    def test_context_preview_is_what_the_request_sends(self):
+        """Task 133: GET /api/context-preview runs the same selection as the request."""
+        import os, sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'chats',12345,3000,data_root=root/'workspace');self.addCleanup(chat.close)
+            project=chat.documents.create_project('Preview');conversation=chat.project_chat(project)
+            (chat.documents.project_path(project)/'notes.md').write_text('# Notes marker\n')
+            path=f'projects/{project}/ROADMAP.md';entry=chat.documents.comment(path,'See notes.md please.','Describe what we are building.')
+            for request in [{'message':'Read notes.md'},{'message':'','document_comment':{'path':path,'id':entry['id']}},{'message':'Whole file?','document':path}]:
+                preview=chat.context_preview(project,request)
+                events=[]
+                with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],request,events.append)
+                sent=next(event for event in events if event.get('type')=='context')
+                self.assertEqual(preview['items'][0]['path'],'ROADMAP.md',request)
+                self.assertEqual(sorted(item['path'] for item in preview['items'] if item.get('path')),sorted(sent['included']),request)
+                self.assertEqual(preview['tokens'],sent['chars']//4,request)
+            self.assertIn('notes.md',[item.get('path') for item in chat.context_preview(project,{'message':'','document_comment':{'path':path,'id':entry['id']}})['items']],'the thread\'s words count')
+            with self.assertRaisesRegex(ValueError,'another project'):chat.context_preview(chat.documents.create_project('Other'),{'document':path})
+
 
 class DocumentContextTest(unittest.TestCase):
     """Task 115: comment and whole-file requests run on their own; the project chat holds only chat."""

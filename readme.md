@@ -98,7 +98,10 @@ viewable and editable; binary files are listed but not rendered as text. The tre
 skips `.git`, dependency/cache folders, and symlinks, with a 2,000-file limit.
 The text viewer limits files to 512 KB. The chosen context is bounded to 16,000
 characters per turn, with 3,000 per chosen file and 6,000 for the current document
-(a larger one is cut to the passage's section plus its headings).
+(a larger one is cut to the passage's section plus its headings). `GET /api/context-preview?project=&text=`
+(with `document=`, or `path=&comment=` for a thread) returns what that request would carry:
+the file names with their kind (plan, this file, mentioned, related), the open-task count
+and the size in tokens.
 
 ## Data and configuration
 
