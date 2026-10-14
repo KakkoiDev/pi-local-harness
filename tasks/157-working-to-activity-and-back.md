@@ -10,4 +10,4 @@ Request 2026-10-14: "harmonize the UX/UI so that when we see in the ui that the 
 - [x] The Agent section's Activity row also opens the running request (else the next waiting one).
 - [x] Bug the person reported: the Activity detail's Result closed on its own (the detail is rebuilt as the request changes). It now stays open (design.cjs waits for a refresh). The same report showed "Open in Chatjapanese": the old desk/phone label pair, replaced by the origin buttons.
 - [x] Not built: a link inside the Review head, which is a button (a link cannot sit inside one); the thread it opens has the link. The worker's Open in Chat + Show Task come with plan 156.
-- [x] Green: both browser suites. One verify_workflow run failed once and passed on three more runs; the failing test could not be reproduced (the new capability tests passed five times in a row).
+- [x] Green: both browser suites. An intermittent verify_workflow failure was found later (task 163): two tests raced the queue's worker; fixed.

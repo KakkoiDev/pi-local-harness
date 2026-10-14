@@ -70,6 +70,7 @@ class AuditBackendTest(unittest.TestCase):
     def test_a_file_pi_is_answering_about_cannot_be_moved_or_trashed(self):
         store = self.chat.documents; path = store.create_file(self.project, 'docs/a.md')['path']
         store.save(path, '# a\n\nLine.\n', store.get(path)['revision']); entry = store.comment(path, 'Why?', 'Line.')
+        self.chat.switching = 'hold'; self.addCleanup(setattr, self.chat, 'switching', None)  # the request stays queued
         self.chat.enqueue({'project': self.project, 'message': 'Comment', 'document_comment': {'path': path, 'id': entry['id']}})
         for target in (path, f'projects/{self.project}/docs'):
             with self.assertRaisesRegex(ValueError, 'Pi is working'): self.chat.ensure_idle_path(target)

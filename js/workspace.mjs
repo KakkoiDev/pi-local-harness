@@ -249,7 +249,7 @@ export function installWorkspace(host){
   const matches=state.projects.filter(item=>(item.name+' '+item.path).toLocaleLowerCase().includes(query));
   if(!matches.length)$('project-list').append(node('p','pw-group__empty',query?'No matching projects':'Your projects will appear here.'));
   for(const item of matches){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',item.name));const meta=busy[item.id];if(meta){const cell=node('span','pw-row__meta');if(meta==='running')cell.append(icon('running',{size:12}));if(meta==='failed')cell.append(icon('caution',{size:12}));cell.append(meta);button.append(cell);}button.classList.add('conversation');button.title=item.path;button.setAttribute('aria-current',item.id===project&&!['activity','gate'].includes(view)?'page':'false');/* in Activity or Gate only the Agent row is current */button.onclick=async()=>{const fromApp=['activity','gate'].includes(document.body.dataset.view);await selectProject(item.id);host.setLevel('project');if(fromApp)host.showView('chat');};if(item.missing){button.classList.add('pw-row--missing');button.querySelector('.pw-row__meta')?.remove();button.append(node('span','pw-row__meta','folder missing'));button.title=item.path+' is missing. Open it to locate the folder or remove it from the list.';}/* from Activity or Gate a project opens its Chat (round 3, B10) */
-   const more=node('button','pw-btn pw-btn--plain project-more-button phone-only');more.type='button';more.setAttribute('aria-label','More for '+item.name);more.setAttribute('aria-haspopup','menu');more.append(moreGlyph());more.onclick=()=>openProjectMore(item);/* phone: the ⋯ sits on the project it acts on (Ph_ProjectMore) */
+   const more=node('button','pw-btn pw-btn--plain project-more-button phone-only');more.type='button';more.setAttribute('aria-label','More for '+item.name);more.setAttribute('aria-haspopup','menu');more.append(icon('more'));more.onclick=()=>openProjectMore(item);/* phone: the ⋯ sits on the project it acts on (Ph_ProjectMore) */
    const row=node('div','project-row');row.append(button,more);$('project-list').append(row);}
   const empty=!state.projects.length&&!summary.any,attention=summary.attention.length,activity=$('agent-activity-meta'),gate=$('agent-gate-meta'),g=summary.gate;
   activity.replaceChildren();if(attention)activity.append(icon('caution',{size:12}),attention+' needs attention');else if(summary.running||summary.waiting){if(summary.running)activity.append(icon('running',{size:12}));activity.append([summary.running&&summary.running+' running',summary.waiting&&summary.waiting+' waiting'].filter(Boolean).join(' · '));}else activity.append(empty?'Nothing yet':'Nothing running');
@@ -315,11 +315,11 @@ export function installWorkspace(host){
  }
  function leaveProject(id){if(project!==id)return;project=null;resetDocument();host.setLevel('projects');host.showView('chat');}
  async function renameProject(id=project){const item=projectItem(id);if(!item||item.missing)return;
-  const name=await askName({title:'Rename Project',label:'Name',value:item.name,action:'Rename',selectStem:true,describe:typed=>`Renames the folder “${item.name}” to “${typed||'…'}” in ${parentOf(item.path)}. Chat, comments and Activity stay with the project.`});
-  if(!name||name===item.name)return;
-  try{const result=await projectCall('rename',id,{name});if(!result)return;await afterProjectChange(id);
-   host.toast(`Renamed to “${result.name}”.`,()=>projectCall('rename',id,{name:result.previous}).then(()=>afterProjectChange(id)).catch(e=>notice(e.message,true)));}
-  catch(e){notice(e.message,true);}}
+  let result=null;
+  const name=await askName({title:'Rename Project',label:'Name',value:item.name,action:'Rename',selectStem:true,describe:typed=>`Renames the folder “${item.name}” to “${typed||'…'}” in ${parentOf(item.path)}. Chat, comments and Activity stay with the project.`,
+   check:async typed=>{if(typed===item.name)return null;try{result=await projectCall('rename',id,{name:typed});return null;}catch(e){return e.message;}}});/* an error stays in the dialog (round 5) */
+  if(!name||!result)return;await afterProjectChange(id);
+  host.toast(`Renamed to “${result.name}”.`,()=>projectCall('rename',id,{name:result.previous}).then(()=>afterProjectChange(id)).catch(e=>notice(e.message,true)));}
  async function afterProjectChange(id){await poll();if(project===id){const item=projectItem(id);if(item){$('project-title').textContent=$('files-title').textContent=item.name;$('project-folder').textContent=item.path;renderMissing();host.projectRenamed?.();}}}
  function moveProject(id=project){const item=projectItem(id);if(item&&!item.missing)choose('move',item);}
  function locateProject(id=project){const item=projectItem(id);if(item?.missing)choose('locate',item);}
@@ -340,8 +340,6 @@ export function installWorkspace(host){
   if(await ask({icon:'caution',message:`Move “${item.name}” to the Trash?`,detail:(counts?`Its ${counts} go`:'The empty folder goes')+' to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.',danger:'Move to Trash',safe:'Cancel'})!=='danger')return;
   try{const result=await projectCall('trash',id);if(!result)return;leaveProject(id);await poll();host.toast(`“${item.name}” is in the Trash.`);}
   catch(e){notice(e.message,true);}}
- // The ⋯ glyph as drawn on Ph_ProjectMore (icons.mjs has none yet; asked in the brief).
- function moreGlyph(){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),path=document.createElementNS('http://www.w3.org/2000/svg','path');svg.setAttribute('viewBox','0 0 16 16');svg.setAttribute('width','16');svg.setAttribute('height','16');svg.setAttribute('aria-hidden','true');path.setAttribute('d','M2 7h2v2H2zM7 7h2v2H7zM12 7h2v2h-2z');path.setAttribute('fill','currentColor');svg.append(path);return svg;}
  function openProjectMore(item){const sheet=$('project-more');sheet.dataset.project=item.id;$('project-more-title').textContent=item.name;$('project-more-path').textContent=item.path;
   for(const entry of sheet.querySelectorAll('[data-more]')){const kind=entry.dataset.more;entry.hidden=kind==='locate'?!item.missing:kind==='open'&&item.missing;entry.disabled=item.missing&&['rename','move','copy','trash'].includes(kind);}
   sheet.showModal();}

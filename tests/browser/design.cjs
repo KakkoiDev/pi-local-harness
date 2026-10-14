@@ -422,7 +422,7 @@ const readline = require('node:readline');
     assert.equal(new Set(widths).size,1,'the thinking menu keeps its width: '+widths); } // audit: it grew on every open
   await page.locator('#model-button').click();await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
   assert.equal(await page.locator('#model-menu [data-model="tiny:1b"]').getAttribute('aria-disabled'),'true','a model without tools cannot be chosen');
-  assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['thinks · sees','no thinking','no tools']);assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'One model in memory at a time. Switching unloads the current one.');
+  assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['thinks · sees','no thinking','no tools']);assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.');
   await page.locator('#model-menu [data-model="qwen3:8b"]').click();
   assert.match(await page.locator('#model-button').textContent(),/Loading qwen3:8b…/);
   await page.locator('#model',{hasText:/^qwen3:8b$/}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/qwen3:8b is ready\./);
@@ -528,7 +528,7 @@ const readline = require('node:readline');
   await page.locator('#document-discussion>summary').click();const dictate=page.locator('#document-prompt-form .dictate');
   assert.equal(await dictate.getAttribute('aria-label'),'Dictate');await dictate.click();
   await page.waitForFunction(()=>document.querySelector('#document-prompt-form .dictate').getAttribute('aria-pressed')==='true');
-  assert.equal(await dictate.getAttribute('aria-label'),'Stop Dictation');await page.waitForTimeout(1200);await dictate.click();
+  assert.equal(await dictate.getAttribute('aria-label'),'Stop dictating');await page.waitForTimeout(1200);await dictate.click();
   await page.waitForFunction(()=>document.querySelector('#document-prompt').value.includes('spoken words'));
   assert.equal(await page.locator('#comment-form .dictate').count(),1,'the comment composer has one too');
   await page.unroute('**/api/transcribe');await page.locator('#document-prompt').fill('');
@@ -713,6 +713,14 @@ const readline = require('node:readline');
   await page.locator('#document-requests .document-request .pw-context--after').first().waitFor({state:'attached',timeout:20000});
   assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:001-first-task.md');
   }
+  { // Round 5 (task 163): the model menu says what each model runs at once, and lists a chosen model that is gone.
+  await page.route('**/api/models',route=>route.fulfill({json:{models:[{id:'gemma4:26b-mlx',tools:true,thinking:true,vision:true,at_once:'parallel'},{id:'qwen3:8b',tools:true,thinking:false,vision:false,at_once:'checking'},{id:'mistral:7b',tools:true,thinking:false,vision:false,at_once:'unknown'}],current:{model:'gemma4:26b-mlx',effort:'high',chosenEffort:'high',thinking:true,missing:'gone:7b'}}}));
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#model-button').click();await page.locator('#model-menu [data-model]').first().waitFor();
+  const keys=await page.locator('#model-menu .pw-menu__key').allTextContents();
+  assert.match(keys[0],/ · parallel$/);assert.match(keys[1],/ · checking…$/);assert.doesNotMatch(keys[2],/unknown/,'unknown says nothing');
+  const gone=page.locator('#model-menu .pw-menu__item',{hasText:'gone:7b'});assert.equal(await gone.getAttribute('aria-disabled'),'true');assert.equal(await gone.locator('.pw-menu__key').textContent(),'not installed');
+  await page.keyboard.press('Escape');await page.unroute('**/api/models');
+  }
   { // Task 141: Open on Phone when tailscale serve did not start (Dialogs2): the reason, the enable link, Copy Link, Done.
   await page.route('**/api/config',async route=>{const response=await route.fetch();const config=await response.json();await route.fulfill({response,json:{...config,phoneUrl:null,phoneError:'tailscale serve exited (1): Serve is not enabled on your tailnet. To enable, visit: https://login.tailscale.com/f/serve?node=abc',phoneEnable:'https://login.tailscale.com/f/serve?node=abc'}});});
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#menubar [aria-controls="menu-pi"]').click();
@@ -737,6 +745,10 @@ const readline = require('node:readline');
   await page.locator('#window-title').filter({hasText:'Renamed'}).waitFor();
   await page.locator('#toast-undo').click();await page.waitForFunction(()=>document.querySelector('#window-title').textContent==='Rename me');assert.ok(fs.existsSync(join(directory,'Rename me')),'Undo renames it back');
   fs.mkdirSync(join(directory,'Elsewhere'));
+  await projectMenu('rename-project');await page.locator('#name-dialog-title').filter({hasText:'Rename Project'}).waitFor();await page.locator('#name-dialog-input').fill('Elsewhere');await page.locator('#name-dialog-ok').click();
+  await page.locator('#name-dialog-help').filter({hasText:'A folder named “Elsewhere” already exists'}).waitFor();assert.equal(await page.locator('#name-dialog').evaluate(dialog=>dialog.open),true,'round 5: the error stays in the dialog');
+  assert.equal(await page.locator('#name-dialog-input').evaluate(input=>input.value.slice(input.selectionStart,input.selectionEnd)),'Elsewhere','the name is selected to fix it');
+  await page.locator('#name-dialog-cancel').click();
   await projectMenu('move-project');await page.locator('#folder-dialog-title').filter({hasText:'Move “Rename me”'}).waitFor();await page.locator('#folder-list .pw-row').first().waitFor();assert.equal(await page.locator('#folder-use').textContent(),'Move Here');
   assert.equal(await page.locator('#folder-name').isVisible(),false,'no name field when moving');
   assert.equal(await page.locator('#folder-list .pw-row',{hasText:'Rename me'}).isDisabled(),true,'the project cannot move into itself');

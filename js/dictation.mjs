@@ -31,9 +31,9 @@ function show(button, mode, seconds = 0) {
   button.disabled = mode === 'transcribing';
   if (mode === 'recording') {
     button.replaceChildren(document.createTextNode(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`));
-    button.setAttribute('aria-label', 'Stop Dictation');
+    button.setAttribute('aria-label', 'Stop dictating'); // Composer card, Dictate (round 5)
   } else {
-    button.replaceChildren(icon('mic'));
+    button.replaceChildren(icon(mode === 'transcribing' ? 'running' : 'mic')); // the hourglass while the Mac transcribes (C_Dictate)
     button.setAttribute('aria-label', mode === 'transcribing' ? 'Transcribing…' : 'Dictate');
   }
 }

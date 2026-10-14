@@ -153,7 +153,7 @@ class WebChat:
     def model_list(self):
         listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic();self._ollama_listed=True
         current=capability.keys()  # task 161: whether each model answers two requests at once (parallel, one at a time, unknown)
-        return {'models':[{**item,'at_once':capability.known(self.documents.root,item['id'],current)} for item in listed],'current':self.choice()}
+        return {'models':[{**item,'at_once':'checking' if self.measuring==item['id'] else capability.known(self.documents.root,item['id'],current)} for item in listed],'current':self.choice()}
     def choose_model(self, model):
         listed={item['id']:item for item in models.local_models()}
         if model not in listed:raise ValueError(f'“{model}” is not installed in Ollama')

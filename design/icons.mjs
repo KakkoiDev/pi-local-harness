@@ -20,6 +20,7 @@ export const ICONS = {
   search: '<circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/>',
   plus: '<path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/>',
   close: '<path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.5"/>',
+  more: '<path d="M2 7h2v2H2zM7 7h2v2H7zM12 7h2v2h-2z" fill="currentColor"/>', // round 5: the ⋯ More button (more.svg)
   mic: '<rect x="5.5" y=".5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor"/><path d="M2.5 7.5a5.5 5.5 0 0 0 11 0M8 13v2.5M5 15.5h6" fill="none" stroke="currentColor"/>',
   handle: '<path d="M5 2h2v2H5zM9 2h2v2H9zM5 7h2v2H5zM9 7h2v2H9zM5 12h2v2H5zM9 12h2v2H9z" fill="currentColor"/>',
   'list-bullet': '<path d="M1 3h2v2H1zM1 7h2v2H1zM1 11h2v2H1z" fill="currentColor"/><path d="M5 4h10M5 8h10M5 12h10" stroke="currentColor"/>',

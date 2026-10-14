@@ -93,6 +93,7 @@ class ProjectCommandsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not missing'): self.store.locate_project(self.project, str(self.code))
 
     def test_commands_wait_while_pi_works_in_the_project(self):
+        self.chat.switching = 'hold'  # the queue waits (as during a model switch), so the request stays queued until cancelled
         job = self.chat.enqueue({'project': self.project, 'message': 'Working'})
         with self.assertRaises(ProjectBusy) as refused: self.chat.project_command('rename', self.project, {'name': 'Other'})
         self.assertEqual(refused.exception.job, job['id']); self.assertEqual(str(refused.exception), 'Pi is answering about this project.')
@@ -100,6 +101,7 @@ class ProjectCommandsTest(unittest.TestCase):
             with self.assertRaises(ProjectBusy): self.chat.project_command(command, self.project, {'parent': str(self.root)})
         self.assertTrue((self.code / 'Japanese study app').is_dir())
         self.chat.queue.cancel(job['id'])
+        self.chat.switching = None
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
 
 
