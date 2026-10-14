@@ -366,6 +366,12 @@ const readline = require('node:readline');
   await stopAll();
   await page.waitForFunction(()=>document.querySelector('#agent-activity-meta').textContent==='1 needs attention',null,{timeout:20000});
   assert.equal(await page.locator('#project-list .pw-row',{hasText:'Design check'}).locator('.pw-row__meta').textContent(),'failed');
+  // Task 131: the status is a button; attention names the real state, is framed, and wins until Activity is opened.
+  const status=page.locator('#agent-status');assert.equal(await status.textContent(),'Stopped · 1 needs attention');
+  assert.equal(await status.evaluate(button=>button.classList.contains('pw-statusbtn--attention')),true);assert.equal(await status.getAttribute('aria-label'),'Agent status: Stopped · 1 needs attention. Open Activity');
+  await status.click();await page.waitForURL(`${base}/activity`);
+  await page.waitForFunction(()=>!document.querySelector('#agent-status').classList.contains('pw-statusbtn--attention'));
+  await page.goto(`${base}/projects`);await page.locator('#agent-activity').waitFor();
   await page.locator('#agent-activity').click();await page.waitForURL(`${base}/activity`);
   assert.equal(await page.locator('#agent-activity').getAttribute('aria-current'),'page');
   assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running','opening Activity marks attention seen');
@@ -574,7 +580,7 @@ const readline = require('node:readline');
   const sheetBox=await page.locator('#block-menu').boundingBox();assert.ok(Math.round(sheetBox.y+sheetBox.height)===844&&Math.round(sheetBox.width)===390,'a bottom sheet');
   await page.locator('#block-menu [data-action="cancel"]').click();await page.locator('#block-menu').waitFor({state:'hidden'});
   // Phone bar elsewhere shows the agent status; the π sheet is Ph_Pi; the composer is one row.
-  await page.goto(`${base}/p/${id}/chat`);await page.locator('#phone-status').filter({hasText:/Ready|Working|waiting/}).waitFor();
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#phone-status').filter({hasText:/Ready|Working|waiting|needs? attention/}).waitFor();
   assert.equal(await page.locator('#hint').isVisible(),false);assert.equal(await page.locator('.composer-wrap .footnote').isVisible(),false);
   assert.equal(new Set(await page.locator('.pw-composer__row>*').evaluateAll(items=>items.filter(item=>item.getClientRects().length&&item.offsetHeight).map(item=>Math.round(item.getBoundingClientRect().top)))).size,1,'composer controls in one row');
   await page.locator('#open-menu').click();

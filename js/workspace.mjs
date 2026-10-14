@@ -232,7 +232,7 @@ export function installWorkspace(host){
  const ATTENTION=['failed','stopped','interrupted'];
  function agentSummary(){const seen=new Set(readState('activitySeen',[])),jobs=state.jobs||[];const attention=jobs.filter(job=>ATTENTION.includes(job.status)&&!seen.has(job.id));
   return {running:jobs.filter(job=>job.status==='running').length,waiting:jobs.filter(job=>job.status==='queued').length,attention,any:jobs.length>0,gate:state.gate||{today:0,blocked_today:0}};}
- function markActivitySeen(){writeState('activitySeen',(state.jobs||[]).filter(job=>ATTENTION.includes(job.status)).map(job=>job.id));renderProjects();host.agentChanged?.();}
+ function markActivitySeen(){writeState('activitySeen',(state.jobs||[]).filter(job=>ATTENTION.includes(job.status)).map(job=>job.id));renderProjects();renderQueue();/* attention clears */}
  const plural=(n,word)=>n+' '+word+(n===1?'':'s');
  // A registered folder that is gone (unplugged drive, renamed): offer to remove it from the list; the folder is never touched.
  async function forgetMissing(item){if(await ask({icon:'caution',message:`The folder for “${item.name}” is missing.`,detail:`${item.path} is not there any more (an unplugged drive, or renamed). Remove from List forgets it here; nothing is deleted.`,danger:'Remove from List',safe:'Keep'})!=='danger')return;try{await api('/api/projects/forget',{project:item.id});await poll();}catch(e){notice(e.message,true);}}
@@ -268,7 +268,13 @@ export function installWorkspace(host){
  $('show-projects').onclick=$('files-close').onclick=()=>host.setLevel('projects');
  $('welcome-create').onclick=()=>$('new-project').click();$('welcome-folder').onclick=()=>$('add-folder').click();
  
- function renderQueue(){const activeCount=state.jobs.filter(job=>job.status==='queued').length;agentState(...(state.busy?['running','Working'+(activeCount?' · '+activeCount+' waiting':'')]:activeCount?['waiting',activeCount+' waiting']:[null,'Ready']));}
+ // StatusButton (task 131): attention (a failed, stopped or interrupted request not yet seen in Activity) wins; then Working,
+ // then "N waiting" (queued, nothing running), then Ready. It names the real state: "Failed · 1 needs attention".
+ function renderQueue(){const waiting=state.jobs.filter(job=>job.status==='queued').length,attention=agentSummary().attention,button=$('agent-status');
+  let glyph=null,text='Ready';
+  if(attention.length){const kinds=[...new Set(attention.map(job=>job.status))];glyph='caution';text=kinds.length===1?`${kinds[0][0].toUpperCase()+kinds[0].slice(1)} · ${attention.length} need${attention.length===1?'s':''} attention`:`${attention.length} need attention`;}
+  else if(state.busy){glyph='running';text='Working'+(waiting?' · '+waiting+' waiting':'');}else if(waiting){glyph='waiting';text=waiting+' waiting';}
+  agentState(glyph,text);button.classList.toggle('pw-statusbtn--attention',attention.length>0);button.removeAttribute('aria-disabled');button.setAttribute('aria-label',`Agent status: ${text}. Open Activity`);}
  // One poll at a time; a caller during a poll waits for it (await poll() always sees fresh state).
  let pollRun=null;
  function poll(){return pollRun||(pollRun=pollOnce().finally(()=>{pollRun=null;}));}
@@ -279,7 +285,7 @@ export function installWorkspace(host){
     if(fresh.revision!==page.revision){page=fresh;fileRevision=fresh.revision;blocks=textFile?[]:parseMarkdown(fresh.markdown);focusedBlock=null;$('document-source').value=textFile?fresh.text:fresh.markdown;renderBlocks();notice('Updated by agent / filesystem');}
     if(!textFile){page.comments=fresh.comments;renderComments();}
    }}
-  }catch(e){agentState('caution','Connection interrupted');$('agent-state').classList.add('offline');$('connection-retry').hidden=false;host.connection(false);}
+  }catch(e){agentState('caution','Connection interrupted');$('agent-status').setAttribute('aria-disabled','true');$('agent-status').classList.remove('pw-statusbtn--attention');$('agent-state').classList.add('offline');$('connection-retry').hidden=false;host.connection(false);}
  }
  async function browse(path){const sequence=++browseSequence;$('folder-use').disabled=true;try{const result=await api('/api/directories'+(path?'?path='+encodeURIComponent(path):''));if(sequence!==browseSequence)return;folder=result;$('folder-path').value=folder.path;$('folder-list').replaceChildren();for(const child of folder.directories){const button=node('button','pw-row');button.type='button';button.append(icon('folder'),node('span','pw-row__label',child.name));button.title=child.path;button.onclick=()=>browse(child.path);$('folder-list').append(button);}if(!folder.directories.length)$('folder-list').append(node('p','pw-group__empty','No folders here.'));folderHelp();$('folder-error').textContent='';}catch(e){if(sequence===browseSequence)$('folder-error').textContent=e.message;}finally{if(sequence===browseSequence)$('folder-use').disabled=false;}}
  // The help names what will happen (Dialogs, Dialogs2, Ph_NewProject).

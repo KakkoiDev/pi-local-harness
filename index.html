@@ -110,7 +110,7 @@
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
       </div></div>
     <span class="pw-menubar__spacer"></span>
-    <span class="pw-menubar__status"><span class="pw-menubar__picks"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">gemma4:26b-mlx</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><span id="agent-state" role="status">Connecting…</span><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
+    <span class="pw-menubar__status"><span class="pw-menubar__picks"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">gemma4:26b-mlx</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><button id="agent-status" type="button" class="pw-statusbtn" aria-keyshortcuts="Meta+3" aria-label="Agent status. Open Activity"><span id="agent-state" role="status">Connecting…</span><span class="pw-statusbtn__more" aria-hidden="true"><svg viewBox="0 0 16 16" width="10" height="10"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button><!-- StatusButton (task 131): opens Activity · All Projects --><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
   </nav>
 
   <!-- phone bar (≤760px) -->
@@ -122,7 +122,7 @@
     <span class="pw-menubar__spacer"></span>
     <button id="phone-comments" class="pw-phonebar__btn" aria-pressed="false" hidden>Comments <span id="phone-comment-count">0</span></button>
     <span id="phone-saved" class="phone-status" hidden></span>
-    <span id="phone-status" class="pw-glyph phone-status" role="status"></span>
+    <button id="phone-status" type="button" class="pw-statusbtn phone-status" aria-label="Agent status. Open Activity"></button><!-- StatusButton on the phone bar, 44px -->
   </nav>
 
   <button id="backdrop" class="pw-scrim" aria-label="Close menu" hidden></button>

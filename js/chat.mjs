@@ -127,7 +127,7 @@ function phoneBar(){const state=workspace?.status(),pane=view==='work'&&!state?.
  $('phone-comments').hidden=!(documentScreen&&!state.textFile&&comments);$('phone-comment-count').textContent=String(comments);
  $('phone-saved').hidden=!documentScreen||!$('phone-comments').hidden;$('phone-saved').textContent=$('phone-saved').hidden?'':$('save-status').textContent;$('phone-status').hidden=documentScreen;}
 // The agent status shows on the phone bar and in the π sheet as on the desk menu bar (Phone, Ph_Pi).
-function mirrorStatus(){const copy=()=>[...$('agent-state').childNodes].map(child=>child.cloneNode(true));$('phone-status').replaceChildren(...copy());$('pi-status-text').replaceChildren(...copy());const running=workspace?.status().jobs.find(job=>job.status==='running');$('pi-stop').hidden=!running;}
+function mirrorStatus(){const copy=()=>[...$('agent-state').childNodes].map(child=>child.cloneNode(true));$('phone-status').replaceChildren(...copy());$('phone-status').className=$('agent-status').className+' phone-status';$('phone-status').setAttribute('aria-label',$('agent-status').getAttribute('aria-label'));$('pi-status-text').replaceChildren(...copy());const running=workspace?.status().jobs.find(job=>job.status==='running');$('pi-stop').hidden=!running;}
 new MutationObserver(mirrorStatus).observe($('agent-state'),{childList:true,characterData:true,subtree:true});new MutationObserver(()=>phoneBar()).observe($('save-status'),{childList:true,characterData:true,subtree:true});
 $('pi-stop').onclick=()=>{const running=workspace.status().jobs.find(job=>job.status==='running');if(running)api(`/api/conversations/${running.chat}/stop`,{}).catch(e=>error(e.message));};
 $('pi-close').onclick=()=>menu(false);
@@ -150,6 +150,7 @@ $('model-button').addEventListener('keydown',event=>{if(event.key==='Escape'&&!$
 $('effort-button').onclick=()=>effortMenu.open($('effort-button'));
 const phoneViews=installPopup($('phone-view-menu'),item=>showView(item.dataset.view),()=>{for(const item of $('phone-view-menu').querySelectorAll('[data-view]'))item.setAttribute('aria-checked',String(item.dataset.view===view));const summary=workspace.agentSummary(),gate=summary.gate;$('phone-activity-count').textContent=summary.attention.length?summary.attention.length+' needs attention':[summary.running&&summary.running+' running',summary.waiting&&summary.waiting+' waiting'].filter(Boolean).join(' · ');$('phone-gate-count').textContent=gate.blocked_today?gate.blocked_today+' blocked':gate.today?gate.today+' checks':'';});/* the Agent section's counts (Ph_Views) */
 $('phone-view').onclick=()=>phoneViews.open($('phone-view'));
+for(const id of ['agent-status','phone-status'])$(id).onclick=()=>{if($('agent-status').getAttribute('aria-disabled')!=='true')showView('activity');};/* StatusButton: opens Activity; offline it opens nothing */
 $('pi-settings').onclick=()=>{menu(false);openSettings(false);};$('pi-about').onclick=()=>{menu(false);commands.about();};
 const waitingJob=()=>{const state=workspace.status();return state.jobs.find(job=>job.project===state.project&&job.status==='queued');};
 const commands={
