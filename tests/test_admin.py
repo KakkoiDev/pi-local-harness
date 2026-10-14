@@ -63,6 +63,13 @@ class AdminTest(unittest.TestCase):
         lock = self.data / '.agent-lock'; lock.write_text(json.dumps({'pid': 999999999}))
         self.assertFalse({check['check']: check for check in self.console.doctor()}['Agent lock']['ok'], 'a lock held by a process that is gone')
 
+    def test_a_missing_config_is_fine_and_the_queue_names_projects(self):
+        """Task 169: plh creates config.json with the defaults; the queue shows project names and short times."""
+        (self.data / 'config.json').unlink()
+        self.assertTrue({check['check']: check for check in self.console.doctor()}['Settings']['ok'])
+        _, text = admin.run(self.console, 'queue', [])
+        self.assertIn('Demo', text); self.assertIn('10-14 10:00', text)
+
     def test_the_command_line_prints_tables_and_raw_json(self):
         run = lambda *args: subprocess.run([sys.executable, '-m', 'harness.admin', *args, '--data', str(self.data)], capture_output=True, text=True, timeout=30)
         table = run('gate', '2')

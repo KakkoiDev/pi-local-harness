@@ -225,10 +225,11 @@ class Console:
         check('Data folder', self.data.is_dir() and os.access(self.data, os.W_OK), str(self.data), f'Create {self.data} or set PI_AGENT_DATA.')
         try:
             values = self.config()['values']; problem = None
-            if 'model' in json.loads((self.data / 'config.json').read_text() or '{}'): problem = "remove 'model': the model is pinned in harness/model.json"
+            path = self.data / 'config.json'
+            if path.exists() and 'model' in json.loads(path.read_text() or '{}'): problem = "remove 'model': the model is pinned in harness/model.json"
             elif values['effort'] not in models.EFFORTS: problem = f"effort must be one of {', '.join(models.EFFORTS)}"
         except (OSError, ValueError) as error: problem = f'cannot read it: {error}'
-        check('Settings', not problem, problem or 'config.json is valid', f'Fix config.json: {problem}.')
+        check('Settings', not problem, problem or ('config.json is valid' if (self.data / 'config.json').exists() else 'defaults (plh writes config.json at its next start)'), f'Fix config.json: {problem}.')
         version = self.ollama('/api/version')
         check('Ollama', version is not None, f"{models.ollama_url()} {'answers, version ' + version.get('version', '?') if version else 'does not answer'}", 'Start the Ollama app (or check PI_OLLAMA_URL).')
         if version is not None:
@@ -448,8 +449,9 @@ def run(console, command, args, yes=False):
             f"Gate today: {value['gate_today']['checks']} checks · {value['gate_today']['blocked']} not allowed",
             f"Projects: {value['projects']} · Data: {value['data']} · Build: {value['build']}"])
     if command == 'queue':
-        rows = console.queue(args[0] if args else None)
-        return rows, table(rows, ['status', 'created', 'project', 'message', 'id'])
+        rows = console.queue(args[0] if args else None); names = {item['id']: item['name'] for item in console.projects()}
+        shown = [{**row, 'project': names.get(row['project'], row['project']), 'created': str(row.get('created') or '')[5:16].replace('T', ' ')} for row in rows]
+        return rows, table(shown, ['status', 'created', 'project', 'message', 'id'])
     if command == 'job':
         if not args: raise ValueError('Usage: /job <id> (ids are in /queue)')
         value = console.job(args[0]); return value, value['markdown']
