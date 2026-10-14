@@ -365,3 +365,5 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .project-more__items .pw-menu__sep{border-top:3px double var(--ink);height:0;margin:0}
 .missing-banner{border-bottom:1px solid var(--ink)}
 .missing-banner p{flex:1;margin:0}
+/* Task 157: the message Open in Chat lands on is outlined for a moment */
+.pw-msg--found{outline:2px solid var(--ink);outline-offset:4px}

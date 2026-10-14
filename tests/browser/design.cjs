@@ -339,7 +339,7 @@ const readline = require('node:readline');
   assert.match(await page.locator('#activity-panel .pw-infobar').textContent(),/One agent, one queue, first in first out\. Interrupted work is never repeated automatically\./);
   assert.equal(await page.locator('#activity-project option').first().textContent(),'All Projects');
   const projectLink=page.locator('#activity-list .pw-link').first();assert.equal(await projectLink.count(),1,'project names are links');
-  assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^Open in /);
+  assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^(Open in Chat|Show Comment|Show in Review)$/,'one button back, named after the origin (task 157)');
   await page.locator('#menubar [aria-controls="menu-view"]').click();
   assert.equal(await page.locator('#menu-view [data-command="view-chat"]').count(),0,'round 4: Chat and Work live in Window, View is how you see the document');
   await page.keyboard.press('Escape');
@@ -598,7 +598,7 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#phone-view-label').textContent(),'Activity · all');
   await page.locator('#activity-list .activity-task').first().click();await page.waitForFunction(()=>document.body.dataset.pane==='detail');
   assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#phone-back-label').textContent(),'Activity · all');
-  assert.equal(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().innerText(),'Open in Project');
+  assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().innerText(),/^(Open in Chat|Show Comment|Show in Review)$/);
   await page.locator('#phone-back').click();
   await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
   assert.equal(await page.evaluate(()=>document.body.classList.contains('menu-open')),false,'the π sheet closes for a dialog');
@@ -669,6 +669,35 @@ const readline = require('node:readline');
   await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Card check');await page.getByRole('button',{name:'Send Request'}).click();
   const card=page.locator('#document-requests .document-request',{hasText:'Card check'});await card.waitFor({state:'attached',timeout:10000});
   assert.equal(await card.locator('.pw-link',{hasText:'Show in Activity'}).count(),1,'a whole-file request is a card with one way into Activity');
+  await stopAll();
+  }
+  { // Task 157: every "working" leads to its request in Activity, and its detail leads back where it came from.
+  await stopAll();await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Origin check TEST_WAIT');await page.locator('#send').click();
+  const liveLink=page.locator('#messages [data-live] .live-activity');await liveLink.waitFor({timeout:20000});
+  await liveLink.click();await page.waitForURL(`${base}/activity`);
+  const detail=page.locator('#activity-detail');await detail.getByText('Origin check TEST_WAIT').first().waitFor();
+  assert.match(await detail.locator('.activity-detail__facts').textContent(),/FromChat · Design check, your message at/);
+  await stopAll();await page.waitForFunction(()=>document.querySelector('#activity-detail h3')?.textContent.includes('Stopped'),null,{timeout:20000});
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#agent-status').click();await page.waitForURL(`${base}/activity`);
+  await page.locator('#activity-list .activity-task').filter({hasText:'Origin check'}).first().click();
+  await detail.getByRole('link',{name:'Open in Chat'}).click();await page.waitForURL(`${base}/p/${id}/chat`);await page.locator('#messages .pw-msg--found').waitFor();
+  const roadmap=`projects/${id}/ROADMAP.md`;await page.goto(`${base}/p/${id}/work/ROADMAP.md`);const para=page.locator('#document-editor .pw-block--paragraph .pw-block__content').first();await para.waitFor();
+  const made=await post('/api/documents/comment',{path:roadmap,text:'Origin comment TEST_SLOW',anchor:await para.textContent()});
+  await post('/api/jobs/create',{project:id,message:'Comment',document_comment:{path:roadmap,id:made.id}});
+  await page.reload();const thread=page.locator('#document-comments .pw-review-item',{hasText:'Origin comment'});await thread.locator('.pw-review-item__head').click();
+  const state=page.locator('.pw-thread',{hasText:'Origin comment'}).first().locator('.pw-thread__state');await state.filter({hasText:'Pi is working on it · Show in Activity'}).waitFor({timeout:20000});
+  await state.locator('.pw-link').click();await page.waitForURL(`${base}/activity`);
+  assert.match(await detail.locator('.activity-detail__facts').textContent(),/FromComment on ROADMAP\.md/);
+  await detail.getByRole('link',{name:'Show Comment'}).click();await page.waitForURL(new RegExp(`/p/${id}/work/ROADMAP\\.md$`));
+  await page.locator('.pw-thread',{hasText:'Origin comment'}).first().waitFor();
+  await stopAll();
+  await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Origin whole file');await page.getByRole('button',{name:'Send Request'}).click();
+  const card=page.locator('#document-requests .document-request',{hasText:'Origin whole file'});await card.waitFor({state:'attached',timeout:20000});await page.locator('#document-request-history').evaluate(element=>{element.open=true;});await card.locator('.pw-link').click();await page.waitForURL(`${base}/activity`);
+  await page.waitForFunction(()=>document.querySelector('#activity-detail details'),null,{timeout:20000});
+  await detail.locator('details summary').click();await page.waitForTimeout(2600);/* a poll rebuilds the detail */
+  assert.equal(await detail.locator('details').evaluate(element=>element.open),true,'Result stays open while the detail refreshes');
+  await detail.getByRole('link',{name:'Show in Review'}).click();await page.waitForURL(new RegExp(`/p/${id}/work/ROADMAP\\.md$`));
+  assert.equal(await page.locator('#document-discussion').evaluate(element=>element.open),true);
   await stopAll();
   }
   { // Task 136: "Also read:" after an answer lists files Pi opened beyond its context; nothing when there are none.
