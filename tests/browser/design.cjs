@@ -588,6 +588,20 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.querySelector('#document-editor .pw-block--focused')?.classList.contains('pw-block--bullet'));
   await page.locator('#phone-tool-bullet').click();await page.locator('#phone-edit-done').click();
   }
+  { // Task 124: the phone Comment sheet (PhoneEdit3) and the thread as a sheet (PhoneEdit4).
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);const passage=page.locator('#document-editor .pw-block--paragraph .pw-block__content').first();await passage.waitFor();
+  await passage.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+  await page.locator('#selection-bar-comment').waitFor();await page.locator('#selection-bar-comment').click();
+  const compose=page.locator('#selected-passage');await compose.waitFor();
+  assert.equal(await page.locator('.compose-head .sheet-head__title').textContent(),'Comment');assert.equal(await page.locator('label[for="comment-text"]').innerText(),'Your comment');
+  assert.equal(await page.locator('#document-comments').isVisible(),false,'only the composer while writing');
+  assert.equal((await page.locator('#add-ask').boundingBox()).height>=44,true);
+  await page.locator('#compose-cancel').click();await compose.waitFor({state:'hidden'});
+  await page.locator('#document-editor .pw-mark').first().click();const sheet=page.locator('#document-editor .pw-thread');await sheet.waitFor();
+  assert.match(await sheet.locator('.thread-head .sheet-head__title').textContent(),/^Comment \d+ of \d+$/);
+  const box=await sheet.boundingBox();assert.ok(Math.round(box.y+box.height)>=840&&Math.round(box.width)===390,'a bottom sheet: '+JSON.stringify(box));
+  await sheet.getByRole('button',{name:'Close',exact:true}).click();await sheet.waitFor({state:'detached'});
+  }
   await page.setViewportSize({width:1440,height:900});
   assert.equal(await page.locator('.sheet-head').first().isVisible(),false,'sheet heads are phone only');
 

@@ -339,3 +339,17 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
   dialog.pw-dialog[open] .pw-dialog__actions{gap:8px}
   dialog.pw-dialog[open] .pw-dialog__actions>.pw-btn{flex:1;justify-content:center;min-height:var(--size-touch)}
 }
+/* Phone comment sheets (task 124). The Comment sheet (PhoneEdit3): while composing, the Comments sheet shows only the
+   composer, with Cancel · Comment. The thread (PhoneEdit4): a bottom sheet with "Comment N of M", ‹ › and Close. */
+.compose-head,.thread-head{display:none}
+@media (max-width:760px){
+  body.composing #comments-panel.is-sheet>:not(#selected-passage){display:none}
+  body.composing #selected-passage{display:flex;flex-direction:column;gap:10px;padding:0 16px 16px;border:0}
+  .compose-head{display:flex;padding:0}
+  #selected-passage .comment-actions #clear-anchor,#selected-passage .comment-actions .pw-thread__gap{display:none}
+  #selected-passage .comment-actions>.pw-btn{flex:1;justify-content:center;min-height:var(--size-touch)}
+  #comment-text{min-height:120px}
+  #document-editor .pw-thread{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:85vh;overflow:auto;z-index:44;margin:0;background:var(--paper);border:0;border-top:3px double var(--ink);box-shadow:none}
+  .thread-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 4px 16px;position:sticky;top:0;background:var(--paper)}
+  .thread-head__nav{display:flex;gap:6px}
+}
