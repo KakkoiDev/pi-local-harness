@@ -508,13 +508,15 @@ def build(console, command, args, yes=False):
     if command == 'gate':
         if args[:1] == ['rules']:  # plan 179: the registry Gate enforces, always on
             from gate import rules as gate_rules
-            value = [{'id': rule.id, 'name': rule.name, 'when': rule.when, 'scope': rule.scope, 'outcome': rule.outcome, 'summary': rule.summary, 'lesson': rule.lesson} for rule in gate_rules.RULES]
+            fired = {}
+            for event in console.gate(10 ** 6): fired[event.get('rule')] = fired.get(event.get('rule'), 0) + 1  # which weaknesses show up (task 178)
+            value = [{'id': rule.id, 'name': rule.name, 'when': rule.when, 'scope': rule.scope, 'outcome': rule.outcome, 'summary': rule.summary, 'lesson': rule.lesson, 'fired': fired.get(rule.id, 0)} for rule in gate_rules.RULES]
             if args[1:]:
                 rule = gate_rules.BY_ID.get(args[1].upper())
                 if not rule: raise ValueError(f"No rule {args[1]}. /gate rules lists them.")
                 return vars(rule), view(f'Gate rule {rule.id}', kv(['Rule', rule.name], ['When', rule.when], ['Where', rule.scope], ['Outcome', rule.outcome], ['Lesson', f'docs/lessons/{rule.lesson}' if rule.lesson else '—'], ['Test', rule.test]), {'kind': 'prose', 'text': rule.summary}, hint='/gate rules')
-            table = {'kind': 'table', 'columns': ['RULE', 'WHEN', 'OUTCOME', 'WHAT'], 'flex': 3, 'drop': [1], 'rows': [[f'{rule.id} {rule.name}', rule.when, rule.outcome.title(), rule.summary] for rule in gate_rules.RULES]}
-            return value, view('Gate rules', table, summary=f'{len(value)} rules, always on', hint='/gate rules <id> for one · they change only through a task with a test')
+            table = {'kind': 'table', 'columns': ['RULE', 'WHEN', 'OUTCOME', 'FIRED'], 'flex': 0, 'drop': [1], 'rows': [[f'{rule.id} {rule.name}', rule.when, rule.outcome.title(), str(item['fired'])] for rule, item in zip(gate_rules.RULES, value)]}
+            return value, view('Gate rules', table, summary=f'{len(value)} rules, always on', hint='/gate rules <id> explains one · FIRED: decisions in Gate\'s history · rules change only through a task with a test')
         if args[:1] == ['why']:
             if len(args) < 2: raise ValueError('Usage: /gate why <id>')
             event = console.gate_event(args[1])

@@ -161,7 +161,10 @@ class UnverifiedTest(unittest.TestCase):
 class ConsoleTest(unittest.TestCase):
     def test_gate_rules_lists_the_registry(self):
         from harness import admin
-        value, text = admin.run(admin.Console(tempfile.mkdtemp()), 'gate', ['rules'])
+        data = tempfile.mkdtemp()
+        Path(data, 'gate-events.jsonl').write_text(''.join(json.dumps({'id': n, 'phase': 'gate', 'outcome': 'REVISE', 'rule': 'G-008', 'timestamp': '2026-10-15T10:00:00+09:00'}) + '\n' for n in (1, 2)))
+        value, text = admin.run(admin.Console(data), 'gate', ['rules'])
+        self.assertEqual(next(rule['fired'] for rule in value if rule['id'] == 'G-008'), 2, 'how often each rule sent something back: which weaknesses show up')
         self.assertEqual([rule['id'] for rule in value], [rule.id for rule in rules.RULES])
         self.assertIn('── Gate rules', text); self.assertIn('G-008', text)
 
