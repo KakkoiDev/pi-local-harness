@@ -1,0 +1,607 @@
+[
+ {
+  "view": {
+   "title": "Status",
+   "summary": "",
+   "parts": [
+    {
+     "kind": "kv",
+     "rows": [
+      [
+       "Web",
+       "✓ Running · http://127.0.0.1:3000"
+      ],
+      [
+       "Queue",
+       "▶ 1 running · ○ 1 waiting · ! 2 need attention"
+      ],
+      [
+       "Loop check",
+       "every 10 s"
+      ]
+     ]
+    }
+   ],
+   "hint": "/queue · /gate blocked · /doctor"
+  },
+  "width": 60,
+  "plain": "── Status ──────────────────────────────────────────────────\n  Web          ✓ Running · http://127.0.0.1:3000\n  Queue        ▶ 1 running · ○ 1 waiting · ! 2 need attention\n  Loop check   every 10 s\n  /queue · /gate blocked · /doctor"
+ },
+ {
+  "view": {
+   "title": "Status",
+   "summary": "",
+   "parts": [
+    {
+     "kind": "kv",
+     "rows": [
+      [
+       "Web",
+       "✓ Running · http://127.0.0.1:3000"
+      ],
+      [
+       "Queue",
+       "▶ 1 running · ○ 1 waiting · ! 2 need attention"
+      ],
+      [
+       "Loop check",
+       "every 10 s"
+      ]
+     ]
+    }
+   ],
+   "hint": "/queue · /gate blocked · /doctor"
+  },
+  "width": 80,
+  "plain": "── Status ──────────────────────────────────────────────────────────────────────\n  Web          ✓ Running · http://127.0.0.1:3000\n  Queue        ▶ 1 running · ○ 1 waiting · ! 2 need attention\n  Loop check   every 10 s\n  /queue · /gate blocked · /doctor"
+ },
+ {
+  "view": {
+   "title": "Status",
+   "summary": "",
+   "parts": [
+    {
+     "kind": "kv",
+     "rows": [
+      [
+       "Web",
+       "✓ Running · http://127.0.0.1:3000"
+      ],
+      [
+       "Queue",
+       "▶ 1 running · ○ 1 waiting · ! 2 need attention"
+      ],
+      [
+       "Loop check",
+       "every 10 s"
+      ]
+     ]
+    }
+   ],
+   "hint": "/queue · /gate blocked · /doctor"
+  },
+  "width": 100,
+  "plain": "── Status ──────────────────────────────────────────────────────────────────────────────────────────\n  Web          ✓ Running · http://127.0.0.1:3000\n  Queue        ▶ 1 running · ○ 1 waiting · ! 2 need attention\n  Loop check   every 10 s\n  /queue · /gate blocked · /doctor"
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "summary": "1 running · 2 need attention",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN",
+      "PROJECT",
+      "REQUEST",
+      "ID"
+     ],
+     "flex": 3,
+     "drop": [
+      2,
+      4
+     ],
+     "dim": [
+      4
+     ],
+     "caps": {
+      "2": 16
+     },
+     "rows": [
+      [
+       "▶ Running",
+       "15:02",
+       "pi-local-harness",
+       "The Activity badge still counts interrupted jobs after a restart",
+       "f954b438"
+      ],
+      [
+       "✗ Failed",
+       "13:40",
+       "home-server",
+       "Run the backup script and report disk usage",
+       "77de01aa"
+      ]
+     ]
+    }
+   ],
+   "hint": "/job <id> for one request"
+  },
+  "width": 60,
+  "plain": "── Queue                        1 running · 2 need attention\n  STATE      WHEN   REQUEST\n  ══════════════════════════════════════════════════════════\n  ▶ Running  15:02  The Activity badge still counts interru…\n  ✗ Failed   13:40  Run the backup script and report disk u…\n  /job <id> for one request"
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "summary": "1 running · 2 need attention",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN",
+      "PROJECT",
+      "REQUEST",
+      "ID"
+     ],
+     "flex": 3,
+     "drop": [
+      2,
+      4
+     ],
+     "dim": [
+      4
+     ],
+     "caps": {
+      "2": 16
+     },
+     "rows": [
+      [
+       "▶ Running",
+       "15:02",
+       "pi-local-harness",
+       "The Activity badge still counts interrupted jobs after a restart",
+       "f954b438"
+      ],
+      [
+       "✗ Failed",
+       "13:40",
+       "home-server",
+       "Run the backup script and report disk usage",
+       "77de01aa"
+      ]
+     ]
+    }
+   ],
+   "hint": "/job <id> for one request"
+  },
+  "width": 80,
+  "plain": "── Queue                                            1 running · 2 need attention\n  STATE      WHEN   PROJECT           REQUEST                           ID\n  ══════════════════════════════════════════════════════════════════════════════\n  ▶ Running  15:02  pi-local-harness  The Activity badge still counts…  f954b438\n  ✗ Failed   13:40  home-server       Run the backup script and repor…  77de01aa\n  /job <id> for one request"
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "summary": "1 running · 2 need attention",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN",
+      "PROJECT",
+      "REQUEST",
+      "ID"
+     ],
+     "flex": 3,
+     "drop": [
+      2,
+      4
+     ],
+     "dim": [
+      4
+     ],
+     "caps": {
+      "2": 16
+     },
+     "rows": [
+      [
+       "▶ Running",
+       "15:02",
+       "pi-local-harness",
+       "The Activity badge still counts interrupted jobs after a restart",
+       "f954b438"
+      ],
+      [
+       "✗ Failed",
+       "13:40",
+       "home-server",
+       "Run the backup script and report disk usage",
+       "77de01aa"
+      ]
+     ]
+    }
+   ],
+   "hint": "/job <id> for one request"
+  },
+  "width": 100,
+  "plain": "── Queue                                                                1 running · 2 need attention\n  STATE      WHEN   PROJECT           REQUEST                                               ID\n  ══════════════════════════════════════════════════════════════════════════════════════════════════\n  ▶ Running  15:02  pi-local-harness  The Activity badge still counts interrupted jobs af…  f954b438\n  ✗ Failed   13:40  home-server       Run the backup script and report disk usage           77de01aa\n  /job <id> for one request"
+ },
+ {
+  "view": {
+   "title": "Doctor",
+   "summary": "1 to fix",
+   "parts": [
+    {
+     "kind": "checklist",
+     "items": [
+      {
+       "state": "ok",
+       "label": "Data folder",
+       "detail": "~/pi-local-harness-data"
+      },
+      {
+       "state": "fix",
+       "label": "Agent lock",
+       "detail": "left by process 41250, which is gone",
+       "fix": "Remove the stale lock: ~/pi-local-harness-data/.agent-lock"
+      }
+     ]
+    }
+   ],
+   "hint": "/status · /guide"
+  },
+  "width": 60,
+  "plain": "── Doctor                                           1 to fix\n  ✓ ok    Data folder  ~/pi-local-harness-data\n  ✗ fix   Agent lock   left by process 41250, which is gone\n                       → Remove the stale lock: ~/pi-local-harness-data/.agent-lock\n  /status · /guide"
+ },
+ {
+  "view": {
+   "title": "Doctor",
+   "summary": "1 to fix",
+   "parts": [
+    {
+     "kind": "checklist",
+     "items": [
+      {
+       "state": "ok",
+       "label": "Data folder",
+       "detail": "~/pi-local-harness-data"
+      },
+      {
+       "state": "fix",
+       "label": "Agent lock",
+       "detail": "left by process 41250, which is gone",
+       "fix": "Remove the stale lock: ~/pi-local-harness-data/.agent-lock"
+      }
+     ]
+    }
+   ],
+   "hint": "/status · /guide"
+  },
+  "width": 80,
+  "plain": "── Doctor                                                               1 to fix\n  ✓ ok    Data folder  ~/pi-local-harness-data\n  ✗ fix   Agent lock   left by process 41250, which is gone\n                       → Remove the stale lock: ~/pi-local-harness-data/.agent-lock\n  /status · /guide"
+ },
+ {
+  "view": {
+   "title": "Doctor",
+   "summary": "1 to fix",
+   "parts": [
+    {
+     "kind": "checklist",
+     "items": [
+      {
+       "state": "ok",
+       "label": "Data folder",
+       "detail": "~/pi-local-harness-data"
+      },
+      {
+       "state": "fix",
+       "label": "Agent lock",
+       "detail": "left by process 41250, which is gone",
+       "fix": "Remove the stale lock: ~/pi-local-harness-data/.agent-lock"
+      }
+     ]
+    }
+   ],
+   "hint": "/status · /guide"
+  },
+  "width": 100,
+  "plain": "── Doctor                                                                                   1 to fix\n  ✓ ok    Data folder  ~/pi-local-harness-data\n  ✗ fix   Agent lock   left by process 41250, which is gone\n                       → Remove the stale lock: ~/pi-local-harness-data/.agent-lock\n  /status · /guide"
+ },
+ {
+  "view": {
+   "title": "Guide · How do I use it from my phone or another device",
+   "parts": [
+    {
+     "kind": "prose",
+     "text": "The phone opens the workbench over your Tailscale network. Once: Tailscale running and logged in on this Mac, HTTPS enabled for the tailnet.\nThen π › Open on Phone… shows the address."
+    }
+   ],
+   "hint": "Ask in words for more, or /guide for every topic"
+  },
+  "width": 60,
+  "plain": "── Guide · How do I use it from my phone or another device ───\n  The phone opens the workbench over your Tailscale network.\n  Once: Tailscale running and logged in on this Mac, HTTPS\n  enabled for the tailnet.\n  Then π › Open on Phone… shows the address.\n  Ask in words for more, or /guide for every topic"
+ },
+ {
+  "view": {
+   "title": "Guide · How do I use it from my phone or another device",
+   "parts": [
+    {
+     "kind": "prose",
+     "text": "The phone opens the workbench over your Tailscale network. Once: Tailscale running and logged in on this Mac, HTTPS enabled for the tailnet.\nThen π › Open on Phone… shows the address."
+    }
+   ],
+   "hint": "Ask in words for more, or /guide for every topic"
+  },
+  "width": 80,
+  "plain": "── Guide · How do I use it from my phone or another device ─────────────────────\n  The phone opens the workbench over your Tailscale network. Once:\n  Tailscale running and logged in on this Mac, HTTPS enabled for the\n  tailnet.\n  Then π › Open on Phone… shows the address.\n  Ask in words for more, or /guide for every topic"
+ },
+ {
+  "view": {
+   "title": "Guide · How do I use it from my phone or another device",
+   "parts": [
+    {
+     "kind": "prose",
+     "text": "The phone opens the workbench over your Tailscale network. Once: Tailscale running and logged in on this Mac, HTTPS enabled for the tailnet.\nThen π › Open on Phone… shows the address."
+    }
+   ],
+   "hint": "Ask in words for more, or /guide for every topic"
+  },
+  "width": 100,
+  "plain": "── Guide · How do I use it from my phone or another device ─────────────────────────────────────────\n  The phone opens the workbench over your Tailscale network. Once:\n  Tailscale running and logged in on this Mac, HTTPS enabled for the\n  tailnet.\n  Then π › Open on Phone… shows the address.\n  Ask in words for more, or /guide for every topic"
+ },
+ {
+  "view": {
+   "title": "Settings",
+   "summary": "15 settings · 1 changed",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "KEY",
+      "VALUE",
+      "FROM"
+     ],
+     "flex": 1,
+     "rows": [
+      [
+       "effort",
+       "low",
+       "config"
+      ],
+      [
+       "silence_seconds",
+       "900",
+       "env PI_HARNESS_SILENCE_SECONDS"
+      ]
+     ]
+    },
+    {
+     "kind": "kv",
+     "heading": "── Harness variables · read only",
+     "rows": [
+      [
+       "PI_AGENT_DATA",
+       "~/pi-local-harness-data"
+      ]
+     ]
+    }
+   ],
+   "hint": "/config set <key> <value> asks first"
+  },
+  "width": 60,
+  "plain": "── Settings                          15 settings · 1 changed\n  KEY              VALUE  FROM\n  ══════════════════════════════════════════════════════\n  effort           low    config\n  silence_seconds  900    env PI_HARNESS_SILENCE_SECONDS\n\n── Harness variables · read only\n  PI_AGENT_DATA   ~/pi-local-harness-data\n  /config set <key> <value> asks first"
+ },
+ {
+  "view": {
+   "title": "Settings",
+   "summary": "15 settings · 1 changed",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "KEY",
+      "VALUE",
+      "FROM"
+     ],
+     "flex": 1,
+     "rows": [
+      [
+       "effort",
+       "low",
+       "config"
+      ],
+      [
+       "silence_seconds",
+       "900",
+       "env PI_HARNESS_SILENCE_SECONDS"
+      ]
+     ]
+    },
+    {
+     "kind": "kv",
+     "heading": "── Harness variables · read only",
+     "rows": [
+      [
+       "PI_AGENT_DATA",
+       "~/pi-local-harness-data"
+      ]
+     ]
+    }
+   ],
+   "hint": "/config set <key> <value> asks first"
+  },
+  "width": 80,
+  "plain": "── Settings                                              15 settings · 1 changed\n  KEY              VALUE  FROM\n  ══════════════════════════════════════════════════════\n  effort           low    config\n  silence_seconds  900    env PI_HARNESS_SILENCE_SECONDS\n\n── Harness variables · read only\n  PI_AGENT_DATA   ~/pi-local-harness-data\n  /config set <key> <value> asks first"
+ },
+ {
+  "view": {
+   "title": "Settings",
+   "summary": "15 settings · 1 changed",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "KEY",
+      "VALUE",
+      "FROM"
+     ],
+     "flex": 1,
+     "rows": [
+      [
+       "effort",
+       "low",
+       "config"
+      ],
+      [
+       "silence_seconds",
+       "900",
+       "env PI_HARNESS_SILENCE_SECONDS"
+      ]
+     ]
+    },
+    {
+     "kind": "kv",
+     "heading": "── Harness variables · read only",
+     "rows": [
+      [
+       "PI_AGENT_DATA",
+       "~/pi-local-harness-data"
+      ]
+     ]
+    }
+   ],
+   "hint": "/config set <key> <value> asks first"
+  },
+  "width": 100,
+  "plain": "── Settings                                                                  15 settings · 1 changed\n  KEY              VALUE  FROM\n  ══════════════════════════════════════════════════════\n  effort           low    config\n  silence_seconds  900    env PI_HARNESS_SILENCE_SECONDS\n\n── Harness variables · read only\n  PI_AGENT_DATA   ~/pi-local-harness-data\n  /config set <key> <value> asks first"
+ },
+ {
+  "view": {
+   "title": null,
+   "parts": [
+    {
+     "kind": "lines",
+     "lines": [
+      "✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+     ]
+    }
+   ]
+  },
+  "width": 60,
+  "plain": "  ✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+ },
+ {
+  "view": {
+   "title": null,
+   "parts": [
+    {
+     "kind": "lines",
+     "lines": [
+      "✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+     ]
+    }
+   ]
+  },
+  "width": 80,
+  "plain": "  ✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+ },
+ {
+  "view": {
+   "title": null,
+   "parts": [
+    {
+     "kind": "lines",
+     "lines": [
+      "✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+     ]
+    }
+   ]
+  },
+  "width": 100,
+  "plain": "  ✓ Model is qwen3:8b. /undo goes back to gemma4:26b-mlx."
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN"
+     ],
+     "rows": [],
+     "empty": "Nothing in the queue."
+    }
+   ]
+  },
+  "width": 60,
+  "plain": "── Queue ───────────────────────────────────────────────────\n  Nothing in the queue."
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN"
+     ],
+     "rows": [],
+     "empty": "Nothing in the queue."
+    }
+   ]
+  },
+  "width": 80,
+  "plain": "── Queue ───────────────────────────────────────────────────────────────────────\n  Nothing in the queue."
+ },
+ {
+  "view": {
+   "title": "Queue",
+   "parts": [
+    {
+     "kind": "table",
+     "columns": [
+      "STATE",
+      "WHEN"
+     ],
+     "rows": [],
+     "empty": "Nothing in the queue."
+    }
+   ]
+  },
+  "width": 100,
+  "plain": "── Queue ───────────────────────────────────────────────────────────────────────────────────────────\n  Nothing in the queue."
+ },
+ {
+  "view": {
+   "title": "Status",
+   "summary": "",
+   "parts": [
+    {
+     "kind": "kv",
+     "rows": [
+      [
+       "Web",
+       "✓ Running · http://127.0.0.1:3000"
+      ],
+      [
+       "Queue",
+       "▶ 1 running · ○ 1 waiting · ! 2 need attention"
+      ],
+      [
+       "Loop check",
+       "every 10 s"
+      ]
+     ]
+    }
+   ],
+   "hint": "/queue · /gate blocked · /doctor"
+  },
+  "width": 80,
+  "ascii": true,
+  "plain": "-- Status ----------------------------------------------------------------------\n  Web          ok Running - http://127.0.0.1:3000\n  Queue        > 1 running - o 1 waiting - !! 2 need attention\n  Loop check   every 10 s\n  /queue - /gate blocked - /doctor"
+ }
+]

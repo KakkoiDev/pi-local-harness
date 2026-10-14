@@ -3,6 +3,7 @@
 // Pi's own /settings and /model stay Pi's: the harness uses /config and /models.
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { renderView, ansiStyle } from './terminal-render.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -52,20 +53,34 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin } =
     },
   });
   if (!pi.registerCommand) return;
+  // Round 6 (TerminalOutput card): every output is drawn from its view, at the terminal's width, bold and dim only.
+  // ASCII only when the locale says the terminal is not UTF-8 (C, POSIX, Latin-1…); unset means a UTF-8 terminal, as on macOS.
+  const locale = process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '', ascii = Boolean(locale) && !/utf-?8/i.test(locale);
+  pi.registerMessageRenderer?.('harness-console', message => message.details?.view
+    ? { render: width => renderView(message.details.view, width, { style: ansiStyle, ascii }), invalidate() {} }
+    : undefined);
+  const show = (name, words, view) => pi.sendMessage({ customType: 'harness-console', display: true, details: { view },
+    content: `/${[name, ...words].join(' ')}\n\n${renderView(view, 80, { ascii }).join('\n')}` }); // plain text: what Pi reads
+  const title = name => name[0].toUpperCase() + name.slice(1);
   for (const [name, description] of Object.entries(CONSOLE_COMMANDS)) {
     pi.registerCommand(name, {
       description: `Harness: ${description}`,
       handler: async (args = '', ctx) => {
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
-        let { ok, code, text } = await run(name, words, options);
-        if (code === 3) { // a change: show what it does, run it only after the person's yes (plan 158, C1)
-          let preview = { title: 'Apply this change?', detail: text };
-          try { preview = JSON.parse((await run(name, [...words, '--json'], options)).text); } catch {}
-          const yes = await ctx?.ui?.confirm?.(preview.title, preview.detail);
-          ({ ok, text } = yes ? await run(name, [...words, '--yes'], options) : { ok: true, text: 'Not changed.' });
+        const parse = text => { try { return JSON.parse(text); } catch { return null; } };
+        const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${line}`)) }], hint: '/harness lists the commands' });
+        let { ok, code, text } = await run(name, [...words, '--view'], options);
+        if (code === 3) { // a change: what changes from what to what; it runs only after the person's yes (plan 158, C1)
+          const shape = parse(text), preview = shape?.preview || {};
+          const action = preview.action || 'Apply', choices = preview.destructive ? ['Cancel', action] : [action, 'Cancel'];
+          const detail = (preview.rows || []).map(([label, value]) => `${label.padEnd(10)} ${value}`).join('\n') || preview.detail || '';
+          const choice = ctx?.ui?.select ? await ctx.ui.select(`${preview.title || 'Apply this change?'}\n\n${detail}`, choices)
+            : ((await ctx?.ui?.confirm?.(preview.title || 'Apply this change?', detail)) ? action : 'Cancel');
+          if (choice !== action) { show(name, words, { title: null, parts: [{ kind: 'lines', lines: ['○ Not changed.'] }] }); return; }
+          ({ ok, code, text } = await run(name, [...words, '--yes', '--view'], options));
         }
-        pi.sendMessage({ customType: 'harness-console', display: true,
-          content: `Harness console: /${[name, ...words].join(' ')}${ok ? '' : ' (failed)'}\n\n\`\`\`\n${text || '(no output)'}\n\`\`\`` });
+        const view = ok ? parse(text) : null;
+        show(name, words, view || failed(text || '(no output)'));
       },
     });
   }

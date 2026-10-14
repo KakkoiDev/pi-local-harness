@@ -12,30 +12,45 @@ test('the console registers one slash command per admin command, and none of Pi\
   for (const own of ['settings', 'model', 'thinking', 'compact', 'new', 'session']) assert.equal(own in CONSOLE_COMMANDS, false, `/${own} is Pi's`);
 });
 
-test('a command runs the admin backend with its words and the live web port, and shows the output', async () => {
-  const commands = {}, messages = [], calls = [];
-  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) },
-    { ports: () => ({ web: 3100 }), run: async (name, words, options) => { calls.push([name, words, options]); return { ok: true, text: 'BLOCK rm -rf /' }; } });
+test('a command asks the backend for its view and draws it; Pi reads the same as plain text (task 171)', async () => {
+  const commands = {}, messages = [], calls = [], renderers = {};
+  const view = { title: 'Gate', parts: [{ kind: 'table', columns: ['TIME', 'DECISION', 'COMMAND'], rows: [['14:02', '✗ Blocked', 'rm -rf /']] }], hint: '/gate why <id>' };
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, registerMessageRenderer: (type, renderer) => { renderers[type] = renderer; }, sendMessage: message => messages.push(message) },
+    { ports: () => ({ web: 3100 }), run: async (name, words, options) => { calls.push([name, words, options]); return { ok: true, code: 0, text: JSON.stringify(view) }; } });
   await commands.gate.handler(' 5  blocked ');
-  assert.deepEqual(calls, [['gate', ['5', 'blocked'], { webPort: 3100 }]]);
-  assert.equal(messages[0].customType, 'harness-console'); assert.equal(messages[0].display, true);
-  assert.match(messages[0].content, /^Harness console: \/gate 5 blocked\n\n```\nBLOCK rm -rf \/\n```$/);
+  assert.deepEqual(calls, [['gate', ['5', 'blocked', '--view'], { webPort: 3100 }]]);
+  assert.equal(messages[0].customType, 'harness-console'); assert.deepEqual(messages[0].details.view, view);
+  assert.match(messages[0].content, /^\/gate 5 blocked\n\n── Gate ─+\n  TIME   DECISION   COMMAND\n  ═+\n  14:02  ✗ Blocked  rm -rf \/\n  \/gate why <id>$/);
+  const lines = renderers['harness-console'](messages[0]).render(100);
+  assert.match(lines[0], /^── \x1b\[1mGate\x1b\[22m/, 'drawn bold at the terminal width');
   assert.match(commands.status.description, /^Harness: /);
 });
 
-test('a change is shown and runs only after the person says yes (task 160)', async () => {
-  const commands = {}, messages = [], calls = [];
+test('a failed command reads as the command, then what went wrong', async () => {
+  const commands = {}, messages = [];
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) },
+    { run: async () => ({ ok: false, code: 1, text: 'No model named “qwen”. Did you mean qwen3:8b?' }) });
+  await commands.models.handler('use qwen');
+  assert.match(messages[0].content, /── Models ─+\n  ✗ No model named “qwen”\. Did you mean qwen3:8b\?/);
+});
+
+test('a change shows from what to what, names its action, and runs only after it is chosen', async () => {
+  const commands = {}, messages = [], calls = [], asked = [];
+  const preview = { confirm: true, title: 'Switch to qwen3:8b?', rows: [['Model', 'gemma4 → qwen3:8b'], ['Saved in', 'model.json']], action: 'Switch Model' };
   const run = async (name, words) => { calls.push(words.join(' '));
-    if (words.includes('--yes')) return { ok: true, code: 0, text: 'Done. effort: high → low' };
-    if (words.includes('--json')) return { ok: false, code: 3, text: JSON.stringify({ confirm: true, title: 'Change effort?', detail: 'effort: high → low' }) };
-    return { ok: false, code: 3, text: 'Change effort?' }; };
+    if (words.includes('--yes')) return { ok: true, code: 0, text: JSON.stringify({ title: null, parts: [{ kind: 'lines', lines: ['✓ Model is qwen3:8b. /undo goes back to gemma4.'] }] }) };
+    return { ok: false, code: 3, text: JSON.stringify({ title: preview.title, parts: [], preview }) }; };
   installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) }, { run });
-  const asked = [];
-  await commands.config.handler('set effort low', { ui: { confirm: async (title, detail) => { asked.push([title, detail]); return false; } } });
-  assert.deepEqual(asked, [['Change effort?', 'effort: high → low']]); assert.match(messages.at(-1).content, /Not changed\./);
-  assert.equal(calls.some(call => call.includes('--yes')), false, 'no yes, no change');
-  await commands.config.handler('set effort low', { ui: { confirm: async () => true } });
-  assert.equal(calls.at(-1), 'set effort low --yes'); assert.match(messages.at(-1).content, /Done\. effort: high → low/);
+  await commands.models.handler('use qwen3:8b', { ui: { select: async (title, options) => { asked.push([title, options]); return 'Cancel'; } } });
+  assert.match(asked[0][0], /^Switch to qwen3:8b\?\n\nModel {6}gemma4 → qwen3:8b\nSaved in {3}model\.json$/); assert.deepEqual(asked[0][1], ['Switch Model', 'Cancel']);
+  assert.match(messages.at(-1).content, /○ Not changed\./); assert.equal(calls.some(call => call.includes('--yes')), false, 'nothing without the choice');
+  await commands.models.handler('use qwen3:8b', { ui: { select: async () => 'Switch Model' } });
+  assert.equal(calls.at(-1), 'use qwen3:8b --yes --view'); assert.match(messages.at(-1).content, /✓ Model is qwen3:8b\. \/undo goes back to gemma4\./);
+  const removal = { ...preview, title: 'Remove llama3.2:3b?', action: 'Remove Model', destructive: true };
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) },
+    { run: async () => ({ ok: false, code: 3, text: JSON.stringify({ title: removal.title, parts: [], preview: removal }) }) });
+  await commands.models.handler('remove llama3.2:3b', { ui: { select: async (title, options) => { asked.push([title, options]); return options[0]; } } });
+  assert.deepEqual(asked.at(-1)[1], ['Cancel', 'Remove Model'], 'destructive: Cancel comes first, so Return cancels');
 });
 
 test('Pi gets a harness tool: it reads with the console and only proposes changes (task 167, plan 158 C1)', async () => {

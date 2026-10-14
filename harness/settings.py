@@ -87,6 +87,8 @@ INTERNAL = {
     'PLH_UPDATED': 'Set once after plh updated itself, so it does not update twice.',
     'XDG_DATA_HOME': 'Linux only: where the Trash is.',
 }
+# The system's: read, never set (the locale decides whether glyphs or ASCII are drawn).
+SYSTEM = {'PATH', 'HOME', 'LANG', 'LC_ALL', 'LC_CTYPE'}
 # Ollama's own variables: /ollama shows them and /ollama set changes them.
 OLLAMA = {'OLLAMA_NUM_PARALLEL': 'num_parallel', 'OLLAMA_KEEP_ALIVE': 'keep_alive', 'OLLAMA_MODELS': 'models_folder'}
 

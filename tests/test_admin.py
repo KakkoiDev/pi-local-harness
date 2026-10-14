@@ -68,12 +68,12 @@ class AdminTest(unittest.TestCase):
         (self.data / 'config.json').unlink()
         self.assertTrue({check['check']: check for check in self.console.doctor()}['Settings']['ok'])
         _, text = admin.run(self.console, 'queue', [])
-        self.assertIn('Demo', text); self.assertIn('10-14 10:00', text)
+        self.assertIn('Demo', text); self.assertIn('10:00', text); self.assertIn('✗ Failed', text)
 
     def test_the_command_line_prints_tables_and_raw_json(self):
         run = lambda *args: subprocess.run([sys.executable, '-m', 'harness.admin', *args, '--data', str(self.data)], capture_output=True, text=True, timeout=30)
         table = run('gate', '2')
-        self.assertEqual(table.returncode, 0, table.stderr); self.assertIn('BLOCK', table.stdout); self.assertIn('rm -rf /', table.stdout)
+        self.assertEqual(table.returncode, 0, table.stderr); self.assertIn('✗ Blocked', table.stdout); self.assertIn('── Gate', table.stdout); self.assertIn('rm -rf /', table.stdout)
         raw = run('gate', '2', '--json')
         self.assertEqual([event['id'] for event in json.loads(raw.stdout)], [3, 2])
         self.assertEqual(run('help').returncode, 0)
@@ -97,7 +97,7 @@ class GuideTest(unittest.TestCase):
         _, text = admin.run(console, 'guide', ['zebra'])
         self.assertIn('Nothing in the guide matches “zebra”', text); self.assertIn('How do I open the workbench in the browser?', text, 'then the list of questions')
         _, text = admin.run(console, 'guide', [])
-        self.assertTrue(text.startswith('# Pi Workbench guide'))
+        self.assertIn('── Guide', text); self.assertIn('/guide phone', text)
         guide = Path('harness/GUIDE.md').read_text()
         for name in admin.COMMANDS:
             if name not in ('job',): self.assertIn(f'/{name}', guide, f'/{name} is in the guide')
@@ -119,7 +119,7 @@ class AdminChangeTest(unittest.TestCase):
         self.assertTrue(preview['confirm']); self.assertEqual(preview['title'], 'Change effort?')
         self.assertIn('high → low', preview['detail']); self.assertEqual(self.saved()['effort'], 'high', 'nothing changes without yes')
         done, text = admin.run(self.console, 'config', ['set', 'effort', 'low'], yes=True)
-        self.assertEqual(self.saved()['effort'], 'low'); self.assertIn('effort: high → low', text)
+        self.assertEqual(self.saved()['effort'], 'low'); self.assertIn('✓ effort is low. /undo goes back to high.', text)
         backups = list((self.data / 'backups').glob('*-config.json')); self.assertEqual(len(backups), 1)
         self.assertEqual(json.loads(backups[0].read_text())['effort'], 'high', 'the backup is the file before the change')
         log = [json.loads(line) for line in (self.data / 'admin-log.jsonl').read_text().splitlines()]

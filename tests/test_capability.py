@@ -89,7 +89,7 @@ class CapabilityTest(unittest.TestCase):
         self.serve(parallel=False)
         console = admin.Console(self.data); models.save(self.data, model='fast:1b')  # /models check with no name checks the chosen model
         value, text = admin.run(console, 'models', [])
-        self.assertIn('unknown', text); self.assertEqual(value['models'][0]['at_once'], 'unknown')
+        self.assertNotIn('one at a time', text, 'unknown says nothing'); self.assertEqual(value['models'][0]['at_once'], 'unknown')
         value, text = admin.run(console, 'models', ['check', 'fast:1b'])
         self.assertIn('one at a time', text); self.assertIn('overlap', text)
         self.assertEqual(admin.run(console, 'models', [])[0]['models'][0]['at_once'], 'one at a time')

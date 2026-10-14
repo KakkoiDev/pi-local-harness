@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 from harness import admin, settings
 
-SYSTEM = {'PATH', 'HOME'}
+SYSTEM = settings.SYSTEM
 
 
 class SettingsTest(unittest.TestCase):
@@ -54,8 +54,9 @@ class SettingsTest(unittest.TestCase):
         self.assertIn('PI_HANG_MS', preview['detail']); self.assertIn('next time plh starts', preview['detail'])
         with patch.dict(os.environ, {'PI_HARNESS_SILENCE_SECONDS': '900'}):
             value, text = admin.run(console, 'config', [])
-        self.assertIn('silence_seconds: 7200', text); self.assertIn('PI_HARNESS_SILENCE_SECONDS=900 in the environment wins', text)
-        self.assertIn('Set by the harness', text); self.assertIn('PI_HARNESS_TURN_URL', text); self.assertIn('/ollama set', text)
+        self.assertRegex(text, r'silence_seconds\s+900\s+env PI_HARNESS_SILENCE_SECONDS', 'the value in force, and where it comes from')
+        self.assertIn('Harness variables · read only', text); self.assertIn('PI_HARNESS_TURN_URL', text); self.assertIn('/ollama', text)
+        self.assertRegex(admin.run(console, 'config', [])[1], r'silence_seconds\s+7200\s+config')
         self.assertEqual(value['environment']['silence_seconds'], '900')
 
 

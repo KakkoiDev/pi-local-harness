@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from harness import capability, model as models
+from harness import capability, model as models, terminal
 from harness.documents import DocumentStore
 from harness.markdown_records import read_record
 
@@ -284,22 +284,30 @@ class Console:
         variable = registry.SETTINGS[key][0]
         note = f'\nIt reaches the harness as {variable}; applies the next time plh starts.' if variable else '\nApplies the next time plh starts.'
         if variable and variable in os.environ: note += f' {variable}={os.environ[variable]} is set in your shell and wins over config.json.'
-        if not yes: return {'confirm': True, 'title': f'Change {key}?', 'detail': detail + '\n' + EXPLAIN[key] + note}
+        shown = lambda item: json.dumps(item) if not isinstance(item, str) else (item or '(empty)')
+        rows = [[key, f'{shown(before)} → {shown(value)}'], ['Saved in', str(path)], ['Applies', 'the next time plh starts' + (f' (as {variable})' if variable else '')]]
+        if variable and variable in os.environ: rows.append(['Note', f'{variable}={os.environ[variable]} in your shell wins over config.json'])
+        if not yes: return {'confirm': True, 'title': f'Change {key}?', 'detail': detail + '\n' + EXPLAIN[key] + note, 'rows': rows, 'action': 'Save Setting'}
         backup = self.backup(path)
         temporary = path.with_suffix('.tmp'); temporary.write_text(json.dumps({**saved, key: value}, indent=2) + '\n'); temporary.replace(path)
         self.log(command=f'config set {key} {raw}', file=str(path), backup=backup, before=before, after=value)
-        return {'changed': True, 'detail': detail}
+        return {'changed': True, 'detail': detail, 'result': f'✓ {key} is {shown(value)}. /undo goes back to {shown(before)}.'}
 
     def choose_model(self, name, effort=None, yes=False):
         installed = self.models()
         if not installed['ollama']: raise ValueError(f'Ollama does not answer at {models.ollama_url()}, so the model cannot be checked. Start the Ollama app first.')
         found = next((item for item in installed['models'] if item['id'] == name), None)
-        if not found: raise ValueError(f"{name} is not installed. Installed: {', '.join(item['id'] for item in installed['models'])}.")
+        if not found:
+            import difflib
+            near = difflib.get_close_matches(name, [item['id'] for item in installed['models']], 1, 0.3) or [item['id'] for item in installed['models'] if item['id'].startswith(name)]
+            raise ValueError(f'No model named “{name}”.' + (f' Did you mean {near[0]}?' if near else '') + f" Installed: {', '.join(item['id'] for item in installed['models'])}.")
         if not found['tools']: raise ValueError(f'{name} cannot use tools, which Pi needs.')
         if effort is not None and effort not in models.EFFORTS: raise ValueError(f"The thinking level must be one of {', '.join(models.EFFORTS)}.")
         before = installed['choice']; after = {**before, 'model': name, **({'effort': effort} if effort else {})}
         detail = f"{before['model']} · {before['effort']} → {after['model']} · {after['effort']}. Ollama unloads the previous model, so only one is in memory."
-        if not yes: return {'confirm': True, 'title': f'Switch to {name}?', 'detail': detail}
+        rows = [['Model', f"{before['model']}  →  {name}"], *([['Thinking', f"{before['effort']} → {after['effort']}"]] if after['effort'] != before['effort'] else []),
+                ['Saved in', str(models.choice_path(self.data))], ['Also', f"Ollama unloads {before['model']} first"]]
+        if not yes: return {'confirm': True, 'title': f'Switch to {name}?', 'detail': detail, 'rows': rows, 'action': 'Switch Model'}
         path = models.choice_path(self.data); backup = self.backup(path)
         if self.web('/api/config') is not None:  # the running workbench switches and waits until the model answers
             for route, body in [('/api/model', {'model': name}), *([('/api/effort', {'effort': effort})] if effort else [])]:
@@ -308,7 +316,7 @@ class Console:
         else:
             models.save(self.data, model=name, effort=after['effort']); models.switch(before['model'], name)
         self.log(command=f"models use {name}" + (f' {effort}' if effort else ''), file=str(path), backup=backup, before=before, after=after)
-        return {'changed': True, 'detail': detail}
+        return {'changed': True, 'detail': detail, 'result': f"✓ Model is {name}. /undo goes back to {before['model']}."}
 
     def undo(self, yes=False):
         history = self.history(); undone = {entry.get('undoes') for entry in history}
@@ -316,7 +324,7 @@ class Console:
         if not last: raise ValueError('Nothing to undo: no change with a backup in admin-log.jsonl.')
         detail = f"Undo “{last['command']}” ({last['time']}): " + (f"restore {last['file']} from {last['backup']}." if last['backup'] else f"{last['file']} did not exist before; it moves to the backups folder.")
         if last.get('ollama'): detail = f"Undo “{last['command']}” ({last['time']}): {last['ollama']} back to {last['before'] if last['before'] not in (None, '') else 'default'}; Ollama restarts."
-        if not yes: return {'confirm': True, 'title': 'Undo the last change?', 'detail': detail}
+        if not yes: return {'confirm': True, 'title': 'Undo the last change?', 'detail': detail, 'rows': [['Undo', last['command']], ['From', last['time']], ['Restores', last['file']]], 'action': 'Undo'}
         if last.get('ollama'):  # Ollama: write the old value back (not the whole file: the app may have changed others)
             self.idle(); restart_ollama_app(between=lambda: self.write_ollama(last['ollama'], last['before']))
         elif last['backup']: Path(last['file']).write_bytes(Path(last['backup']).read_bytes())
@@ -324,7 +332,7 @@ class Console:
             folder = self.data / 'backups'; folder.mkdir(exist_ok=True)
             Path(last['file']).rename(folder / f"{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}-{Path(last['file']).name}.undone")
         self.log(command=f"undo {last['command']}", file=last['file'], undoes=last.get('id'), before=last['after'], after=last['before'])
-        return {'changed': True, 'detail': detail}
+        return {'changed': True, 'detail': detail, 'result': f"✓ Undone: {last['command']}."}
 
     # -- Ollama and models (task 162) ---------------------------------------------------------------------------------
     def idle(self):
@@ -346,17 +354,18 @@ class Console:
         if key not in OLLAMA_KEYS: raise ValueError(f"Unknown Ollama setting {key}. Settings: {', '.join(OLLAMA_KEYS)}.")
         where, name, check, about = OLLAMA_KEYS[key]; value = check(raw); before = self.ollama_value(key)
         detail = f"{key}: {before if before not in (None, '', 0) else 'default'} → {value}\n{about}\nPi Workbench restarts Ollama so it reads the new value; a loaded model unloads."
-        if not yes: return {'confirm': True, 'title': f'Change Ollama’s {key}?', 'detail': detail}
+        rows = [[key, f"{before if before not in (None, '', 0) else 'default'} → {value}"], ['Saved in', str(OLLAMA_SETTINGS) if where == 'db' else f'{name} (launchctl)'], ['Also', 'Ollama restarts; a loaded model unloads']]
+        if not yes: return {'confirm': True, 'title': f'Change Ollama’s {key}?', 'detail': detail, 'rows': rows, 'action': 'Change and Restart'}
         self.idle()
         backup = self.backup(OLLAMA_SETTINGS) if where == 'db' else None
         restart_ollama_app(between=lambda: self.write_ollama(key, value))
         self.log(command=f'ollama set {key} {raw}', ollama=key, file=str(OLLAMA_SETTINGS) if where == 'db' else name, backup=backup, before=before, after=value)
-        return {'changed': True, 'detail': detail.split('\n')[0]}
+        return {'changed': True, 'detail': detail.split('\n')[0], 'result': f"✓ Ollama’s {key} is {value}. /undo goes back to {before if before not in (None, '', 0) else 'default'}."}
 
     def restart_ollama(self, yes=False):
-        if not yes: return {'confirm': True, 'title': 'Restart Ollama?', 'detail': 'Quits and reopens the Ollama app; a loaded model unloads.'}
+        if not yes: return {'confirm': True, 'title': 'Restart Ollama?', 'detail': 'Quits and reopens the Ollama app; a loaded model unloads.', 'rows': [['Also', 'a loaded model unloads']], 'action': 'Restart Ollama'}
         self.idle(); restart_ollama_app(); self.log(command='ollama restart')
-        return {'changed': True, 'detail': 'Ollama restarted.'}
+        return {'changed': True, 'detail': 'Ollama restarted.', 'result': '✓ Ollama restarted.'}
 
     def manifest_path(self, name):
         model, _, tag = name.partition(':'); parts = model.split('/')
@@ -377,7 +386,8 @@ class Console:
         blobs = [blob for blob in blobs if blob.exists()]
         size = sum(blob.stat().st_size for blob in blobs)
         detail = f"Moves {name} (its manifest and {len(blobs)} files only it uses, {size / 1e9:.1f} GB) to the Trash. Put Back brings it back; the space is freed when you empty the Trash."
-        if not yes: return {'confirm': True, 'title': f'Remove {name}?', 'detail': detail}
+        rows = [['Moves', f'its manifest and {len(blobs)} files only it uses, to the Trash'], ['Frees', f'{size / 1e9:.1f} GB when you empty the Trash'], ['Undo', f'Put Back in the Finder, then merge into {folder}']]
+        if not yes: return {'confirm': True, 'title': f'Remove {name}?', 'detail': detail, 'rows': rows, 'action': 'Remove Model', 'destructive': True}
         self.idle()
         staging = folder / f"Removed model {name.replace('/', ' ').replace(':', ' ')} {datetime.now().strftime('%Y-%m-%d %H%M%S')}"
         for source in [manifest, *blobs]:
@@ -385,12 +395,12 @@ class Console:
         (staging / 'README.txt').write_text(f'{name}, removed from {folder} by the Pi Workbench console.\nTo bring it back, move manifests/ and blobs/ from this folder into {folder} (merge the folders).\n')
         to_trash(staging)
         self.log(command=f'models remove {name}', trash=staging.name, files=len(blobs), bytes=size)
-        return {'changed': True, 'detail': detail}
+        return {'changed': True, 'detail': detail, 'result': f'✓ {name} is in the Trash.'}
 
     def pull_model(self, name, yes=False):
         if not re.fullmatch(r'[\w./-]+(:[\w.-]+)?', name): raise ValueError('A model name looks like qwen3:8b or library/qwen3:8b.')
         detail = f"Downloads {name} from ollama.com into {self.ollama_info()['models_folder']}. Large models are many GB; this can take a while."
-        if not yes: return {'confirm': True, 'title': f'Pull {name}?', 'detail': detail}
+        if not yes: return {'confirm': True, 'title': f'Pull {name}?', 'detail': detail, 'rows': [['Downloads', f'{name} from ollama.com'], ['Into', self.ollama_info()['models_folder']], ['Also', 'large models are many GB']], 'action': 'Pull Model'}
         request = urllib.request.Request(models.ollama_url() + '/api/pull', json.dumps({'model': name, 'stream': True}).encode(), {'Content-Type': 'application/json'})
         last = ''
         try:
@@ -402,7 +412,7 @@ class Console:
         except OSError as error: raise ValueError(f'Ollama does not answer at {models.ollama_url()}: {error}')
         if last != 'success': raise ValueError(f'The pull of {name} ended with “{last}”.')
         self.log(command=f'models pull {name}')
-        return {'changed': True, 'detail': f'{name} is installed.'}
+        return {'changed': True, 'detail': f'{name} is installed.', 'result': f'✓ {name} is installed.'}
 
 # -- the command line ----------------------------------------------------------------------------------------------
 # name: (usage, what it does). harness/CONSOLE.md documents each one; tests/test_admin.py checks that it does.
@@ -432,38 +442,78 @@ def table(rows, columns):
     return '\n'.join(line.rstrip() for line in lines)
 
 
-def run(console, command, args, yes=False):
-    """(data, text) for a command: data for --json and tools, text for people. A change without yes returns its
-    preview ({confirm: True, title, detail}) and changes nothing."""
+def view(title, *parts, summary='', hint=''):
+    return {'title': title, 'summary': summary, 'parts': [part for part in parts if part], 'hint': hint}
+
+
+def kv(*rows):
+    return {'kind': 'kv', 'rows': [list(row) for row in rows if row]}
+
+
+def short_time(stamp):
+    """'10-14 10:31' today-or-not as the boards write it: HH:MM today, MM-DD HH:MM otherwise."""
+    stamp = str(stamp or ''); today = datetime.now().astimezone().date().isoformat()
+    return stamp[11:16] if stamp[:10] == today else stamp[5:16].replace('T', ' ')
+
+
+GATE_WORDS = {'ALLOW': '✓ Allowed', 'BLOCK': '✗ Blocked', 'REVISE': '! Revise', 'ESCALATE': '? Escalated', 'VERIFIED': '✓ Verified',
+              'EXECUTION_FAILED': '✗ Command failed', 'DRIFT': '✗ Drift'}
+
+
+def change_view(value):
+    """A change: its preview (what changes from what to what, where, side effects) or its one-line result."""
+    if value.get('confirm'):
+        action = value.get('action', 'Apply'); cancel_first = value.get('destructive')
+        hint = 'Return cancels · choose ' + action + ' to go ahead' if cancel_first else f'Return {action.lower()} · Esc cancels'
+        return view(value['title'], kv(*value.get('rows', [])) if value.get('rows') else {'kind': 'prose', 'text': value['detail']}, hint=hint)
+    return view(None, {'kind': 'lines', 'lines': [value.get('result') or '✓ ' + value['detail']]})
+
+
+def build(console, command, args, yes=False):
+    """(data, view) for a command: data for --json and tools, the view for people (harness/terminal.py renders it).
+    A change without yes returns its preview ({confirm: True, …}) and changes nothing."""
     def changed(value):
-        return value, (value['detail'] if value.get('confirm') else 'Done. ' + value['detail'] + '\n/undo restores the previous value.')
+        return value, change_view(value)
     if command in ('harness', 'help'):
-        text = 'Pi Workbench harness console. Commands (type them with a slash in terminal Pi):\n' + '\n'.join(f'  /{name} {usage}'.rstrip().ljust(52) + f' {about}' for name, (usage, about) in COMMANDS.items())
-        return {name: about for name, (_, about) in COMMANDS.items()}, text + '\nRaw data: add --json to any command when running python3 -m harness.admin.'
+        rows = [['Ask in words', 'e.g. “is anything stuck?”, “switch to qwen”']] + [[f'/{name}', about] for name, (usage, about) in COMMANDS.items() if name != 'harness']
+        return {name: about for name, (_, about) in COMMANDS.items()}, view('Harness commands', kv(*rows), hint='Type a command, or ask in words · python3 -m harness.admin <command> --json for raw data')
     if command == 'status':
-        value = console.status(); queue = value['queue']
-        return value, '\n'.join([
-            f"Web workbench: {'running on 127.0.0.1:' + str(value['services']['web_port']) if value['services']['web'] else 'not running'}",
-            f"Model: {value['model']['model']} · {value['model']['effort']} thinking · Ollama {'answers' if value['ollama'] else 'does not answer'}",
-            f"Queue: {queue['running']} running · {queue['queued']} waiting · {queue['failed'] + queue['stopped'] + queue['interrupted']} need attention · {queue['completed']} completed",
-            f"Gate today: {value['gate_today']['checks']} checks · {value['gate_today']['blocked']} not allowed",
-            f"Projects: {value['projects']} · Data: {value['data']} · Build: {value['build']}"])
+        value = console.status(); queue = value['queue']; config = console.web('/api/config') or {}
+        attention = queue['failed'] + queue['stopped'] + queue['interrupted']
+        web = f"✓ Running · http://127.0.0.1:{value['services']['web_port']}" if value['services']['web'] else '✗ Not running'
+        parts = [f"▶ {queue['running']} running", f"○ {queue['queued']} waiting"] + ([f'! {attention} need attention'] if attention else [])
+        gate = f"{value['gate_today']['checks']} checks today" + (f" · ✗ {value['gate_today']['blocked']} blocked" if value['gate_today']['blocked'] else '')
+        phone = f"✓ on · {config['phoneUrl']}" if config.get('phoneUrl') else 'off · /guide phone'
+        return value, view('Status', kv(['Web', web], ['Model', f"{value['model']['model']} · {value['model']['effort']} thinking · " + ('✓ Ollama answers' if value['ollama'] else '✗ Ollama does not answer')],
+                                         ['Queue', ' · '.join(parts)], ['Gate', gate], ['Phone', phone],
+                                         ['Projects', f"{value['projects']} · data in {value['data'].replace(str(Path.home()), '~')} · build {value['build']}"], ['Loop check', 'every 10 s']),
+                           hint='/queue · /gate blocked · /doctor')
     if command == 'queue':
         rows = console.queue(args[0] if args else None); names = {item['id']: item['name'] for item in console.projects()}
-        shown = [{**row, 'project': names.get(row['project'], row['project']), 'created': str(row.get('created') or '')[5:16].replace('T', ' ')} for row in rows]
-        return rows, table(shown, ['status', 'created', 'project', 'message', 'id'])
+        counts = {}; [counts.__setitem__(row['status'], counts.get(row['status'], 0) + 1) for row in rows]
+        summary = ' · '.join(part for part in [counts.get('running') and f"{counts['running']} running", sum(counts.get(key, 0) for key in ('failed', 'stopped', 'interrupted')) and f"{sum(counts.get(key, 0) for key in ('failed', 'stopped', 'interrupted'))} need attention"] if part)
+        table = {'kind': 'table', 'columns': ['STATE', 'WHEN', 'PROJECT', 'REQUEST', 'ID'], 'flex': 3, 'drop': [2, 4], 'dim': [4], 'caps': {'2': 16},
+                 'rows': [[terminal.STATE.get(row['status'], row['status']), short_time(row.get('created')), names.get(row['project'], row['project'] or ''), (row['message'] or 'Attached files').replace('\n', ' '), str(row['id'])[:8]] for row in rows],
+                 'empty': 'Nothing in the queue.'}
+        return rows, view('Queue', table, summary=summary, hint='/job <id> for one request (the first 8 characters are enough)')
     if command == 'job':
-        if not args: raise ValueError('Usage: /job <id> (ids are in /queue)')
-        value = console.job(args[0]); return value, value['markdown']
+        if not args: raise ValueError('Usage: /job <id> (the first 8 characters, from /queue)')
+        value = console.job(args[0]); return value, view(f"Request {value['id'][:8]}", {'kind': 'lines', 'lines': value['markdown'].splitlines()}, hint='/queue')
     if command == 'gate':
         if args[:1] == ['why']:
             if len(args) < 2: raise ValueError('Usage: /gate why <id>')
             event = console.gate_event(args[1])
-            return event, '\n'.join(f'{key}: {json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list)) else value}' for key, value in event.items())
-        n = next((int(arg) for arg in args if arg.isdigit()), 20)
-        rows = console.gate(n, blocked='blocked' in args)
-        shown = [{**row, 'time': str(row.get('timestamp', ''))[11:19], 'command': row.get('args', {}).get('command') or row.get('args', {}).get('path') or ''} for row in rows]
-        return rows, table(shown, ['id', 'time', 'phase', 'outcome', 'source', 'command', 'reason'])
+            command_text = (event.get('args') or {}).get('command') or (event.get('args') or {}).get('path') or ''
+            return event, view(f"Gate · check {event.get('id')}", kv(['Decision', GATE_WORDS.get(event.get('outcome'), event.get('outcome'))], ['Check', 'before it ran' if event.get('phase') == 'gate' else 'after it ran'],
+                                                                    ['Tool', event.get('tool', '')], ['Command', command_text], ['Reason', event.get('reason') or '—'], ['Where', event.get('cwd') or ''], ['From', event.get('source') or ''], ['When', event.get('timestamp', '')]), hint='/gate · /gate blocked')
+        n = next((int(arg) for arg in args if arg.isdigit()), 20); blocked = 'blocked' in args
+        rows = console.gate(n, blocked=blocked); projects = sorted(((item['path'], item['name']) for item in console.projects()), key=lambda pair: -len(pair[0]))
+        owner = lambda cwd: next((name for path, name in projects if cwd and (cwd == path or cwd.startswith(path + os.sep))), '')
+        table = {'kind': 'table', 'columns': ['TIME', 'CHECK', 'DECISION', 'COMMAND', 'PROJECT', 'ID'], 'flex': 3, 'drop': [4, 5], 'dim': [5], 'caps': {'4': 16},
+                 'rows': [[short_time(row.get('timestamp')), 'before' if row.get('phase') == 'gate' else 'after', GATE_WORDS.get(row.get('outcome'), row.get('outcome', '')),
+                           (row.get('args') or {}).get('command') or (row.get('args') or {}).get('path') or row.get('tool', ''), owner(row.get('cwd')), str(row.get('id', ''))] for row in rows],
+                 'empty': 'No checks yet.' if not blocked else 'Nothing blocked.'}
+        return rows, view('Gate · blocked' if blocked else 'Gate', table, hint='/gate why <id> for one check · /gate blocked')
     if command == 'models' and args[:1] in (['pull'], ['remove']):
         if len(args) < 2: raise ValueError(f'Usage: /models {args[0]} <name>')
         return changed((console.pull_model if args[0] == 'pull' else console.remove_model)(args[1], yes))
@@ -479,16 +529,21 @@ def run(console, command, args, yes=False):
         return changed(console.choose_model(args[1], args[2] if len(args) > 2 else None, yes))
     if command == 'models':
         value = console.models()
-        if not value['ollama']: return value, f"Ollama does not answer at {models.ollama_url()}. Chosen: {value['choice']['model']}."
-        rows = [{'model': ('* ' if item['chosen'] else '  ') + item['id'], 'tools': 'yes' if item['tools'] else 'no', 'thinks': 'yes' if item['thinking'] else 'no',
-                 'sees': 'yes' if item['vision'] else 'no', 'at once': item['at_once'], 'size': f"{item['size'] / 1e9:.1f} GB"} for item in value['models']]
-        return value, table(rows, ['model', 'tools', 'thinks', 'sees', 'at once', 'size']) + '\n* chosen · at once: whether it answers two requests at the same time (/models check)'
+        if not value['ollama']: return value, view('Models', {'kind': 'lines', 'lines': [f"✗ Ollama does not answer at {models.ollama_url()}.", f"Chosen: {value['choice']['model']}"]}, hint='/doctor')
+        loaded = set(console.ollama_info().get('loaded') or [])
+        can = lambda item: '✗ no tools' if not item['tools'] else ' · '.join(word for word in [('thinks' if item['thinking'] else 'no thinking'), item['vision'] and 'sees', {'parallel': 'parallel', 'partly parallel': 'one at a time', 'one at a time': 'one at a time', 'checking': 'checking…'}.get(item['at_once'])] if word)
+        table = {'kind': 'table', 'columns': ['MODEL', 'SIZE', 'CAN', ''], 'flex': 2, 'dim': [3],
+                 'rows': [[('● ' if item['chosen'] else '  ') + item['id'], f"{item['size'] / 1e9:.0f} GB", can(item), 'in memory' if item['id'] in loaded else ''] for item in value['models']]}
+        return value, view('Models', table, hint='/models use <name> · /models check · /models pull <name> · /models remove <name>')
     if command == 'ollama':
         value = console.ollama_info()
-        return value, '\n'.join(f'{key}: {value[key]}' for key in ['url', 'running', 'version', 'models_folder', 'num_parallel', 'loaded'])
+        return value, view('Ollama', kv(['Running', ('✓ answers at ' if value['running'] else '✗ does not answer at ') + value['url']], ['Version', value['version'] or '—'], ['Models', value['models_folder']],
+                                       ['Parallel', str(value['num_parallel'])], ['In memory', ', '.join(value['loaded']) or 'nothing']), hint='/ollama set <key> <value> · /ollama restart · /models')
     if command == 'projects':
         rows = console.projects()
-        return rows, table([{**row, 'state': 'folder missing' if row.get('missing') else ''} for row in rows], ['name', 'path', 'state', 'id'])
+        table = {'kind': 'table', 'columns': ['NAME', 'FOLDER', 'STATE', 'ID'], 'flex': 1, 'drop': [3], 'dim': [3],
+                 'rows': [[row['name'], row['path'].replace(str(Path.home()), '~'), '! folder missing' if row.get('missing') else '', str(row['id'])[:8]] for row in rows], 'empty': 'No projects yet: New Project… in the workbench.'}
+        return rows, view('Projects', table, hint='Rename, move or remove a project from the workbench’s Project menu')
     if command == 'config' and args[:1] == ['set']:
         if len(args) < 3: raise ValueError('Usage: /config set <key> <value>')
         return changed(console.set_config(args[1], ' '.join(args[2:]), yes))
@@ -496,33 +551,52 @@ def run(console, command, args, yes=False):
         return changed(console.undo(yes))
     if command == 'guide':
         return guide(args)
+    if command == 'config' and len(args) == 1:
+        value = console.config(); key = args[0]
+        if key not in value['values']: raise ValueError(f"Unknown setting {key}. Settings: {', '.join(value['values'])}.")
+        return value, view(f'Setting · {key}', kv(['Value', json.dumps(value['values'][key])], ['Default', json.dumps(DEFAULTS.get(key))], ['Variable', value['variables'].get(key) or '—'], ['Meaning', value['explain'][key]]),
+                           hint=f'/config set {key} <value> asks first')
     if command == 'config':
-        value = console.config(); lines = [value['path'], 'Change one with /config set <key> <value>; each applies the next time plh starts.', '']
-        for key, item in value['values'].items():
-            variable = value['variables'].get(key); line = f'{key}: {json.dumps(item)}' + (f'   ({variable})' if variable else '')
-            if key in value['environment']: line += f"   {variable}={value['environment'][key]} in the environment wins"
-            lines += [line, f"    {value['explain'][key]}"]
-        lines += ['', 'Set by the harness (read-only):'] + [f"  {name}{'=' + item['value'] if item['value'] else ''}: {item['about']}" for name, item in value['internal'].items()]
-        lines += ['', 'Ollama’s own (/ollama shows them, /ollama set changes them): ' + ', '.join(f'{name} ({key})' for name, key in value['ollama'].items())]
-        return value, '\n'.join(lines)
+        value = console.config()
+        try: saved = json.loads((console.data / 'config.json').read_text())
+        except (OSError, ValueError): saved = {}
+        source = lambda key: f"env {value['variables'][key]}" if key in value['environment'] else 'config' if key in saved and saved[key] != DEFAULTS.get(key) else 'default'
+        shown = lambda item: '(none)' if item in ([], '') else (item if isinstance(item, str) else json.dumps(item))
+        changed_count = sum(source(key) != 'default' for key in value['values'])
+        settings = {'kind': 'table', 'columns': ['KEY', 'VALUE', 'FROM'], 'flex': 1, 'rows': [[key, value['environment'][key] if key in value['environment'] else shown(item), source(key)] for key, item in value['values'].items()]}  # the value in force
+        internal = {'kind': 'kv', 'heading': '── Harness variables · read only', 'rows': [[name, item['value'] or '—'] for name, item in value['internal'].items()]}
+        return value, view('Settings', settings, internal, summary=f"{len(value['values'])} settings · {changed_count} changed", hint='/config <key> explains one · /config set <key> <value> asks first · Ollama’s own: /ollama')
     if command == 'paths':
-        value = console.paths(); return value, '\n'.join(f'{key}: {path}' for key, path in value.items())
+        value = console.paths(); return value, view('Paths', kv(*[[key, path.replace(str(Path.home()), '~')] for key, path in value.items()]), hint='/config · /doctor')
     if command == 'doctor':
-        rows = console.doctor()
-        return rows, '\n'.join(f"{'ok ' if row['ok'] else 'NO '} {row['check']}: {row['detail']}" + ('' if row['ok'] else f"\n     → {row['fix']}") for row in rows)
+        rows = console.doctor(); broken = sum(not row['ok'] for row in rows)
+        items = [{'state': 'ok' if row['ok'] else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]
+        return rows, view('Doctor', {'kind': 'checklist', 'items': items}, summary=f'{broken} to fix' if broken else 'all good', hint='/status · /guide')
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
 
+
+def run(console, command, args, yes=False, width=80):
+    """(data, text): build() rendered as plain text."""
+    value, shape = build(console, command, args, yes)
+    return value, terminal.plain(shape, width)
+
+# One word per guide question, in GUIDE.md's order (/guide completion, the /guide list).
+GUIDE_TOPICS = ['what', 'start', 'browser', 'project', 'rename', 'chat', 'comments', 'sees', 'activity', 'long', 'model', 'pull', 'phone', 'voice', 'setting', 'console', 'wrong', 'data']
 
 def guide(words):
     """harness/GUIDE.md, or its sections (## questions) that mention every word; else the list of questions (task 167)."""
     text = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8')
-    if not words: return {'guide': text}, text
     sections = ['## ' + part for part in text.split('\n## ')[1:]]
+    if not words:
+        rows = [[f'/guide {topic}', section.splitlines()[0][3:]] for topic, section in zip(GUIDE_TOPICS, sections)]
+        return {'guide': text}, view('Guide', kv(*rows), hint='/guide <words> for an answer · or ask in words')
     matches = lambda part: all(word.lower() in part.lower() for word in words)
     found = [section for section in sections if matches(section.splitlines()[0])] or [section for section in sections if matches(section)]  # questions first
-    if found: return {'sections': found}, '\n\n'.join(section.strip() for section in found)
+    if found:
+        parts = [{'kind': 'prose', 'heading': section.splitlines()[0][3:] if len(found) > 1 else '', 'text': '\n'.join(section.splitlines()[1:]).strip()} for section in found]
+        return {'sections': found}, view('Guide · ' + (found[0].splitlines()[0][3:].rstrip('?') if len(found) == 1 else ' '.join(words)), *parts, hint='Ask in words for more, or /guide for every topic')
     questions = [section.splitlines()[0][3:] for section in sections]
-    return {'sections': [], 'questions': questions}, f"Nothing in the guide matches “{' '.join(words)}”. Its questions:\n" + '\n'.join('  ' + question for question in questions)
+    return {'sections': [], 'questions': questions}, view('Guide', {'kind': 'lines', 'lines': [f"Nothing in the guide matches “{' '.join(words)}”. Its questions:", *['  ' + question for question in questions]]}, hint='/guide <words>')
 
 def check_models(console, args):
     """/models check [name] [--all] [--force]: measure whether models answer two requests at once (plan 156 § 7)."""
@@ -540,11 +614,11 @@ def check_models(console, args):
     if not targets: lines.append('Every installed model is measured. --force measures them again.')
     if any(result.get('num_parallel') in ('default', '1') for result in results.values()):
         lines.append('Note: with OLLAMA_NUM_PARALLEL at 1 (or the default) a model can only answer one request at a time.')
-    return results, '\n'.join(lines)
+    return results, view('Models · at once', {'kind': 'lines', 'lines': lines}, hint='/models')
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    raw = '--json' in argv; yes = '--yes' in argv; argv = [arg for arg in argv if arg not in ('--json', '--yes')]
+    raw = '--json' in argv; yes = '--yes' in argv; as_view = '--view' in argv; argv = [arg for arg in argv if arg not in ('--json', '--yes', '--view')]  # --view: the view for terminal Pi's renderer
     data = os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')); web = os.getenv('PI_WEB_PORT')
     for flag in ('--data', '--web'):
         if flag in argv:
@@ -554,13 +628,14 @@ def main(argv=None):
             del argv[index:index + 2]
     command, args = (argv[0], argv[1:]) if argv else ('harness', [])
     console = Console(data, int(web) if web and str(web).isdigit() else None)
-    try: value, text = run(console, command.lstrip('/'), args, yes)
+    import shutil
+    try: value, shape = build(console, command.lstrip('/'), args, yes); text = terminal.plain(shape, shutil.get_terminal_size((80, 24)).columns)
     except LookupError as error: print(error, file=sys.stderr); return 2
     except ValueError as error: print(error, file=sys.stderr); return 1
     if isinstance(value, dict) and value.get('confirm'):  # exit 3: the person must say yes first
-        print(json.dumps(value, ensure_ascii=False, indent=2) if raw else f"{value['title']}\n{value['detail']}\nRun again with --yes to apply.")
+        print(json.dumps(value, ensure_ascii=False, indent=2) if raw else json.dumps({**shape, 'preview': value}, ensure_ascii=False) if as_view else f"{value['title']}\n{value['detail']}\nRun again with --yes to apply.")
         return 3
-    print(json.dumps(value, ensure_ascii=False, indent=2, default=str) if raw else text)
+    print(json.dumps(value, ensure_ascii=False, indent=2, default=str) if raw else json.dumps(shape, ensure_ascii=False) if as_view else text)
     return 0
 
 
