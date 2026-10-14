@@ -73,9 +73,16 @@
 
 <div style="position: relative"><a href="M_Project.dc.html" class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="{{projectOpen}}">Project</a>
 <sc-if value="{{projectOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Project" style="min-width: 270px">
-<a href="Main.dc.html" class="pw-menu__item" role="menuitem">Open Project Chat</a>
-<a href="W_Requests.dc.html" class="pw-menu__item" role="menuitem">Ask Pi About This Document…</a>
-<span class="pw-menu__item" role="menuitem">Copy Folder Path</span>
+<a href="Main.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNone}}">Open Project Chat</a>
+<a href="W_Requests.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNoFolder}}">Ask Pi About This Document…</a>
+<span class="pw-menu__item" role="menuitem" aria-disabled="{{pNoFolder}}">Copy Folder Path</span>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="P_Rename.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNoFolder}}">Rename Project…</a>
+<sc-if value="{{pHasFolder}}" hint-placeholder-val="{{true}}"><a href="P_Move.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNone}}">Move Project…</a></sc-if>
+<sc-if value="{{pMissing}}" hint-placeholder-val="{{false}}"><a href="P_Locate.dc.html" class="pw-menu__item" role="menuitem" data-active="true">Locate Folder…</a></sc-if>
+<div class="pw-menu__sep" role="separator"></div>
+<a href="P_Remove.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNone}}">Remove from List…</a>
+<a href="P_Trash.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{pNoFolder}}">Move Project to Trash…</a>
 <div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitemradio" aria-checked="true">pi-local-harness</span>
 <span class="pw-menu__item" role="menuitemradio" aria-checked="false">Japanese study app</span>
@@ -137,7 +144,7 @@
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"$preview":{"width":1440,"height":360}}'>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"projState":{"editor":"enum","options":["ok","missing","none"],"default":"ok"},"$preview":{"width":1440,"height":360}}'>
 class Component extends DCLogic {
 renderVals() {
 const o = this.props.open ?? 'none';
@@ -145,6 +152,7 @@ const v = this.props.view ?? 'chat';
 const st = this.props.statusState ?? 'rest';
 const ms = this.props.modelState ?? 'rest';
 const noThink = ms === 'nothink';
+const ps = this.props.projState ?? 'ok';
 return {
 piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
 projectOpen: o === 'project', agentOpen: o === 'agent' || o === 'agentEarlier', earlierOpen: o === 'agentEarlier', windowOpen: o === 'window',
@@ -157,6 +165,7 @@ sWarn: st === 'attention',
 sLabel: 'Agent status: ' + (st === 'attention' ? 'needs attention' : (this.props.status ?? 'Working · 1 waiting')) + '. Open Activity',
 appWin: false, notChat: v !== 'chat',
 rootH: o === 'none' ? '28px' : '400px',
+pNone: ps === 'none', pNoFolder: ps !== 'ok', pHasFolder: ps !== 'missing', pMissing: ps === 'missing',
 modelOpen: o === 'model', thinkOpen: o === 'thinking', noThink: noThink,
 modelLabel: ms === 'loading' ? 'Loading qwen3:8b…' : ms === 'nothink' ? 'mistral-small:24b' : 'gemma4:12b',
 thinkLabel: noThink ? 'No thinking' : 'High thinking',

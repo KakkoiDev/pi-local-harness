@@ -1420,6 +1420,95 @@
       "h": 844,
       "title": "Recording",
       "page": "phone"
+    },
+    "P_Menu.dc.html": {
+      "x": 0,
+      "y": 19300,
+      "w": 1440,
+      "h": 900,
+      "title": "Project menu · acting on the open project",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_MenuMissing.dc.html": {
+      "x": 1520,
+      "y": 19300,
+      "w": 1440,
+      "h": 900,
+      "title": "Project menu · folder missing (dimmed, Locate…)",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Rename.dc.html": {
+      "x": 3040,
+      "y": 19300,
+      "w": 1440,
+      "h": 900,
+      "title": "Rename Project…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Renamed.dc.html": {
+      "x": 4560,
+      "y": 19300,
+      "w": 1440,
+      "h": 900,
+      "title": "After Rename: toast with Undo",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Move.dc.html": {
+      "x": 0,
+      "y": 20320,
+      "w": 1440,
+      "h": 900,
+      "title": "Move Project…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Refused.dc.html": {
+      "x": 1520,
+      "y": 20320,
+      "w": 1440,
+      "h": 900,
+      "title": "Move or Trash while Pi works: refused",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Remove.dc.html": {
+      "x": 3040,
+      "y": 20320,
+      "w": 1440,
+      "h": 900,
+      "title": "Remove from List…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Trash.dc.html": {
+      "x": 4560,
+      "y": 20320,
+      "w": 1440,
+      "h": 900,
+      "title": "Move Project to Trash…",
+      "page": "states",
+      "is_interactive": true
+    },
+    "P_Locate.dc.html": {
+      "x": 0,
+      "y": 21340,
+      "w": 1440,
+      "h": 900,
+      "title": "Locate Folder… for a missing project",
+      "page": "states",
+      "is_interactive": true
+    },
+    "Ph_ProjectMore.dc.html": {
+      "x": 2350,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "More for a project (π sheet)",
+      "page": "phone"
     }
   },
   "createdOnFiles": {
@@ -1672,6 +1761,15 @@
       "w": 240,
       "x": 0,
       "y": 2240
+    },
+    "s9": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Project commands — rename, move, remove, trash, locate (task 154)",
+      "w": 240,
+      "x": 0,
+      "y": 19040
     }
   },
   "order": [
@@ -1839,7 +1937,17 @@
     "Ph_ModelList.dc.html",
     "Ph_FileMore.dc.html",
     "Ph_FolderMore.dc.html",
-    "Ph_Recording.dc.html"
+    "Ph_Recording.dc.html",
+    "P_Menu.dc.html",
+    "P_MenuMissing.dc.html",
+    "P_Rename.dc.html",
+    "P_Renamed.dc.html",
+    "P_Move.dc.html",
+    "P_Refused.dc.html",
+    "P_Remove.dc.html",
+    "P_Trash.dc.html",
+    "P_Locate.dc.html",
+    "Ph_ProjectMore.dc.html"
   ],
   "pages": [
     {

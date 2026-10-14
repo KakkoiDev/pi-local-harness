@@ -15,7 +15,7 @@
 <div class="pw-root pw-desk" style="height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 24px; align-items: stretch; position: relative; color: #000">
 
 <!-- Left window: Projects home or the project window (body[data-level]) -->
-<sc-if value="{{levelProjects}}" hint-placeholder-val="{{false}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="{{pcurrent}}" empty="{{noProjects}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
+<sc-if value="{{levelProjects}}" hint-placeholder-val="{{false}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectsWin" agent="{{agent}}" current="{{pcurrent}}" empty="{{noProjects}}" missing="{{pMissing}}" sel="{{psel}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
 <sc-if value="{{levelProject}}" hint-placeholder-val="{{true}}"><div style="width: 290px; flex: none; display: flex"><dc-import name="C_ProjectWin" state="{{pwState}}" h="824px" hint-size="290px,824px"></dc-import></div></sc-if>
 
 <!-- Chat window (active) -->
@@ -27,6 +27,7 @@
 <span class="pw-mono" style="font-size: 13px">{{folder}}</span>
 </div>
 
+<sc-if value="{{missingBanner}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line" role="alert" style="flex: none; border-bottom: 1px solid #000; padding: 10px 14px; display: flex; align-items: center; gap: 12px"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg><span style="flex: 1; font-size: 15px">The folder ~/code/home-server is missing. The chat is kept; Pi cannot work here until you locate it.</span><a href="P_Locate.dc.html" class="pw-btn pw-btn--default">Locate Folder…</a><a href="P_Remove.dc.html" class="pw-btn">Remove from List…</a></div></sc-if>
 <sc-if value="{{offline}}" hint-placeholder-val="{{false}}">
 <div role="alert" style="flex: none; border-bottom: 1px solid #000; padding: 10px 14px; display: flex; align-items: center; gap: 14px">
 <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -135,6 +136,42 @@
 <div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="po-t" class="pw-alert__message">Phone access is off.</p><p class="pw-alert__detail">Serve is not enabled on your tailnet. Enable it once at <a href="#" class="pw-link">login.tailscale.com/f/serve</a>, then quit plh and start it again.</p></div></div>
 <div class="pw-dialog__actions"><button class="pw-btn">Copy Link</button><button class="pw-btn pw-btn--default">Done</button></div>
 </div></sc-if>
+<sc-if value="{{prRename}}" hint-placeholder-val="{{false}}"><form role="dialog" aria-labelledby="pr-t" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 480px">
+<h2 id="pr-t" class="pw-dialog__title">Rename Project</h2>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Name<input class="pw-field" value="Japanese flashcards"></label>
+<p class="pw-help">Renames the folder “Japanese study app” to “Japanese flashcards” in ~/code. Its address becomes /p/japanese-flashcards. Chat, comments and Activity stay with the project.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Rename</button></div>
+</form></sc-if>
+<sc-if value="{{prMove}}" hint-placeholder-val="{{false}}"><form role="dialog" aria-labelledby="pm-t" class="pw-dialog" style="position: absolute; left: 50%; top: 110px; transform: translateX(-50%); width: 500px">
+<h2 id="pm-t" class="pw-dialog__title">Move “Japanese study app”</h2>
+<div style="display: flex; gap: 8px; align-items: center"><select class="pw-popup" aria-label="Location" style="flex: 1"><option>~/code</option></select><button type="button" class="pw-btn">Parent</button></div>
+<div style="border: 1px solid #000; height: 150px; display: flex"><div class="pw-list" role="listbox" aria-label="Folders in ~/code" style="flex: 1"><div class="pw-row" role="option" aria-selected="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>dotfiles</div><div class="pw-row" role="option" aria-selected="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>learning</div><div class="pw-row" role="option" aria-selected="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>pi-local-harness</div><div class="pw-row" role="option" aria-selected="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>sandbox</div></div><div class="pw-dither" aria-hidden="true" style="width: 16px; border-left: 1px solid #000"></div></div>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Path<input class="pw-field pw-mono" value="~/code/learning" style="font-size: 13px"></label>
+<p class="pw-help">Moves “Japanese study app” into ~/code/learning. Chat, comments and Activity stay with the project.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Move Here</button></div>
+</form></sc-if>
+<sc-if value="{{prLocate}}" hint-placeholder-val="{{false}}"><form role="dialog" aria-labelledby="pl-t" class="pw-dialog" style="position: absolute; left: 50%; top: 110px; transform: translateX(-50%); width: 500px">
+<h2 id="pl-t" class="pw-dialog__title">Locate “home-server”</h2>
+<p class="pw-alert__detail" style="margin: 0">The folder is no longer at ~/code/home-server. Choose where it is now.</p>
+<div style="display: flex; gap: 8px; align-items: center"><select class="pw-popup" aria-label="Location" style="flex: 1"><option>~/servers</option></select><button type="button" class="pw-btn">Parent</button></div>
+<div style="border: 1px solid #000; height: 150px; display: flex"><div class="pw-list" role="listbox" aria-label="Folders in ~/servers" style="flex: 1"><div class="pw-row" role="option" aria-selected="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>home-server</div><div class="pw-row" role="option" aria-selected="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>media</div><div class="pw-row" role="option" aria-selected="false"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg>old</div></div><div class="pw-dither" aria-hidden="true" style="width: 16px; border-left: 1px solid #000"></div></div>
+<label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Path<input class="pw-field pw-mono" value="~/servers/home-server" style="font-size: 13px"></label>
+<p class="pw-help">Points the project at ~/servers/home-server. Chat, comments and Activity stay with it; nothing on disk changes.</p>
+<div class="pw-dialog__actions"><button type="button" class="pw-btn">Remove from List…</button><span style="flex: 1"></span><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Use This Folder</button></div>
+</form></sc-if>
+<sc-if value="{{prRefused}}" hint-placeholder-val="{{false}}"><div role="alertdialog" aria-labelledby="pf-t" class="pw-dialog" style="position: absolute; left: 50%; top: 170px; transform: translateX(-50%); width: 500px">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Note" class="pw-alert__icon"><rect x="2" y="2" width="32" height="32" fill="#fff" stroke="currentColor" stroke-width="2"/><path d="M18 9v3M18 16v12" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="pf-t" class="pw-alert__message">Pi is answering about this project.</p><p class="pw-alert__detail">Try again when that request ends. Moving or trashing the folder now would pull it out from under Pi.</p></div></div>
+<div class="pw-dialog__actions"><a href="Activity.dc.html" class="pw-btn">Show in Activity</a><button class="pw-btn pw-btn--default">OK</button></div>
+</div></sc-if>
+<sc-if value="{{prRemove}}" hint-placeholder-val="{{false}}"><div role="alertdialog" aria-labelledby="pd-t" class="pw-dialog" style="position: absolute; left: 50%; top: 170px; transform: translateX(-50%); width: 500px">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Note" class="pw-alert__icon"><rect x="2" y="2" width="32" height="32" fill="#fff" stroke="currentColor" stroke-width="2"/><path d="M18 9v3M18 16v12" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="pd-t" class="pw-alert__message">Remove “Japanese study app” from the list?</p><p class="pw-alert__detail">The folder stays on your Mac with its files. Add it again with Add Existing Folder…; its chat and comments come back with it.</p></div></div>
+<div class="pw-dialog__actions"><button class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Remove</button></div>
+</div></sc-if>
+<sc-if value="{{prTrash}}" hint-placeholder-val="{{false}}"><div role="alertdialog" aria-labelledby="pt-t" class="pw-dialog" style="position: absolute; left: 50%; top: 170px; transform: translateX(-50%); width: 520px">
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="pt-t" class="pw-alert__message">Move “Japanese study app” to the Trash?</p><p class="pw-alert__detail">Its 3 files and 1 folder go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.</p></div></div>
+<div class="pw-dialog__actions"><button class="pw-btn pw-dialog__danger">Move to Trash</button><button class="pw-btn pw-btn--default">Cancel</button></div>
+</div></sc-if>
+<sc-if value="{{prToast}}" hint-placeholder-val="{{false}}"><div class="pw-toast" role="status" style="position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); width: 420px"><span>Renamed to “Japanese flashcards”.</span><button class="pw-btn">Undo<span class="pw-kbd">⌘Z</span></button></div></sc-if>
 <sc-if value="{{newconv}}" hint-placeholder-val="{{false}}">
 <div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
 <div role="alertdialog" aria-labelledby="nc-msg" aria-describedby="nc-det" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 500px">
@@ -145,17 +182,19 @@
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh","earlier","typing","blocked","phoneon","phoneoff","newproject","firstchat"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh","earlier","typing","blocked","phoneon","phoneoff","newproject","firstchat","prrename","prmove","prlocate","prrefused","prremove","prtrash","prrenamed","prmissing"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'working';
 const welcome = s === 'welcome' || s === 'newproject';
-const first = s === 'firstchat';
+const PRJ = ['prrename','prmove','prrefused','prremove','prtrash','prrenamed'].includes(s);
+const first = s === 'firstchat' || PRJ;
 const empty = s === 'empty' || first;
 const working = s === 'working';
 const fresh = s === 'fresh';
 const hasMessages = !welcome && !empty && !fresh;
-const lvl = welcome ? 'projects' : (this.props.level ?? 'project');
+const PR = s.startsWith('pr');
+const lvl = (welcome || PR) ? 'projects' : (this.props.level ?? 'project');
 const K = { near: 20, compacted: 6, summary: 6, fresh: 0, empty: 0, firstchat: 0 }[s] ?? 14;
 const hints = {
 working: 'Return queues · Shift-Return adds a line',
@@ -170,7 +209,8 @@ levelProjects: lvl === 'projects', levelProject: lvl === 'project',
 agent: working ? 'working' : 'idle', pcurrent: welcome ? 'none' : 'project',
 fresh: fresh, compacted: s === 'compacted' || s === 'summary', summaryOpen: s === 'summary', summaryToggle: s === 'summary' ? 'Hide Summary' : 'Show Summary',
 showMeter: !welcome && s !== 'earlier' && s !== 'newproject',
-overlay: ['newproject','phoneon','phoneoff'].includes(s), newproject: s === 'newproject', phoneon: s === 'phoneon', phoneoff: s === 'phoneoff', blocked: s === 'blocked',
+overlay: ['newproject','phoneon','phoneoff','prrename','prmove','prlocate','prrefused','prremove','prtrash'].includes(s),
+prRename: s === 'prrename', prMove: s === 'prmove', prLocate: s === 'prlocate', prRefused: s === 'prrefused', prRemove: s === 'prremove', prTrash: s === 'prtrash', prToast: s === 'prrenamed', pMissing: s === 'prlocate' || s === 'prmissing', psel: PRJ ? (s === 'prrenamed' ? 'Japanese flashcards' : 'Japanese study app') : (s === 'prlocate' || s === 'prmissing') ? 'home-server' : '', missingBanner: s === 'prlocate' || s === 'prmissing', newproject: s === 'newproject', phoneon: s === 'phoneon', phoneoff: s === 'phoneoff', blocked: s === 'blocked',
 newconv: s === 'newconv', earlier: s === 'earlier', notEarlier: s !== 'earlier',
 ctxK: String(K), meterLabel: 'Context ' + K + 'k of 32k',
 draftAttach: s === 'attachments', draftRec: s === 'recording', draftTyping: s === 'typing', draftNone: !['attachments','recording','typing'].includes(s), ctxPct: Math.round(K / 32 * 100) + '%',
@@ -182,7 +222,7 @@ done: hasMessages && !working,
 noProjects: welcome, hasProjects: !welcome,
 projectCount: welcome ? 'No projects' : '3 projects',
 jsaMeta: working ? 'waiting' : '',
-title: welcome ? 'Pi Workbench' : first ? 'Japanese study app' : 'pi-local-harness',
+title: welcome ? 'Pi Workbench' : s === 'prrenamed' ? 'Japanese flashcards' : first ? 'Japanese study app' : (s === 'prlocate' || s === 'prmissing') ? 'home-server' : 'pi-local-harness',
 folder: welcome ? '' : first ? '~/code/Japanese study app' : '~/code/pi-local-harness',
 offline: s === 'offline',
 showWelcome: welcome || empty || fresh,

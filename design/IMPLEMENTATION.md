@@ -425,3 +425,25 @@ Boards: [MB_Model], [Ph_Model], [Ph_ModelList], [W_FolderSel], [W_Rename], [W_Tr
 4. **Open on Phone** — as built: QR 184px in a 1px ink frame, centred above the explanation and the address field. Dialog width 460px. [Dialogs2], [F9_Phone_2]
 5. **Phone recording** — one change: no red. The button keeps its 44px shape and becomes `.pw-btn--rec[aria-pressed="true"]`: inverted, a paper dot, “0:12” in tabular figures, `aria-label="Stop Recording"`. Inversion is how System 1 says “on”; a colour would be the only colour in the product.
 6. **Comment threads (task 135)** — the reply row becomes: field · **Add Note** · **Ask Pi** (default once the field has text) · Resolve · gap · Delete (unsent only), with `.pw-thread__help` under it: “Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.” Same on the phone thread sheet. “Reply” is retired because it read as if it reached Pi. Ask Pi on an empty field sends the thread as it stands.
+
+## 2026-10-14 · Task 154: rename, move, remove and trash a project
+
+Boards: [P_Menu], [P_MenuMissing], [P_Rename], [P_Renamed], [P_Move], [P_Refused], [P_Remove], [P_Trash], [P_Locate], [Ph_ProjectMore]. No new CSS.
+
+**Where.** The **Project** menu only, acting on the open project (the window title; the selected row in the Projects window). Not the File menu: File acts on files and folders inside a project, Project on the project. One rule per menu keeps “which thing will this act on?” answerable. Items: `data-command="rename-project"`, `move-project` (label “Locate Folder…” and `locate-project` when the folder is missing), `remove-project`, `trash-project`. Dimmed, never hidden.
+
+**Rename Project…** — one field, one name: the app shows the folder's name, so they stay one thing. Dialog `#project-name-dialog`: title “Rename Project”, label “Name”, prefilled and selected. Help: “Renames the folder “Japanese study app” to “Japanese flashcards” in ~/code. Its address becomes /p/japanese-flashcards. Chat, comments and Activity stay with the project.” Default **Rename**. Errors in the help line (“A folder named … already exists in ~/code.”). Old `/p/<old>` addresses redirect to the new one for the session.
+
+**Move Project…** — the folder browser from New Project / Add Existing Folder (`#folder-dialog` reused: location popup, Parent, real folder rows, Path field). Title “Move “<name>””. Help: “Moves “<name>” into <folder>. Chat, comments and Activity stay with the project.” Default **Move Here**. Refused folders: the project's own folder and anything inside it (rows dimmed).
+
+**While Pi works in that project**, Move and Move to Trash stay enabled but answer with a Note alert instead of acting: “Pi is answering about this project.” / “Try again when that request ends. Moving or trashing the folder now would pull it out from under Pi.” Buttons: Show in Activity / **OK**. (A dimmed item could not say why.) Rename is refused the same way.
+
+**Remove from List…** — Note alert: “Remove “<name>” from the list?” / “The folder stays on your Mac with its files. Add it again with Add Existing Folder…; its chat and comments come back with it.” Buttons Cancel / **Remove** (default: nothing is lost).
+
+**Move Project to Trash…** — Caution alert: “Move “<name>” to the Trash?” / “Its 3 files and 1 folder go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.” Buttons **Move to Trash** (`.pw-dialog__danger`, left) / **Cancel** (default). Yes: Cancel is the default, as for every destructive action. Afterwards the app shows the Projects home.
+
+**Missing folder.** The row keeps its caution glyph and “folder missing”. Opening it shows the chat (it hangs off the id) with an alert line: “The folder ~/code/home-server is missing. The chat is kept; Pi cannot work here until you locate it.” + **Locate Folder…** (default) + Remove from List…. **Locate Folder…** reuses the folder browser: title “Locate “home-server””, detail “The folder is no longer at ~/code/home-server. Choose where it is now.”, help “Points the project at <path>. Chat, comments and Activity stay with it; nothing on disk changes.”, buttons Remove from List… (left) · Cancel · **Use This Folder**. This replaces Remove-then-Add, which would lose the chat.
+
+**Undo.** Rename, Move and Remove from List show a toast with Undo ⌘Z (“Renamed to “Japanese flashcards”.”, “Moved to ~/code/learning.”, “Removed “…” from the list.”); each is cheap to reverse. Move to Trash has no Undo in the app; the toast says ““<name>” is in the Trash.” (the alert already said how to bring it back). File renames should get the same Undo toast for consistency.
+
+**Phone.** A ⋯ on each project row of the π sheet (44px, its own tap target) opens a sheet titled with the project and its path: Open, Rename Project…, Move Project…, Copy Folder Path, ═, Remove from List…, Move Project to Trash…. Same dialogs as sheets. This matches round 4's answer for files: the ⋯ sits on the thing it acts on.

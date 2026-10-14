@@ -21,7 +21,7 @@
 <section class="pw-group" aria-labelledby="pg-projects"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-projects"><button class="pw-group__toggle" aria-expanded="true" aria-controls="pg-projects-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Projects<span class="pw-group__count">{{projectN}}</span></button></h3></div>
 <div class="pw-group__body" id="pg-projects-body" role="list">
 <sc-if value="{{empty}}" hint-placeholder-val="{{false}}"><p class="pw-group__empty">Your projects will appear here.</p></sc-if>
-<sc-for list="{{projects}}" as="p" hint-placeholder-count="3"><a href="{{p.href}}" class="pw-row" role="listitem" aria-current="{{p.current}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">{{p.name}}</span><span class="pw-row__meta"><sc-if value="{{p.run}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{p.warn}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{p.meta}}</span></a></sc-for>
+<sc-for list="{{projects}}" as="p" hint-placeholder-count="3"><a href="{{p.href}}" class="pw-row" role="listitem" aria-current="{{p.current}}" style="{{p.style}}"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">{{p.name}}</span><span class="pw-row__meta"><sc-if value="{{p.run}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg></sc-if><sc-if value="{{p.warn}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg></sc-if>{{p.meta}}</span></a></sc-for>
 </div></section>
 <section class="pw-group" aria-labelledby="pg-agent"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-agent"><button class="pw-group__toggle" aria-expanded="true" aria-controls="pg-agent-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Agent<span class="pw-group__count">All projects</span></button></h3></div>
 <div class="pw-group__body" id="pg-agent-body" role="list">
@@ -37,17 +37,21 @@
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "query": {"editor": "text", "default": ""}, "$preview": {"width": 290, "height": 824}}'>
+<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "query": {"editor": "text", "default": ""}, "missing": {"editor": "boolean", "default": false}, "sel": {"editor": "text", "default": ""}, "$preview": {"width": 290, "height": 824}}'>
 class Component extends DCLogic {
 renderVals() {
 const a = this.props.agent ?? 'working', c = this.props.current ?? 'none', empty = (this.props.empty === true || this.props.empty === 'true');
-const P = (name, o) => Object.assign({ name: name, href: 'Main.dc.html', current: 'false', run: false, warn: false, meta: '' }, o || {});
+const miss = (this.props.missing === true || this.props.missing === 'true');
+const P = (name, o) => Object.assign({ name: name, href: 'Main.dc.html', current: 'false', run: false, warn: false, meta: '', style: '' }, o || {});
 const q = (this.props.query ?? '').toLowerCase();
 const all = empty ? [] : [
  P('pi-local-harness', { current: (c === 'project' && !(this.props.query)) ? 'page' : 'false', run: a === 'working', meta: a === 'working' ? 'running' : '' }),
  P('Japanese study app', { meta: a === 'working' ? 'waiting' : '' }),
- P('home-server', { warn: a === 'attention', meta: a === 'attention' ? 'failed' : '' })
+ P('home-server', miss ? { warn: true, meta: 'folder missing', current: 'page', style: '' } : { warn: a === 'attention', meta: a === 'attention' ? 'failed' : '' })
 ];
+const selName = this.props.sel ?? '';
+if (selName === 'Japanese flashcards' && all[1]) all[1].name = selName;
+if (selName) all.forEach((p) => { p.current = p.name === selName ? 'page' : 'false'; });
 const projects = q ? all.filter((p) => p.name.toLowerCase().includes(q)).map((p, i) => Object.assign({}, p, { current: i === 0 ? 'page' : 'false' })) : all;
 const act = { working: '1 running · 1 waiting', idle: 'Nothing running', attention: '1 needs attention' }[a];
 const gate = { working: '12 checks · 1 blocked', idle: '12 checks today', attention: '14 checks · 1 blocked' }[a];
