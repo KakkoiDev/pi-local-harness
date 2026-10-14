@@ -72,7 +72,9 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 /* Activity and Gate */
 .activity-panel,.gate-panel{flex:1;min-height:0;display:flex;flex-direction:column}
 .activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
-.activity-record h4{margin:0;padding:8px 14px 0}
+.activity-record__head{display:flex;align-items:baseline;gap:12px;padding:8px 14px 0}.activity-record__head h4{margin:0}.activity-record__head .pw-help{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px}
+#activity-record-scrim{z-index:44}
+@media (max-width:760px){#activity-record:not([hidden]){position:fixed;left:0;right:0;bottom:0;max-height:calc(100% - 120px);z-index:45;background:var(--paper);border-top:3px double var(--ink);padding-bottom:env(safe-area-inset-bottom,0px)}.activity-record__head{align-items:center;padding:12px 16px 4px}.activity-record__head h4{font-size:17px}} /* Ph_ActivityRecord */
 .activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
 #activity-panel{--pw-cols:130px minmax(0,1fr) 170px 130px 90px 56px} /* C_ActivityDesk */
 #gate-events{--pw-cols:70px 58px 104px minmax(0,1fr) 150px 70px} /* C_GateDesk */

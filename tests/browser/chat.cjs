@@ -102,7 +102,9 @@ const readline = require('node:readline');
   await page.keyboard.press(above?'ArrowUp':'ArrowDown');for(let step=1;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowUp':'ArrowDown');await page.waitForFunction(()=>document.activeElement?.matches('.activity-task[aria-current=true]')&&document.activeElement.textContent.includes('Implement this roadmap'));for(let step=0;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowDown':'ArrowUp');await page.waitForFunction(()=>document.activeElement?.textContent.includes('Review the whole roadmap'));
   await detail.getByRole('button',{name:'Show Task Record',exact:true}).click();await page.locator('#activity-record-text').filter({hasText:'Review the whole roadmap'}).waitFor();
   // 2026-10-14: the same button hides it ("Hide Task Record"), as does the menu item; no disclosure triangle to find.
-  const hide=detail.getByRole('button',{name:'Hide Task Record',exact:true});await hide.waitFor();assert.equal(await page.locator('#activity-record summary').count(),0);
+  const hide=detail.getByRole('button',{name:'Hide Task Record',exact:true});await hide.waitFor();
+  assert.equal(await hide.getAttribute('aria-expanded'),'true');assert.equal(await hide.getAttribute('aria-controls'),'activity-record');assert.match(await page.locator('#activity-record-path').textContent(),/activity\/[0-9a-f]{32}\.md$/,'task 177 (A_Record): the record\'s path in its head');
+  assert.equal(await page.locator('#activity-record-close').isVisible(),false,'Close is the phone sheet\'s');assert.equal(await page.locator('#activity-record summary').count(),0);
   assert.equal(await page.locator('[data-command="task-record"]').textContent(),'Hide Task Record');
   await hide.click();await page.locator('#activity-record').waitFor({state:'hidden'});await detail.getByRole('button',{name:'Show Task Record',exact:true}).waitFor();
   assert.equal(await page.locator('[data-command="task-record"]').textContent(),'Show Task Record');
@@ -234,7 +236,15 @@ const readline = require('node:readline');
   await page.locator('#prompt').fill('TEST_WAIT');await page.locator('#send').click();await page.locator('#stop').waitFor();await page.locator('.pw-tool--live').filter({hasText:'Using bash'}).waitFor();await page.locator('#send').filter({hasText:/^Queue$/}).waitFor();
   await page.locator('#prompt').fill('Queued work to cancel');await page.locator('#send').click();await page.locator('.pw-queue-note').filter({hasText:'Next: 1 request waiting in Second project'}).waitFor();await page.locator('#phone-view').click();await page.locator('#phone-view-menu').getByRole('menuitemradio',{name:'Activity'}).click();
   const waiting=page.locator('.activity-task').filter({hasText:'Queued work to cancel'});await waiting.locator('.activity-request').click();await page.locator('#activity-detail').getByRole('button',{name:'Cancel…',exact:true}).click();await page.locator('#alert-message').filter({hasText:'Cancel the waiting request?'}).waitFor();await page.locator('#alert-dialog').getByRole('button',{name:'Cancel Request',exact:true}).click();await page.locator('#phone-back').click();await waiting.locator('.task-state').filter({hasText:'Cancelled'}).waitFor();
-  await page.locator('.activity-task').filter({hasText:'TEST_WAIT'}).locator('.activity-request').click();await page.locator('#activity-detail').getByRole('button',{name:/^Stop/}).click();await page.locator('#phone-back').click();
+  await page.locator('.activity-task').filter({hasText:'TEST_WAIT'}).locator('.activity-request').click();
+  { // Task 177 (Ph_ActivityRecord): on the phone the record is a sheet titled "Task record" with Close.
+  await page.locator('#activity-detail').getByRole('button',{name:'Show Task Record',exact:true}).click();const sheet=page.locator('#activity-record');await sheet.waitFor();
+  const box=await sheet.boundingBox();assert.ok(box.width===390&&Math.round(box.y+box.height)>=840,'a bottom sheet: '+JSON.stringify(box));
+  assert.equal(await page.locator('#activity-record-scrim').isVisible(),true,'over the dither');
+  await page.locator('#activity-record-close').click();await sheet.waitFor({state:'hidden'});assert.equal(await page.locator('#activity-record-scrim').isVisible(),false);
+  await page.locator('#activity-detail').getByRole('button',{name:'Show Task Record',exact:true}).waitFor();
+  }
+  await page.locator('#activity-detail').getByRole('button',{name:/^Stop/}).click();await page.locator('#phone-back').click();
   await page.locator('.activity-task').filter({hasText:'TEST_WAIT'}).locator('.task-state').filter({hasText:'Stopped'}).waitFor();
   await page.setViewportSize({width:1440,height:950});if(await page.locator('#show-projects').isVisible())await page.locator('#show-projects').click();await page.getByRole('button',{name:'First project',exact:true}).click();
   await page.locator('#show-projects').click();

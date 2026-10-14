@@ -98,3 +98,14 @@ class ModelChoiceTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FourLevelsTest(unittest.TestCase):
+    """Task 177 (round 7, item 12): Ollama knows Off, Low, Medium and High. A saved Minimal reads as Low and Extra High or
+    Max as High, which is how they already ran (task 175); the menu and the completion offer the four."""
+    def test_saved_levels_read_as_the_four(self):
+        with tempfile.TemporaryDirectory() as data:
+            for saved, shown in [('minimal', 'low'), ('xhigh', 'high'), ('max', 'high'), ('medium', 'medium'), ('off', 'off')]:
+                Path(data, 'model.json').write_text(json.dumps({'model': 'gemma4:26b-mlx', 'effort': saved}))
+                self.assertEqual(models.current(data)['effort'], shown, saved)
+        self.assertEqual(models.LEVELS, ('off', 'low', 'medium', 'high'))

@@ -9,7 +9,10 @@ _PIN = json.loads(Path(__file__).with_name('model.json').read_text())
 PROVIDER = _PIN['provider']
 MODEL = _PIN['model']
 QUALIFIED = f'{PROVIDER}/{MODEL}'
-EFFORTS = ('off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max')
+EFFORTS = ('off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max')  # what Pi accepts, and what may be saved
+# The levels Ollama tells apart (tasks 175, 177): the menu and the completion offer these; the others read as the nearest.
+LEVELS = ('off', 'low', 'medium', 'high')
+NEAREST = {'minimal': 'low', 'xhigh': 'high', 'max': 'high'}
 OLLAMA = 'http://127.0.0.1:11434'
 
 
@@ -27,6 +30,7 @@ def current(data_root, default_effort='high'):
     except (OSError, ValueError): saved = {}
     model = saved.get('model') if isinstance(saved.get('model'), str) and saved.get('model') else MODEL
     effort = saved.get('effort') if saved.get('effort') in EFFORTS else default_effort
+    effort = NEAREST.get(effort, effort)
     return {'provider': PROVIDER, 'model': model, 'effort': effort}
 
 

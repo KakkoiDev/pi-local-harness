@@ -415,6 +415,7 @@ const readline = require('node:readline');
   await page.route('**/api/model',route=>new Promise(resolve=>setTimeout(()=>resolve(route.fulfill({json:{model:'qwen3:8b',effort:'off',chosenEffort:'high',thinking:false,vision:false}})),400)));
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#effort-button').waitFor();
   assert.equal(await page.locator('#effort-button').textContent(),'High thinking');
+  assert.deepEqual(await page.locator('#effort-menu [data-effort]').evaluateAll(items=>items.map(item=>item.textContent)),['Off','Low','Medium','High'],'task 177: the four levels Ollama knows');
   await page.locator('#effort-button').click();await page.locator('#effort-menu [data-effort="low"]').click();
   await page.locator('#effort-button',{hasText:'Low thinking'}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/Thinking set to low\. Pi uses it from the next request\./);
   assert.equal(JSON.parse(fs.readFileSync(join(directory,'workspace','model.json'),'utf8')).effort,'low','kept for the next request');

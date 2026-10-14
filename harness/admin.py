@@ -223,8 +223,10 @@ class Console:
     def doctor(self):
         """Checks, each with what is wrong and what to do."""
         checks = []
-        def check(name, ok, detail, fix=''):
-            checks.append({'check': name, 'ok': bool(ok), 'detail': detail, 'fix': '' if ok else fix})
+        # Round 7 (task 177): a fix is an existing command that asks first, or plain words when no command does it; a
+        # note is something that needs nothing from the person.
+        def check(name, ok, detail, fix='', note=False):
+            checks.append({'check': name, 'ok': bool(ok), 'detail': detail, 'fix': '' if ok or note else fix, 'note': bool(note) and not ok})
         check('Data folder', self.data.is_dir() and os.access(self.data, os.W_OK), str(self.data), f'Create {self.data} or set PI_AGENT_DATA.')
         try:
             values = self.config()['values']; problem = None
@@ -232,18 +234,19 @@ class Console:
             if path.exists() and 'model' in json.loads(path.read_text() or '{}'): problem = "remove 'model': the model is pinned in harness/model.json"
             elif values['effort'] not in models.EFFORTS: problem = f"effort must be one of {', '.join(models.EFFORTS)}"
         except (OSError, ValueError) as error: problem = f'cannot read it: {error}'
-        check('Settings', not problem, problem or ('config.json is valid' if (self.data / 'config.json').exists() else 'defaults (plh writes config.json at its next start)'), f'Fix config.json: {problem}.')
+        fix = '/config set effort high' if problem and problem.startswith('effort') else f'Fix config.json: {problem}.'
+        check('Settings', not problem, problem or ('config.json is valid' if (self.data / 'config.json').exists() else 'defaults (plh writes config.json at its next start)'), fix)
         version = self.ollama('/api/version')
-        check('Ollama', version is not None, f"{models.ollama_url()} {'answers, version ' + version.get('version', '?') if version else 'does not answer'}", 'Start the Ollama app (or check PI_OLLAMA_URL).')
+        check('Ollama', version is not None, f"{models.ollama_url()} {'answers, version ' + version.get('version', '?') if version else 'does not answer'}", '/ollama restart (or start the Ollama app; check PI_OLLAMA_URL)')
         if version is not None:
             info = self.models(); chosen = info['choice']['model']
-            check('Chosen model', any(item['id'] == chosen for item in info['models']), f'{chosen}', f'Install it (ollama pull {chosen}) or choose another model in the menu bar.')
+            check('Chosen model', any(item['id'] == chosen for item in info['models']), f'{chosen}', f'/models pull {chosen} (or /models use <another>)')
         lock = self.data / '.agent-lock'
         if lock.exists():
             try: pid = json.loads(lock.read_text()).get('pid'); os.kill(int(pid), 0); alive = True
             except ProcessLookupError: alive = False
             except (OSError, ValueError, TypeError): alive = True
-            check('Agent lock', alive, f'held by process {pid}' if alive else f'left by process {pid}, which is gone', f'Remove the stale lock: {lock}')
+            check('Agent lock', alive, f'held by process {pid}' if alive else f'left by process {pid}, which is gone; it clears itself when the next agent starts', note=True)
         else: check('Agent lock', True, 'free')
         if self.web_port: check('Web workbench', self.web('/api/config') is not None, f'127.0.0.1:{self.web_port}', 'Quit plh and start it again.')
         return checks
@@ -572,8 +575,8 @@ def build(console, command, args, yes=False):
     if command == 'paths':
         value = console.paths(); return value, view('Paths', kv(*[[key, path.replace(str(Path.home()), '~')] for key, path in value.items()]), hint='/config · /doctor')
     if command == 'doctor':
-        rows = console.doctor(); broken = sum(not row['ok'] for row in rows)
-        items = [{'state': 'ok' if row['ok'] else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]
+        rows = console.doctor(); broken = sum(not row['ok'] and not row.get('note') for row in rows)
+        items = [{'state': 'ok' if row['ok'] else 'note' if row.get('note') else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]
         return rows, view('Doctor', {'kind': 'checklist', 'items': items}, summary=f'{broken} to fix' if broken else 'all good', hint='/status · /guide')
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
 
@@ -602,7 +605,8 @@ def completions(console, command):
         try: installed = [item['id'] for item in console.models()['models']]
         except (OSError, ValueError): installed = []
         words = [['use ', 'Switch to a model (asks first)'], ['check ', 'Measure whether a model answers two at once'], ['pull ', 'Download a model (asks first)'], ['remove ', 'Move a model to the Trash (asks first)']]
-        return words + [[f'{verb} {name}', ''] for verb in ('use', 'check', 'remove') for name in installed]
+        levels = [[f'use {name} {level}', f'{level} thinking'] for name in installed for level in models.LEVELS]
+        return words + [[f'{verb} {name}', ''] for verb in ('use', 'check', 'remove') for name in installed] + levels
     return []
 
 

@@ -13,7 +13,7 @@ test('a tool call is two lines: glyph, tool and argument, then the checks (task 
     ['! write  ../other/ROADMAP.md', '  ! Gate asked Pi to revise: the path is outside the project']);
   assert.deepEqual(strip(toolLines('bash', { command: './backup.sh' }, { gate: 'allowed', ok: false, exit: 1, seconds: 3 })),
     ['✗ bash  ./backup.sh', '  ✓ Gate allowed · ✗ exit 1 · 0:03', '  The command failed on its own; Gate did not block it.']);
-  assert.deepEqual(strip(toolLines('read', { path: 'ROADMAP.md' }, { gate: 'allowed', ok: true, seconds: 0 })), ['▶ read  ROADMAP.md', '  ✓ Gate allowed · ✓ done · 0:00']);
+  assert.deepEqual(strip(toolLines('read', { path: 'ROADMAP.md' }, { gate: 'allowed', ok: true, seconds: 0 })), ['✓ read  ROADMAP.md', '  ✓ Gate allowed · ✓ done · 0:00'], 'task 177 (T_Gate): a finished read reads ✓; bash keeps ▶');
   assert.deepEqual(strip(toolLines('bash', { command: 'pwd' }, { gate: 'allowed', drift: 'the command that ran was not the one it allowed' })),
     ['✗ bash  pwd', '  ✗ Gate: the command that ran was not the one it allowed']);
   assert.deepEqual(strip(toolLines('grep', { pattern: 'TODO', path: 'harness' }, undefined)), ['▶ grep  TODO harness'], 'running: the first line only');

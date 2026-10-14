@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from harness import admin
@@ -67,7 +68,14 @@ class AdminTest(unittest.TestCase):
         self.assertFalse(checks['Ollama']['ok']); self.assertTrue(checks['Ollama']['fix'], 'a failing check says what to do')
         self.assertTrue(checks['Data folder']['ok'])
         lock = self.data / '.agent-lock'; lock.write_text(json.dumps({'pid': 999999999}))
-        self.assertFalse({check['check']: check for check in self.console.doctor()}['Agent lock']['ok'], 'a lock held by a process that is gone')
+        stale = {check['check']: check for check in self.console.doctor()}['Agent lock']
+        self.assertTrue(stale['note'], 'task 177: a stale lock is a note, not a fix'); self.assertIn('clears itself when the next agent starts', stale['detail'])
+        # Task 177 (round 7, item 3): a fix names an existing command that asks first.
+        self.assertTrue(checks['Ollama']['fix'].startswith('/ollama restart'), checks['Ollama']['fix'])
+        (self.data / 'config.json').write_text(json.dumps({'effort': 'loud'}))
+        self.assertEqual({check['check']: check for check in self.console.doctor()}['Settings']['fix'], '/config set effort high')
+        _, text = admin.run(self.console, 'doctor', [])
+        self.assertIn('→ /ollama restart', text); self.assertIn('! note', text)
 
     def test_a_missing_config_is_fine_and_the_queue_names_projects(self):
         """Task 169: plh creates config.json with the defaults; the queue shows project names and short times."""
@@ -93,6 +101,9 @@ class AdminTest(unittest.TestCase):
         self.assertIn('a' * 8, words('job')); self.assertIn('failed', words('queue'))
         self.assertIn('blocked', words('gate')); self.assertIn('set num_parallel', words('ollama'))
         self.assertTrue({'use', 'check', 'pull', 'remove'} <= {word.strip() for word in words('models')}, 'without Ollama, the subcommands')
+        with patch('harness.admin.Console.models', return_value={'models': [{'id': 'qwen3:8b'}]}):
+            levels = [value for value, _ in admin.completions(self.console, 'models') if value.startswith('use qwen3:8b ')]
+        self.assertEqual(levels, ['use qwen3:8b off', 'use qwen3:8b low', 'use qwen3:8b medium', 'use qwen3:8b high'], 'task 177: the four levels Ollama knows')
         self.assertEqual(admin.completions(self.console, 'status'), [])
         run = subprocess.run([sys.executable, '-m', 'harness.admin', 'guide', '--complete', '--data', str(self.data)], capture_output=True, text=True, timeout=30)
         self.assertEqual(run.returncode, 0, run.stderr); self.assertIn(['phone', 'How do I use it from my phone or another device?'], json.loads(run.stdout))

@@ -174,8 +174,9 @@ export function installWorkspace(host){
  const needsAttention=job=>['failed','stopped','interrupted'].includes(job.status);
  function selectJob(id){selectedJob=id;recordShown(false);renderActivity();}
  // One button shows and hides the record, its name saying which (2026-10-14: "Hide Task Record" once it is open); the menu item follows.
- function recordShown(on){$('activity-record').hidden=!on;const label=on?'Hide Task Record':'Show Task Record';document.querySelectorAll('[data-command="task-record"],#activity-detail .activity-record-toggle').forEach(item=>{item.textContent=label;});}
- async function showRecord(id){if(!$('activity-record').hidden){recordShown(false);return;}try{const result=await api('/api/activity-record?id='+id);$('activity-record-text').textContent=result.markdown;recordShown(true);$('activity-record').scrollIntoView({block:'nearest'});}catch(e){error(e.message);}}
+ function recordShown(on){$('activity-record').hidden=!on;$('activity-record-scrim').hidden=!(on&&matchMedia('(max-width:760px)').matches);/* Ph_ActivityRecord: a sheet over the dither */const label=on?'Hide Task Record':'Show Task Record';document.querySelectorAll('[data-command="task-record"],#activity-detail .activity-record-toggle').forEach(item=>{item.textContent=label;});document.querySelectorAll('#activity-detail .activity-record-toggle').forEach(item=>item.setAttribute('aria-expanded',String(on)));}
+ $('activity-record-close').onclick=$('activity-record-scrim').onclick=()=>recordShown(false);
+ async function showRecord(id){if(!$('activity-record').hidden){recordShown(false);return;}try{const result=await api('/api/activity-record?id='+id);$('activity-record-text').textContent=result.markdown;$('activity-record-path').textContent=result.path||'';recordShown(true);$('activity-record').scrollIntoView({block:'nearest'});}catch(e){error(e.message);}}
  function renderJobDetail(job){
   const detail=$('activity-detail');detail.hidden=!job;detail.replaceChildren();if(!job)return;const item=state.projects.find(project=>project.id===job.project);
   detail.append(node('h3','pw-label',stateGlyph(job.status).textContent+' in '+(item?.name||job.project)),node('blockquote','activity-detail__request','“'+(job.message||'Attached files')+'”'));
@@ -191,7 +192,7 @@ export function installWorkspace(host){
   const back=node('a','pw-btn',{chat:'Open in Chat',comment:'Show Comment',file:'Show in Review'}[origin]);back.href=job.document?'/p/'+job.project+'/work/'+file:'/p/'+job.project+'/chat';back.onclick=event=>{event.preventDefault();openOrigin(job);};actions.append(back);
   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api('/api/jobs/stop',{id:job.id}).catch(e=>error(e.message));/* this request only (task 164) */actions.append(stop);}
   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}
-  const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
+  const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.setAttribute('aria-controls','activity-record');record.setAttribute('aria-expanded',String(!$('activity-record').hidden));record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
  }
  function renderActivity(){
   const filter=$('activity-filter').value,scope=$('activity-project').value;syncActivitySeg();if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob,state.jobs.some(job=>job.status==='running')&&Math.floor(Date.now()/10000)]))return;/* a running time keeps moving */

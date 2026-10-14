@@ -11,8 +11,9 @@ const argument = (tool, args = {}) => tool === 'bash' ? args.command
 const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.round(seconds) % 60).padStart(2, '0')}`;
 const cut = (text, width) => (text.length <= width ? text : `${text.slice(0, Math.max(0, width - 1))}…`);
 
-function glyph(check) {
+function glyph(check, tool) {
   if (!check) return '▶';
+  if (tool !== 'bash' && check.gate === 'allowed' && check.ok === true && !check.drift) return '✓'; // T_Gate (round 7): a finished read or edit
   if (check.gate === 'revise') return '!';
   if (check.gate !== 'allowed' || check.drift || check.ok === false) return '✗';
   return '▶';
@@ -22,7 +23,7 @@ function glyph(check) {
 export function callLine(tool, args, check, width = 80) {
   const words = String(argument(tool, args) || '').replace(/\s+/g, ' ').trim();
   const room = width - tool.length - 4;
-  return `${glyph(check)} ${bold(tool)}${words ? `  ${cut(words, Math.max(8, room))}` : ''}`;
+  return `${glyph(check, tool)} ${bold(tool)}${words ? `  ${cut(words, Math.max(8, room))}` : ''}`;
 }
 
 export function checkLines(tool, check) {

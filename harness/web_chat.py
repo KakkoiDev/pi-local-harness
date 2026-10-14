@@ -537,7 +537,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/activity-record':
                 identifier=parse_qs(urlparse(self.path).query)['id'][0]
                 if not re.fullmatch(r'[0-9a-f]{32}',identifier):raise ValueError('Invalid task ID')
-                self.reply({'markdown':(self.chat.queue.records/(identifier+'.md')).read_text()});return
+                record=self.chat.queue.records/(identifier+'.md');self.reply({'markdown':record.read_text(),'path':str(record).replace(str(Path.home()),'~',1)});return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
