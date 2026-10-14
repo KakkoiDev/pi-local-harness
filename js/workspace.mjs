@@ -116,7 +116,7 @@ export function installWorkspace(host){
   if(unchanged('comments',[page?.path,page?.revision,page?.comments,commentFilter,currentComment,openThread,showResolved,state.jobs.filter(job=>job.comment_id).map(job=>[job.comment_id,job.status])]))return;if(!document.activeElement?.isContentEditable)renderBlocks();
   const list=orderedComments(),numbered=numbers(),counts={open:0,resolved:0,deleted:0};for(const comment of list)counts[commentState(comment)]++;
   $('comment-count').textContent=counts.open;const waiting=unsent().length;$('send-unsent').disabled=!waiting;$('send-unsent').textContent=waiting?`Send ${waiting} Unsent Comment${waiting>1?'s':''} to Pi`:'No unsent comments';
-  for(const item of $('comment-filter').querySelectorAll('[data-filter]')){const filter=item.dataset.filter;item.textContent={open:'Open',resolved:'Resolved',deleted:'Deleted'}[filter]+' '+counts[filter];item.setAttribute('aria-checked',String(filter===commentFilter));}
+  for(const item of $('comment-filter').querySelectorAll('[data-filter]')){const filter=item.dataset.filter;item.textContent={open:'Open',resolved:'Resolved',deleted:'Deleted'}[filter]+' '+counts[filter];item.setAttribute('aria-checked',String(filter===commentFilter));item.tabIndex=filter===commentFilter?0:-1;}
   $('document-comments').replaceChildren();const shown=list.filter(comment=>commentState(comment)===commentFilter);
   if(page&&!shown.length)$('document-comments').append(node('p','list-empty pw-empty',{open:'No open comments.',resolved:'Nothing resolved yet.',deleted:'No deleted comments.'}[commentFilter]));
   for(const comment of shown){
@@ -135,6 +135,7 @@ export function installWorkspace(host){
   }
  }
  $('comment-filter').onclick=event=>{const item=event.target.closest('[data-filter]');if(item){commentFilter=item.dataset.filter;renderComments();}};
+ $('comment-filter').onkeydown=event=>{const step={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[event.key];if(!step)return;event.preventDefault();const order=['open','resolved','deleted'];commentFilter=order[(order.indexOf(commentFilter)+step+order.length)%order.length];renderComments();$('comment-filter').querySelector('[aria-checked="true"]')?.focus();};/* a radio group: arrows choose */
  $('show-resolved').checked=showResolved;$('show-resolved').onchange=()=>{showResolved=$('show-resolved').checked;writeState('showResolved',showResolved);renderBlocks();renderComments();};
  function renderDocumentRequests(){
   if(unchanged('requests',[page?.path,state.jobs.filter(job=>job.document===page?.path&&!job.comment_id)]))return;$('document-request-history').hidden=true;$('document-requests').replaceChildren();if(!page)return;

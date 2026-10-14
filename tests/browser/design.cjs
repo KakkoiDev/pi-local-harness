@@ -502,6 +502,13 @@ const readline = require('node:readline');
   await page.setViewportSize({width:1440,height:900});
   }
 
+  { // Audit (task 150): Review's filter is a radio group: Arrow keys choose.
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);if(await page.evaluate(()=>document.body.dataset.review)==='closed')await page.locator('#toggle-review').click();
+  const open=page.locator('#comment-filter [aria-checked="true"]');await open.focus();await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(()=>document.querySelector('#comment-filter [aria-checked="true"]').dataset.filter==='resolved');
+  assert.equal(await page.evaluate(()=>document.activeElement.dataset.filter),'resolved');await page.keyboard.press('ArrowLeft');
+  }
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();

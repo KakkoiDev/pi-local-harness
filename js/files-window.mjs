@@ -46,7 +46,7 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
   function group(name, title, count, actionLabel, action, children, isOpen) {
     const section = node('section', 'pw-group'); section.dataset.group = name;
     const head = node('div', 'pw-group__head'), heading = node('h3', 'pw-group__title'), toggle = node('button', 'pw-group__toggle'), body = node('div', 'pw-group__body');
-    body.id = 'files-' + name; body.setAttribute('role', 'list'); toggle.type = 'button'; toggle.tabIndex = -1; toggle.dataset.key = 'g:' + name;
+    body.id = 'files-' + name; /* rows are buttons: no list role without listitems */ toggle.type = 'button'; toggle.tabIndex = -1; toggle.dataset.key = 'g:' + name;
     toggle.setAttribute('aria-expanded', String(isOpen)); toggle.setAttribute('aria-controls', body.id);
     toggle.append(icon(isOpen ? 'disclosure-open' : 'disclosure-closed', { size: 10 }), title, node('span', 'pw-group__count', count));
     toggle.onclick = () => { if (!query) setGroup(name, !isOpen); };
@@ -122,6 +122,8 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
       item.setAttribute('aria-checked', String(segment === name)); item.tabIndex = segment === name ? 0 : -1;
       item.onclick = () => { segment = name; render(); seg.querySelector('[aria-checked="true"]')?.focus(); }; return item;
     }));
+    // Arrow keys move between the two segments (radio group), as segmentFor does elsewhere.
+    seg.onkeydown = event => { if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return; event.preventDefault(); segment = segment === 'plan' ? 'files' : 'plan'; render(); seg.querySelector('[aria-checked="true"]')?.focus(); };
     add.setAttribute('aria-label', segment === 'plan' ? 'New Task…' : 'New File…'); add.onclick = segment === 'plan' ? newTask : newFile;
   }
   const visible = () => [...tree.querySelectorAll('.pw-group__toggle,.pw-row')].filter(item => !item.closest('[hidden]'));

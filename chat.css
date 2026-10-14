@@ -328,3 +328,8 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
   #document-editor .pw-check{width:22px;height:22px}
 }
 .pw-msg__body--md code{-webkit-box-decoration-break:clone;box-decoration-break:clone} /* a wrapped code chip keeps its box on each line */
+/* Whole-file requests under Review (C_WorkDesk "sentfile"): a bordered card per request, the answer in the text face */
+.document-request{border:1px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.document-request>p{margin:0}
+.document-request>small{font-family:var(--font-chrome);font-size:13px}
+.document-request .agent-reply{font-family:var(--font-text);font-size:15px;line-height:1.45}

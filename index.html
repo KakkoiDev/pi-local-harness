@@ -138,11 +138,11 @@
       <div class="window-section"><label class="pw-search"><span data-icon="search"></span><input id="project-search" type="search" placeholder="Find a project" aria-label="Search projects"><kbd class="pw-kbd">⌘K</kbd></label></div>
       <nav id="projects-nav" class="pw-window__body" aria-label="Projects and agent"><!-- C_ProjectsWin: Projects, then the Agent section over every project (task 130) -->
         <section class="pw-group" data-group="projects" aria-labelledby="pg-projects"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-projects"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="project-list"><span data-icon="disclosure-open"></span>Projects<span id="project-n" class="pw-group__count"></span></button></h3></div>
-          <div id="project-list" class="pw-group__body" role="list"></div></section>
+          <div id="project-list" class="pw-group__body"></div><!-- rows are buttons: no list role without listitems --></section>
         <section class="pw-group" data-group="agent" aria-labelledby="pg-agent"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-agent"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="agent-list"><span data-icon="disclosure-open"></span>Agent<span class="pw-group__count">All projects</span></button></h3></div>
-          <div id="agent-list" class="pw-group__body" role="list">
-            <a id="agent-activity" href="/activity" class="pw-row" role="listitem" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
-            <a id="agent-gate" href="/gate" class="pw-row" role="listitem" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
+          <div id="agent-list" class="pw-group__body">
+            <a id="agent-activity" href="/activity" class="pw-row" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
+            <a id="agent-gate" href="/gate" class="pw-row" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
           </div></section>
       </nav>
       <div class="window-section window-section--actions">
