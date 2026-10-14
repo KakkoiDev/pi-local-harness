@@ -195,3 +195,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [153-A removed model falls back; voice input in comments; the thinking menu keeps its width](tasks/153-missing-model-and-comment-voice.md)
 - [x] [154-Rename, move, remove and trash a project](tasks/154-project-commands.md)
 - [x] [155-The block handle shows the hand](tasks/155-block-handle-cursor.md)
+- [ ] [156-Plan the chat orchestrating a worker](tasks/156-chat-orchestrates-worker.md)
+- [ ] [157-From "working" to its activity, and back in one click](tasks/157-working-to-activity-and-back.md)
