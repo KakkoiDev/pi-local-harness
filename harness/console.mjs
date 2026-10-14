@@ -11,8 +11,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 export const CONSOLE_COMMANDS = {
   harness: 'What the harness is and the commands it offers.',
   status: 'Services, model, queue and Gate counts, data folder, build.',
-  queue: 'Requests in Activity: /queue [running|waiting|failed|…].',
-  job: 'The Markdown record of one request: /job <id>.',
+  queue: 'Requests in Activity: /queue [all|running|waiting|failed|…].',
+  job: 'The Markdown record of one request: /job <id> (its first 8 characters).',
   gate: 'Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.',
   models: 'Installed models; /models use · check · pull · remove <name> (changes ask first).',
   ollama: 'Ollama settings; /ollama set <key> <value> and /ollama restart ask first.',

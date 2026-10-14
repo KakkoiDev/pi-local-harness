@@ -164,12 +164,15 @@ class Console:
         rows = [{'id': job.get('id'), 'status': job.get('status'), 'project': job.get('project'),
                  'message': job.get('message', (job.get('data') or {}).get('message', '')), 'created': job.get('created'),
                  'progress': job.get('progress', '')} for job in jobs]
-        return [row for row in rows if not state or row['status'] == {'waiting': 'queued'}.get(state, state)]
+        return [row for row in rows if state in (None, 'all') or row['status'] == {'waiting': 'queued'}.get(state, state)]
 
     def job(self, identifier):
-        if not re.fullmatch(r'[0-9a-f]{32}', str(identifier)): raise ValueError('A request id is 32 hexadecimal characters (see /queue)')
-        path = self.data / 'activity' / f'{identifier}.md'
-        if not path.exists(): raise ValueError(f'No request {identifier} in Activity')
+        identifier = str(identifier).lower()
+        if not re.fullmatch(r'[0-9a-f]{4,32}', identifier): raise ValueError('A request id is hexadecimal: its first 8 characters from /queue are enough')
+        found = sorted((self.data / 'activity').glob(f'{identifier}*.md'))  # /queue shows the first 8 characters (round 6)
+        if len(found) > 1: raise ValueError(f'{identifier} starts more than one request: type more of its id')
+        if not found: raise ValueError(f'No request {identifier} in Activity')
+        path = found[0]; identifier = path.stem
         return {'id': identifier, 'path': str(path), 'markdown': path.read_text(encoding='utf-8')}
 
     def projects(self):
@@ -419,7 +422,7 @@ class Console:
 COMMANDS = {
     'harness': ('', 'What the harness is and the commands it offers.'),
     'status': ('', 'Services, model, queue and Gate counts, data folder, build.'),
-    'queue': ('[running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
+    'queue': ('[all|running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
     'job': ('<id>', 'The Markdown record of one request.'),
     'gate': ('[n] [blocked] [why <id>]', 'Gate checks, newest first; why <id> explains one.'),
     'models': ('[use <name> [effort]] [check [name] [--all] [--force]] [pull <name>] [remove <name>]', 'Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.'),
@@ -590,11 +593,11 @@ def completions(console, command):
         return [[topic, section.splitlines()[0]] for topic, section in zip(GUIDE_TOPICS, sections)]
     if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
     if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
-    if command == 'queue': return [[state, ''] for state in ('running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
+    if command == 'queue': return [[state, ''] for state in ('all', 'running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
     if command == 'gate': return [['blocked', 'Only checks that did not allow'], ['why ', 'Explain one check: why <id>']]
     if command == 'job':
         names = {project['id']: project['name'] for project in console.projects()}
-        return [[row['id'], f"{terminal.STATE.get(row['status'], row['status'])} · {names.get(row['project'], row['project'])} · {str(row['message'] or '')[:50]}"] for row in reversed(console.queue()) if row['id']][:30]
+        return [[str(row['id'])[:8], f"{terminal.STATE.get(row['status'], row['status'])} · {names.get(row['project'], row['project'])} · {str(row['message'] or '')[:50]}"] for row in reversed(console.queue()) if row['id']][:30]
     if command == 'models':
         try: installed = [item['id'] for item in console.models()['models']]
         except (OSError, ValueError): installed = []

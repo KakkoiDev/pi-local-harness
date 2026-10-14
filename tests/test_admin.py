@@ -53,6 +53,12 @@ class AdminTest(unittest.TestCase):
         self.assertEqual(self.console.queue('running'), [])
         self.assertIn('Status: **failed**', self.console.job('a' * 32)['markdown'])
         with self.assertRaisesRegex(ValueError, 'No request'): self.console.job('b' * 32)
+        # Round 6: /queue shows the first 8 characters, and they are enough for /job; /queue all is everything.
+        self.assertEqual(self.console.job('aaaaaaaa')['id'], 'a' * 32)
+        write_record(self.data / 'activity' / ('aaaaaaab' + 'c' * 24 + '.md'), {'id': 'aaaaaaab' + 'c' * 24, 'project': self.project, 'chat': 'c', 'data': {'message': 'Other'}, 'created': '2026-10-14T11:00:00+09:00', 'status': 'completed', 'progress': '', 'text': '', 'thinking': ''}, '# Other\n')
+        with self.assertRaisesRegex(ValueError, 'more than one request'): self.console.job('aaaaaaa')
+        with self.assertRaisesRegex(ValueError, 'hexadecimal'): self.console.job('zz')
+        self.assertEqual(len(self.console.queue('all')), 2)
 
     def test_status_and_doctor_say_what_is_wrong_and_what_to_do(self):
         status = self.console.status()
@@ -84,7 +90,7 @@ class AdminTest(unittest.TestCase):
         words = lambda command: [value for value, _ in admin.completions(self.console, command)]
         self.assertIn('set silence_seconds', words('config')); self.assertIn('set effort', words('config'))
         self.assertIn('phone', words('guide')); self.assertEqual(len(words('guide')), len(admin.GUIDE_TOPICS))
-        self.assertIn('a' * 32, words('job')); self.assertIn('failed', words('queue'))
+        self.assertIn('a' * 8, words('job')); self.assertIn('failed', words('queue'))
         self.assertIn('blocked', words('gate')); self.assertIn('set num_parallel', words('ollama'))
         self.assertTrue({'use', 'check', 'pull', 'remove'} <= {word.strip() for word in words('models')}, 'without Ollama, the subcommands')
         self.assertEqual(admin.completions(self.console, 'status'), [])
