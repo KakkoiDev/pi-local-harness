@@ -39,6 +39,67 @@ EXPLAIN = {
 OLLAMA_SETTINGS = Path.home() / 'Library/Application Support/Ollama/db.sqlite'
 
 
+# Ollama's environment and the app (task 162). Tests replace these functions; nothing else calls launchctl or the app.
+def launchctl_get(key):
+    if sys.platform != 'darwin': return os.environ.get(key)
+    try: return subprocess.run(['launchctl', 'getenv', key], capture_output=True, text=True, timeout=5).stdout.strip() or None
+    except (OSError, subprocess.SubprocessError): return None
+
+
+def launchctl_set(key, value):
+    subprocess.run(['launchctl', 'setenv', key, str(value)], check=True, capture_output=True, timeout=5)
+
+
+def launchctl_unset(key):
+    subprocess.run(['launchctl', 'unsetenv', key], check=True, capture_output=True, timeout=5)
+
+
+def restart_ollama_app(between=None):
+    """Quit the Ollama app, run `between` (a settings change it must not overwrite), open it, wait until it answers."""
+    import time
+    subprocess.run(['osascript', '-e', 'quit app "Ollama"'], capture_output=True, timeout=20)
+    for _ in range(30):
+        try: models.ollama('/api/version', timeout=1); time.sleep(0.5)
+        except (OSError, ValueError): break
+    if between: between()
+    subprocess.run(['open', '-a', 'Ollama'], check=True, capture_output=True, timeout=20)
+    for _ in range(120):
+        try: models.ollama('/api/version', timeout=1); return
+        except (OSError, ValueError): time.sleep(0.5)
+    raise ValueError('Ollama did not answer within a minute after the restart. Open the Ollama app and check /doctor.')
+
+
+def env_number(low, high):
+    def check(raw):
+        if not str(raw).isdigit() or not low <= int(raw) <= high: raise ValueError(f'Give a number from {low} to {high}.')
+        return str(int(raw))
+    return check
+
+
+def keep_alive(raw):
+    if not re.fullmatch(r'-1|0|\d+(s|m|h)', str(raw)): raise ValueError('keep_alive is a duration such as 5m, 1h, 0 (unload at once) or -1 (keep loaded).')
+    return str(raw)
+
+
+def context_length(raw):
+    if not str(raw).isdigit() or not (int(raw) == 0 or 2048 <= int(raw) <= 262144): raise ValueError('context_length is 0 (Ollama decides) or a number of tokens from 2048 to 262144.')
+    return int(raw)
+
+
+def models_folder(raw):
+    path = Path(str(raw)).expanduser()
+    if not path.is_absolute() or not path.is_dir(): raise ValueError('models_folder must be an existing folder, as an absolute path.')
+    return str(path.resolve())
+
+
+# key: (where, name, check, what it does). env: launchctl variables the app reads at start; db: the app's settings.
+OLLAMA_KEYS = {
+    'num_parallel': ('env', 'OLLAMA_NUM_PARALLEL', env_number(1, 8), 'How many requests one loaded model answers at once (each reserves its own context memory).'),
+    'keep_alive': ('env', 'OLLAMA_KEEP_ALIVE', keep_alive, 'How long a model stays in memory after its last request.'),
+    'context_length': ('db', 'context_length', context_length, 'Default context length for models (0: Ollama decides).'),
+    'models_folder': ('db', 'models', models_folder, 'Where Ollama keeps and downloads models. Models already in the old folder are not moved.'),
+}
+
 class Console:
     def __init__(self, data, web_port=None):
         self.data = Path(data).expanduser().resolve()
@@ -255,16 +316,97 @@ class Console:
 
     def undo(self, yes=False):
         history = self.history(); undone = {entry.get('undoes') for entry in history}
-        last = next((entry for entry in reversed(history) if entry.get('backup') is not None and 'undoes' not in entry and entry.get('id') not in undone), None)
+        last = next((entry for entry in reversed(history) if (entry.get('backup') is not None or entry.get('ollama')) and 'undoes' not in entry and entry.get('id') not in undone), None)
         if not last: raise ValueError('Nothing to undo: no change with a backup in admin-log.jsonl.')
         detail = f"Undo “{last['command']}” ({last['time']}): " + (f"restore {last['file']} from {last['backup']}." if last['backup'] else f"{last['file']} did not exist before; it moves to the backups folder.")
+        if last.get('ollama'): detail = f"Undo “{last['command']}” ({last['time']}): {last['ollama']} back to {last['before'] if last['before'] not in (None, '') else 'default'}; Ollama restarts."
         if not yes: return {'confirm': True, 'title': 'Undo the last change?', 'detail': detail}
-        if last['backup']: Path(last['file']).write_bytes(Path(last['backup']).read_bytes())
+        if last.get('ollama'):  # Ollama: write the old value back (not the whole file: the app may have changed others)
+            self.idle(); restart_ollama_app(between=lambda: self.write_ollama(last['ollama'], last['before']))
+        elif last['backup']: Path(last['file']).write_bytes(Path(last['backup']).read_bytes())
         elif Path(last['file']).exists():  # the change created the file: set it aside, never delete it
             folder = self.data / 'backups'; folder.mkdir(exist_ok=True)
             Path(last['file']).rename(folder / f"{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}-{Path(last['file']).name}.undone")
         self.log(command=f"undo {last['command']}", file=last['file'], undoes=last.get('id'), before=last['after'], after=last['before'])
         return {'changed': True, 'detail': detail}
+
+    # -- Ollama and models (task 162) ---------------------------------------------------------------------------------
+    def idle(self):
+        if self.queue('running'): raise ValueError('Pi is working on a request; change Ollama when the queue is idle (restarting Ollama would stop it).')
+
+    def ollama_value(self, key):
+        where, name, _, _ = OLLAMA_KEYS[key]
+        if where == 'env': return launchctl_get(name)
+        try:
+            with sqlite3.connect(f'file:{OLLAMA_SETTINGS}?mode=ro', uri=True, timeout=2) as connection: return connection.execute(f'select {name} from settings where id = 1').fetchone()[0]
+        except sqlite3.Error: return None
+
+    def write_ollama(self, key, value):
+        where, name, _, _ = OLLAMA_KEYS[key]
+        if where == 'env': return (launchctl_unset(name) if value is None else launchctl_set(name, value))
+        with sqlite3.connect(OLLAMA_SETTINGS, timeout=5) as connection: connection.execute(f'update settings set {name} = ? where id = 1', (value,))
+
+    def set_ollama(self, key, raw, yes=False):
+        if key not in OLLAMA_KEYS: raise ValueError(f"Unknown Ollama setting {key}. Settings: {', '.join(OLLAMA_KEYS)}.")
+        where, name, check, about = OLLAMA_KEYS[key]; value = check(raw); before = self.ollama_value(key)
+        detail = f"{key}: {before if before not in (None, '', 0) else 'default'} → {value}\n{about}\nPi Workbench restarts Ollama so it reads the new value; a loaded model unloads."
+        if not yes: return {'confirm': True, 'title': f'Change Ollama’s {key}?', 'detail': detail}
+        self.idle()
+        backup = self.backup(OLLAMA_SETTINGS) if where == 'db' else None
+        restart_ollama_app(between=lambda: self.write_ollama(key, value))
+        self.log(command=f'ollama set {key} {raw}', ollama=key, file=str(OLLAMA_SETTINGS) if where == 'db' else name, backup=backup, before=before, after=value)
+        return {'changed': True, 'detail': detail.split('\n')[0]}
+
+    def restart_ollama(self, yes=False):
+        if not yes: return {'confirm': True, 'title': 'Restart Ollama?', 'detail': 'Quits and reopens the Ollama app; a loaded model unloads.'}
+        self.idle(); restart_ollama_app(); self.log(command='ollama restart')
+        return {'changed': True, 'detail': 'Ollama restarted.'}
+
+    def manifest_path(self, name):
+        model, _, tag = name.partition(':'); parts = model.split('/')
+        host, namespace, repository = ('registry.ollama.ai', 'library', parts[0]) if len(parts) == 1 else ('registry.ollama.ai', *parts) if len(parts) == 2 else parts[:3]
+        folder = Path(self.ollama_info()['models_folder'])
+        return folder, folder / 'manifests' / host / namespace / repository / (tag or 'latest')
+
+    def remove_model(self, name, yes=False):
+        """Moves the model's manifest and the files only it uses to the Trash, laid out like the models folder."""
+        from harness.documents import to_trash
+        folder, manifest = self.manifest_path(name)
+        if not manifest.is_file(): raise ValueError(f'{name} is not installed in {folder}.')
+        if name == models.current(self.data, self.config()['values']['effort'])['model']: raise ValueError(f'{name} is the chosen model. Choose another one first (/models use <name>).')
+        digests = lambda path: {item['digest'] for item in [json.loads(path.read_text()).get('config', {}), *json.loads(path.read_text()).get('layers', [])] if item.get('digest')}
+        ours = digests(manifest)
+        others = set().union(*[digests(path) for path in (folder / 'manifests').rglob('*') if path.is_file() and path != manifest] or [set()])
+        blobs = [folder / 'blobs' / digest.replace(':', '-') for digest in sorted(ours - others)]
+        blobs = [blob for blob in blobs if blob.exists()]
+        size = sum(blob.stat().st_size for blob in blobs)
+        detail = f"Moves {name} (its manifest and {len(blobs)} files only it uses, {size / 1e9:.1f} GB) to the Trash. Put Back brings it back; the space is freed when you empty the Trash."
+        if not yes: return {'confirm': True, 'title': f'Remove {name}?', 'detail': detail}
+        self.idle()
+        staging = folder / f"Removed model {name.replace('/', ' ').replace(':', ' ')} {datetime.now().strftime('%Y-%m-%d %H%M%S')}"
+        for source in [manifest, *blobs]:
+            target = staging / source.relative_to(folder); target.parent.mkdir(parents=True, exist_ok=True); source.rename(target)
+        (staging / 'README.txt').write_text(f'{name}, removed from {folder} by the Pi Workbench console.\nTo bring it back, move manifests/ and blobs/ from this folder into {folder} (merge the folders).\n')
+        to_trash(staging)
+        self.log(command=f'models remove {name}', trash=staging.name, files=len(blobs), bytes=size)
+        return {'changed': True, 'detail': detail}
+
+    def pull_model(self, name, yes=False):
+        if not re.fullmatch(r'[\w./-]+(:[\w.-]+)?', name): raise ValueError('A model name looks like qwen3:8b or library/qwen3:8b.')
+        detail = f"Downloads {name} from ollama.com into {self.ollama_info()['models_folder']}. Large models are many GB; this can take a while."
+        if not yes: return {'confirm': True, 'title': f'Pull {name}?', 'detail': detail}
+        request = urllib.request.Request(models.ollama_url() + '/api/pull', json.dumps({'model': name, 'stream': True}).encode(), {'Content-Type': 'application/json'})
+        last = ''
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                for line in response:
+                    event = json.loads(line)
+                    if event.get('error'): raise ValueError(f"Ollama could not pull {name}: {event['error']}")
+                    last = event.get('status', last)
+        except OSError as error: raise ValueError(f'Ollama does not answer at {models.ollama_url()}: {error}')
+        if last != 'success': raise ValueError(f'The pull of {name} ended with “{last}”.')
+        self.log(command=f'models pull {name}')
+        return {'changed': True, 'detail': f'{name} is installed.'}
 
 # -- the command line ----------------------------------------------------------------------------------------------
 # name: (usage, what it does). harness/CONSOLE.md documents each one; tests/test_admin.py checks that it does.
@@ -274,8 +416,8 @@ COMMANDS = {
     'queue': ('[running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
     'job': ('<id>', 'The Markdown record of one request.'),
     'gate': ('[n] [blocked] [why <id>]', 'Gate checks, newest first; why <id> explains one.'),
-    'models': ('[use <name> [effort]] [check [name] [--all] [--force]]', 'Installed models; use switches (asks first); check measures if it answers two requests at once.'),
-    'ollama': ('', 'Ollama: version, models folder, parallel slots, loaded models.'),
+    'models': ('[use <name> [effort]] [check [name] [--all] [--force]] [pull <name>] [remove <name>]', 'Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.'),
+    'ollama': ('[set <key> <value>] [restart]', 'Ollama: version, models folder, parallel slots, context, keep-alive; set and restart ask first.'),
     'projects': ('', 'Projects and their folders.'),
     'config': ('[set <key> <value>]', 'config.json with each key explained; set changes one (asks first).'),
     'paths': ('', 'Where the harness keeps its data.'),
@@ -324,6 +466,14 @@ def run(console, command, args, yes=False):
         rows = console.gate(n, blocked='blocked' in args)
         shown = [{**row, 'time': str(row.get('timestamp', ''))[11:19], 'command': row.get('args', {}).get('command') or row.get('args', {}).get('path') or ''} for row in rows]
         return rows, table(shown, ['id', 'time', 'phase', 'outcome', 'source', 'command', 'reason'])
+    if command == 'models' and args[:1] in (['pull'], ['remove']):
+        if len(args) < 2: raise ValueError(f'Usage: /models {args[0]} <name>')
+        return changed((console.pull_model if args[0] == 'pull' else console.remove_model)(args[1], yes))
+    if command == 'ollama' and args[:1] == ['set']:
+        if len(args) < 3: raise ValueError(f"Usage: /ollama set <key> <value>. Keys: {', '.join(OLLAMA_KEYS)}.")
+        return changed(console.set_ollama(args[1], ' '.join(args[2:]), yes))
+    if command == 'ollama' and args[:1] == ['restart']:
+        return changed(console.restart_ollama(yes))
     if command == 'models' and args[:1] == ['check']:
         return check_models(console, args[1:])
     if command == 'models' and args[:1] == ['use']:

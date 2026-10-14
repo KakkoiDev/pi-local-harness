@@ -40,6 +40,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
         if self.path == '/api/show': self.reply({'capabilities': ['completion', 'tools']}); return
+        if self.path == '/api/pull':
+            self.send_response(200); self.end_headers()
+            for status in ['pulling manifest', 'verifying sha256 digest', 'success']: self.wfile.write(json.dumps({'status': status}).encode() + b'\n')
+            return
         tokens = body.get('options', {}).get('num_predict', 8)
         lock = threading.Lock() if self.server.parallel else self.server.serial  # serialized: one generation at a time
         with lock:

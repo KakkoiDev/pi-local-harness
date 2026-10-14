@@ -201,3 +201,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [159-The harness console in terminal Pi: read commands](tasks/159-console-read-commands.md)
 - [x] [160-The console changes settings and the model, after a yes](tasks/160-console-changes.md)
 - [x] [161-Measure whether a model answers two requests at once](tasks/161-model-capability-check.md)
+- [x] [162-The console changes Ollama's settings and manages models](tasks/162-console-ollama-and-models.md)

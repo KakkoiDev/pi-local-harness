@@ -1,6 +1,6 @@
 # Plan 158: terminal Pi as the harness console
 
-Status: **phases 1 to 3 built** (tasks 159, 160, 2026-10-14): read commands; `/config set`, `/models use`, `/undo` with confirmation, backup and log. Next: `/models check` (plan 156 § 7), phase 4 (Ollama, pull and remove models), phase 5 (model tools). Task: [tasks/158-terminal-console.md](../../tasks/158-terminal-console.md).
+Status: **phases 1 to 4 built** (tasks 159–162, 2026-10-14): read commands; `/config set`, `/models use`, `/undo`; `/models check`; `/ollama set`, `/ollama restart`, `/models pull`, `/models remove`, each with confirmation and log. Next: phase 5 (model tools that propose changes). Task: [tasks/158-terminal-console.md](../../tasks/158-terminal-console.md).
 Read [docs/contributing-for-agents.md](../contributing-for-agents.md) first.
 
 Request 2026-10-14: "I want the plh harness that opens in the terminal in pi to be a "backend" of sorts where I can run scripts and see raw data, explore and be guided by the harness that knows itself and exposes tools for me to gain insight on how it works and perform admin level actions. Update settings, even in ollama, etc..."

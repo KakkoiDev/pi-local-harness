@@ -61,8 +61,10 @@ commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's
 `/config set <key> <value>`, `/models use <name> [effort]` and `/undo` ask before changing anything, back up the
 file they change (`<data>/backups/`) and log it (`<data>/admin-log.jsonl`); from a shell they need `--yes`. `/models check [name] [--all] [--force]` measures whether a model answers two
 requests at once (stored in `<data>/model-capabilities.json` per model digest, Ollama version and `OLLAMA_NUM_PARALLEL`;
-the workbench also measures the chosen model by itself the first time, while the queue is idle). Ollama's
-settings and pulling or removing models come next. Pi may only propose a change; it runs after your yes.
+the workbench also measures the chosen model by itself the first time, while the queue is idle). `/ollama set <key>
+<value>` (`num_parallel`, `keep_alive`, `context_length`, `models_folder`) restarts Ollama so it reads the value; `/ollama
+restart`; `/models pull <name>`; `/models remove <name>` moves the model's manifest and the files only it uses to the
+Trash, laid out like the models folder (Put Back, then merge). Nothing runs while Pi works. Pi may only propose a change; it runs after your yes.
 
 ## Phone access over Tailscale and voice input
 

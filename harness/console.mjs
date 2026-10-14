@@ -13,8 +13,8 @@ export const CONSOLE_COMMANDS = {
   queue: 'Requests in Activity: /queue [running|waiting|failed|…].',
   job: 'The Markdown record of one request: /job <id>.',
   gate: 'Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.',
-  models: 'Installed models; /models use <name> switches (asks first); /models check measures two at once.',
-  ollama: 'Ollama: version, models folder, parallel slots, loaded models.',
+  models: 'Installed models; /models use · check · pull · remove <name> (changes ask first).',
+  ollama: 'Ollama settings; /ollama set <key> <value> and /ollama restart ask first.',
   projects: 'Projects and their folders.',
   config: 'config.json explained; /config set <key> <value> changes one (asks first).',
   paths: 'Where the harness keeps its data.',
@@ -26,7 +26,7 @@ export const CONSOLE_COMMANDS = {
 export function runAdmin(command, args, { webPort } = {}) {
   return new Promise(resolve => {
     const argv = ['-m', 'harness.admin', command, ...args, ...(webPort ? ['--web', String(webPort)] : [])];
-    execFile(process.env.PI_PYTHON || 'python3', argv, { cwd: root, timeout: args.includes('--yes') ? 600000 : 30000 /* a model switch waits for the load */, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
+    execFile(process.env.PI_PYTHON || 'python3', argv, { cwd: root, timeout: args.includes('--yes') ? 4 * 3600000 : 30000 /* a switch waits for the load, a pull for the download */, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
       const code = error ? (typeof error.code === 'number' ? error.code : 1) : 0; // 3: a change waits for the person's yes
       resolve({ ok: !error, code, text: (code === 3 ? stdout : error ? stderr || error.message : stdout).trimEnd() });
     });

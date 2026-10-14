@@ -11,8 +11,8 @@ by hand: they read live data.
 | `/queue [running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request. |
 | `/gate [n] [blocked]` · `/gate why <id>` | Gate checks, newest first; one check in full. |
-| `/models` · `/models use <name> [effort]` · `/models check [name] [--all] [--force]` | Installed Ollama models: tools, thinking, vision, whether it answers two requests at once, size; the chosen one. `use` switches the model (asks first); `check` measures "at once" (about half a minute per model). |
-| `/ollama` | Ollama: version, models folder, parallel slots, loaded models. |
+| `/models` · `/models use <name> [effort]` · `/models check [name] [--all] [--force]` · `/models pull <name>` · `/models remove <name>` | Installed Ollama models: tools, thinking, vision, whether it answers two requests at once, size; the chosen one. `use` switches the model (asks first); `check` measures "at once" (about half a minute per model); `pull` downloads, `remove` moves it to the Trash (both ask first). |
+| `/ollama` · `/ollama set <key> <value>` · `/ollama restart` | Ollama: version, models folder, parallel slots, loaded models. `set` changes `num_parallel`, `keep_alive`, `context_length` or `models_folder` and restarts Ollama (asks first). |
 | `/projects` | Projects and their folders (missing folders marked). |
 | `/config` · `/config set <key> <value>` | `config.json` with each key explained; `set` changes one (asks first). (`/settings` and `/model` are Pi's own.) |
 | `/paths` | Where the harness keeps its data. |
@@ -33,6 +33,6 @@ The same commands run from any shell: `python3 -m harness.admin <command> [--jso
 ## Changing things
 
 `/config set`, `/models use` and `/undo` ask the person before changing anything; each change backs up the file it
-changes (`<data>/backups/`) and is a line in `<data>/admin-log.jsonl`. Ollama's settings and pulling or removing models
-come next. You may only **propose** a change (tell the person which command to type); it runs after their yes. Never
+changes (`<data>/backups/`) and is a line in `<data>/admin-log.jsonl`. Ollama changes and model removals are logged the same way; nothing
+is deleted (a removed model goes to the Trash). You may only **propose** a change (tell the person which command to type); it runs after their yes. Never
 change these files or Ollama's settings with shell commands.
