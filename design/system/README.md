@@ -99,3 +99,7 @@ On Windows and Linux, ⌘ is Ctrl.
 ## What Pi sees
 
 Each request carries a small chosen context (about 4k tokens) that never enters the chat history. The interface shows it twice: **Pi sees: …** (ContextLine) under every place you can send something to Pi, and **Also read: …** at the end of each answer for the files Pi opened itself. The Chat status bar shows how full the conversation is (ContextMeter); when the harness summarises earlier turns, a CompactionMarker marks the place. Comments and whole-file questions run outside the chat: their answers appear in the thread or under the Review window, never in Chat.
+
+## Terminal Pi
+
+The same system on a character grid: what `plh` opens. Two doors to one harness: the web workbench to point and click, the terminal to type, in words or with slash commands. See the TerminalOutput card and the canvas's Terminal page.

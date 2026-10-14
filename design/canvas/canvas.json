@@ -1622,6 +1622,78 @@
       "h": 844,
       "title": "Activity detail from a comment",
       "page": "phone"
+    },
+    "T_Principles.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 1180,
+      "title": "1 · Principles",
+      "page": "terminal"
+    },
+    "T_Startup.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 1450,
+      "title": "2 · Startup header",
+      "page": "terminal"
+    },
+    "T_Footer.dc.html": {
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 1500,
+      "title": "3 · Footer",
+      "page": "terminal"
+    },
+    "T_Outputs.dc.html": {
+      "x": 0,
+      "y": 1620,
+      "w": 1440,
+      "h": 1500,
+      "title": "4 · Console outputs",
+      "page": "terminal"
+    },
+    "T_Changes.dc.html": {
+      "x": 1520,
+      "y": 1620,
+      "w": 1440,
+      "h": 1000,
+      "title": "5 · Changes",
+      "page": "terminal"
+    },
+    "T_Gate.dc.html": {
+      "x": 3040,
+      "y": 1620,
+      "w": 1440,
+      "h": 900,
+      "title": "6 · Gate and recovery",
+      "page": "terminal"
+    },
+    "T_Noise.dc.html": {
+      "x": 0,
+      "y": 3240,
+      "w": 1440,
+      "h": 1100,
+      "title": "7 · Noise",
+      "page": "terminal"
+    },
+    "T_Wayfinding.dc.html": {
+      "x": 1520,
+      "y": 3240,
+      "w": 1440,
+      "h": 900,
+      "title": "8 · Finding your way",
+      "page": "terminal"
+    },
+    "T_Workbench.dc.html": {
+      "x": 3040,
+      "y": 3240,
+      "w": 1440,
+      "h": 800,
+      "title": "9 · The workbench from the terminal",
+      "page": "terminal"
     }
   },
   "createdOnFiles": {
@@ -1892,6 +1964,15 @@
       "w": 240,
       "x": 0,
       "y": 22620
+    },
+    "tm1": {
+      "kind": "title1",
+      "maxW": 4500,
+      "page": "terminal",
+      "text": "Terminal Pi — the typed member of System 1 (round 6)",
+      "w": 240,
+      "x": 0,
+      "y": -260
     }
   },
   "order": [
@@ -2082,7 +2163,16 @@
     "B_Worker.dc.html",
     "C_Dictate.dc.html",
     "Ph_Worker.dc.html",
-    "Ph_ActivityFromComment.dc.html"
+    "Ph_ActivityFromComment.dc.html",
+    "T_Principles.dc.html",
+    "T_Startup.dc.html",
+    "T_Footer.dc.html",
+    "T_Outputs.dc.html",
+    "T_Changes.dc.html",
+    "T_Gate.dc.html",
+    "T_Noise.dc.html",
+    "T_Wayfinding.dc.html",
+    "T_Workbench.dc.html"
   ],
   "pages": [
     {
@@ -2092,6 +2182,10 @@
     {
       "id": "flows",
       "name": "Workflows"
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal"
     },
     {
       "id": "states",

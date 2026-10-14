@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal · principles</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1180px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="Light theme" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Light theme</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Status</b> ────────────────────────────────────────────────────────────────────
+  Web        ✓ Running · <span style="text-decoration:underline">http://127.0.0.1:3000</span>
+  Queue      ▶ 1 running · ○ 1 waiting · ! 2 need attention
+  <span style="color:#767676">/queue · /doctor</span>
+
+── <b style="font-weight:600">Queue</b> ─────────────────────────────────────────────────────────────────────
+  STATE        WHEN   PROJECT            REQUEST
+  ════════════════════════════════════════════════════════════════════════════
+  ▶ Running    15:02  pi-local-harness   The Activity badge still counts…
+  ✗ Failed     13:40  home-server        Run the backup script and repo…
+
+  <b style="font-weight:600">Glyph + word, never colour alone</b>
+  ✓ Completed   ✗ Failed    ! Needs attention   ▶ Running
+  ○ Waiting     ■ Stopped   ~ Interrupted       ● In use
+  ✓ Allowed     ✗ Blocked   ! Revise            ? Escalated
+
+  <b style="font-weight:600">Switch the model?</b>
+    Model   gemma4:26b-mlx → qwen3:8b
+  <span style="background:#000;color:#fff"> Switch Model </span>   Cancel        <span style="color:#767676">Return switches · Esc cancels</span>
+
+  <b style="font-weight:600">Harness commands</b>
+  <span style="background:#000;color:#fff"> › /status   what is running, the model, Gate today          </span>
+    /queue    requests, first in first out</pre></section><section class="pw-window" aria-label="Dark theme" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Dark theme</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #000; color: #fff">── <b style="font-weight:600">Status</b> ────────────────────────────────────────────────────────────────────
+  Web        ✓ Running · <span style="text-decoration:underline">http://127.0.0.1:3000</span>
+  Queue      ▶ 1 running · ○ 1 waiting · ! 2 need attention
+  <span style="color:#8c8c8c">/queue · /doctor</span>
+
+── <b style="font-weight:600">Queue</b> ─────────────────────────────────────────────────────────────────────
+  STATE        WHEN   PROJECT            REQUEST
+  ════════════════════════════════════════════════════════════════════════════
+  ▶ Running    15:02  pi-local-harness   The Activity badge still counts…
+  ✗ Failed     13:40  home-server        Run the backup script and repo…
+
+  <b style="font-weight:600">Glyph + word, never colour alone</b>
+  ✓ Completed   ✗ Failed    ! Needs attention   ▶ Running
+  ○ Waiting     ■ Stopped   ~ Interrupted       ● In use
+  ✓ Allowed     ✗ Blocked   ! Revise            ? Escalated
+
+  <b style="font-weight:600">Switch the model?</b>
+    Model   gemma4:26b-mlx → qwen3:8b
+  <span style="background:#fff;color:#000"> Switch Model </span>   Cancel        <span style="color:#8c8c8c">Return switches · Esc cancels</span>
+
+  <b style="font-weight:600">Harness commands</b>
+  <span style="background:#fff;color:#000"> › /status   what is running, the model, Gate today          </span>
+    /queue    requests, first in first out</pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Terminal Pi — the typed member of System 1</h2><p style="margin: 0"><b>Title bar → title rule.</b> Every console output starts with <code class="pw-mono">── Title ───</code>, title in bold, a short summary at the right when there is one. No side borders: the output copies as clean text.</p><p style="margin: 0"><b>Info-bar double rule → <code class="pw-mono">═══</code></b> under table headers only, as in the app.</p><p style="margin: 0"><b>Inversion</b> means the same three things: the selected row in a list, the default button, and the one thing in the footer that needs you.</p><p style="margin: 0"><b>Glyph + word.</b> One glyph set, every state in words beside it. Colour is never the only carrier; the 16-colour theme may tint, never inform. ASCII fallback when the terminal is not UTF-8: <code class="pw-mono">ok</code> <code class="pw-mono">NO</code> <code class="pw-mono">!!</code> <code class="pw-mono">&gt;</code>.</p><p style="margin: 0"><b>Dim</b> is secondary: times, IDs, paths, hints. Never a state.</p><p style="margin: 0"><b>Words:</b> commands are typed lowercase (<code class="pw-mono">/status</code>); titles and buttons are Title Case (Switch Model); an ellipsis means a question follows. Hints name the next command.</p><p style="margin: 0"><b>Default button:</b> inverted, Return presses it, Esc is Cancel, and the hint line says both. Destructive changes default to Cancel.</p><p style="margin: 0"><b>Answers.</b> One look for every output (title rule + indented body) with a few inner parts: key/value card, table, checklist, prose. The slash is the line: <code class="pw-mono">/status</code> runs now; “status?” asks Pi, who answers from live data and puts <code class="pw-mono">/status</code> on the input line. No colour carries meaning: bold, dim, inverse and underline only; links take the theme’s link colour.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1180}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

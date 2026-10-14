@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal · Gate and recovery</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="Tool calls and Gate" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Tool calls and Gate</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">14:02</span>
+  ▶ bash  python3 -m pytest tests/test_work_queue.py
+    ✓ Gate allowed · ✓ exit 0 · 0:12
+
+  ✗ bash  rm -rf ~/.local/share/pi-local-harness/work
+    ✗ Gate blocked it: recursive delete outside the project
+    <span style="color:#767676">Nothing ran. Rule: destructive shell · /gate 14:02</span>
+
+  ! write  ../other-project/ROADMAP.md
+    ! Gate asked Pi to revise: the path is outside the project
+
+  ✗ bash  ./backup.sh --report
+    ✓ Gate allowed · ✗ exit 1: /mnt/backup is not mounted
+    <span style="color:#767676">The command failed on its own; Gate did not block it.</span></pre></section><section class="pw-window" aria-label="Harness recovery and refusal" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Harness recovery and refusal</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">! <b style="font-weight:600">Harness stopped a loop.</b> Pi ran the same step 3 times and it failed
+  the same way (pytest tests/test_stuck.py, exit 1).
+  <span style="color:#767676">Ask again with a hint, or /job f954b438 for the record.</span>
+
+■ <b style="font-weight:600">Another request is running.</b> pi-local-harness · chat · 0:48
+  Yours waits in the queue, first in first out.
+  <span style="color:#767676">/queue · Stop the running one from the web Activity or /job &lt;id&gt; stop</span></pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Gate and recovery</h2><p style="margin: 0">A tool call is two lines: the tool and its argument, then the checks with glyph + word. Gate’s verdict and the command’s own result are separate words: “✓ Gate allowed · ✗ exit 1” replaces “Gate audit failed: EXECUTION_FAILED”, which read as if Gate had blocked it.</p><p style="margin: 0">Blocked: say that nothing ran and which rule. Revise: say Pi was asked to change it. Recovery and refusal messages are the harness speaking, so they lead with a bold sentence, not a code (“Harness stopped a loop.”, “Another request is running.”), then the next command.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

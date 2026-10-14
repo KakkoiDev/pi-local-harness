@@ -209,4 +209,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [167-A guide for new users, and the console as a tool for Pi](tasks/167-guide-and-harness-tool.md)
 - [x] [168-tailscale serve: a slow failure is not a running serve](tasks/168-serve-readiness.md)
 - [x] [169-Console output: a missing config.json is fine; the queue names projects](tasks/169-console-output-fixes.md)
-- [ ] [170-Design terminal Pi with the designer (round 6)](tasks/170-terminal-design-round-6.md)
+- [x] [170-Design terminal Pi with the designer (round 6)](tasks/170-terminal-design-round-6.md)
+- [ ] [171-Build terminal Pi from the round 6 boards](tasks/171-terminal-round-6-build.md)

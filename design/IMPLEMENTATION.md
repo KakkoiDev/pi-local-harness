@@ -479,3 +479,20 @@ Boards: [A_FromChat], [A_FromComment], [A_FromFile], [A_FromWorker], [Ph_Activit
 2. Change: keep the dialog open with the error in the help line and the field selected.
 3. `more.svg` added to the Icons group; add `more` to icons.mjs.
 4. and 5. Confirmed.
+
+## 2026-10-14 · Round 6: terminal Pi (plan 158, tasks 159–170)
+
+Boards: Terminal page — [T_Principles], [T_Startup], [T_Footer], [T_Outputs], [T_Changes], [T_Gate], [T_Noise], [T_Wayfinding], [T_Workbench]. Card: TerminalOutput. All strings on the boards are the proposed copy.
+
+1. **One renderer for console outputs** (`renderConsole(result)` in the extension): title rule (`── Title ` + `─` to the width, summary right-aligned dim), body indented 2, a dim hint line. Parts: `kv`, `table` (header, `═`, ellipsis per column, glyph + word in the state column, IDs cut to 8 dim), `checklist` (`✓ ok` / `✗ fix` / `! note` + `→ fix command`), `list` (KEY VALUE FROM), `prose` (wrap 72). Width = terminal columns − 2, minimum 60; tables drop columns right to left under 80 (PROJECT, then ID).
+2. **Glyphs**: one table in the extension (`GLYPH.completed = '✓'` …) with an ASCII fallback when the locale is not UTF-8. State words are the app's.
+3. **Header** (`setHeader`): 5 lines; first start (no `config.json` yet) adds one. Move “Loop check” to /status. Phone off: one reason or `/guide phone`. QR beside the lines at ≥100 columns, else below.
+4. **Footer** (`setFooter` / status items): `model · thinking │ state │ Gate today N · N blocked │ Phone on|off`; state with the app's words; attention segment inverse + “· /queue” until /queue or the web Activity is opened. 60 columns: model │ state │ phone.
+5. **Changes**: confirmation title is a question, detail lines “Model gemma4 → qwen3”, “Saved in …”, “Also …”, buttons named by the action, Cancel default for destructive ones. Result: `✓ <what is now true>. /undo goes back to <old>.` or `○ Not changed.`
+6. **Pi proposes**: the `harness` tool may return `{propose: "/models use qwen3:8b"}`; the extension prefills the input line and shows the dim hint “Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm”. Pi never runs a change.
+7. **Tool-call renderer**: line 1 glyph + tool + argument; line 2 `Gate allowed|blocked|asked to revise` and, separately, `exit N` with the command's own message. Replace “Gate audit failed: EXECUTION_FAILED” with “✓ Gate allowed · ✗ exit 1: …”; Gate wording appears only when Gate decided.
+8. **Recovery and refusal**: bold sentence first (“Harness stopped a loop.”, “Another request is running.”), then facts, then a dim next command.
+9. **Noise**: drop the “[time] Assistant message started/completed” and “Tool result failed” lines from display; message header “Pi 15:12” (dim time); `/verbose on|off` adds the span and per-tool times. Strip `[CANARY]` before rendering (the harness still checks it).
+10. **/harness**: a select dialog, “Ask in words” first; Return prefills the input line; `/harness list` prints it. Argument completion for `/models use`, `/config`, `/guide`, `/job` with a short description per item.
+11. **Workbench events**: footer only for routine changes; one warning notification when something needs the person (failed, stopped, interrupted, Gate asking). No widget.
+12. **Answers**: one look for every output with inner parts; the slash is the line between “run now” and “ask Pi” (Pi recognises “status?” and answers, then prefills `/status`); no colour carries meaning.
