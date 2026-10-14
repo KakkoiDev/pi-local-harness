@@ -28,7 +28,7 @@ Success looks like:
 | # | Decision | Recommendation | Why |
 |---|---|---|---|
 | D1 | Where components render | **Server-side Python** functions returning safe HTML strings. | Plan 152 serves HTML fragments with htmx; the server must render them. One renderer for the first paint and for every update. |
-| D2 | Template technology (**ask**) | **Standard-library Python only**: a tiny `h()` builder that escapes by default (`html.escape`), plus one function per component. No Jinja2. | The server has no dependencies today (`plh` installs by copying files; there is no `pyproject.toml`). Plain functions are easy for a weaker model to read, test and grep. Jinja2 would add a dependency and a second language. |
+| D2 | Template technology (decided: stdlib) | **Standard-library Python only**: a tiny `h()` builder that escapes by default (`html.escape`), plus one function per component. No Jinja2. | The server has no dependencies today (`plh` installs by copying files; there is no `pyproject.toml`). Plain functions are easy for a weaker model to read, test and grep. Jinja2 would add a dependency and a second language. |
 | D3 | Escaping | Everything is text unless wrapped in `Safe(...)`, which only `h()` and components produce. | Pi's replies, file names and comments are untrusted. One rule, enforced by tests. |
 | D4 | Behaviour | `js/behaviors/<name>.mjs`, each exporting `attach(root)`; one `js/behaviors/index.mjs` attaches everything under a root on load and after every htmx swap. | Markup and behaviour can then change independently; htmx-rendered and JS-rendered markup behave the same. |
 | D5 | CSS | `design/components.css` stays the only component stylesheet (synced from the design system). `chat.css` keeps page layout only; component overrides there are deleted as each component lands. | The audit found duplicated and conflicting rules in `chat.css`. |
@@ -103,7 +103,7 @@ Each step is one task (`tasks/1NN-ui-<name>.md`, `Kind: code`), created when it 
 
 New visual design (the designer owns it), the htmx/SSE transport (plan 152), the Table block feature (separate task), a Python dependency.
 
-## 9. Open questions for the person
+## 9. Decisions (the person, 2026-10-14)
 
-1. D2: standard-library render functions (recommended) or Jinja2?
-2. Should `/ui` be reachable in the installed app (useful for the designer to compare), or only in development?
+1. D2: **standard-library render functions** (no Jinja2).
+2. `/ui`: **development only** (served from a checkout, not by the installed app).

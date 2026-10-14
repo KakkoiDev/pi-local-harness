@@ -6,5 +6,5 @@ Request 2026-10-14: "plan, don't do it yet, just prepare the documentation for t
 
 - [x] Plan: [docs/plans/151-ui-component-library.md](../docs/plans/151-ui-component-library.md) (why, goal, decisions, layout, component order, the per-component recipe, risks).
 - [x] Contributor guide for weaker models: [docs/contributing-for-agents.md](../docs/contributing-for-agents.md); index in [docs/README.md](../docs/README.md).
-- [ ] The person answers the open questions (render functions vs Jinja2; `/ui` in the installed app or development only).
+- [x] The person answered (2026-10-14): standard-library render functions; `/ui` in development only.
 - [ ] Start: create one task per step (plan § 5) after task 150 is finished.

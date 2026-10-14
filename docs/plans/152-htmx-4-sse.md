@@ -23,7 +23,7 @@ The server pushes what changed; the page swaps server-rendered HTML; JSON pollin
 
 | # | Decision | Recommendation | Why |
 |---|---|---|---|
-| D1 | htmx version (**ask**) | **htmx 4.0.0** (released 2026-08-28 after a year of alphas and betas; npm tags it `next` only so that unversioned CDN links do not break) with its bundled **`hx-sse`** extension. Fallback: htmx **2.0.11** + `htmx-ext-sse` **2.2.4** if a blocking 4.0 bug appears. | "Latest" is 4.0. Its SSE runs on `fetch` + `ReadableStream` (custom headers, `Last-Event-ID`, backoff with jitter, pause in background tabs). Unnamed messages swap automatically; `<hx-partial>` updates several targets from one message, which is exactly what one stream for the whole page needs. |
+| D1 | htmx version (decided: 4.0.0) | **htmx 4.0.0** (released 2026-08-28 after a year of alphas and betas; npm tags it `next` only so that unversioned CDN links do not break) with its bundled **`hx-sse`** extension. Fallback: htmx **2.0.11** + `htmx-ext-sse` **2.2.4** if a blocking 4.0 bug appears. | "Latest" is 4.0. Its SSE runs on `fetch` + `ReadableStream` (custom headers, `Last-Event-ID`, backoff with jitter, pause in background tabs). Unnamed messages swap automatically; `<hx-partial>` updates several targets from one message, which is exactly what one stream for the whole page needs. |
 | D2 | How htmx ships | **Vendored** into `harness/vendor/htmx/4.0.0/` (`htmx.min.js`, `ext/hx-sse.min.js`, their license; next to the existing `harness/vendor/qrcode.mjs`), with a SHA-256 list checked by a test. Served by the existing static allowlist. No CDN. | The app works offline and on a tailnet; an exact version and checksums keep updates deliberate. |
 | D3 | One stream or many | **One stream per tab**, `GET /events?view=…&project=…`, carrying `<hx-partial hx-target="#…">` blocks for whatever changed. | One connection per tab (phones, `ThreadingHTTPServer` threads). The client says what it shows; the server sends only fragments for those targets. |
 | D4 | Event bus | An in-process **`EventBus`** in `harness/events.py`: `publish(topic, payload)`, per-subscriber bounded queues, monotonically increasing ids, a ring buffer of the last 500 events for `Last-Event-ID` replay. Publishers: the work queue (job added, progress, done), the document store (saved, commented, moved, trashed), Gate (event recorded), the model switch. | The sources already exist; today the UI rediscovers changes by polling. |
@@ -32,7 +32,7 @@ The server pushes what changed; the page swaps server-rendered HTML; JSON pollin
 | D7 | Errors and history | `htmx.config.noSwap = [204, 304, '4xx', '5xx']` (htmx 4 swaps errors by default); errors come back as a small alert fragment with an explicit target. History: keep `js/router.mjs` paths; set `htmx.config.history = false` until views are full htmx pages, then reconsider. | Avoid surprise swaps; do not run two routers. |
 | D8 | Inheritance | htmx 4's explicit inheritance (`:inherited`) is used as designed; no `implicitInheritance`. | Easier to read for weaker models: every element says what it does. |
 | D9 | Remove the dead path | Delete `POST /api/conversations/<id>/send` (NDJSON, bypasses the queue). Chat goes through `POST /api/jobs/create` only. | One way to run Pi; the one-agent rule holds. |
-| D10 | Keep JSON? (**ask**) | Keep the JSON APIs that tests, Pi tools or scripts use (`/api/workspace`, `/api/jobs/*`, `/api/documents/*`); the page stops polling them. Delete JSON endpoints nothing uses after the migration. | Tests and agents keep a stable, scriptable API. |
+| D10 | Keep JSON? (decided: keep) | Keep the JSON APIs that tests, Pi tools or scripts use (`/api/workspace`, `/api/jobs/*`, `/api/documents/*`); the page stops polling them. Delete JSON endpoints nothing uses after the migration. | Tests and agents keep a stable, scriptable API. |
 
 ## 4. Wire format
 
@@ -84,9 +84,9 @@ Each step is one task (`Kind: code`), red test first, browser suites green at th
 
 WebSockets, multi-user sync, changing the router to htmx history (revisit after step 10), the Table block.
 
-## 8. Open questions for the person
+## 8. Decisions (the person, 2026-10-14)
 
-1. D1: htmx 4.0.0 (recommended) or the 2.0.11 line?
-2. D10: keep the JSON APIs for scripts and tests (recommended), or remove everything the page no longer uses?
+1. D1: **htmx 4.0.0** with its `hx-sse` extension.
+2. D10: **keep the JSON APIs** that tests, Pi tools and scripts use; delete only endpoints nothing uses.
 
 Sources: [htmx 4.0.0 release](https://four.htmx.org/announcements/2026-08-28-htmx-4.0.0-is-released), [What's new in htmx 4](https://four.htmx.org/docs/whats-new-in-htmx-4), [hx-sse extension](https://four.htmx.org/extensions/sse); npm `htmx.org` versions (4.0.0 on 2026-08-28, 2.0.11 latest 2.x), `htmx-ext-sse` 2.2.4.
