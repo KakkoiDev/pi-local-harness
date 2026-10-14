@@ -193,3 +193,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [151-Plan a reusable UI component library](tasks/151-ui-component-library.md)
 - [ ] [152-Plan the move to htmx 4 with server-sent events](tasks/152-htmx-sse.md)
 - [x] [153-A removed model falls back; voice input in comments; the thinking menu keeps its width](tasks/153-missing-model-and-comment-voice.md)
+- [ ] [154-Rename, move, remove and trash a project](tasks/154-project-commands.md)
