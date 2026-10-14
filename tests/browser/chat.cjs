@@ -19,6 +19,7 @@ const readline = require('node:readline');
   browser=await chromium.launch({headless:true,...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:950}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
+  const chatConsole=[];page.on('console',message=>chatConsole.push(message.type()+': '+message.text()));
   // Reproduce the installed failure: an older running server cannot serve a
   // newly installed module. Report recovery instead of presenting dead tabs.
   await page.route('**/js/ui.mjs',route=>route.fulfill({status:404,body:'Not found'}));
@@ -38,7 +39,7 @@ const readline = require('node:readline');
    await page.waitForFunction(path=>document.querySelector('#folder-path').value===path,directory);
    await page.locator('#folder-name').fill(name);await page.locator('#folder-use').click();
    await page.waitForFunction(()=>document.body.dataset.view==='chat'&&/\/chat$/.test(location.pathname));/* a new project opens its Chat (F1) */
-   await page.locator('#work-tab').click();await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor();
+   await page.locator('#work-tab').click();await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor().catch(async error=>{console.error('DIAGNOSTIC createProject (intermittent, task 150):',JSON.stringify(await page.evaluate(()=>({url:location.pathname,view:document.body.dataset.view,level:document.body.dataset.level,path:document.querySelector('#document-path').textContent,notice:document.querySelector('#save-status')?.textContent,project:document.querySelector('#files-title').textContent,files:[...document.querySelectorAll('#file-tree .pw-row')].map(row=>row.textContent).slice(0,8),editor:document.querySelector('#document-editor').textContent.slice(0,120)}))),'\n'+chatConsole.slice(-15).join('\n'));throw error;});
   }
   await createProject('First project');
   const heading=page.getByRole('textbox',{name:'Heading',exact:true}).first();await heading.fill('Edited roadmap');
@@ -156,7 +157,7 @@ const readline = require('node:readline');
   await page.locator('#menubar [aria-controls="menu-pi"]').click();assert.equal(await page.locator('#menu-pi [data-command="open-on-phone"]').getAttribute('aria-disabled'),'true','Open on Phone… needs the tailnet address');await page.keyboard.press('Escape');
   {const phone=await browser.newPage({viewport:{width:1440,height:950}});phone.on('pageerror',e=>errors.push(e.message));await phone.route('**/api/config',async route=>{const response=await route.fetch();route.fulfill({response,json:{...await response.json(),phoneUrl:'https://pi.example.ts.net'}});});
    await phone.goto(page.url());await phone.waitForFunction(()=>/gemma/i.test(document.getElementById('model').textContent));await phone.locator('#menubar [aria-controls="menu-pi"]').click();await phone.locator('#menu-pi [data-command="open-on-phone"]:not([aria-disabled="true"])').click();
-   await phone.locator('#phone-dialog').getByText('plh serves the workbench on your tailnet',{exact:false}).waitFor();assert.equal(await phone.locator('#phone-url').inputValue(),'https://pi.example.ts.net');assert.equal(await phone.locator('#phone-dialog').getByRole('button',{name:'Copy',exact:true}).isVisible(),true);
+   await phone.locator('#phone-dialog').getByText('Scan with a phone on the same Tailscale account, or open the address.',{exact:true}).waitFor();assert.equal(await phone.locator('#phone-url').inputValue(),'https://pi.example.ts.net');assert.equal(await phone.locator('#phone-dialog').getByRole('button',{name:'Copy',exact:true}).isVisible(),true);
    await phone.locator('#phone-qr svg').waitFor();assert.ok(await phone.locator('#phone-qr svg path, #phone-qr svg rect').count()>0,'the address is also a QR code');
    await phone.keyboard.press('Enter');await phone.locator('#phone-dialog').waitFor({state:'hidden'});await phone.close();}
   await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();await page.locator('#name-dialog-title').filter({hasText:'New File'}).waitFor();

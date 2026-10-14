@@ -385,7 +385,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/gate':
                 self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url});return
+            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
             if path=='/api/models':self.reply(self.chat.model_list());return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return

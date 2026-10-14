@@ -44,7 +44,6 @@ body:not([data-view="work"]) #save-status,body[data-view="work"] #project-folder
 .welcome h2{margin:0;font-size:24px;font-weight:400}
 .welcome p{margin:0;font-size:17px;line-height:1.5}
 .suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.activity-count{font-size:13px;border:1px solid currentColor;padding:0 4px;min-width:16px;text-align:center}
 
 /* Work: Files window | main window (document) | Review window, side by side on the desk */
 .work-panel{flex:1;min-height:0;display:flex;flex-direction:column}
@@ -135,7 +134,6 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 /* Comments: marker numbers are CSS content so they stay out of the block's text */
 .pw-mark[data-n]::after{content:attr(data-n)}
 .pw-thread__note{margin:0;padding:6px 14px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
-.pw-thread__line{flex-basis:100%;font-size:13px;display:flex;align-items:center;gap:6px} /* Final: the state line above a thread's buttons */
 .pw-thread__gap{flex:1}
 .pw-block>.pw-check{margin-top:7px} /* DocumentBlock preview: the box sits on the first line of text */
 .pw-thread__msg p{margin:0}
@@ -306,10 +304,9 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .pw-msg__table table{border-collapse:collapse;font-size:15px;line-height:1.4}
 .pw-msg__table th,.pw-msg__table td{border:1px solid var(--ink);padding:6px 10px;vertical-align:top}
 .pw-msg__table th{font-family:var(--font-chrome);font-size:14px;font-weight:600}
-/* Open on Phone: the address as a QR code, 1-bit like the terminal's */
-.phone-qr{align-self:center;width:184px;height:184px;border:1px solid var(--ink);background:#fff;margin:4px 0 12px}
-.phone-qr svg{display:block;width:100%;height:100%}
-.phone-qr rect[fill="white"],.phone-qr path{shape-rendering:crispEdges}
+/* Open on Phone: the design's .pw-qr at Dialogs2's 184px. White stays white in the Inverse theme: QR scanners need dark on light. */
+.phone-qr{align-self:center;width:184px;height:184px;background:#fff;box-sizing:border-box}
+.phone-scan{margin:0;text-align:center}
 /* Menu bar status: the glyph keeps its distance from the word; Reconnect fits the 28px bar with room around its label */
 #agent-state{display:inline-flex;align-items:center;gap:6px}
 .pw-menubar__status #connection-retry{min-height:0;height:22px;padding:0 12px;font-size:13px;line-height:20px}
@@ -332,3 +329,6 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 @media (min-width:761px){.pw-field.pw-mono{font-size:14px}} /* phones keep 16px+: smaller fields make iOS zoom on focus */
 /* Zoom box: the main window takes the whole desk; side windows hide until zoomed back (desk only) */
 @media (min-width:761px){body[data-zoom="on"] .window-projects,body[data-zoom="on"] .window-files,body[data-zoom="on"] .window-review,body[data-zoom="on"] .window-info{display:none!important}}
+/* Composer and whole-file box: a row of help and buttons, the default last (C_WorkDesk) */
+.comment-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.comment-actions>.pw-help{flex:1;margin:0}
