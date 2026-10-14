@@ -207,3 +207,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [165-Long requests are fine; only silence fails](tasks/165-long-requests.md)
 - [x] [166-Every setting and variable in the console](tasks/166-every-setting-in-the-console.md)
 - [x] [167-A guide for new users, and the console as a tool for Pi](tasks/167-guide-and-harness-tool.md)
+- [x] [168-tailscale serve: a slow failure is not a running serve](tasks/168-serve-readiness.md)

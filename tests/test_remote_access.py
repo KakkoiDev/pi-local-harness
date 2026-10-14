@@ -124,6 +124,13 @@ class TailscaleServeTest(unittest.TestCase):
             time.sleep(0.1)
         else: self.fail('tailscale serve still running after services stopped')
 
+    def test_a_serve_that_says_it_is_available_is_ready_at_once(self):
+        """Task 168: real tailscale prints "Available within your tailnet" when serving; no need to wait the settle time."""
+        import time
+        started = time.monotonic()
+        _, ready, _ = self.start(str(self.fake('echo "Available within your tailnet:"\nexec sleep 60\n')))
+        self.assertEqual(ready['remote'], f'https://{HOST}'); self.assertLess(time.monotonic() - started, 5)
+
     def test_failure_is_reported_and_the_web_still_starts(self):
         _, ready, _ = self.start(str(self.fake('echo "Serve is not enabled on your tailnet" >&2\nexit 1\n')))
         self.assertNotIn('remote', ready); self.assertIn('Serve is not enabled', ready['remote_error'])

@@ -26,11 +26,13 @@ class Server(http.server.ThreadingHTTPServer):
     request_queue_size = 128
     daemon_threads = True
 
-def tailscale_serve(port, settle=2.0):
+def tailscale_serve(port, settle=6.0):
     """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process.
 
     When Serve is off for the tailnet, tailscale prints an enable link on stdout and waits instead of exiting;
-    that counts as a failure (the process is stopped) so plh never shows a phone address that cannot load."""
+    that counts as a failure (the process is stopped) so plh never shows a phone address that cannot load.
+    Ready as soon as tailscale prints "Available …"; otherwise still running after `settle` seconds counts as ready
+    (6 s: a slow first start, e.g. macOS checking a new executable, must not pass for a running serve)."""
     try:
         process = subprocess.Popen([os.getenv('PI_TAILSCALE', 'tailscale'), 'serve', str(port)],
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -39,7 +41,7 @@ def tailscale_serve(port, settle=2.0):
     output = []
     threading.Thread(target=lambda: output.extend(process.stdout), daemon=True).start()
     deadline = time.monotonic() + settle
-    while time.monotonic() < deadline and process.poll() is None and 'not enabled' not in ''.join(output):
+    while time.monotonic() < deadline and process.poll() is None and 'not enabled' not in ''.join(output) and 'Available' not in ''.join(output):
         time.sleep(0.05)
     text = ''.join(output)
     if 'not enabled' in text:
