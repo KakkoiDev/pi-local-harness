@@ -11,7 +11,7 @@ by hand: they read live data.
 | `/queue [running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request. |
 | `/gate [n] [blocked]` · `/gate why <id>` | Gate checks, newest first; one check in full. |
-| `/models` · `/models use <name> [effort]` | Installed Ollama models: tools, thinking, vision, size; the chosen one. `use` switches the model (asks first). |
+| `/models` · `/models use <name> [effort]` · `/models check [name] [--all] [--force]` | Installed Ollama models: tools, thinking, vision, whether it answers two requests at once, size; the chosen one. `use` switches the model (asks first); `check` measures "at once" (about half a minute per model). |
 | `/ollama` | Ollama: version, models folder, parallel slots, loaded models. |
 | `/projects` | Projects and their folders (missing folders marked). |
 | `/config` · `/config set <key> <value>` | `config.json` with each key explained; `set` changes one (asks first). (`/settings` and `/model` are Pi's own.) |

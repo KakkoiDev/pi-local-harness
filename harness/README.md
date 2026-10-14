@@ -59,7 +59,9 @@ The terminal session `plh` opens is the harness console (plan 158). Type `/harne
 They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
 commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.
 `/config set <key> <value>`, `/models use <name> [effort]` and `/undo` ask before changing anything, back up the
-file they change (`<data>/backups/`) and log it (`<data>/admin-log.jsonl`); from a shell they need `--yes`. Ollama's
+file they change (`<data>/backups/`) and log it (`<data>/admin-log.jsonl`); from a shell they need `--yes`. `/models check [name] [--all] [--force]` measures whether a model answers two
+requests at once (stored in `<data>/model-capabilities.json` per model digest, Ollama version and `OLLAMA_NUM_PARALLEL`;
+the workbench also measures the chosen model by itself the first time, while the queue is idle). Ollama's
 settings and pulling or removing models come next. Pi may only propose a change; it runs after your yes.
 
 ## Phone access over Tailscale and voice input

@@ -1,6 +1,6 @@
 # Plan 156: the chat orchestrates a worker
 
-Status: **planned, not started** (2026-10-14). Task: [tasks/156-chat-orchestrates-worker.md](../../tasks/156-chat-orchestrates-worker.md).
+Status: **phase 1 built** (task 161, 2026-10-14): the capability check. Phases 2 to 5 wait for the boards. Task: [tasks/156-chat-orchestrates-worker.md](../../tasks/156-chat-orchestrates-worker.md).
 Read [docs/contributing-for-agents.md](../contributing-for-agents.md) first. UI: [design/briefs/chat-orchestration.md](../../design/briefs/chat-orchestration.md) (nothing is built before the designer draws it).
 
 Request 2026-10-14: "each projects have 2 agents: a chat agent and a work agent. the chat agent is a little bit like firstmate where it knows what is in the roadmap and in the tasks and can order the worker to start working on something. the choice to start the worker should be gated by a system 1 decision. … while the worker is busy, the chat agent is still available for a chat. … So basically, we will be able to orchestrate the whole project from the chat."

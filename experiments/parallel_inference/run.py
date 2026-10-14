@@ -10,34 +10,17 @@ import time
 import urllib.request
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from harness.capability import generate, overlap  # noqa: E402  (the harness's /models check uses the same measurement)
+
 MODEL = json.loads((Path(__file__).resolve().parents[2] / 'harness/model.json').read_text())['model']
 
 PROMPTS = ['Write a 300-word story about a lighthouse keeper.', 'Explain, in 300 words, how a hash table works.']
 
-def overlap(a, b):
-    """Fraction of the shorter generation phase (first token to end) during which both were generating."""
-    shared = min(a['end'], b['end']) - max(a['first_token'], b['first_token'])
-    shorter = min(a['end'] - a['first_token'], b['end'] - b['first_token'])
-    return max(0.0, shared) / shorter if shorter > 0 else 0.0
-
 def verdict(a, b):
     value = overlap(a, b)
     return 'parallel' if value >= 0.5 else 'partial' if value > 0.05 else 'serialized'
-
-def generate(url, model, prompt, ctx, tokens, start, result):
-    body = json.dumps({'model': model, 'prompt': prompt, 'stream': True, 'think': False,
-                       'options': {'num_ctx': ctx, 'num_predict': tokens}}).encode()
-    request = urllib.request.Request(url + '/api/generate', body, {'Content-Type': 'application/json'})
-    start.wait()
-    result['sent'] = time.monotonic(); result['tokens'] = 0
-    with urllib.request.urlopen(request, timeout=900) as response:
-        for line in response:
-            event = json.loads(line)
-            if event.get('error'): raise RuntimeError(event['error'])
-            if event.get('response'):
-                result.setdefault('first_token', time.monotonic()); result['tokens'] += 1
-            if event.get('done'):
-                result['end'] = time.monotonic(); result['eval_count'] = event.get('eval_count'); break
 
 def run(url, model, ctx, tokens, prompts):
     start = threading.Event(); results = [{} for _ in prompts]; errors = []

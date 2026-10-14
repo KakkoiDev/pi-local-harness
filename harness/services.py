@@ -90,6 +90,7 @@ def main():
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, lambda *_: stopped.set())
         print(json.dumps(ready), flush=True)
+        threading.Thread(target=chat.measure_if_unknown, daemon=True).start()  # task 161: a model never measured with this Ollama
         owner = os.getppid()
         while not stopped.wait(1):
             if os.getppid() != owner:

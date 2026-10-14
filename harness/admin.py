@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from harness import model as models
+from harness import capability, model as models
 from harness.documents import DocumentStore
 from harness.markdown_records import read_record
 
@@ -122,7 +122,8 @@ class Console:
         choice = models.current(self.data, effort)
         try: installed = models.local_models()
         except (OSError, ValueError): return {'ollama': False, 'choice': choice, 'default': models.MODEL, 'models': []}
-        for item in installed: item['chosen'] = item['id'] == choice['model']
+        current = capability.keys()
+        for item in installed: item['chosen'] = item['id'] == choice['model']; item['at_once'] = capability.known(self.data, item['id'], current)
         return {'ollama': True, 'choice': choice, 'default': models.MODEL, 'models': installed}
 
     def ollama_info(self):
@@ -273,7 +274,7 @@ COMMANDS = {
     'queue': ('[running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
     'job': ('<id>', 'The Markdown record of one request.'),
     'gate': ('[n] [blocked] [why <id>]', 'Gate checks, newest first; why <id> explains one.'),
-    'models': ('[use <name> [effort]]', 'Installed models; use switches the model (asks first).'),
+    'models': ('[use <name> [effort]] [check [name] [--all] [--force]]', 'Installed models; use switches (asks first); check measures if it answers two requests at once.'),
     'ollama': ('', 'Ollama: version, models folder, parallel slots, loaded models.'),
     'projects': ('', 'Projects and their folders.'),
     'config': ('[set <key> <value>]', 'config.json with each key explained; set changes one (asks first).'),
@@ -323,6 +324,8 @@ def run(console, command, args, yes=False):
         rows = console.gate(n, blocked='blocked' in args)
         shown = [{**row, 'time': str(row.get('timestamp', ''))[11:19], 'command': row.get('args', {}).get('command') or row.get('args', {}).get('path') or ''} for row in rows]
         return rows, table(shown, ['id', 'time', 'phase', 'outcome', 'source', 'command', 'reason'])
+    if command == 'models' and args[:1] == ['check']:
+        return check_models(console, args[1:])
     if command == 'models' and args[:1] == ['use']:
         if len(args) < 2: raise ValueError('Usage: /models use <name> [effort]')
         return changed(console.choose_model(args[1], args[2] if len(args) > 2 else None, yes))
@@ -330,8 +333,8 @@ def run(console, command, args, yes=False):
         value = console.models()
         if not value['ollama']: return value, f"Ollama does not answer at {models.ollama_url()}. Chosen: {value['choice']['model']}."
         rows = [{'model': ('* ' if item['chosen'] else '  ') + item['id'], 'tools': 'yes' if item['tools'] else 'no', 'thinks': 'yes' if item['thinking'] else 'no',
-                 'sees': 'yes' if item['vision'] else 'no', 'size': f"{item['size'] / 1e9:.1f} GB"} for item in value['models']]
-        return value, table(rows, ['model', 'tools', 'thinks', 'sees', 'size']) + '\n* chosen'
+                 'sees': 'yes' if item['vision'] else 'no', 'at once': item['at_once'], 'size': f"{item['size'] / 1e9:.1f} GB"} for item in value['models']]
+        return value, table(rows, ['model', 'tools', 'thinks', 'sees', 'at once', 'size']) + '\n* chosen · at once: whether it answers two requests at the same time (/models check)'
     if command == 'ollama':
         value = console.ollama_info()
         return value, '\n'.join(f'{key}: {value[key]}' for key in ['url', 'running', 'version', 'models_folder', 'num_parallel', 'loaded'])
@@ -353,6 +356,24 @@ def run(console, command, args, yes=False):
         return rows, '\n'.join(f"{'ok ' if row['ok'] else 'NO '} {row['check']}: {row['detail']}" + ('' if row['ok'] else f"\n     → {row['fix']}") for row in rows)
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
 
+
+def check_models(console, args):
+    """/models check [name] [--all] [--force]: measure whether models answer two requests at once (plan 156 § 7)."""
+    force = '--force' in args; names = [arg for arg in args if not arg.startswith('--')]
+    if console.queue('running'): raise ValueError('Pi is working on a request; check when the queue is idle, so the measurement does not slow it down.')
+    if '--all' in args: targets = list(capability.keys()) if force else capability.missing(console.data)
+    else: targets = names or [models.current(console.data, console.config()['values']['effort'])['model']]
+    results, lines = {}, []
+    for name in targets:
+        verdict = capability.known(console.data, name)
+        if verdict != 'unknown' and not force:
+            results[name] = capability.stored(console.data)[name]; lines.append(f'{name}: {verdict} (already measured; --force measures again)'); continue
+        result = capability.check(console.data, name); results[name] = result
+        lines.append(f"{name}: {result['verdict']} · overlap {result['overlap']:.0%} · {result['alone_tps']} tok/s alone · {result['combined_x']}x with two at once · Ollama {result['ollama']}, OLLAMA_NUM_PARALLEL={result['num_parallel']}")
+    if not targets: lines.append('Every installed model is measured. --force measures them again.')
+    if any(result.get('num_parallel') in ('default', '1') for result in results.values()):
+        lines.append('Note: with OLLAMA_NUM_PARALLEL at 1 (or the default) a model can only answer one request at a time.')
+    return results, '\n'.join(lines)
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)

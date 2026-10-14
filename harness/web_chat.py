@@ -2,6 +2,7 @@
 import base64
 from datetime import datetime
 from harness.context import build_context
+from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
@@ -133,7 +134,7 @@ def pi_command(session, choice=None):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
+        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self.measuring=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
@@ -151,7 +152,8 @@ class WebChat:
         return models.effective(models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high')),self.capabilities)
     def model_list(self):
         listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic();self._ollama_listed=True
-        return {'models':listed,'current':self.choice()}
+        current=capability.keys()  # task 161: whether each model answers two requests at once (parallel, one at a time, unknown)
+        return {'models':[{**item,'at_once':capability.known(self.documents.root,item['id'],current)} for item in listed],'current':self.choice()}
     def choose_model(self, model):
         listed={item['id']:item for item in models.local_models()}
         if model not in listed:raise ValueError(f'“{model}” is not installed in Ollama')
@@ -163,13 +165,27 @@ class WebChat:
         try:models.switch(models.current(self.documents.root)['model'],model);models.save(self.documents.root,model=model)
         finally:
             with self.lock:self.switching=None
-        self._capabilities=listed;self._capabilities_at=time.monotonic();self._ollama_listed=True;return self.choice()
+        self._capabilities=listed;self._capabilities_at=time.monotonic();self._ollama_listed=True
+        threading.Thread(target=self.measure_if_unknown,args=(model,),daemon=True).start()  # first load of a model never measured
+        return self.choice()
+    def measure_if_unknown(self, model=None):
+        """Task 161: measure whether the model answers two requests at once, the first time it is used with this Ollama
+        and parallel setting; only while nothing runs, and the queue waits meanwhile (about half a minute)."""
+        model=model or self.choice()['model']
+        if capability.known(self.documents.root,model)!='unknown':return False
+        with self.lock:
+            if self.active or self.switching or self.measuring or self.agent_running():return False
+            self.measuring=model
+        try:capability.check(self.documents.root,model);return True
+        except (OSError,ValueError,RuntimeError):return False
+        finally:
+            with self.lock:self.measuring=None
     def choose_effort(self, effort):
         if effort not in EFFORTS:raise ValueError('Unknown thinking level')
         models.save(self.documents.root,effort=effort);return self.choice()
     def busy(self):
         with self.lock:
-            if self.active or self.switching:return True
+            if self.active or self.switching or self.measuring:return True
         return self.agent_running()
     def project_command(self, command, project, data):
         """Rename, move, locate, remove from the list or trash a project (task 154). Rename, move and trash wait while Pi

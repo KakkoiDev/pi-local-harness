@@ -13,7 +13,7 @@ export const CONSOLE_COMMANDS = {
   queue: 'Requests in Activity: /queue [running|waiting|failed|…].',
   job: 'The Markdown record of one request: /job <id>.',
   gate: 'Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.',
-  models: 'Installed models; /models use <name> [effort] switches (asks first).',
+  models: 'Installed models; /models use <name> switches (asks first); /models check measures two at once.',
   ollama: 'Ollama: version, models folder, parallel slots, loaded models.',
   projects: 'Projects and their folders.',
   config: 'config.json explained; /config set <key> <value> changes one (asks first).',
