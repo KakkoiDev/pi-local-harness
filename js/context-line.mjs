@@ -59,25 +59,39 @@ function open(event) {
   dispatchEvent(new PopStateEvent('popstate')); // js/chat.mjs applies the route: Work with that file
 }
 
+/** "Also read:" after an answer (task 136): the files Pi opened itself beyond its context. Same links, no counter: it wraps. */
+export function alsoReadLine(project, files) {
+  const line = document.createElement('p');
+  line.className = 'pw-context pw-context--after';
+  line.setAttribute('data-expanded', '');
+  const list = span('pw-context__list');
+  list.setAttribute('role', 'list');
+  for (const path of files) list.append(fileItem(project, { path, label: path.split('/').pop() }));
+  line.append(span('pw-context__label', 'Also read:'), list);
+  return line;
+}
+
+function fileItem(project, item) {
+  const entry = span('pw-context__item');
+  entry.setAttribute('role', 'listitem');
+  if (item.path) {
+    const link = document.createElement('a');
+    link.href = `/p/${encodeURIComponent(project)}/work/` + item.path.split('/').map(encodeURIComponent).join('/');
+    link.title = item.path;
+    link.textContent = item.label;
+    link.onclick = open;
+    entry.append(link);
+  } else entry.append(item.label); // "11 open tasks" is text
+  if (KIND[item.kind]) entry.append(span('pw-context__kind', `(${KIND[item.kind]})`));
+  return entry;
+}
+
 function render(line, project, items, key) {
   line.dataset.query = key;
   if (!items.length) { line.replaceChildren(span('pw-context__label', 'Pi sees: nothing from this project')); line.hidden = false; line.contextRendered?.(); return; }
   const list = span('pw-context__list');
   list.setAttribute('role', 'list');
-  for (const item of items) {
-    const entry = span('pw-context__item');
-    entry.setAttribute('role', 'listitem');
-    if (item.path) {
-      const link = document.createElement('a');
-      link.href = `/p/${encodeURIComponent(project)}/work/` + item.path.split('/').map(encodeURIComponent).join('/');
-      link.title = item.path;
-      link.textContent = item.label;
-      link.onclick = open;
-      entry.append(link);
-    } else entry.append(item.label); // "11 open tasks" is text
-    if (KIND[item.kind]) entry.append(span('pw-context__kind', `(${KIND[item.kind]})`));
-    list.append(entry);
-  }
+  for (const item of items) list.append(fileItem(project, item));
   const more = document.createElement('button');
   more.type = 'button';
   more.className = 'pw-context__more';

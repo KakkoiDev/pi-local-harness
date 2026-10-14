@@ -245,7 +245,7 @@ class DocumentStore:
             if not entry:raise ValueError('Comment not found')
             self.pending_suggestion(entry)['kept']=datetime.now().astimezone().isoformat(timespec='seconds')
             self.write_comments(relative,comments);return entry
-    def agent_result(self, relative, identifier, text, previous=''):
+    def agent_result(self, relative, identifier, text, previous='', also_read=()):
         """Append Pi's answer to the thread (InlineThread: follow-up answers are appended, earlier ones stay).
         The answer is the one Pi wrote itself into agent_reply during this run, otherwise its final message."""
         with self.lock:
@@ -254,7 +254,7 @@ class DocumentStore:
             if not entry:raise ValueError('The commented page was moved or deleted while Pi worked; the answer is kept in Activity.')
             written=entry.get('agent_reply','');answer=written if written not in ('',previous) else str(text)[:50000]
             replies=self.thread({**entry,'agent_reply':previous})['replies']
-            replies.append({'author':'pi','text':answer,'created':datetime.now().astimezone().isoformat(timespec='seconds')})
+            replies.append({'author':'pi','text':answer,'created':datetime.now().astimezone().isoformat(timespec='seconds'),**({'also_read':list(also_read)} if also_read else {})})
             entry.update(replies=replies,agent_reply=answer);self.write_comments(relative,comments)
     def mark_sent(self, relative, identifier, chat):
         with self.lock:

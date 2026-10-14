@@ -175,7 +175,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [133-Server: the context preview Pi will get](tasks/133-context-preview.md)
 - [x] [134-"Pi sees:" lines](tasks/134-context-line.md)
 - [x] [135-Thread and Review states, Show in Activity, whole-file answer cards](tasks/135-comment-states.md)
-- [ ] [136-"Also read:" after answers](tasks/136-also-read.md)
+- [x] [136-"Also read:" after answers](tasks/136-also-read.md)
 - [ ] [137-Context meter in Chat](tasks/137-context-meter.md)
 - [ ] [138-Compaction marker and Compact Now](tasks/138-compaction-marker.md)
 - [ ] [139-New Conversation and Earlier Conversations](tasks/139-new-conversation.md)

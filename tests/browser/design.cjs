@@ -671,6 +671,19 @@ const readline = require('node:readline');
   assert.equal(await card.locator('.pw-link',{hasText:'Show in Activity'}).count(),1,'a whole-file request is a card with one way into Activity');
   await stopAll();
   }
+  { // Task 136: "Also read:" after an answer lists files Pi opened beyond its context; nothing when there are none.
+  await stopAll();const reads=await post('/api/projects/create',{name:'Reads',parent:directory});
+  const old=new Date(Date.now()-7200e3);for(const file of ['ROADMAP.md','tasks/001-first-task.md'])fs.utimesSync(join(directory,'Reads',file),old,old);/* not "changed in the last hour" */
+  await page.goto(`${base}/p/${reads.project}/chat`);await page.locator('#prompt').fill('Look around TEST_READ');await page.locator('#send').click();
+  const after=page.locator('#thread .pw-msg .pw-context--after').last();await after.waitFor({timeout:20000});
+  assert.equal(await after.textContent(),'Also read:001-first-task.md');assert.equal(await after.locator('a').getAttribute('title'),'tasks/001-first-task.md');
+  const count=await page.locator('#thread .pw-msg').count();await page.locator('#prompt').fill('Just answer');await page.locator('#send').click();
+  await page.waitForFunction(n=>document.querySelectorAll('#thread .pw-msg').length>=n+2&&!document.querySelector('#thread .pw-msg:last-child')?.classList.contains('pw-msg--user'),count,{timeout:20000});
+  assert.equal(await page.locator('#thread .pw-msg').last().locator('.pw-context--after').count(),0,'nothing when Pi read nothing more');
+  await page.goto(`${base}/p/${reads.project}/work/ROADMAP.md`);await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Whole file TEST_READ');await page.getByRole('button',{name:'Send Request'}).click();
+  await page.locator('#document-requests .document-request .pw-context--after').first().waitFor({state:'attached',timeout:20000});
+  assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:001-first-task.md');
+  }
   { // Task 141: Open on Phone when tailscale serve did not start (Dialogs2): the reason, the enable link, Copy Link, Done.
   await page.route('**/api/config',async route=>{const response=await route.fetch();const config=await response.json();await route.fulfill({response,json:{...config,phoneUrl:null,phoneError:'tailscale serve exited (1): Serve is not enabled on your tailnet. To enable, visit: https://login.tailscale.com/f/serve?node=abc',phoneEnable:'https://login.tailscale.com/f/serve?node=abc'}});});
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#menubar [aria-controls="menu-pi"]').click();

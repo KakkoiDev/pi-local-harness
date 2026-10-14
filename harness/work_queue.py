@@ -93,6 +93,7 @@ class WorkQueue:
             kind=event.get('type')
             if kind=='status':job['progress']=event['text']
             if kind=='context':job['context']={'included':event['included'],'omitted':event['omitted'],'chars':event['chars']}
+            elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136
             elif kind=='message_update':
                 delta=event['assistantMessageEvent']
                 if delta['type']=='text_start':job['text']=''

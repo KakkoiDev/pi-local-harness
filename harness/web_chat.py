@@ -257,6 +257,15 @@ class WebChat:
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
         self.queue.close()
+    @staticmethod
+    def read_path(root, args):
+        """A read tool's file as a project-relative name, or None outside the project or for anything but a file."""
+        value=args.get('path') or args.get('file_path')
+        if not isinstance(value,str) or not value:return None
+        try:file=(Path(value) if Path(value).is_absolute() else root/value).resolve()
+        except (OSError,ValueError):return None
+        return str(file.relative_to(root)) if file.is_relative_to(root) and file.is_file() else None
+
     def select_context(self, project, data):
         """The context a request carries (task 114); the request and its preview (task 133) both use this."""
         comment=data.get('document_comment')
@@ -298,7 +307,7 @@ class WebChat:
                 if document['project']!=project:raise ValueError('Document belongs to another project')
                 user_text+='\n\nCurrent document: '+str(self.documents.path(data['document']))+' (its text is in your context)'
             prompt,images,files=prepare_prompt(user_text,data.get('attachments',[]),folder/'uploads')
-            context_file=None
+            context_file=None;chosen={'included':[]}
             if project:
                 # Task 114: a small chosen context in the system prompt for this turn (harness/extension.mjs), never in the session history.
                 entry=self.documents.get(comment['path'])['comments'] if comment else []
@@ -332,6 +341,8 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             deadline=time.monotonic()+600;settled=False;reply='';thought=''
+            # Task 136: files Pi opened with its read tool beyond the chosen context ("Also read:" after the answer).
+            opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
             phase='answering'
@@ -363,12 +374,16 @@ class WebChat:
                 if event.get('type')=='message_update':
                     delta=event.get('assistantMessageEvent',{})
                     if delta.get('type')=='thinking_delta':thought+=delta.get('delta','')
+                if event.get('type')=='tool_execution_start' and event.get('toolName')=='read' and folder_root:
+                    name=self.read_path(folder_root,(event.get('args') or {}))
+                    if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
             else:raise ValueError('Pi response exceeded ten minutes')
             if not reply:raise ValueError('Pi completed without an assistant answer')
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:]})
-            if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''))
+            if opened:emit({'type':'also_read','files':opened})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {})})
+            if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
             if process:

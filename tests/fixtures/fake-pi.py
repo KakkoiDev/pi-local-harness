@@ -34,6 +34,10 @@ if request['message'].rstrip().endswith('TEST_TOOL'):
     time.sleep(2)
     call_gate('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':{'command':'cat README.md'},'output':'readme','exit_code':0})
     emit({'type':'tool_execution_end','toolCallId':'call-read','toolName':'bash','isError':False})
+if 'TEST_READ' in request['message']:  # task 136: files read with the read tool; only the first is beyond the context
+    for number,path in enumerate(['tasks/001-first-task.md','ROADMAP.md','/etc/hosts',os.path.join(os.getcwd(),'tasks/001-first-task.md')]):
+        emit({'type':'tool_execution_start','toolCallId':f'call-file-{number}','toolName':'read','args':{'path':path}})
+        emit({'type':'tool_execution_end','toolCallId':f'call-file-{number}','toolName':'read','isError':False})
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts a looping turn, compacts and re-asks (task 150)

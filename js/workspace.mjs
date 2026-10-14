@@ -1,6 +1,6 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
 import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
-import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext } from './context-line.mjs';
+import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext,alsoReadLine } from './context-line.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
  let folderItem=null;/* the project Move or Locate acts on (task 154) */
@@ -111,7 +111,7 @@ export function installWorkspace(host){
    const go=(label,text,action)=>{const item=button(text,action,'pw-btn pw-btn--touch');item.setAttribute('aria-label',label);return item;};
    nav.append(go('Previous comment','‹',()=>stepComment(-1)),go('Next comment','›',()=>stepComment(1)),button('Close',()=>{openThread=null;renderBlocks();renderComments();},'pw-btn pw-btn--plain pw-btn--touch'));head.append(title,nav);box.append(head);}
   const message=(who,time,text)=>{const row=node('div','pw-thread__msg'),label=node('span','pw-thread__who');label.append(node('b','',who),time?' '+time:'');row.append(label,node('p','',text));return row;};
-  box.append(message('You',when(comment.created),comment.text));for(const reply of comment.replies||[])box.append(reply.author==='pi'?message('Pi',when(reply.created),spoken(reply.text)):message('You',when(reply.created),reply.text)); // one conversation, in order (task 135)
+  box.append(message('You',when(comment.created),comment.text));for(const reply of comment.replies||[]){box.append(reply.author==='pi'?message('Pi',when(reply.created),spoken(reply.text)):message('You',when(reply.created),reply.text));if(reply.author==='pi'&&reply.also_read?.length)box.append(alsoReadLine(project,reply.also_read));/* task 136 */} // one conversation, in order (task 135)
   const suggestion=comment.suggestion;
   if(suggestion?.applied)box.append(node('p','pw-thread__note','Pi’s suggested change was applied.'));else if(suggestion?.kept)box.append(node('p','pw-thread__note','Pi suggested a rewrite. You kept your text.'));
   else if(suggestion&&!comment.resolved){const change=node('div','pw-suggest');change.setAttribute('aria-label','Suggested change');change.append(node('del','',suggestion.anchor),node('ins','',suggestion.replacement));const choices=node('div','pw-suggest__actions');choices.append(button('Keep Mine',()=>commentAction('/api/documents/keep-suggestion',{id:comment.id})),button('Apply Change',()=>applySuggestion(comment),'pw-btn pw-btn--default'));change.append(choices);box.append(change);}
@@ -157,7 +157,7 @@ export function installWorkspace(host){
  function renderDocumentRequests(){
   if(unchanged('requests',[page?.path,state.jobs.filter(job=>job.document===page?.path&&!job.comment_id)]))return;$('document-request-history').hidden=true;$('document-requests').replaceChildren();if(!page)return;
   const jobs=state.jobs.filter(job=>job.document===page.path&&!job.comment_id).slice(-5);$('document-request-history').hidden=!jobs.length;$('document-request-summary').textContent=jobs.length+' recent document '+(jobs.length===1?'request':'requests');
-  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',spoken(job.text)));const open=node('a','pw-link','Show in Activity');open.href='/activity';open.onclick=event=>{event.preventDefault();openJob(job.id);};thread.append(open);/* F4 card: one way into Activity, filters cleared */$('document-requests').append(thread);}
+  for(const job of jobs){const thread=node('article','document-request');thread.append(node('p','',job.message),node('small','',job.status));if(job.text)thread.append(node('p','agent-reply',spoken(job.text)));if(job.also_read?.length)thread.append(alsoReadLine(project,job.also_read));/* task 136 */const open=node('a','pw-link','Show in Activity');open.href='/activity';open.onclick=event=>{event.preventDefault();openJob(job.id);};thread.append(open);/* F4 card: one way into Activity, filters cleared */$('document-requests').append(thread);}
  }
  function highlightComments(text,block){
   const numbered=numbers(),matches=(page?.comments||[]).filter(comment=>!comment.deleted&&(!comment.resolved||showResolved||comment.id===openThread)&&comment.anchor&&block.text.includes(comment.anchor)).map(comment=>({comment,at:block.text.indexOf(comment.anchor)})).sort((a,b)=>a.at-b.at);
