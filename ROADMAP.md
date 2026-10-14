@@ -216,3 +216,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 ## Bug fixes 2026-10-14
 
 - [ ] [173-Coming back to Chat from Activity leaves the view lifted, white at the bottom](tasks/173-activity-back-to-chat-scroll.md)
+- [x] [174-Gate checks Pi 1.1's edits list; Gate's errors reach Pi](tasks/174-gate-pi-edits-list.md)

@@ -52,6 +52,22 @@ class EnforcementTest(unittest.TestCase):
         gate=self.ledger.propose('write_file',args,'standard',pi_tool='write',cwd=str(self.root))
         path.write_text('expected')
         self.assertEqual(self.ledger.complete(gate['proposal_id'],'write_file',args,'success',0).status,'SUCCESS')
+    def test_pi_edits_list_is_checked_and_verified(self):
+        """2026-10-14: Pi 1.1's edit sends {path, edits: [{oldText, newText}]}; Gate read args['oldText'] and answered HTTP 400 to every edit."""
+        path=self.root/'ROADMAP.md';path.write_text('- [x] one\n- [ ] two\n- [ ] three\n')
+        args={'path':'ROADMAP.md','edits':[{'oldText':'- [ ] two','newText':'- [x] two'},{'oldText':'three','newText':'3'}]}
+        gate=self.ledger.propose('write_file',args,'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertEqual(gate['outcome'],'ALLOW')
+        path.write_text('- [x] one\n- [x] two\n- [ ] 3\n')
+        self.assertEqual(self.ledger.complete(gate['proposal_id'],'write_file',args,'ok',0).status,'SUCCESS','both edits applied, as Pi does')
+        for edits in ([{'oldText':'- [x]','newText':'x'}],[{'oldText':'missing','newText':'x'}],[{'oldText':'one\n- [x] two','newText':'a'},{'oldText':'two','newText':'b'}],[]):
+            revise=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':edits},'standard',pi_tool='edit',cwd=str(self.root))
+            self.assertEqual(revise['outcome'],'REVISE',edits)
+        single=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':json.dumps([{'oldText':'3','newText':'three'}])},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertEqual(single['outcome'],'ALLOW','edits sent as a JSON string, as some models do')
+        self.ledger.pending.clear()
+        legacy=self.ledger.propose('write_file',{'path':'ROADMAP.md','oldText':'3','newText':'three'},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertEqual(legacy['outcome'],'ALLOW','the older single-edit shape still works')
     def test_expiration_and_capacity(self):
         self.ledger.propose('read_file',{},'standard');self.ledger.propose('read_file',{},'standard')
         with self.assertRaises(ValueError):self.ledger.propose('read_file',{},'standard')

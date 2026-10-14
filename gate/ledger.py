@@ -11,6 +11,31 @@ import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol
 
+def apply_edits(original, args):
+    """The file after Pi's edit, as Pi applies it: each edits[].oldText matched once against the original, no overlaps.
+    Pi 1.1 sends {path, edits: [{oldText, newText}]} (some models a JSON string or one object); older Pi sent
+    {path, oldText, newText}. Returns (content, None) or (None, the reason to revise)."""
+    edits = args.get('edits')
+    if isinstance(edits, str):
+        try: edits = json.loads(edits)
+        except ValueError: return None, 'Edit could not be read: edits is not a list.'
+    if isinstance(edits, dict): edits = [edits]
+    if edits is None and 'oldText' in args: edits = [{'oldText': args['oldText'], 'newText': args.get('newText', '')}]
+    if not isinstance(edits, list) or not edits or not all(isinstance(edit, dict) and isinstance(edit.get('oldText'), str) and isinstance(edit.get('newText'), str) for edit in edits):
+        return None, 'Edit must list at least one oldText and newText.'
+    spans = []
+    for edit in edits:
+        if not edit['oldText'] or original.count(edit['oldText']) != 1:
+            return None, 'Edit must identify one exact occurrence.'
+        start = original.index(edit['oldText']); spans.append((start, start + len(edit['oldText']), edit['newText']))
+    spans.sort()
+    if any(spans[index][1] > spans[index + 1][0] for index in range(len(spans) - 1)):
+        return None, 'Edits must not overlap.'
+    content, at = [], 0
+    for start, end, text in spans: content += [original[at:start], text]; at = end
+    return ''.join(content + [original[at:]]), None
+
+
 class ProposalLedger:
     def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None, events_file=None):
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
@@ -81,11 +106,10 @@ class ProposalLedger:
                 content = args['content']
             else:
                 original = path.read_text()
-                if original.count(args['oldText']) != 1:
-                    reason = 'Edit must identify one exact occurrence.'
+                content, reason = apply_edits(original, args)
+                if reason:
                     self.record_event('gate', 'REVISE', proposal, reason, tool_call=tool_call_id, cwd=cwd, source=source)
                     return {'outcome': 'REVISE', 'reason': reason}
-                content = original.replace(args['oldText'], args['newText'], 1)
             expected = (str(path.resolve()), hashlib.sha256(content.encode()).hexdigest())
         with self.lock:
             now = self.clock()

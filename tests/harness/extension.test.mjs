@@ -69,6 +69,13 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const row=toolResolver('bash',()=>undefined).renderResult(exited,{},{},{toolCallId:'bash-exit'}).render(80).map(line=>line.replace(/\x1b\[[0-9;]*m/g,''));
   assert.match(row[0],/^  ✓ Gate allowed · ✗ exit 2 · 0:0\d$/,'round 6: the tool row reads what Gate and the command said');
   assert.doesNotMatch(JSON.stringify(exited),/EXECUTION_FAILED|Gate audit failed/);assert.equal(notices.length,noticesBefore,'no alarm for an ordinary failure');
+  // 2026-10-14: Gate's own error reaches Pi (it read only "Gate HTTP 400" and worked around Gate), and Pi 1.1's edits list passes.
+  const missing=await handlers.tool_call({toolCallId:'edit-missing',toolName:'edit',input:{path:join(dir,'nowhere.md'),edits:[{oldText:'a',newText:'b'}]}});
+  assert.equal(missing.block,true);assert.match(missing.reason,/Gate HTTP 400: .*nowhere\.md/);
+  writeFileSync(join(dir,'plan.md'),'- [ ] two\n');
+  assert.equal(await handlers.tool_call({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]}}),undefined,'the edit is allowed');
+  writeFileSync(join(dir,'plan.md'),'- [x] two\n');
+  assert.equal(await handlers.tool_result({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]},content:[],isError:false}),undefined,'and verified');
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
   const rejected=await handlers.tool_result({...drift,input:{command:'env'},content:[],isError:false});
