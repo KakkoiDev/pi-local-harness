@@ -222,3 +222,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [177-Build the designer's round 7 (answers to the round 6 notes)](tasks/177-round-7-build.md)
 - [ ] [178-Lessons from the local model's errors](tasks/178-lessons-from-model-errors.md)
 - [x] [179-Gate's rules as one always-enforced system](tasks/179-plan-gate-rules.md)
+- [x] [180-One command runs the browser suites, or says they did not run](tasks/180-browser-runner.md)

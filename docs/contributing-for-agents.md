@@ -50,6 +50,7 @@ Browser suites (slow, ~2 minutes each; run before committing any UI change):
 # once: install Playwright somewhere outside the repo and a Chromium for it
 mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 && npx playwright install chromium && cd -
 # every time:
+python3 tests/browser/run.py design   # or chat, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/design.cjs   # design conformance; prints "Design checks passed."
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/chat.cjs     # regression; prints "UX regression passed: …"
 ```

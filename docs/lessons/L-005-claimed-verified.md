@@ -17,5 +17,5 @@ say "not verified", and the harness should not depend on it saying so.
 
 **Open**
 - G-012 covers web requests; terminal Pi turns are not marked yet.
-- Made easy: one command that runs the browser tests from any shell, or says plainly why it cannot (Playwright
-  missing).
+- Made easy (task 180): `python3 tests/browser/run.py all` runs the browser suites from any shell, or says "Not run"
+  with the setup command and exits 2 (Playwright missing). Gate counts it as a test run.

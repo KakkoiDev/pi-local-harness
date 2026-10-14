@@ -13,7 +13,8 @@ Workers share Gate and never start duplicate services. Shared runtime memory is
 Create numbered tasks under tasks/ and link them in ROADMAP.md. Implement authorized
 work, preserve unrelated edits, add meaningful regression coverage, and commit at
 the end of each task. Mark only verified work complete. Run tests/verify_workflow.py
-before completion. Keep README instructions aligned with actual behavior.
+before completion, and `python3 tests/browser/run.py all` after a UI change (exit 2
+means the suites did not run: say "not verified", never "passed"). Keep README instructions aligned with actual behavior.
 
 What Gate enforces (the commit order, plan files, destructive commands…) is not
 restated here: it is one registry in gate/rules.py, always on, summarised in your
