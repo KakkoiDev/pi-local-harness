@@ -151,7 +151,7 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#send-unsent').textContent(),'Send 2 Unsent Comments to Pi');
   await review.getByRole('button',{name:'Ask Pi',exact:true}).first().click();
   await page.locator('#send-unsent').filter({hasText:'Send 1 Unsent Comment to Pi'}).waitFor();
-  assert.equal(await review.getByText('Sent to Pi',{exact:false}).count()>=1,true);
+  assert.equal(await review.getByText(/Sent to Pi|Waiting in queue|Pi is working on it|Pi answered/).count()>=1,true);
   await page.locator('#send-unsent').click();
   await page.locator('#send-unsent').filter({hasText:'No unsent comments'}).waitFor();
   assert.equal(await page.locator('#send-unsent').isDisabled(),true);
@@ -535,6 +535,16 @@ const readline = require('node:readline');
   assert.equal(await fresh.locator('.pw-block__content').getAttribute('data-placeholder'),'Write, or choose a style in the ruler');
   assert.equal(await fresh.evaluate(row=>getComputedStyle(row.querySelector('.pw-block__content'),'::before').content),'"Write, or choose a style in the ruler"','the placeholder shows');
   await page.keyboard.press('Escape');
+  }
+
+  { // Review shows where a comment is with Pi, live, like the thread: "Pi is working on it" while its request runs.
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);if(await page.evaluate(()=>document.body.dataset.review)==='closed')await page.locator('#toggle-review').click();
+  await post('/api/documents/comment',{path:`projects/${created.project}/ROADMAP.md`,text:'Take your time TEST_SLOW',anchor:'Open item'});
+  await page.reload();const item=page.locator('#document-comments .pw-review-item').filter({hasText:'TEST_SLOW'});await item.waitFor();
+  await item.getByRole('button',{name:'Ask Pi',exact:true}).click();
+  await item.locator('.pw-review-item__head').filter({hasText:'Pi is working on it'}).waitFor({timeout:20000});
+  assert.equal(await item.locator('.pw-review-item__head svg').count(),1,'with its glyph');
+  await stopAll();
   }
 
   // 123: the phone follows the phone boards.

@@ -72,7 +72,13 @@ export function installWorkspace(host){
  }
  const when=iso=>iso?new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
  const commentState=comment=>comment.deleted?'deleted':comment.resolved?'resolved':'open';
- const stateLine=comment=>comment.deleted?'Deleted':comment.resolved?'Resolved':failedComment(comment)?'Pi could not answer':sent(comment)?(pendingReplies(comment)?'Reply not sent to Pi':'Sent to Pi'):'Not sent to Pi';
+ // Where a comment is with Pi, as the thread's state line says it (Review heads show it too, live): [glyph, words].
+ function commentPhase(comment){const status=state.jobs.filter(job=>job.comment_id===comment.id).at(-1)?.status;
+  if(comment.deleted)return [null,'Deleted'];if(comment.resolved)return [null,'Resolved'];
+  if(status==='running')return ['running','Pi is working on it'];if(status==='queued')return ['waiting','Waiting in queue'];
+  if(failedComment(comment))return ['caution','Pi could not answer'];if(pendingReplies(comment))return [null,'Reply not sent to Pi'];
+  if((comment.replies||[]).some(reply=>reply.author==='pi'))return ['done','Pi answered'];return [null,sent(comment)?'Sent to Pi':'Not sent to Pi'];}
+ const stateLine=comment=>commentPhase(comment)[1];
  function orderedComments(){const text=page?.markdown||'',at=comment=>{const found=text.indexOf(comment.anchor);return found<0?Infinity:found;};return (page?.comments||[]).map((comment,index)=>({comment,index,at:at(comment)})).sort((a,b)=>a.at-b.at||a.index-b.index).map(item=>item.comment);}
  function numbers(){const result=new Map();orderedComments().filter(comment=>!comment.deleted).forEach((comment,index)=>result.set(comment.id,index+1));return result;}
  async function commentAction(url,body,after){try{await api(url,{path:page?.path,...body});if(!body.path||body.path===page?.path)await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
@@ -130,7 +136,7 @@ export function installWorkspace(host){
   if(page&&!shown.length)$('document-comments').append(node('p','list-empty pw-empty',{open:'No open comments.',resolved:'Nothing resolved yet.',deleted:'No deleted comments.'}[commentFilter]));
   for(const comment of shown){
    const item=node('div','pw-review-item');item.id='comment-'+comment.id;if(comment.id===currentComment)item.setAttribute('aria-current','true');
-   const head=node('button','pw-review-item__head');head.type='button';head.append(node('span','',(numbered.has(comment.id)?numbered.get(comment.id)+' · ':'')+stateLine(comment)),node('span','',when(comment.created)));head.onclick=()=>showThread(comment.id,{reveal:true});item.onclick=event=>{if(!event.target.closest('button,a,input,textarea'))showThread(comment.id,{reveal:true});};
+   const head=node('button','pw-review-item__head');head.type='button';const [glyph,words]=commentPhase(comment),label=node('span','pw-glyph');if(glyph)label.append(icon(glyph,{size:12}));label.append((numbered.has(comment.id)?numbered.get(comment.id)+' · ':'')+words);head.append(label,node('span','',when(comment.created)));/* live, like the thread's state line */head.onclick=()=>showThread(comment.id,{reveal:true});item.onclick=event=>{if(!event.target.closest('button,a,input,textarea'))showThread(comment.id,{reveal:true});};
    item.append(head,node('p','pw-review-item__quote','“'+comment.anchor+'”'));
    if(page.markdown&&!page.markdown.includes(comment.anchor))item.append(node('p','pw-help','Passage changed on disk; this thread keeps the original quote.'));
    item.append(node('p','pw-review-item__text',comment.text));
