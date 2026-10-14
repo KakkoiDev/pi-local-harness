@@ -45,7 +45,7 @@ export default function harness(pi, dependencies = {}) {
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
   installToolRenderer(pi, checks);
-  let child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
+  let verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
@@ -152,6 +152,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
+    if (!process.env.PI_HARNESS_SHARED_PORT) { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012: read before the turn starts; the web marks its own requests
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
       if (attached.action === 'transform') {
@@ -248,7 +249,14 @@ export default function harness(pi, dependencies = {}) {
       return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit unavailable: ${error.message}` }] };
     }
   });
-  pi.on('agent_settled', () => agentLock.release());
+  pi.on('agent_settled', async () => {
+    agentLock.release();
+    // G-012 (plan 179, L-005): code changed during the turn and Gate saw no passing test on it afterwards.
+    if (!verifiedBefore) return;
+    const before = await verifiedBefore; verifiedBefore = undefined;
+    const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
+    if (after?.code?.length && !after.verified && before?.state !== after.state) say('unverified', after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : ''), 'warning');
+  });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
   // and waits while Pi answers the person in chat. An unreachable workbench never blocks the model.
   pi.on('before_provider_request', async () => {

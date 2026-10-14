@@ -144,6 +144,12 @@ class ProposalLedger:
         response['proposal_id'] = token
         return response
 
+    def verification(self, cwd):
+        """G-012 for terminal Pi: {state, code, verified} for the project around cwd, or None outside a project."""
+        root = project_root(cwd) if cwd else None
+        answer = self.protocol.verification(root) if root else None
+        return {'state': answer[0], 'code': answer[1], 'verified': answer[2]} if answer else None
+
     def complete(self, token, tool_name, args, output, exit_code):
         with self.lock:
             created, proposal, expected, cwd, tool_call_id, source = self.pending.pop(token)

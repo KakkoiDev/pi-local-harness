@@ -23,6 +23,12 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             self.handle_gatekeep()
         elif self.path == '/audit':
             self.handle_audit()
+        elif self.path == '/verification':  # G-012 for terminal Pi (plan 179)
+            try:
+                data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                self.send_json_response({'verification': self.ledger.verification(data.get('cwd'))})
+            except Exception as error:
+                self.send_error_response(400, str(error))
         else:
             self.send_response(404)
             self.end_headers()

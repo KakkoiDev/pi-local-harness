@@ -149,6 +149,11 @@ class UnverifiedTest(unittest.TestCase):
             self.assertIsNone(verification_note(before, Protocol(runs).verification(root)), 'a passing run on this code')
             (root / 'app.py').write_text('x = 2\n')
             self.assertIn('Not verified', verification_note(before, Protocol(runs).verification(root)), 'changed after the run')
+            from gate.engine import GateEngine
+            ledger = ProposalLedger(GateEngine('', '/dev/null'), protocol_file=runs)
+            answer = ledger.verification(str(root / 'tasks'))
+            self.assertEqual((answer['code'], answer['verified']), (['app.py'], False), 'G-012 for terminal Pi: Gate answers for the project around a folder')
+            self.assertIsNone(ledger.verification(data), 'outside a project: nothing to say')
             (root / 'notes.md').write_text('only words\n')
             self.assertIsNone(verification_note(protocol.verification(root), protocol.verification(root)))
 

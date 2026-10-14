@@ -130,6 +130,12 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(commit.block,true);
   assert.match(commit.reason,/Gate pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
   assert.match(commit.reason,/then retry/);assert.doesNotMatch(commit.reason,/destructive/);
+  // G-012 for terminal Pi (plan 179, L-005): a turn that changed code and ran no passing test after it ends marked.
+  await handlers.input({source:'interactive',text:'Change the code'},ctx);
+  writeFileSync(join(dir,'app.py'),'x = 3\n');
+  await handlers.agent_settled({aborted:false},ctx);
+  const unverified=entries.filter(entry=>entry.type==='harness-notice').at(-1).data;
+  assert.equal(unverified.sentence,'Not verified.');assert.match(unverified.detail,/app\.py.*G-012/);
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {
