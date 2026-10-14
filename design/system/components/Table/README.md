@@ -6,3 +6,4 @@ The Activity and Gate lists: a header row in 13px, then rows separated by dotted
 - Text cells that hold a request use `.pw-table__cell--text` (Source Serif, one line, ellipsis); commands use `.pw-table__cell--mono`.
 - At phone width only the first two columns show; the rest move to the detail screen.
 - This is the app table for lists of records. A table inside a document or a Pi message is a MarkdownTable.
+- Activity detail (task 157): one button back, named after the origin — **Open in Chat** (chat message; scrolls to it), **Show Comment** (comment; Work, thread open), **Show in Review** (whole-file question; the box open on it), **Open in Chat** + **Show Task** (worker). A “From” line names the origin. Replaces “Open in Project”. Boards: A_FromChat, A_FromComment, A_FromFile, A_FromWorker, Ph_ActivityFromComment.

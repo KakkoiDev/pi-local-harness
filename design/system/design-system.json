@@ -28,6 +28,7 @@
     "search.svg",
     "plus.svg",
     "close.svg",
+    "more.svg",
     "mic.svg",
     "handle.svg",
     "list-bullet.svg",
@@ -207,6 +208,12 @@
      "blob": "e5e1838a2ff32a3e496d0ad8e203f6d7",
      "size": 266,
      "type": "image/svg+xml"
+    },
+    "more.svg": {
+     "name": "more.svg",
+     "blob": "459d81aeebdf6ee262bb32de85d20694",
+     "size": 186,
+     "type": "image/svg+xml"
     }
    }
   }
@@ -218,8 +225,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-14T10:20:00+09:00",
+  "at": "2026-10-14T14:00:00+09:00",
   "via": "Claude (Cowork)",
-  "note": "Task 154: project commands in the Project menu (Rename, Move, Locate, Remove from List, Move to Trash), phone ⋯ on project rows."
+  "note": "Round 5: WorkerCard; Activity detail back buttons by origin; request links on working states; Dictate; model capability and not installed; raw block; more icon."
  }
 }

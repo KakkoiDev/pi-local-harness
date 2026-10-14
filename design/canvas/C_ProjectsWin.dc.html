@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Projects window component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
 </head>
 <body>
 <x-dc>
@@ -37,7 +37,7 @@
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "query": {"editor": "text", "default": ""}, "missing": {"editor": "boolean", "default": false}, "sel": {"editor": "text", "default": ""}, "$preview": {"width": 290, "height": 824}}'>
+<script type="text/x-dc" data-dc-script data-props='{"agent": {"editor": "enum", "options": ["working", "idle", "attention", "worker"], "default": "working"}, "current": {"editor": "enum", "options": ["none", "project", "activity", "gate"], "default": "none"}, "empty": {"editor": "boolean", "default": false}, "active": {"editor": "boolean", "default": false}, "h": {"editor": "text", "default": "824px"}, "query": {"editor": "text", "default": ""}, "missing": {"editor": "boolean", "default": false}, "sel": {"editor": "text", "default": ""}, "$preview": {"width": 290, "height": 824}}'>
 class Component extends DCLogic {
 renderVals() {
 const a = this.props.agent ?? 'working', c = this.props.current ?? 'none', empty = (this.props.empty === true || this.props.empty === 'true');
@@ -45,7 +45,7 @@ const miss = (this.props.missing === true || this.props.missing === 'true');
 const P = (name, o) => Object.assign({ name: name, href: 'Main.dc.html', current: 'false', run: false, warn: false, meta: '', style: '' }, o || {});
 const q = (this.props.query ?? '').toLowerCase();
 const all = empty ? [] : [
- P('pi-local-harness', { current: (c === 'project' && !(this.props.query)) ? 'page' : 'false', run: a === 'working', meta: a === 'working' ? 'running' : '' }),
+ P('pi-local-harness', { current: (c === 'project' && !(this.props.query)) ? 'page' : 'false', run: a === 'working' || a === 'worker', meta: a === 'working' ? 'running' : a === 'worker' ? 'worker' : '' }),
  P('Japanese study app', { meta: a === 'working' ? 'waiting' : '' }),
  P('home-server', miss ? { warn: true, meta: 'folder missing', current: 'page', style: '' } : { warn: a === 'attention', meta: a === 'attention' ? 'failed' : '' })
 ];
@@ -53,8 +53,8 @@ const selName = this.props.sel ?? '';
 if (selName === 'Japanese flashcards' && all[1]) all[1].name = selName;
 if (selName) all.forEach((p) => { p.current = p.name === selName ? 'page' : 'false'; });
 const projects = q ? all.filter((p) => p.name.toLowerCase().includes(q)).map((p, i) => Object.assign({}, p, { current: i === 0 ? 'page' : 'false' })) : all;
-const act = { working: '1 running · 1 waiting', idle: 'Nothing running', attention: '1 needs attention' }[a];
-const gate = { working: '12 checks · 1 blocked', idle: '12 checks today', attention: '14 checks · 1 blocked' }[a];
+const act = { working: '1 running · 1 waiting', idle: 'Nothing running', attention: '1 needs attention', worker: '1 running · worker' }[a];
+const gate = { working: '12 checks · 1 blocked', idle: '12 checks today', attention: '14 checks · 1 blocked', worker: '15 checks today' }[a];
 return {
 query: this.props.query ?? '',
 h: this.props.h ?? '824px',
@@ -62,9 +62,9 @@ winClass: 'pw-window' + ((this.props.active === true || this.props.active === 't
 projects: projects, empty: empty,
 projectCount: empty ? 'No projects' : q ? projects.length + ' of 3 projects' : '3 projects', projectN: empty ? '0' : String(projects.length),
 actCurrent: c === 'activity' ? 'page' : 'false', gateCurrent: c === 'gate' ? 'page' : 'false',
-actRun: !empty && a === 'working', actWarn: !empty && a === 'attention',
+actRun: !empty && (a === 'working' || a === 'worker'), actWarn: !empty && a === 'attention',
 actMeta: empty ? 'Nothing yet' : act,
-gateBlock: !empty && a !== 'idle', gateMeta: empty ? 'No checks yet' : gate
+gateBlock: !empty && a !== 'idle' && a !== 'worker', gateMeta: empty ? 'No checks yet' : gate
 };
 }
 }

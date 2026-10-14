@@ -472,3 +472,34 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
 
 /* Thread reply row: Add Note keeps the reply with the file; Ask Pi sends the thread (task 135) */
 .pw-thread__help{flex-basis:100%;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+
+/* ---- 2026-10-14 · Round 5: worker cards, request links, dictation ---- */
+
+/* WorkerCard: the chat proposes, runs and summarises the project's worker (task 156) */
+.pw-worker{align-self:stretch;max-width:680px;border:1px solid var(--ink);box-shadow:var(--shadow-window);background:var(--paper);display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:14px;line-height:20px}
+.pw-worker--waiting{border-width:2px}
+.pw-worker--done,.pw-worker--declined{box-shadow:none}
+.pw-worker--declined{border-style:dotted}
+.pw-worker__head{display:flex;align-items:center;gap:var(--space-2);padding:8px 12px;border-bottom:1px solid var(--ink)}
+.pw-worker__title{flex:1;min-width:0;margin:0;font:inherit;font-size:15px}
+.pw-worker__body{display:flex;flex-direction:column;gap:6px;padding:10px 12px}
+.pw-worker__task{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;font-style:italic}
+.pw-worker__facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 12px}
+.pw-worker__facts dt{white-space:nowrap}
+.pw-worker__facts dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.pw-worker__why>summary{cursor:default;text-decoration:underline;text-underline-offset:2px;width:max-content}
+.pw-worker__why[open]>summary{margin-bottom:4px}
+.pw-worker__foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);padding:8px 12px;border-top:1px dotted var(--ink)}
+.pw-countdown{display:inline-flex;align-items:center;gap:var(--space-2);font-variant-numeric:tabular-nums}
+
+/* Dictate: voice into a comment field (task 155). Same button as Record: icon at rest, inverted with the time, then Transcribing… */
+.pw-btn--dictate{min-width:var(--size-control);padding:0 10px}
+.pw-btn--rec.pw-btn--dictate[aria-pressed="true"]{gap:6px}
+
+/* DocumentBlock: Raw Markdown looks like Code (was only in chat.css) */
+.pw-block--raw>.pw-block__content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
+
+@media (max-width:760px){
+  .pw-worker{font-size:15px}
+  .pw-worker__foot .pw-btn{min-height:var(--size-touch)}
+}

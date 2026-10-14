@@ -24,8 +24,8 @@ The server allowlist is in `harness/web_chat.py` (`allowed` in `do_GET`, plus `F
 
 This folder is the backup of both claude.ai artifacts, for everything their authors wrote:
 
-- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/df76a9fabeae28600b25f9b7ca37501f.css` (the boards link it as `/_blob/<id>`).
-- Design system: `IMPLEMENTATION.md` (the designer keeps it in the system artifact as `project/IMPLEMENTATION.md`; it lives at `design/IMPLEMENTATION.md`), `system/README.md`, `tokens.json`, `design-system.json`, every component card (`components/<Name>/README.md`, `preview.html`), `components/bundle.css`, and the 27 icon uploads as `system/assets/Icons/*.svg` (names from `design-system.json`; `gate.svg` added in round 3).
+- Design canvas: every board `canvas/*.dc.html`, the index `canvas/canvas.json`, and its uploaded stylesheet `canvas/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da.css` (the boards link it as `/_blob/<id>`).
+- Design system: `IMPLEMENTATION.md` (the designer keeps it in the system artifact as `project/IMPLEMENTATION.md`; it lives at `design/IMPLEMENTATION.md`), `system/README.md`, `tokens.json`, `design-system.json`, every component card (`components/<Name>/README.md`, `preview.html`), `components/bundle.css`, and the 28 icon uploads as `system/assets/Icons/*.svg` (names from `design-system.json`; `gate.svg` added in round 3, `more.svg` in round 5).
 - The old checker name is mapped to Gate in the copies (task 96).
 
 Not backed up: each artifact's `index.html`, `artifact-type/` files and runtime. They belong to the claude.ai artifact types, not to this project, and this repo is public. To look at the boards locally, save the canvas artifact's `artifact-type/dc-runtime.js` as `canvas/support.js` (git ignores it) and run `python3 design/view.py`.
@@ -35,7 +35,7 @@ Not backed up: each artifact's `index.html`, `artifact-type/` files and runtime.
 - Design system "Pi Workbench System 1": https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1
 - Design canvas "Pi Workbench, Desktop Interface": https://claude.ai/artifact/Re2trGpSgYLrd2anCHTRyK
 
-The copies here are from 2026-10-14 12:30 JST (re-synced for task 154: project commands in the Project menu, the phone ⋯ on project rows; before that task 149: round 4). `components.css` keeps four repo additions over the bundle: `.pw-menu--sub` (desk and phone), the expanded submenu item, the 44px phone popup, and the closed-dialog fix. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
+The copies here are from 2026-10-14 15:30 JST (re-synced for round 5, task 163: Activity back buttons by origin, request links, WorkerCard, Dictate, model capability and not installed, raw block, `more` icon, Rename Project errors in the dialog). `components.css` keeps four repo additions over the bundle: `.pw-menu--sub` (desk and phone), the expanded submenu item, the 44px phone popup, and the closed-dialog fix. If the artifacts change, re-export into `system/` and `canvas/` and re-check every document derived from them (this file, IMPLEMENTATION.md, DESIGN.md).
 
 ## Progress
 

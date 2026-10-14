@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Chat desktop component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
 </head>
 <body>
 <x-dc>
@@ -62,7 +62,7 @@
 </sc-if>
 <article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>14:02</time></div><p class="pw-msg__body">The Activity badge still counts interrupted jobs after a restart. Can you find out why and fix it?</p></article>
 <article class="pw-msg">
-<div class="pw-msg__label"><b>Pi</b><time>14:02</time></div>
+<div class="pw-msg__label"><b>Pi</b><time>14:02</time><sc-if value="{{working}}" hint-placeholder-val="{{true}}"><span>· working</span><a href="A_FromChat.dc.html" class="pw-link">Show in Activity</a></sc-if></div>
 <details open="{{working}}"><summary>Reasoning</summary><p style="margin: 6px 0 0">The badge reads every unfinished state. Interrupted is terminal, so it should not count.</p></details>
 <p class="pw-msg__body">Interrupted work is kept on purpose — it is never repeated automatically — but the badge should only count running and waiting requests. Checking the queue first.</p>
 <div class="pw-tool"><div class="pw-tool__cmd">$ grep -n "interrupted" harness/work_queue.py</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate approved</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Verified · exit 0</span><a href="Gate.dc.html" class="pw-link">Show in Gate</a></div></div>
@@ -80,6 +80,27 @@
 <p class="pw-context pw-context--after"><span class="pw-context__label">Also read:</span><span class="pw-context__list" role="list"><span class="pw-context__item" role="listitem"><a href="#">harness/work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">tests/test_work_queue.py</a></span><span class="pw-context__item" role="listitem"><a href="#">harness/web_chat.py</a></span></span></p>
 </sc-if>
 </article>
+<sc-if value="{{wAny}}" hint-placeholder-val="{{false}}">
+<article class="pw-msg"><div class="pw-msg__label"><b>Pi</b><time>14:05</time></div><p class="pw-msg__body">{{wLead}}</p>
+<sc-if value="{{w_propose}}" hint-placeholder-val="{{false}}"><section class="pw-worker" aria-labelledby="wk-t"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title" id="wk-t">Start the worker on 059-stuck-detection.md?</h3></div>
+<div class="pw-worker__body"><p class="pw-worker__task">“Add a notification when a task is stuck, with a test that fakes a hang.”</p><p style="margin: 0">Gate: the task is open, has a Red step, and nothing else runs in this project.</p></div>
+<div class="pw-worker__foot"><span class="pw-countdown" role="timer" aria-live="off">Starting in 7 s<span class="pw-meter__bar" aria-hidden="true" style="--pw-meter: 70%"><span class="pw-meter__fill"></span></span></span><span style="flex: 1"></span><button class="pw-btn">Not Now</button></div></section></sc-if>
+<sc-if value="{{w_waiting}}" hint-placeholder-val="{{false}}"><section class="pw-worker pw-worker--waiting" aria-labelledby="wk-w"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="15" fill="none" stroke="currentColor"/><path d="M8 3.5v1.5M8 6.5v6" stroke="currentColor" stroke-width="1.5"/></svg><h3 class="pw-worker__title" id="wk-w">Start the worker on 061-real-exit-codes.md?</h3><span>Waiting for you</span></div>
+<div class="pw-worker__body"><p class="pw-worker__task">“Make every command report its real exit code.”</p>
+<details class="pw-worker__why" open><summary>Gate asks you: the task is blocked. Why?</summary><ul style="margin: 0; padding-left: 18px"><li>061 has a <code class="pw-mono">[~]</code> step: “waiting for 060 to land”.</li><li>It is not the roadmap’s next open item (059 is).</li><li>harness/agent-lock.mjs was edited 3 minutes ago.</li></ul></details></div>
+<div class="pw-worker__foot"><span style="flex: 1"></span><button class="pw-btn">Start Anyway</button><button class="pw-btn pw-btn--default">Not Now</button></div></section></sc-if>
+<sc-if value="{{w_declined}}" hint-placeholder-val="{{false}}"><section class="pw-worker pw-worker--declined" aria-label="Worker not started"><div class="pw-worker__body"><p style="margin: 0">Not started: 061-real-exit-codes.md · you chose Not Now at 14:07. Ask in Chat to start it later.</p></div></section></sc-if>
+<sc-if value="{{w_running}}" hint-placeholder-val="{{false}}"><section class="pw-worker" aria-label="Worker"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title">Worker · 059-stuck-detection.md</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><dl class="pw-worker__facts"><dt>Task</dt><dd><a href="#" class="pw-link">059-stuck-detection.md</a> · 1 of 3 steps</dd><dt>Phase</dt><dd>Red — writing the failing test</dd><dt>Last step</dt><dd class="pw-mono" style="font-size: 13px">$ python3 -m pytest tests/test_stuck.py</dd><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd></dl></div>
+<div class="pw-worker__foot"><span>Started by Gate · 14:06 · 3:12</span><span style="flex: 1"></span><button class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></div></section></sc-if>
+<sc-if value="{{w_paused}}" hint-placeholder-val="{{false}}"><section class="pw-worker" aria-label="Worker"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title">Worker paused while Pi answers you</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><dl class="pw-worker__facts"><dt>Task</dt><dd><a href="#" class="pw-link">059-stuck-detection.md</a> · 1 of 3 steps</dd><dt>Phase</dt><dd>Red — writing the failing test</dd><dt>Last step</dt><dd class="pw-mono" style="font-size: 13px">$ python3 -m pytest tests/test_stuck.py</dd><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd></dl></div>
+<div class="pw-worker__foot"><span>Started by Gate · 14:06 · 3:40, resumes after this answer</span><span style="flex: 1"></span><button class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></div></section></sc-if>
+<sc-if value="{{w_done}}" hint-placeholder-val="{{false}}"><section class="pw-worker pw-worker--done" aria-label="Worker summary"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><h3 class="pw-worker__title">Worker finished 059-stuck-detection.md · 6:40</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><p style="margin: 0; font-family: var(--font-text); font-size: 16px; line-height: 1.45">A task stuck for 10 minutes now sends one ntfy notification. The new test fakes a hang and passes.</p><dl class="pw-worker__facts"><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd><dt>Boxes</dt><dd>2 of 3 checked</dd><dt>Left</dt><dd>Verify: run the full suite</dd></dl></div>
+<div class="pw-worker__foot"><a href="#" class="pw-btn">Show Task</a></div></section></sc-if>
+</article>
+</sc-if>
 <sc-if value="{{working}}" hint-placeholder-val="{{true}}"><div class="pw-queue-note">Next: 1 request waiting in Japanese study app</div></sc-if>
 </div>
 </sc-if>
@@ -139,7 +160,7 @@
 <sc-if value="{{prRename}}" hint-placeholder-val="{{false}}"><form role="dialog" aria-labelledby="pr-t" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 480px">
 <h2 id="pr-t" class="pw-dialog__title">Rename Project</h2>
 <label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Name<input class="pw-field" value="Japanese flashcards"></label>
-<p class="pw-help">Renames the folder “Japanese study app” to “Japanese flashcards” in ~/code. Its address becomes /p/japanese-flashcards. Chat, comments and Activity stay with the project.</p>
+<p class="pw-help">Renames the folder “Japanese study app” to “Japanese flashcards” in ~/code. Chat, comments and Activity stay with the project.</p>
 <div class="pw-dialog__actions"><button type="button" class="pw-btn">Cancel</button><button class="pw-btn pw-btn--default">Rename</button></div>
 </form></sc-if>
 <sc-if value="{{prMove}}" hint-placeholder-val="{{false}}"><form role="dialog" aria-labelledby="pm-t" class="pw-dialog" style="position: absolute; left: 50%; top: 110px; transform: translateX(-50%); width: 500px">
@@ -182,7 +203,7 @@
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh","earlier","typing","blocked","phoneon","phoneoff","newproject","firstchat","prrename","prmove","prlocate","prrefused","prremove","prtrash","prrenamed","prmissing"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["working","idle","empty","welcome","attachments","dragging","recording","error","offline","near","compacted","summary","newconv","fresh","earlier","typing","blocked","phoneon","phoneoff","newproject","firstchat","prrename","prmove","prlocate","prrefused","prremove","prtrash","prrenamed","prmissing","wpropose","wwaiting","wdeclined","wrunning","wpaused","wdone"],"default":"working"},"level":{"editor":"enum","options":["project","projects"],"default":"project"},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'working';
@@ -190,7 +211,8 @@ const welcome = s === 'welcome' || s === 'newproject';
 const PRJ = ['prrename','prmove','prrefused','prremove','prtrash','prrenamed'].includes(s);
 const first = s === 'firstchat' || PRJ;
 const empty = s === 'empty' || first;
-const working = s === 'working';
+const working = s === 'working' || s === 'wpaused';
+const W = s.startsWith('w') && s !== 'welcome' && s !== 'working';
 const fresh = s === 'fresh';
 const hasMessages = !welcome && !empty && !fresh;
 const PR = s.startsWith('pr');
@@ -206,9 +228,11 @@ attachments: '2 files · 1.4 MiB of 20 MiB'
 return {
 pwState: first ? 'new' : 'chat',
 levelProjects: lvl === 'projects', levelProject: lvl === 'project',
-agent: working ? 'working' : 'idle', pcurrent: welcome ? 'none' : 'project',
+agent: (s === 'wrunning') ? 'worker' : working ? 'working' : 'idle', pcurrent: welcome ? 'none' : 'project',
 fresh: fresh, compacted: s === 'compacted' || s === 'summary', summaryOpen: s === 'summary', summaryToggle: s === 'summary' ? 'Hide Summary' : 'Show Summary',
 showMeter: !welcome && s !== 'earlier' && s !== 'newproject',
+wAny: W, w_propose: s === 'wpropose', w_waiting: s === 'wwaiting', w_declined: s === 'wdeclined', w_running: s === 'wrunning', w_paused: s === 'wpaused', w_done: s === 'wdone',
+wLead: s === 'wdone' ? 'The worker is done with 059. Here is what it did:' : s === 'wwaiting' || s === 'wdeclined' ? 'The next task in the roadmap after 059 is 061. I can hand it to the worker.' : 'The badge fix is in. Next on the roadmap is 059, stuck detection; I can hand it to the worker.',
 overlay: ['newproject','phoneon','phoneoff','prrename','prmove','prlocate','prrefused','prremove','prtrash'].includes(s),
 prRename: s === 'prrename', prMove: s === 'prmove', prLocate: s === 'prlocate', prRefused: s === 'prrefused', prRemove: s === 'prremove', prTrash: s === 'prtrash', prToast: s === 'prrenamed', pMissing: s === 'prlocate' || s === 'prmissing', psel: PRJ ? (s === 'prrenamed' ? 'Japanese flashcards' : 'Japanese study app') : (s === 'prlocate' || s === 'prmissing') ? 'home-server' : '', missingBanner: s === 'prlocate' || s === 'prmissing', newproject: s === 'newproject', phoneon: s === 'phoneon', phoneoff: s === 'phoneoff', blocked: s === 'blocked',
 newconv: s === 'newconv', earlier: s === 'earlier', notEarlier: s !== 'earlier',

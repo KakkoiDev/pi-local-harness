@@ -8,3 +8,4 @@ The agent status at the right of the menu bar, as a button that opens **Activity
 - Priority: attention wins over Working and Waiting until Activity is opened (by any route: this button, ⌘3, the Agent row, Window menu). Opening Activity clears attention; the button then shows Working or Ready again, and Activity's Needs Attention filter still lists the requests.
 - Height 22px inside the 28px bar; 44px on phone, where it sits at the right of the PhoneBar.
 - CSS: `.pw-statusbtn`, `.pw-statusbtn__more`, `.pw-statusbtn--attention`, `[data-state]` for previews only.
+- Round 5: the button opens Activity **on the running request** (`/activity?job=<id>`), not just the window; so does the Agent section’s Activity row. Worker running while the chat is idle: “Working · worker in pi-local-harness”; paused: “Working · worker paused”. Later, with more agents: “2 of 3 agents busy”.

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone · worker card</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column">
+<div style="height: 44px; flex: none"></div>
+
+<nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Working · worker. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><span role="status">Working · worker</span></button></nav><div style="height: 30px; flex: none; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 10px; gap: 8px"><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">pi-local-harness</h1><div class="pw-titlebar__stripes"></div></div>
+<div style="flex: 1; overflow: hidden; padding: 16px 12px; display: flex; flex-direction: column; gap: 14px; font-family: var(--font-text); font-size: 17px; line-height: 1.5">
+<p style="margin: 0">The badge fix is in. Next is 059; I can hand it to the worker.</p>
+<section class="pw-worker" aria-label="Worker"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title">Worker · 059-stuck-detection.md</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><dl class="pw-worker__facts"><dt>Task</dt><dd><a href="#" class="pw-link">059-stuck-detection.md</a> · 1 of 3 steps</dd><dt>Phase</dt><dd>Red — writing the failing test</dd><dt>Last step</dt><dd class="pw-mono" style="font-size: 13px">$ python3 -m pytest tests/test_stuck.py</dd><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd></dl></div>
+<div class="pw-worker__foot"><span>Started by Gate · 14:06 · 3:12</span><span style="flex: 1"></span><button class="pw-btn pw-btn--touch">Stop<span class="pw-kbd">⌘.</span></button></div></section>
+<p class="pw-help" style="margin: 0">Proposal cards use the same 44px Not Now and Start Anyway.</p>
+</div>
+<form class="pw-composer" aria-label="Message composer" style="padding: 12px 12px 30px"><textarea class="pw-field" rows="2" placeholder="Ask anything"></textarea></form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

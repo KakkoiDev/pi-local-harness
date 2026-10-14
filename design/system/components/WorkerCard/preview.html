@@ -1,0 +1,16 @@
+<!-- @dsCard group="Chat" height=640 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>WorkerCard — preview</title></head>
+<body style="margin:0;background:var(--paper)">
+<div class="pw-root" style="padding:16px;background:var(--paper);display:flex;flex-direction:column;gap:16px">
+<section class="pw-worker" aria-labelledby="wk-t"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title" id="wk-t">Start the worker on 059-stuck-detection.md?</h3></div>
+<div class="pw-worker__body"><p class="pw-worker__task">“Add a notification when a task is stuck, with a test that fakes a hang.”</p><p style="margin: 0">Gate: the task is open, has a Red step, and nothing else runs in this project.</p></div>
+<div class="pw-worker__foot"><span class="pw-countdown" role="timer" aria-live="off">Starting in 7 s<span class="pw-meter__bar" aria-hidden="true" style="--pw-meter: 70%"><span class="pw-meter__fill"></span></span></span><span style="flex: 1"></span><button class="pw-btn">Not Now</button></div></section><section class="pw-worker" aria-label="Worker"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg><h3 class="pw-worker__title">Worker · 059-stuck-detection.md</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><dl class="pw-worker__facts"><dt>Task</dt><dd><a href="#" class="pw-link">059-stuck-detection.md</a> · 1 of 3 steps</dd><dt>Phase</dt><dd>Red — writing the failing test</dd><dt>Last step</dt><dd class="pw-mono" style="font-size: 13px">$ python3 -m pytest tests/test_stuck.py</dd><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd></dl></div>
+<div class="pw-worker__foot"><span>Started by Gate · 14:06 · 3:12</span><span style="flex: 1"></span><button class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></div></section><section class="pw-worker pw-worker--done" aria-label="Worker summary"><div class="pw-worker__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><h3 class="pw-worker__title">Worker finished 059-stuck-detection.md · 6:40</h3><a href="Activity.dc.html" class="pw-link">Show in Activity</a></div>
+<div class="pw-worker__body"><p style="margin: 0; font-family: var(--font-text); font-size: 16px; line-height: 1.45">A task stuck for 10 minutes now sends one ntfy notification. The new test fakes a hang and passes.</p><dl class="pw-worker__facts"><dt>Files</dt><dd><a href="#" class="pw-link">tests/test_stuck.py</a> · <a href="#" class="pw-link">harness/work_queue.py</a></dd><dt>Boxes</dt><dd>2 of 3 checked</dd><dt>Left</dt><dd>Verify: run the full suite</dd></dl></div>
+<div class="pw-worker__foot"><a href="#" class="pw-btn">Show Task</a></div></section>
+</div>
+</body>
+</html>

@@ -447,3 +447,35 @@ Boards: [P_Menu], [P_MenuMissing], [P_Rename], [P_Renamed], [P_Move], [P_Refused
 **Undo.** Rename, Move and Remove from List show a toast with Undo ⌘Z (“Renamed to “Japanese flashcards”.”, “Moved to ~/code/learning.”, “Removed “…” from the list.”); each is cheap to reverse. Move to Trash has no Undo in the app; the toast says ““<name>” is in the Trash.” (the alert already said how to bring it back). File renames should get the same Undo toast for consistency.
 
 **Phone.** A ⋯ on each project row of the π sheet (44px, its own tap target) opens a sheet titled with the project and its path: Open, Rename Project…, Move Project…, Copy Folder Path, ═, Remove from List…, Move Project to Trash…. Same dialogs as sheets. This matches round 4's answer for files: the ⋯ sits on the thing it acts on.
+
+## 2026-10-14 · Round 5: from working to its request and back; the worker
+
+Boards: [A_FromChat], [A_FromComment], [A_FromFile], [A_FromWorker], [Ph_ActivityFromComment], [S_WorkerPropose], [S_WorkerWaiting], [S_WorkerRunning], [S_WorkerPaused], [S_WorkerDone], [B_Worker], [Ph_Worker], [C_Dictate], [MB_Model]. New CSS at the end of `components.css`: `.pw-worker*`, `.pw-countdown`, `.pw-btn--dictate`, `.pw-block--raw` (delete it from chat.css). Icons: `more`.
+
+### A. Every “working” links to its request; every request links back (task 157)
+
+- **Links to the request** (`/activity?job=<id>` selects the row and scrolls the detail): the status button and the Agent section's Activity row (the running request, else the window); a thread's state line and a Review item while sent or answering — `.pw-link` “Show in Activity” right after the state words (“Pi is working on it · Show in Activity”), never the whole line as a button: it is status first; the whole-file request card (as drawn); the live Pi message: “· working · Show in Activity” in its label row; the WorkerCard's head.
+- **Back from the request**: the detail gets a “From” line and one button named after the origin. `job.origin = {kind: 'chat'|'comment'|'document'|'worker', ...}`: chat → **Open in Chat** (`/p/<id>/chat#msg-<id>`, scrolled and flashed with a 1px outline for 2 s); comment → **Show Comment** (`/p/<id>/work/<file>#comment-<id>`, thread open and focused, Review on it); document → **Show in Review** (the whole-file box open on that request); worker → **Open in Chat** (its card) and **Show Task** (the task file). “Open in Project” is retired. Phone: the same buttons, 44px, the first one default.
+
+### B. The chat runs a worker (task 156) — WorkerCard card
+
+- Card states, in place: proposed (countdown, Not Now) → running (Show in Activity, Stop) ⇄ paused while Pi answers you → summary (Completed/Failed/Stopped); or Gate asks you (Why?, Start Anyway, **Not Now** default) → declined (one dotted line).
+- **Answers**: Gate's reason is one line plus a **Why?** disclosure; the 10-second wait is a Setting (“Wait 10 seconds before Gate starts the worker”, on), not a card control.
+- **Model menu**: capability after the existing notes — “parallel”, “one at a time”, “checking…”; the menu note explains them.
+- **Status and Agent**: worker running, chat idle → status “Working · worker in pi-local-harness”, Agent row “1 running · worker”, project row “worker”; paused → “Working · worker paused”. Later, more agents → “2 of 3 agents busy”.
+- **Phone**: the card in the phone chat, 44px Stop / Not Now / Start Anyway.
+
+### C. Since round 4
+
+- **Dictate**: as built; icon button after its field, recording = `.pw-btn--rec` inverted with the time, then disabled “Transcribing…” with the hourglass.
+- **Model no longer installed**: yes, list it dimmed, “not installed”; toast “deepseek-r1:14b is not installed. Using gemma4:12b.”
+- **Raw block**: in the bundle now.
+- **Hand cursor**: keep it on the block handle only; everything else keeps the arrow (links get the hand from the browser).
+- **“+N” on the phone**: confirmed, 28px drawn, 44px touch.
+
+### D. Project commands
+
+1. Agreed: no address line; P_Rename updated.
+2. Change: keep the dialog open with the error in the help line and the field selected.
+3. `more.svg` added to the Icons group; add `more` to icons.mjs.
+4. and 5. Confirmed.

@@ -1509,6 +1509,119 @@
       "h": 844,
       "title": "More for a project (π sheet)",
       "page": "phone"
+    },
+    "A_FromChat.dc.html": {
+      "x": 0,
+      "y": 22880,
+      "w": 1440,
+      "h": 900,
+      "title": "Activity · from a chat message: Open in Chat",
+      "page": "states",
+      "is_interactive": true
+    },
+    "A_FromComment.dc.html": {
+      "x": 1520,
+      "y": 22880,
+      "w": 1440,
+      "h": 900,
+      "title": "Activity · from a comment: Show Comment",
+      "page": "states",
+      "is_interactive": true
+    },
+    "A_FromFile.dc.html": {
+      "x": 3040,
+      "y": 22880,
+      "w": 1440,
+      "h": 900,
+      "title": "Activity · from a whole-file question: Show in Review",
+      "page": "states",
+      "is_interactive": true
+    },
+    "A_FromWorker.dc.html": {
+      "x": 4560,
+      "y": 22880,
+      "w": 1440,
+      "h": 900,
+      "title": "Activity · from the worker: Open in Chat, Show Task",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_WorkerPropose.dc.html": {
+      "x": 0,
+      "y": 23900,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · Gate proposes the worker (10 s)",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_WorkerWaiting.dc.html": {
+      "x": 1520,
+      "y": 23900,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · Gate asks you",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_WorkerRunning.dc.html": {
+      "x": 3040,
+      "y": 23900,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · worker running, chat idle",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_WorkerPaused.dc.html": {
+      "x": 4560,
+      "y": 23900,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · worker paused while Pi answers",
+      "page": "states",
+      "is_interactive": true
+    },
+    "S_WorkerDone.dc.html": {
+      "x": 0,
+      "y": 24920,
+      "w": 1440,
+      "h": 900,
+      "title": "Chat · worker summary",
+      "page": "states",
+      "is_interactive": true
+    },
+    "B_Worker.dc.html": {
+      "x": 0,
+      "y": 25940,
+      "w": 1440,
+      "h": 1180,
+      "title": "WorkerCard: every state, with answers",
+      "page": "states"
+    },
+    "C_Dictate.dc.html": {
+      "x": 1520,
+      "y": 25940,
+      "w": 1440,
+      "h": 820,
+      "title": "Dictate states and smaller answers",
+      "page": "states"
+    },
+    "Ph_Worker.dc.html": {
+      "x": 2820,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "Worker card",
+      "page": "phone"
+    },
+    "Ph_ActivityFromComment.dc.html": {
+      "x": 3290,
+      "y": 2500,
+      "w": 390,
+      "h": 844,
+      "title": "Activity detail from a comment",
+      "page": "phone"
     }
   },
   "createdOnFiles": {
@@ -1770,6 +1883,15 @@
       "w": 240,
       "x": 0,
       "y": 19040
+    },
+    "s10": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "states",
+      "text": "Round 5 — from working to its request and back; the worker",
+      "w": 240,
+      "x": 0,
+      "y": 22620
     }
   },
   "order": [
@@ -1947,7 +2069,20 @@
     "P_Remove.dc.html",
     "P_Trash.dc.html",
     "P_Locate.dc.html",
-    "Ph_ProjectMore.dc.html"
+    "Ph_ProjectMore.dc.html",
+    "A_FromChat.dc.html",
+    "A_FromComment.dc.html",
+    "A_FromFile.dc.html",
+    "A_FromWorker.dc.html",
+    "S_WorkerPropose.dc.html",
+    "S_WorkerWaiting.dc.html",
+    "S_WorkerRunning.dc.html",
+    "S_WorkerPaused.dc.html",
+    "S_WorkerDone.dc.html",
+    "B_Worker.dc.html",
+    "C_Dictate.dc.html",
+    "Ph_Worker.dc.html",
+    "Ph_ActivityFromComment.dc.html"
   ],
   "pages": [
     {

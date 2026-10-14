@@ -22,3 +22,5 @@ A GFM table that reads as a table and edits as its Markdown, so the file stays p
 - **Creating**: Turn Into › Table or Add Block Below › Table inserts `| Column | Column |` / `| ------ | ------ |` / `|  |  |` in editing state with the first header word selected.
 - **Wide**: cells wrap at 280px (200px on phone); wider tables scroll sideways inside the block with the 1-bit scroll bar. The page never scrolls sideways.
 - **Phone**: reads the same, scrolling inside its frame. Tapping it opens the Markdown in place; the bottom bar becomes Block style · **Add Row** · **Add Column** · **Done**. The block sheet's type grid is 3×3.
+- Raw Markdown: `.pw-block--raw` looks like Code (mono in an ink frame); now in the bundle.
+- Cursor: the handle shows the hand (`cursor: pointer`) because it grabs and moves the block; every other control keeps the arrow.

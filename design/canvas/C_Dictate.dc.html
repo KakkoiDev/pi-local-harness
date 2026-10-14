@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dictate states and smaller answers</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 820px; box-sizing: border-box; padding: 36px; display: flex; gap: 32px; align-items: flex-start; color: #000">
+<section class="pw-window" style="flex: 1; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+<h2 class="pw-dialog__title" style="margin: 0">Dictate — voice into comments</h2>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Rest: the mic icon, beside the field it fills</span><div style="display: flex; gap: 8px; align-items: flex-start; max-width: 520px"><textarea class="pw-field" rows="2" aria-label="Comment"></textarea><button type="button" class="pw-btn pw-btn--icon pw-btn--dictate" aria-label="Dictate" aria-pressed="false"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="5.5" y=".5" width="5" height="9" rx="2.5" fill="none" stroke="currentColor"/><path d="M2.5 7.5a5.5 5.5 0 0 0 11 0M8 13v2.5M5 15.5h6" fill="none" stroke="currentColor"/></svg></button></div>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Recording: inverted, a paper dot and the time</span><div style="display: flex; gap: 8px; align-items: flex-start; max-width: 520px"><textarea class="pw-field" rows="2" aria-label="Comment">Say 44 px, so the phone</textarea><button type="button" class="pw-btn pw-btn--rec pw-btn--dictate" aria-pressed="true" aria-label="Stop dictating">0:07</button></div>
+<span class="pw-label" style="background: #fff; align-self: flex-start; padding: 0 6px">Transcribing: dimmed, hourglass; the words land at the cursor</span><div style="display: flex; gap: 8px; align-items: flex-start; max-width: 520px"><textarea class="pw-field" rows="2" aria-label="Comment">Say 44 px, so the phone</textarea><button type="button" class="pw-btn pw-btn--dictate" disabled aria-label="Transcribing"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Transcribing…</button></div>
+<p class="pw-help" style="margin: 0">Same three states as the chat’s Record button; one shape on desk and phone (44px there). Where: the Review comment composer, each thread’s reply field, the whole-file question. Keyboard: the button is in the tab order after its field; Space starts and stops.</p>
+</section>
+<section class="pw-window" style="width: 520px; flex: none; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px">
+<h2 class="pw-dialog__title" style="margin: 0">Smaller answers</h2>
+<p style="margin: 0"><b>Model no longer installed:</b> yes, keep it in the model menu, dimmed, “not installed”, so the person sees why Pi fell back. Toast: “deepseek-r1:14b is not installed. Using gemma4:12b.”</p>
+<p style="margin: 0"><b>Raw Markdown block:</b> <code class="pw-mono">.pw-block--raw</code> is now in the bundle, the same as Code.</p>
+<p style="margin: 0"><b>The hand cursor:</b> keep it on the block handle (it is the only thing that grabs and moves). Elsewhere keep the arrow: System 1 buttons look like buttons; links already get the hand from the browser.</p>
+<p style="margin: 0"><b>“+N” on the phone:</b> confirmed — draw it 28px, keep the invisible 8px above and below so the touch area is 44px.</p>
+<p style="margin: 0"><b>Request links:</b> a <code class="pw-mono">.pw-link</code> “Show in Activity” after the state words (“Pi is working on it · Show in Activity”), not the whole line as a button: the line is status first, and a whole-line button would hide that it can be read.</p>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 820}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

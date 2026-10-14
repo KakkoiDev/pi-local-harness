@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Menu bar component</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/df76a9fabeae28600b25f9b7ca37501f">
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
 </head>
 <body>
 <x-dc>
@@ -127,13 +127,14 @@
 
 <span class="pw-menubar__spacer"></span>
 <span class="pw-menubar__status"><span class="pw-menubar__picks"><button type="button" id="model-button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="{{modelOpen}}" aria-label="Model: {{modelLabel}}">{{modelLabel}}</button> · <button type="button" id="effort-button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="{{thinkOpen}}" aria-disabled="{{noThink}}" aria-label="Thinking level: {{thinkLabel}}">{{thinkLabel}}</button>
-<sc-if value="{{modelOpen}}" hint-placeholder-val="{{false}}"><div id="model-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Model" style="min-width: 300px; right: 90px">
-<span class="pw-menu__item" role="menuitemradio" aria-checked="true">gemma4:12b<span class="pw-menu__key">thinks · sees</span></span>
-<span class="pw-menu__item" role="menuitemradio" aria-checked="false" data-active="true">qwen3:8b<span class="pw-menu__key">thinks</span></span>
-<span class="pw-menu__item" role="menuitemradio" aria-checked="false">mistral-small:24b<span class="pw-menu__key">no thinking</span></span>
+<sc-if value="{{modelOpen}}" hint-placeholder-val="{{false}}"><div id="model-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Model" style="min-width: 380px; right: 90px">
+<span class="pw-menu__item" role="menuitemradio" aria-checked="true">gemma4:12b<span class="pw-menu__key">thinks · sees · one at a time</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false" data-active="true">qwen3:8b<span class="pw-menu__key">thinks · parallel</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false">mistral-small:24b<span class="pw-menu__key">no thinking · checking…</span></span>
 <span class="pw-menu__item" role="menuitemradio" aria-checked="false" aria-disabled="true">llama3.2:3b<span class="pw-menu__key">no tools</span></span>
+<span class="pw-menu__item" role="menuitemradio" aria-checked="false" aria-disabled="true">deepseek-r1:14b<span class="pw-menu__key">not installed</span></span>
 <div class="pw-menu__sep" role="separator"></div>
-<p class="pw-menu__note" role="note">One model in memory at a time. Switching unloads the current one.</p>
+<p class="pw-menu__note" role="note">One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.</p>
 </div></sc-if>
 <sc-if value="{{thinkOpen}}" hint-placeholder-val="{{false}}"><div id="effort-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Thinking level" style="min-width: 220px">
 <sc-for list="{{levels}}" as="l" hint-placeholder-count="7"><span class="pw-menu__item" role="menuitemradio" aria-checked="{{l.on}}" aria-disabled="{{noThink}}">{{l.name}}</span></sc-for>
