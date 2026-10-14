@@ -492,6 +492,16 @@ const readline = require('node:readline');
   assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-current')),'true','the focused check is the selected one');
   }
 
+  { // Audit (task 150): on a phone, Gate and Activity rows are two lines (Ph_Gate, Ph_Activity): decision/state first, then the command/request.
+  await page.setViewportSize({width:390,height:844});await page.goto(`${base}/gate`);await page.evaluate(()=>{const filter=document.querySelector('#gate-filter');filter.value='all';filter.dispatchEvent(new Event('change'));});/* a segmented control on phones */
+  const row=page.locator('#gate-events .gate-event').first();await row.waitFor();
+  const box=await row.boundingBox(),command=row.locator('.pw-table__cell--mono');
+  assert.ok(box.height>=60,'two lines: '+box.height);assert.equal(await command.isVisible(),true,'the command shows');
+  assert.ok((await command.boundingBox()).y>box.y+20,'the command is on the second line');
+  assert.equal(await page.locator('#gate-events .pw-table__head').isVisible(),false);
+  await page.setViewportSize({width:1440,height:900});
+  }
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();

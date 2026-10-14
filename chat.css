@@ -100,7 +100,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
   #main-window>.pw-titlebar{height:30px}
   #workspace-bar{display:none} /* views move to the phone-view popup */
   /* Projects window becomes the π sheet (body.menu-open, set by js/chat.mjs) */
-  .window-projects{position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink);transform:translateY(100%);visibility:hidden}
+  .window-projects{position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;border-top:3px double var(--ink);box-shadow:none;transform:translateY(100%);visibility:hidden}
   body.menu-open .window-projects{transform:none;visibility:visible}
   #backdrop:not([hidden]){display:block;border:0;z-index:30}
   .work-layout{padding:0;gap:0}
@@ -120,10 +120,9 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
   #file-tree[data-segment="plan"] .pw-group[data-group="files"],#file-tree[data-segment="files"] .pw-group[data-group="plan"]{display:none}
   body[data-view="work"][data-pane="files"] .window-files{display:flex;width:100%;border:0;box-shadow:none}
   body[data-view="work"][data-pane="files"] #main-window{display:none}
-  body[data-view] .window-review.is-sheet,body[data-view] .window-info.is-sheet{display:flex;position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;box-shadow:inset 0 2px 0 var(--paper),inset 0 5px 0 var(--ink)}
+  body[data-view] .window-review.is-sheet,body[data-view] .window-info.is-sheet{display:flex;position:fixed;left:0;right:0;bottom:0;top:120px;width:auto;z-index:40;border-left:0;border-right:0;border-top:3px double var(--ink);box-shadow:none}
   #document-editor{padding:18px 16px 48px 52px}
   .composer-wrap{padding-bottom:env(safe-area-inset-bottom,0px)}
-  #activity-panel,#gate-events{--pw-cols:minmax(0,1fr)}
   .welcome{margin-top:48px}
 }
 
@@ -302,3 +301,30 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 /* Composer and whole-file box: a row of help and buttons, the default last (C_WorkDesk) */
 .comment-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .comment-actions>.pw-help{flex:1;margin:0}
+/* Phone (Ph_Gate, Ph_Activity): two-line rows from the same cells. Line 1: glyph and word · detail, time at the end;
+   line 2: the command (mono) or the request (text), ellipsized. The column header is not shown. */
+@media (max-width:760px){
+  #gate-events .pw-table__head,#activity-list .pw-table__head{display:none}
+  #gate-events .gate-event,#activity-list .activity-task{grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;gap:4px 6px;min-height:72px;padding:8px 16px;align-content:center}
+  #gate-events .gate-event>*,#activity-list .activity-task>*{display:block}
+  #gate-events .gate-event>:nth-child(1){grid-area:1/3;font-size:14px}
+  #gate-events .gate-event>:nth-child(2){grid-area:1/2;font-size:14px;text-transform:lowercase}
+  #gate-events .gate-event>:nth-child(2)::before{content:"· "}
+  #gate-events .gate-event>:nth-child(3){grid-area:1/1;display:inline-flex;font-size:14px}
+  #gate-events .gate-event>:nth-child(4){grid-area:2/1/3/4}
+  #gate-events .gate-event>:nth-child(5),#gate-events .gate-event>:nth-child(6){display:none}
+  #activity-list .activity-task>:nth-child(1){grid-area:1/1;display:inline-flex;font-size:14px}
+  #activity-list .activity-task>:nth-child(3){grid-area:1/2;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #activity-list .activity-task>:nth-child(3)::before{content:"· "}
+  #activity-list .activity-task>:nth-child(6){grid-area:1/3;font-size:14px}
+  #activity-list .activity-task>:nth-child(2){grid-area:2/1/3/4}
+  #activity-list .activity-task>:nth-child(4),#activity-list .activity-task>:nth-child(5){display:none}
+}
+/* Phone details from the app review (task 150) */
+@media (max-width:760px){
+  #activity-seg>*,#gate-seg>*{flex:1 1 auto;white-space:nowrap} /* "Attention 1" stays on one line */
+  .pw-mark{position:relative}.pw-mark::after{content:"";position:absolute;inset:-13px} /* a 44px touch area around the small marker */
+  .pw-review-item__head{min-height:var(--size-touch)}
+  #document-editor .pw-check{width:22px;height:22px}
+}
+.pw-msg__body--md code{-webkit-box-decoration-break:clone;box-decoration-break:clone} /* a wrapped code chip keeps its box on each line */
