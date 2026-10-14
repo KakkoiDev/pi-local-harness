@@ -6,6 +6,7 @@ Start here if you are an agent (or a person) about to change this repository.
 - [../readme.md](../readme.md): what the app does and how to install and run it.
 - [../harness/README.md](../harness/README.md): operations details (services, ports, data folder, validation).
 - [../design/README.md](../design/README.md): the designer's source of truth and how it is synced.
+- [lessons/README.md](lessons/README.md): mistakes the local model made, the evidence, and what the harness now does about each (enforced, checked, made easy, or only told).
 
 Plans for larger projects (not started; each needs the person's go-ahead):
 
