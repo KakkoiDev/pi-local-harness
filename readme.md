@@ -237,6 +237,9 @@ access needs a separate connection setup.
 | `harness/media.mjs`, `harness/transcribe.py` | Image paths and lazy speech input |
 | `ROADMAP.md`, `tasks/` | Completed and remaining work |
 
+Changing this repository? Start with [docs/README.md](docs/README.md) and the
+[contributing guide for coding agents](docs/contributing-for-agents.md).
+
 Run `python3 -m unittest discover -s tests`, `node --test tests/harness/*.test.mjs`,
 and `python3 tests/verify_workflow.py`. Browser regression instructions are in
 [the operations guide](harness/README.md). Browser/RPC fixtures test boundaries;
