@@ -91,7 +91,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
   };
   // T_Wayfinding: /harness is a list, “Ask in words” first; a command goes on the input line for the person to finish.
   const choose = async ctx => {
-    const width = Math.max(...Object.keys(CONSOLE_COMMANDS).map(name => name.length)) + 3;
+    const width = '/harness list'.length;
     const options = ['Ask in words', `${'/harness list'.padEnd(width)}  Print this list`, ...Object.entries(CONSOLE_COMMANDS).filter(([name]) => name !== 'harness').map(([name, about]) => `${`/${name}`.padEnd(width)}  ${about}`)];
     const choice = await ctx.ui.select('Harness · choose a command; it goes on the input line', options);
     if (!choice) return;

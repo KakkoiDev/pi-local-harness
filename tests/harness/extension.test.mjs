@@ -15,7 +15,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
  const handlers={}, messages=[], notices=[], order=[];
  let tick, interval, widget, status, idle = false;
  const entries=[],renderers={};
- const pi={appendEntry:(type,data)=>entries.push({type,data}),registerEntryRenderer:(type,renderer)=>{renderers[type]=renderer;},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage:content=>{order.push('reask');messages.push(typeof content==='string'?content:content[0].text);}};
+ let toolResolver;
+ const pi={registerToolRenderer:r=>{toolResolver=r;},appendEntry:(type,data)=>entries.push({type,data}),registerEntryRenderer:(type,renderer)=>{renderers[type]=renderer;},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage:content=>{order.push('reask');messages.push(typeof content==='string'?content:content[0].text);}};
  const ctx={ui:{notify:text=>notices.push(text),setWidget:(name,lines)=>{if(name==='local-harness')widget=lines;},setStatus:(name,value)=>{status=value;}},
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
@@ -65,6 +66,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(await handlers.tool_call(failing),undefined);
   const exited=await handlers.tool_result({...failing,content:[{type:'text',text:'Command exited with code 2'}],isError:true});
   assert.match(exited.content.at(-1).text,/^✓ Gate allowed · ✗ exit 2: the command failed on its own; Gate did not block it\.$/);
+  const row=toolResolver('bash',()=>undefined).renderResult(exited,{},{},{toolCallId:'bash-exit'}).render(80).map(line=>line.replace(/\x1b\[[0-9;]*m/g,''));
+  assert.match(row[0],/^  ✓ Gate allowed · ✗ exit 2 · 0:0\d$/,'round 6: the tool row reads what Gate and the command said');
   assert.doesNotMatch(JSON.stringify(exited),/EXECUTION_FAILED|Gate audit failed/);assert.equal(notices.length,noticesBefore,'no alarm for an ordinary failure');
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
@@ -98,6 +101,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   handlers.agent_end({},ctx);
   await new Promise(resolve=>setTimeout(resolve,10));
   assert.equal(messages.length,2);
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped retrying.');
   await handlers.input({source:'interactive',text:'Hang test'},ctx);
   handlers.agent_start({},ctx); idle=true;
   const before=order.length; tick(); assert.equal(order.length,before);
@@ -106,6 +110,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   handlers.agent_end({},ctx);
   await new Promise(resolve=>setTimeout(resolve,10));
   assert.match(messages[2],/no active model operation/);
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped a hang.','round 6: the harness says it in a sentence');assert.equal(notices.some(text=>/Harness recovery/.test(text)),false);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: hang/);
   // Protocol gate: a commit without red/green/task/roadmap evidence is revised, not treated as destructive.
   mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'- [ ] [01](tasks/01.md)\n');writeFileSync(join(dir,'tasks','01.md'),'- [ ] Do\n');
@@ -150,13 +155,19 @@ test('a second agent is refused at input while another holds the lock (task 150)
  const dir=mkdtempSync(join(tmpdir(),'pi-lock-'));writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
  const { AgentLock } = await import('../../harness/agent-lock.mjs');
  const other=new AgentLock(join(dir,'.agent-lock'),()=>true);
- const handlers={},notices=[];
- const pi={appendEntry(){},registerEntryRenderer(){},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage(){}};
+ const handlers={},notices=[],entries=[],renderers={};
+ const pi={appendEntry:(type,data)=>entries.push({type,data}),registerEntryRenderer:(type,renderer)=>{renderers[type]=renderer;},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage(){}};
  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
  try {
   other.acquire(); // the other agent (terminal or web) works now
   const refused=await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir});
-  assert.equal(refused.action,'handled','the turn does not run');assert.match(notices.join('\n'),/Harness refused: One agent is already working/);
+  assert.equal(refused.action,'handled','the turn does not run');
+  // Round 6 (T_Gate): in terminal Pi, a bold sentence first, drawn and never sent to the model.
+  assert.deepEqual(notices,[]);assert.equal(entries.at(-1).type,'harness-notice');
+  assert.equal(renderers['harness-notice'](entries.at(-1)).render(80)[0],'\x1b[1m■ Another request is running.\x1b[22m');
+  process.env.PI_HARNESS_SHARED_PORT='1';
+  try { await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir}); } finally { delete process.env.PI_HARNESS_SHARED_PORT; }
+  assert.match(notices.join('\n'),/^Harness refused: One agent is already working/,'a web worker keeps the prefix the workbench reads');
   other.release();
   const allowed=await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir});
   assert.equal(allowed.action,'continue');

@@ -14,6 +14,8 @@ import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
 import { installConsole } from './console.mjs';
 import { installFooter } from './footer.mjs';
+import { harnessNotice, renderNotice } from './notices.mjs';
+import { installToolRenderer } from './tool-render.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -40,9 +42,19 @@ export default function harness(pi, dependencies = {}) {
   const schedule = dependencies.setInterval || setInterval;
   const watch = new ThoughtWatch();
   const proposals = new Map();
+  // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
+  const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
+  installToolRenderer(pi, checks);
   let child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
+  // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
+  // A web worker reports them as notices with the prefixes harness/web_chat.py reads.
+  pi.registerEntryRenderer?.('harness-notice', entry => ({ render: width => renderNotice(entry.data, width), invalidate() {} }));
+  const say = (kind, detail, level, ui = context?.ui) => {
+    const notice = harnessNotice(kind, detail);
+    if (process.env.PI_HARNESS_SHARED_PORT || !pi.appendEntry) ui?.notify(notice.web, level); else pi.appendEntry('harness-notice', notice);
+  };
   const stop = () => { agentLock.release(); closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
   const call = async (path, body) => {
     if (!ports) throw new Error('Gate is unavailable');
@@ -60,7 +72,7 @@ export default function harness(pi, dependencies = {}) {
     mkdirSync(dataDir, { recursive: true });
     appendFileSync(join(dataDir, 'incident_log.md'), `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
     appendFileSync(join(dataDir, 'session.log'), `${JSON.stringify({ event: 'recovery', reason, question: lastQuestion, reasoning: watch.lines })}\n`);
-    notify(`Harness recovery: ${reason}`, 'warning'); // the web worker waits for the re-asked turn on this prefix
+    say(kind, reason, 'warning'); // the web worker waits for the re-asked turn on this notice's prefix
     context.abort();
     watch.stop();
   };
@@ -135,7 +147,7 @@ export default function harness(pi, dependencies = {}) {
   pi.on('input', async (event, ctx) => {
     if (event.source === 'extension') return { action: 'continue' };
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
-    try { agentLock.acquire(); } catch (error) { (ctx?.ui || context?.ui)?.notify(`Harness refused: ${error.message}`, 'warning'); return { action: 'handled' }; }
+    try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
@@ -178,7 +190,7 @@ export default function harness(pi, dependencies = {}) {
       return;
     }
     const recovery = pending; pending = undefined;
-    if (retries++ >= 1) { notify(`Harness recovery stopped: recovery repeated. Stopped automatic retries; the incident is saved in ${join(dataDir, 'session.log')}.`, 'error'); return; }
+    if (retries++ >= 1) { say('stopped', join(dataDir, 'session.log'), 'error'); return; }
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {
@@ -190,30 +202,38 @@ export default function harness(pi, dependencies = {}) {
   pi.on('tool_call', async event => {
     try {
       const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args: event.input, pi_tool: event.toolName, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
+      else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
+      else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
-    } catch (error) { return { block: true, reason: error.message }; }
+    } catch (error) { check(event.toolCallId, { gate: 'unavailable', reason: error.message }); return { block: true, reason: error.message }; }
   });
   pi.on('tool_result', async event => {
     const token = proposals.get(event.toolCallId);
     proposals.delete(event.toolCallId);
     if (!token) return; // Blocked calls were never approved for execution.
     try {
+      const started = checks.get(event.toolCallId)?.started, seconds = started ? (Date.now() - started) / 1000 : undefined;
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
         args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
       // Round 6 (T_Gate): Gate's verdict and the command's own result are separate words. A command that exits with an
       // error was still allowed: say so, without an alarm. Only Gate's own findings (the command changed) are Gate's.
       if (result.status === 'EXECUTION_FAILED') {
         const text = (event.content || []).map(part => part.text || '').join('\n'), code = text.match(/exit(?:ed)?(?: with)?(?: code)? (\d+)/i)?.[1] || '1';
+        check(event.toolCallId, { ok: false, exit: Number(code), seconds });
         return { isError: true, content: [...event.content, { type: 'text', text: `✓ Gate allowed · ✗ exit ${code}: the command failed on its own; Gate did not block it.` }] };
       }
       if (result.status !== 'SUCCESS') {
         const words = { DRIFT_DETECTED: 'the command that ran was not the one it allowed' }[result.status] || 'it did not accept the result';
+        check(event.toolCallId, { drift: words, seconds });
         notify(`Gate: ${words} (${result.status}). ${result.reason}`, 'error');
         return { isError: true, content: [...event.content, { type: 'text', text: `✗ Gate: ${words} (${result.status}). ${result.reason}` }] };
       }
+      check(event.toolCallId, { ok: !event.isError, exit: event.isError ? 1 : 0, seconds });
     } catch (error) {
+      check(event.toolCallId, { drift: `could not check the result (${error.message})` });
       notify(`Gate audit failed: ${error.message}`, 'error');
       return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit unavailable: ${error.message}` }] };
     }
