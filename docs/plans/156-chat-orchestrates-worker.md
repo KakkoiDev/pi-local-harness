@@ -27,7 +27,7 @@ Phase 1 (this plan, built after the boards): the chat starts and follows the wor
 
 | # | Decision | Status |
 |---|---|---|
-| D1 | **Who decides to start the worker.** Gate decides automatically, with rules (§ 6); the chat shows the proposal card with Gate's decision. | **Leaning yes, to discuss** (pros and cons in § 6) |
+| D1 | **Who decides to start the worker.** Gate decides by rule (§ 6), with the soft gate: an automatic start waits a 10 s veto window ("Starting in 10 s", **Not Now**), and Gate asks instead of starting in the softer cases. | Decided 2026-10-14 ("ok for the soft gate") |
 | D2 | **One-at-a-time model**: the chat gets priority at the worker's next step. The worker finishes its current model call, waits while Pi answers the person, then continues. | Decided 2026-10-14 |
 | D3 | **One worker per project at a time**; more work for that project waits in its queue, so two workers never edit the same files. | Decided 2026-10-14 |
 | D4 | **The chat agent's context**: the plan context it gets today (task 114), plus the worker's summaries, never the worker's transcript. | Recommended |
@@ -69,14 +69,14 @@ Phase 1 (this plan, built after the boards): the chat starts and follows the wor
 - Chained starts: the chat could propose the next task as soon as one finishes; the rate rule limits it, but the feeling of control is weaker.
 - Trust is built slowly; one bad automatic start costs more than many saved clicks.
 
-**Middle ground (recommended for phase 1)**: Gate decides by rule, and an automatic start waits a short veto window first. The card reads "Starting in 10 s" with **Not Now**. Gate asks you instead of starting when a softer rule fires: the first start in a session, a task that is not the roadmap's next open item, or a file you edited in the last few minutes. A setting turns the veto window off once you trust it. To discuss before building.
+**Middle ground (decided 2026-10-14, the soft gate)**: Gate decides by rule, and an automatic start waits a short veto window first. The card reads "Starting in 10 s" with **Not Now**. Gate asks you instead of starting when a softer rule fires: the first start in a session, a task that is not the roadmap's next open item, or a file you edited in the last few minutes. A setting turns the veto window off once you trust it.
 
 ## 7. Model capability: measured once, kept, re-measured when it can have changed
 
 - **What is measured**: the two-prompt overlap of `experiments/parallel_inference/run.py`, made short (warm-up, then 64 tokens alone and 2 × 64 at once): about 20–40 s on a 26B model, mostly the warm-up.
 - **When**: the first time a model is loaded and no result matches it. A result is keyed by **model digest + Ollama version + `OLLAMA_NUM_PARALLEL`**, so a new Ollama release (a fixed MLX runner) or a new parallel setting triggers a new measurement by itself. It runs only while the queue is idle, never during a request, and the result is `unknown` until then.
 - **Why not at every model switch**: the measurement costs a model load with two context slots and half a minute of generation; repeating it when nothing changed only delays the first real request. The key above re-measures exactly when something did change.
-- **From the terminal**: `plh model check` (the chosen model), `plh model check --all`, `plh model check --force` (ignore the stored result). Prints the overlap, tok/s and the verdict, and stores it.
+- **From the terminal**: `/model check` (the chosen model), `/model check --all`, `/model check --force` (ignore the stored result) in the console terminal Pi becomes ([plan 158](158-terminal-console.md)), and `python3 -m harness.admin model check` for scripts. `plh` stays a launcher: its arguments go to Pi. Prints the overlap, tok/s and the verdict, and stores it.
 - **Stored** in `<data>/model-capabilities.json`: `{digest, ollama, num_parallel, verdict, overlap, checked}` per model.
 - **Shown** in the model menu next to "thinks · sees": "parallel" or "one at a time"; "checking…" while it runs. The harness reads it to pick the mode (§ 4).
 - Note: the result depends on `OLLAMA_NUM_PARALLEL`, a server setting. With 1 slot every model measures as one at a time. The plan's first task reads the Ollama app's setting (as for the models folder) and says so in the menu note.
