@@ -14,7 +14,7 @@ test('older Pi without entry renderers loads and falls back to notifications',()
 });
 test('phone URL from tailscale serve is listed and linked',()=>{
  const base={gate:8000,web:3000};
- assert.deepEqual(startupLines(base),['Gate: http://127.0.0.1:8000','Web: http://127.0.0.1:3000','Phone access off: set remote_hosts and remote_users in config.json','Loop check: every 10 seconds'],'an unconfigured phone says how to turn it on');
+ assert.deepEqual(startupLines(base),['Gate: http://127.0.0.1:8000','Web: http://127.0.0.1:3000','Phone access off: set remote_hosts and remote_users in config.json','Loop check: every 10 seconds','Console: type /harness for the harness commands (/status, /doctor, /queue, /gate, /models, /ollama …)'],'an unconfigured phone says how to turn it on; the console is announced (plan 158)');
  const lines=startupLines({...base,remote:'https://mini.example.ts.net'});
  assert.equal(lines[2],'Phone: https://mini.example.ts.net');
  assert.ok(renderStartup([lines[2]],80)[0].includes('\x1b]8;;https://mini.example.ts.net\x1b\\'));

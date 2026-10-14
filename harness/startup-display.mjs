@@ -51,7 +51,8 @@ export function startupLines(ports) {
   if (ports.remote) lines.push(`Phone: ${ports.remote}`);
   if (ports.remote_error) lines.push(`Phone access off: ${ports.remote_error}`);
   else if (!ports.remote) lines.push('Phone access off: set remote_hosts and remote_users in config.json'); // the data folder's config.json; see harness/README.md
-  return [...lines, 'Loop check: every 10 seconds'];
+  // Plan 158: terminal Pi is the harness console; say so at every start.
+  return [...lines, 'Loop check: every 10 seconds', 'Console: type /harness for the harness commands (/status, /doctor, /queue, /gate, /models, /ollama …)'];
 }
 
 export function installStartupDisplay(pi) {
