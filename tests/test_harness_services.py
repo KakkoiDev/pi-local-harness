@@ -97,3 +97,10 @@ class ServicesTest(unittest.TestCase):
             process.stderr.close()
             temporary.cleanup()
         self.assertEqual(process.returncode,0)
+
+
+class ServerBacklogTest(unittest.TestCase):
+    def test_a_page_load_does_not_overflow_the_listen_backlog(self):
+        """Task 154: the default backlog of 5 made macOS reset connections while a page loaded its modules."""
+        from harness.services import Server
+        self.assertGreaterEqual(Server.request_queue_size, 64)

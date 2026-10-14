@@ -26,6 +26,12 @@ TEXT_SUFFIXES = {'.txt', '.md', '.py', '.js', '.ts', '.json', '.yaml', '.yml', '
 def timestamp():
     return datetime.now().astimezone().isoformat(timespec='seconds')
 
+class ProjectBusy(ValueError):
+    """A project command refused while Pi works in that project (task 154); `job` is the request to show in Activity."""
+    def __init__(self, job):
+        super().__init__('Pi is answering about this project.');self.job=job
+
+
 class ConversationStore:
     def __init__(self, root):
         self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True)
@@ -158,6 +164,24 @@ class WebChat:
         with self.lock:
             if self.active or self.switching:return True
         return self.agent_running()
+    def project_command(self, command, project, data):
+        """Rename, move, locate, remove from the list or trash a project (task 154). Rename, move and trash wait while Pi
+        works in the project: moving the folder would pull it out from under Pi."""
+        store=self.documents
+        if command in ('rename','move','trash'):
+            busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
+            if busy:raise ProjectBusy(busy[0]['id'])
+        if command=='rename':
+            result=store.rename_project(project,data.get('name',''))
+            for summary in self.store.list():
+                if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
+            return result
+        if command=='move':return store.move_project(project,data.get('parent',''))
+        if command=='locate':return store.locate_project(project,data.get('path',''))
+        if command=='remove':return store.forget(project)
+        if command=='trash':return store.trash_project(project)
+        if command=='summary':return store.project_summary(project)
+        raise ValueError('Unknown project command')
     def ensure_idle_path(self, path):
         """A file or folder Pi is answering a comment in, or will, stays where it is until that request ends."""
         busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('document') and (job['document']==path or job['document'].startswith(path.rstrip('/')+'/'))]
@@ -211,7 +235,9 @@ class WebChat:
     def workspace(self):
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
-            projects.append({**project,'chat':None if project.get('missing') else self.project_chat(project['id'],summaries)['id']})
+            # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
+            chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
+            projects.append({**project,'chat':chat})
         return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         with self.lock:
@@ -453,7 +479,9 @@ class WebHandler(BaseHTTPRequestHandler):
                 project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
-            if path=='/api/projects/forget':self.reply(self.chat.documents.forget(data.get('project')));return
+            if path=='/api/projects/forget':self.reply(self.chat.project_command('remove',data.get('project'),data));return
+            if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
+                self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
@@ -498,6 +526,8 @@ class WebHandler(BaseHTTPRequestHandler):
             try:self.chat.send(identifier,data,emit)
             except (BrokenPipeError,ConnectionResetError):self.chat.stop(identifier)
             except Exception as error:emit({'type':'error','error':str(error)})
+        except ProjectBusy as error:
+            if not streaming:self.reply({'error':str(error),'busy':True,'job':error.job},409)
         except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
             if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)
         except (TypeError,AttributeError) as error:

@@ -16,3 +16,5 @@ for name in [key for key in os.environ if key.startswith(('PI_HARNESS_', 'PI_WEB
     os.environ.pop(name, None)
 os.environ['PI_OLLAMA_URL'] = 'http://127.0.0.1:9'  # a closed port: model capabilities fall back to the known default
 os.environ['PI_TAILSCALE'] = 'false'                 # never the real tailscale binary
+import tempfile  # noqa: E402
+os.environ['PI_TRASH_DIR'] = tempfile.mkdtemp(prefix='pi-test-trash-')  # Move Project to Trash never reaches the Finder

@@ -59,6 +59,15 @@ version conflict rather than silently overwriting your draft. To rename, move or
 delete, select a file (click it) or a folder (click its row), then use File ›
 **Rename or Move…** or **Move to Trash…** (⌘⌫). Trash moves the file or folder, with
 its comment threads, into the data directory's `.trash`; nothing is deleted.
+Undo in the toast moves it back.
+
+The **Project** menu acts on the open project: **Rename Project…** (renames its folder),
+**Move Project…** (into another folder), **Remove from List…** (the folder stays on your Mac) and
+**Move Project to Trash…** (the Mac Trash, so the Finder's Put Back works). The project keeps its id,
+so its address, chat, comments and Activity stay with it; adding a removed or trashed folder again
+with **Add Existing Folder…** brings the same project back. A project whose folder went missing
+opens its chat with **Locate Folder…**. These wait while Pi works in that project. On a phone, the
+⋯ on each project row in the π sheet holds the same commands.
 
 **Ask Pi about this whole file**, at the bottom of Review, sends a request about the whole page.
 Its request and result remain attached to that document. Comment and whole-file requests run

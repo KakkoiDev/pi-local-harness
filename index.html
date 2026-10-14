@@ -81,6 +81,13 @@
         <button class="pw-menu__item" role="menuitem" data-command="project-chat">Open Project Chat</button>
         <button class="pw-menu__item" role="menuitem" data-command="ask-document">Ask Pi About This Document…</button>
         <button class="pw-menu__item" role="menuitem" data-command="copy-folder-path">Copy Folder Path</button>
+        <div class="pw-menu__sep" role="separator"></div><!-- task 154 (P_Menu, P_MenuMissing): act on the open project -->
+        <button class="pw-menu__item" role="menuitem" data-command="rename-project">Rename Project…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="move-project">Move Project…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="locate-project" hidden>Locate Folder…</button>
+        <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="remove-project">Remove from List…</button>
+        <button class="pw-menu__item" role="menuitem" data-command="trash-project">Move Project to Trash…</button>
         <div class="pw-menu__sep" role="separator"></div>
         <div id="menu-project-list" role="group" aria-label="Projects"><!-- one menuitemradio per project, filled by JS --></div>
       </div></div>
@@ -183,6 +190,8 @@
         <span id="save-status" class="pw-label" role="status"></span><!-- Work view only (Work board) -->
       </div>
       <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
+
+      <div id="missing-banner" class="pw-alert-line missing-banner" role="alert" hidden><span data-icon="caution"></span><p id="missing-text"></p><button id="missing-locate" type="button" class="pw-btn pw-btn--default">Locate Folder…</button><button id="missing-remove" type="button" class="pw-btn">Remove from List…</button></div><!-- task 154: a project whose folder is missing (P_MenuMissing) -->
 
       <!-- Chat -->
       <section id="thread" class="pw-window__body" aria-label="Messages" tabindex="0">
@@ -296,12 +305,27 @@
   <!-- Dialogs -->
   <dialog id="folder-dialog" class="pw-dialog">
     <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
+    <p id="folder-detail" class="pw-alert__detail" hidden></p><!-- Locate Folder… (P_Locate) -->
     <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
     <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
     <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav><!-- rows: .pw-row with the folder icon (Dialogs2) -->
     <p id="folder-help" class="pw-help"></p>
     <p id="folder-error" class="pw-help" role="alert"></p>
-    <div class="pw-dialog__actions"><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
+    <div class="pw-dialog__actions"><button id="folder-remove" class="pw-btn" hidden>Remove from List…</button><span id="folder-remove-gap" class="pw-thread__gap" hidden></span><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>
+  </dialog>
+  <dialog id="project-more" class="pw-dialog project-more" aria-labelledby="project-more-title"><!-- phone: ⋯ on a project row (Ph_ProjectMore, task 154) -->
+    <div class="sheet-head"><h2 id="project-more-title" class="sheet-head__title"></h2><button id="project-more-close" type="button" class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div>
+    <p id="project-more-path" class="pw-help pw-mono"></p>
+    <div class="project-more__items" role="menu" aria-labelledby="project-more-title">
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="locate">Locate Folder…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="open">Open</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="rename">Rename Project…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="move">Move Project…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="copy">Copy Folder Path</button>
+      <div class="pw-menu__sep" role="separator"></div>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="remove">Remove from List…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-more="trash">Move Project to Trash…</button>
+    </div>
   </dialog>
   <dialog id="name-dialog" class="pw-dialog"><!-- replaces window.prompt for New File / New Task -->
     <form method="dialog" class="window-column"><h2 id="name-dialog-title" class="pw-dialog__title">New File</h2><label class="pw-label window-column"><span id="name-dialog-label">File name</span><input id="name-dialog-input" class="pw-field" required></label><p id="name-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="name-dialog-cancel" type="button" class="pw-btn">Cancel</button><button id="name-dialog-ok" value="ok" class="pw-btn pw-btn--default">Create</button></div></form>

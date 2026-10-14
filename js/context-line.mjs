@@ -86,7 +86,6 @@ function render(line, project, items, key) {
   line.hidden = false;
   if (line.parentElement) sized.observe(line.parentElement);
   fit(line);
-  line.contextRendered?.();
 }
 
 function fit(line) {
@@ -97,6 +96,7 @@ function fit(line) {
   more.hidden = false;
   if (line.hasAttribute('data-expanded')) {
     more.textContent = 'Less'; more.setAttribute('aria-expanded', 'true'); more.setAttribute('aria-label', 'Show fewer');
+    line.contextRendered?.();
     return;
   }
   more.textContent = '+' + items.length; // room for the widest counter while measuring
@@ -104,4 +104,5 @@ function fit(line) {
   while (list.scrollWidth > list.clientWidth && hidden < items.length - 1) items[items.length - 1 - hidden++].hidden = true;
   more.hidden = hidden === 0;
   more.textContent = '+' + hidden; more.setAttribute('aria-expanded', 'false'); more.setAttribute('aria-label', `Show ${hidden} more`);
+  line.contextRendered?.(); // its height may have changed (the phone "+N" is taller than the line)
 }

@@ -3,13 +3,32 @@ from harness.markdown_records import read_record,write_record
 import hashlib
 import json
 import re
+import os
 import shutil
+import subprocess
+import sys
 import threading
 import uuid
 from pathlib import Path
 from datetime import datetime
 
 class DocumentConflict(ValueError):pass
+
+def to_trash(path):
+    """Move to Trash for a whole project (task 154): the Mac Trash through the Finder, so Put Back works; elsewhere the
+    freedesktop Trash. Tests replace this function."""
+    path=Path(path)
+    if os.environ.get('PI_TRASH_DIR'):  # tests: a folder of their own, never the person's Trash
+        trash=Path(os.environ['PI_TRASH_DIR']);trash.mkdir(parents=True,exist_ok=True);shutil.move(str(path),str(trash/path.name));return
+    if sys.platform=='darwin':
+        script='on run argv\ntell application "Finder" to delete (POSIX file (item 1 of argv) as alias)\nend run'
+        result=subprocess.run(['osascript','-e',script,str(path)],capture_output=True,text=True,timeout=60)
+        if result.returncode:raise ValueError('The Finder could not move the folder to the Trash: '+(result.stderr.strip() or 'unknown error'))
+        return
+    trash=Path(os.environ.get('XDG_DATA_HOME',Path.home()/'.local'/'share'))/'Trash'/'files';trash.mkdir(parents=True,exist_ok=True)
+    target=trash/path.name
+    while target.exists():target=trash/(path.name+'-'+uuid.uuid4().hex[:6])
+    shutil.move(str(path),str(target))
 
 def slug(text):
     value=re.sub(r'[^\w -]','',str(text)).strip()[:80]
@@ -258,6 +277,7 @@ class DocumentStore:
                 f"{{\"anchor\": <the selected text exactly>, \"replacement\": <the new text>}}, and say so in agent_reply. The person applies it with Apply Change.")
     def project_path(self, project):
         if not isinstance(project,str) or Path(project).name!=project or project in {'.','..'}:raise ValueError('Invalid project')
+        if self.registry.get(project,{}).get('removed'):raise ValueError('Project not found')
         path=Path(self.registry[project]['path']).resolve() if project in self.registry else (self.projects/project).resolve()
         if project not in self.registry and not path.is_relative_to(self.projects):raise ValueError('Project is outside the workspace')
         if not path.is_dir():raise ValueError('Project not found')
@@ -265,9 +285,11 @@ class DocumentStore:
     def list_projects(self):
         with self.lock:
             # A registered folder that is gone (unplugged drive, renamed) is listed as missing instead of failing the whole workspace.
-            result=[{'id':key,**value,**({} if Path(value['path']).is_dir() else {'missing':True})} for key,value in self.registry.items()]
+            # Removed entries stay in the registry (Remove from List, Move to Trash) so adding the folder again brings its id back.
+            result=[{'id':key,'name':value['name'],'path':value['path'],**({} if Path(value['path']).is_dir() else {'missing':True})} for key,value in self.registry.items() if not value.get('removed')]
+            known={Path(value['path']).resolve() for value in self.registry.values()}
             for path in sorted(self.projects.iterdir()):
-                if path.is_dir() and not path.is_symlink() and path.name not in self.registry:
+                if path.is_dir() and not path.is_symlink() and path.name not in self.registry and path.resolve() not in known:
                     result.append({'id':path.name,'name':path.name,'path':str(path.resolve())})
             return result
     def register(self, directory, name=None):
@@ -278,18 +300,85 @@ class DocumentStore:
         with self.lock:
             for project in self.list_projects():
                 if Path(project['path']).resolve()==path:return project['id']
+            for key,value in self.registry.items():
+                if value.get('removed') and Path(value['path']).resolve()==path:
+                    # Added again after Remove from List or Put Back: the same id, so its chat and comments come back.
+                    value.pop('removed');value['name']=slug(name or path.name);self.save_registry();return key
             identifier=uuid.uuid4().hex
             self.registry[identifier]={'name':slug(name or path.name),'path':str(path)}
             self.save_registry()
             return identifier
     def save_registry(self):
         temporary=self.registry_file.with_suffix('.tmp');temporary.write_text(json.dumps(self.registry,ensure_ascii=False,indent=2));temporary.replace(self.registry_file)
+    def entry(self, project):
+        """The registry entry of a project, made on first need for one in the data folder (its folder name stays its id)."""
+        if project not in self.registry:
+            path=self.project_path(project);self.registry[project]={'name':path.name,'path':str(path)}
+        if self.registry[project].get('removed'):raise ValueError('Project not found')
+        return self.registry[project]
+    def present(self, project):
+        """A project whose folder is there; Rename, Move and Move to Trash need it."""
+        entry=self.entry(project);path=Path(entry['path'])
+        if not path.is_dir():raise ValueError('The project folder is missing. Locate it first.')
+        return entry,path.resolve()
     def forget(self, project):
-        """Remove a registered folder from the list (Remove from List). The folder itself is never touched."""
+        """Remove from List: the project leaves the list; the folder itself is never touched. Adding the folder again
+        (Add Existing Folder…) brings back the same project with its chat and comments."""
         with self.lock:
-            if project not in self.registry:raise ValueError('Only added folders can be removed from the list')
-            del self.registry[project];self.save_registry()
-        return {'project':project}
+            entry=self.entry(project);entry['removed']=True;self.save_registry()
+        return {'project':project,'path':entry['path']}
+    def rename_project(self, project, name):
+        """Rename Project…: the folder is renamed in place; the app shows the folder's name. The id, and so the address,
+        chat, comments and Activity, stay."""
+        with self.lock:
+            entry,path=self.present(project);name=slug(name);target=path.parent/name
+            if target==path:return {'project':project,'name':name,'path':str(path),'previous':name}
+            if target.exists() and target.resolve()!=path:raise ValueError(f'A folder named “{name}” already exists in {path.parent}.')
+            previous=path.name;path.rename(target)
+            entry.update(name=name,path=str(target));self.save_registry()
+            return {'project':project,'name':name,'path':str(target),'previous':previous}
+    def move_project(self, project, parent):
+        """Move Project…: the folder moves into another folder, across drives too. The id stays."""
+        supplied=Path(str(parent)).expanduser()
+        if not supplied.is_absolute():raise ValueError('Choose an absolute folder path')
+        parent=supplied.resolve()
+        if not parent.is_dir():raise ValueError('Choose an existing folder')
+        with self.lock:
+            entry,path=self.present(project)
+            if parent==path or parent.is_relative_to(path):raise ValueError('A project cannot move inside itself')
+            target=parent/path.name
+            if target.exists():raise ValueError(f'{parent} already has a folder named “{path.name}”.')
+            previous=str(path.parent);shutil.move(str(path),str(target))
+            entry['path']=str(target);self.save_registry()
+            return {'project':project,'name':entry['name'],'path':str(target),'previous':previous}
+    def locate_project(self, project, directory):
+        """Locate Folder…: a project whose folder went missing points at where it is now. Nothing on disk changes."""
+        supplied=Path(str(directory)).expanduser()
+        if not supplied.is_absolute():raise ValueError('Choose an absolute folder path')
+        path=supplied.resolve()
+        if not path.is_dir():raise ValueError('Choose an existing folder')
+        with self.lock:
+            entry=self.entry(project)
+            if Path(entry['path']).is_dir():raise ValueError('The project folder is not missing. Use Move Project… instead.')
+            if any(key!=project and not value.get('removed') and Path(value['path']).resolve()==path for key,value in self.registry.items()):raise ValueError('That folder is already a project.')
+            entry.update(name=slug(path.name),path=str(path));self.save_registry()
+            return {'project':project,'name':entry['name'],'path':str(path)}
+    def project_summary(self, project):
+        """What Move to Trash will move: counts of files and folders (the alert names them), the path and its parent."""
+        path=self.project_path(project);files=folders=0
+        for _,dirs,names in os.walk(path):
+            folders+=len(dirs);files+=len(names)
+            if files+folders>100000:break
+        return {'project':project,'path':str(path),'parent':str(path.parent),'files':files,'folders':folders}
+    def trash_project(self, project):
+        """Move Project to Trash…: the whole folder goes to the Trash on the Mac (Put Back works). The project leaves the
+        list; its chat and comments are kept, so adding the folder again after Put Back brings everything back."""
+        with self.lock:
+            entry,path=self.present(project)
+            if path==self.root or self.root.is_relative_to(path):raise ValueError('This folder holds the workbench data and cannot be trashed')
+            to_trash(path)
+            entry['removed']=True;self.save_registry()
+            return {'project':project,'path':str(path)}
     def create_project(self, name, parent=None):
         name=slug(name)
         base=Path(parent).expanduser().resolve() if parent else self.projects

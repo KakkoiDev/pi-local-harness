@@ -54,7 +54,7 @@ NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/chat.cjs     # re
 
 Each suite starts its own server on random ports with a temporary data folder and a fake Pi (`tests/fixtures/fake-pi.py`). A non-zero exit code means it failed, whatever the last line says; never pipe a suite through `tail` without keeping its exit code. A suite that spawns a server must read the server's stderr (an unread pipe fills and the server stalls); on failure both suites print the server's error lines.
 
-Tests must never reach the real Ollama, tailnet or a running harness: every Python test module starts with `import isolation` (see `tests/isolation.py`), and the browser suites set `PI_OLLAMA_URL` to a closed port.
+Tests must never reach the real Ollama, tailnet, the person's Trash (`PI_TRASH_DIR`) or a running harness: every Python test module starts with `import isolation` (see `tests/isolation.py`), and the browser suites set `PI_OLLAMA_URL` to a closed port.
 
 ## 4. How a change is made (always this order)
 

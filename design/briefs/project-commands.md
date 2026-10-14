@@ -29,3 +29,11 @@ Boards wanted:
 - the two alerts;
 - a missing project with Locate…;
 - the phone placement.
+
+## Built (2026-10-14): where the build differs from the boards
+
+1. **The address does not change on Rename.** Addresses use the project's id (`/p/<id>`), not its name, so the help line leaves out "Its address becomes /p/…". Please drop that sentence from P_Rename, or say if names should become addresses.
+2. **Rename errors** ("A folder named … already exists in …") appear as a notice after the dialog closes, not in its help line. The name dialog closes on Return. Should it stay open with the error?
+3. **The ⋯ glyph** on phone project rows is drawn inline from Ph_ProjectMore, because `icons.mjs` has no `more` icon. Please add it to the icon set.
+4. **Trash on the Mac** goes through the Finder, so Put Back works. Removing or trashing a project keeps a hidden entry, so Add Existing Folder… on the same folder brings back the same project with its chat and comments, as your copy promises.
+5. **File renames** now show the same Undo toast as project renames ("Moved to “…”." with Undo ⌘Z).

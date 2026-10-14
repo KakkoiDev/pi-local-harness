@@ -19,6 +19,13 @@ from gate.ledger import ProposalLedger
 from harness.web_chat import WebChat, WebHandler
 
 
+
+class Server(http.server.ThreadingHTTPServer):
+    """The standard library's default listen backlog is 5: a page load opens more connections than that at once
+    (modules, styles, API calls) and macOS resets the rest. Request threads never keep the process alive."""
+    request_queue_size = 128
+    daemon_threads = True
+
 def tailscale_serve(port, settle=2.0):
     """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process.
 
@@ -63,9 +70,9 @@ def main():
     chat = None
     serve = None
     try:
-        api = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_GATE_PORT', '8000'))), Handler)
+        api = Server(('127.0.0.1', int(os.getenv('PI_GATE_PORT', '8000'))), Handler)
         servers.append(api)
-        web = http.server.ThreadingHTTPServer(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
+        web = Server(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
         chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, gate_token=token)
         chat.ledger = ledger
         WebHandler.chat = chat

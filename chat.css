@@ -355,3 +355,13 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
   .thread-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 4px 16px;position:sticky;top:0;background:var(--paper)}
   .thread-head__nav{display:flex;gap:6px}
 }
+/* Task 154: a project row and, on the phone, its ⋯ (Ph_ProjectMore); the More sheet; the missing-folder line */
+.project-row{display:flex;align-items:stretch}
+.project-row>.pw-row{flex:1;min-width:0}
+.project-more-button{flex:none;width:44px;min-height:44px;padding:0;border:0;border-left:1px dotted var(--ink);border-radius:0;justify-content:center}
+.project-more__items{display:flex;flex-direction:column}
+.project-more__items .pw-menu__item{height:48px;font-size:16px;padding-left:4px;border-top:1px dotted var(--ink)}
+.project-more__items .pw-menu__item:first-child,.project-more__items .pw-menu__sep+.pw-menu__item{border-top:0}
+.project-more__items .pw-menu__sep{border-top:3px double var(--ink);height:0;margin:0}
+.missing-banner{border-bottom:1px solid var(--ink)}
+.missing-banner p{flex:1;margin:0}

@@ -2,10 +2,12 @@
 import { icon } from './ui.mjs';
 const $=id=>document.getElementById(id);
 function settle(dialog,read){return new Promise(resolve=>{dialog.addEventListener('close',()=>resolve(read(dialog.returnValue)),{once:true});dialog.returnValue='';dialog.showModal();});}
-export function ask({icon:kind='caution',message,detail='',danger,safe}){
+// plain: the other button is an ordinary one (Show in Activity, Cancel), not a destructive one. escape: what Esc means
+// when the default button acts (Remove from List: Return removes, Esc cancels).
+export function ask({icon:kind='caution',message,detail='',danger,safe,plain=false,escape='default'}){
  $('alert-icon').replaceChildren(icon('alert-'+kind));$('alert-message').textContent=message;$('alert-detail').textContent=detail;
- $('alert-danger').textContent=danger;$('alert-default').textContent=safe;
- const shown=settle($('alert-dialog'),value=>value==='danger'?'danger':'default');$('alert-default').focus();return shown;
+ $('alert-danger').textContent=danger;$('alert-default').textContent=safe;$('alert-danger').classList.toggle('pw-dialog__danger',!plain);
+ const shown=settle($('alert-dialog'),value=>value==='danger'?'danger':value==='default'?'default':escape);$('alert-default').focus();return shown;
 }
 $('name-dialog-cancel').onclick=()=>$('name-dialog').close('cancel');
 export function askName({title,label,help='',describe,value='',action='Create',actionFor,mono=false,selectStem=false}){
