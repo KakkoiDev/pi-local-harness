@@ -210,16 +210,13 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
 }
 /* Block handle (task 105): the hover zone covers the gutter so the pointer can reach the handle; an open handle stays shown */
 .pw-block__handle[aria-expanded="true"]{display:flex}
-#document-editor{min-height:calc(100% - 92px);cursor:text} /* the empty page below the last block takes a click */
+#document-editor{cursor:text} /* the empty page below the last block (.pw-doc__tail, components.css) takes a click */
 /* Review footer and the whole-file request (task 108) */
 .review-footer{border-bottom:0;border-top:1px solid var(--ink)}
 .review-footer>.pw-btn{width:100%}
 #document-discussion>summary{min-height:var(--size-control);display:flex;align-items:center;cursor:default}
 #document-discussion[open]>summary{margin-bottom:4px}
 /* Block types look like themselves (task 112), as .pw-doc styles blockquote and pre */
-.pw-block>.block-content{flex:1;min-width:0}
-.pw-block.quote>.block-content{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
-.pw-block.code>.block-content,.pw-block.raw>.block-content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
 /* ---------- Phone follows the phone boards (task 123) ---------- */
 .sheet-head,.pi-status,.phone-only,.phone-edit-bar,.block-menu-title,.block-menu-cancel{display:none}
 .phone-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 4px}
@@ -333,3 +330,5 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .document-request>p{margin:0}
 .document-request>small{font-family:var(--font-chrome);font-size:13px}
 .document-request .agent-reply{font-family:var(--font-text);font-size:15px;line-height:1.45}
+/* Raw Markdown looks like Code (DocumentBlock card); components.css only has the --code rule (told the designer) */
+.pw-block--raw>.pw-block__content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}

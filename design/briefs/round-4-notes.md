@@ -13,3 +13,4 @@ Date: 2026-10-13. These shipped between rounds because the person asked for them
 
 7. **Voice input in comments** (task 153): a Dictate button (the mic icon, `.pw-btn--icon.pw-btn--rec`) next to the comment composer, each thread's reply field and the whole-file question. While recording it is inverted with the elapsed time (as Ph_Recording); then "Transcribing…"; the text lands at the cursor.
 8. **A chosen model that is no longer installed** (task 153): Pi falls back to the default model; a toast says "qwen3.8:27b-mlx is no longer installed in Ollama. Pi uses gemma4:26b-mlx until you choose another model." Should the model menu also show the missing model (dimmed, "not installed")?
+9. **DocumentBlock** (task 140): components.css styles `.pw-block--code` but not `.pw-block--raw`, which the card says looks the same; the repo adds that rule in chat.css for now. Please add it to the bundle.

@@ -47,10 +47,10 @@ const readline = require('node:readline');
   // 112: each block type looks like itself (quote, list markers, code), as .pw-doc styles them.
   fs.writeFileSync(join(root,'TYPES.md'),'# Types\n\n> A quoted line\n\n- First bullet\n- Second bullet\n\n1. One\n2. Two\n\n```\ncode here\n```\n');
   await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/TYPES.md`));
-  await page.locator('#document-editor .pw-block.quote').waitFor();
-  const look=await page.evaluate(()=>{const style=selector=>getComputedStyle(document.querySelector(selector));const quote=style('#document-editor .pw-block.quote .block-content'),code=style('#document-editor .pw-block.code .block-content');
-   return {quote:[quote.borderTopStyle,quote.fontStyle],bullets:[...document.querySelectorAll('#document-editor .pw-block.bullet .pw-block__marker')].map(item=>item.textContent),numbers:[...document.querySelectorAll('#document-editor .pw-block.number .pw-block__marker')].map(item=>item.textContent),
-    text:document.querySelector('#document-editor .pw-block.bullet .block-content').textContent,code:[code.borderTopStyle,code.fontFamily.includes('IBM Plex Mono')]};});
+  await page.locator('#document-editor .pw-block--quote').waitFor();
+  const look=await page.evaluate(()=>{const style=selector=>getComputedStyle(document.querySelector(selector));const quote=style('#document-editor .pw-block--quote .pw-block__content'),code=style('#document-editor .pw-block--code .pw-block__content');
+   return {quote:[quote.borderTopStyle,quote.fontStyle],bullets:[...document.querySelectorAll('#document-editor .pw-block--bullet .pw-block__marker')].map(item=>item.textContent),numbers:[...document.querySelectorAll('#document-editor .pw-block--number .pw-block__marker')].map(item=>item.textContent),
+    text:document.querySelector('#document-editor .pw-block--bullet .pw-block__content').textContent,code:[code.borderTopStyle,code.fontFamily.includes('IBM Plex Mono')]};});
   assert.deepEqual(look,{quote:['dotted','italic'],bullets:['•','•'],numbers:['1.','2.'],text:'First bullet',code:['solid',true]});
   await page.goto(base);await page.locator('#work-tab').click();
   await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
@@ -61,7 +61,7 @@ const readline = require('node:readline');
   await page.reload();await page.locator('#work-tab').click();
   await page.locator('.pw-mark').first().click();
   const thread=page.locator('.pw-thread').first();await thread.waitFor();
-  const layout=await thread.evaluate(element=>{const block=[...document.querySelectorAll('#document-editor .pw-block')].find(row=>row.textContent.includes('calm workbench')),text=block.querySelector('.block-content').getBoundingClientRect(),box=element.getBoundingClientRect(),who=element.querySelector('.pw-thread__who').getBoundingClientRect(),editor=document.querySelector('#document-editor .pw-block').getBoundingClientRect();return {inside:block.contains(element),below:box.top>=text.bottom-1,indent:Math.round(box.left-text.left),width:Math.round(box.right-editor.right),whoHeight:Math.round(who.height)};});
+  const layout=await thread.evaluate(element=>{const block=[...document.querySelectorAll('#document-editor .pw-block')].find(row=>row.textContent.includes('calm workbench')),text=block.querySelector('.pw-block__content').getBoundingClientRect(),box=element.getBoundingClientRect(),who=element.querySelector('.pw-thread__who').getBoundingClientRect(),editor=document.querySelector('#document-editor .pw-block').getBoundingClientRect();return {inside:block.contains(element),below:box.top>=text.bottom-1,indent:Math.round(box.left-text.left),width:Math.round(box.right-editor.right),whoHeight:Math.round(who.height)};});
   assert.equal(layout.inside,false,'thread is not inside the block row');
   assert.equal(layout.below,true,'thread starts below the passage');
   assert.equal(layout.indent,0,'full column width, no indent (InlineThread card, re-synced task 126)');
@@ -84,8 +84,8 @@ const readline = require('node:readline');
 
   // 105: blocks are added Notion-style: from the handle, at the page end, with Return; the handle is reachable by hover.
   const blockCount=()=>page.locator('#document-editor>.pw-block').count();
-  const firstPara=page.locator('#document-editor>.pw-block.text').first();
-  const textBox=await firstPara.locator('.block-content').boundingBox();
+  const firstPara=page.locator('#document-editor>.pw-block--paragraph').first();
+  const textBox=await firstPara.locator('.pw-block__content').boundingBox();
   await page.mouse.move(textBox.x+20,textBox.y+textBox.height/2);
   const handle=firstPara.locator('.pw-block__handle');await handle.waitFor();
   const handleBox=await handle.boundingBox();
@@ -100,16 +100,16 @@ const readline = require('node:readline');
   await page.locator('#block-menu [data-action="add"]').click();
   assert.equal(await blockCount(),before+1);
   const added=page.locator('#document-editor>.pw-block').nth(await firstPara.evaluate(row=>[...row.parentElement.querySelectorAll(':scope>.pw-block')].indexOf(row))+1);
-  assert.equal(await added.locator('.block-content').evaluate(element=>element===document.activeElement),true,'the new block has the caret');
+  assert.equal(await added.locator('.pw-block__content').evaluate(element=>element===document.activeElement),true,'the new block has the caret');
   await page.keyboard.type('Typed into the new block');
-  assert.equal(await added.locator('.block-content').textContent(),'Typed into the new block');
+  assert.equal(await added.locator('.pw-block__content').textContent(),'Typed into the new block');
   await page.keyboard.press('Enter');
   assert.equal(await blockCount(),before+2,'Return at the end starts a block');
   await page.keyboard.press('Backspace');
   assert.equal(await blockCount(),before+1,'Backspace in an empty block removes it');
-  assert.equal(await added.locator('.block-content').evaluate(element=>element===document.activeElement),true,'the caret returns to the block above');
-  const checkRow=page.locator('#document-editor>.pw-block.check').first();
-  await checkRow.locator('.block-content').hover();await checkRow.locator('.pw-block__handle').click();
+  assert.equal(await added.locator('.pw-block__content').evaluate(element=>element===document.activeElement),true,'the caret returns to the block above');
+  const checkRow=page.locator('#document-editor>.pw-block--task').first();
+  await checkRow.locator('.pw-block__content').hover();await checkRow.locator('.pw-block__handle').click();
   assert.equal(await page.locator('#block-menu [data-action="delete"]').textContent(),'Delete Task','labels name the block type');
   await page.locator('#block-menu [data-action="delete"]').click();
   await page.locator('#toast').filter({hasText:'Task deleted'}).waitFor();
@@ -120,7 +120,7 @@ const readline = require('node:readline');
   const total=await blockCount();
   await page.mouse.click(last.x+60,Math.min(body.y+body.height-12,last.y+last.height+30));
   assert.equal(await blockCount(),total+1,'clicking below the last block adds one');
-  assert.equal(await page.locator('#document-editor>.pw-block').last().locator('.block-content').evaluate(element=>element===document.activeElement),true);
+  assert.equal(await page.locator('#document-editor>.pw-block').last().locator('.pw-block__content').evaluate(element=>element===document.activeElement),true);
   await page.mouse.click(last.x+60,Math.min(body.y+body.height-12,last.y+last.height+60));
   assert.equal(await blockCount(),total+1,'an empty last block is reused, not stacked');
   await page.keyboard.press('Backspace');
@@ -190,7 +190,7 @@ const readline = require('node:readline');
   await page.locator('#prompt').fill('');
   await page.locator('#work-tab').click();
   const blocksBefore=await page.locator('#document-editor>.pw-block').count();
-  await page.locator('#document-editor>.pw-block.text .block-content').first().evaluate(element=>{element.focus();element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',keyCode:229,bubbles:true,cancelable:true}));});
+  await page.locator('#document-editor>.pw-block--paragraph .pw-block__content').first().evaluate(element=>{element.focus();element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',keyCode:229,bubbles:true,cancelable:true}));});
   assert.equal(await page.locator('#document-editor>.pw-block').count(),blocksBefore,'confirming a kanji does not split the block');
 
   await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-file"]').click();
@@ -523,6 +523,20 @@ const readline = require('node:readline');
   await page.unroute('**/api/transcribe');await page.locator('#document-prompt').fill('');
   }
 
+  { // Task 140: blocks follow the DocumentBlock card: pw-block--{type}, pw-block__content, placeholders, handle labels, the page tail.
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#document-editor .pw-block').first().waitFor();
+  const types=await page.locator('#document-editor>.pw-block').evaluateAll(rows=>rows.map(row=>[...row.classList].find(name=>name.startsWith('pw-block--')&&name!=='pw-block--focused'&&name!=='pw-block--empty')));
+  assert.ok(types.every(Boolean)&&types.includes('pw-block--heading')&&types.includes('pw-block--paragraph'),'card types: '+types);
+  assert.equal(await page.locator('#document-editor .pw-block__content').count(),await page.locator('#document-editor>.pw-block').count());
+  assert.match(await page.locator('#document-editor .pw-block--heading .pw-block__handle').first().getAttribute('aria-label'),/^Heading options$/);
+  assert.equal(await page.locator('#document-editor>.pw-doc__tail').count(),1,'the page tail takes the click below the last block');
+  await page.locator('#document-editor>.pw-doc__tail').click();const fresh=page.locator('#document-editor>.pw-block').last();
+  await page.waitForFunction(()=>[...document.querySelectorAll('#document-editor>.pw-block')].at(-1)?.classList.contains('pw-block--empty'));
+  assert.equal(await fresh.locator('.pw-block__content').getAttribute('data-placeholder'),'Write, or choose a style in the ruler');
+  assert.equal(await fresh.evaluate(row=>getComputedStyle(row.querySelector('.pw-block__content'),'::before').content),'"Write, or choose a style in the ruler"','the placeholder shows');
+  await page.keyboard.press('Escape');
+  }
+
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
@@ -540,11 +554,11 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#phone-back').isVisible(),true);assert.equal(await page.locator('#phone-title-text').textContent(),'ROADMAP.md');
   assert.equal(await page.locator('#phone-view').isVisible(),false);assert.equal(await page.locator('#document-toolbar').isVisible(),false,'no desk ruler');
   // Editing shows the bottom bar; Done hides it.
-  await page.locator('#document-editor>.pw-block.text .block-content').first().click();
+  await page.locator('#document-editor>.pw-block--paragraph .pw-block__content').first().click();
   await page.locator('#phone-edit-bar').waitFor();assert.equal(await page.locator('#phone-block-style').inputValue(),'text');
   await page.locator('#phone-edit-done').click();await page.locator('#phone-edit-bar').waitFor({state:'hidden'});
   // Block handle sheet (PhoneEdit5): title, six types in a grid, Cancel.
-  await page.locator('#document-editor>.pw-block.text .block-content').first().click();await page.locator('.pw-block--focused .pw-block__handle').click();
+  await page.locator('#document-editor>.pw-block--paragraph .pw-block__content').first().click();await page.locator('.pw-block--focused .pw-block__handle').click();
   assert.equal(await page.locator('#block-menu-title').textContent(),'Paragraph');
   assert.deepEqual(await page.locator('#turn-into-menu>.pw-menu__item:visible').evaluateAll(items=>items.map(item=>({text:item.innerText.trim(),box:item.getBoundingClientRect()})).sort((a,b)=>a.box.top-b.box.top||a.box.left-b.box.left).map(item=>item.text)),['Paragraph','Heading','Task','Bullet','Number','Quote','Code','Raw Markdown'],'PhoneEdit5 order (Table not built yet)');
   const sheetBox=await page.locator('#block-menu').boundingBox();assert.ok(Math.round(sheetBox.y+sheetBox.height)===844&&Math.round(sheetBox.width)===390,'a bottom sheet');

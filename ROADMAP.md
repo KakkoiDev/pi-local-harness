@@ -179,7 +179,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [137-Context meter in Chat](tasks/137-context-meter.md)
 - [ ] [138-Compaction marker and Compact Now](tasks/138-compaction-marker.md)
 - [ ] [139-New Conversation and Earlier Conversations](tasks/139-new-conversation.md)
-- [ ] [140-Document blocks follow the DocumentBlock card](tasks/140-block-markup.md)
+- [x] [140-Document blocks follow the DocumentBlock card](tasks/140-block-markup.md)
 - [ ] [141-New File help and Open on Phone when phone access is off](tasks/141-dialogs-phone-off.md)
 - [x] [142-Voice input gives only what was said](tasks/142-whisper-clean-text.md)
 - [x] [143-Markdown tables render as tables in chat](tasks/143-chat-tables.md)
