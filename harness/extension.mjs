@@ -12,6 +12,7 @@ import { installTimestamps } from './timestamps.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
+import { installConsole } from './console.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 const names = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
@@ -58,6 +59,7 @@ export default function harness(pi, dependencies = {}) {
     context.abort();
     watch.stop();
   };
+  installConsole(pi, { ports: () => ports }); // /harness, /status, /gate … (plan 158)
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     loadMemory(memoryPath);
@@ -111,7 +113,10 @@ export default function harness(pi, dependencies = {}) {
     // Task 114: the web worker's chosen context for this turn; the system prompt is rebuilt each turn, so it never piles up in history.
     let chosen = '';
     try { if (process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${chosen}` };
+    // Plan 158: a terminal session is the harness console; Pi learns its commands (web workers share the port and skip it).
+    let consoleGuide = '';
+    try { if (!process.env.PI_HARNESS_SHARED_PORT) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
+    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${chosen}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');

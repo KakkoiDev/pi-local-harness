@@ -39,6 +39,8 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(lines[2],'Phone access off: set remote_hosts and remote_users in config.json');
   assert.equal(lines[3],'Loop check: every 10 seconds');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/# Harness console[\s\S]*`\/doctor`/,'a terminal session is the console (plan 158)');
+  process.env.PI_HARNESS_SHARED_PORT='1';assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/# Harness console/,'web workers skip it');delete process.env.PI_HARNESS_SHARED_PORT;
   // Task 114: the web worker's chosen context joins the system prompt for this turn only.
   writeFileSync(join(dir,'context.md'),'Plan: only open items, unique-context-marker');process.env.PI_HARNESS_CONTEXT=join(dir,'context.md');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Context for this request:\nPlan: only open items, unique-context-marker/);

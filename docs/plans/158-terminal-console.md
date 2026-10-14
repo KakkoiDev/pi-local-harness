@@ -1,6 +1,6 @@
 # Plan 158: terminal Pi as the harness console
 
-Status: **planned, not started** (2026-10-14). Task: [tasks/158-terminal-console.md](../../tasks/158-terminal-console.md).
+Status: **phases 1 and 2 built** (task 159, 2026-10-14): read commands. Phases 3 to 5 (changes, Ollama, model tools) next. Task: [tasks/158-terminal-console.md](../../tasks/158-terminal-console.md).
 Read [docs/contributing-for-agents.md](../contributing-for-agents.md) first.
 
 Request 2026-10-14: "I want the plh harness that opens in the terminal in pi to be a "backend" of sorts where I can run scripts and see raw data, explore and be guided by the harness that knows itself and exposes tools for me to gain insight on how it works and perform admin level actions. Update settings, even in ollama, etc..."
@@ -28,7 +28,7 @@ The web stays the place for daily work; the console is for insight and administr
 `harness/admin.py` holds every admin function, each returning plain data (dicts and lists):
 
 - **Read:** `status()`, `config()`, `models()`, `capabilities()`, `queue(state=None)`, `job(id)`, `gate(n, outcome=None, project=None)`, `projects()`, `ollama_settings()`, `paths()`, `doctor()`.
-- **Change:** `set_config(key, value)`, `choose_model(model, effort)`, `model_check(model=None, force=False, all=False)` (plan 156 § 7), `set_ollama(key, value)`, `restart_ollama()`, `forget_project(id)`.
+- **Change:** `set_config(key, value)`, `pull_model(name)`, `remove_model(name)` (to the Trash),, `choose_model(model, effort)`, `model_check(model=None, force=False, all=False)` (plan 156 § 7), `set_ollama(key, value)`, `restart_ollama()`, `forget_project(id)`.
 
 Three doors use those functions:
 
@@ -47,9 +47,9 @@ When the services are running, reads that need live state (the queue, Gate) go t
 | `/queue [running\|waiting\|failed]` | Jobs as a table; `/job <id>` prints the Markdown task record. |
 | `/gate [n] [blocked]` | The last checks with decision, reason and command; `/gate why <event>` explains a decision. |
 | `/models` | Installed models: thinks, sees, tools, capability (parallel, one at a time, unknown), size; the chosen one marked. |
-| `/model use <name> [effort]` | Switch the model (the same switch as the web menu: unloads the previous one). |
-| `/model check [name] [--all] [--force]` | The parallel-capability measurement (plan 156 § 7). |
-| `/settings` · `/settings set <key> <value>` | `<data>/config.json` with each key explained; validates before writing. |
+| `/models use <name> [effort]` | Switch the model (the same switch as the web menu: unloads the previous one). |
+| `/models check [name] [--all] [--force]` | The parallel-capability measurement (plan 156 § 7). |
+| `/config` · `/config set <key> <value>` | `<data>/config.json` with each key explained; validates before writing. |
 | `/ollama` · `/ollama set <key> <value>` · `/ollama restart` | Ollama's settings: models folder, `OLLAMA_NUM_PARALLEL`, context length, keep-alive, the Ollama version and its runner. |
 | `/raw <name>` | Raw files: `config`, `model`, `projects`, `gate [n]`, `job <id>`, `context <job>` (what Pi was sent for that request). |
 | `/doctor` | Checks and explains problems: Ollama reachable, models folder consistent, chosen model installed, Gate reachable, a stale agent lock, `tailscale serve`, disk space. |
@@ -59,11 +59,11 @@ When the services are running, reads that need live state (the queue, Gate) go t
 
 | # | Decision | Recommendation |
 |---|---|---|
-| C1 | **Who may change things.** Commands (typed by you) can change settings after a confirmation in the terminal. Model tools can **read anything** but only **propose** a change: the change runs as a command only after you confirm it. | **ask** |
-| C2 | **Ollama settings in scope.** Read: all of them. Change: models folder (with moving models, as in task 153), `OLLAMA_NUM_PARALLEL`, default context length, keep-alive. Not: pulling or deleting models (pulls are large downloads; deletes cannot be undone). | **ask** (pull? delete to Trash?) |
+| C1 | **Who may change things.** Commands (typed by you) can change settings after a confirmation in the terminal. Model tools can **read anything** but only **propose** a change: the change runs only after the person's yes. | Decided 2026-10-14 ("needs yes from human") |
+| C2 | **Ollama in scope.** Read: all of it. Change: models folder (with moving models, as in task 153), `OLLAMA_NUM_PARALLEL`, default context length, keep-alive. **Models too**: `/models pull <name>` (shows size and progress, asks first) and `/models remove <name>` (its files go to the Trash, never deleted). | Decided 2026-10-14 ("harness should also manage the models") |
 | C3 | **Backups.** Every change first copies the file it changes (`config.json`, Ollama's `db.sqlite`) to `<data>/backups/<time>-<name>`; `/undo` restores the last one. | Recommended |
 | C4 | **Record.** Every admin change is a line in `<data>/admin-log.jsonl` (time, command, before, after, who: you or Pi-proposed) and shows in `/status`. | Recommended |
-| C5 | **Where the commands live.** In terminal Pi as slash commands; `python3 -m harness.admin` for scripts. `plh` itself stays a launcher (no subcommands), so Pi's own arguments keep working. | Recommended |
+| C5 | **Where the commands live.** In terminal Pi as slash commands; `python3 -m harness.admin` for scripts. `plh` itself stays a launcher (no subcommands), so Pi's own arguments keep working. Pi's own `/settings`, `/model` and `/thinking` are left alone: the harness uses `/config` and `/models`. | Recommended |
 | C6 | **Self-knowledge.** `harness/CONSOLE.md` is loaded only in terminal sessions (not web jobs), kept short, and checked by a test against the registered commands, so it cannot drift. | Recommended |
 | C7 | **Web.** The console's read functions also back a later Settings › Advanced in the web; not part of this plan. | Later |
 
@@ -78,12 +78,10 @@ When the services are running, reads that need live state (the queue, Gate) go t
 
 1. `harness/admin.py` read functions plus `python3 -m harness.admin` with `--json`; unit tests against a temporary data folder and a fake Ollama.
 2. The extension registers `/harness`, `/status`, `/queue`, `/job`, `/gate`, `/models`, `/raw`, `/doctor`; `harness/CONSOLE.md` loaded in terminal sessions; a Node test that every command in CONSOLE.md is registered.
-3. Changes: `/settings set`, `/model use`, `/model check` (with plan 156 phase 1), backups, the admin log, `/undo`.
+3. Changes: `/config set`, `/models use`, `/models check` (with plan 156 phase 1), backups, the admin log, `/undo`.
 4. Ollama: `/ollama`, `/ollama set`, `/ollama restart` (the models-folder move of task 153 becomes a tested function).
 5. Model tools: read tools, plus `propose_admin_change` (C1).
 
 ## 8. Open questions for the person
 
-- C1: may Pi itself change a setting after your yes, or only you, by typing the command?
-- C2: should the console pull models (`/ollama pull <name>`, a large download), or remove them (moved to the Trash)?
 - Anything else you look up by hand today that the console should show (logs, memory use, which session a job used)?

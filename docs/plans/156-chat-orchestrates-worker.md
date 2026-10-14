@@ -76,14 +76,14 @@ Phase 1 (this plan, built after the boards): the chat starts and follows the wor
 - **What is measured**: the two-prompt overlap of `experiments/parallel_inference/run.py`, made short (warm-up, then 64 tokens alone and 2 × 64 at once): about 20–40 s on a 26B model, mostly the warm-up.
 - **When**: the first time a model is loaded and no result matches it. A result is keyed by **model digest + Ollama version + `OLLAMA_NUM_PARALLEL`**, so a new Ollama release (a fixed MLX runner) or a new parallel setting triggers a new measurement by itself. It runs only while the queue is idle, never during a request, and the result is `unknown` until then.
 - **Why not at every model switch**: the measurement costs a model load with two context slots and half a minute of generation; repeating it when nothing changed only delays the first real request. The key above re-measures exactly when something did change.
-- **From the terminal**: `/model check` (the chosen model), `/model check --all`, `/model check --force` (ignore the stored result) in the console terminal Pi becomes ([plan 158](158-terminal-console.md)), and `python3 -m harness.admin model check` for scripts. `plh` stays a launcher: its arguments go to Pi. Prints the overlap, tok/s and the verdict, and stores it.
+- **From the terminal**: `/models check` (the chosen model), `/models check --all`, `/models check --force` (ignore the stored result) in the console terminal Pi becomes ([plan 158](158-terminal-console.md)), and `python3 -m harness.admin model check` for scripts. `plh` stays a launcher: its arguments go to Pi. Prints the overlap, tok/s and the verdict, and stores it.
 - **Stored** in `<data>/model-capabilities.json`: `{digest, ollama, num_parallel, verdict, overlap, checked}` per model.
 - **Shown** in the model menu next to "thinks · sees": "parallel" or "one at a time"; "checking…" while it runs. The harness reads it to pick the mode (§ 4).
 - Note: the result depends on `OLLAMA_NUM_PARALLEL`, a server setting. With 1 slot every model measures as one at a time. The plan's first task reads the Ollama app's setting (as for the models folder) and says so in the menu note.
 
 ## 8. Phases and tasks
 
-1. **Capability check** (§ 7): the short measurement, the store, `plh model check`, the menu note. Independent of the UI work.
+1. **Capability check** (§ 7): the short measurement, the store, `/models check`, the menu note. Independent of the UI work.
 2. **Roles in the queue** (§ 4) with one-at-a-time scheduling and the extension's turn hook; nothing new on the page yet beyond the paused line.
 3. **Proposal and worker cards** (§ 5) from the boards; Gate's start rules (§ 6, after D1 is decided).
 4. **Summaries** in the chat history and in the chat agent's context.

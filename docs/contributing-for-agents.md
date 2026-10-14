@@ -16,6 +16,7 @@ Pi Workbench is a local web app for **one person, one local AI agent (Pi), one c
 | `harness/documents.py` | Projects, files, comments (sidecars in `<data>/.comments/`), trash. | File, comment, project logic. |
 | `harness/work_queue.py` | The one queue of the one agent (records in `<data>/activity/`). | Jobs, ordering, attachments. |
 | `harness/context.py` | The small context each request carries. | What Pi sees. |
+| `harness/admin.py`, `harness/console.mjs`, `harness/CONSOLE.md` | The harness console (plan 158): admin reads as data; slash commands in terminal Pi; the guide terminal sessions load. | Console commands, admin data. |
 | `harness/model.py` | Default model (`harness/model.json`), the person's choice (`<data>/model.json`), Ollama calls. | Models, thinking levels. |
 | `gate/` | Gate: checks every command before and after it runs; the commit protocol. | Safety rules. |
 | `harness/extension.mjs`, `.pi/extensions/` | The Pi extension (Gate calls, memory, recovery). | Pi-side behaviour. |

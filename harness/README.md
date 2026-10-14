@@ -52,6 +52,14 @@ the Japanese quality evaluation remains open. First-use delay depends on downloa
 A previous cached two-second English recording took 1.35 seconds on this machine;
 that measurement is not a startup-delay guarantee.
 
+## The console in terminal Pi
+
+The terminal session `plh` opens is the harness console (plan 158). Type `/harness` for the list: `/status`, `/queue`,
+`/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`.
+They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
+commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.
+Changes (settings, models, Ollama) come next; Pi may only propose them, and they run after your yes.
+
 ## Phone access over Tailscale and voice input
 
 The web server always binds to `127.0.0.1`. `tailscale serve` on the Mac runs an
