@@ -139,7 +139,10 @@ export default function harness(pi, dependencies = {}) {
     // Plan 158: a terminal session is the harness console; Pi learns its commands (web workers share the port and skip it).
     let consoleGuide = '';
     try { if (!process.env.PI_HARNESS_SHARED_PORT) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${chosen}${consoleGuide}` };
+    // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
+    let gateRules = '';
+    try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
+    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${gateRules}${chosen}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
@@ -208,7 +211,14 @@ export default function harness(pi, dependencies = {}) {
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
-    } catch (error) { check(event.toolCallId, { gate: 'unavailable', reason: error.message }); return { block: true, reason: error.message }; }
+    } catch (error) {
+      // G-011 (plan 179, L-002): Gate failed (an error, not a decision). Nothing runs, the turn stops and the person is
+      // told, so the model never improvises a way around the check.
+      check(event.toolCallId, { gate: 'unavailable', reason: error.message });
+      say('gate-failed', error.message, 'error');
+      context?.abort?.();
+      return { block: true, reason: `G-011 A Gate failure stops the turn: ${error.message}. Nothing ran.` };
+    }
   });
   pi.on('tool_result', async event => {
     const token = proposals.get(event.toolCallId);

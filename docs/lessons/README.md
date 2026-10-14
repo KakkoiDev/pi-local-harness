@@ -18,6 +18,9 @@ What the model says about its own work is not evidence. Pi called a fix "clean" 
 cause and whose test could not pass (L-006). Lessons are written from the records: Gate's history
 (`<data>/gate-events.jsonl`), Activity records, the transcript and git.
 
+The rules that answer these lessons are in Gate's registry, `gate/rules.py` (`/gate rules`); each rule names its
+lesson.
+
 ## Adding one
 
 When the model does something wrong, add `L-NNN-short-name.md` with: **Seen** (date, the request, what happened, the
@@ -30,9 +33,9 @@ task closes.
 | Lesson | Strength today |
 | --- | --- |
 | [L-001 Ran the console from the wrong folder](L-001-console-from-wrong-folder.md) | Made easy |
-| [L-002 Routed around a Gate error](L-002-routed-around-gate.md) | Checked (the reason reaches Pi); open |
-| [L-003 An edit did not match; a script rewrote the file](L-003-edit-mismatch-script-rewrite.md) | Checked; open |
-| [L-004 Overwrote a whole file and lost what was in it](L-004-overwrote-whole-file.md) | Open |
-| [L-005 Claimed a fix was verified without running its test](L-005-claimed-verified.md) | Open |
-| [L-006 A test that could not pass, and a fix for a guessed cause](L-006-unreproduced-fix.md) | Open |
+| [L-002 Routed around a Gate error](L-002-routed-around-gate.md) | Enforced (G-011) |
+| [L-003 An edit did not match; a script rewrote the file](L-003-edit-mismatch-script-rewrite.md) | Enforced (G-004, G-008) |
+| [L-004 Overwrote a whole file and lost what was in it](L-004-overwrote-whole-file.md) | Enforced for plan files (G-009) |
+| [L-005 Claimed a fix was verified without running its test](L-005-claimed-verified.md) | Checked (G-012, web); enforced for task boxes (G-010) |
+| [L-006 A test that could not pass, and a fix for a guessed cause](L-006-unreproduced-fix.md) | Enforced in part (G-010) |
 | [L-007 Reasoning loops](L-007-reasoning-loops.md) | Checked (loop watch, retry) |

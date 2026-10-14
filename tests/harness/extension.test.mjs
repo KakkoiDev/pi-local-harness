@@ -71,7 +71,11 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.doesNotMatch(JSON.stringify(exited),/EXECUTION_FAILED|Gate audit failed/);assert.equal(notices.length,noticesBefore,'no alarm for an ordinary failure');
   // 2026-10-14: Gate's own error reaches Pi (it read only "Gate HTTP 400" and worked around Gate), and Pi 1.1's edits list passes.
   const missing=await handlers.tool_call({toolCallId:'edit-missing',toolName:'edit',input:{path:join(dir,'nowhere.md'),edits:[{oldText:'a',newText:'b'}]}});
-  assert.equal(missing.block,true);assert.match(missing.reason,/Gate HTTP 400: .*nowhere\.md/);
+  assert.equal(missing.block,true);assert.match(missing.reason,/G-004 .*use write to create it/,'a missing file is a decision, not a Gate failure');
+  // G-011 (plan 179, L-002): when Gate itself fails, the call is blocked, the turn stops and the person is told.
+  const broken=await handlers.tool_call({toolCallId:'edit-broken',toolName:'edit',input:{edits:[{oldText:'a',newText:'b'}]}});
+  assert.equal(broken.block,true);assert.match(broken.reason,/^G-011 .*Gate HTTP 400/);assert.equal(order.at(-1),'abort','the turn stops');
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Gate could not check a tool call.');order.splice(0);
   writeFileSync(join(dir,'plan.md'),'- [ ] two\n');
   assert.equal(await handlers.tool_call({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]}}),undefined,'the edit is allowed');
   writeFileSync(join(dir,'plan.md'),'- [x] two\n');
@@ -178,7 +182,8 @@ test('a second agent is refused at input while another holds the lock (task 150)
   other.release();
   const allowed=await handlers.input({source:'interactive',text:'Hello'},{ui:{notify:text=>notices.push(text)},cwd:dir});
   assert.equal(allowed.action,'continue');
-  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/,'memory still injected');
+  const prompt=handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt;assert.match(prompt,/Always prepend/,'memory still injected');
+  assert.match(prompt,/G-008 Plan files change through edit or write/,'plan 179: the rules Gate enforces, from its registry');
  } finally { handlers.agent_settled?.(); rmSync(dir,{recursive:true}); }
 });
 

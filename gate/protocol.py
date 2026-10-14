@@ -234,6 +234,26 @@ class Protocol:
         except CheckFailed:
             return
 
+    def verification(self, root):
+        """G-012: (code state, changed code paths, whether a passing run was seen on exactly this code), or None."""
+        try:
+            paths = changed_paths(root)
+            if paths is None: return None
+            state, code = code_state(root, paths)
+        except CheckFailed:
+            return None
+        with self.lock: return state, code, (state, True) in self.runs.get(Path(root), [])
+
+    def failed_run(self, root):
+        """G-010: Gate saw a test run fail in this project since its last commit."""
+        with self.lock: return any(not passed for _, passed in self.runs.get(Path(root), []))
+
+    def passing_now(self, root):
+        """G-010: the last test run Gate saw in this project passed."""
+        with self.lock:
+            runs = self.runs.get(Path(root), [])
+            return bool(runs) and runs[-1][1]
+
     def commit_reason(self, cwd, command):
         folder = commit_folder(command, cwd)
         root = project_root(folder) if folder else None

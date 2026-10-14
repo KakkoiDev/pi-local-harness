@@ -8,6 +8,7 @@ const KINDS = {
   hang: { glyph: '!', sentence: 'Harness stopped a hang.', next: 'Pi asks again another way · Esc stops it', web: 'Harness recovery' },
   canary: { glyph: '!', sentence: 'Pi drifted from its instructions.', next: 'Pi reads AGENTS.md again and answers again · Esc stops it', web: 'Harness recovery' },
   stopped: { glyph: '✗', sentence: 'Harness stopped retrying.', next: 'Ask again with a hint, or in other words', web: 'Harness recovery stopped' },
+  'gate-failed': { glyph: '✗', sentence: 'Gate could not check a tool call.', next: '/doctor checks Gate · ask again once it answers', web: 'Harness refused' },
   refused: { glyph: '■', sentence: 'Another request is running.', next: '/queue shows it · stop it in the web Activity, then send yours again', web: 'Harness refused' },
 };
 
@@ -16,8 +17,9 @@ export function harnessNotice(kind, detail) {
   const shape = KINDS[kind];
   const said = kind === 'stopped' ? `The problem came back after one retry; the incident is saved in ${detail}.`
     : kind === 'refused' ? `Pi works on one request at a time; yours was not sent.`
+    : kind === 'gate-failed' ? `${detail}. Nothing ran, and the turn stopped so that nothing works around Gate (G-011).`
     : String(detail).replace(/^(Loop|Hang) detected: |^Instruction drift: /, '').replace(/^./, letter => letter.toUpperCase());
-  const web = kind === 'stopped' ? `recovery repeated. Stopped automatic retries; the incident is saved in ${detail}.` : detail;
+  const web = kind === 'gate-failed' ? `Gate could not check a tool call (${detail}); the request stopped. Nothing ran.` : kind === 'stopped' ? `recovery repeated. Stopped automatic retries; the incident is saved in ${detail}.` : detail;
   return { kind, glyph: shape.glyph, sentence: shape.sentence, detail: said, next: shape.next, web: `${shape.web}: ${web}` };
 }
 

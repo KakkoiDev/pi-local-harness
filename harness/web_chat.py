@@ -10,6 +10,7 @@ from harness.work_queue import WorkQueue
 import json
 import os
 from pathlib import Path
+from gate.protocol import Protocol, project_root
 import queue
 import re
 import subprocess
@@ -139,6 +140,14 @@ def pi_command(session, choice=None):
     choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
+
+def verification_note(before, after):
+    """G-012 (plan 179, L-005): the line a request's answer ends with when it changed code and no passing test ran on
+    that code afterwards, whatever the model wrote. before/after: Protocol.verification() around the request."""
+    if not after or not after[1] or after[2] or (before and before[0] == after[0]): return None
+    files = ', '.join(after[1][:5]) + (' …' if len(after[1]) > 5 else '')
+    return f'\n\n**Not verified (G-012):** no passing test run after the last change to {files}. Run the tests before relying on it.'
+
 
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
@@ -388,6 +397,10 @@ class WebChat:
                 user_text+='\n\nCurrent document: '+str(self.documents.path(data['document']))+' (its text is in your context)'
             prompt,images,files=prepare_prompt(user_text,data.get('attachments',[]),folder/'uploads')
             context_file=None;chosen={'included':[]}
+            # G-012: what Gate's protocol knows about this project's code before the request, to compare at the end.
+            plan_root=project_root(self.documents.project_path(project)) if project else None
+            checked=lambda:Protocol(self.documents.root/'gate-protocol.json').verification(plan_root) if plan_root else None
+            before=checked()
             if project:
                 # Task 114: a small chosen context in the system prompt for this turn (harness/extension.mjs), never in the session history.
                 entry=self.documents.get(comment['path'])['comments'] if comment else []
@@ -465,6 +478,8 @@ class WebChat:
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
             if not reply:raise ValueError('Pi completed without an assistant answer')
+            note=verification_note(before,checked())
+            if note:reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
             if opened:emit({'type':'also_read','files':opened})
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)

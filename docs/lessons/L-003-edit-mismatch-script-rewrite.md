@@ -13,6 +13,8 @@ less closely (a shell script edits files without Gate knowing what it changes).
 file again and copy the text exactly") or appears N times ("add surrounding lines") (task 176,
 `tests/test_gate_enforcement.py`).
 
-**Open** Enforced: Gate could send back shell commands that write a project's Markdown in place (a heredoc script, `sed
--i`, `>` or `>>` onto `ROADMAP.md` or `tasks/*.md`) with "use edit or write, so Gate can check the change"; and ask
-before `chmod` on project files.
+Enforced (plan 179, rule G-008): shell commands that write `ROADMAP.md` or `tasks/*.md` (redirects, `tee`, `sed -i`,
+`perl -i`, scripts that open them for writing) are sent back: "Use the edit tool (or write for a new file), so Gate can
+check the change." Test: `tests/test_gate_rules.py`.
+
+**Open** `chmod` on project files is not checked (Gate cannot ask the person yet; a refusal would loop).

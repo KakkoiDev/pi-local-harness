@@ -60,7 +60,7 @@ Tests must never reach the real Ollama, tailnet, the person's Trash (`PI_TRASH_D
 
 ## 4. How a change is made (always this order)
 
-Gate enforces it before `git commit` (see `gate/protocol.py`).
+Gate enforces it before `git commit` (rule G-005). Every rule Gate enforces is in one registry, `gate/rules.py`: its id, when it applies, what happens, the lesson behind it and the test that proves it. `/gate rules` lists them, the system prompt gets a summary generated from it (`harness/gate-rules.md`, regenerate with `python3 -m gate.rules`), and AGENT.md does not restate them. A new rule is a task with a test that names its id. Mistakes the local model made, and which rule answers each, are in `docs/lessons/`.
 
 1. **Task file.** Create `tasks/NNN-short-name.md` (next free number) from the template below and add `- [ ] [NNN-Title](tasks/NNN-short-name.md)` to `ROADMAP.md`.
 2. **Red.** Write a test that fails for the right reason. Run it; see it fail.

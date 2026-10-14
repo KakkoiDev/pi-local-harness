@@ -12,5 +12,8 @@ change that did nothing and a test that hangs.
 **Done** The bug was reproduced in the browser and fixed (task 173); the test checks the desk, at the width where it
 happens.
 
-**Open** Enforced: as L-005, a Red box is ticked only after the test was seen failing for the reason in the task. Told:
-a bug task starts with "Reproduced: how" before any fix.
+Enforced (plan 179, rule G-010): a Red box is ticked only after Gate saw a test run fail; Green only when the last run
+passed.
+
+**Open** Gate sees that a test failed, not why: a test failing for the wrong reason (as here, a timeout) still counts.
+Told: a bug task starts with "Reproduced: how" before any fix.

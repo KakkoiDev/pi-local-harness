@@ -12,15 +12,16 @@ Workers share Gate and never start duplicate services. Shared runtime memory is
 
 Create numbered tasks under tasks/ and link them in ROADMAP.md. Implement authorized
 work, preserve unrelated edits, add meaningful regression coverage, and commit at
-the end of each task. Mark only verified work complete. Gate enforces this order before `git commit`
-in any folder with ROADMAP.md and tasks/: test red, implementation, test green,
-check task, check roadmap, commit (see gate/protocol.py). Run tests/verify_workflow.py
+the end of each task. Mark only verified work complete. Run tests/verify_workflow.py
 before completion. Keep README instructions aligned with actual behavior.
 
+What Gate enforces (the commit order, plan files, destructive commands…) is not
+restated here: it is one registry in gate/rules.py, always on, summarised in your
+system prompt and listed by `/gate rules`. A rule that sends an action back says
+what to do instead; do that, never work around it.
+
 Use accessible local paths directly. Inspect relevant files before changes. Treat
-audio transcripts as fallible recognition. Gate blocks dangerous proposals before
-execution and returns corrective feedback; do not bypass it or misdiagnose it as a
-broken shell. Normal shell commands must remain usable.
+audio transcripts as fallible recognition. Normal shell commands must remain usable.
 
 Keep persistent lessons concise, evidence-based, and deduplicated. Never put
 secrets or whole transcripts in shared memory. Explain limitations accurately:

@@ -8,13 +8,14 @@ my effort".
 **Why it matters** The person reads "pass" as "it works". A model that cannot run a test, or ran the wrong check, must
 say "not verified", and the harness should not depend on it saying so.
 
-**Done** Nothing yet. The commit protocol already refuses a `git commit` without a red then green test run, but Pi did
-not commit, so it never applied.
+**Done**
+- Checked (plan 179, rule G-012): a web request that changed a project's code and after which Gate saw no passing test
+  run on exactly that code ends with "**Not verified (G-012):** no passing test run after the last change to …", in the
+  answer and its Activity record, whatever the model wrote. Test: `tests/test_gate_rules.py`.
+- Enforced (rule G-010): a task's Red box can be ticked only after Gate saw a test run fail, its Green box only when the
+  last run passed.
 
 **Open**
-- Checked: at the end of a request that changed files, the harness looks at what ran after the last change (Gate's
-  history). If no test command passed, the answer and its Activity record get "Not verified: no test ran after the last
-  change", whatever the model wrote.
+- G-012 covers web requests; terminal Pi turns are not marked yet.
 - Made easy: one command that runs the browser tests from any shell, or says plainly why it cannot (Playwright
   missing).
-- Enforced: a task's Red and Green boxes can be ticked only if Gate saw that test fail, then pass.

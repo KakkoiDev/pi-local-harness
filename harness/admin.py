@@ -427,7 +427,7 @@ COMMANDS = {
     'status': ('', 'Services, model, queue and Gate counts, data folder, build.'),
     'queue': ('[all|running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
     'job': ('<id>', 'The Markdown record of one request.'),
-    'gate': ('[n] [blocked] [why <id>]', 'Gate checks, newest first; why <id> explains one.'),
+    'gate': ('[n] [blocked] [why <id>] [rules [id]]', 'Gate checks, newest first; why <id> explains one; rules lists what Gate enforces.'),
     'models': ('[use <name> [effort]] [check [name] [--all] [--force]] [pull <name>] [remove <name>]', 'Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.'),
     'ollama': ('[set <key> <value>] [restart]', 'Ollama: version, models folder, parallel slots, context, keep-alive; set and restart ask first.'),
     'projects': ('', 'Projects and their folders.'),
@@ -506,12 +506,21 @@ def build(console, command, args, yes=False):
         if not args: raise ValueError('Usage: /job <id> (the first 8 characters, from /queue)')
         value = console.job(args[0]); return value, view(f"Request {value['id'][:8]}", {'kind': 'lines', 'lines': value['markdown'].splitlines()}, hint='/queue')
     if command == 'gate':
+        if args[:1] == ['rules']:  # plan 179: the registry Gate enforces, always on
+            from gate import rules as gate_rules
+            value = [{'id': rule.id, 'name': rule.name, 'when': rule.when, 'scope': rule.scope, 'outcome': rule.outcome, 'summary': rule.summary, 'lesson': rule.lesson} for rule in gate_rules.RULES]
+            if args[1:]:
+                rule = gate_rules.BY_ID.get(args[1].upper())
+                if not rule: raise ValueError(f"No rule {args[1]}. /gate rules lists them.")
+                return vars(rule), view(f'Gate rule {rule.id}', kv(['Rule', rule.name], ['When', rule.when], ['Where', rule.scope], ['Outcome', rule.outcome], ['Lesson', f'docs/lessons/{rule.lesson}' if rule.lesson else '—'], ['Test', rule.test]), {'kind': 'prose', 'text': rule.summary}, hint='/gate rules')
+            table = {'kind': 'table', 'columns': ['RULE', 'WHEN', 'OUTCOME', 'WHAT'], 'flex': 3, 'drop': [1], 'rows': [[f'{rule.id} {rule.name}', rule.when, rule.outcome.title(), rule.summary] for rule in gate_rules.RULES]}
+            return value, view('Gate rules', table, summary=f'{len(value)} rules, always on', hint='/gate rules <id> for one · they change only through a task with a test')
         if args[:1] == ['why']:
             if len(args) < 2: raise ValueError('Usage: /gate why <id>')
             event = console.gate_event(args[1])
             command_text = (event.get('args') or {}).get('command') or (event.get('args') or {}).get('path') or ''
             return event, view(f"Gate · check {event.get('id')}", kv(['Decision', GATE_WORDS.get(event.get('outcome'), event.get('outcome'))], ['Check', 'before it ran' if event.get('phase') == 'gate' else 'after it ran'],
-                                                                    ['Tool', event.get('tool', '')], ['Command', command_text], ['Reason', event.get('reason') or '—'], ['Where', event.get('cwd') or ''], ['From', event.get('source') or ''], ['When', event.get('timestamp', '')]), hint='/gate · /gate blocked')
+                                                                    ['Tool', event.get('tool', '')], ['Command', command_text], ['Reason', event.get('reason') or '—'], *([['Rule', event['rule'] + ' · /gate rules ' + event['rule']]] if event.get('rule') else []), ['Where', event.get('cwd') or ''], ['From', event.get('source') or ''], ['When', event.get('timestamp', '')]), hint='/gate · /gate blocked')
         n = next((int(arg) for arg in args if arg.isdigit()), 20); blocked = 'blocked' in args
         rows = console.gate(n, blocked=blocked); projects = sorted(((item['path'], item['name']) for item in console.projects()), key=lambda pair: -len(pair[0]))
         owner = lambda cwd: next((name for path, name in projects if cwd and (cwd == path or cwd.startswith(path + os.sep))), '')
@@ -597,7 +606,9 @@ def completions(console, command):
     if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
     if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
     if command == 'queue': return [[state, ''] for state in ('all', 'running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
-    if command == 'gate': return [['blocked', 'Only checks that did not allow'], ['why ', 'Explain one check: why <id>']]
+    if command == 'gate':
+        from gate import rules as gate_rules
+        return [['blocked', 'Only checks that did not allow'], ['why ', 'Explain one check: why <id>'], ['rules', 'The rules Gate enforces']] + [[f'rules {rule.id}', rule.name] for rule in gate_rules.RULES]
     if command == 'job':
         names = {project['id']: project['name'] for project in console.projects()}
         return [[str(row['id'])[:8], f"{terminal.STATE.get(row['status'], row['status'])} · {names.get(row['project'], row['project'])} · {str(row['message'] or '')[:50]}"] for row in reversed(console.queue()) if row['id']][:30]

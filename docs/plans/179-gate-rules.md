@@ -1,5 +1,9 @@
 # Plan 179: Gate's rules as one always-enforced system, out of AGENT.md
 
+Status 2026-10-15: built (task 179). Answers taken: strict (rules send back, no warning first); scope per rule. Phase 1's
+destructive-shell checks stayed one rule (G-003) with one reason per kind. Added beyond the plan: G-012 (requests that
+changed code without a passing run are marked "Not verified").
+
 Request 2026-10-15: "maybe we should take the gate control base (what it will enforce) out of the AGENT.md file and make
 it a separate system that we want always enforced." Follows task 178 (`docs/lessons/`).
 

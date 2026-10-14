@@ -7,8 +7,8 @@ Nothing was ticked.
 **Why it matters** A `write` replaces everything. A small model rewriting from memory loses content without noticing,
 and the loss is invisible unless someone diffs it.
 
-**Done** Nothing yet. The file was restored from git by hand (commit dd1b6c2).
+**Done** Enforced (plan 179, rule G-009): a `write` over an existing `ROADMAP.md` or task file in a project that drops a
+ticked box or more than 5 lines is sent back: "Use edit to change only what you mean to change." Test:
+`tests/test_gate_rules.py`. (The file in this case was restored from git by hand, commit dd1b6c2.)
 
-**Open** Enforced: Gate could send back a `write` over an existing file in `tasks/` or `ROADMAP.md` that removes more
-than a few lines or any ticked box, with "use edit for changes to an existing file". Checked: the audit after a write
-could report how many lines it removed.
+**Open** Other files can still be overwritten wholesale; only the plan files are protected.

@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 from .shell_guard import destructive_reason
+from . import rules
 from .models import ActionProposal, ExecutionResult, JudgmentEvent, ActionOutcome, ToolRiskCategory
 
 class GateEngine:
@@ -20,29 +21,37 @@ class GateEngine:
             }
         }
 
-    def rejection_reason(self, proposal: ActionProposal, auth_level: str = "standard"):
-        """Stateless explanation shared by the pre-action decision and model feedback."""
+    def rejection(self, proposal: ActionProposal, auth_level: str = "standard"):
+        """(rule, reason Pi reads) for the first rule this proposal breaks before it runs, else (None, None). Plan 179:
+        the rules are gate/rules.py; the ones decided from the proposal alone are checked here."""
+        def broke(rule_id, reason): return rules.BY_ID[rule_id], rules.decided(rule_id, reason)
         if proposal.tool_name not in self.policies['tools']:
-            return f"Unknown tool: {proposal.tool_name}. Use a supported tool."
+            return broke('G-001', f"Unknown tool: {proposal.tool_name}. Use a supported tool.")
         if proposal.tool_name == 'execute_command':
             command = proposal.args.get('command', proposal.args.get('cmd', proposal.args.get('script', '')))
             if not isinstance(command, str):
-                return 'Shell command must be a string.'
+                return broke('G-003', 'Shell command must be a string.')
             reason = destructive_reason(command)
             if reason:
-                return reason
+                return broke('G-003', reason)
         risk = self.policies['tools'][proposal.tool_name]
         if risk not in self.policies['auth_levels'].get(auth_level, []):
-            return f"Profile {auth_level} does not authorize {proposal.tool_name}."
-        return None
+            return broke('G-002', f"Profile {auth_level} does not authorize {proposal.tool_name}.")
+        if proposal.tool_name == 'execute_command' and rules.shell_writes_plan(command):
+            return broke('G-008', 'this command writes ROADMAP.md or a task file from the shell. Use the edit tool (or write for a new file), so Gate can check the change.')
+        return None, None
+
+    def rejection_reason(self, proposal: ActionProposal, auth_level: str = "standard"):
+        """Stateless explanation shared by the pre-action decision and model feedback."""
+        return self.rejection(proposal, auth_level)[1]
 
     def gatekeep(self, proposal: ActionProposal, auth_level: str = "standard") -> ActionOutcome:
         """Pre-action check."""
         tool_name = proposal.tool_name
-        reason = self.rejection_reason(proposal, auth_level)
-        if reason:
-            print(f"[Gate] BLOCK: {reason}")
-            return ActionOutcome.BLOCK
+        rule, reason = self.rejection(proposal, auth_level)
+        if rule:
+            print(f"[Gate] {rule.outcome}: {reason}")
+            return ActionOutcome(rule.outcome)
         
         print(f"[Gate] ✅ Action '{tool_name}' allowed.")
         return ActionOutcome.ALLOW
