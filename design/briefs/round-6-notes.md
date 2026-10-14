@@ -74,3 +74,7 @@ where the repo should change instead.
     this system. Our reading: no. Windows close with the title bar's close box (⌘W), phone sheets with a "Close"
     button, and an inline panel with the button that opened it. Should the record instead open as its own window
     (like Event Info, with a close box), or a sheet on the phone?
+17. **Thinking levels with Ollama** (task 175). Ollama knows four levels: Off, Low, Medium, High. The thinking menu
+    offers seven (Off, Minimal, Low, Medium, High, Extra High, Max): Minimal now runs as Low, Extra High and Max as
+    High. Should the menu show only the four that differ, or keep seven with a note ("Same as High with Ollama")?
+    The same choice applies to `/models use <name> <effort>` in the terminal.

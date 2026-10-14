@@ -52,6 +52,13 @@ test('MLX aliases advertise vision and preserve other configured models',()=>{
  assert.deepEqual(provider.models.find(m=>m.id==='gemma4:26b-mlx').input,['text','image']);
  assert.deepEqual(provider.models.find(m=>m.id==='gpt-oss:20b').input,['text']);
 });
+test('Off turns thinking off in Ollama, and Minimal is sent as a level Ollama knows (2026-10-14)',()=>{
+ // Pi sends no reasoning_effort for Off unless the model maps it, and Ollama then thinks by default; "minimal" is not an Ollama level.
+ const provider=localModels({models:[{id:'qwen3.8:27b-mlx',reasoning:true},{id:'llama3.2:3b'}]});
+ const thinking=provider.models.find(m=>m.id==='qwen3.8:27b-mlx');
+ assert.deepEqual(thinking.thinkingLevelMap,{off:'none',minimal:'low'});
+ assert.equal(provider.models.find(m=>m.id==='llama3.2:3b').thinkingLevelMap,undefined,'a model that does not think gets no levels');
+});
 test('accessible quoted image paths attach bytes; audio paths attach transcripts',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'pi-media-'));
  try {
