@@ -654,6 +654,23 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.querySelector('#chat-context').textContent==='Pi sees: nothing from this project');
   }
 
+  { // Task 135: a comment waiting behind another request reads as sent, with Show in Activity; the composer help; whole-file requests as cards.
+  await stopAll();
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt').fill('Keep busy TEST_WAIT');await page.locator('#send').click();
+  await page.waitForFunction(async()=>(await fetch('/api/workspace').then(r=>r.json())).jobs.some(job=>job.status==='running'),null,{polling:300,timeout:20000});
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);const para=page.locator('#document-editor .pw-block--paragraph .pw-block__content').first();await para.waitFor();
+  await post('/api/documents/comment',{path:`projects/${id}/ROADMAP.md`,text:'Queued state check',anchor:await para.textContent()});
+  await page.reload();const item=page.locator('#document-comments .pw-review-item',{hasText:'Queued state check'});await item.locator('.pw-review-item__head').click();
+  const thread=()=>page.locator('.pw-thread',{hasText:'Queued state check'}).first();await thread().getByRole('button',{name:'Ask Pi',exact:true}).click();
+  await thread().locator('.pw-thread__state').filter({hasText:'Sent to Pi · waiting in queue · can no longer be deleted'}).waitFor({timeout:10000});
+  assert.equal(await thread().locator('.pw-link',{hasText:'Show in Activity'}).count(),1,'a sent, unanswered thread links to Activity');
+  await item.locator('.pw-review-item__head').filter({hasText:'Waiting in queue'}).waitFor();
+  assert.match(await page.locator('#comment-form').textContent(),/Comments stay with the file until you choose Ask Pi\./);
+  await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Card check');await page.getByRole('button',{name:'Send Request'}).click();
+  const card=page.locator('#document-requests .document-request',{hasText:'Card check'});await card.waitFor({state:'attached',timeout:10000});
+  assert.equal(await card.locator('.pw-link',{hasText:'Show in Activity'}).count(),1,'a whole-file request is a card with one way into Activity');
+  await stopAll();
+  }
   { // Task 154: rename, move, remove, trash and locate a project from the Project menu; the phone ⋯ sheet.
   const made=await post('/api/projects/create',{name:'Rename me',parent:directory});const pid=made.project;
   const projectMenu=async command=>{await page.locator('#menubar [aria-controls="menu-project"]').click();await page.locator(`#menu-project [data-command="${command}"]`).click();};
