@@ -1,2212 +1,2231 @@
 {
-  "v": 3,
-  "attachments": {},
-  "boards": {
-    "A_Attention.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Activity · needs attention",
-      "w": 1440,
-      "x": 0,
-      "y": 7020
-    },
-    "A_Empty.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Activity · all caught up",
-      "w": 1440,
-      "x": 1520,
-      "y": 7020
-    },
-    "Activity.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "is_interactive": true,
-      "title": "Activity · All Projects",
-      "w": 1440,
-      "x": 0,
-      "y": 1020
-    },
-    "C_ActivityDesk.dc.html": {
-      "h": 872,
-      "page": "system",
-      "title": "ActivityDesk (state) · app-level window",
-      "w": 1440,
-      "x": 0,
-      "y": 1472
-    },
-    "C_ChatDesk.dc.html": {
-      "h": 872,
-      "page": "system",
-      "title": "ChatDesk (state)",
-      "w": 1440,
-      "x": 0,
-      "y": 480
-    },
-    "C_GateDesk.dc.html": {
-      "h": 872,
-      "page": "system",
-      "title": "GateDesk (state) · app-level window",
-      "w": 1440,
-      "x": 1520,
-      "y": 1472
-    },
-    "C_MenuBar.dc.html": {
-      "h": 360,
-      "page": "system",
-      "title": "MenuBar (open: none…window)",
-      "w": 1440,
-      "x": 0,
-      "y": 0
-    },
-    "C_WorkDesk.dc.html": {
-      "h": 872,
-      "page": "system",
-      "title": "WorkDesk (state)",
-      "w": 1440,
-      "x": 1520,
-      "y": 480
-    },
-    "Dialogs.dc.html": {
-      "h": 640,
-      "title": "Dialogs & alerts",
-      "w": 1440,
-      "x": 1520,
-      "y": 2040
-    },
-    "Dialogs2.dc.html": {
-      "h": 1160,
-      "page": "states",
-      "title": "More dialogs: folder, New File, New Task, settings, about, phone on/off, startup",
-      "w": 1440,
-      "x": 0,
-      "y": 8040
-    },
-    "EditA.dc.html": {
-      "h": 780,
-      "page": "archive",
-      "title": "A · Margin notes",
-      "w": 1200,
-      "x": 0,
-      "y": 0
-    },
-    "EditB.dc.html": {
-      "h": 780,
-      "page": "edit",
-      "title": "B · Inline threads + ruler",
-      "w": 1200,
-      "x": 0,
-      "y": 0
-    },
-    "EditC.dc.html": {
-      "h": 780,
-      "page": "edit",
-      "title": "C · Edit / Review modes",
-      "w": 1200,
-      "x": 1280,
-      "y": 0
-    },
-    "Final.dc.html": {
-      "h": 860,
-      "is_interactive": true,
-      "page": "edit",
-      "title": "B + Review — clickable prototype",
-      "w": 1440,
-      "x": 0,
-      "y": 2260
-    },
-    "G_All.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Gate · all checks",
-      "w": 1440,
-      "x": 3040,
-      "y": 7020
-    },
-    "G_Empty.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Gate · connecting, no checks",
-      "w": 1440,
-      "x": 4560,
-      "y": 7020
-    },
-    "Gate.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "is_interactive": true,
-      "title": "Gate · All Projects",
-      "w": 1440,
-      "x": 1520,
-      "y": 1020
-    },
-    "M_Agent.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Agent menu",
-      "w": 1440,
-      "x": 1520,
-      "y": 1020
-    },
-    "M_Edit.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Edit menu",
-      "w": 1440,
-      "x": 3040,
-      "y": 0
-    },
-    "M_File.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "File menu",
-      "w": 1440,
-      "x": 1520,
-      "y": 0
-    },
-    "M_Pi.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "π menu",
-      "w": 1440,
-      "x": 0,
-      "y": 0
-    },
-    "M_Project.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Project menu",
-      "w": 1440,
-      "x": 0,
-      "y": 1020
-    },
-    "M_View.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "View menu",
-      "w": 1440,
-      "x": 4560,
-      "y": 0
-    },
-    "M_Window.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Window menu",
-      "w": 1440,
-      "x": 3040,
-      "y": 1020
-    },
-    "Main.dc.html": {
-      "expand": "fill",
-      "h": 900,
-      "is_interactive": true,
-      "title": "Chat",
-      "w": 1440,
-      "x": 0,
-      "y": 0
-    },
-    "Menus.dc.html": {
-      "h": 640,
-      "title": "Menu bar — command map",
-      "w": 1440,
-      "x": 0,
-      "y": 2040
-    },
-    "P_Popups.dc.html": {
-      "h": 900,
-      "page": "states",
-      "title": "Every popup, open",
-      "w": 1440,
-      "x": 4560,
-      "y": 1020
-    },
-    "Ph_Activity.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Activity",
-      "w": 390,
-      "x": 2350,
-      "y": 0
-    },
-    "Ph_ActivityDetail.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Activity · request detail",
-      "w": 390,
-      "x": 2820,
-      "y": 0
-    },
-    "Ph_Files.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Work · files",
-      "w": 390,
-      "x": 1880,
-      "y": 0
-    },
-    "Ph_Gate.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Gate",
-      "w": 390,
-      "x": 3290,
-      "y": 0
-    },
-    "Ph_GateDetail.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Gate · event info",
-      "w": 390,
-      "x": 3760,
-      "y": 0
-    },
-    "Ph_Offline.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "Connection interrupted",
-      "w": 390,
-      "x": 1410,
-      "y": 0
-    },
-    "Ph_Pi.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "π sheet: projects & commands",
-      "w": 390,
-      "x": 0,
-      "y": 0
-    },
-    "Ph_Views.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "View popup",
-      "w": 390,
-      "x": 470,
-      "y": 0
-    },
-    "Ph_Welcome.dc.html": {
-      "h": 844,
-      "page": "phone",
-      "title": "First run",
-      "w": 390,
-      "x": 940,
-      "y": 0
-    },
-    "Phone.dc.html": {
-      "h": 844,
-      "title": "Chat — phone",
-      "w": 390,
-      "x": 3040,
-      "y": 0
-    },
-    "PhoneEdit1.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "1 · Read & edit",
-      "w": 390,
-      "x": 0,
-      "y": 1160
-    },
-    "PhoneEdit2.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "2 · Long press selects",
-      "w": 390,
-      "x": 470,
-      "y": 1160
-    },
-    "PhoneEdit3.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "3 · Write the comment",
-      "w": 390,
-      "x": 940,
-      "y": 1160
-    },
-    "PhoneEdit4.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "4 · Open a thread",
-      "w": 390,
-      "x": 1410,
-      "y": 1160
-    },
-    "PhoneEdit5.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "5 · Block handle menu",
-      "w": 390,
-      "x": 1880,
-      "y": 1160
-    },
-    "PhoneEdit6.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "6 · Comments: Open / Resolved / Deleted",
-      "w": 390,
-      "x": 1520,
-      "y": 2260
-    },
-    "PhoneEdit7.dc.html": {
-      "h": 844,
-      "page": "edit",
-      "title": "7 · Delete, with Undo",
-      "w": 390,
-      "x": 1990,
-      "y": 2260
-    },
-    "S_Attachments.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · files attached",
-      "w": 1440,
-      "x": 4560,
-      "y": 2340
-    },
-    "S_Dragging.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · dragging a file in",
-      "w": 1440,
-      "x": 0,
-      "y": 3360
-    },
-    "S_Empty.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · new project, no messages",
-      "w": 1440,
-      "x": 1520,
-      "y": 2340
-    },
-    "S_Error.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · attachment error",
-      "w": 1440,
-      "x": 3040,
-      "y": 3360
-    },
-    "S_Idle.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · idle, answer finished",
-      "w": 1440,
-      "x": 3040,
-      "y": 2340
-    },
-    "S_Offline.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · connection interrupted",
-      "w": 1440,
-      "x": 4560,
-      "y": 3360
-    },
-    "S_Recording.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · recording audio",
-      "w": 1440,
-      "x": 1520,
-      "y": 3360
-    },
-    "S_Welcome.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Chat · first run, no projects",
-      "w": 1440,
-      "x": 0,
-      "y": 2340
-    },
-    "W_Code.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · text / code file",
-      "w": 1440,
-      "x": 1520,
-      "y": 4680
-    },
-    "W_Conflict.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · save conflict",
-      "w": 1440,
-      "x": 1520,
-      "y": 5700
-    },
-    "W_Empty.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · no document open",
-      "w": 1440,
-      "x": 3040,
-      "y": 4680
-    },
-    "W_NoPlan.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Files window · folder with no Plan",
-      "w": 1440,
-      "x": 0,
-      "y": 9560
-    },
-    "W_Reload.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · Reload from Disk",
-      "w": 1440,
-      "x": 4560,
-      "y": 5700
-    },
-    "W_Requests.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · document requests",
-      "w": 1440,
-      "x": 0,
-      "y": 5700
-    },
-    "W_Search.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · finding a file",
-      "w": 1440,
-      "x": 4560,
-      "y": 4680
-    },
-    "W_Source.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · Markdown source",
-      "w": 1440,
-      "x": 0,
-      "y": 4680
-    },
-    "W_Tablet.dc.html": {
-      "h": 768,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Files window · tablet 1024 (220px), Files empty",
-      "w": 1024,
-      "x": 1520,
-      "y": 9560
-    },
-    "W_Trash.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "page": "states",
-      "title": "Work · Move to Trash",
-      "w": 1440,
-      "x": 3040,
-      "y": 5700
-    },
-    "Work.dc.html": {
-      "h": 900,
-      "is_interactive": true,
-      "title": "Work — document",
-      "w": 1440,
-      "x": 1520,
-      "y": 0
-    },
-    "Projects.dc.html": {
-      "x": 3040,
-      "y": 1020,
-      "w": 1440,
-      "h": 900,
-      "title": "Projects home · Agent section",
-      "is_interactive": true
-    },
-    "C_ProjectsWin.dc.html": {
-      "x": 3040,
-      "y": 480,
-      "w": 290,
-      "h": 824,
-      "title": "ProjectsWin (agent, current)",
-      "page": "system"
-    },
-    "C_ProjectWin.dc.html": {
-      "x": 3410,
-      "y": 480,
-      "w": 290,
-      "h": 824,
-      "title": "ProjectWin (state)",
-      "page": "system"
-    },
-    "S_Near.dc.html": {
-      "x": 0,
-      "y": 10820,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · near the summary line (meter)",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_Compacted.dc.html": {
-      "x": 1520,
-      "y": 10820,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · just compacted (marker closed)",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_Summary.dc.html": {
-      "x": 3040,
-      "y": 10820,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · summary opened",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_NewConversation.dc.html": {
-      "x": 4560,
-      "y": 10820,
-      "w": 1440,
-      "h": 900,
-      "title": "Agent › New Conversation… alert",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_Fresh.dc.html": {
-      "x": 0,
-      "y": 11840,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · new conversation, earlier one kept",
-      "page": "states",
-      "is_interactive": true
-    },
-    "W_Comment.dc.html": {
-      "x": 1520,
-      "y": 11840,
-      "w": 1440,
-      "h": 900,
-      "title": "Work · writing a comment (Pi sees)",
-      "page": "states",
-      "is_interactive": true
-    },
-    "W_Blocks.dc.html": {
-      "x": 3040,
-      "y": 11840,
-      "w": 1440,
-      "h": 900,
-      "title": "Work · adding blocks, block types",
-      "page": "states",
-      "is_interactive": true
-    },
-    "G_Tablet.dc.html": {
-      "x": 4560,
-      "y": 11840,
-      "w": 1024,
-      "h": 768,
-      "title": "Gate · tablet 1024, Event Info floats",
-      "page": "states",
-      "is_interactive": true
-    },
-    "MB_Status.dc.html": {
-      "x": 0,
-      "y": 12860,
-      "w": 1440,
-      "h": 1260,
-      "title": "Menu bar status + Agent section states",
-      "page": "states"
-    },
-    "W_Table.dc.html": {
-      "x": 0,
-      "y": 14640,
-      "w": 1440,
-      "h": 1000,
-      "title": "Work · Table block: rest, focused, editing",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_Earlier.dc.html": {
-      "x": 1520,
-      "y": 14640,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · earlier conversation, read only",
-      "page": "states",
-      "is_interactive": true
-    },
-    "M_AgentEarlier.dc.html": {
-      "x": 3040,
-      "y": 14640,
-      "w": 1440,
-      "h": 900,
-      "title": "Agent › Earlier Conversations ▸",
-      "page": "states",
-      "is_interactive": true
-    },
-    "A_Retry.dc.html": {
-      "x": 4560,
-      "y": 14640,
-      "w": 1440,
-      "h": 900,
-      "title": "Activity · Ask Pi to Retry…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_FirstChat.dc.html": {
-      "x": 0,
-      "y": 15800,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · new project, first open",
-      "page": "states",
-      "is_interactive": true
-    },
-    "Ph_Table.dc.html": {
-      "x": 0,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "Table reads",
-      "page": "phone"
-    },
-    "Ph_TableEdit.dc.html": {
-      "x": 470,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "Table edits as Markdown",
-      "page": "phone"
-    },
-    "Ph_NewProject.dc.html": {
-      "x": 940,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "New Project sheet",
-      "page": "phone"
-    },
-    "Ph_FirstChat.dc.html": {
-      "x": 1410,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "New project Chat",
-      "page": "phone"
-    },
-    "Ph_FilesNew.dc.html": {
-      "x": 1880,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "Work › Plan, new project",
-      "page": "phone"
-    },
-    "Ph_ThreadAnswered.dc.html": {
-      "x": 2350,
-      "y": 1260,
-      "w": 390,
-      "h": 844,
-      "title": "Thread answered",
-      "page": "phone"
-    },
-    "F1_FirstRun_1.dc.html": {
-      "x": 0,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·1 Open Pi Workbench",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_2.dc.html": {
-      "x": 1520,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·2 Create Your First Project…",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_3.dc.html": {
-      "x": 3040,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·3 Create",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_4.dc.html": {
-      "x": 4560,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·4 Or: Use an Existing Folder…",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_5.dc.html": {
-      "x": 6080,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·5 The folder has no plan",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_6.dc.html": {
-      "x": 7600,
-      "y": 260,
-      "w": 1440,
-      "h": 972,
-      "title": "F1·6 Create Roadmap",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F1_FirstRun_P1.dc.html": {
-      "x": 0,
-      "y": 1352,
-      "w": 390,
-      "h": 972,
-      "title": "F1·P1 Open on the phone",
-      "page": "flows"
-    },
-    "F1_FirstRun_P2.dc.html": {
-      "x": 470,
-      "y": 1352,
-      "w": 390,
-      "h": 972,
-      "title": "F1·P2 Create Your First Project…",
-      "page": "flows"
-    },
-    "F1_FirstRun_P3.dc.html": {
-      "x": 940,
-      "y": 1352,
-      "w": 390,
-      "h": 972,
-      "title": "F1·P3 Create",
-      "page": "flows"
-    },
-    "F1_FirstRun_P4.dc.html": {
-      "x": 1410,
-      "y": 1352,
-      "w": 390,
-      "h": 972,
-      "title": "F1·P4 Open the Plan",
-      "page": "flows"
-    },
-    "F2_ChatWork_1.dc.html": {
-      "x": 0,
-      "y": 2784,
-      "w": 1440,
-      "h": 972,
-      "title": "F2·1 Type a question",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F2_ChatWork_2.dc.html": {
-      "x": 1520,
-      "y": 2784,
-      "w": 1440,
-      "h": 972,
-      "title": "F2·2 Send",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F2_ChatWork_3.dc.html": {
-      "x": 3040,
-      "y": 2784,
-      "w": 1440,
-      "h": 972,
-      "title": "F2·3 Point at the status",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F2_ChatWork_4.dc.html": {
-      "x": 4560,
-      "y": 2784,
-      "w": 1440,
-      "h": 972,
-      "title": "F2·4 Click it (or ⌘3)",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F2_ChatWork_5.dc.html": {
-      "x": 6080,
-      "y": 2784,
-      "w": 1440,
-      "h": 972,
-      "title": "F2·5 Close box (⌘W)",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_1.dc.html": {
-      "x": 0,
-      "y": 4216,
-      "w": 1440,
-      "h": 932,
-      "title": "F3·1 Select a passage",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_2.dc.html": {
-      "x": 1520,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·2 Comment",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_3.dc.html": {
-      "x": 3040,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·3 Add & Ask Pi",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_4.dc.html": {
-      "x": 4560,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·4 Wait",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_5.dc.html": {
-      "x": 6080,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·5 Pi answers",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_6.dc.html": {
-      "x": 7600,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·6 Reply, then Ask Pi",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_7.dc.html": {
-      "x": 9120,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·7 Resolve",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_8.dc.html": {
-      "x": 10640,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·8 Suggested change",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_9.dc.html": {
-      "x": 12160,
-      "y": 4216,
-      "w": 1440,
-      "h": 972,
-      "title": "F3·9 Apply Change",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F3_Comment_P1.dc.html": {
-      "x": 0,
-      "y": 5308,
-      "w": 390,
-      "h": 972,
-      "title": "F3·P1 Long press",
-      "page": "flows"
-    },
-    "F3_Comment_P2.dc.html": {
-      "x": 470,
-      "y": 5308,
-      "w": 390,
-      "h": 972,
-      "title": "F3·P2 Comment",
-      "page": "flows"
-    },
-    "F3_Comment_P3.dc.html": {
-      "x": 940,
-      "y": 5308,
-      "w": 390,
-      "h": 972,
-      "title": "F3·P3 Pi answers",
-      "page": "flows"
-    },
-    "F3_Comment_P4.dc.html": {
-      "x": 1410,
-      "y": 5308,
-      "w": 390,
-      "h": 972,
-      "title": "F3·P4 Suggested change",
-      "page": "flows"
-    },
-    "F4_WholeFile_1.dc.html": {
-      "x": 0,
-      "y": 6740,
-      "w": 1440,
-      "h": 972,
-      "title": "F4·1 Open “Ask Pi about this whole file”",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F4_WholeFile_2.dc.html": {
-      "x": 1520,
-      "y": 6740,
-      "w": 1440,
-      "h": 972,
-      "title": "F4·2 Send Request",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F4_WholeFile_3.dc.html": {
-      "x": 3040,
-      "y": 6740,
-      "w": 1440,
-      "h": 972,
-      "title": "F4·3 Pi answers",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F5_Plan_1.dc.html": {
-      "x": 0,
-      "y": 8172,
-      "w": 1440,
-      "h": 972,
-      "title": "F5·1 Plan +  (or ⌘T)",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F5_Plan_2.dc.html": {
-      "x": 1520,
-      "y": 8172,
-      "w": 1440,
-      "h": 972,
-      "title": "F5·2 Create",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F5_Plan_3.dc.html": {
-      "x": 3040,
-      "y": 8172,
-      "w": 1440,
-      "h": 972,
-      "title": "F5·3 Check two boxes",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F5_Plan_4.dc.html": {
-      "x": 4560,
-      "y": 8172,
-      "w": 1440,
-      "h": 972,
-      "title": "F5·4 Check the last",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F5_Plan_5.dc.html": {
-      "x": 6080,
-      "y": 8172,
-      "w": 1440,
-      "h": 972,
-      "title": "F5·5 Next refresh",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F6_Edit_1.dc.html": {
-      "x": 0,
-      "y": 9604,
-      "w": 1440,
-      "h": 972,
-      "title": "F6·1 Point at the gutter, Return, click below",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F6_Edit_2.dc.html": {
-      "x": 1520,
-      "y": 9604,
-      "w": 1440,
-      "h": 972,
-      "title": "F6·2 Handle › Turn Into › Table",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F6_Edit_3.dc.html": {
-      "x": 3040,
-      "y": 9604,
-      "w": 1440,
-      "h": 972,
-      "title": "F6·3 Handle menu, every popup",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F6_Edit_P1.dc.html": {
-      "x": 0,
-      "y": 10696,
-      "w": 390,
-      "h": 972,
-      "title": "F6·P1 Tap a paragraph",
-      "page": "flows"
-    },
-    "F6_Edit_P2.dc.html": {
-      "x": 470,
-      "y": 10696,
-      "w": 390,
-      "h": 972,
-      "title": "F6·P2 Tap the handle",
-      "page": "flows"
-    },
-    "F6_Edit_P3.dc.html": {
-      "x": 940,
-      "y": 10696,
-      "w": 390,
-      "h": 972,
-      "title": "F6·P3 Table",
-      "page": "flows"
-    },
-    "F6_Edit_P4.dc.html": {
-      "x": 1410,
-      "y": 10696,
-      "w": 390,
-      "h": 972,
-      "title": "F6·P4 Tap the table",
-      "page": "flows"
-    },
-    "F6_Edit_P5.dc.html": {
-      "x": 1880,
-      "y": 10696,
-      "w": 390,
-      "h": 972,
-      "title": "F6·P5 Delete",
-      "page": "flows"
-    },
-    "F7_LongChat_1.dc.html": {
-      "x": 0,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·1 Keep talking",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_2.dc.html": {
-      "x": 1520,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·2 Pi answers",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_3.dc.html": {
-      "x": 3040,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·3 Show Summary",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_4.dc.html": {
-      "x": 4560,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·4 Agent › New Conversation…",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_5.dc.html": {
-      "x": 6080,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·5 New Conversation",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_6.dc.html": {
-      "x": 7600,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·6 Agent › Earlier Conversations ▸",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F7_LongChat_7.dc.html": {
-      "x": 9120,
-      "y": 12128,
-      "w": 1440,
-      "h": 972,
-      "title": "F7·7 Open one",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_1.dc.html": {
-      "x": 0,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·1 A command is blocked",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_2.dc.html": {
-      "x": 1520,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·2 Show in Gate",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_3.dc.html": {
-      "x": 3040,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·3 Show in Activity",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_4.dc.html": {
-      "x": 4560,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·4 A request fails",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_5.dc.html": {
-      "x": 6080,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·5 Click it",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_6.dc.html": {
-      "x": 7600,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·6 Ask Pi to Retry…",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_7.dc.html": {
-      "x": 9120,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·7 The connection drops",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F8_Wrong_8.dc.html": {
-      "x": 10640,
-      "y": 13560,
-      "w": 1440,
-      "h": 972,
-      "title": "F8·8 Reconnect",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F9_Phone_1.dc.html": {
-      "x": 0,
-      "y": 14992,
-      "w": 1440,
-      "h": 972,
-      "title": "F9·1 π › Open on Phone…",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F9_Phone_2.dc.html": {
-      "x": 1520,
-      "y": 14992,
-      "w": 1440,
-      "h": 972,
-      "title": "F9·2 Phone access on",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F9_Phone_3.dc.html": {
-      "x": 3040,
-      "y": 14992,
-      "w": 1440,
-      "h": 972,
-      "title": "F9·3 Phone access off",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F9_Phone_P1.dc.html": {
-      "x": 0,
-      "y": 16084,
-      "w": 390,
-      "h": 972,
-      "title": "F9·P1 Scan the code",
-      "page": "flows"
-    },
-    "F10_SwitchProject_1.dc.html": {
-      "x": 0,
-      "y": 17516,
-      "w": 1440,
-      "h": 972,
-      "title": "F10·1 Inside pi-local-harness, Work",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F10_SwitchProject_2.dc.html": {
-      "x": 1520,
-      "y": 17516,
-      "w": 1440,
-      "h": 972,
-      "title": "F10·2 ‹ Projects (or the close box)",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F10_SwitchProject_3.dc.html": {
-      "x": 3040,
-      "y": 17516,
-      "w": 1440,
-      "h": 972,
-      "title": "F10·3 ⌘K, type “home”",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F10_SwitchProject_4.dc.html": {
-      "x": 4560,
-      "y": 17516,
-      "w": 1440,
-      "h": 972,
-      "title": "F10·4 Choose Japanese study app",
-      "page": "flows",
-      "is_interactive": true
-    },
-    "F10_SwitchProject_P1.dc.html": {
-      "x": 0,
-      "y": 18608,
-      "w": 390,
-      "h": 972,
-      "title": "F10·P1 Inside a project",
-      "page": "flows"
-    },
-    "F10_SwitchProject_P2.dc.html": {
-      "x": 470,
-      "y": 18608,
-      "w": 390,
-      "h": 972,
-      "title": "F10·P2 π",
-      "page": "flows"
-    },
-    "F10_SwitchProject_P3.dc.html": {
-      "x": 940,
-      "y": 18608,
-      "w": 390,
-      "h": 972,
-      "title": "F10·P3 Choose Japanese study app",
-      "page": "flows"
-    },
-    "MB_Model.dc.html": {
-      "x": 0,
-      "y": 17220,
-      "w": 1440,
-      "h": 1560,
-      "title": "Model and thinking menus: rest, open, loading, no thinking",
-      "page": "states"
-    },
-    "W_FolderSel.dc.html": {
-      "x": 1520,
-      "y": 17220,
-      "w": 1440,
-      "h": 900,
-      "title": "Work · folder selected, File menu",
-      "page": "states",
-      "is_interactive": true
-    },
-    "W_Rename.dc.html": {
-      "x": 3040,
-      "y": 17220,
-      "w": 1440,
-      "h": 900,
-      "title": "Work · Rename or Move…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "W_TrashFolder.dc.html": {
-      "x": 4560,
-      "y": 17220,
-      "w": 1440,
-      "h": 900,
-      "title": "Work · Move a folder to the Trash",
-      "page": "states",
-      "is_interactive": true
-    },
-    "Ph_Model.dc.html": {
-      "x": 0,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "π sheet: Model",
-      "page": "phone"
-    },
-    "Ph_ModelList.dc.html": {
-      "x": 470,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "Choose a model",
-      "page": "phone"
-    },
-    "Ph_FileMore.dc.html": {
-      "x": 940,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "More for the open file",
-      "page": "phone"
-    },
-    "Ph_FolderMore.dc.html": {
-      "x": 1410,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "More for a folder",
-      "page": "phone"
-    },
-    "Ph_Recording.dc.html": {
-      "x": 1880,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "Recording",
-      "page": "phone"
-    },
-    "P_Menu.dc.html": {
-      "x": 0,
-      "y": 19300,
-      "w": 1440,
-      "h": 900,
-      "title": "Project menu · acting on the open project",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_MenuMissing.dc.html": {
-      "x": 1520,
-      "y": 19300,
-      "w": 1440,
-      "h": 900,
-      "title": "Project menu · folder missing (dimmed, Locate…)",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Rename.dc.html": {
-      "x": 3040,
-      "y": 19300,
-      "w": 1440,
-      "h": 900,
-      "title": "Rename Project…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Renamed.dc.html": {
-      "x": 4560,
-      "y": 19300,
-      "w": 1440,
-      "h": 900,
-      "title": "After Rename: toast with Undo",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Move.dc.html": {
-      "x": 0,
-      "y": 20320,
-      "w": 1440,
-      "h": 900,
-      "title": "Move Project…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Refused.dc.html": {
-      "x": 1520,
-      "y": 20320,
-      "w": 1440,
-      "h": 900,
-      "title": "Move or Trash while Pi works: refused",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Remove.dc.html": {
-      "x": 3040,
-      "y": 20320,
-      "w": 1440,
-      "h": 900,
-      "title": "Remove from List…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Trash.dc.html": {
-      "x": 4560,
-      "y": 20320,
-      "w": 1440,
-      "h": 900,
-      "title": "Move Project to Trash…",
-      "page": "states",
-      "is_interactive": true
-    },
-    "P_Locate.dc.html": {
-      "x": 0,
-      "y": 21340,
-      "w": 1440,
-      "h": 900,
-      "title": "Locate Folder… for a missing project",
-      "page": "states",
-      "is_interactive": true
-    },
-    "Ph_ProjectMore.dc.html": {
-      "x": 2350,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "More for a project (π sheet)",
-      "page": "phone"
-    },
-    "A_FromChat.dc.html": {
-      "x": 0,
-      "y": 22880,
-      "w": 1440,
-      "h": 900,
-      "title": "Activity · from a chat message: Open in Chat",
-      "page": "states",
-      "is_interactive": true
-    },
-    "A_FromComment.dc.html": {
-      "x": 1520,
-      "y": 22880,
-      "w": 1440,
-      "h": 900,
-      "title": "Activity · from a comment: Show Comment",
-      "page": "states",
-      "is_interactive": true
-    },
-    "A_FromFile.dc.html": {
-      "x": 3040,
-      "y": 22880,
-      "w": 1440,
-      "h": 900,
-      "title": "Activity · from a whole-file question: Show in Review",
-      "page": "states",
-      "is_interactive": true
-    },
-    "A_FromWorker.dc.html": {
-      "x": 4560,
-      "y": 22880,
-      "w": 1440,
-      "h": 900,
-      "title": "Activity · from the worker: Open in Chat, Show Task",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_WorkerPropose.dc.html": {
-      "x": 0,
-      "y": 23900,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · Gate proposes the worker (10 s)",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_WorkerWaiting.dc.html": {
-      "x": 1520,
-      "y": 23900,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · Gate asks you",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_WorkerRunning.dc.html": {
-      "x": 3040,
-      "y": 23900,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · worker running, chat idle",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_WorkerPaused.dc.html": {
-      "x": 4560,
-      "y": 23900,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · worker paused while Pi answers",
-      "page": "states",
-      "is_interactive": true
-    },
-    "S_WorkerDone.dc.html": {
-      "x": 0,
-      "y": 24920,
-      "w": 1440,
-      "h": 900,
-      "title": "Chat · worker summary",
-      "page": "states",
-      "is_interactive": true
-    },
-    "B_Worker.dc.html": {
-      "x": 0,
-      "y": 25940,
-      "w": 1440,
-      "h": 1180,
-      "title": "WorkerCard: every state, with answers",
-      "page": "states"
-    },
-    "C_Dictate.dc.html": {
-      "x": 1520,
-      "y": 25940,
-      "w": 1440,
-      "h": 820,
-      "title": "Dictate states and smaller answers",
-      "page": "states"
-    },
-    "Ph_Worker.dc.html": {
-      "x": 2820,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "Worker card",
-      "page": "phone"
-    },
-    "Ph_ActivityFromComment.dc.html": {
-      "x": 3290,
-      "y": 2500,
-      "w": 390,
-      "h": 844,
-      "title": "Activity detail from a comment",
-      "page": "phone"
-    },
-    "T_Principles.dc.html": {
-      "x": 0,
-      "y": 0,
-      "w": 1440,
-      "h": 1180,
-      "title": "1 · Principles",
-      "page": "terminal"
-    },
-    "T_Startup.dc.html": {
-      "x": 1520,
-      "y": 0,
-      "w": 1440,
-      "h": 1450,
-      "title": "2 · Startup header",
-      "page": "terminal"
-    },
-    "T_Footer.dc.html": {
-      "x": 3040,
-      "y": 0,
-      "w": 1440,
-      "h": 1500,
-      "title": "3 · Footer",
-      "page": "terminal"
-    },
-    "T_Outputs.dc.html": {
-      "x": 0,
-      "y": 1620,
-      "w": 1440,
-      "h": 1500,
-      "title": "4 · Console outputs",
-      "page": "terminal"
-    },
-    "T_Changes.dc.html": {
-      "x": 1520,
-      "y": 1620,
-      "w": 1440,
-      "h": 1000,
-      "title": "5 · Changes",
-      "page": "terminal"
-    },
-    "T_Gate.dc.html": {
-      "x": 3040,
-      "y": 1620,
-      "w": 1440,
-      "h": 900,
-      "title": "6 · Gate and recovery",
-      "page": "terminal"
-    },
-    "T_Noise.dc.html": {
-      "x": 0,
-      "y": 3240,
-      "w": 1440,
-      "h": 1100,
-      "title": "7 · Noise",
-      "page": "terminal"
-    },
-    "T_Wayfinding.dc.html": {
-      "x": 1520,
-      "y": 3240,
-      "w": 1440,
-      "h": 900,
-      "title": "8 · Finding your way",
-      "page": "terminal"
-    },
-    "T_Workbench.dc.html": {
-      "x": 3040,
-      "y": 3240,
-      "w": 1440,
-      "h": 800,
-      "title": "9 · The workbench from the terminal",
-      "page": "terminal"
-    }
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "A_Attention.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Activity · needs attention",
+   "w": 1440,
+   "x": 0,
+   "y": 7020
   },
-  "createdOnFiles": {
-    "at": "2026-10-13T09:00:00Z",
-    "v": 1
+  "A_Empty.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Activity · all caught up",
+   "w": 1440,
+   "x": 1520,
+   "y": 7020
   },
-  "designSystems": [
-    {
-      "artifact": "https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1",
-      "copiedAt": "2026-10-13T13:45:00+09:00",
-      "namespace": "piworkbench",
-      "title": "Pi Workbench System 1",
-      "version": null
-    }
-  ],
-  "launch": {
-    "page": "states",
-    "view": "canvas"
+  "Activity.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "is_interactive": true,
+   "title": "Activity · All Projects",
+   "w": 1440,
+   "x": 0,
+   "y": 1020
   },
-  "notes": {
-    "c1": {
-      "kind": "title1",
-      "maxW": 2960,
-      "page": "system",
-      "text": "Shared components — every state screen mounts these",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    },
-    "p1": {
-      "kind": "title1",
-      "maxW": 4150,
-      "page": "phone",
-      "text": "Phone — every page",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    },
-    "s1": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Every menu, open in place",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    },
-    "s2": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Chat — every state",
-      "w": 240,
-      "x": 0,
-      "y": 2080
-    },
-    "s3": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Work — every state",
-      "w": 240,
-      "x": 0,
-      "y": 4420
-    },
-    "s4": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Activity, Gate and the remaining dialogs",
-      "w": 240,
-      "x": 0,
-      "y": 6760
-    },
-    "s5": {
-      "kind": "title1",
-      "maxW": 2544,
-      "page": "states",
-      "text": "Files window — Plan above Files",
-      "w": 240,
-      "x": 0,
-      "y": 9300
-    },
-    "t1": {
-      "kind": "title1",
-      "maxW": 3430,
-      "text": "Pi Workbench — The Desktop Interface, 1-bit",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    },
-    "t2": {
-      "kind": "title1",
-      "maxW": 2480,
-      "page": "edit",
-      "text": "Editing & commenting — B inline threads + C Review",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    },
-    "t3": {
-      "kind": "title1",
-      "maxW": 2270,
-      "page": "edit",
-      "text": "Phone — long press selects, a visible handle does the rest",
-      "w": 240,
-      "x": 0,
-      "y": 900
-    },
-    "t4": {
-      "kind": "title1",
-      "maxW": 2380,
-      "page": "edit",
-      "text": "Chosen: B + Review window — resolve, delete, undo",
-      "w": 240,
-      "x": 0,
-      "y": 2000
-    },
-    "s6": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Agent scope & what Pi sees — task 119",
-      "w": 240,
-      "x": 0,
-      "y": 10560
-    },
-    "s7": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Round 3 — tables and earlier conversations",
-      "w": 240,
-      "x": 0,
-      "y": 14380
-    },
-    "p2": {
-      "kind": "title1",
-      "maxW": 4150,
-      "page": "phone",
-      "text": "Phone — tables, first run, answered thread",
-      "w": 240,
-      "x": 0,
-      "y": 1000
-    },
-    "n_F1_FirstRun": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F1 · First run",
-      "w": 240,
-      "x": 0,
-      "y": 0
-    },
-    "n_F2_ChatWork": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F2 · Ask in Chat and follow the work",
-      "w": 240,
-      "x": 0,
-      "y": 2524
-    },
-    "n_F3_Comment": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F3 · Comment and ask Pi",
-      "w": 240,
-      "x": 0,
-      "y": 3956
-    },
-    "n_F4_WholeFile": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F4 · Ask about the whole file",
-      "w": 240,
-      "x": 0,
-      "y": 6480
-    },
-    "n_F5_Plan": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F5 · Plan work",
-      "w": 240,
-      "x": 0,
-      "y": 7912
-    },
-    "n_F6_Edit": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F6 · Edit a document",
-      "w": 240,
-      "x": 0,
-      "y": 9344
-    },
-    "n_F7_LongChat": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F7 · A long conversation",
-      "w": 240,
-      "x": 0,
-      "y": 11868
-    },
-    "n_F8_Wrong": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F8 · Something went wrong",
-      "w": 240,
-      "x": 0,
-      "y": 13300
-    },
-    "n_F9_Phone": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F9 · Phone access",
-      "w": 240,
-      "x": 0,
-      "y": 14732
-    },
-    "n_F10_SwitchProject": {
-      "kind": "title1",
-      "maxW": 12000,
-      "page": "flows",
-      "text": "F10 · Switch projects",
-      "w": 240,
-      "x": 0,
-      "y": 17256
-    },
-    "s8": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Round 4 — model menus, rename and move",
-      "w": 240,
-      "x": 0,
-      "y": 16960
-    },
-    "p3": {
-      "kind": "title1",
-      "maxW": 4150,
-      "page": "phone",
-      "text": "Phone — model, More for files and folders, recording",
-      "w": 240,
-      "x": 0,
-      "y": 2240
-    },
-    "s9": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Project commands — rename, move, remove, trash, locate (task 154)",
-      "w": 240,
-      "x": 0,
-      "y": 19040
-    },
-    "s10": {
-      "kind": "title1",
-      "maxW": 6000,
-      "page": "states",
-      "text": "Round 5 — from working to its request and back; the worker",
-      "w": 240,
-      "x": 0,
-      "y": 22620
-    },
-    "tm1": {
-      "kind": "title1",
-      "maxW": 4500,
-      "page": "terminal",
-      "text": "Terminal Pi — the typed member of System 1 (round 6)",
-      "w": 240,
-      "x": 0,
-      "y": -260
-    }
+  "C_ActivityDesk.dc.html": {
+   "h": 872,
+   "page": "system",
+   "title": "ActivityDesk (state) · app-level window",
+   "w": 1440,
+   "x": 0,
+   "y": 1472
   },
-  "order": [
-    "Main.dc.html",
-    "Work.dc.html",
-    "Phone.dc.html",
-    "Activity.dc.html",
-    "Gate.dc.html",
-    "Menus.dc.html",
-    "Dialogs.dc.html",
-    "EditA.dc.html",
-    "EditB.dc.html",
-    "EditC.dc.html",
-    "PhoneEdit1.dc.html",
-    "PhoneEdit2.dc.html",
-    "PhoneEdit3.dc.html",
-    "PhoneEdit4.dc.html",
-    "PhoneEdit5.dc.html",
-    "Final.dc.html",
-    "PhoneEdit6.dc.html",
-    "PhoneEdit7.dc.html",
-    "C_MenuBar.dc.html",
-    "C_ChatDesk.dc.html",
-    "C_WorkDesk.dc.html",
-    "C_ActivityDesk.dc.html",
-    "C_GateDesk.dc.html",
-    "M_Pi.dc.html",
-    "M_File.dc.html",
-    "M_Edit.dc.html",
-    "M_View.dc.html",
-    "M_Project.dc.html",
-    "M_Agent.dc.html",
-    "M_Window.dc.html",
-    "P_Popups.dc.html",
-    "S_Welcome.dc.html",
-    "S_Empty.dc.html",
-    "S_Idle.dc.html",
-    "S_Attachments.dc.html",
-    "S_Dragging.dc.html",
-    "S_Recording.dc.html",
-    "S_Error.dc.html",
-    "S_Offline.dc.html",
-    "W_Source.dc.html",
-    "W_Code.dc.html",
-    "W_Empty.dc.html",
-    "W_Search.dc.html",
-    "W_Requests.dc.html",
-    "W_Conflict.dc.html",
-    "W_Trash.dc.html",
-    "W_Reload.dc.html",
-    "A_Attention.dc.html",
-    "A_Empty.dc.html",
-    "G_All.dc.html",
-    "G_Empty.dc.html",
-    "Dialogs2.dc.html",
-    "W_NoPlan.dc.html",
-    "W_Tablet.dc.html",
-    "Ph_Pi.dc.html",
-    "Ph_Views.dc.html",
-    "Ph_Welcome.dc.html",
-    "Ph_Offline.dc.html",
-    "Ph_Files.dc.html",
-    "Ph_Activity.dc.html",
-    "Ph_ActivityDetail.dc.html",
-    "Ph_Gate.dc.html",
-    "Ph_GateDetail.dc.html",
-    "Projects.dc.html",
-    "C_ProjectsWin.dc.html",
-    "C_ProjectWin.dc.html",
-    "S_Near.dc.html",
-    "S_Compacted.dc.html",
-    "S_Summary.dc.html",
-    "S_NewConversation.dc.html",
-    "S_Fresh.dc.html",
-    "W_Comment.dc.html",
-    "W_Blocks.dc.html",
-    "G_Tablet.dc.html",
-    "MB_Status.dc.html",
-    "W_Table.dc.html",
-    "S_Earlier.dc.html",
-    "M_AgentEarlier.dc.html",
-    "A_Retry.dc.html",
-    "S_FirstChat.dc.html",
-    "Ph_Table.dc.html",
-    "Ph_TableEdit.dc.html",
-    "Ph_NewProject.dc.html",
-    "Ph_FirstChat.dc.html",
-    "Ph_FilesNew.dc.html",
-    "Ph_ThreadAnswered.dc.html",
-    "F1_FirstRun_1.dc.html",
-    "F1_FirstRun_2.dc.html",
-    "F1_FirstRun_3.dc.html",
-    "F1_FirstRun_4.dc.html",
-    "F1_FirstRun_5.dc.html",
-    "F1_FirstRun_6.dc.html",
-    "F1_FirstRun_P1.dc.html",
-    "F1_FirstRun_P2.dc.html",
-    "F1_FirstRun_P3.dc.html",
-    "F1_FirstRun_P4.dc.html",
-    "F2_ChatWork_1.dc.html",
-    "F2_ChatWork_2.dc.html",
-    "F2_ChatWork_3.dc.html",
-    "F2_ChatWork_4.dc.html",
-    "F2_ChatWork_5.dc.html",
-    "F3_Comment_1.dc.html",
-    "F3_Comment_2.dc.html",
-    "F3_Comment_3.dc.html",
-    "F3_Comment_4.dc.html",
-    "F3_Comment_5.dc.html",
-    "F3_Comment_6.dc.html",
-    "F3_Comment_7.dc.html",
-    "F3_Comment_8.dc.html",
-    "F3_Comment_9.dc.html",
-    "F3_Comment_P1.dc.html",
-    "F3_Comment_P2.dc.html",
-    "F3_Comment_P3.dc.html",
-    "F3_Comment_P4.dc.html",
-    "F4_WholeFile_1.dc.html",
-    "F4_WholeFile_2.dc.html",
-    "F4_WholeFile_3.dc.html",
-    "F5_Plan_1.dc.html",
-    "F5_Plan_2.dc.html",
-    "F5_Plan_3.dc.html",
-    "F5_Plan_4.dc.html",
-    "F5_Plan_5.dc.html",
-    "F6_Edit_1.dc.html",
-    "F6_Edit_2.dc.html",
-    "F6_Edit_3.dc.html",
-    "F6_Edit_P1.dc.html",
-    "F6_Edit_P2.dc.html",
-    "F6_Edit_P3.dc.html",
-    "F6_Edit_P4.dc.html",
-    "F6_Edit_P5.dc.html",
-    "F7_LongChat_1.dc.html",
-    "F7_LongChat_2.dc.html",
-    "F7_LongChat_3.dc.html",
-    "F7_LongChat_4.dc.html",
-    "F7_LongChat_5.dc.html",
-    "F7_LongChat_6.dc.html",
-    "F7_LongChat_7.dc.html",
-    "F8_Wrong_1.dc.html",
-    "F8_Wrong_2.dc.html",
-    "F8_Wrong_3.dc.html",
-    "F8_Wrong_4.dc.html",
-    "F8_Wrong_5.dc.html",
-    "F8_Wrong_6.dc.html",
-    "F8_Wrong_7.dc.html",
-    "F8_Wrong_8.dc.html",
-    "F9_Phone_1.dc.html",
-    "F9_Phone_2.dc.html",
-    "F9_Phone_3.dc.html",
-    "F9_Phone_P1.dc.html",
-    "F10_SwitchProject_1.dc.html",
-    "F10_SwitchProject_2.dc.html",
-    "F10_SwitchProject_3.dc.html",
-    "F10_SwitchProject_4.dc.html",
-    "F10_SwitchProject_P1.dc.html",
-    "F10_SwitchProject_P2.dc.html",
-    "F10_SwitchProject_P3.dc.html",
-    "MB_Model.dc.html",
-    "W_FolderSel.dc.html",
-    "W_Rename.dc.html",
-    "W_TrashFolder.dc.html",
-    "Ph_Model.dc.html",
-    "Ph_ModelList.dc.html",
-    "Ph_FileMore.dc.html",
-    "Ph_FolderMore.dc.html",
-    "Ph_Recording.dc.html",
-    "P_Menu.dc.html",
-    "P_MenuMissing.dc.html",
-    "P_Rename.dc.html",
-    "P_Renamed.dc.html",
-    "P_Move.dc.html",
-    "P_Refused.dc.html",
-    "P_Remove.dc.html",
-    "P_Trash.dc.html",
-    "P_Locate.dc.html",
-    "Ph_ProjectMore.dc.html",
-    "A_FromChat.dc.html",
-    "A_FromComment.dc.html",
-    "A_FromFile.dc.html",
-    "A_FromWorker.dc.html",
-    "S_WorkerPropose.dc.html",
-    "S_WorkerWaiting.dc.html",
-    "S_WorkerRunning.dc.html",
-    "S_WorkerPaused.dc.html",
-    "S_WorkerDone.dc.html",
-    "B_Worker.dc.html",
-    "C_Dictate.dc.html",
-    "Ph_Worker.dc.html",
-    "Ph_ActivityFromComment.dc.html",
-    "T_Principles.dc.html",
-    "T_Startup.dc.html",
-    "T_Footer.dc.html",
-    "T_Outputs.dc.html",
-    "T_Changes.dc.html",
-    "T_Gate.dc.html",
-    "T_Noise.dc.html",
-    "T_Wayfinding.dc.html",
-    "T_Workbench.dc.html"
-  ],
-  "pages": [
-    {
-      "id": "screens",
-      "name": "Screens"
-    },
-    {
-      "id": "flows",
-      "name": "Workflows"
-    },
-    {
-      "id": "terminal",
-      "name": "Terminal"
-    },
-    {
-      "id": "states",
-      "name": "Every menu & state"
-    },
-    {
-      "id": "phone",
-      "name": "Phone pages"
-    },
-    {
-      "id": "edit",
-      "name": "Edit & comment"
-    },
-    {
-      "id": "system",
-      "name": "Components"
-    },
-    {
-      "id": "archive",
-      "name": "Archive — not chosen"
-    }
-  ],
-  "title": "Pi Workbench — Desktop Interface"
+  "C_ChatDesk.dc.html": {
+   "h": 872,
+   "page": "system",
+   "title": "ChatDesk (state)",
+   "w": 1440,
+   "x": 0,
+   "y": 480
+  },
+  "C_GateDesk.dc.html": {
+   "h": 872,
+   "page": "system",
+   "title": "GateDesk (state) · app-level window",
+   "w": 1440,
+   "x": 1520,
+   "y": 1472
+  },
+  "C_MenuBar.dc.html": {
+   "h": 360,
+   "page": "system",
+   "title": "MenuBar (open: none…window)",
+   "w": 1440,
+   "x": 0,
+   "y": 0
+  },
+  "C_WorkDesk.dc.html": {
+   "h": 872,
+   "page": "system",
+   "title": "WorkDesk (state)",
+   "w": 1440,
+   "x": 1520,
+   "y": 480
+  },
+  "Dialogs.dc.html": {
+   "h": 640,
+   "title": "Dialogs & alerts",
+   "w": 1440,
+   "x": 1520,
+   "y": 2040
+  },
+  "Dialogs2.dc.html": {
+   "h": 1160,
+   "page": "states",
+   "title": "More dialogs: folder, New File, New Task, settings, about, phone on/off, startup",
+   "w": 1440,
+   "x": 0,
+   "y": 8040
+  },
+  "EditA.dc.html": {
+   "h": 780,
+   "page": "archive",
+   "title": "A · Margin notes",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "EditB.dc.html": {
+   "h": 780,
+   "page": "edit",
+   "title": "B · Inline threads + ruler",
+   "w": 1200,
+   "x": 0,
+   "y": 0
+  },
+  "EditC.dc.html": {
+   "h": 780,
+   "page": "edit",
+   "title": "C · Edit / Review modes",
+   "w": 1200,
+   "x": 1280,
+   "y": 0
+  },
+  "Final.dc.html": {
+   "h": 860,
+   "is_interactive": true,
+   "page": "edit",
+   "title": "B + Review — clickable prototype",
+   "w": 1440,
+   "x": 0,
+   "y": 2260
+  },
+  "G_All.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Gate · all checks",
+   "w": 1440,
+   "x": 3040,
+   "y": 7020
+  },
+  "G_Empty.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Gate · connecting, no checks",
+   "w": 1440,
+   "x": 4560,
+   "y": 7020
+  },
+  "Gate.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "is_interactive": true,
+   "title": "Gate · All Projects",
+   "w": 1440,
+   "x": 1520,
+   "y": 1020
+  },
+  "M_Agent.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Agent menu",
+   "w": 1440,
+   "x": 1520,
+   "y": 1020
+  },
+  "M_Edit.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Edit menu",
+   "w": 1440,
+   "x": 3040,
+   "y": 0
+  },
+  "M_File.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "File menu",
+   "w": 1440,
+   "x": 1520,
+   "y": 0
+  },
+  "M_Pi.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "π menu",
+   "w": 1440,
+   "x": 0,
+   "y": 0
+  },
+  "M_Project.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Project menu",
+   "w": 1440,
+   "x": 0,
+   "y": 1020
+  },
+  "M_View.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "View menu",
+   "w": 1440,
+   "x": 4560,
+   "y": 0
+  },
+  "M_Window.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Window menu",
+   "w": 1440,
+   "x": 3040,
+   "y": 1020
+  },
+  "Main.dc.html": {
+   "expand": "fill",
+   "h": 900,
+   "is_interactive": true,
+   "title": "Chat",
+   "w": 1440,
+   "x": 0,
+   "y": 0
+  },
+  "Menus.dc.html": {
+   "h": 640,
+   "title": "Menu bar — command map",
+   "w": 1440,
+   "x": 0,
+   "y": 2040
+  },
+  "P_Popups.dc.html": {
+   "h": 900,
+   "page": "states",
+   "title": "Every popup, open",
+   "w": 1440,
+   "x": 4560,
+   "y": 1020
+  },
+  "Ph_Activity.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Activity",
+   "w": 390,
+   "x": 2350,
+   "y": 0
+  },
+  "Ph_ActivityDetail.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Activity · request detail",
+   "w": 390,
+   "x": 2820,
+   "y": 0
+  },
+  "Ph_Files.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Work · files",
+   "w": 390,
+   "x": 1880,
+   "y": 0
+  },
+  "Ph_Gate.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Gate",
+   "w": 390,
+   "x": 3290,
+   "y": 0
+  },
+  "Ph_GateDetail.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Gate · event info",
+   "w": 390,
+   "x": 3760,
+   "y": 0
+  },
+  "Ph_Offline.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "Connection interrupted",
+   "w": 390,
+   "x": 1410,
+   "y": 0
+  },
+  "Ph_Pi.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "π sheet: projects & commands",
+   "w": 390,
+   "x": 0,
+   "y": 0
+  },
+  "Ph_Views.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "View popup",
+   "w": 390,
+   "x": 470,
+   "y": 0
+  },
+  "Ph_Welcome.dc.html": {
+   "h": 844,
+   "page": "phone",
+   "title": "First run",
+   "w": 390,
+   "x": 940,
+   "y": 0
+  },
+  "Phone.dc.html": {
+   "h": 844,
+   "title": "Chat — phone",
+   "w": 390,
+   "x": 3040,
+   "y": 0
+  },
+  "PhoneEdit1.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "1 · Read & edit",
+   "w": 390,
+   "x": 0,
+   "y": 1160
+  },
+  "PhoneEdit2.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "2 · Long press selects",
+   "w": 390,
+   "x": 470,
+   "y": 1160
+  },
+  "PhoneEdit3.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "3 · Write the comment",
+   "w": 390,
+   "x": 940,
+   "y": 1160
+  },
+  "PhoneEdit4.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "4 · Open a thread",
+   "w": 390,
+   "x": 1410,
+   "y": 1160
+  },
+  "PhoneEdit5.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "5 · Block handle menu",
+   "w": 390,
+   "x": 1880,
+   "y": 1160
+  },
+  "PhoneEdit6.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "6 · Comments: Open / Resolved / Deleted",
+   "w": 390,
+   "x": 1520,
+   "y": 2260
+  },
+  "PhoneEdit7.dc.html": {
+   "h": 844,
+   "page": "edit",
+   "title": "7 · Delete, with Undo",
+   "w": 390,
+   "x": 1990,
+   "y": 2260
+  },
+  "S_Attachments.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · files attached",
+   "w": 1440,
+   "x": 4560,
+   "y": 2340
+  },
+  "S_Dragging.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · dragging a file in",
+   "w": 1440,
+   "x": 0,
+   "y": 3360
+  },
+  "S_Empty.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · new project, no messages",
+   "w": 1440,
+   "x": 1520,
+   "y": 2340
+  },
+  "S_Error.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · attachment error",
+   "w": 1440,
+   "x": 3040,
+   "y": 3360
+  },
+  "S_Idle.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · idle, answer finished",
+   "w": 1440,
+   "x": 3040,
+   "y": 2340
+  },
+  "S_Offline.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · connection interrupted",
+   "w": 1440,
+   "x": 4560,
+   "y": 3360
+  },
+  "S_Recording.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · recording audio",
+   "w": 1440,
+   "x": 1520,
+   "y": 3360
+  },
+  "S_Welcome.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Chat · first run, no projects",
+   "w": 1440,
+   "x": 0,
+   "y": 2340
+  },
+  "W_Code.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · text / code file",
+   "w": 1440,
+   "x": 1520,
+   "y": 4680
+  },
+  "W_Conflict.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · save conflict",
+   "w": 1440,
+   "x": 1520,
+   "y": 5700
+  },
+  "W_Empty.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · no document open",
+   "w": 1440,
+   "x": 3040,
+   "y": 4680
+  },
+  "W_NoPlan.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Files window · folder with no Plan",
+   "w": 1440,
+   "x": 0,
+   "y": 9560
+  },
+  "W_Reload.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · Reload from Disk",
+   "w": 1440,
+   "x": 4560,
+   "y": 5700
+  },
+  "W_Requests.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · document requests",
+   "w": 1440,
+   "x": 0,
+   "y": 5700
+  },
+  "W_Search.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · finding a file",
+   "w": 1440,
+   "x": 4560,
+   "y": 4680
+  },
+  "W_Source.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · Markdown source",
+   "w": 1440,
+   "x": 0,
+   "y": 4680
+  },
+  "W_Tablet.dc.html": {
+   "h": 768,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Files window · tablet 1024 (220px), Files empty",
+   "w": 1024,
+   "x": 1520,
+   "y": 9560
+  },
+  "W_Trash.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "page": "states",
+   "title": "Work · Move to Trash",
+   "w": 1440,
+   "x": 3040,
+   "y": 5700
+  },
+  "Work.dc.html": {
+   "h": 900,
+   "is_interactive": true,
+   "title": "Work — document",
+   "w": 1440,
+   "x": 1520,
+   "y": 0
+  },
+  "Projects.dc.html": {
+   "x": 3040,
+   "y": 1020,
+   "w": 1440,
+   "h": 900,
+   "title": "Projects home · Agent section",
+   "is_interactive": true
+  },
+  "C_ProjectsWin.dc.html": {
+   "x": 3040,
+   "y": 480,
+   "w": 290,
+   "h": 824,
+   "title": "ProjectsWin (agent, current)",
+   "page": "system"
+  },
+  "C_ProjectWin.dc.html": {
+   "x": 3410,
+   "y": 480,
+   "w": 290,
+   "h": 824,
+   "title": "ProjectWin (state)",
+   "page": "system"
+  },
+  "S_Near.dc.html": {
+   "x": 0,
+   "y": 10820,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · near the summary line (meter)",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_Compacted.dc.html": {
+   "x": 1520,
+   "y": 10820,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · just compacted (marker closed)",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_Summary.dc.html": {
+   "x": 3040,
+   "y": 10820,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · summary opened",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_NewConversation.dc.html": {
+   "x": 4560,
+   "y": 10820,
+   "w": 1440,
+   "h": 900,
+   "title": "Agent › New Conversation… alert",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_Fresh.dc.html": {
+   "x": 0,
+   "y": 11840,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · new conversation, earlier one kept",
+   "page": "states",
+   "is_interactive": true
+  },
+  "W_Comment.dc.html": {
+   "x": 1520,
+   "y": 11840,
+   "w": 1440,
+   "h": 900,
+   "title": "Work · writing a comment (Pi sees)",
+   "page": "states",
+   "is_interactive": true
+  },
+  "W_Blocks.dc.html": {
+   "x": 3040,
+   "y": 11840,
+   "w": 1440,
+   "h": 900,
+   "title": "Work · adding blocks, block types",
+   "page": "states",
+   "is_interactive": true
+  },
+  "G_Tablet.dc.html": {
+   "x": 4560,
+   "y": 11840,
+   "w": 1024,
+   "h": 768,
+   "title": "Gate · tablet 1024, Event Info floats",
+   "page": "states",
+   "is_interactive": true
+  },
+  "MB_Status.dc.html": {
+   "x": 0,
+   "y": 12860,
+   "w": 1440,
+   "h": 1260,
+   "title": "Menu bar status + Agent section states",
+   "page": "states"
+  },
+  "W_Table.dc.html": {
+   "x": 0,
+   "y": 14640,
+   "w": 1440,
+   "h": 1000,
+   "title": "Work · Table block: rest, focused, editing",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_Earlier.dc.html": {
+   "x": 1520,
+   "y": 14640,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · earlier conversation, read only",
+   "page": "states",
+   "is_interactive": true
+  },
+  "M_AgentEarlier.dc.html": {
+   "x": 3040,
+   "y": 14640,
+   "w": 1440,
+   "h": 900,
+   "title": "Agent › Earlier Conversations ▸",
+   "page": "states",
+   "is_interactive": true
+  },
+  "A_Retry.dc.html": {
+   "x": 4560,
+   "y": 14640,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · Ask Pi to Retry…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_FirstChat.dc.html": {
+   "x": 0,
+   "y": 15800,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · new project, first open",
+   "page": "states",
+   "is_interactive": true
+  },
+  "Ph_Table.dc.html": {
+   "x": 0,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "Table reads",
+   "page": "phone"
+  },
+  "Ph_TableEdit.dc.html": {
+   "x": 470,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "Table edits as Markdown",
+   "page": "phone"
+  },
+  "Ph_NewProject.dc.html": {
+   "x": 940,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "New Project sheet",
+   "page": "phone"
+  },
+  "Ph_FirstChat.dc.html": {
+   "x": 1410,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "New project Chat",
+   "page": "phone"
+  },
+  "Ph_FilesNew.dc.html": {
+   "x": 1880,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "Work › Plan, new project",
+   "page": "phone"
+  },
+  "Ph_ThreadAnswered.dc.html": {
+   "x": 2350,
+   "y": 1260,
+   "w": 390,
+   "h": 844,
+   "title": "Thread answered",
+   "page": "phone"
+  },
+  "F1_FirstRun_1.dc.html": {
+   "x": 0,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·1 Open Pi Workbench",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_2.dc.html": {
+   "x": 1520,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·2 Create Your First Project…",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_3.dc.html": {
+   "x": 3040,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·3 Create",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_4.dc.html": {
+   "x": 4560,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·4 Or: Use an Existing Folder…",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_5.dc.html": {
+   "x": 6080,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·5 The folder has no plan",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_6.dc.html": {
+   "x": 7600,
+   "y": 260,
+   "w": 1440,
+   "h": 972,
+   "title": "F1·6 Create Roadmap",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F1_FirstRun_P1.dc.html": {
+   "x": 0,
+   "y": 1352,
+   "w": 390,
+   "h": 972,
+   "title": "F1·P1 Open on the phone",
+   "page": "flows"
+  },
+  "F1_FirstRun_P2.dc.html": {
+   "x": 470,
+   "y": 1352,
+   "w": 390,
+   "h": 972,
+   "title": "F1·P2 Create Your First Project…",
+   "page": "flows"
+  },
+  "F1_FirstRun_P3.dc.html": {
+   "x": 940,
+   "y": 1352,
+   "w": 390,
+   "h": 972,
+   "title": "F1·P3 Create",
+   "page": "flows"
+  },
+  "F1_FirstRun_P4.dc.html": {
+   "x": 1410,
+   "y": 1352,
+   "w": 390,
+   "h": 972,
+   "title": "F1·P4 Open the Plan",
+   "page": "flows"
+  },
+  "F2_ChatWork_1.dc.html": {
+   "x": 0,
+   "y": 2784,
+   "w": 1440,
+   "h": 972,
+   "title": "F2·1 Type a question",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F2_ChatWork_2.dc.html": {
+   "x": 1520,
+   "y": 2784,
+   "w": 1440,
+   "h": 972,
+   "title": "F2·2 Send",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F2_ChatWork_3.dc.html": {
+   "x": 3040,
+   "y": 2784,
+   "w": 1440,
+   "h": 972,
+   "title": "F2·3 Point at the status",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F2_ChatWork_4.dc.html": {
+   "x": 4560,
+   "y": 2784,
+   "w": 1440,
+   "h": 972,
+   "title": "F2·4 Click it (or ⌘3)",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F2_ChatWork_5.dc.html": {
+   "x": 6080,
+   "y": 2784,
+   "w": 1440,
+   "h": 972,
+   "title": "F2·5 Close box (⌘W)",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_1.dc.html": {
+   "x": 0,
+   "y": 4216,
+   "w": 1440,
+   "h": 932,
+   "title": "F3·1 Select a passage",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_2.dc.html": {
+   "x": 1520,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·2 Comment",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_3.dc.html": {
+   "x": 3040,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·3 Add & Ask Pi",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_4.dc.html": {
+   "x": 4560,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·4 Wait",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_5.dc.html": {
+   "x": 6080,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·5 Pi answers",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_6.dc.html": {
+   "x": 7600,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·6 Reply, then Ask Pi",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_7.dc.html": {
+   "x": 9120,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·7 Resolve",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_8.dc.html": {
+   "x": 10640,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·8 Suggested change",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_9.dc.html": {
+   "x": 12160,
+   "y": 4216,
+   "w": 1440,
+   "h": 972,
+   "title": "F3·9 Apply Change",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F3_Comment_P1.dc.html": {
+   "x": 0,
+   "y": 5308,
+   "w": 390,
+   "h": 972,
+   "title": "F3·P1 Long press",
+   "page": "flows"
+  },
+  "F3_Comment_P2.dc.html": {
+   "x": 470,
+   "y": 5308,
+   "w": 390,
+   "h": 972,
+   "title": "F3·P2 Comment",
+   "page": "flows"
+  },
+  "F3_Comment_P3.dc.html": {
+   "x": 940,
+   "y": 5308,
+   "w": 390,
+   "h": 972,
+   "title": "F3·P3 Pi answers",
+   "page": "flows"
+  },
+  "F3_Comment_P4.dc.html": {
+   "x": 1410,
+   "y": 5308,
+   "w": 390,
+   "h": 972,
+   "title": "F3·P4 Suggested change",
+   "page": "flows"
+  },
+  "F4_WholeFile_1.dc.html": {
+   "x": 0,
+   "y": 6740,
+   "w": 1440,
+   "h": 972,
+   "title": "F4·1 Open “Ask Pi about this whole file”",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F4_WholeFile_2.dc.html": {
+   "x": 1520,
+   "y": 6740,
+   "w": 1440,
+   "h": 972,
+   "title": "F4·2 Send Request",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F4_WholeFile_3.dc.html": {
+   "x": 3040,
+   "y": 6740,
+   "w": 1440,
+   "h": 972,
+   "title": "F4·3 Pi answers",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F5_Plan_1.dc.html": {
+   "x": 0,
+   "y": 8172,
+   "w": 1440,
+   "h": 972,
+   "title": "F5·1 Plan +  (or ⌘T)",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F5_Plan_2.dc.html": {
+   "x": 1520,
+   "y": 8172,
+   "w": 1440,
+   "h": 972,
+   "title": "F5·2 Create",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F5_Plan_3.dc.html": {
+   "x": 3040,
+   "y": 8172,
+   "w": 1440,
+   "h": 972,
+   "title": "F5·3 Check two boxes",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F5_Plan_4.dc.html": {
+   "x": 4560,
+   "y": 8172,
+   "w": 1440,
+   "h": 972,
+   "title": "F5·4 Check the last",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F5_Plan_5.dc.html": {
+   "x": 6080,
+   "y": 8172,
+   "w": 1440,
+   "h": 972,
+   "title": "F5·5 Next refresh",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F6_Edit_1.dc.html": {
+   "x": 0,
+   "y": 9604,
+   "w": 1440,
+   "h": 972,
+   "title": "F6·1 Point at the gutter, Return, click below",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F6_Edit_2.dc.html": {
+   "x": 1520,
+   "y": 9604,
+   "w": 1440,
+   "h": 972,
+   "title": "F6·2 Handle › Turn Into › Table",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F6_Edit_3.dc.html": {
+   "x": 3040,
+   "y": 9604,
+   "w": 1440,
+   "h": 972,
+   "title": "F6·3 Handle menu, every popup",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F6_Edit_P1.dc.html": {
+   "x": 0,
+   "y": 10696,
+   "w": 390,
+   "h": 972,
+   "title": "F6·P1 Tap a paragraph",
+   "page": "flows"
+  },
+  "F6_Edit_P2.dc.html": {
+   "x": 470,
+   "y": 10696,
+   "w": 390,
+   "h": 972,
+   "title": "F6·P2 Tap the handle",
+   "page": "flows"
+  },
+  "F6_Edit_P3.dc.html": {
+   "x": 940,
+   "y": 10696,
+   "w": 390,
+   "h": 972,
+   "title": "F6·P3 Table",
+   "page": "flows"
+  },
+  "F6_Edit_P4.dc.html": {
+   "x": 1410,
+   "y": 10696,
+   "w": 390,
+   "h": 972,
+   "title": "F6·P4 Tap the table",
+   "page": "flows"
+  },
+  "F6_Edit_P5.dc.html": {
+   "x": 1880,
+   "y": 10696,
+   "w": 390,
+   "h": 972,
+   "title": "F6·P5 Delete",
+   "page": "flows"
+  },
+  "F7_LongChat_1.dc.html": {
+   "x": 0,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·1 Keep talking",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_2.dc.html": {
+   "x": 1520,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·2 Pi answers",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_3.dc.html": {
+   "x": 3040,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·3 Show Summary",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_4.dc.html": {
+   "x": 4560,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·4 Agent › New Conversation…",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_5.dc.html": {
+   "x": 6080,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·5 New Conversation",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_6.dc.html": {
+   "x": 7600,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·6 Agent › Earlier Conversations ▸",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F7_LongChat_7.dc.html": {
+   "x": 9120,
+   "y": 12128,
+   "w": 1440,
+   "h": 972,
+   "title": "F7·7 Open one",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_1.dc.html": {
+   "x": 0,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·1 A command is blocked",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_2.dc.html": {
+   "x": 1520,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·2 Show in Gate",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_3.dc.html": {
+   "x": 3040,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·3 Show in Activity",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_4.dc.html": {
+   "x": 4560,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·4 A request fails",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_5.dc.html": {
+   "x": 6080,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·5 Click it",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_6.dc.html": {
+   "x": 7600,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·6 Ask Pi to Retry…",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_7.dc.html": {
+   "x": 9120,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·7 The connection drops",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F8_Wrong_8.dc.html": {
+   "x": 10640,
+   "y": 13560,
+   "w": 1440,
+   "h": 972,
+   "title": "F8·8 Reconnect",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F9_Phone_1.dc.html": {
+   "x": 0,
+   "y": 14992,
+   "w": 1440,
+   "h": 972,
+   "title": "F9·1 π › Open on Phone…",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F9_Phone_2.dc.html": {
+   "x": 1520,
+   "y": 14992,
+   "w": 1440,
+   "h": 972,
+   "title": "F9·2 Phone access on",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F9_Phone_3.dc.html": {
+   "x": 3040,
+   "y": 14992,
+   "w": 1440,
+   "h": 972,
+   "title": "F9·3 Phone access off",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F9_Phone_P1.dc.html": {
+   "x": 0,
+   "y": 16084,
+   "w": 390,
+   "h": 972,
+   "title": "F9·P1 Scan the code",
+   "page": "flows"
+  },
+  "F10_SwitchProject_1.dc.html": {
+   "x": 0,
+   "y": 17516,
+   "w": 1440,
+   "h": 972,
+   "title": "F10·1 Inside pi-local-harness, Work",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F10_SwitchProject_2.dc.html": {
+   "x": 1520,
+   "y": 17516,
+   "w": 1440,
+   "h": 972,
+   "title": "F10·2 ‹ Projects (or the close box)",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F10_SwitchProject_3.dc.html": {
+   "x": 3040,
+   "y": 17516,
+   "w": 1440,
+   "h": 972,
+   "title": "F10·3 ⌘K, type “home”",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F10_SwitchProject_4.dc.html": {
+   "x": 4560,
+   "y": 17516,
+   "w": 1440,
+   "h": 972,
+   "title": "F10·4 Choose Japanese study app",
+   "page": "flows",
+   "is_interactive": true
+  },
+  "F10_SwitchProject_P1.dc.html": {
+   "x": 0,
+   "y": 18608,
+   "w": 390,
+   "h": 972,
+   "title": "F10·P1 Inside a project",
+   "page": "flows"
+  },
+  "F10_SwitchProject_P2.dc.html": {
+   "x": 470,
+   "y": 18608,
+   "w": 390,
+   "h": 972,
+   "title": "F10·P2 π",
+   "page": "flows"
+  },
+  "F10_SwitchProject_P3.dc.html": {
+   "x": 940,
+   "y": 18608,
+   "w": 390,
+   "h": 972,
+   "title": "F10·P3 Choose Japanese study app",
+   "page": "flows"
+  },
+  "MB_Model.dc.html": {
+   "x": 0,
+   "y": 17220,
+   "w": 1440,
+   "h": 1560,
+   "title": "Model and thinking menus: rest, open, loading, no thinking",
+   "page": "states"
+  },
+  "W_FolderSel.dc.html": {
+   "x": 1520,
+   "y": 17220,
+   "w": 1440,
+   "h": 900,
+   "title": "Work · folder selected, File menu",
+   "page": "states",
+   "is_interactive": true
+  },
+  "W_Rename.dc.html": {
+   "x": 3040,
+   "y": 17220,
+   "w": 1440,
+   "h": 900,
+   "title": "Work · Rename or Move…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "W_TrashFolder.dc.html": {
+   "x": 4560,
+   "y": 17220,
+   "w": 1440,
+   "h": 900,
+   "title": "Work · Move a folder to the Trash",
+   "page": "states",
+   "is_interactive": true
+  },
+  "Ph_Model.dc.html": {
+   "x": 0,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "π sheet: Model",
+   "page": "phone"
+  },
+  "Ph_ModelList.dc.html": {
+   "x": 470,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "Choose a model",
+   "page": "phone"
+  },
+  "Ph_FileMore.dc.html": {
+   "x": 940,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "More for the open file",
+   "page": "phone"
+  },
+  "Ph_FolderMore.dc.html": {
+   "x": 1410,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "More for a folder",
+   "page": "phone"
+  },
+  "Ph_Recording.dc.html": {
+   "x": 1880,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "Recording",
+   "page": "phone"
+  },
+  "P_Menu.dc.html": {
+   "x": 0,
+   "y": 19300,
+   "w": 1440,
+   "h": 900,
+   "title": "Project menu · acting on the open project",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_MenuMissing.dc.html": {
+   "x": 1520,
+   "y": 19300,
+   "w": 1440,
+   "h": 900,
+   "title": "Project menu · folder missing (dimmed, Locate…)",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Rename.dc.html": {
+   "x": 3040,
+   "y": 19300,
+   "w": 1440,
+   "h": 900,
+   "title": "Rename Project…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Renamed.dc.html": {
+   "x": 4560,
+   "y": 19300,
+   "w": 1440,
+   "h": 900,
+   "title": "After Rename: toast with Undo",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Move.dc.html": {
+   "x": 0,
+   "y": 20320,
+   "w": 1440,
+   "h": 900,
+   "title": "Move Project…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Refused.dc.html": {
+   "x": 1520,
+   "y": 20320,
+   "w": 1440,
+   "h": 900,
+   "title": "Move or Trash while Pi works: refused",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Remove.dc.html": {
+   "x": 3040,
+   "y": 20320,
+   "w": 1440,
+   "h": 900,
+   "title": "Remove from List…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Trash.dc.html": {
+   "x": 4560,
+   "y": 20320,
+   "w": 1440,
+   "h": 900,
+   "title": "Move Project to Trash…",
+   "page": "states",
+   "is_interactive": true
+  },
+  "P_Locate.dc.html": {
+   "x": 0,
+   "y": 21340,
+   "w": 1440,
+   "h": 900,
+   "title": "Locate Folder… for a missing project",
+   "page": "states",
+   "is_interactive": true
+  },
+  "Ph_ProjectMore.dc.html": {
+   "x": 2350,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "More for a project (π sheet)",
+   "page": "phone"
+  },
+  "A_FromChat.dc.html": {
+   "x": 0,
+   "y": 22880,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · from a chat message: Open in Chat",
+   "page": "states",
+   "is_interactive": true
+  },
+  "A_FromComment.dc.html": {
+   "x": 1520,
+   "y": 22880,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · from a comment: Show Comment",
+   "page": "states",
+   "is_interactive": true
+  },
+  "A_FromFile.dc.html": {
+   "x": 3040,
+   "y": 22880,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · from a whole-file question: Show in Review",
+   "page": "states",
+   "is_interactive": true
+  },
+  "A_FromWorker.dc.html": {
+   "x": 4560,
+   "y": 22880,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · from the worker: Open in Chat, Show Task",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_WorkerPropose.dc.html": {
+   "x": 0,
+   "y": 23900,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · Gate proposes the worker (10 s)",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_WorkerWaiting.dc.html": {
+   "x": 1520,
+   "y": 23900,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · Gate asks you",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_WorkerRunning.dc.html": {
+   "x": 3040,
+   "y": 23900,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · worker running, chat idle",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_WorkerPaused.dc.html": {
+   "x": 4560,
+   "y": 23900,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · worker paused while Pi answers",
+   "page": "states",
+   "is_interactive": true
+  },
+  "S_WorkerDone.dc.html": {
+   "x": 0,
+   "y": 24920,
+   "w": 1440,
+   "h": 900,
+   "title": "Chat · worker summary",
+   "page": "states",
+   "is_interactive": true
+  },
+  "B_Worker.dc.html": {
+   "x": 0,
+   "y": 25940,
+   "w": 1440,
+   "h": 1180,
+   "title": "WorkerCard: every state, with answers",
+   "page": "states"
+  },
+  "C_Dictate.dc.html": {
+   "x": 1520,
+   "y": 25940,
+   "w": 1440,
+   "h": 820,
+   "title": "Dictate states and smaller answers",
+   "page": "states"
+  },
+  "Ph_Worker.dc.html": {
+   "x": 2820,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "Worker card",
+   "page": "phone"
+  },
+  "Ph_ActivityFromComment.dc.html": {
+   "x": 3290,
+   "y": 2500,
+   "w": 390,
+   "h": 844,
+   "title": "Activity detail from a comment",
+   "page": "phone"
+  },
+  "T_Principles.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "1 · Principles",
+   "page": "terminal"
+  },
+  "T_Startup.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1250,
+   "title": "2 · Startup header",
+   "page": "terminal"
+  },
+  "T_Footer.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "3 · Footer",
+   "page": "terminal"
+  },
+  "T_Outputs.dc.html": {
+   "x": 0,
+   "y": 1370,
+   "w": 1440,
+   "h": 1350,
+   "title": "4 · Console outputs",
+   "page": "terminal"
+  },
+  "T_Changes.dc.html": {
+   "x": 1520,
+   "y": 1370,
+   "w": 1440,
+   "h": 950,
+   "title": "5 · Changes",
+   "page": "terminal"
+  },
+  "T_Gate.dc.html": {
+   "x": 3040,
+   "y": 1370,
+   "w": 1440,
+   "h": 800,
+   "title": "6 · Gate and recovery",
+   "page": "terminal"
+  },
+  "T_Noise.dc.html": {
+   "x": 0,
+   "y": 2840,
+   "w": 1440,
+   "h": 600,
+   "title": "7 · Noise",
+   "page": "terminal"
+  },
+  "T_Wayfinding.dc.html": {
+   "x": 1520,
+   "y": 2840,
+   "w": 1440,
+   "h": 850,
+   "title": "8 · Finding your way",
+   "page": "terminal"
+  },
+  "T_Workbench.dc.html": {
+   "x": 3040,
+   "y": 2840,
+   "w": 1440,
+   "h": 550,
+   "title": "9 · The workbench from the terminal",
+   "page": "terminal"
+  },
+  "A_Record.dc.html": {
+   "x": 6080,
+   "y": 22880,
+   "w": 1440,
+   "h": 900,
+   "title": "Activity · Show Task Record (task 172): the record opens under a double rule; the button reads Hide Task Record",
+   "page": "states",
+   "is_interactive": true
+  },
+  "Ph_ActivityRecord.dc.html": {
+   "x": 4230,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Activity · Task record as a sheet with Close",
+   "page": "phone"
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-10-13T09:00:00Z",
+  "v": 1
+ },
+ "designSystems": [
+  {
+   "artifact": "https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1",
+   "copiedAt": "2026-10-13T13:45:00+09:00",
+   "namespace": "piworkbench",
+   "title": "Pi Workbench System 1",
+   "version": null
+  }
+ ],
+ "launch": {
+  "page": "states",
+  "view": "canvas"
+ },
+ "notes": {
+  "c1": {
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "system",
+   "text": "Shared components — every state screen mounts these",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "p1": {
+   "kind": "title1",
+   "maxW": 4150,
+   "page": "phone",
+   "text": "Phone — every page",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "s1": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Every menu, open in place",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "s2": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Chat — every state",
+   "w": 240,
+   "x": 0,
+   "y": 2080
+  },
+  "s3": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Work — every state",
+   "w": 240,
+   "x": 0,
+   "y": 4420
+  },
+  "s4": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Activity, Gate and the remaining dialogs",
+   "w": 240,
+   "x": 0,
+   "y": 6760
+  },
+  "s5": {
+   "kind": "title1",
+   "maxW": 2544,
+   "page": "states",
+   "text": "Files window — Plan above Files",
+   "w": 240,
+   "x": 0,
+   "y": 9300
+  },
+  "t1": {
+   "kind": "title1",
+   "maxW": 3430,
+   "text": "Pi Workbench — The Desktop Interface, 1-bit",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "t2": {
+   "kind": "title1",
+   "maxW": 2480,
+   "page": "edit",
+   "text": "Editing & commenting — B inline threads + C Review",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "t3": {
+   "kind": "title1",
+   "maxW": 2270,
+   "page": "edit",
+   "text": "Phone — long press selects, a visible handle does the rest",
+   "w": 240,
+   "x": 0,
+   "y": 900
+  },
+  "t4": {
+   "kind": "title1",
+   "maxW": 2380,
+   "page": "edit",
+   "text": "Chosen: B + Review window — resolve, delete, undo",
+   "w": 240,
+   "x": 0,
+   "y": 2000
+  },
+  "s6": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Agent scope & what Pi sees — task 119",
+   "w": 240,
+   "x": 0,
+   "y": 10560
+  },
+  "s7": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Round 3 — tables and earlier conversations",
+   "w": 240,
+   "x": 0,
+   "y": 14380
+  },
+  "p2": {
+   "kind": "title1",
+   "maxW": 4150,
+   "page": "phone",
+   "text": "Phone — tables, first run, answered thread",
+   "w": 240,
+   "x": 0,
+   "y": 1000
+  },
+  "n_F1_FirstRun": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F1 · First run",
+   "w": 240,
+   "x": 0,
+   "y": 0
+  },
+  "n_F2_ChatWork": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F2 · Ask in Chat and follow the work",
+   "w": 240,
+   "x": 0,
+   "y": 2524
+  },
+  "n_F3_Comment": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F3 · Comment and ask Pi",
+   "w": 240,
+   "x": 0,
+   "y": 3956
+  },
+  "n_F4_WholeFile": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F4 · Ask about the whole file",
+   "w": 240,
+   "x": 0,
+   "y": 6480
+  },
+  "n_F5_Plan": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F5 · Plan work",
+   "w": 240,
+   "x": 0,
+   "y": 7912
+  },
+  "n_F6_Edit": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F6 · Edit a document",
+   "w": 240,
+   "x": 0,
+   "y": 9344
+  },
+  "n_F7_LongChat": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F7 · A long conversation",
+   "w": 240,
+   "x": 0,
+   "y": 11868
+  },
+  "n_F8_Wrong": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F8 · Something went wrong",
+   "w": 240,
+   "x": 0,
+   "y": 13300
+  },
+  "n_F9_Phone": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F9 · Phone access",
+   "w": 240,
+   "x": 0,
+   "y": 14732
+  },
+  "n_F10_SwitchProject": {
+   "kind": "title1",
+   "maxW": 12000,
+   "page": "flows",
+   "text": "F10 · Switch projects",
+   "w": 240,
+   "x": 0,
+   "y": 17256
+  },
+  "s8": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Round 4 — model menus, rename and move",
+   "w": 240,
+   "x": 0,
+   "y": 16960
+  },
+  "p3": {
+   "kind": "title1",
+   "maxW": 4150,
+   "page": "phone",
+   "text": "Phone — model, More for files and folders, recording",
+   "w": 240,
+   "x": 0,
+   "y": 2240
+  },
+  "s9": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Project commands — rename, move, remove, trash, locate (task 154)",
+   "w": 240,
+   "x": 0,
+   "y": 19040
+  },
+  "s10": {
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "states",
+   "text": "Round 5 — from working to its request and back; the worker",
+   "w": 240,
+   "x": 0,
+   "y": 22620
+  },
+  "tm1": {
+   "kind": "title1",
+   "maxW": 4500,
+   "page": "terminal",
+   "text": "Terminal Pi — the typed member of System 1 (round 6)",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Work.dc.html",
+  "Phone.dc.html",
+  "Activity.dc.html",
+  "Gate.dc.html",
+  "Menus.dc.html",
+  "Dialogs.dc.html",
+  "EditA.dc.html",
+  "EditB.dc.html",
+  "EditC.dc.html",
+  "PhoneEdit1.dc.html",
+  "PhoneEdit2.dc.html",
+  "PhoneEdit3.dc.html",
+  "PhoneEdit4.dc.html",
+  "PhoneEdit5.dc.html",
+  "Final.dc.html",
+  "PhoneEdit6.dc.html",
+  "PhoneEdit7.dc.html",
+  "C_MenuBar.dc.html",
+  "C_ChatDesk.dc.html",
+  "C_WorkDesk.dc.html",
+  "C_ActivityDesk.dc.html",
+  "C_GateDesk.dc.html",
+  "M_Pi.dc.html",
+  "M_File.dc.html",
+  "M_Edit.dc.html",
+  "M_View.dc.html",
+  "M_Project.dc.html",
+  "M_Agent.dc.html",
+  "M_Window.dc.html",
+  "P_Popups.dc.html",
+  "S_Welcome.dc.html",
+  "S_Empty.dc.html",
+  "S_Idle.dc.html",
+  "S_Attachments.dc.html",
+  "S_Dragging.dc.html",
+  "S_Recording.dc.html",
+  "S_Error.dc.html",
+  "S_Offline.dc.html",
+  "W_Source.dc.html",
+  "W_Code.dc.html",
+  "W_Empty.dc.html",
+  "W_Search.dc.html",
+  "W_Requests.dc.html",
+  "W_Conflict.dc.html",
+  "W_Trash.dc.html",
+  "W_Reload.dc.html",
+  "A_Attention.dc.html",
+  "A_Empty.dc.html",
+  "G_All.dc.html",
+  "G_Empty.dc.html",
+  "Dialogs2.dc.html",
+  "W_NoPlan.dc.html",
+  "W_Tablet.dc.html",
+  "Ph_Pi.dc.html",
+  "Ph_Views.dc.html",
+  "Ph_Welcome.dc.html",
+  "Ph_Offline.dc.html",
+  "Ph_Files.dc.html",
+  "Ph_Activity.dc.html",
+  "Ph_ActivityDetail.dc.html",
+  "Ph_Gate.dc.html",
+  "Ph_GateDetail.dc.html",
+  "Projects.dc.html",
+  "C_ProjectsWin.dc.html",
+  "C_ProjectWin.dc.html",
+  "S_Near.dc.html",
+  "S_Compacted.dc.html",
+  "S_Summary.dc.html",
+  "S_NewConversation.dc.html",
+  "S_Fresh.dc.html",
+  "W_Comment.dc.html",
+  "W_Blocks.dc.html",
+  "G_Tablet.dc.html",
+  "MB_Status.dc.html",
+  "W_Table.dc.html",
+  "S_Earlier.dc.html",
+  "M_AgentEarlier.dc.html",
+  "A_Retry.dc.html",
+  "S_FirstChat.dc.html",
+  "Ph_Table.dc.html",
+  "Ph_TableEdit.dc.html",
+  "Ph_NewProject.dc.html",
+  "Ph_FirstChat.dc.html",
+  "Ph_FilesNew.dc.html",
+  "Ph_ThreadAnswered.dc.html",
+  "F1_FirstRun_1.dc.html",
+  "F1_FirstRun_2.dc.html",
+  "F1_FirstRun_3.dc.html",
+  "F1_FirstRun_4.dc.html",
+  "F1_FirstRun_5.dc.html",
+  "F1_FirstRun_6.dc.html",
+  "F1_FirstRun_P1.dc.html",
+  "F1_FirstRun_P2.dc.html",
+  "F1_FirstRun_P3.dc.html",
+  "F1_FirstRun_P4.dc.html",
+  "F2_ChatWork_1.dc.html",
+  "F2_ChatWork_2.dc.html",
+  "F2_ChatWork_3.dc.html",
+  "F2_ChatWork_4.dc.html",
+  "F2_ChatWork_5.dc.html",
+  "F3_Comment_1.dc.html",
+  "F3_Comment_2.dc.html",
+  "F3_Comment_3.dc.html",
+  "F3_Comment_4.dc.html",
+  "F3_Comment_5.dc.html",
+  "F3_Comment_6.dc.html",
+  "F3_Comment_7.dc.html",
+  "F3_Comment_8.dc.html",
+  "F3_Comment_9.dc.html",
+  "F3_Comment_P1.dc.html",
+  "F3_Comment_P2.dc.html",
+  "F3_Comment_P3.dc.html",
+  "F3_Comment_P4.dc.html",
+  "F4_WholeFile_1.dc.html",
+  "F4_WholeFile_2.dc.html",
+  "F4_WholeFile_3.dc.html",
+  "F5_Plan_1.dc.html",
+  "F5_Plan_2.dc.html",
+  "F5_Plan_3.dc.html",
+  "F5_Plan_4.dc.html",
+  "F5_Plan_5.dc.html",
+  "F6_Edit_1.dc.html",
+  "F6_Edit_2.dc.html",
+  "F6_Edit_3.dc.html",
+  "F6_Edit_P1.dc.html",
+  "F6_Edit_P2.dc.html",
+  "F6_Edit_P3.dc.html",
+  "F6_Edit_P4.dc.html",
+  "F6_Edit_P5.dc.html",
+  "F7_LongChat_1.dc.html",
+  "F7_LongChat_2.dc.html",
+  "F7_LongChat_3.dc.html",
+  "F7_LongChat_4.dc.html",
+  "F7_LongChat_5.dc.html",
+  "F7_LongChat_6.dc.html",
+  "F7_LongChat_7.dc.html",
+  "F8_Wrong_1.dc.html",
+  "F8_Wrong_2.dc.html",
+  "F8_Wrong_3.dc.html",
+  "F8_Wrong_4.dc.html",
+  "F8_Wrong_5.dc.html",
+  "F8_Wrong_6.dc.html",
+  "F8_Wrong_7.dc.html",
+  "F8_Wrong_8.dc.html",
+  "F9_Phone_1.dc.html",
+  "F9_Phone_2.dc.html",
+  "F9_Phone_3.dc.html",
+  "F9_Phone_P1.dc.html",
+  "F10_SwitchProject_1.dc.html",
+  "F10_SwitchProject_2.dc.html",
+  "F10_SwitchProject_3.dc.html",
+  "F10_SwitchProject_4.dc.html",
+  "F10_SwitchProject_P1.dc.html",
+  "F10_SwitchProject_P2.dc.html",
+  "F10_SwitchProject_P3.dc.html",
+  "MB_Model.dc.html",
+  "W_FolderSel.dc.html",
+  "W_Rename.dc.html",
+  "W_TrashFolder.dc.html",
+  "Ph_Model.dc.html",
+  "Ph_ModelList.dc.html",
+  "Ph_FileMore.dc.html",
+  "Ph_FolderMore.dc.html",
+  "Ph_Recording.dc.html",
+  "P_Menu.dc.html",
+  "P_MenuMissing.dc.html",
+  "P_Rename.dc.html",
+  "P_Renamed.dc.html",
+  "P_Move.dc.html",
+  "P_Refused.dc.html",
+  "P_Remove.dc.html",
+  "P_Trash.dc.html",
+  "P_Locate.dc.html",
+  "Ph_ProjectMore.dc.html",
+  "A_FromChat.dc.html",
+  "A_FromComment.dc.html",
+  "A_FromFile.dc.html",
+  "A_FromWorker.dc.html",
+  "S_WorkerPropose.dc.html",
+  "S_WorkerWaiting.dc.html",
+  "S_WorkerRunning.dc.html",
+  "S_WorkerPaused.dc.html",
+  "S_WorkerDone.dc.html",
+  "B_Worker.dc.html",
+  "C_Dictate.dc.html",
+  "Ph_Worker.dc.html",
+  "Ph_ActivityFromComment.dc.html",
+  "T_Principles.dc.html",
+  "T_Startup.dc.html",
+  "T_Footer.dc.html",
+  "T_Outputs.dc.html",
+  "T_Changes.dc.html",
+  "T_Gate.dc.html",
+  "T_Noise.dc.html",
+  "T_Wayfinding.dc.html",
+  "T_Workbench.dc.html",
+  "A_Record.dc.html",
+  "Ph_ActivityRecord.dc.html"
+ ],
+ "pages": [
+  {
+   "id": "screens",
+   "name": "Screens"
+  },
+  {
+   "id": "flows",
+   "name": "Workflows"
+  },
+  {
+   "id": "terminal",
+   "name": "Terminal"
+  },
+  {
+   "id": "states",
+   "name": "Every menu & state"
+  },
+  {
+   "id": "phone",
+   "name": "Phone pages"
+  },
+  {
+   "id": "edit",
+   "name": "Edit & comment"
+  },
+  {
+   "id": "system",
+   "name": "Components"
+  },
+  {
+   "id": "archive",
+   "name": "Archive — not chosen"
+  }
+ ],
+ "title": "Pi Workbench — Desktop Interface"
 }

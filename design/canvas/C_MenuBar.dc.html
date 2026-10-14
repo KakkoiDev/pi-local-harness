@@ -97,7 +97,7 @@
 <div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitem">Stop<span class="pw-menu__key">⌘.</span></span>
 <a href="Activity.dc.html" class="pw-menu__item" role="menuitem">Cancel Waiting Request…</a>
-<a href="A_Attention.dc.html" class="pw-menu__item" role="menuitem">Show Task Record</a>
+<a href="A_Record.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notActivity}}">{{recItem}}<span class="pw-menu__key">⌥⌘R</span></a>
 <div class="pw-menu__sep" role="separator"></div>
 <a href="S_Compacted.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notChat}}">Compact Now</a>
 <a href="S_NewConversation.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notChat}}">New Conversation…</a>
@@ -137,7 +137,7 @@
 <p class="pw-menu__note" role="note">One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.</p>
 </div></sc-if>
 <sc-if value="{{thinkOpen}}" hint-placeholder-val="{{false}}"><div id="effort-menu" class="pw-menu pw-menu--end" role="menu" aria-label="Thinking level" style="min-width: 220px">
-<sc-for list="{{levels}}" as="l" hint-placeholder-count="7"><span class="pw-menu__item" role="menuitemradio" aria-checked="{{l.on}}" aria-disabled="{{noThink}}">{{l.name}}</span></sc-for>
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="4"><span class="pw-menu__item" role="menuitemradio" aria-checked="{{l.on}}" aria-disabled="{{noThink}}">{{l.name}}</span></sc-for>
 <div class="pw-menu__sep" role="separator"></div>
 <p class="pw-menu__note" role="note">{{thinkNote}}</p>
 </div></sc-if>
@@ -145,7 +145,7 @@
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"projState":{"editor":"enum","options":["ok","missing","none"],"default":"ok"},"$preview":{"width":1440,"height":360}}'>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"projState":{"editor":"enum","options":["ok","missing","none"],"default":"ok"},"record":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":360}}'>
 class Component extends DCLogic {
 renderVals() {
 const o = this.props.open ?? 'none';
@@ -157,6 +157,7 @@ const ps = this.props.projState ?? 'ok';
 return {
 piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
 projectOpen: o === 'project', agentOpen: o === 'agent' || o === 'agentEarlier', earlierOpen: o === 'agentEarlier', windowOpen: o === 'window',
+notActivity: v !== 'activity', recItem: (this.props.record === true || this.props.record === 'true') ? 'Hide Task Record' : 'Show Task Record',
 vChat: v === 'chat', vWork: v === 'work', vActivity: v === 'activity', vGate: v === 'gate', notWork: v !== 'work',
 status: st === 'attention' ? ({ failed: 'Failed', stopped: 'Stopped', interrupted: 'Interrupted' }[this.props.attn ?? 'failed'] + ' · 1 needs attention') : (this.props.status ?? 'Working · 1 waiting'),
 sState: st, sClass: 'pw-statusbtn' + (st === 'attention' ? ' pw-statusbtn--attention' : ''),
@@ -171,7 +172,7 @@ modelOpen: o === 'model', thinkOpen: o === 'thinking', noThink: noThink,
 modelLabel: ms === 'loading' ? 'Loading qwen3:8b…' : ms === 'nothink' ? 'mistral-small:24b' : 'gemma4:12b',
 thinkLabel: noThink ? 'No thinking' : 'High thinking',
 thinkNote: noThink ? 'mistral-small:24b does not think. Choose a model that thinks to set a level.' : 'Applies from the next request.',
-levels: ['Off','Minimal','Low','Medium','High','Extra High','Max'].map((n) => ({ name: n, on: (!noThink && n === 'High') ? 'true' : 'false' }))
+levels: ['Off','Low','Medium','High'].map((n) => ({ name: n, on: (!noThink && n === 'High') ? 'true' : 'false' }))
 };
 }
 }

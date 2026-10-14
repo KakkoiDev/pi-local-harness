@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="/harness: a select list" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">/harness: a select list</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /harness
+<div class="pw-root pw-desk" style="width: 1440px; height: 850px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="/harness: a select list" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">/harness: a select list</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /harness
 
   <b style="font-weight:600">Harness commands</b>  <span style="color:#767676">type to filter</span>
   <span style="background:#000;color:#fff"> › Ask in words      e.g. “is anything stuck?”, “switch to qwen”    </span>
@@ -20,9 +20,9 @@
     /queue           requests, first in first out · /job &lt;id&gt;
     /gate            Gate’s checks · /gate blocked
     /doctor          check the setup and fix what it finds
-    /models          installed models · /models use &lt;name&gt;
-    /ollama          Ollama: in memory, pull, remove
-    /config          the 14 settings · /config &lt;key&gt; &lt;value&gt;
+    /models          use, pull, remove a model
+    /ollama          Ollama’s own settings · /ollama restart
+    /config          the 15 settings · /config set &lt;key&gt; &lt;value&gt;
     /guide           how-to answers · /guide phone
     /undo            undo the last change
   <span style="color:#767676">↑↓ choose · Return puts it on the input line · Esc closes</span></pre></section><section class="pw-window" aria-label="Argument completion" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Argument completion</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">──────────────────────────────────────────────────────────────────────────────
@@ -32,8 +32,16 @@
   <span style="color:#767676">Tab completes · ↑↓ choose</span>
 
 ──────────────────────────────────────────────────────────────────────────────
-› /config w<span style="background:#000;color:#fff"> </span>
-  <span style="background:#000;color:#fff"> worker_wait_seconds    10 · seconds before Gate starts the worker </span>
+› /models use qwen3:8b <span style="background:#000;color:#fff"> </span>
+  <span style="background:#000;color:#fff"> Off      </span>
+    Low
+    Medium
+    High     <span style="color:#767676">current</span>
+  <span style="color:#767676">The four levels Ollama knows; the web Thinking menu shows the same four</span>
+
+──────────────────────────────────────────────────────────────────────────────
+› /config set h<span style="background:#000;color:#fff"> </span>
+  <span style="background:#000;color:#fff"> hang_seconds    120 · seconds before a silent turn counts as a hang </span>
   <span style="color:#767676">Tab completes keys, then shows the current value</span>
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -41,7 +49,7 @@
   <span style="background:#000;color:#fff"> phone        open the workbench on your phone </span>
     projects     add, rename, move, remove</pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Finding your way</h2><p style="margin: 0"><b>/harness</b> opens a select list, “Ask in words” first: the person should never have to remember a command to get help. Return puts the chosen command on the input line (not runs it), so arguments can be added. <code class="pw-mono">/harness list</code> prints the same list as text for copying.</p><p style="margin: 0"><b>Completion</b> for model names, config keys (with the current value) and guide topics, with the same glyph + word as the outputs.</p><p style="margin: 0"><b>Pi points, not lists.</b> When asked “what can you do?”, Pi answers in two lines and says “type /harness”, instead of listing commands in prose.</p></section></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 850}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 1500px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="Status card" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Status card</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Status</b> ────────────────────────────────────────────────────────────────────
+<div class="pw-root pw-desk" style="width: 1440px; height: 1350px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="Status card" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Status card</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Status</b> ────────────────────────────────────────────────────────────────────
   Web        ✓ Running · <span style="text-decoration:underline">http://127.0.0.1:3000</span>
   Model      gemma4:26b-mlx · high thinking · ✓ Ollama answers
   Queue      ▶ 1 running · ○ 1 waiting · ! 2 need attention
@@ -41,33 +41,42 @@
     qwen3:8b            5 GB   thinks · parallel
     mistral-small:24b  14 GB   no thinking · checking…
     llama3.2:3b         2 GB   ✗ no tools
-  <span style="color:#767676">/models use &lt;name&gt; (Tab completes) · /ollama for pull and remove</span></pre></section><section class="pw-window" aria-label="Checklist: /doctor" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Checklist: /doctor</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Doctor</b>                                                   <span style="color:#767676">1 to fix</span>
+  <span style="color:#767676">/models use &lt;name&gt; · /models pull &lt;name&gt; · /models remove &lt;name&gt;</span></pre></section><section class="pw-window" aria-label="Checklist: /doctor" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Checklist: /doctor</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Doctor</b>                                                   <span style="color:#767676">1 to fix · 2 notes</span>
   ✓ ok    Data folder    ~/pi-local-harness-data
-  ✗ fix   Agent lock     left by process 41250, which is gone
-                         → /doctor fix lock   <span style="color:#767676">(removes ~/…/.agent-lock)</span>
-  ✓ ok    Ollama         answers at 127.0.0.1:11434 · version 0.40.3
+  ! note  Agent lock     left by process 41250, which is gone
+                         <span style="color:#767676">clears itself when the next agent starts</span>
+  ✗ fix   Ollama         does not answer at 127.0.0.1:11434
+                         → /ollama restart   <span style="color:#767676">(asks first)</span>
   ✓ ok    Gate           answers at 127.0.0.1:8000
-  ! note  Phone          off · /guide phone</pre></section><section class="pw-window" aria-label="List: /config" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">List: /config</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Settings</b>                                       <span style="color:#767676">14 settings · 3 changed</span>
-  KEY                    VALUE                     FROM
+  ! note  Phone          off · /guide phone</pre></section><section class="pw-window" aria-label="List: /config" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">List: /config</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Settings</b>                                       <span style="color:#767676">15 settings · 2 changed</span>
+  KEY                VALUE                        FROM
   ════════════════════════════════════════════════════════════════════════════
-  model                  gemma4:26b-mlx            <b style="font-weight:600">config</b>
-  thinking               high                      <b style="font-weight:600">config</b>
-  remote_hosts           (none)                    <span style="color:#767676">default</span>
-  remote_users           (none)                    <span style="color:#767676">default</span>
-  worker_wait_seconds    10                        <span style="color:#767676">default</span>
-  loop_check_seconds     10                        <span style="color:#767676">default</span>
-  gate_url               http://127.0.0.1:8000     <b style="font-weight:600">env PLH_GATE_URL</b>
-  <span style="color:#767676">… 7 more · /config all · /config &lt;key&gt; &lt;value&gt; asks first</span>
+  effort             high                         <b style="font-weight:600">model.json</b>
+  gate_port          8000                         <span style="color:#767676">default</span>
+  web_port           3000                         <span style="color:#767676">default</span>
+  whisper_model      base                         <span style="color:#767676">default</span>
+  remote_hosts       (none)                       <span style="color:#767676">default</span>
+  remote_users       (none)                       <span style="color:#767676">default</span>
+  auto_update        on                           <span style="color:#767676">default</span>
+  silence_seconds    2                            <span style="color:#767676">default</span>
+  hang_seconds       120                          <b style="font-weight:600">config</b>
+  ollama_url         http://127.0.0.1:11434       <span style="color:#767676">default</span>
+  tailscale          /usr/local/bin/tailscale     <b style="font-weight:600">config</b>
+  python             python3                      <span style="color:#767676">default</span>
+  web_data           ~/pi-local-harness-data      <span style="color:#767676">default</span>
+  gate_auth          on                           <span style="color:#767676">default</span>
+  audit_log          on                           <span style="color:#767676">default</span>
+  <span style="color:#767676">/config &lt;key&gt; explains one · /config set &lt;key&gt; &lt;value&gt; asks first</span>
 
 ── <b style="font-weight:600">Harness variables · read only</b> ─────────────────────────────────────────────
-  PLH_DATA               ~/pi-local-harness-data
-  PLH_BUILD              7f3b86b</pre></section><section class="pw-window" aria-label="Guide answer" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Guide answer</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Guide · open the workbench on your phone</b> ──────────────────────────────────
+  PLH_DATA           ~/pi-local-harness-data
+  PLH_BUILD          7f3b86b</pre></section><section class="pw-window" aria-label="Guide answer" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Guide answer</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Guide · open the workbench on your phone</b> ──────────────────────────────────
   Pi Workbench serves itself on your tailnet. Once, on this Mac:
 
   1. Enable Serve at <span style="text-decoration:underline">login.tailscale.com/f/serve</span>.
   2. Set the hosts and logins allowed in:
-       /config remote_hosts your-phone
-       /config remote_users you@example.com
+       /config set remote_hosts your-phone
+       /config set remote_users you@example.com
   3. Quit plh and start it again. The header shows the QR code.
 
   <span style="color:#767676">Ask in words for more, or /guide for every topic.</span></pre></section><section class="pw-window" aria-label="Error" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Error</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models use qwen
@@ -76,7 +85,7 @@
   ✗ No model named “qwen”. Did you mean <b style="font-weight:600">qwen3:8b</b>?
   <span style="color:#767676">Tab completes model names · /models lists them</span></pre></section></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1500}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1350}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

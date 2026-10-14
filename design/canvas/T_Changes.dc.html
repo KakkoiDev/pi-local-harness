@@ -12,35 +12,40 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
 <style>body{margin:0}</style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 1000px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="1 · Pi proposes: the input line is prefilled" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">1 · Pi proposes: the input line is prefilled</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">15:20</span>
+<div class="pw-root pw-desk" style="width: 1440px; height: 950px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="1 · Pi proposes: the input line is prefilled" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">1 · Pi proposes: the input line is prefilled</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">15:20</span>
   qwen3:8b can run the chat and the worker in parallel; gemma4 does one
   at a time. I put the command on the input line: press Return to run it.
 
 ──────────────────────────────────────────────────────────────────────────────
 › /models use qwen3:8b<span style="background:#000;color:#fff"> </span>
-<span style="color:#767676">  Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm</span></pre></section><section class="pw-window" aria-label="2 · Return: the confirmation" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">2 · Return: the confirmation</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models use qwen3:8b
+<span style="color:#767676">  Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm</span></pre></section><section class="pw-window" aria-label="2 · Return: Pi’s confirmation list, the action first" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">2 · Return: Pi’s confirmation list, the action first</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models use qwen3:8b
 
   <b style="font-weight:600">Switch the model?</b>
 
-    Model      gemma4:26b-mlx  →  qwen3:8b
-    Saved in   ~/pi-local-harness-data/config.json
-    Also       Ollama unloads gemma4:26b-mlx first
+    Model      gemma4:26b-mlx → qwen3:8b
+    Saved in   ~/pi-local-harness-data/model.json
+    Applies    from the next request; Ollama unloads gemma4 first
 
-  <span style="background:#000;color:#fff"> Switch Model </span>   Cancel            <span style="color:#767676">Return switches · Esc cancels</span></pre></section><section class="pw-window" aria-label="3 · The result" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">3 · The result</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models use qwen3:8b
+  → Switch Model
+    Cancel
+  <span style="color:#767676">↑↓ navigate · enter select · escape cancel</span></pre></section><section class="pw-window" aria-label="3 · The result" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">3 · The result</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models use qwen3:8b
 
   ✓ Model is qwen3:8b. <span style="color:#767676">/undo goes back to gemma4:26b-mlx.</span>
 
   <span style="color:#767676">or, after Cancel:</span>
-  ○ Not changed.</pre></section><section class="pw-window" aria-label="Destructive: Cancel is the default" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Destructive: Cancel is the default</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /ollama rm llama3.2:3b
+  ○ Not changed.</pre></section><section class="pw-window" aria-label="Destructive: Cancel first" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Destructive: Cancel first</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /models remove llama3.2:3b
 
-  <b style="font-weight:600">Remove llama3.2:3b from Ollama?</b>
+  <b style="font-weight:600">Remove llama3.2:3b?</b>
 
-    Frees      2 GB
-    Undo       none: pull it again with /ollama pull llama3.2:3b
+    Moves      its manifest and 3 files only it uses, to the Trash
+    Frees      2.0 GB when you empty the Trash
+    Undo       Put Back in the Finder, then merge into ~/.ollama/models
 
-  Remove Model   <span style="background:#000;color:#fff"> Cancel </span>            <span style="color:#767676">Return cancels · Tab, Return removes</span></pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Changes</h2><p style="margin: 0">Every change shows what changes from what to what, where it is saved, and any side effect; the button names the action (Switch Model, Save Setting, Remove Model).</p><p style="margin: 0"><b>Pi proposes, the person runs.</b> Pi never changes a setting. It puts the command on the input line with a dim hint; Return runs it, which still opens the confirmation. Two deliberate keys, no surprise.</p><p style="margin: 0">Results are one line with the glyph and the undo command. Destructive changes (remove a model, clear the queue) default to Cancel.</p></section></div>
+  → Cancel
+    Remove Model
+  <span style="color:#767676">↑↓ navigate · enter select · escape cancel</span></pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Changes</h2><p style="margin: 0">Every change shows what changes from what to what, where it is saved (model.json for the model and thinking; config.json for settings) and when it applies. The choices name the action (Switch Model, Save Setting, Remove Model).</p><p style="margin: 0"><b>Pi’s own select list</b> draws the confirmation: the chosen row is marked “→” (not inverse) and Pi prints its own key hint. Order is the default: the action first, Cancel first when the change is destructive.</p><p style="margin: 0"><b>Pi proposes, the person runs.</b> Pi never changes a setting. It puts the command on the input line with a dim hint; Return runs it, which still opens the confirmation.</p><p style="margin: 0">Results are one line with the glyph and the undo command.</p></section></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 950}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

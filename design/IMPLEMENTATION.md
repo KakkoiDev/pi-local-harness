@@ -496,3 +496,20 @@ Boards: Terminal page — [T_Principles], [T_Startup], [T_Footer], [T_Outputs], 
 10. **/harness**: a select dialog, “Ask in words” first; Return prefills the input line; `/harness list` prints it. Argument completion for `/models use`, `/config`, `/guide`, `/job` with a short description per item.
 11. **Workbench events**: footer only for routine changes; one warning notification when something needs the person (failed, stopped, interrupted, Gate asking). No widget.
 12. **Answers**: one look for every output with inner parts; the slash is the line between “run now” and “ask Pi” (Pi recognises “status?” and answers, then prefills `/status`); no colour carries meaning.
+
+## 2026-10-15 · Round 6 notes: repo names and answers (task 171, 172)
+
+The terminal boards are redrawn with the repo's names; nothing in this list asks the repo to rename a command. Boards: [T_Startup], [T_Footer], [T_Outputs], [T_Changes], [T_Gate], [T_Wayfinding], [T_Workbench], [A_Record], [Ph_ActivityRecord], [MB_Model].
+
+1. **Models**: `/models use|pull|remove <name>`; the remove confirmation has Moves · Frees · Undo rows and Cancel first. `/ollama` only for `set` and `restart`. As built.
+2. **Config**: `/config` lists the 15 settings, `/config <key>` explains one, `/config set <key> <value>` asks first. The model choice is saved in `model.json`. As built.
+3. **/doctor** (question): yes, offer fixes, but as existing commands only: a `✗ fix` row ends with `→ /ollama restart` or `→ /config set …`, which asks first like any change. No fix-only commands. A stale agent lock stays a `! note` (“clears itself when the next agent starts”).
+4. **/queue and /job**: no `all`, 8-character ids, no stop; the refusal points to the web Activity. As built.
+5. **Busy terminal** (question): keep the refusal. A terminal question is a conversation; queueing it would answer it later in a place you may have left. The words say it was not sent.
+6. **Recovery**: one retry by itself, then “✗ Harness stopped retrying.” with the session log and “Ask again with a hint, or in other words”. Accepted.
+7. **Confirmation**: Pi's own select list, “→” on the chosen row, Pi's hint line. Accepted; inversion stays for the footer attention segment and completion only.
+8. **Footer**: one line at every width, under Pi's own footer; only /queue clears attention (the web Activity may later clear it too; not needed now). “○ Loading <model>…” and “▶ Working · web: <project>” stay on the boards marked “not built yet”, as targets.
+9. **Tool rows**: read/edit `✓ Gate allowed · ✓ done · 0:01`; failure `✗ failed` + “It failed on its own; Gate did not block it.” Accepted.
+10. **Startup**: Pi's banner and any tmux warning drawn above the harness header.
+11. **Task record** (task 172, question): no × buttons in this system; the button that opened the section closes it (“Show Task Record” / “Hide Task Record”, `aria-expanded`), and the Agent menu item follows its label. Keep it inline under the double rule, not a window: it belongs to the selected request and changes with the selection; Event Info is a window because it follows whatever is selected anywhere. Phone: a Sheet titled “Task record” with Close.
+12. **Thinking levels** (question): show only the 4 that differ: Off, Low, Medium, High, in the web menu and in `/models use <name> <effort>` completion. Seven labels for four behaviours would make three of them lie. A saved minimal/xhigh/max keeps loading and shows as Low/High.

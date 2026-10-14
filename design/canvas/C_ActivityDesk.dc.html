@@ -43,8 +43,8 @@
 </div>
 
 <!-- Detail -->
-<div style="flex: none; height: 330px; border-top: 3px double #000; display: flex; min-height: 0">
-<div style="flex: 1 1 380px; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid #000">
+<div style="flex: none; border-top: 3px double #000; display: flex; flex-direction: column; min-height: 0">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
 <h2 class="pw-dialog__title">{{dTitle}}</h2>
 <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.45">“{{dRequest}}”</p>
 <dl style="margin: 0; display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; font-size: 14px">
@@ -54,19 +54,20 @@
 <dt>Gate</dt><dd style="margin: 0">{{dGate}}</dd>
 </dl>
 <sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/><path d="M4.5 8h7" stroke="#fff" stroke-width="2"/></svg>backup.sh exited with code 1: /mnt/backup is not mounted.</div></sc-if>
-<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px">
 <sc-if value="{{bChat}}" hint-placeholder-val="{{true}}"><a href="Main.dc.html" class="pw-btn">Open in Chat</a></sc-if>
 <sc-if value="{{bComment}}" hint-placeholder-val="{{false}}"><a href="F3_Comment_4.dc.html" class="pw-btn">Show Comment</a></sc-if>
 <sc-if value="{{bFile}}" hint-placeholder-val="{{false}}"><a href="F4_WholeFile_2.dc.html" class="pw-btn">Show in Review</a></sc-if>
 <sc-if value="{{bTask}}" hint-placeholder-val="{{false}}"><a href="F5_Plan_2.dc.html" class="pw-btn">Show Task</a></sc-if>
+<a href="{{recHref}}" class="pw-btn" aria-expanded="{{recOpen}}" aria-controls="task-record">{{recLabel}}</a>
 <sc-if value="{{running}}" hint-placeholder-val="{{true}}"><button class="pw-btn">Stop<span class="pw-kbd">⌘.</span></button></sc-if>
 <sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><button class="pw-btn pw-btn--default">Ask Pi to Retry…</button></sc-if>
 </div>
 </div>
-<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column">
-<div class="pw-infobar" style="justify-content: space-between; border-bottom: 1px solid #000"><span>Markdown task record</span><span class="pw-mono">{{recordPath}}</span></div>
+<sc-if value="{{recShown}}" hint-placeholder-val="{{false}}"><section id="task-record" aria-labelledby="task-record-h" style="border-top: 3px double #000; height: 250px; display: flex; flex-direction: column; min-height: 0">
+<div class="pw-infobar" style="justify-content: space-between; border-bottom: 1px solid #000"><h3 id="task-record-h" style="margin: 0; font: inherit; font-weight: 600">Task record</h3><span class="pw-mono">{{recordPath}}</span></div>
 <pre class="pw-mono" style="margin: 0; flex: 1; overflow: auto; padding: 12px 14px; font-size: 13px; line-height: 1.55; white-space: pre-wrap">{{record}}</pre>
-</div>
+</section></sc-if>
 </div>
 </sc-if>
 </section>
@@ -82,7 +83,7 @@
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","attention","empty","retry","fromcomment","fromfile","fromworker"],"default":"running"},"$preview":{"width":1440,"height":872}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["running","attention","empty","retry","fromcomment","fromfile","fromworker"],"default":"running"},"record":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":872}}'>
 class Component extends DCLogic {
 renderVals() {
 const s = this.props.state ?? 'running';
@@ -97,8 +98,10 @@ const all = [
 const attention = s === 'attention' || s === 'retry';
 const ORIG = { fromcomment: 'comment', fromfile: 'file', fromworker: 'worker' }[s] || 'chat';
 const rows = (attention ? all.filter((r) => r.k === 'attention') : all).map((r, i) => Object.assign({}, r, { isRunning: r.state === 'Running', isQueued: r.state === 'Waiting', isFailed: r.state === 'Failed', isDone: r.state === 'Completed', isInterrupted: r.state === 'Interrupted', isStopped: r.state === 'Stopped', current: attention ? (i === 0 ? 'true' : 'false') : (r.k === 'running' ? 'true' : 'false') }));
+const recShown = this.props.record === true || this.props.record === 'true';
 return {
 retry: s === 'retry',
+recShown: recShown, recOpen: recShown ? 'true' : 'false', recLabel: recShown ? 'Hide Task Record' : 'Show Task Record', recHref: recShown ? 'Activity.dc.html' : 'A_Record.dc.html',
 empty: s === 'empty', notEmpty: s !== 'empty',
 filterLabel: attention ? 'Needs Attention' : 'All Work',
 summary: s === 'empty' ? 'Nothing running or waiting' : attention ? '3 need attention: 1 failed, 1 interrupted, 1 stopped' : '1 running · 1 waiting · 3 need attention',

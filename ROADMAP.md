@@ -219,3 +219,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [174-Gate checks Pi 1.1's edits list; Gate's errors reach Pi](tasks/174-gate-pi-edits-list.md)
 - [x] [175-The thinking level reaches Ollama; Off turns thinking off](tasks/175-thinking-levels-reach-ollama.md)
 - [x] [176-Gate says which edit does not match, and why](tasks/176-gate-says-which-edit.md)
+- [ ] [177-Build the designer's round 7 (answers to the round 6 notes)](tasks/177-round-7-build.md)
