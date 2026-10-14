@@ -13,17 +13,30 @@ export function installTimestamps(pi, options = {}) {
   if (!pi.registerEntryRenderer || !pi.appendEntry) return;
   const now = options.now || Date.now;
   const timeZone = options.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  let failed = false;
+  let failed = false, verbose = Boolean(options.verbose);
   const stamp = label => pi.appendEntry(entryType, { label, timestamp: now(), timeZone });
+  // Round 6 (T_Noise): the stamps stay in the session record, but the transcript shows one header per Pi message,
+  // "Pi 15:12" with the time dim, and nothing else; a failure or a stop still shows. /verbose on shows every stamp.
+  const dim = text => `\x1b[2m${text}\x1b[22m`;
   pi.registerEntryRenderer(entryType, entry => ({
     render(width) {
-      const data = entry.data;
-      const text = `${formatTimestamp(data.timestamp, data.timeZone)} ${data.label}`;
-      const columns = Math.max(1, width);
-      return Array.from({ length: Math.ceil(text.length / columns) }, (_, index) => text.slice(index * columns, (index + 1) * columns));
+      const data = entry.data, columns = Math.max(1, width);
+      const wrap = text => Array.from({ length: Math.ceil(text.length / columns) }, (_, index) => text.slice(index * columns, (index + 1) * columns));
+      if (verbose) return wrap(`${formatTimestamp(data.timestamp, data.timeZone)} ${data.label}`).map(dim);
+      const time = formatTimestamp(data.timestamp, data.timeZone).slice(12, 17);
+      if (data.label === 'Assistant message started') return [`\x1b[1mPi\x1b[22m ${dim(time)}`];
+      if (/failed|stopped/i.test(data.label)) return [dim(`${time} ${data.label}`)];
+      return [];
     },
     invalidate() {},
   }));
+  pi.registerCommand?.('verbose', {
+    description: 'Harness: show every timestamp (on) or one header per Pi message (off).',
+    getArgumentCompletions: prefix => ['on', 'off'].filter(word => word.startsWith(prefix)).map(word => ({ value: word, label: word })),
+    handler: async (args = '', ctx) => { verbose = String(args).trim() !== 'off'; ctx?.ui?.notify?.(verbose ? 'Timestamps: every step (/verbose off hides them).' : 'Timestamps: one header per Pi message.', 'info'); },
+  });
+  // [CANARY] starts every answer so the harness can spot instruction drift (harness/memory.mjs); people never see it.
+  pi.registerMarkdownTransformer?.((markdown, context) => (context?.messageType === 'assistant' ? markdown.replace(/^\s*\[CANARY\]\s*/, '') : markdown));
   pi.on('input', event => {
     stamp(event.source === 'extension' ? 'Recovery question submitted' : 'Question submitted');
     return { action: 'continue' };

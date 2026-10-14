@@ -57,11 +57,17 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);
   const web=lines[1].match(/http:\/\/127\.0\.0\.1:\d+/)[0],checked=(await (await fetch(web+'/api/gate')).json()).events.filter(event=>event.tool_call==='bash-regression');
   assert.deepEqual(checked.map(event=>event.phase+' '+event.outcome),['gate ALLOW','audit SUCCESS']);
+  // Round 6 (T_Gate): a command that fails on its own is not Gate's doing: Gate's verdict and the exit are separate words.
+  const failing={toolCallId:'bash-exit',toolName:'bash',input:{command:'false'}};const noticesBefore=notices.length;
+  assert.equal(await handlers.tool_call(failing),undefined);
+  const exited=await handlers.tool_result({...failing,content:[{type:'text',text:'Command exited with code 2'}],isError:true});
+  assert.match(exited.content.at(-1).text,/^✓ Gate allowed · ✗ exit 2: the command failed on its own; Gate did not block it\.$/);
+  assert.doesNotMatch(JSON.stringify(exited),/EXECUTION_FAILED|Gate audit failed/);assert.equal(notices.length,noticesBefore,'no alarm for an ordinary failure');
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
   const rejected=await handlers.tool_result({...drift,input:{command:'env'},content:[],isError:false});
   assert.equal(rejected.isError,true);
-  assert.match(rejected.content.at(-1).text,/DRIFT_DETECTED/);
+  assert.match(rejected.content.at(-1).text,/^✗ Gate: the command that ran was not the one it allowed \(DRIFT_DETECTED\)/);
   handlers.input({source:'interactive',text:'Fix my code'});
   handlers.agent_start({},ctx);
   handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'a\nb\nc\na\nb\nc\n'}});

@@ -24,7 +24,9 @@ test('timestamp entries use lifecycle times and never change message text',()=>{
  assert.equal(entries.at(-1).data.label,'Assistant message completed');
  now+=1000;handlers.agent_settled({aborted:false});
  assert.equal(entries.at(-1).data.label,'Task completed');
- assert.match(renderer({data:entries.at(-1).data}).render(100).join('\n'),/^\[2026-10-13 00:00:06 \+09:00\] Task completed$/);
+ assert.deepEqual(renderer({data:entries.at(-1).data}).render(100),[],'round 6: no stamp lines by default');
+ const started=entries.find(entry=>entry.data.label==='Assistant message started');
+ assert.deepEqual(renderer({data:started.data}).render(100),['\x1b[1mPi\x1b[22m \x1b[2m00:00\x1b[22m'],'one header per Pi message, the time dim');
 });
 test('failed and aborted runs do not claim completion; recovery requests are labeled',()=>{
  const handlers={},entries=[];
@@ -38,4 +40,15 @@ test('failed and aborted runs do not claim completion; recovery requests are lab
  handlers.agent_start({});handlers.agent_settled({aborted:true});assert.equal(entries.at(-1).label,'Task stopped');
  handlers.message_end({message:{role:'toolResult',toolName:'read',isError:false}});
  assert.equal(entries.at(-1).label,'Tool result received: read');
+});
+
+test('/verbose shows every stamp, and [CANARY] never reaches the screen (task 171, T_Noise)', async () => {
+  const handlers={},entries=[],commands={};let renderer,transform;
+  installTimestamps({on:(n,f)=>handlers[n]=f,appendEntry:(_,d)=>entries.push(d),registerEntryRenderer:(_,f)=>renderer=f,registerCommand:(name,options)=>commands[name]=options,registerMarkdownTransformer:f=>transform=f},{now:()=>Date.parse('2026-10-12T15:00:06Z'),timeZone:'Asia/Tokyo'});
+  handlers.agent_settled({aborted:false});
+  await commands.verbose.handler('on');
+  assert.deepEqual(renderer({data:entries.at(-1)}).render(100),['\x1b[2m[2026-10-13 00:00:06 +09:00] Task completed\x1b[22m']);
+  await commands.verbose.handler('off');assert.deepEqual(renderer({data:entries.at(-1)}).render(100),[]);
+  assert.equal(transform('[CANARY] Nothing is stuck.',{messageType:'assistant'}),'Nothing is stuck.');
+  assert.equal(transform('[CANARY] literal',{messageType:'user'}),'[CANARY] literal','only Pi\'s answers');
 });

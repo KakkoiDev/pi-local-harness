@@ -66,11 +66,25 @@ test('Pi gets a harness tool: it reads with the console and only proposes change
   const guide = await tool.execute('t2', { command: 'guide', args: 'phone' });
   assert.deepEqual(calls.slice(0, 2), ['status', 'guide phone']);
   const change = await tool.execute('t3', { command: 'config', args: 'set effort low' });
-  assert.match(change.content[0].text, /Not changed\. This needs the person's yes: ask them to type \/config set effort low/);
+  assert.match(change.content[0].text, /Not changed\. The command is on the person's input line/);
   assert.equal(calls.some(call => call.includes('--yes')), false, 'Pi never applies a change');
 });
 
 test('Gate knows the harness tool as a read (task 167)', async () => {
   const { GATE_TOOL_NAMES } = await import('../../harness/extension.mjs');
   assert.equal(GATE_TOOL_NAMES.harness, 'read_file', 'otherwise Gate blocks it as an unknown tool');
+});
+
+test('Pi proposes a change on the input line; Return runs it and the person confirms (task 171, T_Changes)', async () => {
+  const tools = {}, handlers = {}, ui = { text: '', widgets: {}, setEditorText(text) { this.text = text; }, getEditorText() { return this.text; }, setWidget(key, lines) { this.widgets[key] = lines; } };
+  const run = async (name, words) => (name === 'models' && words[0] === 'use' ? { ok: false, code: 3, text: 'Switch to qwen3:8b?' } : { ok: true, code: 0, text: 'output' });
+  installConsole({ registerCommand() {}, registerTool: tool => { tools[tool.name] = tool; }, sendMessage() {}, on: (name, fn) => { handlers[name] = fn; } }, { run });
+  const result = await tools.harness.execute('t', { command: 'models', args: 'use qwen3:8b' }, undefined, undefined, { ui });
+  assert.equal(ui.text, '/models use qwen3:8b'); assert.deepEqual(ui.widgets['harness-proposal'], ['\x1b[2mPi proposed this · Return runs it · Esc clears · nothing changes until you confirm\x1b[22m']);
+  assert.match(result.content[0].text, /^Not changed\. The command is on the person's input line/);
+  handlers.input?.({ text: '/models use qwen3:8b' }, { ui }); assert.equal(ui.widgets['harness-proposal'], undefined, 'the hint goes once they send something');
+  ui.text = 'half-typed'; await tools.harness.execute('t', { command: 'status' }, undefined, undefined, { ui });
+  assert.equal(ui.text, 'half-typed', 'never over what the person is typing');
+  ui.text = ''; await tools.harness.execute('t', { command: 'status' }, undefined, undefined, { ui });
+  assert.equal(ui.text, '/status', 'a question answered from live data offers its command');
 });

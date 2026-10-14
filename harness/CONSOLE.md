@@ -18,7 +18,12 @@ by hand: they read live data.
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
 | `/undo` | Undo the last change made from the console (asks first). |
+| `/verbose on\|off` | Every timestamp in the transcript, or (default) one header per Pi message. |
 | `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |
+
+When you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
+on the person's input line and they press Return to run it and confirm. Say that in one line; never repeat the command
+list in prose (point to `/harness`).
 
 You run the same commands with your **`harness` tool** (`command`, `args`). Use it instead of bash or searching the
 disk: it runs from the harness's own folder. For "how do I…?" questions about the workbench, call it with `guide` and

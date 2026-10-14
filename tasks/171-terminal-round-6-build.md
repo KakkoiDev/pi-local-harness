@@ -9,8 +9,10 @@ Request 2026-10-14: the designer drew round 6 (Terminal page: T_Principles, T_St
 - [ ] 3 Startup header (5 lines; first start adds one; QR beside at ≥100 columns).
 - [ ] 4, 11 Footer with the workbench state; one notification when something needs the person.
 - [x] 5 Changes: the preview lists what changes from what to what, where it is saved and side effects; the choice names the action (Switch Model, Save Setting, Remove Model…) and puts Cancel first when it is destructive; the result is one line with /undo, or "○ Not changed."
-- [ ] 6 Pi's proposal prefills the input line.
-- [ ] 7–8 Tool calls: Gate's verdict and the command's exit as separate words; recovery and refusal as a bold sentence.
-- [ ] 9 Noise: no timestamp lines, a dim time on the message header, /verbose; [CANARY] stripped from display.
+- [x] 6 Pi's proposal prefills the input line: the `harness` tool puts a change's command on the person's input line with the dim hint "Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm" (gone once they send something) and tells Pi to say so in one line; a question answered from live data offers its command the same way, only when the line is empty (node test).
+- [x] 7 A command that exits with an error reads "✓ Gate allowed · ✗ exit 2: the command failed on its own; Gate did not block it." with no alarm; Gate's own findings say what Gate saw ("the command that ran was not the one it allowed (DRIFT_DETECTED)") (extension test against the real Gate).
+- [ ] 7 (rest) A tool-call renderer (glyph + tool + argument, then the checks on line 2).
+- [ ] 8 Recovery and refusal as a bold sentence first (the web worker reads their prefixes today).
+- [x] 9 Noise: the timestamp entries stay in the session but draw as one header per Pi message ("Pi 15:12", time dim), plus failures and stops; `/verbose on|off` shows every stamp; [CANARY] is stripped from Pi's answers before display (node tests).
 - [ ] 10 /harness as a select list ("Ask in words" first), argument completion.
 - [ ] Differences from the boards sent back to the designer (names the repo uses).

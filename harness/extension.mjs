@@ -195,9 +195,16 @@ export default function harness(pi, dependencies = {}) {
     try {
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
         args: event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+      // Round 6 (T_Gate): Gate's verdict and the command's own result are separate words. A command that exits with an
+      // error was still allowed: say so, without an alarm. Only Gate's own findings (the command changed) are Gate's.
+      if (result.status === 'EXECUTION_FAILED') {
+        const text = (event.content || []).map(part => part.text || '').join('\n'), code = text.match(/exit(?:ed)?(?: with)?(?: code)? (\d+)/i)?.[1] || '1';
+        return { isError: true, content: [...event.content, { type: 'text', text: `✓ Gate allowed · ✗ exit ${code}: the command failed on its own; Gate did not block it.` }] };
+      }
       if (result.status !== 'SUCCESS') {
-        notify(`Gate: ${result.status}: ${result.reason}`, 'error');
-        return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit failed: ${result.status}. ${result.reason}` }] };
+        const words = { DRIFT_DETECTED: 'the command that ran was not the one it allowed' }[result.status] || 'it did not accept the result';
+        notify(`Gate: ${words} (${result.status}). ${result.reason}`, 'error');
+        return { isError: true, content: [...event.content, { type: 'text', text: `✗ Gate: ${words} (${result.status}). ${result.reason}` }] };
       }
     } catch (error) {
       notify(`Gate audit failed: ${error.message}`, 'error');

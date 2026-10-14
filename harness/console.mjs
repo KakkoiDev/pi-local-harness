@@ -45,13 +45,21 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin } =
     description: 'Ask the Pi Workbench harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes (config set, models use|pull|remove, ollama set, undo) are not applied: you get what would change, and the person types the command.',
     promptSnippet: 'harness: the Pi Workbench console (status, doctor, queue, gate, models, config, guide for how-to questions)',
     parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
-    async execute(_id, params) {
+    async execute(_id, params, _signal, _update, ctx) {
       const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');
       const { code, text } = await run(params.command, words, { webPort: ports()?.web });
-      const answer = code === 3 ? `Not changed. This needs the person's yes: ask them to type /${[params.command, ...words].join(' ')} in this terminal.\n\n${text}` : text || '(no output)';
+      const line = `/${[params.command, ...words].join(' ')}`, ui = ctx?.ui;
+      // T_Changes: Pi never changes anything. A change goes on the input line with a dim hint; Return runs it and the
+      // person confirms. A question answered from live data offers its command the same way, if the line is empty.
+      if (code === 3 || (ui?.getEditorText?.() ?? 'x') === '') {
+        ui?.setEditorText?.(line);
+        if (code === 3) ui?.setWidget?.('harness-proposal', [ansiStyle.dim('Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm')], { placement: 'belowEditor' });
+      }
+      const answer = code === 3 ? `Not changed. The command is on the person's input line (${line}): Return runs it and asks for their yes. Say so in one line.\n\n${text}` : text || '(no output)';
       return { content: [{ type: 'text', text: answer }], details: { command: params.command, code } };
     },
   });
+  pi.on?.('input', (_event, ctx) => { ctx?.ui?.setWidget?.('harness-proposal', undefined); }); // the hint goes once the person sends something
   if (!pi.registerCommand) return;
   // Round 6 (TerminalOutput card): every output is drawn from its view, at the terminal's width, bold and dim only.
   // ASCII only when the locale says the terminal is not UTF-8 (C, POSIX, Latin-1…); unset means a UTF-8 terminal, as on macOS.
@@ -66,6 +74,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin } =
     pi.registerCommand(name, {
       description: `Harness: ${description}`,
       handler: async (args = '', ctx) => {
+        ctx?.ui?.setWidget?.('harness-proposal', undefined);
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
         const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${line}`)) }], hint: '/harness lists the commands' });
