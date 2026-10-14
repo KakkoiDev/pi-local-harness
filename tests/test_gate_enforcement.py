@@ -63,6 +63,11 @@ class EnforcementTest(unittest.TestCase):
         for edits in ([{'oldText':'- [x]','newText':'x'}],[{'oldText':'missing','newText':'x'}],[{'oldText':'one\n- [x] two','newText':'a'},{'oldText':'two','newText':'b'}],[]):
             revise=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':edits},'standard',pi_tool='edit',cwd=str(self.root))
             self.assertEqual(revise['outcome'],'REVISE',edits)
+        # 2026-10-15: the reason says which edit and why, so Pi fixes that edit instead of rewriting the file (task 173's run).
+        missing=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':[{'oldText':'one','newText':'1'},{'oldText':'- [ ] Red:','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertIn('edits[1].oldText is not in ROADMAP.md', missing['reason']); self.assertIn('“- [ ] Red:”', missing['reason'])
+        many=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':[{'oldText':'- [x]','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertIn('edits[0].oldText occurs 2 times in ROADMAP.md', many['reason']); self.assertIn('add surrounding lines', many['reason'])
         single=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':json.dumps([{'oldText':'3','newText':'three'}])},'standard',pi_tool='edit',cwd=str(self.root))
         self.assertEqual(single['outcome'],'ALLOW','edits sent as a JSON string, as some models do')
         self.ledger.pending.clear()

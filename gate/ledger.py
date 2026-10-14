@@ -11,7 +11,7 @@ import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol
 
-def apply_edits(original, args):
+def apply_edits(original, args, name='the file'):
     """The file after Pi's edit, as Pi applies it: each edits[].oldText matched once against the original, no overlaps.
     Pi 1.1 sends {path, edits: [{oldText, newText}]} (some models a JSON string or one object); older Pi sent
     {path, oldText, newText}. Returns (content, None) or (None, the reason to revise)."""
@@ -24,9 +24,14 @@ def apply_edits(original, args):
     if not isinstance(edits, list) or not edits or not all(isinstance(edit, dict) and isinstance(edit.get('oldText'), str) and isinstance(edit.get('newText'), str) for edit in edits):
         return None, 'Edit must list at least one oldText and newText.'
     spans = []
-    for edit in edits:
-        if not edit['oldText'] or original.count(edit['oldText']) != 1:
-            return None, 'Edit must identify one exact occurrence.'
+    for index, edit in enumerate(edits):
+        # Say which edit and why: a bare "one exact occurrence" sent Pi to rewrite the whole file instead (task 173's run).
+        text = edit['oldText']; found = original.count(text) if text else 0
+        shown = '“' + (text if len(text) <= 60 else text[:60] + '…').replace('\n', '\\n') + '”'
+        if found == 0:
+            return None, f'Edit must identify one exact occurrence: edits[{index}].oldText is not in {name} ({shown}). Read the file again and copy the text exactly.'
+        if found > 1:
+            return None, f'Edit must identify one exact occurrence: edits[{index}].oldText occurs {found} times in {name} ({shown}); add surrounding lines to make it unique.'
         start = original.index(edit['oldText']); spans.append((start, start + len(edit['oldText']), edit['newText']))
     spans.sort()
     if any(spans[index][1] > spans[index + 1][0] for index in range(len(spans) - 1)):
@@ -106,7 +111,7 @@ class ProposalLedger:
                 content = args['content']
             else:
                 original = path.read_text()
-                content, reason = apply_edits(original, args)
+                content, reason = apply_edits(original, args, path.name)
                 if reason:
                     self.record_event('gate', 'REVISE', proposal, reason, tool_call=tool_call_id, cwd=cwd, source=source)
                     return {'outcome': 'REVISE', 'reason': reason}

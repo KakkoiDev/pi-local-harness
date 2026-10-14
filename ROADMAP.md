@@ -218,3 +218,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [173-Coming back to Chat from Activity leaves the view lifted, white at the bottom](tasks/173-activity-back-to-chat-scroll.md)
 - [x] [174-Gate checks Pi 1.1's edits list; Gate's errors reach Pi](tasks/174-gate-pi-edits-list.md)
 - [x] [175-The thinking level reaches Ollama; Off turns thinking off](tasks/175-thinking-levels-reach-ollama.md)
+- [x] [176-Gate says which edit does not match, and why](tasks/176-gate-says-which-edit.md)
