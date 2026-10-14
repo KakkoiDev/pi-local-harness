@@ -583,6 +583,26 @@ def run(console, command, args, yes=False, width=80):
 # One word per guide question, in GUIDE.md's order (/guide completion, the /guide list).
 GUIDE_TOPICS = ['what', 'start', 'browser', 'project', 'rename', 'chat', 'comments', 'sees', 'activity', 'long', 'model', 'pull', 'phone', 'voice', 'setting', 'console', 'wrong', 'data']
 
+def completions(console, command):
+    """[argument, what it is] for Tab after /<command> (task 171, T_Wayfinding): terminal Pi filters them by what is typed."""
+    if command == 'guide':
+        sections = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8').split('\n## ')[1:]
+        return [[topic, section.splitlines()[0]] for topic, section in zip(GUIDE_TOPICS, sections)]
+    if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
+    if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
+    if command == 'queue': return [[state, ''] for state in ('running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
+    if command == 'gate': return [['blocked', 'Only checks that did not allow'], ['why ', 'Explain one check: why <id>']]
+    if command == 'job':
+        names = {project['id']: project['name'] for project in console.projects()}
+        return [[row['id'], f"{terminal.STATE.get(row['status'], row['status'])} · {names.get(row['project'], row['project'])} · {str(row['message'] or '')[:50]}"] for row in reversed(console.queue()) if row['id']][:30]
+    if command == 'models':
+        try: installed = [item['id'] for item in console.models()['models']]
+        except (OSError, ValueError): installed = []
+        words = [['use ', 'Switch to a model (asks first)'], ['check ', 'Measure whether a model answers two at once'], ['pull ', 'Download a model (asks first)'], ['remove ', 'Move a model to the Trash (asks first)']]
+        return words + [[f'{verb} {name}', ''] for verb in ('use', 'check', 'remove') for name in installed]
+    return []
+
+
 def guide(words):
     """harness/GUIDE.md, or its sections (## questions) that mention every word; else the list of questions (task 167)."""
     text = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8')
@@ -618,7 +638,7 @@ def check_models(console, args):
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    raw = '--json' in argv; yes = '--yes' in argv; as_view = '--view' in argv; argv = [arg for arg in argv if arg not in ('--json', '--yes', '--view')]  # --view: the view for terminal Pi's renderer
+    complete = '--complete' in argv; raw = '--json' in argv; yes = '--yes' in argv; as_view = '--view' in argv; argv = [arg for arg in argv if arg not in ('--json', '--yes', '--view', '--complete')]  # --view: the view for terminal Pi's renderer
     data = os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')); web = os.getenv('PI_WEB_PORT')
     for flag in ('--data', '--web'):
         if flag in argv:
@@ -628,6 +648,7 @@ def main(argv=None):
             del argv[index:index + 2]
     command, args = (argv[0], argv[1:]) if argv else ('harness', [])
     console = Console(data, int(web) if web and str(web).isdigit() else None)
+    if complete: print(json.dumps(completions(console, command.lstrip('/')), ensure_ascii=False)); return 0
     import shutil
     try: value, shape = build(console, command.lstrip('/'), args, yes); text = terminal.plain(shape, shutil.get_terminal_size((80, 24)).columns)
     except LookupError as error: print(error, file=sys.stderr); return 2

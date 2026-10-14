@@ -88,3 +88,30 @@ test('Pi proposes a change on the input line; Return runs it and the person conf
   ui.text = ''; await tools.harness.execute('t', { command: 'status' }, undefined, undefined, { ui });
   assert.equal(ui.text, '/status', 'a question answered from live data offers its command');
 });
+
+test('/harness opens a list with “Ask in words” first; a choice goes on the input line, /harness list prints it (task 171, T_Wayfinding)', async () => {
+  const commands = {}, messages = [], calls = [], offered = [];
+  let editor = 'x';
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) },
+    { run: async (name, words) => { calls.push([name, words]); return { ok: true, code: 0, text: JSON.stringify({ title: 'Harness', parts: [] }) }; } });
+  const ui = choice => ({ select: async (title, options) => { offered.push(title, options); return options[choice]; }, setEditorText: text => { editor = text; } });
+  await commands.harness.handler('', { ui: ui(2) });
+  assert.equal(offered[1][0], 'Ask in words'); assert.match(offered[1][1], /^\/harness list/); assert.match(offered[1][2], /^\/status +Services/);
+  assert.equal(editor, '/status ', 'on the input line, not run'); assert.deepEqual(calls, []);
+  await commands.harness.handler('', { ui: ui(0) });
+  assert.equal(editor, '', 'Ask in words: an empty line to type on');
+  await commands.harness.handler('list', { ui: ui(0) });
+  assert.deepEqual(calls, [['harness', ['--view']]]); assert.equal(messages.length, 1);
+  await commands.harness.handler('', {}); assert.equal(calls.length, 2, 'no list to choose from: it prints');
+});
+
+test('Tab completes each command\'s words from the backend, filtered by what is typed (task 171)', async () => {
+  const commands = {}, asked = [];
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; } },
+    { complete: async name => { asked.push(name); return name === 'models' ? [['use ', 'Switch'], ['use qwen3:8b', ''], ['use gemma4', ''], ['pull ', 'Download']] : []; } });
+  assert.deepEqual((await commands.models.getArgumentCompletions('use q')).map(item => item.value), ['use qwen3:8b']);
+  assert.deepEqual((await commands.models.getArgumentCompletions('USE')).map(item => item.label), ['use ', 'use qwen3:8b', 'use gemma4']);
+  assert.equal(await commands.models.getArgumentCompletions('zzz'), null);
+  assert.equal(asked.length, 1, 'cached for a moment');
+  assert.equal(await commands.status.getArgumentCompletions?.(''), undefined, 'nothing to complete for /status');
+});

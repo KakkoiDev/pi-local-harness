@@ -6,7 +6,7 @@ by hand: they read live data.
 
 | Command | What it shows |
 |---|---|
-| `/harness` | What the harness is and this list. |
+| `/harness` | A list to choose from (the choice goes on the input line); `/harness list` prints what the harness is and this list. Tab completes each command's words. |
 | `/status` | Services, model, queue and Gate counts, data folder, build. |
 | `/queue [running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request. |

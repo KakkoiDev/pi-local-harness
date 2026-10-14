@@ -89,7 +89,8 @@ In terminal Pi: `/config` lists every setting with what it does and its variable
 
 ## What can the terminal console do?
 
-Type `/harness` for the list: `/status`, `/doctor`, `/queue`, `/job <id>`, `/gate`, `/models`, `/ollama`, `/projects`,
+Type `/harness` and choose from the list (the command goes on the input line; Tab completes model names, settings and
+topics), or `/harness list` to print it: `/status`, `/doctor`, `/queue`, `/job <id>`, `/gate`, `/models`, `/ollama`, `/projects`,
 `/config`, `/paths`, `/guide`, `/undo`. They run at once, without the model, and Pi can explain their output. Pi's own
 commands (`/settings`, `/model`, `/new`, `/compact`…) still work.
 

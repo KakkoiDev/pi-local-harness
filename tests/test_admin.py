@@ -79,6 +79,18 @@ class AdminTest(unittest.TestCase):
         self.assertEqual(run('help').returncode, 0)
         unknown = run('nonsense'); self.assertNotEqual(unknown.returncode, 0); self.assertIn('Unknown command', unknown.stderr)
 
+    def test_completions_offer_the_words_each_command_takes(self):
+        """Task 171, T_Wayfinding: Tab completes model names, settings, guide topics and request ids."""
+        words = lambda command: [value for value, _ in admin.completions(self.console, command)]
+        self.assertIn('set silence_seconds', words('config')); self.assertIn('set effort', words('config'))
+        self.assertIn('phone', words('guide')); self.assertEqual(len(words('guide')), len(admin.GUIDE_TOPICS))
+        self.assertIn('a' * 32, words('job')); self.assertIn('failed', words('queue'))
+        self.assertIn('blocked', words('gate')); self.assertIn('set num_parallel', words('ollama'))
+        self.assertTrue({'use', 'check', 'pull', 'remove'} <= {word.strip() for word in words('models')}, 'without Ollama, the subcommands')
+        self.assertEqual(admin.completions(self.console, 'status'), [])
+        run = subprocess.run([sys.executable, '-m', 'harness.admin', 'guide', '--complete', '--data', str(self.data)], capture_output=True, text=True, timeout=30)
+        self.assertEqual(run.returncode, 0, run.stderr); self.assertIn(['phone', 'How do I use it from my phone or another device?'], json.loads(run.stdout))
+
     def test_every_command_is_listed_in_the_console_guide(self):
         guide = Path('harness/CONSOLE.md').read_text()
         for name in admin.COMMANDS:

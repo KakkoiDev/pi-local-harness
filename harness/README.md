@@ -59,7 +59,8 @@ that measurement is not a startup-delay guarantee.
 
 ## The console in terminal Pi
 
-The terminal session `plh` opens is the harness console (plan 158). Type `/harness` for the list: `/status`, `/queue`,
+The terminal session `plh` opens is the harness console (plan 158). Type `/harness` to choose from the list (“Ask in words” first; a choice goes on the input line; `/harness list`
+prints it; Tab completes model names, settings, guide topics and request ids): `/status`, `/queue`,
 `/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`.
 They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
 commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.

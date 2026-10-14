@@ -14,5 +14,5 @@ Request 2026-10-14: the designer drew round 6 (Terminal page: T_Principles, T_St
 - [ ] 7 (rest) A tool-call renderer (glyph + tool + argument, then the checks on line 2).
 - [ ] 8 Recovery and refusal as a bold sentence first (the web worker reads their prefixes today).
 - [x] 9 Noise: the timestamp entries stay in the session but draw as one header per Pi message ("Pi 15:12", time dim), plus failures and stops; `/verbose on|off` shows every stamp; [CANARY] is stripped from Pi's answers before display (node tests).
-- [ ] 10 /harness as a select list ("Ask in words" first), argument completion.
+- [x] 10 `/harness` opens a select list, “Ask in words” first, then `/harness list` and each command with what it does; a choice goes on the input line (“/status ”), not run; `/harness list` (or no list to choose from) prints it. Tab completes from `python3 -m harness.admin <command> --complete`: model names after use/check/remove, `config set <key>`, `ollama set <key>`, guide topics, queue states, request ids with their state and project; kept 20 s (python and node tests).
 - [ ] Differences from the boards sent back to the designer (names the repo uses).

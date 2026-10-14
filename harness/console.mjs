@@ -35,8 +35,19 @@ export function runAdmin(command, args, { webPort } = {}) {
   });
 }
 
+/** The words /<command> takes, as [argument, what it is], from harness/admin.py (Tab completion, task 171). */
+export function completeAdmin(command, { webPort } = {}) {
+  return new Promise(resolve => {
+    const argv = ['-m', 'harness.admin', command, '--complete', ...(webPort ? ['--web', String(webPort)] : [])];
+    execFile(process.env.PI_PYTHON || 'python3', argv, { cwd: root, timeout: 10000 }, (error, stdout) => {
+      try { resolve(error ? [] : JSON.parse(stdout)); } catch { resolve([]); }
+    });
+  });
+}
+const COMPLETES = ['queue', 'job', 'gate', 'models', 'ollama', 'config', 'guide'];
+
 /** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
-export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {} } = {}) {
+export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin } = {}) {
   // The harness tool: the same commands for Pi, run from the harness's own folder (Pi once tried `python3 -m harness.admin`
   // from the home folder, where it is not found). Reads only: a change returns its preview and asks Pi to have the person
   // type the command, which then asks for their yes (plan 158, C1).
@@ -70,11 +81,35 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
   const show = (name, words, view) => pi.sendMessage({ customType: 'harness-console', display: true, details: { view },
     content: `/${[name, ...words].join(' ')}\n\n${renderView(view, 80, { ascii }).join('\n')}` }); // plain text: what Pi reads
   const title = name => name[0].toUpperCase() + name.slice(1);
+  // Tab: the backend's words for this command (installed models, settings, guide topics, request ids), kept 20 seconds.
+  const cache = {};
+  const completions = name => async prefix => {
+    if (!cache[name] || Date.now() - cache[name].at > 20000) cache[name] = { at: Date.now(), items: complete(name, { webPort: ports()?.web }) };
+    const typed = String(prefix || '').toLowerCase();
+    const items = (await cache[name].items).filter(([value]) => value.toLowerCase().startsWith(typed)).map(([value, description]) => ({ value, label: value, ...(description ? { description } : {}) }));
+    return items.length ? items : null;
+  };
+  // T_Wayfinding: /harness is a list, “Ask in words” first; a command goes on the input line for the person to finish.
+  const choose = async ctx => {
+    const width = Math.max(...Object.keys(CONSOLE_COMMANDS).map(name => name.length)) + 3;
+    const options = ['Ask in words', `${'/harness list'.padEnd(width)}  Print this list`, ...Object.entries(CONSOLE_COMMANDS).filter(([name]) => name !== 'harness').map(([name, about]) => `${`/${name}`.padEnd(width)}  ${about}`)];
+    const choice = await ctx.ui.select('Harness · choose a command; it goes on the input line', options);
+    if (!choice) return;
+    if (choice === 'Ask in words') { ctx.ui.setEditorText?.(''); return; }
+    const command = choice.split(/\s+/)[0];
+    if (command === '/harness') return 'list';
+    ctx.ui.setEditorText?.(`${command} `);
+  };
   for (const [name, description] of Object.entries(CONSOLE_COMMANDS)) {
     pi.registerCommand(name, {
       description: `Harness: ${description}`,
+      ...(COMPLETES.includes(name) ? { getArgumentCompletions: completions(name) } : {}),
       handler: async (args = '', ctx) => {
         ctx?.ui?.setWidget?.('harness-proposal', undefined);
+        if (name === 'harness' && ctx?.ui?.select) {
+          if (!String(args).trim() && (await choose(ctx)) !== 'list') return;
+          if (String(args).trim() === 'list') args = '';
+        }
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
         const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${line}`)) }], hint: '/harness lists the commands' });
