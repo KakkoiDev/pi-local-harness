@@ -72,6 +72,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 /* Activity and Gate */
 .activity-panel,.gate-panel{flex:1;min-height:0;display:flex;flex-direction:column}
 .activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
+.activity-record h4{margin:0;padding:8px 14px 0}
 .activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
 #activity-panel{--pw-cols:130px minmax(0,1fr) 170px 130px 90px 56px} /* C_ActivityDesk */
 #gate-events{--pw-cols:70px 58px 104px minmax(0,1fr) 150px 70px} /* C_GateDesk */

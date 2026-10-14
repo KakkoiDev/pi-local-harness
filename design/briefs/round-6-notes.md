@@ -64,3 +64,13 @@ where the repo should change instead.
 
 15. Pi prints its own banner above the startup header (version, key hints, "Update Available" when Pi has an update)
     and a tmux warning when the terminal's key format is not csi-u. The harness header follows them.
+
+## Added after round 6 (web, please draw)
+
+16. **Show/Hide Task Record** (task 172). In Activity, the person found the open record hard to close: it was a
+    disclosure (`<details>`) under the request, and the only way to close it was its triangle. Now the one button
+    toggles and says what it will do: "Show Task Record", then "Hide Task Record" (Activity's menu item follows). The
+    record is a plain section titled "Task record" under a double rule. The person asked whether × buttons are OK in
+    this system. Our reading: no. Windows close with the title bar's close box (⌘W), phone sheets with a "Close"
+    button, and an inline panel with the button that opened it. Should the record instead open as its own window
+    (like Event Info, with a close box), or a sheet on the phone?

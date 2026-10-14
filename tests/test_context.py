@@ -51,6 +51,9 @@ class ContextTest(unittest.TestCase):
             self.assertIn('OTHER = 1', result['text'], request); self.assertIn('harness/other.py', result['included'], request)
         result = self.build('How is task 7 going?')
         self.assertIn('Details about the badge', result['text']); self.assertIn('tasks/007-queue-badge.md', result['included'])
+        for request in ['Yes, do tasks 7 right now.', 'Now do Task #7']:  # the person's own words (2026-10-14)
+            kinds = {item.get('path'): item.get('kind') for item in self.build(request)['items']}
+            self.assertEqual(kinds.get('tasks/007-queue-badge.md'), 'mentioned', request)
         self.assertNotIn('missing.py', ' '.join(self.build('Open missing.py')['included']))
 
     def test_current_document_whole_when_small_and_sectioned_when_large(self):

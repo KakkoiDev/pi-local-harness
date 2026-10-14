@@ -30,14 +30,15 @@ export function contextLine(id) {
 }
 
 /** Update `line` for a request: {project, text, document} or {project, path, comment}; debounced while typing.
+ *  `force`: ask again even if the answer is fresh (the project changed: a new exchange in the chat).
  *  `rendered` runs after the line changed, for a container that measures itself (the phone composer). */
-export function showContext(line, query, { delay = 300, rendered } = {}) {
+export function showContext(line, query, { delay = 300, rendered, force = false } = {}) {
   clearTimeout(line.contextTimer);
   if (rendered) line.contextRendered = rendered;
   if (!query.project) { line.hidden = true; delete line.dataset.query; line.contextRendered?.(); return; }
   const key = new URLSearchParams(Object.entries(query).filter(([, value]) => value)).toString();
   const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < fresh) { if (line.dataset.query !== key || line.hidden) render(line, query.project, hit.items, key); return; }
+  if (hit && !force && Date.now() - hit.at < fresh) { if (line.dataset.query !== key || line.hidden) render(line, query.project, hit.items, key); return; }
   line.contextTimer = setTimeout(() => load(line, query.project, key), delay);
 }
 

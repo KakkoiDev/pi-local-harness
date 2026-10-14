@@ -101,6 +101,12 @@ const readline = require('node:readline');
   await requestRow.focus();const distance=await page.evaluate(()=>{const rows=[...document.querySelectorAll('.activity-task')].map(row=>row.textContent);return rows.findIndex(text=>text.includes('Implement this roadmap'))-rows.findIndex(text=>text.includes('Review the whole roadmap'));}),above=distance<0;
   await page.keyboard.press(above?'ArrowUp':'ArrowDown');for(let step=1;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowUp':'ArrowDown');await page.waitForFunction(()=>document.activeElement?.matches('.activity-task[aria-current=true]')&&document.activeElement.textContent.includes('Implement this roadmap'));for(let step=0;step<Math.abs(distance);step++)await page.keyboard.press(above?'ArrowDown':'ArrowUp');await page.waitForFunction(()=>document.activeElement?.textContent.includes('Review the whole roadmap'));
   await detail.getByRole('button',{name:'Show Task Record',exact:true}).click();await page.locator('#activity-record-text').filter({hasText:'Review the whole roadmap'}).waitFor();
+  // 2026-10-14: the same button hides it ("Hide Task Record"), as does the menu item; no disclosure triangle to find.
+  const hide=detail.getByRole('button',{name:'Hide Task Record',exact:true});await hide.waitFor();assert.equal(await page.locator('#activity-record summary').count(),0);
+  assert.equal(await page.locator('[data-command="task-record"]').textContent(),'Hide Task Record');
+  await hide.click();await page.locator('#activity-record').waitFor({state:'hidden'});await detail.getByRole('button',{name:'Show Task Record',exact:true}).waitFor();
+  assert.equal(await page.locator('[data-command="task-record"]').textContent(),'Show Task Record');
+  await detail.getByRole('button',{name:'Show Task Record',exact:true}).click();await page.locator('#activity-record').waitFor();
   assert.equal(require('node:fs').readdirSync(join(directory,'workspace/activity')).filter(name=>name.endsWith('.md')).length,3,'two roadmap requests and the suggestion request');
   await leaveApp();await page.locator('#chat-tab').click();assert.equal(await page.locator('#messages .pw-msg').count(),0,'document and comment answers stay in the document (task 115)');
   await page.locator('#prompt').fill('First question');

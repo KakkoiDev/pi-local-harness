@@ -652,6 +652,12 @@ const readline = require('node:readline');
   const empty=join(directory,'Empty folder');fs.mkdirSync(empty);const added=await post('/api/projects/register',{path:empty});
   await page.goto(`${base}/p/${added.project}/chat`);await page.locator('#prompt').fill('Hello');
   await page.waitForFunction(()=>document.querySelector('#chat-context').textContent==='Pi sees: nothing from this project');
+  // 2026-10-14: the line is evaluated again after every exchange: files Pi made while answering show without typing.
+  await page.locator('#prompt').fill('');await page.waitForFunction(()=>document.querySelector('#chat-context').textContent==='Pi sees: nothing from this project');
+  fs.writeFileSync(join(empty,'ROADMAP.md'),'# Plan\n\n- [ ] First\n');
+  const answered=async()=>page.waitForFunction(()=>fetch('/api/workspace').then(r=>r.json()).then(data=>!data.jobs.some(job=>['queued','running'].includes(job.status))),null,{polling:300,timeout:20000});
+  await post('/api/jobs/create',{project:added.project,message:'Make a plan'});await answered();
+  await page.waitForFunction(()=>/ROADMAP\.md\(plan\)/.test(document.querySelector('#chat-context').textContent),null,{timeout:10000});
   }
 
   { // Task 135: a comment waiting behind another request reads as sent, with Show in Activity; the composer help; whole-file requests as cards.

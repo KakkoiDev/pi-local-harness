@@ -211,3 +211,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [169-Console output: a missing config.json is fine; the queue names projects](tasks/169-console-output-fixes.md)
 - [x] [170-Design terminal Pi with the designer (round 6)](tasks/170-terminal-design-round-6.md)
 - [x] [171-Build terminal Pi from the round 6 boards](tasks/171-terminal-round-6-build.md)
+- [x] [172-Hide Task Record; "Pi sees:" evaluated again after every exchange](tasks/172-record-toggle-and-fresh-context.md)

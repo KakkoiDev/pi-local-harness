@@ -19,7 +19,7 @@ RECENT_SECONDS = 3600
 TASK = re.compile(r'^tasks/[^/]+\.md$')
 LINK = re.compile(r'\]\(([^)\s]+)\)')
 PATHLIKE = re.compile(r'(?<![\w/.-])([\w.-]+(?:/[\w.-]+)*\.[A-Za-z0-9]{1,8})(?![\w/])')
-TASKREF = re.compile(r'\btask\s*#?\s*(\d{1,4})\b|(?<![\w/])#(\d{1,4})\b|(?<![\w/])(\d{1,4})-[a-z]', re.I)
+TASKREF = re.compile(r'\btasks?\s*#?\s*(\d{1,4})\b|(?<![\w/])#(\d{1,4})\b|(?<![\w/])(\d{1,4})-[a-z]', re.I)
 
 
 def compress_plan(text):
