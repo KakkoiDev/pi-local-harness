@@ -12,8 +12,8 @@ the model (Ollama), Pi, Gate (which checks every command Pi runs) and the web wo
 ## How do I start it?
 
 Type `plh` in a terminal. It updates itself from its checkout if needed, starts Pi in this terminal, and starts Gate and
-the web workbench. The first lines show their addresses, the phone address (or why phone access is off), and a reminder
-that `/harness` lists the console commands. Quitting Pi (Ctrl-C twice, or `/quit`) stops everything.
+the web workbench. The first lines show the build, the Web and Gate addresses, the phone address (or why phone access
+is off), and "Ask in words, or type /harness for commands". Quitting Pi (Ctrl-C twice, or `/quit`) stops everything.
 
 ## How do I open the workbench in the browser?
 

@@ -457,7 +457,7 @@ def short_time(stamp):
 
 
 GATE_WORDS = {'ALLOW': '✓ Allowed', 'BLOCK': '✗ Blocked', 'REVISE': '! Revise', 'ESCALATE': '? Escalated', 'VERIFIED': '✓ Verified',
-              'EXECUTION_FAILED': '✗ Command failed', 'DRIFT': '✗ Drift'}
+              'EXECUTION_FAILED': '✗ Command failed', 'DRIFT_DETECTED': '✗ Changed after approval'}
 
 
 def change_view(value):

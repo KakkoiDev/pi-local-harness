@@ -30,14 +30,17 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(widget,undefined);assert.equal(status,undefined);
   const startup=entries.filter(entry=>entry.type==='harness-startup');
   assert.equal(startup.length,1);
-  const lines=renderers['harness-startup'](startup[0]).render(80);
-  assert.match(lines.join('\n').replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,''),/Gate: http.*Web: http/s);
-  for (const [index,label] of ['Gate','Web'].entries()) {
+  const lines=renderers['harness-startup'](startup[0]).render(120);
+  const strip=line=>line.replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,'');
+  assert.match(strip(lines[0]),/^π Pi Workbench {2}build \S+ · data in /,'round 6 (T_Startup): name and build first');
+  for (const [index,label] of [[1,'Web'],[2,'Gate']]) {
    const url=lines[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
-   assert.equal(lines[index], `${label}: \x1b[4;36m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[0m`);
+   assert.equal(lines[index], `  ${label.padEnd(8)}\x1b[4m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[24m`,'a link: underlined, no colour');
   }
-  assert.equal(lines[2],'Phone access off: set remote_hosts and remote_users in config.json');
-  assert.equal(lines[3],'Loop check: every 10 seconds');
+  assert.equal(strip(lines[3]),'  Phone   off · set remote_hosts and remote_users  /guide phone');
+  assert.equal(strip(lines[4]),'  Ask in words, or type /harness for commands.');
+  assert.equal(strip(lines[5]),'  New here? Try “is anything stuck?”, /status or /guide.','the first start adds one line');
+  assert.doesNotMatch(lines.join('\n'),/Loop check/,'it moved to /status');
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/);
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/# Harness console[\s\S]*`\/doctor`/,'a terminal session is the console (plan 158)');
   process.env.PI_HARNESS_SHARED_PORT='1';assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/# Harness console/,'web workers skip it');delete process.env.PI_HARNESS_SHARED_PORT;

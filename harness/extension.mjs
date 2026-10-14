@@ -93,7 +93,11 @@ export default function harness(pi, dependencies = {}) {
           }
         });
       });
-      const lines = startupLines(ports);
+      // Round 6 header: the build, the data folder, and one line of suggestions on the very first start.
+      let build = 'checkout', first = false;
+      try { build = JSON.parse(readFileSync(join(moduleRoot, 'install.json'), 'utf8')).commit?.slice(0, 7) || build; } catch {}
+      try { const marker = join(dataDir, '.welcomed'); first = !existsSync(marker); if (first && !sharedPort) { mkdirSync(dataDir, { recursive: true }); appendFileSync(marker, new Date().toISOString() + '\n'); } } catch {}
+      const lines = startupLines(ports, { build, data: dataDir.replace(homedir(), '~'), first });
       ctx.ui.setWidget('local-harness', undefined);
       ctx.ui.setStatus('local-harness', undefined);
       showStartup?.(lines);

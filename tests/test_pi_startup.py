@@ -43,7 +43,7 @@ class PiStartupTest(unittest.TestCase):
                 self.assertEqual(state['data']['model']['id'],'gemma4:26b-mlx')
                 self.assertIn('image',state['data']['model']['input'])
                 self.assertEqual(state['data']['thinkingLevel'], 'high')
-                self.assertTrue(any('Gate:' in line and 'Web:' in line for line in lines),lines)
+                self.assertTrue(any('Gate ' in line and 'Web ' in line and 'Pi Workbench' in line for line in lines),lines)  # the round 6 header
             finally:
                 process.terminate()
                 process.wait(timeout=10)
