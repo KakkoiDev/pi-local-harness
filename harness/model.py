@@ -67,7 +67,13 @@ def assumed(model):
 
 
 def effective(choice, capabilities):
-    """What Pi runs with: the chosen model and level, thinking off for a model that does not think. Shared by the web and plh."""
-    known = capabilities(choice['model'])
+    """What Pi runs with: the chosen model and level, thinking off for a model that does not think. Shared by the web and plh.
+    capabilities(model) returns None when Ollama answered and the model is not installed (removed since it was chosen):
+    Pi then runs the default model, and `missing` names the chosen one so the page can say so."""
+    known, missing = capabilities(choice['model']), None
+    if known is None and choice['model'] != MODEL:
+        missing, choice = choice['model'], {**choice, 'model': MODEL}
+        known = capabilities(MODEL)
+    known = known or assumed(choice['model'])
     return {**choice, 'effort': choice['effort'] if known.get('thinking') else 'off', 'thinking': bool(known.get('thinking')),
-            'vision': bool(known.get('vision')), 'chosenEffort': choice['effort']}
+            'vision': bool(known.get('vision')), 'chosenEffort': choice['effort'], 'missing': missing}

@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from harness import model as models
-from harness.web_chat import WebChat, pi_command
+from harness.web_chat import WebChat, pi_command, readable_error
 
 CAPABILITIES = {'gemma4:26b-mlx': ['completion', 'tools', 'thinking', 'vision'], 'qwen3:8b': ['completion', 'tools'], 'tiny:1b': ['completion']}
 
@@ -72,6 +72,23 @@ class ModelChoiceTest(unittest.TestCase):
             self.chat._capabilities = {}; self.chat._capabilities_at = -1e9
             for _ in range(5): self.chat.choice()
             self.assertEqual(listing.call_count, 1)
+
+    def test_a_chosen_model_that_was_removed_falls_back_to_the_default(self):
+        models.save(Path(self.temp.name) / 'data', model='qwen3.8:27b-mlx')  # chosen, then removed from Ollama
+        choice = self.chat.choice()
+        self.assertEqual((choice['model'], choice['missing']), (models.MODEL, 'qwen3.8:27b-mlx'))
+        self.assertIn(models.MODEL, pi_command(None, choice), 'Pi runs the default, not a model Ollama cannot find')
+
+    def test_with_ollama_unreachable_the_choice_is_kept(self):
+        models.save(Path(self.temp.name) / 'data', model='qwen3:8b')
+        with patch.object(models, 'local_models', side_effect=OSError('down')):
+            self.chat._capabilities = {}; self.chat._capabilities_at = -1e9
+            self.assertEqual((self.chat.choice()['model'], self.chat.choice()['missing']), ('qwen3:8b', None))
+
+    def test_ollamas_missing_model_error_reads_as_a_sentence(self):
+        raw = '404: {"message":"model \'qwen3.8:27b-mlx\' not found","type":"not_found_error"}'
+        self.assertEqual(readable_error(raw), 'The model “qwen3.8:27b-mlx” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull qwen3.8:27b-mlx`.')
+        self.assertEqual(readable_error('Something else'), 'Something else')
 
     def test_thinking_level_is_kept_and_used(self):
         self.assertEqual(self.chat.choose_effort('low')['effort'], 'low')

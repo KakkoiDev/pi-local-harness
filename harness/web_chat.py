@@ -105,6 +105,12 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
         files.append({'name':name,'mime':mime,'size':len(data),'path':str(path)})
     return '\n\n'.join(parts),images,files
 
+def readable_error(text):
+    """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
+    missing=re.search(r"model '([^']+)' not found",str(text))
+    if missing:return f'The model “{missing.group(1)}” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull {missing.group(1)}`.'
+    return str(text)
+
 def pi_command(session, choice=None):
     """session None: a one-off request with no session (comments and whole-file questions, task 115). choice: the model and thinking level chosen in the menu bar (task 147)."""
     choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
@@ -114,22 +120,24 @@ def pi_command(session, choice=None):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self._capabilities={};self._capabilities_at=-1e9
+        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
     def capabilities(self, model):
+        """The model's capabilities; None when Ollama answered and the model is not installed; assumed when Ollama is unreachable."""
         if model not in self._capabilities and time.monotonic()-self._capabilities_at>60:
             self._capabilities_at=time.monotonic()
-            try:self._capabilities={item['id']:item for item in models.local_models()}
-            except OSError:pass
-        return self._capabilities.get(model) or models.assumed(model)
+            try:self._capabilities={item['id']:item for item in models.local_models()};self._ollama_listed=True
+            except OSError:self._ollama_listed=False
+        if model in self._capabilities:return self._capabilities[model]
+        return None if self._ollama_listed else models.assumed(model)
     def choice(self):
         return models.effective(models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high')),self.capabilities)
     def model_list(self):
-        listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic()
+        listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic();self._ollama_listed=True
         return {'models':listed,'current':self.choice()}
     def choose_model(self, model):
         listed={item['id']:item for item in models.local_models()}
@@ -142,7 +150,7 @@ class WebChat:
         try:models.switch(models.current(self.documents.root)['model'],model);models.save(self.documents.root,model=model)
         finally:
             with self.lock:self.switching=None
-        self._capabilities=listed;self._capabilities_at=time.monotonic();return self.choice()
+        self._capabilities=listed;self._capabilities_at=time.monotonic();self._ollama_listed=True;return self.choice()
     def choose_effort(self, effort):
         if effort not in EFFORTS:raise ValueError('Unknown thinking level')
         models.save(self.documents.root,effort=effort);return self.choice()
@@ -302,7 +310,7 @@ class WebChat:
                     message=event.get('message',{})
                     if message.get('role')=='assistant':
                         if message.get('stopReason')=='aborted' and phase=='recovering':continue  # stopped to recover; wait for the re-ask
-                        if message.get('stopReason') in ('error','aborted'):raise ValueError(message.get('errorMessage','Model response stopped'))
+                        if message.get('stopReason') in ('error','aborted'):raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
                 if event.get('type')=='message_update':
@@ -384,7 +392,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/gate':
                 self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
+            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
             if path=='/api/models':self.reply(self.chat.model_list());return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
@@ -398,7 +406,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return

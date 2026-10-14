@@ -18,7 +18,7 @@ const readline = require('node:readline');
   const lines=readline.createInterface({input:server.stdout});
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
   const base=`http://127.0.0.1:${ports.web}`;
-  browser=await chromium.launch({headless:true,...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
+  browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   const consoleLines=[];page.on('console',message=>consoleLines.push(message.type()+': '+message.text()));
@@ -407,6 +407,8 @@ const readline = require('node:readline');
   await page.locator('#effort-button').click();await page.locator('#effort-menu [data-effort="low"]').click();
   await page.locator('#effort-button',{hasText:'Low thinking'}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/Thinking set to low\. Pi uses it from the next request\./);
   assert.equal(JSON.parse(fs.readFileSync(join(directory,'workspace','model.json'),'utf8')).effort,'low','kept for the next request');
+  { const widths=[];for(let i=0;i<3;i++){await page.locator('#effort-button').click();await page.locator('#effort-menu').waitFor();widths.push(Math.round((await page.locator('#effort-menu').boundingBox()).width));await page.keyboard.press('Escape');}
+    assert.equal(new Set(widths).size,1,'the thinking menu keeps its width: '+widths); } // audit: it grew on every open
   await page.locator('#model-button').click();await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
   assert.equal(await page.locator('#model-menu [data-model="tiny:1b"]').getAttribute('aria-disabled'),'true','a model without tools cannot be chosen');
   assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['thinks · sees','no thinking','no tools']);assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'One model in memory at a time. Switching unloads the current one.');
@@ -507,6 +509,18 @@ const readline = require('node:readline');
   await page.locator('#document-comments .pw-review-item').first().waitFor();/* Review rendered */await page.locator('#comment-filter [data-filter="open"]').press('ArrowRight');
   await page.waitForFunction(()=>document.querySelector('#comment-filter [aria-checked="true"]').dataset.filter==='resolved');
   assert.equal(await page.evaluate(()=>document.activeElement.dataset.filter),'resolved');await page.locator('#comment-filter [data-filter="resolved"]').press('ArrowLeft');
+  }
+
+  { // Voice input in comments: Dictate records, the Mac transcribes (answered here), the text lands at the cursor.
+  await page.route('**/api/transcribe',route=>route.fulfill({json:{text:'spoken words'}}));
+  await page.goto(`${base}/p/${id}/work/ROADMAP.md`);if(await page.evaluate(()=>document.body.dataset.review)==='closed')await page.locator('#toggle-review').click();
+  await page.locator('#document-discussion>summary').click();const dictate=page.locator('#document-prompt-form .dictate');
+  assert.equal(await dictate.getAttribute('aria-label'),'Dictate');await dictate.click();
+  await page.waitForFunction(()=>document.querySelector('#document-prompt-form .dictate').getAttribute('aria-pressed')==='true');
+  assert.equal(await dictate.getAttribute('aria-label'),'Stop Dictation');await page.waitForTimeout(1200);await dictate.click();
+  await page.waitForFunction(()=>document.querySelector('#document-prompt').value.includes('spoken words'));
+  assert.equal(await page.locator('#comment-form .dictate').count(),1,'the comment composer has one too');
+  await page.unroute('**/api/transcribe');await page.locator('#document-prompt').fill('');
   }
 
   // 123: the phone follows the phone boards.

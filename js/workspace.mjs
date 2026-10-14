@@ -1,5 +1,5 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
-import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { installPopup } from './menubar.mjs';
+import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
@@ -69,7 +69,7 @@ export function installWorkspace(host){
  }
  const when=iso=>iso?new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
  const commentState=comment=>comment.deleted?'deleted':comment.resolved?'resolved':'open';
- const stateLine=comment=>comment.deleted?'Deleted':comment.resolved?'Resolved':sent(comment)?(pendingReplies(comment)?'Reply not sent to Pi':'Sent to Pi'):'Not sent to Pi';
+ const stateLine=comment=>comment.deleted?'Deleted':comment.resolved?'Resolved':failedComment(comment)?'Pi could not answer':sent(comment)?(pendingReplies(comment)?'Reply not sent to Pi':'Sent to Pi'):'Not sent to Pi';
  function orderedComments(){const text=page?.markdown||'',at=comment=>{const found=text.indexOf(comment.anchor);return found<0?Infinity:found;};return (page?.comments||[]).map((comment,index)=>({comment,index,at:at(comment)})).sort((a,b)=>a.at-b.at||a.index-b.index).map(item=>item.comment);}
  function numbers(){const result=new Map();orderedComments().filter(comment=>!comment.deleted).forEach((comment,index)=>result.set(comment.id,index+1));return result;}
  async function commentAction(url,body,after){try{await api(url,{path:page?.path,...body});if(!body.path||body.path===page?.path)await refreshPageComments();after?.();}catch(e){notice(e.message,true);}}
@@ -80,8 +80,10 @@ export function installWorkspace(host){
  const busyComment=comment=>state.jobs.some(job=>job.comment_id===comment.id&&['queued','running'].includes(job.status));
  // Sent = it reached Pi (chat_id, set when the job starts) or waits in Pi's queue: a waiting comment must not be sent twice or deleted.
  const sent=comment=>Boolean(comment.chat_id)||busyComment(comment);
+ // Its last request failed, stopped or was interrupted: Pi did not answer it, so it can be asked again.
+ const failedComment=comment=>['failed','stopped','interrupted'].includes(state.jobs.filter(job=>job.comment_id===comment.id).at(-1)?.status);
  const pendingReplies=comment=>Boolean(comment.chat_id)&&!busyComment(comment)&&(comment.replies||[]).some(reply=>reply.author!=='pi'&&(reply.created||'')>(comment.sent_at||''));
- const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&(!sent(comment)||pendingReplies(comment)));
+ const unsent=()=>orderedComments().filter(comment=>commentState(comment)==='open'&&(!sent(comment)||pendingReplies(comment)||failedComment(comment)));
  $('send-unsent').onclick=async()=>{$('send-unsent').disabled=true;for(const comment of unsent())if(!await askPi(comment))break;delete signatures.comments;renderComments();};
  // Choosing a comment in Review opens its thread under the passage and brings it into view with focus (the person: clicking a comment did not show it).
  function showThread(id,{reveal=false}={}){const comment=page?.comments.find(item=>item.id===id);if(!comment)return;currentComment=id;openThread=comment.deleted?null:id;renderBlocks();renderComments();
@@ -91,7 +93,7 @@ export function installWorkspace(host){
  function replyForm(comment){const form=node('form','pw-thread__actions'),reply=node('input','pw-field');reply.placeholder='Reply…';reply.setAttribute('aria-label','Reply to text comment');reply.maxLength=10000;reply.required=true;reply.dataset.thread=comment.id;reply.value=replyDrafts.get(comment.id)||'';reply.oninput=()=>replyDrafts.set(comment.id,reply.value);
   // InlineThread round 4: Add Note keeps what you typed with the file (Pi does not see it); Ask Pi sends the thread with it,
   // and is the default button once there is text. Replaces Reply, which read as if it reached Pi.
-  const submit=node('button','pw-btn','Add Note');form.append(reply,submit);
+  const submit=node('button','pw-btn','Add Note');form.append(reply,dictateButton(reply,{api,report:message=>notice(message,true)}),submit);/* voice input in comments */
   form.onsubmit=async event=>{event.preventDefault();submit.disabled=true;try{await api('/api/documents/reply',{path:page.path,id:comment.id,text:reply.value||replyDrafts.get(comment.id)||''});replyDrafts.delete(comment.id);await refreshPageComments();}catch(e){notice(e.message,true);}finally{submit.disabled=false;}};return form;}
  function thread(comment){const box=node('div','pw-thread'+(comment.resolved?' pw-thread--resolved':''));box.setAttribute('role','group');box.setAttribute('aria-label','Comment thread');
   const message=(who,time,text)=>{const row=node('div','pw-thread__msg'),label=node('span','pw-thread__who');label.append(node('b','',who),time?' '+time:'');row.append(label,node('p','',text));return row;};
@@ -126,7 +128,7 @@ export function installWorkspace(host){
    if(page.markdown&&!page.markdown.includes(comment.anchor))item.append(node('p','pw-help','Passage changed on disk; this thread keeps the original quote.'));
    item.append(node('p','pw-review-item__text',comment.text));
    const actions=node('div','pw-review-item__actions'),state=commentState(comment);
-   if(state==='open'&&!sent(comment)){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
+   if(state==='open'&&(!sent(comment)||failedComment(comment))){const ask=button('Ask Pi',()=>askPi(comment,ask));actions.append(ask);}
    if(state==='open')actions.append(button('Resolve',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:true})));
    if(state==='open'&&!sent(comment))actions.append(button('Delete',()=>deleteComment(comment)));
    if(state==='resolved')actions.append(button('Reopen',()=>commentAction('/api/documents/resolve',{id:comment.id,resolved:false})));
@@ -312,7 +314,8 @@ export function installWorkspace(host){
   try{const open=isOpenUnder(path);await api('/api/documents/delete',{path});if(open)closeOpenFile();await refreshFiles({fresh:true});}catch(e){notice(e.message,true);}}
  // Add Comment keeps it with the file; Add & Ask Pi also sends it to Pi at once (C_WorkDesk, round 3 F3).
  async function addComment(ask){if(!page||textFile||!commentAnchor)return;$('add-comment').disabled=$('add-ask').disabled=true;try{await save();const anchor=commentAnchor;const created=await api('/api/documents/comment',{path:page.path,text:$('comment-text').value,anchor});$('comment-text').value='';clearAnchor();await refreshPageComments();renderBlocks();if(ask)await askPi(created);}catch(e){notice(e.message,true);}finally{$('add-comment').disabled=$('add-ask').disabled=!commentAnchor;}}
- $('comment-form').onsubmit=event=>{event.preventDefault();addComment(false);};$('add-ask').onclick=()=>addComment(true);
+ $('comment-form').onsubmit=event=>{event.preventDefault();addComment(false);};
+ $('comment-form').querySelector('.comment-actions').prepend(dictateButton($('comment-text'),{api,report:message=>notice(message,true)}));$('document-prompt-form').querySelector('.comment-actions').prepend(dictateButton($('document-prompt'),{api,report:message=>notice(message,true)}));/* voice input for comments and the whole-file question */$('add-ask').onclick=()=>addComment(true);
  $('document-prompt-form').onsubmit=async event=>{event.preventDefault();if(!project||!page)return;const button=event.currentTarget.querySelector('button');button.disabled=true;try{await save();await api('/api/jobs/create',{project,message:$('document-prompt').value,document:page&&!textFile?page.path:undefined});$('document-prompt').value='';await poll();notice('Document request sent');}catch(e){notice(e.message,true);}finally{button.disabled=false;}};
  function clearAnchor(){commentAnchor='';$('selected-passage').hidden=true;$('selection-bar').hidden=true;$('add-comment').disabled=$('add-ask').disabled=true;}
  function attachSelection(text){commentAnchor=text;$('comment-anchor').textContent=text;$('selected-passage').hidden=false;$('add-comment').disabled=$('add-ask').disabled=false;}

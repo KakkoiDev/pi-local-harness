@@ -8,3 +8,8 @@ Date: 2026-10-13. These shipped between rounds because the person asked for them
 4. **Open on Phone** shows the QR code of the address above the field (as your F9 board), 184px, 1px ink frame.
 5. **Recording on the phone**: the Record button keeps its 44px shape: red dot plus the elapsed time ("0:12"), label "Stop Recording" for assistive tech.
 6. **Comment threads** (task 135): replies and Pi's answers in one ordered conversation (your round-3 decision). Changed by the person: once a thread went to Pi, **Reply sends your message to Pi** with the thread (default button); Ask Pi shows only on unsent threads or threads with replies not yet sent. A thread with replies written after its last request counts as unsent: Review head "Reply not sent to Pi", thread line "Reply saved · not sent to Pi", and it goes with "Send N Unsent Comments to Pi". Please draw these states.
+
+## Added after round 4 (please draw)
+
+7. **Voice input in comments** (task 153): a Dictate button (the mic icon, `.pw-btn--icon.pw-btn--rec`) next to the comment composer, each thread's reply field and the whole-file question. While recording it is inverted with the elapsed time (as Ph_Recording); then "Transcribing…"; the text lands at the cursor.
+8. **A chosen model that is no longer installed** (task 153): Pi falls back to the default model; a toast says "qwen3.8:27b-mlx is no longer installed in Ollama. Pi uses gemma4:26b-mlx until you choose another model." Should the model menu also show the missing model (dimmed, "not installed")?
