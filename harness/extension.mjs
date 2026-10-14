@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
 import { installConsole } from './console.mjs';
+import { installFooter } from './footer.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -63,7 +64,8 @@ export default function harness(pi, dependencies = {}) {
     context.abort();
     watch.stop();
   };
-  installConsole(pi, { ports: () => ports }); // /harness, /status, /gate … (plan 158)
+  const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
+  installConsole(pi, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     loadMemory(memoryPath);
@@ -104,6 +106,7 @@ export default function harness(pi, dependencies = {}) {
       const rpc = process.argv.some((arg, index) => arg === '--mode=rpc' || (arg === '--mode' && process.argv[index + 1] === 'rpc'));
       // Web workers (shared port) skip the banner: it would become the job's progress line on every request.
       if (!sharedPort && (!showStartup || ctx.hasUI === false || rpc)) notify(lines.join('\n'));
+      if (!sharedPort) footer.start(ctx); // web workers have no person watching their terminal
       timer = schedule(() => {
         if (!watch.active || pending) return;
         const triple = watch.loop();
@@ -226,5 +229,5 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('session_before_compact', () => { try { agentLock.acquire(); } catch { return { cancel: true }; } });
   pi.on('session_compact', () => { if (!watch.active) agentLock.release(); });
-  pi.on('session_shutdown', stop);
+  pi.on('session_shutdown', () => { footer.stop(); stop(); });
 }

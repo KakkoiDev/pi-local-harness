@@ -36,7 +36,7 @@ export function runAdmin(command, args, { webPort } = {}) {
 }
 
 /** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
-export function installConsole(pi, { ports = () => undefined, run = runAdmin } = {}) {
+export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {} } = {}) {
   // The harness tool: the same commands for Pi, run from the harness's own folder (Pi once tried `python3 -m harness.admin`
   // from the home folder, where it is not found). Reads only: a change returns its preview and asks Pi to have the person
   // type the command, which then asks for their yes (plan 158, C1).
@@ -90,6 +90,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin } =
         }
         const view = ok ? parse(text) : null;
         show(name, words, view || failed(text || '(no output)'));
+        if (name === 'queue' && ok) await seen(); // the footer stops asking once the person looked
       },
     });
   }
