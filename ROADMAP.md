@@ -205,3 +205,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [163-Re-sync the design after round 5, and build its changes](tasks/163-design-resync-5.md)
 - [x] [164-Requests run in two lanes; the chat goes first with a one-at-a-time model](tasks/164-queue-lanes.md)
 - [x] [165-Long requests are fine; only silence fails](tasks/165-long-requests.md)
+- [x] [166-Every setting and variable in the console](tasks/166-every-setting-in-the-console.md)

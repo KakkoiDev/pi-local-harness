@@ -13,28 +13,21 @@ ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT))
 from harness.model import QUALIFIED
 from harness import model as models
-DEFAULTS={'effort':'high','gate_port':8000,'web_port':3000,'whisper_model':'mlx-community/whisper-base-mlx','remote_hosts':[],'remote_users':[],'auto_update':True}
+from harness import settings as registry
+DEFAULTS=registry.DEFAULTS  # every setting: harness/settings.py (task 166)
 
 def configuration(directory):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     path=directory/'config.json'
     if not path.exists():path.write_text(json.dumps(DEFAULTS,indent=2)+'\n')
-    settings={**DEFAULTS,**json.loads(path.read_text())}
-    if settings.setdefault('model',QUALIFIED)!=QUALIFIED:raise ValueError(f"The model is pinned to {QUALIFIED} in harness/model.json; remove 'model' from {path}")
-    if settings['effort'] not in {'off','minimal','low','medium','high','xhigh','max'}:raise ValueError('Invalid thinking effort in config.json')
-    for key in ['gate_port','web_port']:
-        if not isinstance(settings[key],int) or not 0<=settings[key]<=65535:raise ValueError(f'Invalid {key}')
-    for key in ['remote_hosts','remote_users']:
-        if not isinstance(settings[key],list) or not all(isinstance(value,str) and re.fullmatch(r'[\w.@+-]+',value) for value in settings[key]):
-            raise ValueError(f'{key} must be a list of bare names, e.g. ["mini.example.ts.net"] or ["you@example.com"]')
-    if not isinstance(settings['auto_update'],bool):raise ValueError('auto_update must be true or false')
-    if bool(settings['remote_hosts'])!=bool(settings['remote_users']):raise ValueError('Set remote_hosts and remote_users together')
+    values=json.loads(path.read_text())
+    if values.get('model',QUALIFIED)!=QUALIFIED:raise ValueError(f"The model is pinned to {QUALIFIED} in harness/model.json; remove 'model' from {path}")
+    values.pop('model',None)
+    settings=registry.validate(values,str(path));settings['model']=QUALIFIED
     return settings
 
 def environment(settings):
-    env={'PI_WEB_EFFORT':settings['effort'],'PI_WEB_REMOTE_HOSTS':','.join(settings['remote_hosts']),'PI_WEB_REMOTE_USERS':','.join(settings['remote_users'])}
-    for name,key in [('PI_GATE_PORT','gate_port'),('PI_WEB_PORT','web_port'),('PI_WHISPER_MODEL','whisper_model')]:env[name]=str(settings[key])
-    return env
+    return registry.environment(settings)
 
 def update():
     """Install the checkout's committed HEAD when it moved since this build; return the new commit or None.

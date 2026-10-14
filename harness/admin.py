@@ -24,18 +24,9 @@ from harness.documents import DocumentStore
 from harness.markdown_records import read_record
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULTS = {'effort': 'high', 'gate_port': 8000, 'web_port': 3000, 'whisper_model': 'mlx-community/whisper-base-mlx',
-            'remote_hosts': [], 'remote_users': [], 'auto_update': True}  # as plh.py's DEFAULTS
-EXPLAIN = {
-    'effort': 'Default thinking level when none is chosen in the menu bar (off … max).',
-    'gate_port': 'Port of Gate, the command checker (0 picks a free one).',
-    'web_port': 'Port of the web workbench on 127.0.0.1.',
-    'whisper_model': 'Speech-to-text model for voice input (Whisper, MLX).',
-    'remote_hosts': 'Tailnet host names allowed to open the web UI from a phone (tailscale serve).',
-    'remote_users': 'Tailscale logins allowed with those hosts.',
-    'auto_update': 'Update the installed build when plh starts.',
-    'model': 'Pinned in harness/model.json; must not be set here.',
-}
+from harness import settings as registry
+DEFAULTS = registry.DEFAULTS  # every setting, its variable and what it does: harness/settings.py (task 166)
+EXPLAIN = {**registry.EXPLAIN, 'model': 'Pinned in harness/model.json; must not be set here.'}
 OLLAMA_SETTINGS = Path.home() / 'Library/Application Support/Ollama/db.sqlite'
 
 
@@ -126,10 +117,16 @@ class Console:
                 'repository': str(ROOT), 'ollama_settings': str(OLLAMA_SETTINGS)}
 
     def config(self):
+        """config.json with defaults, each key's variable and meaning, which variables the shell overrides, and the
+        variables the harness sets itself."""
         try: saved = json.loads((self.data / 'config.json').read_text())
         except (OSError, ValueError): saved = {}
         values = {**DEFAULTS, **saved}
-        return {'path': str(self.data / 'config.json'), 'values': values, 'explain': {key: EXPLAIN.get(key, 'Not a harness setting.') for key in values}}
+        variables = {key: registry.SETTINGS[key][0] for key in values if key in registry.SETTINGS}
+        overrides = {key: os.environ[name] for key, name in variables.items() if name and name in os.environ and name not in ('PI_WEB_EFFORT',)}
+        internal = {name: {'about': about, 'value': os.environ.get(name)} for name, about in registry.INTERNAL.items()}
+        return {'path': str(self.data / 'config.json'), 'values': values, 'explain': {key: EXPLAIN.get(key, 'Not a harness setting.') for key in values},
+                'variables': variables, 'environment': overrides, 'internal': internal, 'ollama': registry.OLLAMA}
 
     def gate(self, n=20, blocked=False, project=None):
         """Gate's history, newest first. blocked: checks before a command that did not allow it."""
@@ -269,18 +266,13 @@ class Console:
 
     @staticmethod
     def setting(key, raw):
-        """A config.json value from what was typed, or a ValueError that says what is allowed."""
+        """A config.json value from what was typed (JSON where it parses, else text), or a ValueError saying what is allowed."""
         if key == 'model': raise ValueError('The model is pinned in harness/model.json; choose another one with /models use <name>.')
-        if key not in DEFAULTS: raise ValueError(f"Unknown setting {key}. Settings: {', '.join(DEFAULTS)}.")
+        if key not in registry.SETTINGS: raise ValueError(f"Unknown setting {key}. Settings: {', '.join(registry.SETTINGS)}.")
         try: value = json.loads(raw)
         except ValueError: value = raw
-        if key == 'effort' and value not in models.EFFORTS: raise ValueError(f"effort must be one of {', '.join(models.EFFORTS)}.")
-        if key.endswith('_port') and (not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 65535): raise ValueError(f'{key} must be a port number from 0 to 65535.')
-        if key in ('remote_hosts', 'remote_users') and (not isinstance(value, list) or not all(isinstance(item, str) and re.fullmatch(r'[\w.@+-]+', item) for item in value)):
-            raise ValueError(f'{key} must be a list of bare names, e.g. ["mini.example.ts.net"] or ["you@example.com"].')
-        if key == 'auto_update' and not isinstance(value, bool): raise ValueError('auto_update must be true or false.')
-        if key == 'whisper_model' and (not isinstance(value, str) or not value): raise ValueError('whisper_model must be a model name.')
-        return value
+        try: return registry.SETTINGS[key][2](value)
+        except ValueError as error: raise ValueError(f'{key} must be {error}.') from None
 
     def set_config(self, key, raw, yes=False):
         value = self.setting(key, raw); path = self.data / 'config.json'
@@ -288,7 +280,10 @@ class Console:
         except (OSError, ValueError): saved = {}
         before = {**DEFAULTS, **saved}.get(key)
         detail = f'{key}: {json.dumps(before)} → {json.dumps(value)} in {path}'.replace('"', '') if isinstance(value, str) else f'{key}: {json.dumps(before)} → {json.dumps(value)} in {path}'
-        if not yes: return {'confirm': True, 'title': f'Change {key}?', 'detail': detail + '\n' + EXPLAIN[key] + '\nApplies the next time plh starts.'}
+        variable = registry.SETTINGS[key][0]
+        note = f'\nIt reaches the harness as {variable}; applies the next time plh starts.' if variable else '\nApplies the next time plh starts.'
+        if variable and variable in os.environ: note += f' {variable}={os.environ[variable]} is set in your shell and wins over config.json.'
+        if not yes: return {'confirm': True, 'title': f'Change {key}?', 'detail': detail + '\n' + EXPLAIN[key] + note}
         backup = self.backup(path)
         temporary = path.with_suffix('.tmp'); temporary.write_text(json.dumps({**saved, key: value}, indent=2) + '\n'); temporary.replace(path)
         self.log(command=f'config set {key} {raw}', file=str(path), backup=backup, before=before, after=value)
@@ -497,8 +492,14 @@ def run(console, command, args, yes=False):
     if command == 'undo':
         return changed(console.undo(yes))
     if command == 'config':
-        value = console.config()
-        return value, f"{value['path']}\n" + '\n'.join(f"{key}: {json.dumps(item)}\n    {value['explain'][key]}" for key, item in value['values'].items())
+        value = console.config(); lines = [value['path'], 'Change one with /config set <key> <value>; each applies the next time plh starts.', '']
+        for key, item in value['values'].items():
+            variable = value['variables'].get(key); line = f'{key}: {json.dumps(item)}' + (f'   ({variable})' if variable else '')
+            if key in value['environment']: line += f"   {variable}={value['environment'][key]} in the environment wins"
+            lines += [line, f"    {value['explain'][key]}"]
+        lines += ['', 'Set by the harness (read-only):'] + [f"  {name}{'=' + item['value'] if item['value'] else ''}: {item['about']}" for name, item in value['internal'].items()]
+        lines += ['', 'Ollama’s own (/ollama shows them, /ollama set changes them): ' + ', '.join(f'{name} ({key})' for name, key in value['ollama'].items())]
+        return value, '\n'.join(lines)
     if command == 'paths':
         value = console.paths(); return value, '\n'.join(f'{key}: {path}' for key, path in value.items())
     if command == 'doctor':

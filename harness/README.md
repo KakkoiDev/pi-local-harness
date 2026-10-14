@@ -18,18 +18,23 @@ are `~/pi-local-harness-data/AGENTS.md`, following Pi's plural instruction filen
 PLH explicitly injects this file before turns and after recovery; it need not live
 in Pi's global directory. Project-local Pi instructions can also apply.
 
-| Environment | Default | Purpose |
-|---|---|---|
-| `PI_AGENT_DATA` | `~/pi-local-harness-data` | Registry, memory, queue, shared agent lock |
-| `PI_GATE_PORT` | Config: 8000 | Gate; 0 chooses a port |
-| `PI_WEB_PORT` | Config: 3000 | Web; 0 chooses a port |
-| `PI_HANG_MS` | 60000 | Thought stream inactivity timeout |
-| `PI_GATE_AUTH` | admin | Both profiles enforce destructive-shell rules |
-| `PI_HARNESS_MEMORY` | Data directory `AGENTS.md` | Advanced direct-extension override |
-| `PI_WEB_DATA` | Data directory `chats/` | Persistent web session/upload location |
-| `PI_WHISPER_MODEL` | Config: whisper-base-mlx | Lazy transcription model |
-| `PI_WEB_REMOTE_HOSTS` | Config: remote_hosts | Comma-separated tailnet hosts trusted by the web server |
-| `PI_WEB_REMOTE_USERS` | Config: remote_users | Comma-separated Tailscale logins trusted by the web server |
+Every setting is a key in `config.json` and an environment variable plh passes on; `harness/settings.py` lists them all
+with their defaults and meaning, and the console shows and changes them (`/config`, `/config set <key> <value>`; each
+applies the next time plh starts). A variable already set in your shell wins over config.json. The main ones:
+
+| config.json | Variable | Default | Purpose |
+|---|---|---|---|
+| `gate_port`, `web_port` | `PI_GATE_PORT`, `PI_WEB_PORT` | 8000, 3000 | Ports; 0 chooses one |
+| `silence_seconds` | `PI_HARNESS_SILENCE_SECONDS` | 3600 | A request stops after this long without a word from Pi |
+| `hang_seconds` | `PI_HANG_MS` (×1000) | 60 | Thought-phase inactivity before abort, compact and re-ask |
+| `ollama_url` | `PI_OLLAMA_URL` | http://127.0.0.1:11434 | Where Ollama answers |
+| `gate_auth` | `PI_GATE_AUTH` | admin | Gate profile; both enforce destructive-shell rules |
+| `whisper_model` | `PI_WHISPER_MODEL` | whisper-base-mlx | Transcription model |
+| `remote_hosts`, `remote_users` | `PI_WEB_REMOTE_HOSTS`, `PI_WEB_REMOTE_USERS` | none | Phone access over the tailnet |
+| `web_data`, `audit_log` | `PI_WEB_DATA`, `PI_HARNESS_LOG_FILE` | data folder | Chats and uploads; Gate's audit log |
+
+`PI_AGENT_DATA` (the data folder, `~/pi-local-harness-data`) is chosen before plh starts, since config.json lives in it.
+The harness also sets variables for its own requests (`PI_HARNESS_*`); `/config` lists them.
 
 `harness/model.json` holds the default model (`ollama/gemma4:26b-mlx`). The person chooses
 another installed Ollama model and the thinking level in the web menu bar; the choice lives in
