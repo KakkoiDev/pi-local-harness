@@ -203,3 +203,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [161-Measure whether a model answers two requests at once](tasks/161-model-capability-check.md)
 - [x] [162-The console changes Ollama's settings and manages models](tasks/162-console-ollama-and-models.md)
 - [ ] [163-Re-sync the design after round 5, and build its changes](tasks/163-design-resync-5.md)
+- [x] [164-Requests run in two lanes; the chat goes first with a one-at-a-time model](tasks/164-queue-lanes.md)

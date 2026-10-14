@@ -22,7 +22,9 @@ export default function harness(pi, dependencies = {}) {
   const root = dependencies.root || moduleRoot;
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi/agent');
   const dataDir = process.env.PI_AGENT_DATA || join(homedir(), 'pi-local-harness-data');
-  const agentLock = new AgentLock(join(dependencies.root || dataDir, '.agent-lock'));
+  // A workbench request runs while the workbench itself holds the lock for all its requests (task 164): skip it there.
+  const sharedLock = new AgentLock(join(dependencies.root || dataDir, '.agent-lock'));
+  const agentLock = { acquire: () => { if (process.env.PI_HARNESS_LOCK_HELD !== '1') sharedLock.acquire(); }, release: () => sharedLock.release() };
   const globalMemory = join(agentDir, 'AGENTS.md');
   const memoryPath = dependencies.root ? `${root}AGENT.md` : process.env.PI_HARNESS_MEMORY || (existsSync(globalMemory) ? globalMemory : `${root}AGENT.md`);
   let config = {};
@@ -201,6 +203,14 @@ export default function harness(pi, dependencies = {}) {
     }
   });
   pi.on('agent_settled', () => agentLock.release());
+  // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
+  // and waits while Pi answers the person in chat. An unreachable workbench never blocks the model.
+  pi.on('before_provider_request', async () => {
+    const url = process.env.PI_HARNESS_TURN_URL;
+    if (!url) return undefined;
+    try { await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(20 * 60 * 1000) }); } catch {}
+    return undefined;
+  });
   pi.on('session_before_compact', () => { try { agentLock.acquire(); } catch { return { cancel: true }; } });
   pi.on('session_compact', () => { if (!watch.active) agentLock.release(); });
   pi.on('session_shutdown', stop);

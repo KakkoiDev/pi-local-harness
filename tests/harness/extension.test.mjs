@@ -154,3 +154,25 @@ test('a second agent is refused at input while another holds the lock (task 150)
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Always prepend/,'memory still injected');
  } finally { handlers.agent_settled?.(); rmSync(dir,{recursive:true}); }
 });
+
+test('a workbench request skips the lock the workbench holds, and waits for its turn before each model call (task 164)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-turn-'));writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+ const { AgentLock } = await import('../../harness/agent-lock.mjs');
+ const workbench=new AgentLock(join(dir,'.agent-lock'),()=>true);
+ const handlers={},calls=[];const fetchBefore=globalThis.fetch;
+ globalThis.fetch=async(url,options)=>{calls.push([url,options.method]);await new Promise(resolve=>setTimeout(resolve,50));return {ok:true,json:async()=>({waited:0})};};
+ process.env.PI_HARNESS_LOCK_HELD='1';process.env.PI_HARNESS_TURN_URL='http://127.0.0.1:3100/api/turn?job=abc';
+ const pi={appendEntry(){},registerEntryRenderer(){},on:(name,fn)=>{handlers[name]=fn;},sendUserMessage(){}};
+ harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
+ try {
+  workbench.acquire(); // the workbench holds it for all its requests
+  const allowed=await handlers.input({source:'rpc',text:'Hello'},{ui:{notify(){}},cwd:dir});
+  assert.equal(allowed.action,'continue','a workbench request is not refused by the workbench lock');
+  const started=Date.now();const result=await handlers.before_provider_request({payload:{model:'x'}});
+  assert.equal(result,undefined,'the request itself is unchanged');assert.ok(Date.now()-started>=45,'it waited for the answer');
+  assert.deepEqual(calls,[['http://127.0.0.1:3100/api/turn?job=abc','POST']]);
+  delete process.env.PI_HARNESS_TURN_URL;await handlers.before_provider_request({payload:{}});assert.equal(calls.length,1,'no turn URL, no call');
+  globalThis.fetch=async()=>{throw new Error('down');};process.env.PI_HARNESS_TURN_URL='http://127.0.0.1:1/api/turn';
+  assert.equal(await handlers.before_provider_request({payload:{}}),undefined,'an unreachable workbench never blocks the model');
+ } finally { globalThis.fetch=fetchBefore;delete process.env.PI_HARNESS_LOCK_HELD;delete process.env.PI_HARNESS_TURN_URL;workbench.release();rmSync(dir,{recursive:true}); }
+});

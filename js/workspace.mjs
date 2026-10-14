@@ -187,7 +187,7 @@ export function installWorkspace(host){
   const from={chat:`Chat · ${name}, your message at ${job.created?new Date(job.created).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'?'}`,comment:`Comment on ${file}`,file:`Whole-file question on ${file}`}[origin];
   facts.prepend(node('dt','','From'),node('dd','',from));
   const back=node('a','pw-btn',{chat:'Open in Chat',comment:'Show Comment',file:'Show in Review'}[origin]);back.href=job.document?'/p/'+job.project+'/work/'+file:'/p/'+job.project+'/chat';back.onclick=event=>{event.preventDefault();openOrigin(job);};actions.append(back);
-  if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api(`/api/conversations/${job.chat}/stop`,{}).catch(e=>error(e.message));actions.append(stop);}
+  if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api('/api/jobs/stop',{id:job.id}).catch(e=>error(e.message));/* this request only (task 164) */actions.append(stop);}
   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}
   const record=node('button','pw-btn','Show Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
  }

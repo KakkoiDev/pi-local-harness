@@ -134,9 +134,9 @@ def pi_command(session, choice=None):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.active={};self.closed=False;self.switching=None;self.measuring=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
+        self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
-        self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy)
+        self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode)
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
@@ -184,9 +184,54 @@ class WebChat:
         if effort not in EFFORTS:raise ValueError('Unknown thinking level')
         models.save(self.documents.root,effort=effort);return self.choice()
     def busy(self):
+        """Holds the whole queue back: a model switch, a capability check, or terminal Pi at work. Running requests do not:
+        the queue's lanes decide what may run beside them (task 164)."""
         with self.lock:
-            if self.active or self.switching or self.measuring:return True
+            if self.switching or self.measuring:return True
         return self.agent_running()
+    def mode(self):
+        """('parallel', slots) when the chosen model answers requests at once (task 161), else ('one at a time', 1). Cached 30 s."""
+        value,at=self._mode
+        if time.monotonic()-at<30:return value
+        try:
+            model=models.current(self.documents.root)['model'];verdict=capability.known(self.documents.root,model)
+            slots=str(capability.stored(self.documents.root).get(model,{}).get('num_parallel',''))
+            value=('parallel',int(slots) if slots.isdigit() else 2) if verdict=='parallel' else ('one at a time',1)
+        except Exception:value=('one at a time',1)
+        self._mode=(value,time.monotonic());return value
+    def wait_turn(self, key, limit=900):
+        """Before each model call of a work request (POST /api/turn from the extension): with a one-at-a-time model it waits
+        while a chat request runs, so the person is answered first (plan 156 D2). The request reads "Paused while Pi answers you"."""
+        if self.mode()[0]=='parallel':return {'waited':0}
+        start=time.monotonic();paused=False
+        with self.turns:
+            entry=self.active.get(key)
+            while entry and not entry['cancel'].is_set() and any(other['role']=='chat' for name,other in self.active.items() if name!=key) and time.monotonic()-start<limit:
+                if not paused:
+                    paused=True;entry['emit']({'type':'paused','paused':True});entry['emit']({'type':'status','text':'Paused while Pi answers you'})
+                self.turns.wait(timeout=1)
+        if paused and entry:entry['emit']({'type':'paused','paused':False});entry['emit']({'type':'status','text':'Resumed'})
+        return {'waited':round(time.monotonic()-start,1) if paused else 0}
+    def hold_lock(self):
+        """The harness holds <data>/.agent-lock while any of its requests runs, so terminal Pi waits (one agent at a time
+        between the terminal and the workbench); its own workers skip the lock (PI_HARNESS_LOCK_HELD)."""
+        path=self.documents.root/'.agent-lock'
+        if self.lock_token and path.exists():return
+        if self.agent_running():raise ValueError('One agent is already working in the terminal. Wait for it, or stop it, before the workbench starts.')
+        token=json.dumps({'pid':os.getpid(),'token':uuid.uuid4().hex})
+        try:
+            descriptor=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+            with os.fdopen(descriptor,'w') as handle:handle.write(token)
+        except FileExistsError:
+            if self.agent_running():raise ValueError('One agent is already working in the terminal.')
+            path.write_text(token)
+        self.lock_token=token
+    def release_lock(self):
+        path=self.documents.root/'.agent-lock'
+        try:
+            if self.lock_token and path.read_text()==self.lock_token:path.unlink()
+        except OSError:pass
+        self.lock_token=None
     def project_command(self, command, project, data):
         """Rename, move, locate, remove from the list or trash a project (task 154). Rename, move and trash wait while Pi
         works in the project: moving the folder would pull it out from under Pi."""
@@ -214,7 +259,9 @@ class WebChat:
         lock=self.documents.root/'.agent-lock'
         if lock.exists():
             try:
-                owner=json.loads(lock.read_text());os.kill(owner['pid'],0);return True
+                owner=json.loads(lock.read_text())
+                if owner.get('pid')==os.getpid():return False  # the workbench's own lock (task 164)
+                os.kill(owner['pid'],0);return True
             except ProcessLookupError:return False
             except (OSError,ValueError,KeyError):return True
         return False
@@ -242,7 +289,7 @@ class WebChat:
             self.documents.comment_prompt(comment['path'],comment['id'])
         return self.queue.add(project,chat['id'],data)
     def execute_job(self, job, emit):
-        data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit)
+        data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit,job=job['id'])
     def gate_events(self):
         """Gate events with their project (from the folder the check ran in) and source (task 129)."""
         projects=sorted(((str(Path(item['path']).resolve()),item['id']) for item in self.documents.list_projects()),key=lambda pair:-len(pair[0]))
@@ -263,12 +310,14 @@ class WebChat:
             projects.append({**project,'chat':chat})
         return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
+        """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
         with self.lock:
-            active=self.active.get(identifier)
-            if active:
-                active['cancel'].set()
-                if active['process']:active['process'].terminate()
-        return {'stopped':bool(active)}
+            targets=[entry for key,entry in self.active.items() if key==identifier or (entry.get('chat')==identifier and entry.get('role')=='chat')]
+            for entry in targets:
+                entry['cancel'].set()
+                if entry['process']:entry['process'].terminate()
+            self.turns.notify_all()
+        return {'stopped':bool(targets)}
     def close(self):
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
@@ -297,15 +346,21 @@ class WebChat:
         chosen=self.select_context(project,data)
         return {'items':chosen['items'],'tokens':len(chosen['text'])//4}
 
-    def send(self, identifier, data, emit):
+    def send(self, identifier, data, emit, job=None):
+        """Run one request. From the queue (job set) it runs beside others in its lane rules; called directly (the old
+        streaming route) it still refuses while anything runs."""
         self.store.get(identifier)
-        cancelled=threading.Event()
+        cancelled=threading.Event();key=job or identifier;role=WorkQueue.role(data)
         with self.lock:
             if self.closed:raise ValueError('Web chat is shutting down')
-            if identifier in self.active:raise ValueError('This conversation is already running')
-            if self.active:raise ValueError('Only one agent can run at a time. Wait for the current task or stop it.')
-            self.active[identifier]={'process':None,'cancel':cancelled}
-        process=None;diagnostics=None
+            if key in self.active:raise ValueError('This conversation is already running')
+            if not job and self.active:raise ValueError('Only one agent can run at a time. Wait for the current task or stop it.')
+            self.active[key]={'process':None,'cancel':cancelled,'chat':identifier,'role':role,'emit':emit}
+        try:self.hold_lock()
+        except ValueError:
+            with self.lock:self.active.pop(key,None)
+            raise
+        process=None;diagnostics=None;context_file=None
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -331,7 +386,8 @@ class WebChat:
                 chosen=self.select_context(project,data)
                 header=(f"Active project folder: {self.documents.project_path(project)}\nWork in this folder. Do not read other projects or their chat histories without an explicit request. "
                         "The context below was chosen for this request and is current; it overrides older context in this conversation.\n\n")
-                context_file=folder/'context.md';context_file.write_text(header+chosen['text'],encoding='utf-8')
+                context_file=folder/(f'context-{job}.md' if job else 'context.md');  # two requests of one chat can run at once
+                context_file.write_text(header+chosen['text'],encoding='utf-8')
                 emit({'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'chars':len(chosen['text'])})
             if not prompt.strip():raise ValueError('Write a message or attach a file')
             if cancelled.is_set():raise ValueError('Stopped')
@@ -340,11 +396,11 @@ class WebChat:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
-            env={**os.environ,'PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            env={**os.environ,'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
             with self.lock:
-                self.active[identifier]['process']=process
+                self.active[key]['process']=process
                 if cancelled.is_set():process.terminate()
             events=queue.Queue()
             def read():
@@ -408,7 +464,13 @@ class WebChat:
                 except subprocess.TimeoutExpired:process.kill();process.wait()
                 process.stdin.close();process.stdout.close()
             if diagnostics:diagnostics.close()
-            with self.lock:self.active.pop(identifier,None)
+            with self.lock:
+                self.active.pop(key,None);self.turns.notify_all()
+                last=not self.active
+            if last:self.release_lock()
+            if job and context_file:
+                try:context_file.unlink()
+                except OSError:pass
 
 def with_checks(jobs,events):
     """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""
@@ -518,6 +580,9 @@ class WebHandler(BaseHTTPRequestHandler):
                 project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path=='/api/turn':  # task 164: a work request's next model call waits while the chat answers (one-at-a-time model)
+                self.reply(self.chat.wait_turn(parse_qs(urlparse(self.path).query).get('job',[''])[0]));return
+            if path=='/api/jobs/stop':self.reply(self.chat.stop(data['id']));return
             if path=='/api/projects/forget':self.reply(self.chat.project_command('remove',data.get('project'),data));return
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return

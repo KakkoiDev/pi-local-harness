@@ -12,9 +12,12 @@ from datetime import datetime
 def now():return datetime.now().astimezone().isoformat(timespec='seconds')
 
 class WorkQueue:
-    def __init__(self, path, execute, busy=lambda:False, start=True):
+    # Task 164 (plan 156 phase 2): two lanes. The chat lane runs one chat request at a time; the work lane runs workers,
+    # comments and whole-file requests, never two in one project (they edit files), and only one in all when the model
+    # answers one request at a time. mode() returns ('parallel' or 'one at a time', the model's slots).
+    def __init__(self, path, execute, busy=lambda:False, start=True, mode=lambda:('one at a time',1)):
         self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
-        self.execute=execute;self.busy=busy;self.condition=threading.Condition();self.closed=False
+        self.execute=execute;self.busy=busy;self.mode=mode;self.condition=threading.Condition();self.closed=False
         self.records=self.path.parent/'activity';self.records.mkdir(exist_ok=True)
         documents=sorted(self.records.glob('*.md'));legacy=not documents and self.path.exists()
         self.jobs=sorted([read_record(path) for path in documents],key=lambda job:(job['created'],job.get('order',0))) if documents else json.loads(self.path.read_text()) if self.path.exists() else []
@@ -28,6 +31,7 @@ class WorkQueue:
         self.save()
         if legacy:self.path.rename(self.path.with_name(self.path.name+'.before-markdown-'+uuid.uuid4().hex[:8]))
         self.last_persist=0
+        self.workers=[]
         self.thread=None
         if start:self.thread=threading.Thread(target=self.run,daemon=True);self.thread.start()
     def save(self, current=None):
@@ -66,7 +70,7 @@ class WorkQueue:
             if self.closed:raise ValueError('Queue is shutting down')
             if sum(job['status']=='queued' for job in self.jobs)>=100:raise ValueError('Queue is full')
             # Chat messages sent while the chat's earlier message still waits join it: one request, not many (the person, 2026-10-13).
-            plain=lambda value:not value.get('document') and not value.get('document_comment')
+            plain=lambda value:self.role(value)=='chat'
             waiting=next((item for item in reversed(self.jobs) if item['status']=='queued' and item['chat']==chat and plain(item['data'])),None) if plain(data) else None
             incoming=copy.deepcopy(data.get('attachments',[]))
             if waiting and len(waiting['data'].get('attachment_names',[]))+len(incoming)<=8:
@@ -78,8 +82,50 @@ class WorkQueue:
             if incoming:self.store_attachments(job,incoming)
             self.save(job)  # written before it joins the list: a record that cannot be saved never enters the queue
             self.jobs.append(job);self.condition.notify_all();return self.public(job)
+    @staticmethod
+    def role(data):
+        return 'worker' if data.get('worker') else 'comment' if data.get('document_comment') else 'document' if data.get('document') else 'chat'
+    def runnable(self, job):
+        """Whether a queued request may start now, given what runs (call with the condition held)."""
+        running=[item for item in self.jobs if item['status']=='running'];chat=self.role(job['data'])=='chat'
+        if chat:return not any(self.role(item['data'])=='chat' for item in running)
+        work=[item for item in running if self.role(item['data'])!='chat']
+        if any(item['project']==job['project'] for item in work):return False  # one at a time per project (D3)
+        mode,slots=self.mode()
+        if mode!='parallel':return not work
+        return len(work)<max(1,int(slots or 2)-1)  # one slot stays free for the chat
+    def claim(self, job):
+        """Mark a request running. False when its record cannot be saved: it fails instead of blocking its lane."""
+        job.update(status='running',started=now(),progress='Loading project context')
+        try:self.save(job);return True
+        except OSError as error:
+            job.update(status='failed',finished=now(),progress=f'Could not save the request record: {error}')
+            try:self.save(job)
+            except OSError:pass
+            return False
+    def finish(self, job):
+        """Run a claimed request to its end; the record says how it ended."""
+        try:
+            self.execute(self.hydrate(job),lambda event:self.update(job,event))
+            with self.condition:job.update(status='completed',finished=now(),progress='Completed')
+        except Exception as error:
+            with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
+        finally:
+            with self.condition:
+                self.drop_attachments(job);self.save(job);self.condition.notify_all()
+    def dispatch(self):
+        """Start every queued request that may run now, each in its own thread; FIFO within each lane."""
+        started=[]
+        with self.condition:
+            if self.closed or self.busy():return 0
+            for job in self.jobs:
+                if job['status']=='queued' and self.runnable(job) and self.claim(job):started.append(job)
+        for job in started:
+            thread=threading.Thread(target=self.finish,args=(job,),daemon=True);thread.start();self.workers.append(thread)
+        self.workers=[thread for thread in self.workers if thread.is_alive()]
+        return len(started)
     def public(self, job):
-        return {**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),'files':list(job['data'].get('attachment_names',[]))}
+        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),'files':list(job['data'].get('attachment_names',[]))}
     def list(self):
         with self.condition:return [self.public(job) for job in self.jobs]
     def cancel(self, identifier):
@@ -94,6 +140,7 @@ class WorkQueue:
             if kind=='status':job['progress']=event['text']
             if kind=='context':job['context']={'included':event['included'],'omitted':event['omitted'],'chars':event['chars']}
             elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136
+            elif kind=='paused':job['paused']=bool(event.get('paused'))  # task 164: waiting while Pi answers the chat
             elif kind=='message_update':
                 delta=event['assistantMessageEvent']
                 if delta['type']=='text_start':job['text']=''
@@ -109,23 +156,17 @@ class WorkQueue:
             elif kind=='extension_ui_request' and event.get('method')=='notify':job['progress']=event.get('message','')
             if time.monotonic()-self.last_persist>=2:self.save(job);self.last_persist=time.monotonic()
     def run_one(self):
+        """Run the next request that may start, to its end, in this thread (tests and simple callers)."""
         with self.condition:
             if self.closed or self.busy():return False
-            job=next((item for item in self.jobs if item['status']=='queued'),None)
+            job=next((item for item in self.jobs if item['status']=='queued' and self.runnable(item)),None)
             if not job:return False
-            job.update(status='running',started=now(),progress='Loading project context');self.save(job)
-        try:
-            self.execute(self.hydrate(job),lambda event:self.update(job,event))
-            with self.condition:job.update(status='completed',finished=now(),progress='Completed')
-        except Exception as error:
-            with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
-        finally:
-            with self.condition:
-                self.drop_attachments(job);self.save(job)
+            if not self.claim(job):return True
+        self.finish(job)
         return True
     def run(self):
         while not self.closed:
-            try:ran=self.run_one()
+            try:ran=self.dispatch()
             except Exception as error:  # one bad record must never stop the worker for every later request
                 print(f'Work queue: {error!r}',flush=True);ran=False
             if not ran:
@@ -133,3 +174,4 @@ class WorkQueue:
     def close(self):
         with self.condition:self.closed=True;self.condition.notify_all()
         if self.thread:self.thread.join(timeout=6)
+        for thread in list(self.workers):thread.join(timeout=6)  # requests end (their process is stopped by the caller) before the records go
