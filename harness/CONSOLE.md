@@ -11,12 +11,13 @@ by hand: they read live data.
 | `/queue [running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request. |
 | `/gate [n] [blocked]` · `/gate why <id>` | Gate checks, newest first; one check in full. |
-| `/models` | Installed Ollama models: tools, thinking, vision, size; the chosen one. |
+| `/models` · `/models use <name> [effort]` | Installed Ollama models: tools, thinking, vision, size; the chosen one. `use` switches the model (asks first). |
 | `/ollama` | Ollama: version, models folder, parallel slots, loaded models. |
 | `/projects` | Projects and their folders (missing folders marked). |
-| `/config` | `config.json` with each key explained. (`/settings` and `/model` are Pi's own.) |
+| `/config` · `/config set <key> <value>` | `config.json` with each key explained; `set` changes one (asks first). (`/settings` and `/model` are Pi's own.) |
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
+| `/undo` | Undo the last change made from the console (asks first). |
 
 The same commands run from any shell: `python3 -m harness.admin <command> [--json]`.
 
@@ -31,6 +32,7 @@ The same commands run from any shell: `python3 -m harness.admin <command> [--jso
 
 ## Changing things
 
-Changes (settings, the model, Ollama's settings, pulling or removing models) are not available as commands yet. When
-they are, you may only **propose** a change; it runs after the person says yes, with a backup and a log line. Never
+`/config set`, `/models use` and `/undo` ask the person before changing anything; each change backs up the file it
+changes (`<data>/backups/`) and is a line in `<data>/admin-log.jsonl`. Ollama's settings and pulling or removing models
+come next. You may only **propose** a change (tell the person which command to type); it runs after their yes. Never
 change these files or Ollama's settings with shell commands.

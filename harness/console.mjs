@@ -13,20 +13,22 @@ export const CONSOLE_COMMANDS = {
   queue: 'Requests in Activity: /queue [running|waiting|failed|…].',
   job: 'The Markdown record of one request: /job <id>.',
   gate: 'Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.',
-  models: 'Installed models: tools, thinking, vision, size; the chosen one.',
+  models: 'Installed models; /models use <name> [effort] switches (asks first).',
   ollama: 'Ollama: version, models folder, parallel slots, loaded models.',
   projects: 'Projects and their folders.',
-  config: 'config.json with each key explained.',
+  config: 'config.json explained; /config set <key> <value> changes one (asks first).',
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
+  undo: 'Undo the last change made from the console (asks first).',
 };
 
 /** python3 -m harness.admin <command> <args>, with the live web port when the services run. */
 export function runAdmin(command, args, { webPort } = {}) {
   return new Promise(resolve => {
     const argv = ['-m', 'harness.admin', command, ...args, ...(webPort ? ['--web', String(webPort)] : [])];
-    execFile(process.env.PI_PYTHON || 'python3', argv, { cwd: root, timeout: 30000, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
-      resolve({ ok: !error, text: (error ? stderr || error.message : stdout).trimEnd() });
+    execFile(process.env.PI_PYTHON || 'python3', argv, { cwd: root, timeout: args.includes('--yes') ? 600000 : 30000 /* a model switch waits for the load */, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
+      const code = error ? (typeof error.code === 'number' ? error.code : 1) : 0; // 3: a change waits for the person's yes
+      resolve({ ok: !error, code, text: (code === 3 ? stdout : error ? stderr || error.message : stdout).trimEnd() });
     });
   });
 }
@@ -37,9 +39,15 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin } =
   for (const [name, description] of Object.entries(CONSOLE_COMMANDS)) {
     pi.registerCommand(name, {
       description: `Harness: ${description}`,
-      handler: async (args = '') => {
-        const words = String(args).trim().split(/\s+/).filter(Boolean);
-        const { ok, text } = await run(name, words, { webPort: ports()?.web });
+      handler: async (args = '', ctx) => {
+        const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
+        let { ok, code, text } = await run(name, words, options);
+        if (code === 3) { // a change: show what it does, run it only after the person's yes (plan 158, C1)
+          let preview = { title: 'Apply this change?', detail: text };
+          try { preview = JSON.parse((await run(name, [...words, '--json'], options)).text); } catch {}
+          const yes = await ctx?.ui?.confirm?.(preview.title, preview.detail);
+          ({ ok, text } = yes ? await run(name, [...words, '--yes'], options) : { ok: true, text: 'Not changed.' });
+        }
         pi.sendMessage({ customType: 'harness-console', display: true,
           content: `Harness console: /${[name, ...words].join(' ')}${ok ? '' : ' (failed)'}\n\n\`\`\`\n${text || '(no output)'}\n\`\`\`` });
       },

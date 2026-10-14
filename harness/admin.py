@@ -15,6 +15,7 @@ import sqlite3
 import subprocess
 import sys
 import urllib.request
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -185,6 +186,85 @@ class Console:
         return checks
 
 
+    # -- changes (task 160) ----------------------------------------------------------------------------------------
+    # Each change is asked for first (a preview with confirm: True), then run with yes: the file is backed up to
+    # <data>/backups/, the change is a line in <data>/admin-log.jsonl, and /undo restores the backup.
+    def backup(self, path):
+        path = Path(path)
+        if not path.exists(): return ''  # it did not exist: /undo moves the new file into backups/
+        folder = self.data / 'backups'; folder.mkdir(exist_ok=True)
+        target = folder / f"{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}-{path.name}"
+        target.write_bytes(path.read_bytes()); return str(target)
+
+    def log(self, **entry):
+        line = {'id': uuid.uuid4().hex[:12], 'time': datetime.now().astimezone().isoformat(timespec='seconds'), 'by': 'person', **entry}
+        with (self.data / 'admin-log.jsonl').open('a', encoding='utf-8') as handle: handle.write(json.dumps(line, ensure_ascii=False) + '\n')
+        return line
+
+    def history(self):
+        try: return [json.loads(line) for line in (self.data / 'admin-log.jsonl').read_text(encoding='utf-8').splitlines() if line.strip()]
+        except OSError: return []
+
+    @staticmethod
+    def setting(key, raw):
+        """A config.json value from what was typed, or a ValueError that says what is allowed."""
+        if key == 'model': raise ValueError('The model is pinned in harness/model.json; choose another one with /models use <name>.')
+        if key not in DEFAULTS: raise ValueError(f"Unknown setting {key}. Settings: {', '.join(DEFAULTS)}.")
+        try: value = json.loads(raw)
+        except ValueError: value = raw
+        if key == 'effort' and value not in models.EFFORTS: raise ValueError(f"effort must be one of {', '.join(models.EFFORTS)}.")
+        if key.endswith('_port') and (not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 65535): raise ValueError(f'{key} must be a port number from 0 to 65535.')
+        if key in ('remote_hosts', 'remote_users') and (not isinstance(value, list) or not all(isinstance(item, str) and re.fullmatch(r'[\w.@+-]+', item) for item in value)):
+            raise ValueError(f'{key} must be a list of bare names, e.g. ["mini.example.ts.net"] or ["you@example.com"].')
+        if key == 'auto_update' and not isinstance(value, bool): raise ValueError('auto_update must be true or false.')
+        if key == 'whisper_model' and (not isinstance(value, str) or not value): raise ValueError('whisper_model must be a model name.')
+        return value
+
+    def set_config(self, key, raw, yes=False):
+        value = self.setting(key, raw); path = self.data / 'config.json'
+        try: saved = json.loads(path.read_text())
+        except (OSError, ValueError): saved = {}
+        before = {**DEFAULTS, **saved}.get(key)
+        detail = f'{key}: {json.dumps(before)} → {json.dumps(value)} in {path}'.replace('"', '') if isinstance(value, str) else f'{key}: {json.dumps(before)} → {json.dumps(value)} in {path}'
+        if not yes: return {'confirm': True, 'title': f'Change {key}?', 'detail': detail + '\n' + EXPLAIN[key] + '\nApplies the next time plh starts.'}
+        backup = self.backup(path)
+        temporary = path.with_suffix('.tmp'); temporary.write_text(json.dumps({**saved, key: value}, indent=2) + '\n'); temporary.replace(path)
+        self.log(command=f'config set {key} {raw}', file=str(path), backup=backup, before=before, after=value)
+        return {'changed': True, 'detail': detail}
+
+    def choose_model(self, name, effort=None, yes=False):
+        installed = self.models()
+        if not installed['ollama']: raise ValueError(f'Ollama does not answer at {models.ollama_url()}, so the model cannot be checked. Start the Ollama app first.')
+        found = next((item for item in installed['models'] if item['id'] == name), None)
+        if not found: raise ValueError(f"{name} is not installed. Installed: {', '.join(item['id'] for item in installed['models'])}.")
+        if not found['tools']: raise ValueError(f'{name} cannot use tools, which Pi needs.')
+        if effort is not None and effort not in models.EFFORTS: raise ValueError(f"The thinking level must be one of {', '.join(models.EFFORTS)}.")
+        before = installed['choice']; after = {**before, 'model': name, **({'effort': effort} if effort else {})}
+        detail = f"{before['model']} · {before['effort']} → {after['model']} · {after['effort']}. Ollama unloads the previous model, so only one is in memory."
+        if not yes: return {'confirm': True, 'title': f'Switch to {name}?', 'detail': detail}
+        path = models.choice_path(self.data); backup = self.backup(path)
+        if self.web('/api/config') is not None:  # the running workbench switches and waits until the model answers
+            for route, body in [('/api/model', {'model': name}), *([('/api/effort', {'effort': effort})] if effort else [])]:
+                request = urllib.request.Request(f'http://127.0.0.1:{self.web_port}{route}', json.dumps(body).encode(), {'Content-Type': 'application/json'})
+                with urllib.request.urlopen(request, timeout=600) as response: response.read()
+        else:
+            models.save(self.data, model=name, effort=after['effort']); models.switch(before['model'], name)
+        self.log(command=f"models use {name}" + (f' {effort}' if effort else ''), file=str(path), backup=backup, before=before, after=after)
+        return {'changed': True, 'detail': detail}
+
+    def undo(self, yes=False):
+        history = self.history(); undone = {entry.get('undoes') for entry in history}
+        last = next((entry for entry in reversed(history) if entry.get('backup') is not None and 'undoes' not in entry and entry.get('id') not in undone), None)
+        if not last: raise ValueError('Nothing to undo: no change with a backup in admin-log.jsonl.')
+        detail = f"Undo “{last['command']}” ({last['time']}): " + (f"restore {last['file']} from {last['backup']}." if last['backup'] else f"{last['file']} did not exist before; it moves to the backups folder.")
+        if not yes: return {'confirm': True, 'title': 'Undo the last change?', 'detail': detail}
+        if last['backup']: Path(last['file']).write_bytes(Path(last['backup']).read_bytes())
+        elif Path(last['file']).exists():  # the change created the file: set it aside, never delete it
+            folder = self.data / 'backups'; folder.mkdir(exist_ok=True)
+            Path(last['file']).rename(folder / f"{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}-{Path(last['file']).name}.undone")
+        self.log(command=f"undo {last['command']}", file=last['file'], undoes=last.get('id'), before=last['after'], after=last['before'])
+        return {'changed': True, 'detail': detail}
+
 # -- the command line ----------------------------------------------------------------------------------------------
 # name: (usage, what it does). harness/CONSOLE.md documents each one; tests/test_admin.py checks that it does.
 COMMANDS = {
@@ -193,12 +273,13 @@ COMMANDS = {
     'queue': ('[running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
     'job': ('<id>', 'The Markdown record of one request.'),
     'gate': ('[n] [blocked] [why <id>]', 'Gate checks, newest first; why <id> explains one.'),
-    'models': ('', 'Installed models: tools, thinking, vision, size; the chosen one.'),
+    'models': ('[use <name> [effort]]', 'Installed models; use switches the model (asks first).'),
     'ollama': ('', 'Ollama: version, models folder, parallel slots, loaded models.'),
     'projects': ('', 'Projects and their folders.'),
-    'config': ('', 'config.json with each key explained (Pi has its own /settings).'),
+    'config': ('[set <key> <value>]', 'config.json with each key explained; set changes one (asks first).'),
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
+    'undo': ('', 'Undo the last change made from the console (asks first).'),
 }
 
 
@@ -211,8 +292,11 @@ def table(rows, columns):
     return '\n'.join(line.rstrip() for line in lines)
 
 
-def run(console, command, args):
-    """(data, text) for a command: data for --json and tools, text for people."""
+def run(console, command, args, yes=False):
+    """(data, text) for a command: data for --json and tools, text for people. A change without yes returns its
+    preview ({confirm: True, title, detail}) and changes nothing."""
+    def changed(value):
+        return value, (value['detail'] if value.get('confirm') else 'Done. ' + value['detail'] + '\n/undo restores the previous value.')
     if command in ('harness', 'help'):
         text = 'Pi Workbench harness console. Commands (type them with a slash in terminal Pi):\n' + '\n'.join(f'  /{name} {usage}'.rstrip().ljust(52) + f' {about}' for name, (usage, about) in COMMANDS.items())
         return {name: about for name, (_, about) in COMMANDS.items()}, text + '\nRaw data: add --json to any command when running python3 -m harness.admin.'
@@ -239,6 +323,9 @@ def run(console, command, args):
         rows = console.gate(n, blocked='blocked' in args)
         shown = [{**row, 'time': str(row.get('timestamp', ''))[11:19], 'command': row.get('args', {}).get('command') or row.get('args', {}).get('path') or ''} for row in rows]
         return rows, table(shown, ['id', 'time', 'phase', 'outcome', 'source', 'command', 'reason'])
+    if command == 'models' and args[:1] == ['use']:
+        if len(args) < 2: raise ValueError('Usage: /models use <name> [effort]')
+        return changed(console.choose_model(args[1], args[2] if len(args) > 2 else None, yes))
     if command == 'models':
         value = console.models()
         if not value['ollama']: return value, f"Ollama does not answer at {models.ollama_url()}. Chosen: {value['choice']['model']}."
@@ -251,6 +338,11 @@ def run(console, command, args):
     if command == 'projects':
         rows = console.projects()
         return rows, table([{**row, 'state': 'folder missing' if row.get('missing') else ''} for row in rows], ['name', 'path', 'state', 'id'])
+    if command == 'config' and args[:1] == ['set']:
+        if len(args) < 3: raise ValueError('Usage: /config set <key> <value>')
+        return changed(console.set_config(args[1], ' '.join(args[2:]), yes))
+    if command == 'undo':
+        return changed(console.undo(yes))
     if command == 'config':
         value = console.config()
         return value, f"{value['path']}\n" + '\n'.join(f"{key}: {json.dumps(item)}\n    {value['explain'][key]}" for key, item in value['values'].items())
@@ -264,7 +356,7 @@ def run(console, command, args):
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    raw = '--json' in argv; argv = [arg for arg in argv if arg != '--json']
+    raw = '--json' in argv; yes = '--yes' in argv; argv = [arg for arg in argv if arg not in ('--json', '--yes')]
     data = os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data')); web = os.getenv('PI_WEB_PORT')
     for flag in ('--data', '--web'):
         if flag in argv:
@@ -274,9 +366,12 @@ def main(argv=None):
             del argv[index:index + 2]
     command, args = (argv[0], argv[1:]) if argv else ('harness', [])
     console = Console(data, int(web) if web and str(web).isdigit() else None)
-    try: value, text = run(console, command.lstrip('/'), args)
+    try: value, text = run(console, command.lstrip('/'), args, yes)
     except LookupError as error: print(error, file=sys.stderr); return 2
     except ValueError as error: print(error, file=sys.stderr); return 1
+    if isinstance(value, dict) and value.get('confirm'):  # exit 3: the person must say yes first
+        print(json.dumps(value, ensure_ascii=False, indent=2) if raw else f"{value['title']}\n{value['detail']}\nRun again with --yes to apply.")
+        return 3
     print(json.dumps(value, ensure_ascii=False, indent=2, default=str) if raw else text)
     return 0
 

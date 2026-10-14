@@ -22,3 +22,18 @@ test('a command runs the admin backend with its words and the live web port, and
   assert.match(messages[0].content, /^Harness console: \/gate 5 blocked\n\n```\nBLOCK rm -rf \/\n```$/);
   assert.match(commands.status.description, /^Harness: /);
 });
+
+test('a change is shown and runs only after the person says yes (task 160)', async () => {
+  const commands = {}, messages = [], calls = [];
+  const run = async (name, words) => { calls.push(words.join(' '));
+    if (words.includes('--yes')) return { ok: true, code: 0, text: 'Done. effort: high → low' };
+    if (words.includes('--json')) return { ok: false, code: 3, text: JSON.stringify({ confirm: true, title: 'Change effort?', detail: 'effort: high → low' }) };
+    return { ok: false, code: 3, text: 'Change effort?' }; };
+  installConsole({ registerCommand: (name, options) => { commands[name] = options; }, sendMessage: message => messages.push(message) }, { run });
+  const asked = [];
+  await commands.config.handler('set effort low', { ui: { confirm: async (title, detail) => { asked.push([title, detail]); return false; } } });
+  assert.deepEqual(asked, [['Change effort?', 'effort: high → low']]); assert.match(messages.at(-1).content, /Not changed\./);
+  assert.equal(calls.some(call => call.includes('--yes')), false, 'no yes, no change');
+  await commands.config.handler('set effort low', { ui: { confirm: async () => true } });
+  assert.equal(calls.at(-1), 'set effort low --yes'); assert.match(messages.at(-1).content, /Done\. effort: high → low/);
+});

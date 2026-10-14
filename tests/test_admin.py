@@ -78,5 +78,53 @@ class AdminTest(unittest.TestCase):
             self.assertIn(f'`/{name}', guide, f'/{name} is documented in harness/CONSOLE.md')
 
 
+
+class AdminChangeTest(unittest.TestCase):
+    """Task 160: a change shows what it will do and runs only with yes; it is backed up, logged and can be undone."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.data = (Path(self.temp.name) / 'data').resolve(); self.data.mkdir()
+        (self.data / 'config.json').write_text(json.dumps({'effort': 'high'}))
+        self.console = admin.Console(self.data, web_port=None)
+
+    def saved(self):
+        return json.loads((self.data / 'config.json').read_text())
+
+    def test_a_setting_changes_only_with_yes_and_is_backed_up_logged_and_undone(self):
+        preview, _ = admin.run(self.console, 'config', ['set', 'effort', 'low'])
+        self.assertTrue(preview['confirm']); self.assertEqual(preview['title'], 'Change effort?')
+        self.assertIn('high → low', preview['detail']); self.assertEqual(self.saved()['effort'], 'high', 'nothing changes without yes')
+        done, text = admin.run(self.console, 'config', ['set', 'effort', 'low'], yes=True)
+        self.assertEqual(self.saved()['effort'], 'low'); self.assertIn('effort: high → low', text)
+        backups = list((self.data / 'backups').glob('*-config.json')); self.assertEqual(len(backups), 1)
+        self.assertEqual(json.loads(backups[0].read_text())['effort'], 'high', 'the backup is the file before the change')
+        log = [json.loads(line) for line in (self.data / 'admin-log.jsonl').read_text().splitlines()]
+        self.assertEqual((log[-1]['command'], log[-1]['before'], log[-1]['after'], log[-1]['by']), ('config set effort low', 'high', 'low', 'person'))
+        preview, _ = admin.run(self.console, 'undo', []); self.assertIn('config set effort low', preview['detail'])
+        admin.run(self.console, 'undo', [], yes=True)
+        self.assertEqual(self.saved()['effort'], 'high', '/undo restores the file')
+        with self.assertRaisesRegex(ValueError, 'Nothing to undo'): admin.run(self.console, 'undo', [])
+        (self.data / 'config.json').unlink()
+        admin.run(self.console, 'config', ['set', 'effort', 'low'], yes=True); admin.run(self.console, 'undo', [], yes=True)
+        self.assertFalse((self.data / 'config.json').exists(), 'a file the change created is set aside by undo')
+        self.assertEqual(len(list((self.data / 'backups').glob('*-config.json.undone'))), 1, 'never deleted')
+
+    def test_bad_values_are_refused_with_a_reason(self):
+        for args, reason in [(['effort', 'turbo'], 'one of'), (['web_port', '99999'], 'port'), (['model', 'x'], 'pinned'),
+                             (['colour', 'red'], 'Unknown setting'), (['remote_hosts', '["https://x"]'], 'bare names'), (['auto_update', 'maybe'], 'true or false')]:
+            with self.assertRaisesRegex(ValueError, reason, msg=args): admin.run(self.console, 'config', ['set', *args], yes=True)
+        self.assertEqual(self.saved(), {'effort': 'high'})
+
+    def test_a_model_switch_needs_ollama_to_know_the_model(self):
+        with self.assertRaisesRegex(ValueError, 'Ollama does not answer'): admin.run(self.console, 'models', ['use', 'qwen3:8b'], yes=True)
+
+    def test_the_command_line_asks_before_changing(self):
+        run = lambda *args: subprocess.run([sys.executable, '-m', 'harness.admin', *args, '--data', str(self.data)], capture_output=True, text=True, timeout=30)
+        asked = run('config', 'set', 'effort', 'low')
+        self.assertEqual(asked.returncode, 3, 'exit 3: a confirmation is needed'); self.assertIn('Run again with --yes', asked.stdout)
+        self.assertEqual(self.saved()['effort'], 'high')
+        self.assertEqual(run('config', 'set', 'effort', 'low', '--yes').returncode, 0); self.assertEqual(self.saved()['effort'], 'low')
+
+
 if __name__ == '__main__':
     unittest.main()

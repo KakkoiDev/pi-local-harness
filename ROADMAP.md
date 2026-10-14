@@ -199,3 +199,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [157-From "working" to its activity, and back in one click](tasks/157-working-to-activity-and-back.md)
 - [x] [158-Plan terminal Pi as the harness console](tasks/158-terminal-console.md)
 - [x] [159-The harness console in terminal Pi: read commands](tasks/159-console-read-commands.md)
+- [x] [160-The console changes settings and the model, after a yes](tasks/160-console-changes.md)

@@ -58,7 +58,9 @@ The terminal session `plh` opens is the harness console (plan 158). Type `/harne
 `/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`.
 They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
 commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.
-Changes (settings, models, Ollama) come next; Pi may only propose them, and they run after your yes.
+`/config set <key> <value>`, `/models use <name> [effort]` and `/undo` ask before changing anything, back up the
+file they change (`<data>/backups/`) and log it (`<data>/admin-log.jsonl`); from a shell they need `--yes`. Ollama's
+settings and pulling or removing models come next. Pi may only propose a change; it runs after your yes.
 
 ## Phone access over Tailscale and voice input
 
