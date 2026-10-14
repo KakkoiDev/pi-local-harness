@@ -10,7 +10,9 @@ export function installMenubar(bar,{run,enabled,update,shortcuts}){
  function refresh(){update();for(const item of bar.querySelectorAll('[data-command]'))item.setAttribute('aria-disabled',String(!enabled(item.dataset.command,item)));}
  function show(title,focus='first'){if(open!==title)close(false);if(!open&&!bar.contains(document.activeElement))returnTo=document.activeElement;refresh();const menu=menuOf(title);menu.hidden=false;title.setAttribute('aria-expanded','true');open=title;roving(title);const list=items(menu);(focus==='last'?list.at(-1):focus==='first'?list[0]:null)?.focus();}
  function close(focusTitle){if(!open)return;const title=open;menuOf(title).hidden=true;title.setAttribute('aria-expanded','false');open=null;if(focusTitle)title.focus();}
- function step(title,delta){const next=titles[(titles.indexOf(title)+delta+titles.length)%titles.length];if(open)show(next);else{roving(next);next.focus();}}
+ // Left/Right past the last title reach the model and thinking picks (MenuBar card), then wrap.
+ const picks=[...bar.querySelectorAll('.pw-menubar__pick')];
+ function step(title,delta){const index=titles.indexOf(title);if(picks.length&&((delta>0&&index===titles.length-1)||(delta<0&&index===0))){close(false);(delta>0?picks[0]:picks.at(-1)).focus();return;}const next=titles[(index+delta+titles.length)%titles.length];if(open)show(next);else{roving(next);next.focus();}}
  function choose(item){if(item.getAttribute('aria-disabled')==='true')return;const finish=()=>{delete item.dataset.active;close(false);if(returnTo?.isConnected)returnTo.focus();returnTo=null;run(item.dataset.command,item);};if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}item.dataset.active='true';setTimeout(finish,80);}
  roving(titles[0]);
  for(const title of titles){
@@ -29,6 +31,7 @@ export function installMenubar(bar,{run,enabled,update,shortcuts}){
  }
  document.addEventListener('pointerdown',event=>{if(open&&!bar.contains(event.target))close(false);});
  document.addEventListener('keydown',event=>{if(event.isComposing||!modifier(event))return;const command=shortcuts[shortcutOf(event)];if(!command)return;update();if(!enabled(command))return;event.preventDefault();run(command);});
+ for(const pick of picks)pick.addEventListener('keydown',event=>{if(event.key!=='ArrowRight'&&event.key!=='ArrowLeft')return;const index=picks.indexOf(pick),next=event.key==='ArrowRight'?(picks[index+1]||titles[0]):(picks[index-1]||titles.at(-1));event.preventDefault();if(titles.includes(next))roving(next);next.focus();});
  return {refresh,close};
 }
 // A popup menu opened from a button (the block handle). choose(item) runs after it closes; update() runs before it opens.

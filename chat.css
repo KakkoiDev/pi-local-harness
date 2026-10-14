@@ -58,8 +58,6 @@ body[data-review="closed"] .window-review{display:none!important}
 body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view-only="gate"]:not([hidden]){display:flex}
 /* Projects home vs inside a project (task 107): the left window follows body[data-level], in every view */
 @media (min-width:761px){body:not([data-level="project"]) .window-files{display:none}body[data-level="project"] .window-projects{display:none}}
-.pw-infobar__back{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:default}
-.pw-infobar__back:hover{text-decoration:underline}
 #files-summary{margin-left:auto;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .file-search-note{margin:0;padding:8px 12px;border-top:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
 #file-tree{padding:0}
@@ -134,8 +132,6 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 /* Comments: marker numbers are CSS content so they stay out of the block's text */
 .pw-mark[data-n]::after{content:attr(data-n)}
 .pw-thread__note{margin:0;padding:6px 14px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
-.pw-thread__gap{flex:1}
-.pw-block>.pw-check{margin-top:7px} /* DocumentBlock preview: the box sits on the first line of text */
 .pw-thread__msg p{margin:0}
 .pw-thread__who{width:auto;min-width:76px;white-space:nowrap} /* design: 76px column; a 12-hour time (06:38 PM) must not wrap */
 .pw-review-item__actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -213,19 +209,7 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
   #activity-panel .pw-table__row>:nth-child(4),#activity-panel .pw-table__row>:nth-child(5){display:none}
   .window-review,.window-info{position:absolute;top:45%;right:var(--space-6);bottom:var(--space-6);z-index:25;width:min(var(--size-review),calc(100% - 2 * var(--space-6)))} /* below the main window title, view tabs and document bar */
 }
-/* Pi's replies render Markdown (js/message-markdown.mjs); user messages stay plain text */
-.pw-msg__body--md{white-space:normal}
-.pw-msg__body--md>*{margin:0}
-.pw-msg__body--md>*+*{margin-top:10px}
-.pw-msg__body--md h2,.pw-msg__body--md h3,.pw-msg__body--md h4,.pw-msg__body--md h5,.pw-msg__body--md h6{font-family:var(--font-chrome);font-size:17px;line-height:22px;font-weight:600}
-.pw-msg__body--md ul,.pw-msg__body--md ol{padding-left:24px}
-.pw-msg__body--md li+li{margin-top:4px}
-.pw-msg__body--md code{font-family:var(--font-mono);font-size:15px;border:1px solid var(--ink);padding:0 4px} /* as .pw-doc code */
-.pw-msg__body--md pre{font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
-.pw-msg__body--md blockquote{border:1px dotted var(--ink);padding:8px 14px;font-style:italic} /* as .pw-doc blockquote */
-.pw-msg__body--md a{color:var(--ink)}
 /* Block handle (task 105): the hover zone covers the gutter so the pointer can reach the handle; an open handle stays shown */
-.pw-block::before{content:"";position:absolute;left:-48px;top:0;bottom:0;width:48px}
 .pw-block__handle[aria-expanded="true"]{display:flex}
 #document-editor{min-height:calc(100% - 92px);cursor:text} /* the empty page below the last block takes a click */
 /* Review footer and the whole-file request (task 108) */
@@ -237,7 +221,6 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
 .pw-block>.block-content{flex:1;min-width:0}
 .pw-block.quote>.block-content{border:1px dotted var(--ink);padding:8px 14px;font-style:italic}
 .pw-block.code>.block-content,.pw-block.raw>.block-content{margin:0;font-family:var(--font-mono);font-size:14px;line-height:1.5;border:1px solid var(--ink);padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
-.pw-block__marker{flex:none;min-width:18px;text-align:right;font-variant-numeric:tabular-nums}
 /* ---------- Phone follows the phone boards (task 123) ---------- */
 .sheet-head,.pi-status,.phone-only,.phone-edit-bar,.block-menu-title,.block-menu-cancel{display:none}
 .phone-title{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:0 4px}
@@ -294,29 +277,16 @@ button.gate-event,.gate-event{text-align:left;background:none;border-left:0;bord
 /* Reasoning renders Markdown and wraps (task 125) */
 .pw-msg__reasoning{margin-top:6px;font-family:var(--font-text);font-size:15px;line-height:1.45;overflow-wrap:anywhere;min-width:0}
 .pw-msg details{min-width:0;max-width:100%;box-sizing:border-box}
-.pw-msg__body--md,.pw-msg__body--md pre{overflow-wrap:anywhere}
-.pw-msg__body--md pre{max-width:100%;box-sizing:border-box}
 /* App windows (task 128): no project tabs; info bar note on the right */
 body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{display:none}
 .infobar-note{margin-left:auto}
-/* Markdown tables in Pi's replies (task 143): ink rules like .pw-table, scroll inside their box */
-.pw-msg__table{max-width:100%;overflow-x:auto}
-.pw-msg__table table{border-collapse:collapse;font-size:15px;line-height:1.4}
-.pw-msg__table th,.pw-msg__table td{border:1px solid var(--ink);padding:6px 10px;vertical-align:top}
-.pw-msg__table th{font-family:var(--font-chrome);font-size:14px;font-weight:600}
 /* Open on Phone: the design's .pw-qr at Dialogs2's 184px. White stays white in the Inverse theme: QR scanners need dark on light. */
 .phone-qr{align-self:center;width:184px;height:184px;background:#fff;box-sizing:border-box}
 .phone-scan{margin:0;text-align:center}
 /* Menu bar status: the glyph keeps its distance from the word; Reconnect fits the 28px bar with room around its label */
 #agent-state{display:inline-flex;align-items:center;gap:6px}
 .pw-menubar__status #connection-retry{min-height:0;height:22px;padding:0 12px;font-size:13px;line-height:20px}
-/* Model and thinking level in the menu bar (task 147): read as status, open a menu like a menu title; dimmed when unavailable */
-.model-controls{display:inline-flex;align-items:center;gap:2px}
-.pw-menubar__pick{border:0;background:none;color:inherit;font:inherit;padding:2px 6px;margin:0 -2px;cursor:default;display:inline-flex;align-items:center;gap:4px}
-.pw-menubar__pick:hover{background:var(--wash)}
-.pw-menubar__pick[aria-expanded="true"],.pw-menubar__pick:active{background:var(--selection-bg);color:var(--selection-fg)}
-.pw-menubar__pick[aria-disabled="true"]{color:var(--ink-disabled)}
-.pw-menubar__pick[aria-disabled="true"]:hover{background:none}
+/* Model and thinking menus (task 147; picks styled by components.css): fixed under their buttons */
 #model-menu,#effort-menu{position:fixed;z-index:60}
 /* A registered folder that is gone: dimmed, still choosable (it offers Remove from List) */
 .pw-row--missing .pw-row__label{color:var(--ink-disabled)}
