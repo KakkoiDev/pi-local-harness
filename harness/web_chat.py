@@ -34,6 +34,15 @@ def serve_link(problem):
     return found.group(0).rstrip('.,)') if found else None
 
 
+# Task 165: a request has no time limit. It fails only when Pi has sent nothing (no step, no output, no tool event) for
+# this long; a long command that reports nothing for an hour is stopped. PI_HARNESS_SILENCE_SECONDS changes it.
+SILENCE=float(os.getenv('PI_HARNESS_SILENCE_SECONDS','3600'))
+
+
+def silence_words(seconds):
+    return f'{seconds/3600:g} hour{"" if seconds==3600 else "s"}' if seconds>=3600 else f'{seconds/60:g} minutes' if seconds>=120 else f'{seconds:g} seconds'
+
+
 class ProjectBusy(ValueError):
     """A project command refused while Pi works in that project (task 154); `job` is the request to show in Activity."""
     def __init__(self, job):
@@ -208,9 +217,9 @@ class WebChat:
             entry=self.active.get(key)
             while entry and not entry['cancel'].is_set() and any(other['role']=='chat' for name,other in self.active.items() if name!=key) and time.monotonic()-start<limit:
                 if not paused:
-                    paused=True;entry['emit']({'type':'paused','paused':True});entry['emit']({'type':'status','text':'Paused while Pi answers you'})
+                    paused=entry['paused']=True;entry['emit']({'type':'paused','paused':True});entry['emit']({'type':'status','text':'Paused while Pi answers you'})
                 self.turns.wait(timeout=1)
-        if paused and entry:entry['emit']({'type':'paused','paused':False});entry['emit']({'type':'status','text':'Resumed'})
+        if paused and entry:entry['paused']=False;entry['emit']({'type':'paused','paused':False});entry['emit']({'type':'status','text':'Resumed'})
         return {'waited':round(time.monotonic()-start,1) if paused else 0}
     def hold_lock(self):
         """The harness holds <data>/.agent-lock while any of its requests runs, so terminal Pi waits (one agent at a time
@@ -412,18 +421,22 @@ class WebChat:
             threading.Thread(target=read,daemon=True).start()
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
-            deadline=time.monotonic()+600;settled=False;reply='';thought=''
+            heard=time.monotonic();settled=False;reply='';thought=''
             # Task 136: files Pi opened with its read tool beyond the chosen context ("Also read:" after the answer).
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
             phase='answering'
-            while time.monotonic()<deadline:
+            while True:
+                # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
+                if self.active.get(key,{}).get('paused'):heard=time.monotonic()
+                if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
                 if cancelled.is_set():raise ValueError('Stopped')
                 try:event=events.get(timeout=1 if settled else .5)
                 except queue.Empty:
                     if settled:break
                     continue
+                heard=time.monotonic()
                 if event is None:
                     if cancelled.is_set():raise ValueError('Stopped')
                     diagnostics.seek(0);raise ValueError('Pi exited unexpectedly: '+diagnostics.read()[-1000:])
@@ -451,7 +464,6 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
-            else:raise ValueError('Pi response exceeded ten minutes')
             if not reply:raise ValueError('Pi completed without an assistant answer')
             if opened:emit({'type':'also_read','files':opened})
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {})})

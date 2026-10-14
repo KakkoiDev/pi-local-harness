@@ -201,6 +201,32 @@ class AlsoReadTest(unittest.TestCase):
             self.assertEqual(job['also_read'],['tasks/001-first-task.md'],'the job keeps it for Activity and whole-file answers')
 
 
+class LongRequestTest(unittest.TestCase):
+    """Task 165: "agents might take long to answer and are guided by the gate ... so long running tasks should be ok".
+    No limit on a request's total time; it fails only when Pi has sent nothing for the silence limit."""
+    def setUp(self):
+        import os, sys
+        from unittest.mock import patch
+        from harness import web_chat
+        from harness.web_chat import WebChat
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root = Path(temp.name)
+        executable = root / 'pi'; executable.write_text('#!' + sys.executable + '\n' + Path('tests/fixtures/fake-pi.py').read_text()); executable.chmod(0o755)
+        for patcher in [patch.dict(os.environ, {'PATH': str(root) + os.pathsep + os.environ['PATH']}), patch.object(web_chat, 'SILENCE', 1.5)]:
+            patcher.start(); self.addCleanup(patcher.stop)
+        self.chat = WebChat(root / 'chats', 12345, 3000, data_root=root / 'workspace'); self.addCleanup(self.chat.close)
+        self.conversation = self.chat.project_chat(self.chat.documents.create_project('Long'))
+
+    def test_work_that_keeps_reporting_runs_past_the_silence_limit(self):
+        started = time.monotonic()
+        self.chat.send(self.conversation['id'], {'message': 'Long work TEST_TICK'}, lambda event: None)
+        self.assertGreater(time.monotonic() - started, 2.5, 'longer than the silence limit')
+        self.assertTrue(self.chat.store.get(self.conversation['id'])['messages'][-1]['content'].startswith('[CANARY]'))
+
+    def test_a_silent_pi_fails_with_a_clear_message(self):
+        with self.assertRaisesRegex(ValueError, 'Pi sent nothing for 1.5 seconds'):
+            self.chat.send(self.conversation['id'], {'message': 'Silent TEST_WAIT'}, lambda event: None)
+
+
 class DocumentContextTest(unittest.TestCase):
     """Task 115: comment and whole-file requests run on their own; the project chat holds only chat."""
     def test_comment_and_document_requests_leave_the_chat_alone(self):

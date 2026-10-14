@@ -199,6 +199,10 @@ outcomes, reasons, project and source (web or terminal). Checks are saved in
 
 ## Recovery, memory, media, and timestamps
 
+A request has no time limit: long work is fine, and Gate checks every command it runs. It fails only when Pi has sent
+nothing (no step, no output, no tool event) for an hour; time paused while Pi answers the chat does not count. Set
+`PI_HARNESS_SILENCE_SECONDS` to change that. Stop ends a request at any time.
+
 ### Commit protocol
 
 In a project folder with `ROADMAP.md` and `tasks/`, Gate revises any `git commit`

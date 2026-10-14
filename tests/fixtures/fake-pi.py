@@ -54,6 +54,8 @@ if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
         emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})
         time.sleep(0.6)
+if 'TEST_TICK' in request['message']:  # task 165: long work that keeps reporting, for longer than the silence limit
+    for _ in range(12): emit({'type':'tool_execution_update','toolCallId':'tick','toolName':'bash'}); time.sleep(0.25)
 if 'TEST_SLOW' in request['message']:  # a comment request that keeps running (its text is inside the comment prompt)
     emit({'type':'tool_execution_start','toolName':'bash'});time.sleep(60)
 if request['message'].rstrip().endswith('TEST_WAIT'):
