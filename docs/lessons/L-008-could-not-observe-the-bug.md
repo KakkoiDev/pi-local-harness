@@ -32,10 +32,12 @@ CSS needed.
   default it is a scratch workbench from the checkout with a Demo project and the fake Pi; the person's own workbench is
   refused. Its test reproduces this bug's pattern and finds the desk. Tests: `tests/harness/browser.test.mjs`.
 - The browser suites can be run from any shell (task 180), once Playwright is installed.
+- Told, only when it applies (task 196): a request about the page ("the view is lifted", "white at the bottom", layout,
+  scroll, width…) brings `harness/guides/page-layout.md` into the prompt: observe with the browser tool at the size
+  needed, probe what scrolls and what it is placed against, then read the CSS of exactly those elements.
 
 **Open**
 - Checked: bug reports carry their conditions: a "Report a Problem…" command in the web workbench records the window
   size, view, scroll positions, console errors and a screenshot into the task.
 - Enforced: a bug task's Red box needs a failing test that reproduces the report (G-010 sees a failing run; the task
   says what it reproduces).
-- Told: a short debugging guide in `harness/GUIDE.md` (for Pi): reproduce, measure, then read the code.

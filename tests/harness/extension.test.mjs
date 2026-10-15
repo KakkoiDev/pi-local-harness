@@ -317,5 +317,10 @@ test('each request gets only the harness tools it needs (strategy 4)', async () 
   assert.deepEqual(active,['read','bash','edit','write','task_box'],'a web request about code: no console, no browser');
   await handlers.input({source:'rpc',text:'the page lifts and leaves white at the bottom'},ctx);
   assert.deepEqual(active,['read','bash','edit','write','task_box','browser']);
+  // Strategy 5: the request's guide joins the prompt for this request only, and is reported.
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Guides for this request:[\s\S]*observe it before reading code/);
+  await handlers.input({source:'rpc',text:'Write a README'},ctx);
+  assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Guides for this request/);
+  assert.match(readFileSync(join(dir,'data','reports.jsonl'),'utf8'),/"kind":"guide","detail":"page-layout"/);
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });

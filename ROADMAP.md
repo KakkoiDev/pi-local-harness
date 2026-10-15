@@ -238,3 +238,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [193-A syntax check after every edit](tasks/193-syntax-after-edit.md)
 - [x] [194-Stuck detection on what Pi does, not only on what it thinks](tasks/194-stuck-on-actions.md)
 - [x] [195-Each request gets only the harness tools it needs](tasks/195-small-tool-set.md)
+- [x] [196-Short guides that join the prompt when a request calls for them](tasks/196-guides-by-keyword.md)

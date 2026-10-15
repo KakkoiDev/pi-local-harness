@@ -22,6 +22,7 @@ import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
 import { harnessTools, activeTools } from './tool-choice.mjs';
+import { loadGuides, chooseGuides } from './guides.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -52,6 +53,8 @@ export default function harness(pi, dependencies = {}) {
   const schedule = dependencies.setInterval || setInterval;
   const watch = new ThoughtWatch();
   const steps = new StepWatch(); // strategy 3: what Pi does, beside what it thinks
+  let guides = []; try { guides = loadGuides(); } catch {} // strategy 5: know-how that joins the prompt when a request calls for it
+  let chosenGuides = [];
   const proposals = new Map();
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
@@ -185,7 +188,8 @@ export default function harness(pi, dependencies = {}) {
     // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
     let gateRules = '';
     if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${consoleGuide}` };
+    const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
+    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     if (event.message?.role === 'assistant') lastAnswer = (event.message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
@@ -196,6 +200,8 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined; steps.reset();
+    chosenGuides = bare ? [] : chooseGuides(event.text, guides);
+    if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
       const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
