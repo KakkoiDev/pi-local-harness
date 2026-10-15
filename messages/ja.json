@@ -988,7 +988,31 @@
   "Times: one header per Pi message.": "時刻：Pi のメッセージごとに見出しをひとつ表示します。",
   "Service startup timed out": "サービスの起動がタイムアウトしました",
   "Gate is unavailable": "Gate を使えません",
-  "Name the box: the start of its label, e.g. \"Red\".": "チェックボックスを指定してください：ラベルの先頭（例：\"Red\"）。"
+  "Name the box: the start of its label, e.g. \"Red\".": "チェックボックスを指定してください：ラベルの先頭（例：\"Red\"）。",
+  "Your question": "質問",
+  "Ask about this passage…": "この部分について質問…",
+  "Ask about this file…": "このファイルについて質問…",
+  "The whole file ·": "ファイル全体 ·",
+  "The answer appears in Review, beside this passage, and in Activity. Nothing is saved as a comment.": "回答はレビューのこの部分の横とアクティビティに表示されます。コメントとしては保存されません。",
+  "The answer appears in Review, beside this file, and in Activity. Nothing is saved as a comment.": "回答はレビューのこのファイルの横とアクティビティに表示されます。コメントとしては保存されません。",
+  "Ask": "質問する",
+  "Desktop pattern and “Return sends” are Mac settings; change them in Settings on the Mac.": "デスクトップの模様と「Return で送信」は Mac の設定です。Mac の設定で変更してください。",
+  "Browser": "ブラウザ",
+  "One in memory at a time": "メモリには一度に 1 つ",
+  "One model in memory at a time. Choosing one shows “Loading…” in its row until it is ready.": "メモリに置けるモデルは一度に 1 つです。選ぶと、準備ができるまでその行に「読み込み中…」と表示されます。",
+  "Choose Model…": "モデルを選ぶ…",
+  "Copy Path": "パスをコピー",
+  "Ask Pi About This File…": "このファイルについて Pi に質問…",
+  "View as Markdown": "Markdown で表示",
+  "More": "その他",
+  "Select text to comment on it. Resolved and deleted comments are one tap away above.": "テキストを選択するとコメントできます。解決済みと削除済みのコメントは上からすぐに開けます。",
+  "Create In": "作成場所",
+  "Computer": "コンピュータ",
+  "Home": "ホーム",
+  "New Folder…": "新規フォルダ…",
+  "New Folder": "新規フォルダ",
+  "Folder name": "フォルダ名",
+  "Choose a folder name without “/” that does not start with a dot.": "「/」を含まず、ドットで始まらないフォルダ名にしてください。"
  },
  "patterns": [
   [
@@ -2342,6 +2366,50 @@
   [
    "{n} runs",
    "実行 {n} 回"
+  ],
+  [
+   "Applies from the next request. {model} thinks; with a model that does not, the row reads “No thinking”, dimmed.",
+   "次のリクエストから適用されます。{model} は思考します。思考しないモデルでは、この行は薄く「思考なし」と表示されます。"
+  ],
+  [
+   "{model} is not installed any more.",
+   "{model} はもうインストールされていません。"
+  ],
+  [
+   "Pi uses {model} until you choose another model.",
+   "別のモデルを選ぶまで、Pi は {model} を使います。"
+  ],
+  [
+   "New File in {name}…",
+   "{name} に新規ファイル…"
+  ],
+  [
+   "New File in {name}",
+   "{name} に新規ファイル"
+  ],
+  [
+   "No open comments in {name}.",
+   "{name} に未解決のコメントはありません。"
+  ],
+  [
+   "Create in {path}",
+   "{path} に作成"
+  ],
+  [
+   "Creates “{path}”.",
+   "「{path}」を作成します。"
+  ],
+  [
+   "Choose “{name}”",
+   "「{name}」を選ぶ"
+  ],
+  [
+   "“{name}” already exists here.",
+   "「{name}」はここにすでにあります。"
+  ],
+  [
+   "More for {name}",
+   "{name} のその他"
   ]
  ]
 }

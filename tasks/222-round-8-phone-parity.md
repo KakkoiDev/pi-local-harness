@@ -46,7 +46,7 @@ now keeps it while dragging. One chat.cjs run in five timed out somewhere unrepo
 
 Still open:
 
-- [ ] Japanese for round 8's new strings (messages/ja.json).
+- [x] Japanese for round 8's new strings (messages/ja.json: 23 exact entries, 11 patterns; Safari, Markdown and ‹ π stay).
 - [x] Found while taking the README screenshots (task 224): with Work, Preview and Review open at 1440 px the Review
   window ran past the right edge (the Preview measured its room only when the desk resized; now also when the view or
   Review changes, and it steps aside as a tab without taking over Work); on the phone the chat stopped short of the
