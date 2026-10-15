@@ -8,7 +8,7 @@ message = request['message']
 if 'search' in message:
     text = ('I added a search field above the list. It filters the notes as you type, and it works offline like the rest '
             'of the app.\n\n- **Changed:** `index.html`, `js/app.mjs`, `js/logic/notes.mjs`\n- **Checked:** 6 tests pass, '
-            'and the page shows the field in English and Japanese.\n\nTry it in the Preview on the right.')
+            'and the page shows the field in English and Japanese.\n\nTry it in the Preview.')
 else:
     text = ('Here is the plan for **Class Notes**:\n\n1. Notes with a title, saved on this device.\n2. A search field that '
             'filters them.\n3. A backup you can save and restore.\n\nThe first step is done: the starter already saves notes.')

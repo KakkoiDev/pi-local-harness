@@ -71,4 +71,5 @@ python3 tests/verify_workflow.py
 ```
 
 The screenshots above come from a scratch workbench with sample data. Re-make them with
-`node docs/screenshots/make.cjs` (it needs Playwright; see the script).
+`node docs/screenshots/make.cjs` (desktop and phone; it needs Playwright) or `python3 docs/screenshots/make_phone.py`
+(the phone one, with the headless shell from `plh setup browser`).
