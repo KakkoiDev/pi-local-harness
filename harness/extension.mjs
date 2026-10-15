@@ -20,6 +20,7 @@ import { installToolRenderer } from './tool-render.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
+import { StepWatch } from './stuck.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -49,6 +50,7 @@ export default function harness(pi, dependencies = {}) {
   });
   const schedule = dependencies.setInterval || setInterval;
   const watch = new ThoughtWatch();
+  const steps = new StepWatch(); // strategy 3: what Pi does, beside what it thinks
   const proposals = new Map();
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
@@ -192,7 +194,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension') return { action: 'continue' };
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    lastQuestion = event.text; retries = 0; pending = undefined;
+    lastQuestion = event.text; retries = 0; pending = undefined; steps.reset();
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));
@@ -274,6 +276,10 @@ export default function harness(pi, dependencies = {}) {
     }
   });
   pi.on('tool_result', async event => {
+    // Strategy 3 (OpenHands' stuck detector): the same call with the same result, the same failing call, or two calls
+    // alternating: Pi is not making progress. Stop the turn and ask again another way (a wake-up; reported).
+    const stuck = steps.add({ tool: event.toolName, input: event.input, error: Boolean(event.isError), text: (event.content || []).map(part => part.text || '').join('\n') });
+    if (stuck && !bare) trip(`Stuck: ${stuck}`, 'stuck');
     const token = proposals.get(event.toolCallId);
     proposals.delete(event.toolCallId);
     if (!token) return; // Blocked calls were never approved for execution.

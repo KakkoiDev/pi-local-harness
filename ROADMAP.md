@@ -236,3 +236,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [191-Bench: regression tests, pass^k, first try, the bare baseline, a scripted user](tasks/191-bench-from-others.md)
 - [x] [192-The harness proves Red itself; Pi need not work test-first](tasks/192-harness-proves-red.md)
 - [x] [193-A syntax check after every edit](tasks/193-syntax-after-edit.md)
+- [x] [194-Stuck detection on what Pi does, not only on what it thinks](tasks/194-stuck-on-actions.md)

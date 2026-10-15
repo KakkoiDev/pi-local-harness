@@ -282,3 +282,22 @@ test('bare mode (the bench baseline): Pi with Gate safety only, none of the harn
   assert.deepEqual(sent,[],'never woken');
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });
+
+test('the same failing call again and again stops the turn and Pi is asked to change course (strategy 3)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-stuck-'));const saved={...process.env};
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_WAKE_UPS:'2'});
+ const handlers={},entries=[],order=[];
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry:(type,data)=>entries.push({type,data}),registerEntryRenderer(){},sendUserMessage:()=>order.push('reask')};
+ try {
+  harness(pi,{root:dir+'/'});
+  const ctx={ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir,abort:()=>order.push('abort'),isIdle:()=>false,compact:options=>options.onComplete()};
+  handlers.agent_start({},ctx);
+  await handlers.input({source:'interactive',text:'List the files'},ctx);
+  for (let i=0;i<3;i++) await handlers.tool_result({toolCallId:`s${i}`,toolName:'bash',input:{command:'ls /nowhere'},content:[{type:'text',text:'No such file'}],isError:true});
+  assert.deepEqual(order,['abort'],'stopped after the third identical failure');
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped a repeat.');
+  assert.match(readFileSync(join(dir,'data','reports.jsonl'),'utf8'),/"trigger":"stuck"/);
+  handlers.agent_end({},ctx);await new Promise(resolve=>setTimeout(resolve,20));
+  assert.equal(order.at(-1),'reask','asked again, another way');
+ } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});

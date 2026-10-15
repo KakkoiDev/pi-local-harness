@@ -5,6 +5,7 @@ import { wrap } from './terminal-render.mjs';
 
 const KINDS = {
   loop: { glyph: '!', sentence: 'Harness stopped a loop.', next: 'Pi asks again another way · Esc stops it', web: 'Harness recovery' },
+  stuck: { glyph: '!', sentence: 'Harness stopped a repeat.', next: 'Pi asks again another way · Esc stops it', web: 'Harness recovery' },
   hang: { glyph: '!', sentence: 'Harness stopped a hang.', next: 'Pi asks again another way · Esc stops it', web: 'Harness recovery' },
   canary: { glyph: '!', sentence: 'Pi drifted from its instructions.', next: 'Pi reads AGENTS.md again and answers again · Esc stops it', web: 'Harness recovery' },
   stopped: { glyph: '✗', sentence: 'Harness stopped retrying.', next: 'Ask again with a hint, or in other words', web: 'Harness recovery stopped' },
@@ -26,7 +27,7 @@ export function harnessNotice(kind, detail) {
     : kind === 'wake-up' ? `It stopped with work open: ${detail} changed and no passing test ran on it.`
     : kind === 'unverified' ? `Code changed (${detail}) and no test passed on it after the last change (G-012), whatever the answer says.`
     : kind === 'gate-failed' ? `${detail}. That call did not run; Pi was told and continues (G-011).`
-    : String(detail).replace(/^(Loop|Hang) detected: |^Instruction drift: /, '').replace(/^./, letter => letter.toUpperCase());
+    : String(detail).replace(/^(Loop|Hang) detected: |^Instruction drift: |^Stuck: /, '').replace(/^./, letter => letter.toUpperCase());
   const web = kind === 'gate-failed' ? `Gate could not check a tool call (${detail}); that call did not run and Pi continues.` : kind === 'stopped' ? `recovery repeated. Stopped automatic retries; the incident is saved in ${detail}.` : detail;
   return { kind, glyph: shape.glyph, sentence: shape.sentence, detail: said, next: shape.next, web: `${shape.web}: ${web}` };
 }
