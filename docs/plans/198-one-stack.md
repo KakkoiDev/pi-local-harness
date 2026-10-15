@@ -123,7 +123,10 @@ from zero to production." Each block is a generator (files in the conventions, w
   are often on Windows. The tools all run there; the harness's macOS paths need a second implementation.
 - **Preview and undo for people who do not read code:** the app running beside the chat (and on the phone by QR), each
   request explained in plain words, "undo this request" in one click (each request is already a commit).
-- **Languages:** the workbench and the generated apps in the person's language (Japanese first, as the handbook does).
+- **Languages (decided 2026-10-15: a Japanese UI):** a stack convention from the start: every visible string goes through
+  one function, `t("key")`, with `messages/en.json` and `messages/ja.json`; the language comes from the person's choice
+  (a cookie) or the browser; a check after every edit finds a string that skipped `t()` or a key missing in a language.
+  The starter project, the generated apps and, once on the stack, the workbench itself.
 - **A gallery of finished example apps** built with the kit: examples are what small models learn best from.
 - **Security of what it builds:** autoescaping, CSRF, validation, secrets in the keychain, dependencies limited to the kit.
 - **Cost and privacy with cloud models:** a monthly cap, the cost per request, nothing sent that the person did not see.
@@ -332,7 +335,7 @@ beat the general harness on these scenarios, without losing on the others, or it
 5. **The Python type checker:** decided, pyright.
 7. **Hosting for production:** the person's machine and Tailscale Funnel (free; the machine stays on), a small VPS with
    one recipe (a service and Caddy for HTTPS), or a platform (Fly.io, Render, Railway: easiest, paid). One is the default.
-8. **Issues and pull requests:** the harness's repository, and always asking before sending (recommended).
-9. **Windows and Linux:** when (recommended: after the starter project and the bench's stack track).
+8. **Issues and pull requests:** decided 2026-10-15, always ask before sending.
+9. **Windows and Linux:** decided 2026-10-15, after the starter project and the bench's stack track.
 6. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
    turn out to need.
