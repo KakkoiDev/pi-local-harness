@@ -5,4 +5,5 @@ A page problem: observe it before reading code. Use the browser tool at the size
 a tablet 1024), do the steps that cause it, and probe "scrolled", "scrollable" and "positioned". Read what moved and
 what it is placed against, then read the CSS of exactly those elements. Common causes: an absolutely positioned
 element placed against an unexpected ancestor (the nearest one with position other than static), a parent with
-overflow that makes it scrollable, scrollIntoView scrolling every scrollable ancestor. Check the fix with the same probe.
+overflow that makes it scrollable, scrollIntoView scrolling every scrollable ancestor. Check the fix with the same probe. For
+the project's own app, use target "app" (it runs as the Preview shows it).

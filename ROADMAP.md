@@ -246,3 +246,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [201-KakkoiSchool's lessons, mapped to the moments they matter](tasks/201-school-lessons.md)
 - [ ] [202-The harness runs the project's app, for the Preview beside the chat](tasks/202-preview-runs-the-app.md)
 - [ ] [203-Undo This Request: a new commit that reverses the harness's commit for a request](tasks/203-undo-a-request.md)
+- [x] [204-Pi's browser opens the project's own app (target "app")](tasks/204-browser-opens-the-app.md)

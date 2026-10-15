@@ -14,6 +14,21 @@ test('the input is checked before anything starts (L-008)', () => {
   assert.match(plan({ target: 'nonsense' }).error, /scratch/);
   assert.deepEqual(plan({}).probes, ['viewport', 'scrolled', 'scrollable', 'console'], 'the facts that find most layout bugs, by default');
   assert.equal(plan({ target: 'http://127.0.0.1:5173/app' }).target, 'http://127.0.0.1:5173/app');
+  assert.equal(plan({ target: 'app' }).target, 'app', 'the project\'s own app, as the Preview runs it (plan 198)');
+  assert.match(plan({ target: 'nonsense' }).error, /"app"/);
+});
+
+test('target "app" opens the project\'s running app, which the workbench starts if needed', { skip: !chrome && 'no Chromium on this machine' }, async () => {
+  const server = createServer((_request, response) => { response.setHeader('Content-Type', 'text/html'); response.end('<title>Notes</title><h1>Notes</h1>'); });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    let asked = 0;
+    const result = await look({ target: 'app', path: '/notes', probes: ['viewport'] }, { chrome, app: async () => { asked++; return { url: `http://127.0.0.1:${server.address().port}/` }; } });
+    assert.equal(asked, 1); assert.equal(result.opened, `http://127.0.0.1:${server.address().port}/notes`, JSON.stringify(result));
+    assert.equal(result.facts.viewport.title, 'Notes');
+    const none = await look({ target: 'app' }, { chrome, app: async () => { throw new Error('This project has no app to show yet.'); } });
+    assert.match(none.error, /no app to show/);
+  } finally { server.close(); }
 });
 
 // Task 173's bug, reduced: an absolute element inside a scrolling list, positioned against the desk around it.
@@ -67,6 +82,7 @@ test('Pi gets it as a tool; the scratch workbench is started once and the person
   const answer = await tool.execute('1', { width: 390 });
   assert.match(answer.content[0].text, /"width": 390/); assert.equal(started, 1, 'one scratch workbench per session');
   assert.deepEqual(seen.forbidden, [3000]);
+  assert.equal(typeof seen.app, 'function', 'the project\'s app is reachable from the tool');
   handle.stop(); assert.equal(started, -1);
   const failed = await installBrowser({ registerTool: definition => { tool = definition; } }, { see: async () => { throw new Error('No Chromium'); } });
   assert.equal((await tool.execute('2', {})).isError, true);

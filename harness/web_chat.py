@@ -357,8 +357,15 @@ class WebChat:
         busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
         if busy:raise ProjectBusy(busy[0]['id'])
         return undoing.undo(root,commit)
-    def preview(self, project, action):
+    def project_for(self, path):
+        """The project whose folder holds this path (the deepest one), or ValueError."""
+        path=Path(path).resolve()
+        found=[(len(Path(item['path']).resolve().parts),item['id']) for item in self.documents.list_projects() if not item.get('missing') and path.is_relative_to(Path(item['path']).resolve())]
+        if not found:raise ValueError('This folder is not in a project')
+        return max(found)[1]
+    def preview(self, project, action, cwd=None):
         if action not in ('status','start','stop'):raise ValueError('Unknown preview action')
+        if project is None and cwd:project=self.project_for(cwd)  # Pi's browser names the folder it works in
         if action=='start':return self.previews.start(project,self.documents.project_path(project))
         self.documents.project_path(project)
         return getattr(self.previews,action)(project)
@@ -644,7 +651,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
             if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview'))));return
-            if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data['project'],path.rsplit('/',1)[-1]));return
+            if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return

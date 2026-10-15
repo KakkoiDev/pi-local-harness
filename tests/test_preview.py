@@ -96,6 +96,10 @@ class WorkbenchPreviewTest(unittest.TestCase):
         self.assertEqual(wait(chat.previews, project, ('running',))['state'], 'running')
         self.assertTrue((root / 'data' / '.previews' / f'{project}.log').is_file(), 'logs live in the data folder')
         self.assertEqual(chat.preview(project, 'stop'), {'state': 'none'})
+        self.assertEqual(chat.preview(None, 'start', cwd=str(code / 'Site' / 'sub'))['state'], 'starting', "Pi's browser names the folder it works in")
+        self.assertEqual(wait(chat.previews, project, ('running',))['state'], 'running')
+        chat.preview(project, 'stop')
+        with self.assertRaises(ValueError): chat.preview(None, 'start', cwd=str(root))
         with self.assertRaises(ValueError): chat.preview(project, 'explode')
         with self.assertRaises(ValueError): chat.preview('../etc', 'start')
 

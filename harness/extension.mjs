@@ -120,7 +120,23 @@ export default function harness(pi, dependencies = {}) {
   installConsole(extras, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
-  const browserTool = installBrowser(extras, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser') });
+  // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.
+  const projectApp = async () => {
+    const web = ports?.web || process.env.PI_WEB_PORT;
+    if (!web) throw new Error('The project\'s app is only reachable when the workbench runs (plh).');
+    const deadline = Date.now() + 130000;
+    for (;;) {
+      const response = await fetch(`http://127.0.0.1:${web}/api/preview/start`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cwd: context?.cwd || root }) });
+      const status = await response.json();
+      if (!response.ok) throw new Error(status.error || `The workbench answered ${response.status}`);
+      if (status.state === 'running') return status;
+      if (status.state === 'none') throw new Error(status.message || 'This project has no app to show yet.');
+      if (status.state === 'stopped') throw new Error(`The app stopped: ${status.error}`);
+      if (Date.now() > deadline) throw new Error('The app did not start within two minutes.');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  };
+  const browserTool = installBrowser(extras, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser'), app: projectApp });
   const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;

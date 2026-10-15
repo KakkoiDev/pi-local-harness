@@ -129,13 +129,13 @@ addEventListener('unhandledrejection', event => window.__piConsole.push({ level:
 
 const KEYS = { Enter: 13, Escape: 27, Tab: 9, Backspace: 8, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, Space: 32, Delete: 46, Home: 36, End: 35 };
 
-/** The tool's input, checked: {target: 'scratch'|URL, width, height, steps, probes}. Returns {error} or the plan. */
+/** The tool's input, checked: {target: 'scratch'|'app'|URL, width, height, steps, probes}. Returns {error} or the plan. */
 export function plan(input = {}) {
   const width = Math.round(Number(input.width ?? 1440)), height = Math.round(Number(input.height ?? 900));
   if (!(width >= 320 && width <= 3840 && height >= 300 && height <= 2400)) return { error: 'width must be 320–3840 and height 300–2400 (CSS pixels).' };
   const target = String(input.target || 'scratch');
-  if (target !== 'scratch') {
-    let url; try { url = new URL(target); } catch { return { error: `target is "scratch" (a scratch workbench) or a URL on this computer, not “${target}”.` }; }
+  if (target !== 'scratch' && target !== 'app') {
+    let url; try { url = new URL(target); } catch { return { error: `target is "scratch" (a scratch workbench), "app" (the project's running app) or a URL on this computer, not “${target}”.` }; }
     if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || !/^https?:$/.test(url.protocol)) return { error: 'Only pages on this computer (127.0.0.1 or localhost) can be opened.' };
   }
   const steps = Array.isArray(input.steps) ? input.steps : [];
@@ -145,13 +145,16 @@ export function plan(input = {}) {
 }
 
 /** Open, act, probe: the facts as data. `shots`: where screenshots go. */
-export async function look(input, { chrome = findChrome(), scratch, shots = tmpdir(), forbidden = [] } = {}) {
+export async function look(input, { chrome = findChrome(), scratch, app, shots = tmpdir(), forbidden = [] } = {}) {
   const asked = plan(input);
   if (asked.error) return { error: asked.error };
   if (!chrome) return { error: 'No Chromium found. Install Google Chrome, or set PI_BROWSER to a Chromium binary (Playwright\'s works: npx playwright install chromium).' };
   let base = asked.target, project;
   if (asked.target === 'scratch') { const workbench = await scratch(); base = workbench.url; project = workbench.project; }
-  else if (forbidden.some(port => new URL(asked.target).port === String(port))) return { error: 'That is the person\'s own workbench, with their data: use target "scratch" instead.' };
+  else if (asked.target === 'app') {  // plan 198: the project's app as the Preview runs it (started if needed)
+    if (!app) return { error: 'The project\'s app is only reachable when the workbench runs this request.' };
+    try { base = (await app()).url; } catch (error) { return { error: error.message }; }
+  } else if (forbidden.some(port => new URL(asked.target).port === String(port))) return { error: 'That is the person\'s own workbench, with their data: use target "scratch" instead.' };
   const url = new URL(asked.path || (asked.target === 'scratch' ? `/p/${project}/chat` : ''), base).href;
   const browser = await launchChrome(chrome);
   const done = [], facts = {};
@@ -228,14 +231,14 @@ export async function look(input, { chrome = findChrome(), scratch, shots = tmpd
 }
 
 /** Pi's browser tool. The scratch workbench starts on first use and stays for the session; `stop()` ends it. */
-export function installBrowser(pi, { forbidden = () => [], shots = tmpdir(), see = look, start = startScratch } = {}) {
+export function installBrowser(pi, { forbidden = () => [], shots = tmpdir(), see = look, start = startScratch, app } = {}) {
   let workbench;
   pi.registerTool?.({
     name: 'browser', label: 'Browser',
-    description: 'Open a web page in a real headless browser at a window size you choose, do a few steps, and get facts back as data. Use it to reproduce and measure a UI bug before changing code (probe, do not guess). target: "scratch" (default: a scratch Pi Workbench from this checkout with a Demo project and a fake Pi; never the person\'s data) or a URL on 127.0.0.1/localhost. path: a page in it, e.g. "/p/<project>/chat" or "/activity". steps (in order): {click: "button text or CSS selector"}, {type: {into: "selector", text}}, {press: "Enter"}, {wait: ms}, {waitFor: "text or selector"}, {goto: "/path"}, {api: {path, body}} (scratch only: POST to the workbench). probes: "viewport", "scrolled" (elements scrolled from 0), "scrollable" (elements that can scroll, by how much), "positioned" (absolute/fixed elements and what they are placed against), "console" (errors), "screenshot", {boxes: "selector"}, {styles: {selector, props: [..]}}, {text: "selector"}, {eval: "JS expression"}. Example for "the window lifts at tablet width": {width: 1024, height: 600, steps: [{type: {into: "#prompt", text: "Hi"}}, {press: "Enter"}], probes: ["scrolled", "scrollable", "positioned"]}.',
+    description: 'Open a web page in a real headless browser at a window size you choose, do a few steps, and get facts back as data. Use it to reproduce and measure a UI bug before changing code (probe, do not guess). target: "app" (the project\'s own app, running as the Preview shows it: use it to check the app you are building), "scratch" (default: a scratch Pi Workbench from this checkout with a Demo project and a fake Pi; never the person\'s data) or a URL on 127.0.0.1/localhost. path: a page in it, e.g. "/p/<project>/chat" or "/activity". steps (in order): {click: "button text or CSS selector"}, {type: {into: "selector", text}}, {press: "Enter"}, {wait: ms}, {waitFor: "text or selector"}, {goto: "/path"}, {api: {path, body}} (scratch only: POST to the workbench). probes: "viewport", "scrolled" (elements scrolled from 0), "scrollable" (elements that can scroll, by how much), "positioned" (absolute/fixed elements and what they are placed against), "console" (errors), "screenshot", {boxes: "selector"}, {styles: {selector, props: [..]}}, {text: "selector"}, {eval: "JS expression"}. Example for "the window lifts at tablet width": {width: 1024, height: 600, steps: [{type: {into: "#prompt", text: "Hi"}}, {press: "Enter"}], probes: ["scrolled", "scrollable", "positioned"]}.',
     promptSnippet: 'browser: open a page at a chosen size, click/type, and measure (scrolled and scrollable elements, positioned elements, boxes, styles, console, screenshot); a scratch workbench by default',
     parameters: { type: 'object', properties: {
-      target: { type: 'string', description: '"scratch" (default) or a URL on 127.0.0.1/localhost' },
+      target: { type: 'string', description: '"app" (the project\'s running app), "scratch" (default) or a URL on 127.0.0.1/localhost' },
       path: { type: 'string', description: 'Page to open in the target, e.g. "/activity"' },
       width: { type: 'number', description: 'Window width in CSS pixels (default 1440; phone 390, tablet 1024)' },
       height: { type: 'number', description: 'Window height (default 900)' },
@@ -244,7 +247,7 @@ export function installBrowser(pi, { forbidden = () => [], shots = tmpdir(), see
     } },
     async execute(_id, params) {
       let result;
-      try { result = await see(params || {}, { shots, forbidden: forbidden(), scratch: async () => (workbench ??= await start()) }); }
+      try { result = await see(params || {}, { shots, forbidden: forbidden(), scratch: async () => (workbench ??= await start()), app: app || (async () => { throw new Error('The project\'s app is only reachable when the workbench runs this request.'); }) }); }
       catch (error) { result = { error: error.message }; }
       const content = [{ type: 'text', text: JSON.stringify(result, null, 1).slice(0, 12000) }];
       if (result.facts?.screenshot && existsSync(result.facts.screenshot)) content.push({ type: 'image', data: readFileSync(result.facts.screenshot).toString('base64'), mimeType: 'image/png' });
