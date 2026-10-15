@@ -16,8 +16,7 @@ Pi asks one question with 2-4 options as radio rows. Example (a 2D game): "What 
 - Each option may have a one-line detail under its label.
 - One action: **Answer** (Return answers). Should there be a "Skip (let Pi choose the recommended)"?
 - States to draw: asking; answered (collapses to one line: "Sky colour: blue"); answered with something else (the typed
-  text); auto-accepted ("Sky colour: blue · auto", with a way to change it later); several questions on one card (if
-  you think it reads better than one card per question).
+  text); auto-accepted ("Sky colour: blue · auto", with a way to change it later). One question per card (decided).
 - Where: in the chat, as Pi's message; the composer stays usable (typing a message answers "something else"?).
 - Phone: a sheet or inline? 44 px rows, radios 22 px in 44 px rows (round 8).
 
@@ -36,14 +35,14 @@ changes and Undo: combine?), **Stop Here**. States: waiting, continued (auto or 
 
 ## 4. Auto-accept
 
-- A toggle: where (next to the composer's Send? in π? both?), what it is called ("Auto-accept", "Run on its own"?).
+- A setting in Settings, one for all projects, no limit (decided); also a quick toggle where you think it belongs
+  (next to Send? in π?), and what it is called ("Auto-accept", "Run on its own"?).
 - While on: always visible (the status button shows "Auto"?), every choice takes the recommended option, every plan is
   approved, every check-in continues, until the roadmap is done.
-- Never automatic: publishing, git push, downloads, sending a message or an issue, Move to Trash, removing a project.
-  They wait in **Needs you** (a list: where? Activity? the status?).
-- Turning it on: a one-time explanation of what it does and does not do.
-- **While you were away**: when the person comes back, a summary: tasks done (verified or not), decisions taken
-  automatically (each with Change…), what waits in Needs you.
+- Everything is automatic while on, publishing, push, downloads, sending and the Trash included (decided).
+- **Turning it on shows the risks first**, every time: what will happen without asking; a yes turns it on.
+- **The report at the end of the run** (and when the person comes back): tasks done (verified or not), every decision
+  taken automatically (each with Change…), every action that left the machine or used the Trash, problems met.
 
 ## 5. The plan in Work
 

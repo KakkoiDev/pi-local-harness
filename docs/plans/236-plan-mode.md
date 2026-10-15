@@ -35,8 +35,7 @@ request, and never filled the roadmap's Goal.
    means, how it is tested, the language of the UI).
 3. **Pi asks.** Every decision Pi cannot take from the request, the code or the project's conventions becomes a
    **choice**: one question, two to four options, the recommended one first, always "Something else…" last. Pi asks
-   with the `ask_choices` tool; the person picks one or types their own. One card at a time; several related
-   questions may come as one card with several groups (decided by the designer).
+   with the `ask_choices` tool; the person picks one or types their own. One question per card.
 4. **Pi proposes the plan.** It ends with a plan card: the Goal, the tasks with their `Done when`, the decisions
    taken. The person approves it (Approve Plan), changes it (edits the files in Work, or says what to change), or
    asks for something else.
@@ -53,8 +52,11 @@ The model cannot be trusted to say it is unsure, so the harness looks for it in 
 
 - **No approved plan:** a write or edit to code (anything outside ROADMAP.md, tasks/, *.md docs) in a request whose
   task has no `Plan approved:` line is refused (REVISE): "Plan first: write the plan and ask the person to approve it
-  (ask_choices or the plan card)." Small requests are not exempt by size; a one-line fix still gets a one-task plan,
-  which auto-accept or one tap approves (the person: "every request"? see Open questions).
+  (ask_choices or the plan card)." Only for requests that define the project: the first request in a project, and a
+  request that adds a feature (a new task). **Small fixes skip plan mode** (the person, 2026-10-16: "plan mode should
+  skip small fixes and focus on asking project defining questions"): a bug fix, a rename, a typo, a change inside the
+  task in progress. The harness decides which (a short list of words and the request's task, with tests), and Pi may
+  say "this is a small fix" in one line, which the person can overrule.
 - **Assumption words in Pi's own text:** a write or edit is refused when, since the last answer from the person, Pi's
   visible text or reasoning holds an assumption the person never answered: "I'll assume", "I assume", "let's say",
   "probably", "I guess", "for now I'll", "default to", "arbitrarily", "not specified", "unclear", "I'm not sure",
@@ -77,14 +79,20 @@ Each catch is a Gate rule with an id, a message, a lesson and a test, like G-001
 
 ## Auto-accept ("YOLO, do the thing and I check later")
 
-- A toggle the person sets (web: next to the composer and in π; terminal: `/auto on|off`). Per project, remembered,
-  always visible while on (the status shows "Auto").
+- A setting in Settings, **once for all projects** (the person: "like it the user won't forget to set/unset it for 1
+  project in particular"), remembered after a restart, **no time or task limit**. Also `/auto on|off` in the terminal.
+  Always visible while on (the status shows "Auto").
 - While on: every choice takes the recommended option (recorded `auto`), every plan is approved (`Plan approved:
   auto`), every check-in continues to the next task, and the autopilot keeps going through the roadmap's open tasks.
-- Never auto-accepted, even with Auto on: anything that leaves the machine or cannot be undone. Publishing, git push,
-  downloads, sending an issue or a message, Move to Trash, removing a project. These wait in a "Needs you" list.
-- When the person comes back: a "While you were away" summary (tasks done, verified or not, decisions taken
-  automatically, what waits for them). Every auto decision is listed so it can be changed.
+- **Everything is automatic** (the person: "everything should be automated and a report made at the end of the run
+  saying what was done. we go YOLO and inform the user about the risks first"): publishing, git push, downloads,
+  sending an issue or a message, Move to Trash, removing a project included. Files still go to the Trash, never deleted
+  for good.
+- **The risks, first:** turning Auto on shows what it will do without asking (the list above) and asks for a yes,
+  every time it is turned on.
+- **The report at the end of the run:** tasks done (verified or not), every decision taken automatically (each
+  changeable), every action that left the machine or moved something to the Trash, problems met. Shown when the run
+  ends and when the person comes back.
 - The bench runs with Auto on, so its runs stay comparable; the bench also scores the plan (tasks written, Done when
   lines, decisions asked).
 
@@ -97,10 +105,11 @@ Each catch is a Gate rule with an id, a message, a lesson and a test, like G-001
 - The terminal: `ctx.ui.select` with the options plus "Something else…" (then `ctx.ui.input`); the plan as text with
   Approve / Change.
 
-## Open questions (for the person)
+## Decided (the person, 2026-10-16)
 
-1. Plan mode for every request, or skip it for small fixes ("rename X", "fix this typo")?
-2. Auto-accept: per project or for the whole workbench? Stays on after a restart? A time or task limit ("stop after
-   3 hours or 10 tasks")?
-3. One question per card, or several related questions on one card?
-4. The words that count as "unsure": start with the list above, and tune it on the bench?
+1. Small fixes skip plan mode; plan mode asks the project-defining questions.
+2. Auto-accept: one setting for all projects, in Settings, no limit, remembered.
+3. One question per card.
+4. With Auto on, everything is automatic; the risks are shown before it is turned on; a report at the end of the run.
+5. The bench auto-accepts every recommendation.
+6. The "unsure" word list starts as above and is tuned on the bench (a false catch costs one question card).

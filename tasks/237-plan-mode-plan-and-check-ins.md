@@ -6,6 +6,9 @@ Read docs/plans/236-plan-mode.md (the flow, steps 2, 4, 5, 6). Depends on task 2
 filled).
 
 ## Steps
+- [ ] Which requests plan: the first request in a project and requests that add a feature (a new task); small fixes
+  (a bug fix, a rename, a typo, a change inside the task in progress) skip plan mode. One function with tests decides,
+  from the request's words and its task; Pi may say "this is a small fix", which the person can overrule.
 - [ ] The planning checklist: harness/guides/planning.md (how guides are chosen: grep `chooseGuides`), always given
   for a request without an approved plan: who uses it, screens and controls, rules and edge cases, data, what done
   means, how it is tested, the UI language. Pi answers each item from the request, the code, or a choice.

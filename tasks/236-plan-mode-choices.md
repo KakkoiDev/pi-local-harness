@@ -18,6 +18,7 @@ Read docs/plans/236-plan-mode.md first: it is the specification. This task build
   with an id, message, lesson and test.
 
 ## Steps
+- [ ] One question per card (decided 2026-10-16): the tool takes one question.
 - [ ] Red: extension test: `ask_choices` with two options returns the picked label; with "Something else…" returns
   the typed text; with auto-accept on (task 238) returns option 0 without asking.
 - [ ] Red: paperwork test: an answered choice becomes a Decisions line with the right state.

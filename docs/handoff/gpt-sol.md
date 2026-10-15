@@ -63,8 +63,9 @@ Do them in this order. Each later task depends on the earlier ones:
    set -o pipefail; python3 tests/verify_workflow.py 2>&1 | tail -1 && git add <the files> && git commit -m "<message>"
    ```
    Message: `feat:`, `fix:`, `docs:` or `chore:`, then what changed for the person in plain words, then `(task NNN)`.
-   Add only the files you changed (never `git add -A` in the person's projects). End the message with the attribution
-   line your environment requires, if any.
+   Add only the files you changed (never `git add -A` in the person's projects). End every commit message with your
+   own attribution line, e.g. `Co-Authored-By: GPT-Sol <…>` (the person wants every commit traceable to the agent
+   that made it).
 8. Do not push. The person pushes, or asks you to.
 
 ### Rules that are never broken
@@ -76,8 +77,8 @@ Do them in this order. Each later task depends on the earlier ones:
 - **Stop processes only by their exact PID** that you started. Never `pkill` or `killall` by name: the person's `plh` and
   the bench run the same `harness/services.py`.
 - **Nothing is deleted for good:** files go to the Trash (`PI_TRASH_DIR` in tests).
-- **Pi only proposes; a person's yes runs it.** Auto-accept (task 238) never covers publishing, git push, downloads,
-  sending a message or an issue, Move to Trash, or removing a project.
+- **Pi only proposes; a person's yes runs it**, except with Auto-accept on (task 238): then everything runs, after the
+  person saw the risks, and a report lists what happened.
 - **UI changes go through the designer.** You build from `design/` (boards in `design/canvas/`, rules in
   `design/IMPLEMENTATION.md`, cards in `design/system/components/`). If the design you need is not drawn, write what
   is missing in the task file and ask the person; do not invent markup.
@@ -99,5 +100,5 @@ about, and the commands the person can run to check your work.
 
 - The tasks are written so each can be done and checked alone; 227 is the urgent one (it lost a verified commit in the
   pong project).
-- Plan mode's open questions (docs/plans/236-plan-mode.md) should be answered before task 236 starts.
+- Plan mode's questions were answered on 2026-10-16 (docs/plans/236-plan-mode.md, "Decided").
 - The designer's round 9 (https://claude.ai/artifact/VdvrKzbQ8jBBYbVbuXFL7S) and round 10 briefs are both waiting.
