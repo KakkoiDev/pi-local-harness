@@ -20,7 +20,39 @@ project itself refactored according to the stack."
 - **Capable:** premade, tested pieces (libraries, logic blocks, generators, recipes) so the model assembles and fills
   in rather than invents.
 
-## Why
+## Who it is for, and frontier models
+
+Added 2026-10-15: "I want this project to become a tool that people with no experience with AI can use to achieve
+great results… I would be OK to extend this tool so that people can use frontier models too… if their machine can't
+run local AI, they can still run this whole setup and have great success building projects with AI."
+
+- **The person:** someone with no experience of AI or of the stack. They describe what they want in their words; the
+  harness does the rest (paperwork, checks, the kit). Nothing to configure before the first result.
+- **Local-first, not local-only:** the harness, Gate, the person's data, the kit and their projects always stay on their
+  machine. The model is local when the machine can run one, otherwise a frontier model from a provider Pi supports
+  (Pi already speaks to Anthropic, OpenAI, Google and others).
+- **First start chooses for them:** `plh` measures the machine (memory, Apple silicon or GPU) and recommends a local
+  model that will run well, or a provider when none will; the person confirms. Switching later is the model menu.
+- **A cloud model, honestly:** what leaves the machine is said before the first request (the prompt, the context the
+  harness chose, tool results); the key is kept in the system keychain, never in a file Pi reads; cost per request is
+  shown; Gate and the paperwork work the same.
+- **The bench measures both:** the same scenarios with a local and a frontier model, through the harness and bare, so
+  the help the harness gives is known for each.
+
+## Types everywhere (a rule)
+
+Added 2026-10-15: "As a rule, I want the agent to type (int, string, bool…) all the code to make sure the compiler can
+catch a maximum of errors. Python, TS…"
+
+- **Python:** every function's parameters and return are annotated; data has types (dataclasses or TypedDict, no
+  bare dicts crossing modules). A type checker in strict mode runs after every edit, like the syntax check (task
+  193), and its errors reach Pi in the same tool result; the starter project and the blocks pass it.
+- **JavaScript (the few islands beside htmx, and libraries like p2p-core):** typed with JSDoc and `// @ts-check`, checked
+  by TypeScript's compiler from the kit's toolchain, so there is still no build step for the browser.
+- **Enforced:** a new or changed Python function without annotations is sent back by Gate (an `ast` check, instant);
+  a type error is not a refusal but a note to fix, and the request is not verified while the checker fails (with the
+  tests, it is part of Green).
+- **Decision:** which Python checker (below).
 
 What we have measured so far points the same way:
 
@@ -218,5 +250,7 @@ beat the general harness on these scenarios, without losing on the others, or it
 3. **Phone:** PWA only (recommended), or PWA plus a Capacitor shell for the stores later. (Hyperview, server-driven
    native screens, was considered: it brings React Native and its own XML, a second way, against the point.)
 4. **Scope:** the stack pack for new projects only (recommended to start), or also a migration helper for existing ones.
-5. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
+5. **The Python type checker:** mypy in strict mode (pure Python, mature, slower), pyright (fast, needs Node, which the
+   kit would carry for TypeScript anyway), or ty (Astral's, from the makers of uv; check its maturity first).
+6. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
    turn out to need.
