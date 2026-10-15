@@ -14,3 +14,6 @@ guessed its cause).
   DevTools protocol with Node's WebSocket; the scratch workbench (this checkout's services, temporary data, the fake Pi);
   steps and probes. The extension registers the tool (Gate checks it as a reversible write), stops the scratch
   workbench at the end of the session, draws its row; AGENT.md, the console guide and lesson L-008 name it.
+- [x] Fix 2026-10-15: the cleanup of Chromium's temporary profile could fail ("directory not empty", Chromium still
+  writing as it dies) and throw away the whole result; it now retries and never fails the call. That was the browser
+  test's intermittent failure.

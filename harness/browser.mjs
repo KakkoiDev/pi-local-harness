@@ -64,7 +64,8 @@ export async function launchChrome(chrome) {
   });
   const socket = new WebSocket(url);
   await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, { once: true }); socket.addEventListener('error', () => reject(new Error('Could not connect to Chromium')), { once: true }); });
-  return { session: new Session(socket), close() { try { socket.close(); } catch {} child.kill('SIGKILL'); rmSync(profile, { recursive: true, force: true }); } };
+  // Chromium may still be writing its profile as it dies: retry the cleanup and never let it cost the result (the flake in browser.test.mjs).
+  return { session: new Session(socket), close() { try { socket.close(); } catch {} child.kill('SIGKILL'); try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {} } };
 }
 
 // -- the scratch workbench -----------------------------------------------------------------------------------------
