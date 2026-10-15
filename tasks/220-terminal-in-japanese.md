@@ -14,4 +14,11 @@ will be kept in English."
   Japanese wraps between characters.
 - [x] Tests (node, `tests/harness/language.test.mjs`): columns, the language choice, a translated view with its values
   and its /command untouched.
-- [ ] The terminal's Japanese strings (a helper agent is writing them into messages/ja.json).
+- [x] The terminal's Japanese strings: 318 exact entries and 128 patterns in messages/ja.json (admin views, settings,
+  notices, footer, startup, tool rows, /verbose, the picker, extension notifications).
+- [x] What the review found left out: the dim tool-row lines are translated before dim(); the startup is read in English
+  (the phone line and its QR code, the narrow-width shortenings) and drawn translated, counting columns; state cells in
+  STATE, DECISION, CAN and RESULT columns, kv values that start with a mark ("✓ Running"), `lines` parts and errors.
+- Known limits: "Queue", "From" and "Thinking" share the web's entries (キューに追加, 送信元, 思考中), which read oddly as
+  the /queue title, the undo preview's time row and the model preview; GUIDE.md answers, Gate rule names and
+  `/models check` lines stay English.

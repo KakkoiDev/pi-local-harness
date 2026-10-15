@@ -38,3 +38,25 @@ test('a view: titles, labels, headers, states and prose are translated; values a
   assert.equal(view.parts[2].text, '止まっているものはありません。');
   assert.equal(view.parts[3].items[0].fix, '/models pull gemma4', 'a /command is never translated');
 });
+
+test('the terminal translates what the agent found left out: dim tool rows, startup, marked states, errors', async () => {
+  const { loadTerminalLanguage, translateView } = await import('../../harness/language.mjs');
+  const { checkLines } = await import('../../harness/tool-render.mjs');
+  const { renderStartup, startupLines } = await import('../../harness/startup-display.mjs');
+  loadTerminalLanguage('ja');
+  try {
+    const blocked = checkLines('bash', { gate: 'blocked', reason: 'x' }).join('\n');
+    assert.ok(!blocked.includes('Nothing ran.'), blocked);
+    const lines = startupLines({ web: 1, gate: 2, remote: 'https://mac.tail.ts.net:8443' });
+    const drawn = renderStartup(lines, 80).join('\n');
+    assert.ok(drawn.includes('█') || drawn.includes('▀'), 'the QR code still shows in Japanese');
+    assert.ok(!drawn.includes('Ask in words'), drawn);
+    const view = translateView({ title: 'x', parts: [{ kind: 'table', columns: ['NAME', 'STATE'], rows: [['my thing', '▶ Running']] },
+      { kind: 'kv', rows: [['Web', '✓ Running'], ['Folder', '/Users/a/Running']] }, { kind: 'lines', lines: ['○ Not changed.'] }] });
+    assert.notEqual(view.parts[0].rows[0][1], '▶ Running');
+    assert.equal(view.parts[0].rows[0][0], 'my thing');
+    assert.notEqual(view.parts[1].rows[0][1], '✓ Running');
+    assert.equal(view.parts[1].rows[1][1], '/Users/a/Running');
+    assert.notEqual(view.parts[2].lines[0], '○ Not changed.');
+  } finally { loadTerminalLanguage('en'); }
+});

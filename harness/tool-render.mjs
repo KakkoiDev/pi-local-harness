@@ -33,19 +33,19 @@ export function callLine(tool, args, check, width = 80) {
 
 export function checkLines(tool, check) {
   if (!check) return [];
-  if (check.gate === 'blocked') return [`  ✗ Gate blocked it: ${check.reason || 'not allowed'}`, `  ${dim('Nothing ran. /gate blocked')}`];
+  if (check.gate === 'blocked') return [`  ✗ Gate blocked it: ${check.reason || 'not allowed'}`, `  ${dim(tr('Nothing ran. /gate blocked'))}`];
   if (check.gate === 'revise') return [`  ! Gate asked Pi to revise: ${check.reason || ''}`.trimEnd()];
-  if (check.gate === 'unavailable') return [`  ✗ Gate could not check it: ${check.reason || ''}`.trimEnd(), `  ${dim('Nothing ran.')}`];
+  if (check.gate === 'unavailable') return [`  ✗ Gate could not check it: ${check.reason || ''}`.trimEnd(), `  ${dim(tr('Nothing ran.'))}`];
   if (check.drift) return [`  ✗ Gate: ${check.drift}`];
   if (check.ok === undefined) return [];
   const result = tool === 'bash' ? `${check.ok ? '✓' : '✗'} exit ${check.exit ?? (check.ok ? 0 : 1)}` : check.ok ? '✓ done' : '✗ failed';
   const lines = [`  ✓ Gate allowed · ${result}${check.seconds === undefined ? '' : ` · ${clock(check.seconds)}`}`];
-  if (!check.ok) lines.push(`  ${dim(tool === 'bash' ? 'The command failed on its own; Gate did not block it.' : 'It failed on its own; Gate did not block it.')}`);
+  if (!check.ok) lines.push(`  ${dim(tr(tool === 'bash' ? 'The command failed on its own; Gate did not block it.' : 'It failed on its own; Gate did not block it.'))}`);
   return lines;
 }
 
 export const toolLines = (tool, args, check, width = 80) => [callLine(tool, args, check, width), ...checkLines(tool, check)];
-const shown = lines => lines.map(line => tr(line));  // the check lines in the terminal's language
+const shown = lines => lines.map(line => tr(line));  // the check lines in the terminal's language (the dim ones are translated before dim())
 
 /** Draw Pi's built-in tools this way; `checks` (toolCallId → check) is filled by the extension's Gate hooks. */
 export function installToolRenderer(pi, checks, { timeZone } = {}) {

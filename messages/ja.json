@@ -670,9 +670,331 @@
   "○ Not started": "○ 未起動",
   "Phone access is not set up. Add this Mac’s tailnet name to remote_hosts and your Tailscale login to remote_users in config.json, then start plh again.": "スマホからのアクセスが設定されていません。config.json の remote_hosts にこの Mac の tailnet 名を、remote_users に Tailscale のログインを追加して、plh を起動し直してください。",
   "Terminal app": "ターミナルアプリ",
-  "Runs in a terminal, keys and text only; the Preview shows it in the browser.": "ターミナルで動きます。キーと文字だけで操作し、プレビューではブラウザに表示されます。"
+  "Runs in a terminal, keys and text only; the Preview shows it in the browser.": "ターミナルで動きます。キーと文字だけで操作し、プレビューではブラウザに表示されます。",
+  "✓ ok": "✓ OK",
+  "✗ fix": "✗ 要修正",
+  "! note": "! 注記",
+  "○ Waiting": "○ 待機中",
+  "✓ Completed": "✓ 完了",
+  "✗ Failed": "✗ 失敗",
+  "■ Stopped": "■ 停止",
+  "~ Interrupted": "~ 中断",
+  "■ Cancelled": "■ 取り消し",
+  "✓ Allowed": "✓ 許可",
+  "✗ Blocked": "✗ ブロック",
+  "! Revise": "! 修正",
+  "? Escalated": "? エスカレーション",
+  "✓ Verified": "✓ 検証済み",
+  "✗ Command failed": "✗ コマンド失敗",
+  "✗ Changed after approval": "✗ 許可後に変更",
+  "off": "オフ",
+  "minimal": "最小",
+  "low": "低",
+  "medium": "中",
+  "high": "高",
+  "xhigh": "最高",
+  "max": "最大",
+  "no thinking": "思考なし",
+  "thinks": "思考する",
+  "thinks · sees": "思考する · 画像を見る",
+  "no thinking · sees": "思考なし · 画像を見る",
+  "no thinking · sees · parallel": "思考なし · 画像を見る · 並行",
+  "no thinking · sees · one at a time": "思考なし · 画像を見る · 一度にひとつ",
+  "no thinking · sees · checking…": "思考なし · 画像を見る · 確認中…",
+  "✗ no tools": "✗ ツールなし",
+  "in memory": "メモリ上",
+  "Harness commands": "ハーネスのコマンド",
+  "Status": "状況",
+  "Gate rules": "Gate のルール",
+  "Gate · blocked": "Gate · ブロック",
+  "Models": "モデル",
+  "Paths": "パス",
+  "Doctor": "診断",
+  "Guide": "ガイド",
+  "Bench": "ベンチ",
+  "Reports": "レポート",
+  "Models · at once": "モデル · 同時実行",
+  "Ask in words": "言葉で聞く",
+  "Loop check": "ループ検出",
+  "Rule": "ルール",
+  "When": "時点",
+  "Where": "場所",
+  "Outcome": "結果",
+  "Lesson": "教訓",
+  "Test": "テスト",
+  "Reason": "理由",
+  "Value": "値",
+  "Default": "デフォルト",
+  "Variable": "変数",
+  "Meaning": "意味",
+  "Version": "バージョン",
+  "Parallel": "並行数",
+  "In memory": "メモリ上",
+  "Saved in": "保存先",
+  "Applies": "適用",
+  "Note": "注記",
+  "Also": "ほかに",
+  "Restores": "復元",
+  "Moves": "移動",
+  "Frees": "空き容量",
+  "Downloads": "ダウンロード",
+  "Into": "保存先",
+  "✗ Not running": "✗ 停止中",
+  "✗ Ollama does not answer": "✗ Ollama 応答なし",
+  "off · /guide phone": "オフ · /guide phone",
+  "every 10 s": "10 秒ごと",
+  "before it ran": "実行前",
+  "after it ran": "実行後",
+  "before": "実行前",
+  "after": "実行後",
+  "Flag": "失敗にする",
+  "Mark": "印を付ける",
+  "every folder": "すべてのフォルダ",
+  "a project with ROADMAP.md and tasks/": "ROADMAP.md と tasks/ のあるプロジェクト",
+  "nothing": "なし",
+  "default": "デフォルト",
+  "free": "空き",
+  "terminal": "ターミナル",
+  "! folder missing": "! フォルダが見つかりません",
+  "the next time plh starts": "次に plh を起動したとき",
+  "a loaded model unloads": "読み込まれているモデルは解放されます",
+  "Ollama restarts; a loaded model unloads": "Ollama が再起動し、読み込まれているモデルは解放されます",
+  "STATE": "状態",
+  "WHEN": "日時",
+  "PROJECT": "プロジェクト",
+  "REQUEST": "依頼",
+  "RULE": "ルール",
+  "OUTCOME": "結果",
+  "FIRED": "発動",
+  "TIME": "時刻",
+  "CHECK": "チェック",
+  "DECISION": "判定",
+  "COMMAND": "コマンド",
+  "MODEL": "モデル",
+  "SIZE": "サイズ",
+  "CAN": "できること",
+  "NAME": "名前",
+  "FOLDER": "フォルダ",
+  "KEY": "キー",
+  "VALUE": "値",
+  "FROM": "設定元",
+  "HARNESS": "ハーネス",
+  "PROMPTS": "プロンプト",
+  "RESOLVED": "解決",
+  "FIRST TRY": "初回で成功",
+  "VERIFIED": "検証済み",
+  "MIN": "分",
+  "WAKE-UPS": "起こした回数",
+  "SCENARIO": "シナリオ",
+  "RESULT": "結果",
+  "KIND": "種類",
+  "WHAT": "内容",
+  "Nothing in the queue.": "キューには何もありません。",
+  "No checks yet.": "まだチェックはありません。",
+  "Nothing blocked.": "ブロックしたものはありません。",
+  "No projects yet: New Project… in the workbench.": "まだプロジェクトはありません。ワークベンチの「新規プロジェクト…」で作れます。",
+  "No runs yet: python3 -m bench run": "まだ実行していません：python3 -m bench run",
+  "Nothing reported.": "報告はありません。",
+  "Nothing reported yet.": "まだ報告はありません。",
+  "(none)": "（なし）",
+  "── Harness variables · read only": "── ハーネスの変数 · 読み取り専用",
+  "Latest runs": "最近の実行",
+  "Latest": "最新",
+  "Type a command, or ask in words · python3 -m harness.admin <command> --json for raw data": "コマンドを入力するか、言葉で聞いてください · 生データは python3 -m harness.admin <command> --json",
+  "/job <id> for one request (the first 8 characters are enough)": "/job <id> で依頼をひとつ表示（先頭 8 文字で十分です）",
+  "/gate rules <id> explains one · FIRED: decisions in Gate's history · rules change only through a task with a test": "/gate rules <id> で 1 件を説明 · 発動：Gate の履歴での判定数 · ルールはテスト付きのタスクでしか変わりません",
+  "/gate why <id> for one check · /gate blocked": "/gate why <id> でチェックを 1 件説明 · /gate blocked",
+  "Rename, move or remove a project from the workbench’s Project menu": "プロジェクトの名称変更・移動・削除は、ワークベンチの「プロジェクト」メニューから",
+  "/config <key> explains one · /config set <key> <value> asks first · Ollama’s own: /ollama": "/config <key> で 1 件を説明 · /config set <key> <value> は先に確認します · Ollama 自体の設定：/ollama",
+  "python3 -m bench run [ids] [--model M] · each run’s files: <data>/bench/runs/": "python3 -m bench run [ids] [--model M] · 各実行のファイル：<data>/bench/runs/",
+  "/reports <kind> · /gate rules · docs/lessons/ turns them into fixes": "/reports <kind> · /gate rules · docs/lessons/ で修正につなげます",
+  "/guide <words> for an answer · or ask in words": "/guide <words> で答えを表示 · または言葉で聞いてください",
+  "Ask in words for more, or /guide for every topic": "詳しくは言葉で聞いてください · /guide ですべてのトピックを表示",
+  "/harness lists the commands": "/harness でコマンドの一覧を表示",
+  "Return save setting · Esc cancels": "Return で設定を保存 · Esc でキャンセル",
+  "Return switch model · Esc cancels": "Return でモデルを切り替え · Esc でキャンセル",
+  "Return undo · Esc cancels": "Return で取り消す · Esc でキャンセル",
+  "Return change and restart · Esc cancels": "Return で変更して再起動 · Esc でキャンセル",
+  "Return restart ollama · Esc cancels": "Return で Ollama を再起動 · Esc でキャンセル",
+  "Return pull model · Esc cancels": "Return でモデルをダウンロード · Esc でキャンセル",
+  "Return apply · Esc cancels": "Return で適用 · Esc でキャンセル",
+  "Return cancels · choose Remove Model to go ahead": "Return でキャンセル · 進めるには「モデルを削除」を選んでください",
+  "Save Setting": "設定を保存",
+  "Switch Model": "モデルを切り替え",
+  "Change and Restart": "変更して再起動",
+  "Restart Ollama": "Ollama を再起動",
+  "Remove Model": "モデルを削除",
+  "Pull Model": "モデルをダウンロード",
+  "Apply": "適用",
+  "Undo the last change?": "最後の変更を取り消しますか？",
+  "Restart Ollama?": "Ollama を再起動しますか？",
+  "Apply this change?": "この変更を適用しますか？",
+  "✓ Ollama restarted.": "✓ Ollama を再起動しました。",
+  "Ollama restarted.": "Ollama を再起動しました。",
+  "Quits and reopens the Ollama app; a loaded model unloads.": "Ollama アプリを終了して開き直します。読み込まれているモデルは解放されます。",
+  "○ Not changed.": "○ 変更していません。",
+  "(no output)": "（出力なし）",
+  "Harness · choose a command; it goes on the input line": "ハーネス · コマンドを選んでください（入力行に入ります）",
+  "Print this list": "この一覧を表示",
+  "Pi proposed this · Return runs it · Esc clears · nothing changes until you confirm": "Pi の提案です · Return で実行 · Esc で消去 · 確認するまで何も変わりません",
+  "e.g. “is anything stuck?”, “switch to qwen”": "例：「何か止まっている？」「qwen に切り替えて」",
+  "What the harness is and the commands it offers.": "ハーネスとは何か、使えるコマンド。",
+  "Services, model, queue and Gate counts, data folder, build.": "サービス、モデル、キューと Gate の件数、データフォルダ、ビルド。",
+  "Requests in Activity.": "アクティビティの依頼。",
+  "The Markdown record of one request.": "依頼ひとつの Markdown の記録。",
+  "Gate checks, newest first; why <id> explains one; rules lists what Gate enforces.": "Gate のチェック（新しい順）。why <id> で 1 件を説明、rules で Gate のルールを一覧。",
+  "Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.": "インストール済みのモデル。use、pull、remove は先に確認します（remove はゴミ箱へ）。check は同時に 2 件答えられるかを測ります。",
+  "Ollama: version, models folder, parallel slots, context, keep-alive; set and restart ask first.": "Ollama：バージョン、モデルのフォルダ、並行数、コンテキスト、keep-alive。set と restart は先に確認します。",
+  "Projects and their folders.": "プロジェクトとそのフォルダ。",
+  "config.json with each key explained; set changes one (asks first).": "config.json の各キーの説明。set で 1 件を変更（先に確認します）。",
+  "Where the harness keeps its data.": "ハーネスがデータを置く場所。",
+  "Checks with what is wrong and what to do.": "問題点と対処法のチェック。",
+  "Undo the last change made from the console (asks first).": "コンソールでの最後の変更を取り消します（先に確認します）。",
+  "Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.": "ハーネスが出会った問題（ルール、Gate の失敗、復旧、Pi を起こしたこと、停止）。分析用。",
+  "The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.": "ベンチ：決まったシナリオを実際のモデルで実行。モデルとハーネスのビルドごとの解決、検証、時間、Pi を起こした回数。",
+  "How to use Pi Workbench: the guide, or its sections about the words.": "Pi Workbench の使い方：ガイド全体、または言葉に関係する節。",
+  "Requests in Activity: /queue [all|running|waiting|failed|…].": "アクティビティの依頼：/queue [all|running|waiting|failed|…]。",
+  "The Markdown record of one request: /job <id> (its first 8 characters).": "依頼ひとつの Markdown の記録：/job <id>（先頭 8 文字）。",
+  "Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.": "Gate のチェック（新しい順）：/gate [n] [blocked] · /gate why <id>。",
+  "Installed models; /models use · check · pull · remove <name> (changes ask first).": "インストール済みのモデル。/models use · check · pull · remove <name>（変更は先に確認します）。",
+  "Ollama settings; /ollama set <key> <value> and /ollama restart ask first.": "Ollama の設定。/ollama set <key> <value> と /ollama restart は先に確認します。",
+  "config.json explained; /config set <key> <value> changes one (asks first).": "config.json の説明。/config set <key> <value> で 1 件を変更（先に確認します）。",
+  "Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].": "Pi の作業中にハーネスが出会った問題（ルール、Gate の失敗、復旧、Pi を起こしたこと、停止）：/reports [kind]。",
+  "The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.": "ベンチ：シナリオを実際のモデルで実行。モデルとハーネスのビルドごとの解決、検証、時間、Pi を起こした回数。",
+  "How to use Pi Workbench: /guide, or /guide <words> for the matching questions.": "Pi Workbench の使い方：/guide、または /guide <words> で一致する質問。",
+  "Quit and reopen the Ollama app (asks first)": "Ollama アプリを終了して開き直す（先に確認します）",
+  "Only checks that did not allow": "許可しなかったチェックだけ",
+  "Explain one check: why <id>": "チェックを 1 件説明：why <id>",
+  "The rules Gate enforces": "Gate が守らせるルール",
+  "Switch to a model (asks first)": "モデルを切り替える（先に確認します）",
+  "Measure whether a model answers two at once": "モデルが同時に 2 件答えられるかを測る",
+  "Download a model (asks first)": "モデルをダウンロード（先に確認します）",
+  "Move a model to the Trash (asks first)": "モデルをゴミ箱に入れる（先に確認します）",
+  "Default thinking level when none is chosen in the menu bar.": "メニューバーで選んでいないときの思考レベル。",
+  "Port of Gate, the command checker (0 picks a free one).": "コマンドをチェックする Gate のポート（0 で空きを自動選択）。",
+  "Port of the web workbench on 127.0.0.1 (0 picks a free one).": "127.0.0.1 で動く Web ワークベンチのポート（0 で空きを自動選択）。",
+  "Speech-to-text model for voice input (Whisper, MLX).": "音声入力の文字起こしモデル（Whisper、MLX）。",
+  "Tailnet host names allowed to open the web UI from a phone (tailscale serve).": "スマホから Web UI を開ける tailnet のホスト名（tailscale serve）。",
+  "Tailscale logins allowed with those hosts.": "それらのホストで許可する Tailscale のログイン。",
+  "Update the installed build when plh starts.": "plh の起動時に、インストール済みのビルドをアップデートします。",
+  "A request stops when Pi has sent nothing (no step, no output, no tool event) for this long. Long work that reports is fine.": "Pi からこの時間なにも届かない（手順も出力もツールのイベントもない）と、依頼を停止します。報告しながら続く長い作業は問題ありません。",
+  "How many times the harness may wake Pi in one request (after a loop, a hang, or stopping with work open) before it stops and offers Ask Pi to Retry…. 0: no limit (plan 184).": "ひとつの依頼でハーネスが Pi を起こせる回数（ループ、停滞、作業を残した停止のあと）。超えると停止し、「Pi に再試行を頼む…」を表示します。0：無制限（plan 184）。",
+  "In a thought phase with no streamed activity for this long, the harness aborts, compacts and re-asks.": "思考の段階でこの時間なにも出力がないと、ハーネスが中断し、圧縮して聞き直します。",
+  "Where Ollama answers.": "Ollama が応答するアドレス。",
+  "The tailscale command for phone access (a path, or \"false\" to turn phone access off).": "スマホからのアクセスに使う tailscale コマンド（パス。\"false\" でスマホからのアクセスをオフ）。",
+  "The Python that runs the services and the console.": "サービスとコンソールを動かす Python。",
+  "Folder for chats and uploads (empty: the data folder’s chats/).": "チャットとアップロードのフォルダ（空：データフォルダの chats/）。",
+  "Gate profile for Pi’s tools: admin also allows high-risk tools; both enforce the destructive-shell rules.": "Pi のツールに使う Gate のプロファイル。admin は高リスクのツールも許可します。どちらも破壊的なシェル操作のルールは守らせます。",
+  "The language of terminal Pi’s screens: system (the terminal’s locale), en or ja. /commands stay in English; the web workbench has its own (Settings → Language).": "ターミナルの Pi の画面の言語：system（ターミナルのロケール）、en、ja。/ コマンドは英語のままです。Web ワークベンチには専用の設定があります（設定 → 言語）。",
+  "Gate’s audit log (empty: the data folder’s gate-audit.log).": "Gate の監査ログ（空：データフォルダの gate-audit.log）。",
+  "Pinned in harness/model.json; must not be set here.": "harness/model.json で固定されています。ここでは設定できません。",
+  "Not a harness setting.": "ハーネスの設定ではありません。",
+  "The Pi program the workbench runs (pi by default; tests and scratch workbenches point it elsewhere).": "ワークベンチが動かす Pi のプログラム（デフォルトは pi。テストや試用のワークベンチでは別の場所を指します）。",
+  "The data folder (config.json lives in it, so it is chosen before plh starts).": "データフォルダ（config.json がここにあるため、plh の起動前に決まります）。",
+  "Pi’s own settings folder (models.json, AGENTS.md); Pi’s default is ~/.pi/agent.": "Pi 自体の設定フォルダ（models.json、AGENTS.md）。Pi のデフォルトは ~/.pi/agent。",
+  "The shared instructions file injected before turns (the data folder’s AGENTS.md).": "各ターンの前に入れる共通の指示ファイル（データフォルダの AGENTS.md）。",
+  "The model of this session or request.": "このセッションまたは依頼のモデル。",
+  "Whether that model thinks.": "そのモデルが思考するかどうか。",
+  "Whether that model sees images.": "そのモデルが画像を見られるかどうか。",
+  "Gate’s port, given to the workbench’s own Pi requests.": "ワークベンチ自身の Pi の依頼に渡す Gate のポート。",
+  "Gate’s token for those requests.": "それらの依頼に使う Gate のトークン。",
+  "The chosen context file of one request.": "依頼ひとつで選ばれたコンテキストファイル。",
+  "Where a work request waits for its turn (one-at-a-time model).": "作業の依頼が順番を待つ場所（一度にひとつのモデル）。",
+  "Set for the workbench’s requests: the workbench holds the agent lock for them.": "ワークベンチの依頼で設定されます。その依頼のあいだ、ワークベンチがエージェントのロックを持ちます。",
+  "The Activity request a web worker runs (plan 184: its paperwork is kept under this id).": "Web のワーカーが実行するアクティビティの依頼（plan 184：その記録はこの ID で保存されます）。",
+  "The bench baseline: plain Pi with Gate's core safety rules only, none of the harness (python3 -m bench run --bare).": "ベンチの基準：Gate の基本の安全ルールだけを使う素の Pi で、ハーネスの機能はありません（python3 -m bench run --bare）。",
+  "Folder for old chats without a project.": "プロジェクトのない古いチャットのフォルダ。",
+  "Tests only: a folder used instead of the Trash.": "テスト専用：ゴミ箱の代わりに使うフォルダ。",
+  "Set once after plh updated itself, so it does not update twice.": "plh が自分をアップデートしたあとに一度だけ設定され、二重のアップデートを防ぎます。",
+  "Linux only: where the Trash is.": "Linux 専用：ゴミ箱の場所。",
+  "How many requests one loaded model answers at once (each reserves its own context memory).": "読み込んだモデルひとつが同時に答える依頼の数（それぞれがコンテキスト用のメモリを確保します）。",
+  "How long a model stays in memory after its last request.": "最後の依頼のあと、モデルがメモリに残る時間。",
+  "Default context length for models (0: Ollama decides).": "モデルのデフォルトのコンテキスト長（0：Ollama が決めます）。",
+  "Where Ollama keeps and downloads models. Models already in the old folder are not moved.": "Ollama がモデルを置き、ダウンロードする場所。元のフォルダにあるモデルは移動しません。",
+  "Ollama did not answer within a minute after the restart. Open the Ollama app and check /doctor.": "再起動のあと 1 分以内に Ollama が応答しませんでした。Ollama アプリを開いて、/doctor で確認してください。",
+  "keep_alive is a duration such as 5m, 1h, 0 (unload at once) or -1 (keep loaded).": "keep_alive は 5m、1h、0（すぐに解放）、-1（読み込んだまま）のような時間です。",
+  "context_length is 0 (Ollama decides) or a number of tokens from 2048 to 262144.": "context_length は 0（Ollama が決めます）か、2048 から 262144 までのトークン数です。",
+  "models_folder must be an existing folder, as an absolute path.": "models_folder には既存のフォルダを絶対パスで指定してください。",
+  "A request id is hexadecimal: its first 8 characters from /queue are enough": "依頼の ID は 16 進数です。/queue に出る先頭 8 文字で十分です",
+  "Nothing to undo: no change with a backup in admin-log.jsonl.": "取り消すものはありません。admin-log.jsonl にバックアップ付きの変更がありません。",
+  "Pi is working on a request; change Ollama when the queue is idle (restarting Ollama would stop it).": "Pi が依頼に対応中です。キューが空いてから Ollama を変更してください（Ollama を再起動すると依頼が止まります）。",
+  "A model name looks like qwen3:8b or library/qwen3:8b.": "モデル名は qwen3:8b や library/qwen3:8b のような形です。",
+  "Pi is working on a request; check when the queue is idle, so the measurement does not slow it down.": "Pi が依頼に対応中です。測定で遅くならないよう、キューが空いてから確認してください。",
+  "Every installed model is measured. --force measures them again.": "インストール済みのモデルはすべて測定済みです。--force でもう一度測ります。",
+  "Note: with OLLAMA_NUM_PARALLEL at 1 (or the default) a model can only answer one request at a time.": "注記：OLLAMA_NUM_PARALLEL が 1（またはデフォルト）だと、モデルは一度にひとつの依頼にしか答えられません。",
+  "Data folder": "データフォルダ",
+  "Chosen model": "選択中のモデル",
+  "Agent lock": "エージェントのロック",
+  "Web workbench": "Web ワークベンチ",
+  "config.json is valid": "config.json は正常です",
+  "defaults (plh writes config.json at its next start)": "デフォルト（次の起動時に plh が config.json を書きます）",
+  "remove 'model': the model is pinned in harness/model.json": "'model' を削除してください。モデルは harness/model.json で固定されています",
+  "/ollama restart (or start the Ollama app; check PI_OLLAMA_URL)": "/ollama restart（または Ollama アプリを起動し、PI_OLLAMA_URL を確認）",
+  "Quit plh and start it again.": "plh を終了して、もう一度起動してください。",
+  "all good": "問題なし",
+  "Harness stopped a loop.": "ハーネスがループを止めました。",
+  "Harness stopped a repeat.": "ハーネスが繰り返しを止めました。",
+  "Harness stopped a hang.": "ハーネスが停滞を止めました。",
+  "Pi drifted from its instructions.": "Pi が指示から外れました。",
+  "Harness stopped retrying.": "ハーネスは再試行をやめました。",
+  "Committed.": "コミットしました。",
+  "Committed, not verified.": "コミットしました（未検証）。",
+  "The harness could not commit.": "ハーネスはコミットできませんでした。",
+  "Harness woke Pi up.": "ハーネスが Pi を起こしました。",
+  "Not verified.": "未検証です。",
+  "Gate could not check a tool call.": "Gate がツールの呼び出しをチェックできませんでした。",
+  "Another request is running.": "別の依頼を実行中です。",
+  "Pi asks again another way · Esc stops it": "Pi が別の方法で聞き直します · Esc で停止",
+  "Pi reads AGENTS.md again and answers again · Esc stops it": "Pi が AGENTS.md を読み直して回答し直します · Esc で停止",
+  "Ask again with a hint, or in other words": "ヒントを添えるか、別の言葉で聞き直してください",
+  "The harness made the task, ticked it and committed locally · git push when you want": "ハーネスがタスクを作ってチェックを付け、ローカルにコミットしました · git push はお好きなときに",
+  "Its task stays open · Undo This Request in the web chat takes it back": "タスクは未完了のままです · Web チャットの「この依頼を取り消す」で元に戻せます",
+  "The work is there, uncommitted · /reports": "作業はコミットされずに残っています · /reports",
+  "Pi continues the request · Esc stops it": "Pi が依頼を続けます · Esc で停止",
+  "Run the tests before relying on it": "頼る前にテストを実行してください",
+  "Pi continues · /reports lists it": "Pi は続けます · /reports に記録されています",
+  "/queue shows it · stop it in the web Activity, then send yours again": "/queue で確認できます · Web のアクティビティで停止してから、もう一度送ってください",
+  "Pi works on one request at a time; yours was not sent.": "Pi は一度にひとつの依頼に取り組みます。あなたの依頼は送信されていません。",
+  "Pi remained in the thought phase with no active model operation.": "Pi が思考の段階のまま、モデルが動いていませんでした。",
+  "The completed response omitted [CANARY]. Compact and reinject AGENTS.md.": "完了した回答に [CANARY] がありませんでした。圧縮して AGENTS.md を入れ直します。",
+  "✗ Workbench not running · /doctor": "✗ ワークベンチが動いていません · /doctor",
+  "▶ Working": "▶ 作業中",
+  "Phone on": "スマホ オン",
+  "Phone off": "スマホ オフ",
+  "set remote_hosts and remote_users": "remote_hosts と remote_users を設定してください",
+  "Ask in words, or type /harness for commands.": "言葉で聞くか、/harness と入力してコマンドを表示します。",
+  "New here? Try “is anything stuck?”, /status or /guide.": "はじめてですか？「何か止まっている？」と聞くか、/status や /guide を試してください。",
+  "Phone   off · /guide phone": "スマホ  オフ · /guide phone",
+  "Nothing ran. /gate blocked": "何も実行していません。/gate blocked",
+  "Nothing ran.": "何も実行していません。",
+  "! Gate asked Pi to revise:": "! Gate が Pi に修正を求めました",
+  "✗ Gate could not check it:": "✗ Gate がチェックできませんでした",
+  "✓ done": "✓ 完了",
+  "✗ failed": "✗ 失敗",
+  "not allowed": "許可されていません",
+  "Action denied by policy.": "ポリシーにより拒否されました。",
+  "The command failed on its own; Gate did not block it.": "コマンド自体が失敗しました。Gate はブロックしていません。",
+  "It failed on its own; Gate did not block it.": "それ自体が失敗しました。Gate はブロックしていません。",
+  "the command that ran was not the one it allowed": "実行されたのは許可したコマンドではありませんでした",
+  "it did not accept the result": "結果を受け入れませんでした",
+  "Assistant message failed": "回答に失敗",
+  "Assistant message stopped": "回答を停止",
+  "Assistant message completed": "回答が完了",
+  "Task failed": "タスク失敗",
+  "Task stopped": "タスク停止",
+  "Task completed": "タスク完了",
+  "times on the Pi header and each tool row (on), or one header per Pi message (off).": "Pi の見出しと各ツールの行に時刻を表示（on）、または Pi のメッセージごとに見出しをひとつ（off）。",
+  "Times: the span and tool count on each Pi header, each tool's time on its row (/verbose off hides them).": "時刻：Pi の見出しごとに期間とツールの回数を、各ツールの行にその時刻を表示します（/verbose off で隠します）。",
+  "Times: one header per Pi message.": "時刻：Pi のメッセージごとに見出しをひとつ表示します。",
+  "Service startup timed out": "サービスの起動がタイムアウトしました",
+  "Gate is unavailable": "Gate を使えません",
+  "Name the box: the start of its label, e.g. \"Red\".": "チェックボックスを指定してください：ラベルの先頭（例：\"Red\"）。"
  },
  "patterns": [
+  [
+   "Cannot read {path}: {error}",
+   "{path} を読み込めません：{error}"
+  ],
   [
    "Creates {where} from the terminal app starter: a small notes app in English and Japanese, with tests, built with Textual. Ask Pi to turn it into yours.",
    "{where} をターミナルアプリのひな形から作ります。英語と日本語のテスト付きの小さなメモアプリで、Textual で作られています。Pi に頼んで自分のアプリにしてください。"
@@ -1450,6 +1772,10 @@
    "モデル：{model}"
   ],
   [
+   "Remove {name}?",
+   "{name} を削除しますか？"
+  ],
+  [
    "Remove {name}",
    "{name} を削除"
   ],
@@ -1512,6 +1838,510 @@
   [
    "{n} open task",
    "未完了のタスク {n} 件"
+  ],
+  [
+   "“{message}” is committed and marked not verified: the harness did not see a test fail without it and pass with it.",
+   "「{message}」をコミットし、未検証として記録しました。変更なしでテストが失敗し、変更ありで成功するのを、ハーネスは確認できませんでした。"
+  ],
+  [
+   "Code changed ({files}) and no test passed on it after the last change (G-012), whatever the answer says.",
+   "コードが変更されました（{files}）。回答の内容にかかわらず、最後の変更のあとに成功したテストがありません（G-012）。"
+  ],
+  [
+   "Ollama does not answer at {url}, so the model cannot be checked. Start the Ollama app first.",
+   "Ollama が {url} で応答しないため、モデルを確認できません。先に Ollama アプリを起動してください。"
+  ],
+  [
+   "left by process {pid}, which is gone; it clears itself when the next agent starts",
+   "終了したプロセス {pid} が残したものです。次のエージェントの起動時に自動で解除されます"
+  ],
+  [
+   "{name} is the chosen model. Choose another one first (/models use <name>).",
+   "{name} は選択中のモデルです。先に別のモデルを選んでください（/models use <name>）。"
+  ],
+  [
+   "The same three thought lines occurred twice in the last 100 lines: {lines}",
+   "直近 100 行で、同じ 3 行の思考が 2 回出てきました：{lines}"
+  ],
+  [
+   "“{message}”, verified (a test failed first, then passed on the final code).",
+   "「{message}」、検証済み（テストがまず失敗し、最終的なコードで成功しました）。"
+  ],
+  [
+   "It stopped with work open: {files} changed and no passing test ran on it.",
+   "作業を残したまま止まりました。{files} が変更され、成功したテストがまだありません。"
+  ],
+  [
+   "Pi remained in the thought phase with no streamed activity for {ms}ms.",
+   "Pi が思考の段階のまま、{ms}ms のあいだ何も出力しませんでした。"
+  ],
+  [
+   "The problem came back after one retry; the incident is saved in {path}.",
+   "1 回再試行しても問題が再発しました。記録は {path} に保存してあります。"
+  ],
+  [
+   "{error}. That call did not run; Pi was told and continues (G-011).",
+   "{error}。その呼び出しは実行されていません。Pi には伝えてあり、作業を続けます（G-011）。"
+  ],
+  [
+   "Compaction failed: {error}. Reasking with recovery context.",
+   "圧縮に失敗しました：{error}。復旧用の情報を付けて聞き直します。"
+  ],
+  [
+   "{id} starts more than one request: type more of its id",
+   "{id} で始まる依頼が複数あります。ID をもう少し長く入力してください"
+  ],
+  [
+   "its manifest and {n} files only it uses, to the Trash",
+   "マニフェストと、このモデルだけが使う {n} ファイルをゴミ箱へ"
+  ],
+  [
+   "Nothing in the guide matches “{words}”. Its questions:",
+   "ガイドには「{words}」に一致するものがありません。ガイドの質問："
+  ],
+  [
+   "No model named “{name}”. Did you mean {near}? Installed: {list}.",
+   "「{name}」という名前のモデルはありません。{near} のことですか？ インストール済み：{list}。"
+  ],
+  [
+   "Unknown command: {command}. Type /harness for the list.",
+   "不明なコマンドです：{command}。/harness で一覧を表示します。"
+  ],
+  [
+   "The same call 4 times with the same result: {call}",
+   "同じ呼び出しを同じ結果で 4 回繰り返しました：{call}"
+  ],
+  [
+   "▶ {a} running · ○ {b} waiting · ! {c} need attention",
+   "▶ 実行中 {a} 件 · ○ 待機中 {b} 件 · ! 要確認 {c} 件"
+  ],
+  [
+   "Alternated between two calls 6 times: {first} and {second}",
+   "2 つの呼び出しを 6 回交互に繰り返しました：{first} と {second}"
+  ],
+  [
+   "Usage: /ollama set <key> <value>. Keys: {keys}.",
+   "使い方：/ollama set <key> <value>。キー：{keys}。"
+  ],
+  [
+   "/models pull {model} (or /models use <another>)",
+   "/models pull {model}（または /models use <another>）"
+  ],
+  [
+   "Put Back in the Finder, then merge into {folder}",
+   "Finder の「戻す」のあと、{folder} に統合"
+  ],
+  [
+   "{model} · {effort} thinking · ✗ Ollama does not answer",
+   "{model} · 思考 {effort} · ✗ Ollama 応答なし"
+  ],
+  [
+   "The same call failed 3 times in a row: {call}",
+   "同じ呼び出しが 3 回続けて失敗しました：{call}"
+  ],
+  [
+   "{variable}={value} in your shell wins over config.json",
+   "シェルの {variable}={value} が config.json より優先されます"
+  ],
+  [
+   "✓ Ollama’s {key} is {value}. /undo goes back to {before}.",
+   "✓ Ollama の {key} を {value} にしました。/undo で {before} に戻せます。"
+  ],
+  [
+   "✗ Gate: could not check the result ({error})",
+   "✗ Gate：結果をチェックできませんでした（{error}）"
+  ],
+  [
+   "Unknown Ollama setting {key}. Settings: {list}.",
+   "Ollama の設定 {key} はありません。設定：{list}。"
+  ],
+  [
+   "The thinking level must be one of {list}.",
+   "思考レベルは {list} のいずれかにしてください。"
+  ],
+  [
+   "{name} cannot use tools, which Pi needs.",
+   "{name} はツールを使えません。Pi にはツールが必要です。"
+  ],
+  [
+   "✓ Model is {name}. /undo goes back to {before}.",
+   "✓ モデルを {name} にしました。/undo で {before} に戻せます。"
+  ],
+  [
+   "No rule {id}. /gate rules lists them.",
+   "ルール {id} はありません。/gate rules で一覧を表示します。"
+  ],
+  [
+   "π Pi Workbench  build {build} · data in {data}",
+   "π Pi Workbench  ビルド {build} · データ {data}"
+  ],
+  [
+   "No model named “{name}”. Installed: {list}.",
+   "「{name}」という名前のモデルはありません。インストール済み：{list}。"
+  ],
+  [
+   "{model} · {effort} thinking · ✓ Ollama answers",
+   "{model} · 思考 {effort} · ✓ Ollama 応答あり"
+  ],
+  [
+   "/config set {key} <value> asks first",
+   "/config set {key} <value> は先に確認します"
+  ],
+  [
+   "the next time plh starts (as {variable})",
+   "次に plh を起動したとき（{variable} として）"
+  ],
+  [
+   "✗ not solved · verified · {n} min",
+   "✗ 未解決 · 検証済み · {n} 分"
+  ],
+  [
+   "! {state} · {n} needs attention · /queue",
+   "! {state} · 要確認 {n} 件 · /queue"
+  ],
+  [
+   "No Gate event {id} in the history",
+   "履歴に Gate のイベント {id} はありません"
+  ],
+  [
+   "Create {path} or set PI_AGENT_DATA.",
+   "{path} を作成するか、PI_AGENT_DATA を設定してください。"
+  ],
+  [
+   "✗ Ollama does not answer at {url}.",
+   "✗ Ollama が {url} で応答しません。"
+  ],
+  [
+   "Unknown setting {key}. Settings: {list}.",
+   "設定 {key} はありません。設定：{list}。"
+  ],
+  [
+   "! {state} · {n} need attention · /queue",
+   "! {state} · 要確認 {n} 件 · /queue"
+  ],
+  [
+   "could not check the result ({error})",
+   "結果をチェックできませんでした（{error}）"
+  ],
+  [
+   "✓ {key} is {value}. /undo goes back to {before}.",
+   "✓ {key} を {value} にしました。/undo で {before} に戻せます。"
+  ],
+  [
+   "{size} GB when you empty the Trash",
+   "ゴミ箱を空にすると {size} GB"
+  ],
+  [
+   "Ollama does not answer at {url}: {error}",
+   "Ollama が {url} で応答しません：{error}"
+  ],
+  [
+   "Phone   off · {reason}  /guide phone",
+   "スマホ  オフ · {reason}  /guide phone"
+  ],
+  [
+   "The pull of {name} ended with “{status}”.",
+   "{name} のダウンロードは「{status}」で終わりました。"
+  ],
+  [
+   "! Gate asked Pi to revise: {reason}",
+   "! Gate が Pi に修正を求めました：{reason}"
+  ],
+  [
+   "✗ Gate could not check it: {reason}",
+   "✗ Gate がチェックできませんでした：{reason}"
+  ],
+  [
+   "{n} checks today · ✗ {m} blocked",
+   "今日 {n} 件のチェック · ✗ ブロック {m} 件"
+  ],
+  [
+   "✓ solved · verified · {n} min",
+   "✓ 解決 · 検証済み · {n} 分"
+  ],
+  [
+   "! {n} need attention · /queue",
+   "! 要確認 {n} 件 · /queue"
+  ],
+  [
+   "{time} Assistant message stopped",
+   "{time} 回答を停止"
+  ],
+  [
+   "Harness services stopped: {error}",
+   "ハーネスのサービスが停止しました：{error}"
+  ],
+  [
+   "{time} Assistant message failed",
+   "{time} 回答に失敗"
+  ],
+  [
+   "Media attachment failed: {error}",
+   "メディアの添付に失敗しました：{error}"
+  ],
+  [
+   "Give a number from {low} to {high}.",
+   "{low} から {high} までの数を指定してください。"
+  ],
+  [
+   "Ollama could not pull {name}: {error}",
+   "Ollama は {name} をダウンロードできませんでした：{error}"
+  ],
+  [
+   "Harness startup failed: {error}",
+   "ハーネスの起動に失敗しました：{error}"
+  ],
+  [
+   "No request {id} in Activity",
+   "アクティビティに依頼 {id} はありません"
+  ],
+  [
+   "▶ {a} running · ○ {b} waiting",
+   "▶ 実行中 {a} 件 · ○ 待機中 {b} 件"
+  ],
+  [
+   "effort must be one of {list}",
+   "effort は {list} のいずれかにしてください"
+  ],
+  [
+   "http{url} answers, version {version}",
+   "http{url} が応答しています（バージョン {version}）"
+  ],
+  [
+   "{name} is not installed in {folder}.",
+   "{name} は {folder} にインストールされていません。"
+  ],
+  [
+   "▶ Working · worker in {project}",
+   "▶ 作業中 · {project} で作業"
+  ],
+  [
+   "Gate today {n} · {m} blocked",
+   "Gate 今日 {n} 件 · ブロック {m} 件"
+  ],
+  [
+   "{start} → {end} · {s} s · {n} tool calls",
+   "{start} → {end} · {s} 秒 · ツール {n} 回"
+  ],
+  [
+   "Ollama unloads {model} first",
+   "先に Ollama が {model} を解放します"
+  ],
+  [
+   "✗ does not answer at {url}",
+   "✗ {url} で応答なし"
+  ],
+  [
+   "{start} → {end} · {s} s · {n} tool call",
+   "{start} → {end} · {s} 秒 · ツール {n} 回"
+  ],
+  [
+   "http{url} does not answer",
+   "http{url} が応答しません"
+  ],
+  [
+   "{n} · data in {data} · build {build}",
+   "{n} 件 · データ {data} · ビルド {build}"
+  ],
+  [
+   "{n} settings · {m} changed",
+   "設定 {n} 件 · 変更 {m} 件"
+  ],
+  [
+   "▶ Working · {n} waiting",
+   "▶ 作業中 · 待機中 {n} 件"
+  ],
+  [
+   "✓ Gate allowed · {result} · {time}",
+   "✓ Gate 許可 · {result} · {time}"
+  ],
+  [
+   "Services exited ({code}): {error}",
+   "サービスが終了しました（{code}）：{error}"
+  ],
+  [
+   "✓ {name} is in the Trash.",
+   "✓ {name} をゴミ箱に入れました。"
+  ],
+  [
+   "✗ not solved · {n} min",
+   "✗ 未解決 · {n} 分"
+  ],
+  [
+   "! {state} in {project}: “{message}” · /queue",
+   "! {project} で{state}：「{message}」 · /queue"
+  ],
+  [
+   "✗ Gate blocked it: {reason}",
+   "✗ Gate がブロックしました：{reason}"
+  ],
+  [
+   "Compaction failed: {error}",
+   "圧縮に失敗しました：{error}"
+  ],
+  [
+   "Gate audit failed: {error}",
+   "Gate の監査に失敗しました：{error}"
+  ],
+  [
+   "Fix config.json: {problem}.",
+   "config.json を修正してください：{problem}。"
+  ],
+  [
+   "Change Ollama’s {key}?",
+   "Ollama の {key} を変更しますか？"
+  ],
+  [
+   "{n} rules, always on",
+   "ルール {n} 件、常に有効"
+  ],
+  [
+   "✓ Gate allowed · {result}",
+   "✓ Gate 許可 · {result}"
+  ],
+  [
+   "cannot read it: {error}",
+   "読み込めません：{error}"
+  ],
+  [
+   "held by process {pid}",
+   "プロセス {pid} が使用中"
+  ],
+  [
+   "{name} from ollama.com",
+   "ollama.com から {name}"
+  ],
+  [
+   "✓ {name} is installed.",
+   "✓ {name} をインストールしました。"
+  ],
+  [
+   "Phone   {url}  scan →",
+   "スマホ  {url}  読み取り →"
+  ],
+  [
+   "✓ solved · {n} min",
+   "✓ 解決 · {n} 分"
+  ],
+  [
+   "{name} is installed.",
+   "{name} をインストールしました。"
+  ],
+  [
+   "{model} · no thinking",
+   "{model} · 思考なし"
+  ],
+  [
+   "Unticked in {path}: {line}",
+   "{path} でチェックを外しました：{line}"
+  ],
+  [
+   "Gate · check {id}",
+   "Gate · チェック {id}"
+  ],
+  [
+   "✓ answers at {url}",
+   "✓ {url} で応答"
+  ],
+  [
+   "{time} Task stopped",
+   "{time} タスク停止"
+  ],
+  [
+   "✓ Running · {url}",
+   "✓ 実行中 · {url}"
+  ],
+  [
+   "{time} Task failed",
+   "{time} タスク失敗"
+  ],
+  [
+   "Ticked in {path}: {line}",
+   "{path} でチェックを付けました：{line}"
+  ],
+  [
+   "Switch to {name}?",
+   "{name} に切り替えますか？"
+  ],
+  [
+   "✓ Undone: {command}.",
+   "✓ 取り消しました：{command}。"
+  ],
+  [
+   "Gate today {n}",
+   "Gate 今日 {n} 件"
+  ],
+  [
+   "Gate: {words} ({status}). {reason}",
+   "Gate：{words}（{status}）。{reason}"
+  ],
+  [
+   "{key} must be {rule}.",
+   "{key} には次を指定してください：{rule}。"
+  ],
+  [
+   "Gate rule {id}",
+   "Gate のルール {id}"
+  ],
+  [
+   "Setting · {key}",
+   "設定 · {key}"
+  ],
+  [
+   "○ {n} waiting",
+   "○ 待機中 {n} 件"
+  ],
+  [
+   "{n} reported",
+   "報告 {n} 件"
+  ],
+  [
+   "Harness: {description}",
+   "ハーネス：{description}"
+  ],
+  [
+   "{effort} thinking",
+   "思考 {effort}"
+  ],
+  [
+   "Change {key}?",
+   "{key} を変更しますか？"
+  ],
+  [
+   "Request {id}",
+   "依頼 {id}"
+  ],
+  [
+   "Chosen: {model}",
+   "選択中：{model}"
+  ],
+  [
+   "Guide · {topic}",
+   "ガイド · {topic}"
+  ],
+  [
+   "✗ Gate: {drift}",
+   "✗ Gate：{drift}"
+  ],
+  [
+   "✓ on · {url}",
+   "✓ オン · {url}"
+  ],
+  [
+   "Usage: {usage}",
+   "使い方：{usage}"
+  ],
+  [
+   "{n} to fix",
+   "要修正 {n} 件"
+  ],
+  [
+   "Pull {name}?",
+   "{name} をダウンロードしますか？"
+  ],
+  [
+   "{n} runs",
+   "実行 {n} 回"
   ]
  ]
 }

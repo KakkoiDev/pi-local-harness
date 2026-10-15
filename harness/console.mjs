@@ -4,7 +4,7 @@
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { renderView, ansiStyle } from './terminal-render.mjs';
-import { translateView } from './language.mjs';
+import { translateView, tr } from './language.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -116,7 +116,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
         }
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
-        const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${line}`)) }], hint: '/harness lists the commands' });
+        const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${tr(line)}`)) }], hint: '/harness lists the commands' });
         let { ok, code, text } = await run(name, [...words, '--view'], options);
         if (code === 3) { // a change: what changes from what to what; it runs only after the person's yes (plan 158, C1)
           const shape = parse(text), preview = shape?.preview || {};

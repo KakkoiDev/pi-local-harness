@@ -1,5 +1,6 @@
 import qrcode from './vendor/qrcode.mjs';
 import { tr } from './language.mjs';
+import { columns as cells } from './terminal-render.mjs';
 // Display-only session entries scroll naturally and never enter model context.
 // Task 122: the phone address as a QR code. Modules as booleans (true = dark); error correction M, smallest version.
 export function qrModules(text) {
@@ -25,18 +26,21 @@ export function renderStartup(lines, width) {
   const columns = Math.max(1, width);
   const shown = lines.map(line => (columns < 80 ? line.replace(/^(\s*Phone\s+off) · .*\s{2}\/guide phone$/, '$1 · /guide phone') : line))
     .map(line => (line.length > columns && line.startsWith('π Pi Workbench') ? line.replace(/ · data in .*$/, '') : line)); // /paths shows the data folder
-  const phone = shown.map(line => /^\s*Phone:?\s+(https:\/\/\S+)/.exec(line)?.[1]).find(Boolean);
-  const qr = phone ? qrRows(phone) : null, longest = Math.max(0, ...shown.map(line => line.length));
+  // The lines are read in English (the phone line, the shortenings), then shown in the terminal's language.
+  const phoneAt = shown.findIndex(line => /^\s*Phone:?\s+https:\/\//.test(line));
+  const phone = phoneAt < 0 ? null : /https:\/\/\S+/.exec(shown[phoneAt])[0];
+  const said = shown.map(line => tr(line));
+  const qr = phone ? qrRows(phone) : null, longest = Math.max(0, ...said.map(cells));
   if (qr && columns >= 100 && longest + 4 + qr.width <= columns) {
-    const height = Math.max(shown.length, qr.rows.length);
+    const height = Math.max(said.length, qr.rows.length);
     return Array.from({ length: height }, (_, index) => {
-      const line = shown[index] || '';
-      return (line ? renderLine(line, columns)[0] : '') + ' '.repeat(longest + 4 - line.length) + (qr.rows[index] || '');
+      const line = said[index] || '';
+      return (line ? renderLine(line, columns)[0] : '') + ' '.repeat(longest + 4 - cells(line)) + (qr.rows[index] || '');
     });
   }
-  return shown.flatMap(line => {
+  return said.flatMap((line, index) => {
     const rows = renderLine(line, columns);
-    return qr && /^\s*Phone:?\s+https:/.test(line) && qr.width <= columns ? [...rows, ...qr.rows] : rows;
+    return qr && index === phoneAt && qr.width <= columns ? [...rows, ...qr.rows] : rows;
   });
 }
 function renderLine(line, columns) {
@@ -57,7 +61,7 @@ export function startupLines(ports, { build = 'checkout', data = '~/pi-local-har
   const phone = ports.remote ? `${ports.remote}  scan →`
     : `off · ${ports.remote_error || 'set remote_hosts and remote_users'}  /guide phone`; // see /guide phone and harness/README.md
   return [`π Pi Workbench  build ${build} · data in ${data}`, `  Web     http://127.0.0.1:${ports.web}`, `  Gate    http://127.0.0.1:${ports.gate}`,
-    `  Phone   ${phone}`, '  Ask in words, or type /harness for commands.', ...(first ? ['  New here? Try “is anything stuck?”, /status or /guide.'] : [])].map(line => tr(line));
+    `  Phone   ${phone}`, '  Ask in words, or type /harness for commands.', ...(first ? ['  New here? Try “is anything stuck?”, /status or /guide.'] : [])]; // translated as they are drawn (renderStartup)
 }
 
 export function installStartupDisplay(pi) {

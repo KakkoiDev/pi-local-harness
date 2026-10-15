@@ -261,6 +261,6 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [217-Pi Workbench makes terminal apps too (Textual)](tasks/217-terminal-apps.md)
 - [x] [218-QR codes in the kit and in Pi's knowledge](tasks/218-qr-codes.md)
 - [ ] [219-Updating Pi Workbench is easy: /update](tasks/219-updates.md)
-- [ ] [220-Terminal Pi in Japanese; /commands stay English](tasks/220-terminal-in-japanese.md)
+- [x] [220-Terminal Pi in Japanese; /commands stay English](tasks/220-terminal-in-japanese.md)
 - [x] [221-Plan installers, the launcher icon and the workbench as a PWA](tasks/221-plan-distribution.md)
 - [ ] [222-Build round 8: the phone does everything the desktop does](tasks/222-round-8-phone-parity.md)
