@@ -1,0 +1,17 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "A Pi Workbench terminal app (Textual): runs in a terminal, and in a browser through textual-serve."
+requires-python = ">=3.12"
+dependencies = ["textual", "textual-serve"]
+
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio", "pyright[nodejs]"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["app", "tests", "serve.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

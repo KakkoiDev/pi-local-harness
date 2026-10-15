@@ -47,6 +47,16 @@
    "main": "littlejs.esm.min.js",
    "card": "cards/littlejs.md",
    "sha256": "d9be22ee13237db25a29004eefdd2d6e83080cf329d1bc286450fae7979a319b"
+  },
+  {
+   "name": "qrcode-generator",
+   "version": "2.0.4",
+   "license": "MIT",
+   "source": "https://www.npmjs.com/package/qrcode-generator/v/2.0.4",
+   "folder": "vendor/qrcode-generator-2.0.4",
+   "main": "qrcode.mjs",
+   "card": "cards/qrcode.md",
+   "sha256": "ea91d7118a5395289170da848b7c6758b996163bfbccf312591ab65a4911b7c0"
   }
  ]
 }

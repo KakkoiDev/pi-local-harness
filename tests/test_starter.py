@@ -90,5 +90,25 @@ class StaticStarterTest(unittest.TestCase):
             self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
 
 
+class TerminalStarterTest(unittest.TestCase):
+    """The terminal app (Textual): runs in a terminal and, through textual-serve, in the Preview."""
+    def setUp(self):
+        self.folder = Path(tempfile.mkdtemp(prefix='pi-tui-')) / 'app'
+        new_project(self.folder, tui=True)
+
+    def test_a_new_terminal_project_has_the_app_the_server_and_its_lock(self):
+        for name in ('app/tui.py', 'app/logic/notes.py', 'app/db.py', 'app/i18n.py', 'serve.py', 'uv.lock', 'tests/test_tui.py'):
+            self.assertTrue((self.folder / name).is_file(), name)
+        self.assertIn('typeCheckingMode = "strict"', (self.folder / 'pyproject.toml').read_text())
+        en, ja = (json.loads((self.folder / f'messages/{language}.json').read_text()) for language in ('en', 'ja'))
+        self.assertEqual(set(en), set(ja))
+
+    @unittest.skipUnless(os.getenv('PI_KIT_HEAVY') == '1', 'PI_KIT_HEAVY=1 installs it with uv and runs its tests and strict types')
+    def test_it_installs_passes_its_tests_and_strict_types(self):
+        for command in (['uv', 'sync', '-q'], ['uv', 'run', 'pytest', '-q'], ['uv', 'run', 'pyright']):
+            run = subprocess.run(command, cwd=self.folder, capture_output=True, text=True, timeout=600)
+            self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
+
+
 if __name__ == '__main__':
     unittest.main()

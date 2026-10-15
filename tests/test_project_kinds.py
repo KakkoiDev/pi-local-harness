@@ -37,6 +37,12 @@ class ProjectKindsTest(unittest.TestCase):
         self.assertTrue((folder / 'js/store.mjs').is_file()); self.assertFalse((folder / 'app').exists())
         self.assertTrue((folder / 'ROADMAP.md').is_file())
 
+    def test_a_terminal_app_is_the_textual_starter(self):
+        self.store.create_project('Flash Quiz', str(self.code), kind='tui')
+        folder = next(self.code.iterdir())
+        self.assertTrue((folder / 'app/tui.py').is_file()); self.assertTrue((folder / 'serve.py').is_file()); self.assertFalse((folder / 'static').exists())
+        self.assertTrue((folder / 'ROADMAP.md').is_file())
+
     def test_an_empty_folder_is_as_today_plus_a_repository(self):
         self.store.create_project('Ideas', str(self.code), kind='empty')
         folder = next(self.code.iterdir())

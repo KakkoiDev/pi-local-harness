@@ -2,6 +2,7 @@
 
     python3 kit/new_project.py <folder>             # a server app (FastAPI, SQLite); its README has the commands
     python3 kit/new_project.py --static <folder>    # an app with no server (browser only, GitHub Pages)
+    python3 kit/new_project.py --tui <folder>       # a terminal app (Textual; in a browser through textual-serve)
 """
 import json
 import shutil
@@ -25,13 +26,16 @@ def start_history(folder: Path, message: str = "Start from the Pi Workbench star
     subprocess.run([*git, "commit", "-q", "-m", message], check=True)
 
 
-def new_project(folder: Path, static: bool = False, files: dict[str, str] | None = None) -> Path:
+def new_project(folder: Path, static: bool = False, files: dict[str, str] | None = None, tui: bool = False) -> Path:
     """`files`: more files to write before the first commit (the workbench's roadmap and first task)."""
     if folder.exists() and any(folder.iterdir()):
         raise SystemExit(f"{folder} is not empty; choose a new folder.")
-    shutil.copytree(KIT / ("starter-static" if static else "starter"), folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".venv", "__pycache__", "node_modules", "data.sqlite3", "app.css"))
+    shutil.copytree(KIT / ("starter-tui" if tui else "starter-static" if static else "starter"), folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".venv", "__pycache__", "node_modules", "data.sqlite3", "app.css"))
     for name, text in (files or {}).items():
         (folder / name).parent.mkdir(parents=True, exist_ok=True); (folder / name).write_text(text, encoding="utf-8")
+    if tui:  # a terminal app: no web libraries
+        start_history(folder)
+        return folder
     htmx, basecoat = library("htmx"), library("basecoat")
     if static:  # no server: no htmx (nothing to ask); Basecoat's styles only
         shutil.copytree(basecoat / "css", folder / "vendor" / "basecoat" / "css")
@@ -48,6 +52,6 @@ def new_project(folder: Path, static: bool = False, files: dict[str, str] | None
 
 
 if __name__ == "__main__":
-    arguments = [argument for argument in sys.argv[1:] if argument != "--static"]
+    arguments = [argument for argument in sys.argv[1:] if argument not in ("--static", "--tui")]
     if len(arguments) != 1: raise SystemExit(__doc__)
-    print(new_project(Path(arguments[0]).resolve(), static="--static" in sys.argv))
+    print(new_project(Path(arguments[0]).resolve(), static="--static" in sys.argv, tui="--tui" in sys.argv))

@@ -24,6 +24,8 @@ CRASHED = re.compile(r'\b\w*(Error|Exception)\b|^Traceback')  # the app's last l
 def run_command(folder, port):
     """How this project's app runs, or None when it has no app to show."""
     folder = Path(folder)
+    if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'tui.py').is_file() and (folder / 'serve.py').is_file():
+        return [UV, 'run', 'python', 'serve.py', str(port)]  # a terminal app (kit/starter-tui): in the browser through textual-serve
     if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'main.py').is_file():
         server = [UV, 'run', 'uvicorn', 'app.main:app', '--reload', '--host', '127.0.0.1', '--port', str(port)]
         if not (folder / 'styles' / 'input.css').is_file(): return server

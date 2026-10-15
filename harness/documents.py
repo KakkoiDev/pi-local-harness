@@ -385,7 +385,7 @@ class DocumentStore:
     def create_project(self, name, parent=None, kind='empty'):
         """kind (round 7, P_NewProject): 'web' and 'static' are the kit's starters (kit/new_project.py); 'empty' is a
         folder with a roadmap. Each starts with a repository: the harness commits each verified request."""
-        if kind not in ('web','static','empty'):raise ValueError('Choose Web app, App with no server or Empty folder')
+        if kind not in ('web','static','tui','empty'):raise ValueError('Choose Web app, App with no server, Terminal app or Empty folder')
         name=slug(name)
         base=Path(parent).expanduser().resolve() if parent else self.projects
         if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
@@ -399,7 +399,7 @@ class DocumentStore:
                 path.mkdir();(path/'tasks').mkdir()
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
                 starter.start_history(path,'Start the project')
-            else:starter.new_project(path,static=kind=='static',files=plan)
+            else:starter.new_project(path,static=kind=='static',tui=kind=='tui',files=plan)
             return self.register(str(path),name) if parent else name
     def directories(self, directory=None):
         path=Path(directory or Path.home()).expanduser().resolve()

@@ -1,0 +1,10 @@
+{
+ "app.name": "Notes",
+ "notes.title": "New note (Enter adds it)",
+ "notes.empty": "No notes yet. Write the first one above.",
+ "error.title_empty": "Write something first.",
+ "error.title_long": "Keep it under 120 characters.",
+ "keys.delete": "Delete",
+ "keys.language": "日本語",
+ "keys.quit": "Quit"
+}

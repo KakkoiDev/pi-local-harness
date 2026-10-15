@@ -50,6 +50,8 @@ class PreviewTest(unittest.TestCase):
         site = self.folder('site', {'index.html': '<h1>Hi</h1>'})
         self.assertEqual(run_command(site, 4000)[1:4], ['-m', 'http.server', '4000'])
         self.assertIsNone(run_command(self.folder('notes', {'README.md': '# Notes'}), 4000))
+        tui = self.folder('tui', {'pyproject.toml': '[project]\nname="app"\n', 'app/tui.py': '', 'serve.py': ''})
+        self.assertEqual(run_command(tui, 4000)[1:], ['run', 'python', 'serve.py', '4000'], 'a terminal app, in the browser through textual-serve')
         styled = self.folder('styled', {'index.html': '', 'styles/input.css': '@import "tailwindcss";'})
         shell = run_command(styled, 4000)[-1]
         self.assertIn('--from pytailwindcss tailwindcss -i styles/input.css -o static/app.css && {', shell, 'a no-server app gets its styles too')

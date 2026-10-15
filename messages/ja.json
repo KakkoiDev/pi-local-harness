@@ -668,9 +668,15 @@
   "The app is not running. Start it in the Preview first.": "アプリが動いていません。先にプレビューで起動してください。",
   "Phone access is off: the workbench is not on the tailnet (remote_hosts in config.json).": "スマホからのアクセスはオフです。ワークベンチが tailnet にありません（config.json の remote_hosts）。",
   "○ Not started": "○ 未起動",
-  "Phone access is not set up. Add this Mac’s tailnet name to remote_hosts and your Tailscale login to remote_users in config.json, then start plh again.": "スマホからのアクセスが設定されていません。config.json の remote_hosts にこの Mac の tailnet 名を、remote_users に Tailscale のログインを追加して、plh を起動し直してください。"
+  "Phone access is not set up. Add this Mac’s tailnet name to remote_hosts and your Tailscale login to remote_users in config.json, then start plh again.": "スマホからのアクセスが設定されていません。config.json の remote_hosts にこの Mac の tailnet 名を、remote_users に Tailscale のログインを追加して、plh を起動し直してください。",
+  "Terminal app": "ターミナルアプリ",
+  "Runs in a terminal, keys and text only; the Preview shows it in the browser.": "ターミナルで動きます。キーと文字だけで操作し、プレビューではブラウザに表示されます。"
  },
  "patterns": [
+  [
+   "Creates {where} from the terminal app starter: a small notes app in English and Japanese, with tests, built with Textual. Ask Pi to turn it into yours.",
+   "{where} をターミナルアプリのひな形から作ります。英語と日本語のテスト付きの小さなメモアプリで、Textual で作られています。Pi に頼んで自分のアプリにしてください。"
+  ],
   [
    "Open {name} on Phone",
    "{name} をスマホで開く"
