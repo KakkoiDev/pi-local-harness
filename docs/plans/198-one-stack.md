@@ -7,6 +7,24 @@ to figure out. We just make it really good at using one way of the most versatil
 Decided 2026-10-15: **FastAPI with Jinja2**, **plain sqlite3** (a data module per table), **PWA only**, the blocks
 catalogue starts with **the dozen common ones**. Scope: new projects first.
 
+## What it is for
+
+Added 2026-10-15: "So the project is to teach AI crafting and have a harness helping to build complex projects that
+are: working, maintainable, from 0 to prod, learning along the way proper engineering and lots of tips like setting up
+GitHub Pages, managing repos and so on. The trade-off is that it might struggle on existing projects."
+
+- **Working:** verified by the harness (tests that fail without the change and pass with it, types, checks on every
+  edit, pages opened at two sizes), not by the model's word.
+- **Maintainable:** one stack, one layout, typed code, logic in pure tested blocks, the harness's paperwork (a task and a
+  commit per request): anyone, or any model, can pick the project up later.
+- **From zero to production:** the blocks below, ending with a project that runs, is backed up and can be shared.
+- **Learning along the way:** each request ends with a short "what was done and why" in plain words (the engineering
+  idea behind it: why a test first fails, why a migration, why a fragment); the recipes teach the craft around the code
+  (repositories, branches, pull requests, releases, GitHub Pages), reusing the Kakkoi School handbook's recipes rather
+  than writing new ones; the person can ask "teach me" at any step.
+- **The trade-off, accepted:** a project that is not on the stack gets the general harness only, and may struggle.
+  New projects are the target.
+
 ## Opinionated. Local. Capable.
 
 Added 2026-10-15: "I want Pi Local Harness to be: Opinionated. Local. Capable." and "I would like the AI agent to have
@@ -37,7 +55,11 @@ run local AI, they can still run this whole setup and have great success buildin
   harness chose, tool results); the key is kept in the system keychain, never in a file Pi reads; cost per request is
   shown; Gate and the paperwork work the same.
 - **The bench measures both:** the same scenarios with a local and a frontier model, through the harness and bare, so
-  the help the harness gives is known for each.
+  the help the harness gives is known for each. Frontier runs use each provider's **lightest model** (decided
+  2026-10-15: the person's machine may be slow, and the harness should make a small model succeed): Claude Haiku 5.5
+  (`claude-haiku-5-5`), OpenAI's smallest tier "Luna" (GPT-6 or GPT-5.6 Luna: confirm the ID), Gemini 3.5 Flash-Lite
+  (`gemini-3.5-flash-lite`), DeepSeek V4.1 Flash (DeepSeek's fast tier; no official "fast" model). Each run has a cost
+  cap, and needs the person's key for that provider.
 
 ## Types everywhere (a rule)
 
@@ -52,7 +74,64 @@ catch a maximum of errors. Python, TS…"
 - **Enforced:** a new or changed Python function without annotations is sent back by Gate (an `ast` check, instant);
   a type error is not a refusal but a note to fix, and the request is not verified while the checker fails (with the
   tests, it is part of Green).
-- **Decision:** which Python checker (below).
+- **Checker (decided 2026-10-15): pyright** in strict mode, installed through uv with Node as a Python package.
+
+## Slow machines
+
+Added 2026-10-15: "instead of node, why not bun? I want it to run on slower hardware too. Slow hardware: fast tooling +
+cloud AI." Measured on this machine (see the kit's toolchain.json): pyright 0.56 s on Node, 1.44 s on Bun; TypeScript's
+checker 0.04–0.07 s on either. Node comes as a Python package through uv, so nothing else is installed; Bun is not
+needed. For a slow machine: a light cloud model (above) and fast native tools (uv, Tailwind's standalone binary, pyright
+on changed files only, htmx's checker in Python). The bench gets a "slow machine" profile (light cloud model, CPU
+limited) so this stays measured.
+
+## The harness knows itself, and asks for its own fixes
+
+Added 2026-10-15: "I also want the harness to be aware of itself, to be able to explain its philosophy and even open
+issues or PRs on the GitHub repo to ask for fixes and new features when the user chats or when a new issue arises from
+real use in a case we didn't consider yet."
+
+- **It explains itself** from its own files, not from the model's guess: this plan's philosophy, `/gate rules`, the
+  lessons (docs/lessons/), the kit and its cards, the bench's latest numbers (a guide topic and the `harness` tool).
+- **It notices what it did not foresee:** the reports (task 184) collect every incident; a new kind (a rule firing where
+  it should not, a stop no rule explains, a request the kit could not serve) becomes a draft issue. "I wish it could…"
+  in chat becomes a draft feature request.
+- **It drafts; the person sends.** What happened, the evidence (rule, report lines, versions, a minimal reproduction),
+  what would have helped. Never the person's project code, data or chat: only the harness's own records, shown in full
+  before sending. Sending is the person's yes (an outward action), with `gh` and their login, to the harness's repository.
+- **A pull request when it can fix it:** in a checkout of the harness (not the installed copy), with a test, through the
+  same paperwork, opened only after the person's yes and marked as written by Pi.
+
+## From zero to production: the composable blocks
+
+Added 2026-10-15: "I want the harness to have the composable building blocks that the AI can use to create new projects
+from zero to production." Each block is a generator (files in the conventions, with tests), a card and a recipe:
+
+| Stage | Blocks |
+| --- | --- |
+| Start | the starter project; kinds: web app, game (LittleJS), multiplayer (p2p-core), command-line tool |
+| Build | page, fragment, form with validation, list with create/edit/delete, table (migration and data module), file upload, search, background job, scheduled task, live updates (server-sent events), multiplayer (p2p-core), the logic blocks |
+| AI inside the app | one typed function to ask the same local or cloud model the person uses, streamed to the page |
+| Accounts | sign-in (passkeys or an email link), sessions, roles; CSRF protection for htmx forms |
+| Make it solid | types and checks, tests, an accessibility check on each page, error pages, logs |
+| Ship | run on the person's machine (tailnet); share publicly (Tailscale Funnel); host it (one recipe, decision below); static pages on GitHub Pages; HTTPS, a domain, SQLite backups, migrations on deploy, secrets out of the code |
+| Keep it alive | kit updates in existing projects (a migration per kit version), restoring a backup, a health page |
+
+## Also needed for a key-in-hand product (the checklist)
+
+- **Windows and Linux:** the harness assumes macOS today (launchctl, the Finder's Trash, MLX models); people new to AI
+  are often on Windows. The tools all run there; the harness's macOS paths need a second implementation.
+- **Preview and undo for people who do not read code:** the app running beside the chat (and on the phone by QR), each
+  request explained in plain words, "undo this request" in one click (each request is already a commit).
+- **Languages:** the workbench and the generated apps in the person's language (Japanese first, as the handbook does).
+- **A gallery of finished example apps** built with the kit: examples are what small models learn best from.
+- **Security of what it builds:** autoescaping, CSRF, validation, secrets in the keychain, dependencies limited to the kit.
+- **Cost and privacy with cloud models:** a monthly cap, the cost per request, nothing sent that the person did not see.
+- **No telemetry:** reports stay on the machine; sharing bench results or issues is always the person's choice.
+- **Onboarding:** the first start checks the machine, installs the toolchain, chooses the model, and builds a first app
+  with the person in minutes.
+
+## Why
 
 What we have measured so far points the same way:
 
@@ -250,7 +329,10 @@ beat the general harness on these scenarios, without losing on the others, or it
 3. **Phone:** PWA only (recommended), or PWA plus a Capacitor shell for the stores later. (Hyperview, server-driven
    native screens, was considered: it brings React Native and its own XML, a second way, against the point.)
 4. **Scope:** the stack pack for new projects only (recommended to start), or also a migration helper for existing ones.
-5. **The Python type checker:** mypy in strict mode (pure Python, mature, slower), pyright (fast, needs Node, which the
-   kit would carry for TypeScript anyway), or ty (Astral's, from the makers of uv; check its maturity first).
+5. **The Python type checker:** decided, pyright.
+7. **Hosting for production:** the person's machine and Tailscale Funnel (free; the machine stays on), a small VPS with
+   one recipe (a service and Caddy for HTTPS), or a platform (Fly.io, Render, Railway: easiest, paid). One is the default.
+8. **Issues and pull requests:** the harness's repository, and always asking before sending (recommended).
+9. **Windows and Linux:** when (recommended: after the starter project and the bench's stack track).
 6. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
    turn out to need.
