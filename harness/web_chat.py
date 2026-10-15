@@ -7,6 +7,7 @@ from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
 from harness.work_queue import WorkQueue
+from harness.preview import Previews
 import json
 import os
 from pathlib import Path
@@ -156,6 +157,7 @@ class WebChat:
         self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode)
+        self.previews=Previews(self.documents.root/'.previews')  # plan 198: the project's app beside the chat
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
@@ -340,7 +342,12 @@ class WebChat:
     def close(self):
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
-        self.queue.close()
+        self.queue.close();self.previews.close()
+    def preview(self, project, action):
+        if action not in ('status','start','stop'):raise ValueError('Unknown preview action')
+        if action=='start':return self.previews.start(project,self.documents.project_path(project))
+        self.documents.project_path(project)
+        return getattr(self.previews,action)(project)
     @staticmethod
     def read_path(root, args):
         """A read tool's file as a project-relative name, or None outside the project or for anything but a file."""
@@ -559,6 +566,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 if not re.fullmatch(r'[0-9a-f]{32}',identifier):raise ValueError('Invalid task ID')
                 record=self.chat.queue.records/(identifier+'.md');self.reply({'markdown':record.read_text(),'path':str(record).replace(str(Path.home()),'~',1)});return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
+            if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -619,6 +627,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
+            if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data['project'],path.rsplit('/',1)[-1]));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return

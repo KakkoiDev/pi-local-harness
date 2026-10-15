@@ -244,3 +244,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [199-The kit: pinned libraries with their agent cards, the toolchain's pins](tasks/199-the-kit.md)
 - [x] [200-The starter project: a new app on the stack, typed, tested, in English and Japanese](tasks/200-starter-project.md)
 - [x] [201-KakkoiSchool's lessons, mapped to the moments they matter](tasks/201-school-lessons.md)
+- [ ] [202-The harness runs the project's app, for the Preview beside the chat](tasks/202-preview-runs-the-app.md)
