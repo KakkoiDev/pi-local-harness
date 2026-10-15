@@ -10,4 +10,5 @@ functional blocks of logic."
 - [x] Plan: `docs/plans/198-one-stack.md` (why, the stack one way each, conventions, functional core and a blocks
   catalogue, what the harness does: template, generators, knowledge pack, checks, Gate rules; the bench's stack and
   kata tracks in three conditions; what we give up; phases; decisions).
-- [ ] The person's decisions (framework, data access, phone, scope, blocks).
+- [x] The person's decisions (2026-10-15): FastAPI with Jinja2, plain sqlite3, PWA only, the dozen common blocks; new
+  projects first.

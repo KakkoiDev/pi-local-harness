@@ -240,4 +240,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [195-Each request gets only the harness tools it needs](tasks/195-small-tool-set.md)
 - [x] [196-Short guides that join the prompt when a request calls for them](tasks/196-guides-by-keyword.md)
 - [ ] [197-The bench compares no harness with the harness, side by side](tasks/197-bench-compare.md)
-- [ ] [198-Plan the opinionated stack (HTMX 4, Basecoat, Python, PWA) and logic as tested blocks](tasks/198-plan-one-stack.md)
+- [x] [198-Plan the opinionated stack (HTMX 4, Basecoat, Python, PWA) and logic as tested blocks](tasks/198-plan-one-stack.md)

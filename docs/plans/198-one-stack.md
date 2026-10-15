@@ -4,6 +4,9 @@ Request 2026-10-15: "Maybe we could take it in another direction if it helps, by
 HTMX 4 with Basecoat for web, Python for backend stuff and maybe one way to make phone apps. We limit what the model has
 to figure out. We just make it really good at using one way of the most versatile tech possible. We become opinionated."
 
+Decided 2026-10-15: **FastAPI with Jinja2**, **plain sqlite3** (a data module per table), **PWA only**, the blocks
+catalogue starts with **the dozen common ones**. Scope: new projects first.
+
 ## Why
 
 What we have measured so far points the same way:
