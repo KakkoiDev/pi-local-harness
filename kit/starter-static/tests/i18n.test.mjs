@@ -9,6 +9,7 @@ test('the person\'s choice wins, then the browser, then English', () => {
   assert.equal(choose('en', ['ja-JP']), 'en');
   assert.equal(choose(null, ['ja-JP', 'en']), 'ja');
   assert.equal(choose('xx', ['fr']), 'en');
+  assert.equal(choose('en', ['en'], 'ja'), 'ja', 'the address (?lang=, the Preview) wins');
   assert.equal(translate({}, { a: 'A' }, 'a'), 'A', 'a missing translation falls back to English');
 });
 

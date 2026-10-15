@@ -36,6 +36,22 @@ def run_command(folder, port):
     return None
 
 
+def what_it_is(folder):
+    """A project with no app, in a few words (P_NotWeb): None when it is just empty."""
+    folder = Path(folder)
+    if (folder / 'pyproject.toml').is_file() or any(folder.glob('*.py')): return 'a Python program'
+    if (folder / 'package.json').is_file(): return 'a JavaScript project'
+    if (folder / 'Cargo.toml').is_file(): return 'a Rust program'
+    if (folder / 'go.mod').is_file(): return 'a Go program'
+    return None
+
+
+def no_app(folder):
+    kind = what_it_is(folder) if folder else None
+    if not kind: return {'state': 'none', 'kind': 'empty', 'message': 'This project has no app to show yet.'}
+    return {'state': 'none', 'kind': 'notweb', 'message': f'{Path(folder).name} is not a web app: it is {kind}, so there is no page to show here. Its tests run in Activity.'}
+
+
 def free_port():
     with socket.socket() as probe:
         probe.bind(('127.0.0.1', 0)); return probe.getsockname()[1]
@@ -48,8 +64,8 @@ def answers(port):
 
 
 class App:
-    def __init__(self, process, port, log):
-        self.process, self.port, self.log, self.state, self.error = process, port, log, 'starting', ''
+    def __init__(self, process, port, log, first=False):
+        self.process, self.port, self.log, self.state, self.error, self.first, self.note = process, port, log, 'starting', '', first, None
 
 
 class Previews:
@@ -57,24 +73,38 @@ class Previews:
         self.folder, self.command, self.limit = Path(folder), command, limit
         self.apps, self.lock = {}, threading.RLock()
 
-    def status(self, project):
+    def status(self, project, folder=None):
+        """The state (none · starting · running · stopped) and what the Preview shows with it: while starting, whether it
+        is the first start and the app's last line; when stopped, its last 8 lines; the note after a change."""
         with self.lock: app = self.apps.get(project)
-        if not app: return {'state': 'none'}
-        return {'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.port}/', **({'error': app.error} if app.error else {})}
+        if not app: return ({'state': 'none', 'kind': 'app'} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
+        found = {'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.port}/', 'first': app.first}
+        if app.state == 'starting':
+            lines = [line for line in app.log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()] if app.log.exists() else []
+            if lines: found['last'] = lines[-1]
+        if app.error: found['error'] = app.error
+        if app.note and app.state == 'running': found['note'] = app.note
+        return found
+
+    def note(self, project, text):
+        """"Pi changed 2 files. Reloaded." (P_Changed): the app reloads itself; the Preview says so, with the time."""
+        with self.lock: app = self.apps.get(project)
+        if app and app.state == 'running': app.note = {'text': text, 'time': time.strftime('%H:%M')}
 
     def start(self, project, folder):
         with self.lock:
             app = self.apps.get(project)
             if app and app.state in ('starting', 'running'): return self.status(project)
             port = free_port(); command = self.command(folder, port)
-            if not command: return {'state': 'none', 'message': 'This project has no app to show yet.'}
+            if not command: return no_app(folder)
             self.folder.mkdir(parents=True, exist_ok=True)
             log = self.folder / f'{project}.log'
             env = {key: value for key, value in os.environ.items() if not key.startswith(('PI_', 'VIRTUAL_ENV'))}
             env.update(TAILWINDCSS_VERSION=TAILWIND, TAILWINDCSS_BIN_DIR=str(self.folder.parent / 'toolchain' / 'tailwindcss'))
             with log.open('w', encoding='utf-8') as output:
                 process = subprocess.Popen(command, cwd=folder, env=env, stdout=output, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
-            self.apps[project] = app = App(process, port, log)
+            first = (Path(folder) / 'pyproject.toml').is_file() and not (Path(folder) / '.venv').exists()
+            self.apps[project] = app = App(process, port, log, first)
         threading.Thread(target=self.watch, args=(app,), daemon=True).start()
         return self.status(project)
 

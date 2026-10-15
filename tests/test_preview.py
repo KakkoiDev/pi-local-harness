@@ -5,6 +5,7 @@ try:
     import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
+import subprocess
 import sys
 import tempfile
 import time
@@ -54,10 +55,34 @@ class PreviewTest(unittest.TestCase):
         self.assertIn('--from pytailwindcss tailwindcss -i styles/input.css -o static/app.css && {', shell, 'a no-server app gets its styles too')
         self.assertIn('http.server 4000', shell)
 
-    def test_a_project_with_no_app_says_so(self):
+    def test_a_project_with_no_app_says_so_and_says_what_it_is(self):
         status = self.previews.start('notes', self.folder('notes', {'README.md': '# Notes'}))
         self.assertEqual(status['state'], 'none')
         self.assertIn('no app', status['message'])
+        program = self.previews.start('tool', self.folder('tool', {'pyproject.toml': '[project]\nname="tool"\n', 'tool.py': ''}))
+        self.assertEqual((program['state'], program['kind']), ('none', 'notweb'), 'P_NotWeb: a project that is not an app')
+        self.assertIn('Python program', program['message'])
+        self.assertEqual(self.previews.status('tool', self.root / 'tool')['kind'], 'notweb', 'the state says so before any start')
+
+    def test_the_first_start_is_marked_and_shows_its_last_line(self):
+        slow = self.folder('slow', {'index.html': ''})
+        previews = Previews(self.root / 'previews3', command=lambda folder, port: [sys.executable, '-c', 'import time; print("Installed 29 packages", flush=True); time.sleep(30)'])
+        self.addCleanup(previews.close)
+        (slow / 'pyproject.toml').write_text('[project]\nname="slow"\n')
+        status = previews.start('slow', slow)
+        self.assertTrue(status['first'], 'no .venv yet: the first start installs (about 15 seconds)')
+        deadline = time.monotonic() + 5
+        while 'last' not in previews.status('slow') and time.monotonic() < deadline: time.sleep(0.1)
+        self.assertEqual(previews.status('slow')['last'], 'Installed 29 packages')
+
+    def test_a_change_leaves_a_note_with_its_time(self):
+        site = self.folder('site', {'index.html': 'x'})
+        self.previews.start('site', site); wait(self.previews, 'site', ('running',))
+        self.previews.note('site', 'Pi changed 2 files. Reloaded.')
+        note = self.previews.status('site')['note']
+        self.assertEqual(note['text'], 'Pi changed 2 files. Reloaded.'); self.assertRegex(note['time'], r'^\d\d:\d\d$')
+        self.previews.note('other', 'ignored: not running')
+        self.assertNotIn('note', self.previews.status('other'))
 
     def test_a_plain_site_starts_answers_and_stops(self):
         site = self.folder('site', {'index.html': '<h1>Hello preview</h1>'})
@@ -95,7 +120,7 @@ class WorkbenchPreviewTest(unittest.TestCase):
         code = root / 'code'; code.mkdir()
         project = chat.documents.create_project('Site', str(code))
         (code / 'Site' / 'index.html').write_text('<h1>Hi</h1>')
-        self.assertEqual(chat.preview(project, 'status'), {'state': 'none'})
+        self.assertEqual(chat.preview(project, 'status'), {'state': 'none', 'kind': 'app'}, 'an app, not started: the Preview may open by itself once')
         self.assertEqual(chat.preview(project, 'start')['state'], 'starting')
         self.assertEqual(wait(chat.previews, project, ('running',))['state'], 'running')
         self.assertTrue((root / 'data' / '.previews' / f'{project}.log').is_file(), 'logs live in the data folder')

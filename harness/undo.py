@@ -1,6 +1,7 @@
 """Undo This Request (plan 198, design/briefs/app-preview.md): a verified request is one commit the harness made
 (gate/paperwork.py, author "Pi Workbench"); undoing it is a new commit that reverses it, so history is kept. Only the
 harness's own commits; never over the person's unsaved edits; a conflict leaves everything as it was and says why."""
+from datetime import datetime
 import re
 import subprocess
 
@@ -26,22 +27,66 @@ def undone_by(root, full):
     return found[0] if found else None
 
 
+def name(title):
+    """The request as the web names it: Activity shows the task, so "(task 002)" goes (round 7, point 12)."""
+    return re.sub(r'\s*\(task \d+\)$', '', title)
+
+
+def person_lines(root, full, title):
+    """The task's "For the person" lines in this commit (DoneRow): Pi writes them for someone who does not read code."""
+    for path in git(root, 'show', '--name-only', '--format=', full).stdout.split():
+        if re.match(r'tasks/\d+-.*\.md$', path):
+            text = git(root, 'show', f'{full}:{path}', check=False).stdout
+            found = re.search(r'^## For the person\n+(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL)
+            lines = [line.strip() for line in found.group(1).splitlines() if line.strip()] if found else []
+            if lines: return lines[:3]
+    return [name(re.sub(r'^(Undo|Redo): ', '', title))]
+
+
 def preview(root, commit):
-    """What undoing would change back: the request's title, its files with lines added and removed, and whether it is
-    already undone."""
+    """What the DoneRow shows and what undoing would change back: the request's name and plain words, its time, its
+    files with lines added and removed, whether it is already undone, and the request it undid (if it is an undo)."""
     full, title = request_commit(root, commit)
     files = []
     for line in git(root, 'show', '--numstat', '--format=', full).stdout.splitlines():
         added, removed, path = line.split('\t', 2)
         files.append({'path': path, 'added': int(added) if added.isdigit() else 0, 'removed': int(removed) if removed.isdigit() else 0})
-    return {'commit': full[:12], 'title': title, 'files': files, 'undone': bool(undone_by(root, full))}
+    body = git(root, 'log', '-1', '--format=%B%x00%cI', full).stdout
+    reverts = re.search(r'This reverts commit ([0-9a-f]{40})', body)
+    when = datetime.fromisoformat(body.rsplit('\0', 1)[-1].strip()).strftime('%H:%M')
+    return {'commit': full[:12], 'title': title, 'name': name(title), 'person': person_lines(root, full, title), 'time': when, 'files': files,
+            'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
+            **({'undo_of': reverts.group(1)[:12]} if reverts else {})}
 
 
-def undo(root, commit):
+def undone_time(root, full):
+    found = git(root, 'log', '-1', '--format=%cI', undone_by(root, full)).stdout.strip()
+    return datetime.fromisoformat(found).strftime('%H:%M') if found else ''
+
+
+def later_change(root, full, paths):
+    """The newest request after this one that changed these files: the overlap alert names it."""
+    found = git(root, 'log', '-1', '--format=%h%x00%s%x00%cI', f'{full}..HEAD', '--', *paths, check=False).stdout.strip()
+    if not found: return None
+    short, title, when = found.split('\0')
+    return {'commit': short, 'title': title, 'name': name(title), 'time': datetime.fromisoformat(when).strftime('%H:%M')}
+
+
+def save_edits(root, paths):
+    """Save Them, Then Undo: the person's unsaved edits become their own entry, "Your edits · 14:38"."""
+    who = git(root, 'config', 'user.name', check=False).stdout.strip() or 'You'
+    mail = git(root, 'config', 'user.email', check=False).stdout.strip() or 'you@localhost'
+    git(root, 'add', '--', *paths)
+    git(root, '-c', f'user.name={who}', '-c', f'user.email={mail}', 'commit', '-q', '-m', f"Your edits · {datetime.now().strftime('%H:%M')}", '--', *paths)
+
+
+def undo(root, commit, save_first=False):
+    """Undo (or, for an undo, Redo) a request. save_first: commit the person's unsaved edits in those files first."""
     found = preview(root, commit); full, _ = request_commit(root, commit)
     if found['undone']: return {'outcome': 'already undone', 'commit': undone_by(root, full), 'message': f"“{found['title']}” is already undone."}
     paths = [item['path'] for item in found['files']]
     edited = [line[3:] for line in git(root, 'status', '--porcelain', '--', *paths).stdout.splitlines()]
+    if edited and save_first: save_edits(root, edited); edited = []
     if edited:
         return {'outcome': 'refused', 'message': f"Not undone: {', '.join(edited)} {'has' if len(edited) == 1 else 'have'} changes that are not saved in a commit. "
                 'Undoing would overwrite them. Keep or discard those changes first.'}
@@ -50,9 +95,14 @@ def undo(root, commit):
     if done.returncode:
         conflicted = git(root, 'diff', '--name-only', '--diff-filter=U', check=False).stdout.split()
         git(root, 'revert', '--abort', check=False)
-        return {'outcome': 'conflict', 'files': conflicted, 'message': f"Not undone: {', '.join(conflicted) or 'some files'} changed again after “{title}”, "
+        later = later_change(root, full, conflicted or paths)
+        where = f" in “{later['name']}” ({later['time']})" if later else ''
+        return {'outcome': 'conflict', 'files': conflicted, **({'later': later} if later else {}),
+                'message': f"Not undone: {', '.join(conflicted) or 'some files'} changed again after “{title}”{where}, "
                 'so going back would mix the two. Nothing was changed. Ask Pi to take that change out by hand.'}
-    message = f'Undo: {title}\n\nThis reverts commit {full}.'
+    redo = title.startswith('Undo: ')
+    message = f"{'Redo: ' + title[len('Undo: '):] if redo else 'Undo: ' + title}\n\nThis reverts commit {full}."
     git(root, *IDENTITY, 'commit', '--amend', '-q', '-m', message)
     return {'outcome': 'undone', 'commit': git(root, 'rev-parse', '--short=12', 'HEAD').stdout.strip(), 'files': paths,
-            'message': f"Undone: “{title}”. {len(paths)} file{'s' if len(paths) != 1 else ''} changed back, as a new commit (nothing is lost: it can be redone)."}
+            'message': f"Redone: “{title[len('Undo: '):]}”. {len(paths)} file{'s' if len(paths) != 1 else ''} changed again, as a new commit." if redo else
+                       f"Undone: “{title}”. {len(paths)} file{'s' if len(paths) != 1 else ''} changed back, as a new commit (nothing is lost: it can be redone)."}

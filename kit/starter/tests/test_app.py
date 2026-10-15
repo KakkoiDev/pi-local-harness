@@ -44,6 +44,12 @@ def test_japanese_from_the_browser_or_the_choice(tmp_path: Path) -> None:
     assert "Add Note" in web.get("/", headers={"accept-language": "ja"}).text, "the person's choice wins"
 
 
+def test_the_address_can_ask_for_a_language_and_it_is_remembered(tmp_path: Path) -> None:
+    web = client(tmp_path)
+    assert "メモを追加" in web.get("/?lang=ja", headers={"accept-language": "en"}).text
+    assert "メモを追加" in web.get("/", headers={"accept-language": "en"}).text, "kept for the next page"
+
+
 def test_the_pwa_files_are_served(tmp_path: Path) -> None:
     web = client(tmp_path)
     assert web.get("/manifest.webmanifest").json()["display"] == "standalone"

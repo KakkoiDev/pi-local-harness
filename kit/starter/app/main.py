@@ -21,10 +21,14 @@ def create_app(database: Path = ROOT / "data.sqlite3") -> FastAPI:
     app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
     def render(request: Request, name: str, status: int = 200, **context: object) -> HTMLResponse:
-        language = i18n.choose(request.cookies.get("lang"), request.headers.get("accept-language"))
+        asked = request.query_params.get("lang")
+        language = i18n.choose(request.cookies.get("lang"), request.headers.get("accept-language"), asked)
         def t(key: str, **values: str) -> str:
             return i18n.translate(language, key, **values)
-        return templates.TemplateResponse(request, name, {"t": t, "lang": language, **context}, status_code=status)
+        response = templates.TemplateResponse(request, name, {"t": t, "lang": language, **context}, status_code=status)
+        if asked == language:  # ?lang= is remembered, so the app's next pages and requests keep it
+            response.set_cookie("lang", language, max_age=60 * 60 * 24 * 365, samesite="lax")
+        return response
 
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:

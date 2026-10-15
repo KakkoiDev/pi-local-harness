@@ -19,7 +19,9 @@ const form = find('#note-form', HTMLFormElement), input = find('#title', HTMLInp
 const list = find('#notes', HTMLUListElement), item = find('#note-item', HTMLTemplateElement);
 const store = await openStore('notes');
 const english = await load('en');
-let language = choose(localStorage.getItem('lang'), navigator.languages);
+const asked = new URLSearchParams(location.search).get('lang');
+let language = choose(localStorage.getItem('lang'), navigator.languages, asked);
+if (asked === language) localStorage.setItem('lang', language);  // ?lang= is remembered, like a choice
 let messages = language === 'en' ? english : await load(language);
 /** @param {string} key */
 const t = key => translate(messages, english, key);

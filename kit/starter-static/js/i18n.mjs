@@ -3,12 +3,15 @@
 export const LANGUAGES = ['en', 'ja'];
 
 /**
- * The person's choice (saved), else the browser's first known language, else English.
+ * The language asked in the address (?lang=, the workbench's Preview), else the person's choice (saved), else the
+ * browser's first known language, else English.
  * @param {string | null} saved
  * @param {readonly string[]} browser
+ * @param {string | null} [asked]
  * @returns {string}
  */
-export function choose(saved, browser) {
+export function choose(saved, browser, asked = null) {
+  if (asked && LANGUAGES.includes(asked)) return asked;
   if (saved && LANGUAGES.includes(saved)) return saved;
   return browser.map(code => code.slice(0, 2).toLowerCase()).find(code => LANGUAGES.includes(code)) ?? 'en';
 }

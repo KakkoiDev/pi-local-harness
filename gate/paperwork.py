@@ -68,7 +68,9 @@ class Paperwork:
             item['task'], made = self.task_for(item)
             self.progress(item, f'Started at {clock()}: {", ".join(content[:6])}{" …" if len(content) > 6 else ""}')
             return (f"This request's task is {item['task']} ({'made' if made else 'named in the request'}); the harness keeps it and "
-                    "ROADMAP.md up to date and commits when the change is verified. Write content only: no task files, boxes or commits.")
+                    "ROADMAP.md up to date and commits when the change is verified. Write content only: no task files, boxes or commits. "
+                    f"Before you finish, add a `## For the person` section to {item['task']}: two or three short lines for someone who does not "
+                    "read code, what changed and then \"Tried it: …\".")
 
     def ran(self, request, command, passed):
         """A test run Gate saw: written into the task's progress."""

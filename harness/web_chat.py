@@ -350,13 +350,17 @@ class WebChat:
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
         self.queue.close();self.previews.close()
-    def undo(self, project, commit, preview=False):
+    def undo(self, project, commit, preview=False, save_first=False):
         """Undo This Request (plan 198): what would change back, or the undo itself; waits while Pi works in the project."""
         root=self.documents.project_path(project)
         if preview:return undoing.preview(root,commit)
         busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
         if busy:raise ProjectBusy(busy[0]['id'])
-        return undoing.undo(root,commit)
+        result=undoing.undo(root,commit,save_first)
+        if result['outcome']=='undone':
+            self.changed(project,root,result['commit'],'Undo')
+            self.store.append(self.project_chat(project)['id'],{'role':'change','commit':result['commit']})  # its own row (↶ Undone, Redo Request…)
+        return result
     def project_for(self, path):
         """The project whose folder holds this path (the deepest one), or ValueError."""
         path=Path(path).resolve()
@@ -366,9 +370,15 @@ class WebChat:
     def preview(self, project, action, cwd=None):
         if action not in ('status','start','stop'):raise ValueError('Unknown preview action')
         if project is None and cwd:project=self.project_for(cwd)  # Pi's browser names the folder it works in
-        if action=='start':return self.previews.start(project,self.documents.project_path(project))
-        self.documents.project_path(project)
-        return getattr(self.previews,action)(project)
+        folder=self.documents.project_path(project)
+        if action=='start':return self.previews.start(project,folder)
+        if action=='status':return self.previews.status(project,folder)
+        return self.previews.stop(project)
+    def changed(self, project, root, commit, who='Pi'):
+        """The Preview's note after a request or an undo changed files (P_Changed)."""
+        try:count=len(undoing.preview(root,commit)['files'])
+        except (ValueError,OSError,subprocess.SubprocessError):return
+        self.previews.note(project,f"{who} changed {count} file{'s' if count!=1 else ''}. Reloaded.")
     @staticmethod
     def read_path(root, args):
         """A read tool's file as a project-relative name, or None outside the project or for anything but a file."""
@@ -515,7 +525,9 @@ class WebChat:
                 reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
                 reports.report(self.documents.root,'unverified',note.strip(),request=job,project=project)  # plan 184
             if opened:emit({'type':'also_read','files':opened})
-            if committed:emit({'type':'committed','commit':committed,'project':project})
+            if committed:
+                emit({'type':'committed','commit':committed,'project':project})
+                if project and folder_root:self.changed(project,folder_root,committed)
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
@@ -640,7 +652,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
             if path=='/api/projects/create':
-                project=self.chat.documents.create_project(data['name'],data.get('parent'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+                project=self.chat.documents.create_project(data['name'],data.get('parent'),data.get('kind','empty'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/turn':  # task 164: a work request's next model call waits while the chat answers (one-at-a-time model)
@@ -650,7 +662,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
-            if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview'))));return
+            if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview')),bool(data.get('save'))));return
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return

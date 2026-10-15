@@ -67,6 +67,56 @@ class UndoTest(unittest.TestCase):
         self.assertEqual(git(self.root, 'rev-parse', 'HEAD'), head); self.assertEqual(git(self.root, 'status', '--porcelain'), '', 'nothing half-done')
 
 
+class DoneRowTest(unittest.TestCase):
+    """Round 7 (DoneRow, P_Undo*): what the row and the alerts say."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name); git(self.root, 'init', '-q')
+        commit(self.root, {'app.py': 'notes = []\n', 'notes.md': 'x\n'}, 'Start', name='Person')
+        (self.root / 'tasks').mkdir()
+        task = '# 002: Delete a note\n\nKind: code\n\n## For the person\n\nAdded a Delete button to each note. It asks first.\nTried it: deleting one note keeps the others.\n\n## Progress (kept by the harness)\n'
+        self.request = commit(self.root, {'app.py': 'notes = []\ndef delete(): pass\n', 'tasks/002-delete-a-note.md': task}, 'Delete a note (task 002)')
+
+    def test_the_row_has_the_plain_words_the_files_and_the_time(self):
+        found = undo.preview(self.root, self.request)
+        self.assertEqual(found['person'], ['Added a Delete button to each note. It asks first.', 'Tried it: deleting one note keeps the others.'])
+        self.assertEqual(found['name'], 'Delete a note', 'the web drops "(task 002)": Activity shows the task')
+        self.assertRegex(found['time'], r'^\d\d:\d\d$')
+        self.assertEqual(len(found['files']), 2)
+
+    def test_without_plain_words_the_row_uses_the_request_name(self):
+        other = commit(self.root, {'notes.md': 'y\n'}, 'Fix the notes (task 003)')
+        self.assertEqual(undo.preview(self.root, other)['person'], ['Fix the notes'])
+
+    def test_a_conflict_names_the_later_request(self):
+        commit(self.root, {'app.py': 'notes = sorted([])\ndef delete(): pass\n'}, 'Show the newest note first (task 003)')
+        result = undo.undo(self.root, self.request)
+        self.assertEqual(result['outcome'], 'conflict')
+        self.assertEqual(result['later']['name'], 'Show the newest note first'); self.assertRegex(result['later']['time'], r'^\d\d:\d\d$')
+        self.assertIn('in “Show the newest note first”', result['message'])
+
+    def test_save_them_then_undo(self):
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root = Path(temp.name); git(root, 'init', '-q')
+        lines = [f'line {n}' for n in range(20)]
+        commit(root, {'a.txt': '\n'.join(lines) + '\n'}, 'Start', name='Person')
+        request = commit(root, {'a.txt': '\n'.join(['changed 0', *lines[1:]]) + '\n'}, 'Change the first line (task 001)')
+        (root / 'a.txt').write_text('\n'.join(['changed 0', *lines[1:19], 'mine']) + '\n')
+        self.assertEqual(undo.undo(root, request)['outcome'], 'refused', 'unsaved edits in a file the request changed')
+        result = undo.undo(root, request, save_first=True)
+        self.assertEqual(result['outcome'], 'undone', result)
+        subjects = git(root, 'log', '--format=%s').splitlines()
+        self.assertEqual(subjects[0], 'Undo: Change the first line (task 001)'); self.assertRegex(subjects[1], r'^Your edits · \d\d:\d\d$')
+        self.assertEqual((root / 'a.txt').read_text().splitlines()[0], 'line 0'); self.assertEqual((root / 'a.txt').read_text().splitlines()[-1], 'mine', 'the edits stay')
+
+    def test_undoing_an_undo_is_a_redo(self):
+        undone = undo.undo(self.root, self.request)
+        self.assertEqual(undo.preview(self.root, undone['commit'])['undo_of'], self.request)
+        redone = undo.undo(self.root, undone['commit'])
+        self.assertEqual(redone['outcome'], 'undone')
+        self.assertEqual(git(self.root, 'log', '-1', '--format=%s').strip(), 'Redo: Delete a note (task 002)')
+        self.assertIn('def delete', (self.root / 'app.py').read_text())
+
+
 class WorkbenchUndoTest(unittest.TestCase):
     def test_the_workbench_undoes_in_a_project_and_waits_while_pi_works_there(self):
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root = Path(temp.name)
@@ -80,6 +130,11 @@ class WorkbenchUndoTest(unittest.TestCase):
             with self.assertRaises(ProjectBusy): chat.undo(project, request)
         self.assertEqual(chat.undo(project, request)['outcome'], 'undone')
         self.assertEqual((folder / 'app.py').read_text(), 'a\n')
+        undone = chat.undo(project, request, preview=True)
+        self.assertTrue(undone['undone']); self.assertRegex(undone['undone_at'], r'^\d\d:\d\d$')
+        rows = [message for message in chat.store.get(chat.project_chat(project)['id'])['messages'] if message.get('role') == 'change']
+        self.assertEqual(len(rows), 1, 'the undo is its own row in the chat, after a reload too')
+        self.assertEqual(chat.undo(project, rows[0]['commit'], preview=True)['undo_of'], request)
 
     def test_the_answer_learns_its_commit_from_the_harness_note(self):
         self.assertEqual(committed_commit('Harness note: Fix the total (task 001) · committed as 0123456789ab'), '0123456789ab')

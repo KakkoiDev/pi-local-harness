@@ -13,8 +13,11 @@ def messages(language: str) -> dict[str, str]:
     return data
 
 
-def choose(cookie: str | None, accept_language: str | None) -> str:
-    """The person's choice (a cookie), else the browser's first known language, else English."""
+def choose(cookie: str | None, accept_language: str | None, asked: str | None = None) -> str:
+    """The language asked in the address (?lang=, the workbench's Preview), else the person's choice (a cookie), else
+    the browser's first known language, else English."""
+    if asked in LANGUAGES:
+        return asked
     if cookie in LANGUAGES:
         return cookie
     for part in (accept_language or "").split(","):

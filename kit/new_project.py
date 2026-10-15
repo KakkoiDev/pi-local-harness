@@ -17,18 +17,21 @@ def library(name: str) -> Path:
     return KIT / found["folder"]
 
 
-def start_history(folder: Path) -> None:
+def start_history(folder: Path, message: str = "Start from the Pi Workbench starter") -> None:
     """A repository with a first commit: the harness commits each verified request, which needs one."""
     git = ["git", "-C", str(folder), "-c", "user.name=Pi Workbench", "-c", "user.email=pi-workbench@localhost"]
     subprocess.run([*git, "init", "-q", "-b", "main"], check=True)
     subprocess.run([*git, "add", "-A"], check=True)
-    subprocess.run([*git, "commit", "-q", "-m", "Start from the Pi Workbench starter"], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", message], check=True)
 
 
-def new_project(folder: Path, static: bool = False) -> Path:
+def new_project(folder: Path, static: bool = False, files: dict[str, str] | None = None) -> Path:
+    """`files`: more files to write before the first commit (the workbench's roadmap and first task)."""
     if folder.exists() and any(folder.iterdir()):
         raise SystemExit(f"{folder} is not empty; choose a new folder.")
     shutil.copytree(KIT / ("starter-static" if static else "starter"), folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".venv", "__pycache__", "node_modules", "data.sqlite3", "app.css"))
+    for name, text in (files or {}).items():
+        (folder / name).parent.mkdir(parents=True, exist_ok=True); (folder / name).write_text(text, encoding="utf-8")
     htmx, basecoat = library("htmx"), library("basecoat")
     if static:  # no server: no htmx (nothing to ask); Basecoat's styles only
         shutil.copytree(basecoat / "css", folder / "vendor" / "basecoat" / "css")

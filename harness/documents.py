@@ -10,6 +10,8 @@ import sys
 import threading
 import uuid
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/'kit'))
+import new_project as starter  # noqa: E402  (kit/new_project.py: the starters)
 from datetime import datetime
 
 class DocumentConflict(ValueError):pass
@@ -367,6 +369,7 @@ class DocumentStore:
         """What Move to Trash will move: counts of files and folders (the alert names them), the path and its parent."""
         path=self.project_path(project);files=folders=0
         for _,dirs,names in os.walk(path):
+            dirs[:]=[name for name in dirs if name not in ('.git','.venv','node_modules','__pycache__')]  # the person's files, not tools' (they go to the Trash too)
             folders+=len(dirs);files+=len(names)
             if files+folders>100000:break
         return {'project':project,'path':str(path),'parent':str(path.parent),'files':files,'folders':folders}
@@ -379,7 +382,10 @@ class DocumentStore:
             to_trash(path)
             entry['removed']=True;self.save_registry()
             return {'project':project,'path':str(path)}
-    def create_project(self, name, parent=None):
+    def create_project(self, name, parent=None, kind='empty'):
+        """kind (round 7, P_NewProject): 'web' and 'static' are the kit's starters (kit/new_project.py); 'empty' is a
+        folder with a roadmap. Each starts with a repository: the harness commits each verified request."""
+        if kind not in ('web','static','empty'):raise ValueError('Choose Web app, App with no server or Empty folder')
         name=slug(name)
         base=Path(parent).expanduser().resolve() if parent else self.projects
         if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
@@ -387,9 +393,13 @@ class DocumentStore:
         path=base/name
         with self.lock:
             if path.exists():raise ValueError('Project already exists; add its existing folder instead')
-            path.mkdir();(path/'tasks').mkdir()
-            (path/'ROADMAP.md').write_text(f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] Define the first task\n',encoding='utf-8')
-            (path/'tasks'/'001-first-task.md').write_text('# First task\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n',encoding='utf-8')
+            plan={'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] Define the first task\n',
+                  'tasks/001-first-task.md':'# First task\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n'}
+            if kind=='empty':
+                path.mkdir();(path/'tasks').mkdir()
+                for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
+                starter.start_history(path,'Start the project')
+            else:starter.new_project(path,static=kind=='static',files=plan)
             return self.register(str(path),name) if parent else name
     def directories(self, directory=None):
         path=Path(directory or Path.home()).expanduser().resolve()

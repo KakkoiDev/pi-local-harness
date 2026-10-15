@@ -92,10 +92,13 @@ class LauncherTest(unittest.TestCase):
             install(root/'prefix',root/'agent',data)
             upgraded=(data/'AGENTS.md').read_text();self.assertIn('The harness keeps the paperwork',upgraded);self.assertIn('retain this lesson',upgraded);self.assertNotIn('Keep ROADMAP.md and tasks/*.md current',upgraded)
             self.assertTrue(list(data.glob('AGENTS.md.before-paperwork-*')))
-            from harness.install import PAPERWORK_184
+            from harness.install import PAPERWORK_184, PAPERWORK_192
             (data/'AGENTS.md').write_text(template.replace(current,PAPERWORK_184))
             install(root/'prefix',root/'agent',data)
             self.assertIn('before or after it', (data/'AGENTS.md').read_text(), 'task 192: the wording before this one is upgraded too')
+            (data/'AGENTS.md').write_text(template.replace(current,PAPERWORK_192))
+            install(root/'prefix',root/'agent',data)
+            self.assertIn('## For the person', (data/'AGENTS.md').read_text(), 'task 208: Pi writes the plain words the DoneRow shows')
 
     def test_owned_comment_instructions_upgrade_without_erasing_memory(self):
         from harness.install import install
