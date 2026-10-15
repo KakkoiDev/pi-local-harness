@@ -22,6 +22,9 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
   let selectedFolder = null;
   let project = null, files = [], current = null, query = '', focusKey = null, segment = 'plan';
   const expanded = new Set();
+  // Round 8 (Ph8_Folder): on the phone a tapped folder opens as its own level (‹ Files · name · ⋯), never inline.
+  let phoneFolder = null; const small = () => matchMedia('(max-width:760px)').matches;
+  const folderPathOf = prefix => { const file = files.find(item => item.name.startsWith(prefix)); return file ? file.path.slice(0, file.path.length - (file.name.length - prefix.length) - 1) : null; };
   const groups = () => ({ plan: true, files: true, done: false, ...(readState('fileGroups', {})[project] || {}) });
   const setGroup = (name, value) => { const all = readState('fileGroups', {}); all[project] = { ...groups(), [name]: value }; writeState('fileGroups', all); render(); };
 
@@ -66,7 +69,7 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
     for (const [name, children] of [...folders].sort(([a], [b]) => a.localeCompare(b))) {
       const prefix = children[0].file.name.slice(0, children[0].file.name.length - children[0].rest.length);
       const isOpen = expanded.has(prefix);
-      result.push(row({ key: 'd:' + prefix, label: name, kind: 'folder', depth, expandedState: isOpen, current: selectedFolder === folderPath(children[0]) ? 'true' : false, onClick: () => { if (isOpen) expanded.delete(prefix); else expanded.add(prefix); selectedFolder = folderPath(children[0]); selected(); render(); } }));
+      result.push(row({ key: 'd:' + prefix, label: name, kind: 'folder', depth, expandedState: isOpen, current: selectedFolder === folderPath(children[0]) ? 'true' : false, onClick: () => { if (small()) { phoneFolder = prefix; selectedFolder = folderPath(children[0]); render(); selected(); return; } if (isOpen) expanded.delete(prefix); else expanded.add(prefix); selectedFolder = folderPath(children[0]); selected(); render(); } }));
       if (isOpen) result.push(...folderRows(children, depth + 1));
     }
     for (const file of leaves.sort((a, b) => a.name.split('/').pop().localeCompare(b.name.split('/').pop()))) result.push(fileRow(file, file.name.split('/').pop(), depth));
@@ -103,6 +106,12 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
         empty.append(node('span', '', 'No roadmap or tasks in this folder.'), create, node('span', 'pw-help', 'Adds ROADMAP.md and tasks/001-first-task.md. Nothing else changes.'));
         planRows.push(empty);
       }
+      if (phoneFolder && small()) {
+        const inside = others.filter(file => file.name.startsWith(phoneFolder));
+        if (inside.length) { tree.dataset.folder = phoneFolder; seg.hidden = true; tree.append(...folderRows(inside.map(file => ({ file, rest: file.name.slice(phoneFolder.length) })), 0)); const first = visible()[0]; if (first) first.tabIndex = 0; return; }
+        phoneFolder = null;
+      }
+      delete tree.dataset.folder; seg.hidden = false;
       const top = new Set(others.map(file => file.name.split('/')[0]));
       const fileRows = others.length ? folderRows(others.map(file => ({ file, rest: file.name })), 0) : [node('p', 'pw-group__empty', 'No other files yet.')];
       tree.append(group('plan', 'Plan', openTasks.length + ' open', 'New Task…', newTask, planRows, state.plan),
@@ -151,7 +160,7 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
     update(next) {
       const opened = next.current !== undefined && next.current !== current;
       if (opened || (next.project !== undefined && next.project !== project) || (selectedFolder && next.files && !next.files.some(file => file.path.startsWith(selectedFolder + '/')))) selectedFolder = null;
-      if (next.project !== undefined && next.project !== project) expanded.clear();
+      if (next.project !== undefined && next.project !== project) { expanded.clear(); phoneFolder = null; }
       ({ project, files, current } = { project, files, current, ...next });
       // Folders start collapsed, except the ones holding the file just opened (ListRow README).
       if (opened && current) { const parts = current.split('/').slice(2, -1); parts.forEach((_, at) => expanded.add(parts.slice(0, at + 1).join('/') + '/')); }
@@ -159,6 +168,9 @@ export function installFilesWindow({ tree, note, seg, add, node, open, newTask, 
     },
     search(value) { query = value.trim(); render(); },
     summary: () => planSummary(files),
+    openFolder: () => (phoneFolder && small() ? phoneFolder.slice(0, -1) : ''),
+    closeFolder() { const parts = phoneFolder ? phoneFolder.slice(0, -1).split('/') : []; parts.pop(); phoneFolder = parts.length ? parts.join('/') + '/' : null; selectedFolder = phoneFolder ? folderPathOf(phoneFolder) : null; render(); selected(); },
+    selectOpenFolder() { if (phoneFolder) { selectedFolder = folderPathOf(phoneFolder); selected(); } },
     selection: () => selectedFolder ? { path: selectedFolder, folder: true } : current ? { path: current, folder: false } : null,
   };
 }

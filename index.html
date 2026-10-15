@@ -135,6 +135,7 @@
     <button id="phone-comments" class="pw-phonebar__btn" aria-pressed="false" hidden>Comments <span id="phone-comment-count"></span></button>
     <span id="phone-saved" class="phone-status" hidden></span>
     <button id="phone-more" class="pw-phonebar__btn" aria-haspopup="dialog" aria-label="More" hidden><span data-icon="more"></span></button>
+    <span id="phone-source-label" class="phone-status" hidden>Markdown</span><button id="phone-source-done" class="pw-phonebar__btn" hidden>Done</button><!-- Ph8_Source -->
   </nav>
 
   <button id="backdrop" class="pw-scrim" aria-label="Close menu" hidden></button>
@@ -351,6 +352,29 @@
       <div class="pw-menu__sep" role="separator"></div>
       <button type="button" class="pw-menu__item" role="menuitem" data-more="remove">Remove from List…</button>
       <button type="button" class="pw-menu__item" role="menuitem" data-more="trash">Move Project to Trash…</button>
+    </div>
+  </dialog>
+  <dialog id="file-more" class="pw-dialog project-more" aria-labelledby="file-more-title"><!-- round 8 (Ph_FileMore, Ph8_DocMore): the open file's ⋯; its path is the title -->
+    <div class="sheet-head"><h2 id="file-more-title" class="sheet-head__title pw-mono" data-no-translate></h2><button id="file-more-close" type="button" class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div>
+    <div class="project-more__items" role="menu" aria-labelledby="file-more-title">
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="rename">Rename or Move…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="copy">Copy Path</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="ask">Ask Pi About This File…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="markdown">View as Markdown</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="reload">Reload from Disk</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="download">Download Draft…</button>
+      <div class="pw-menu__sep" role="separator"></div>
+      <button type="button" class="pw-menu__item" role="menuitem" data-file-more="trash">Move to Trash…</button>
+    </div>
+  </dialog>
+  <dialog id="folder-more" class="pw-dialog project-more" aria-labelledby="folder-more-title"><!-- round 8 (Ph_FolderMore) -->
+    <div class="sheet-head"><h2 id="folder-more-title" class="sheet-head__title pw-mono" data-no-translate></h2><button id="folder-more-close" type="button" class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div>
+    <div class="project-more__items" role="menu" aria-labelledby="folder-more-title">
+      <button id="folder-more-new" type="button" class="pw-menu__item" role="menuitem" data-folder-more="new-file">New File…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-folder-more="rename">Rename or Move…</button>
+      <button type="button" class="pw-menu__item" role="menuitem" data-folder-more="copy">Copy Path</button>
+      <div class="pw-menu__sep" role="separator"></div>
+      <button type="button" class="pw-menu__item" role="menuitem" data-folder-more="trash">Move to Trash…</button>
     </div>
   </dialog>
   <dialog id="model-sheet" class="pw-dialog phone-pick" aria-labelledby="model-sheet-title"><!-- Ph_ModelList -->

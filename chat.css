@@ -432,3 +432,14 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
   body.phonebar-away #phonebar,body:has(#phone-edit-bar:not([hidden])) #phonebar{display:none}
   .phone-docbar .phone-title{cursor:default}
 }
+
+/* Round 8 points 3-5 (Ph8_DocMore, Ph8_Folder, Ph8_Source, Ph8_CommentsNone) */
+@media (max-width:760px){
+  body.source-screen #phonebar{display:none}
+  body.folder-level .window-files>.pw-titlebar,body.folder-level .window-files>.window-section{display:none}/* Ph8_Folder: the document bar, then the folder's rows */
+  body.source-screen #document-source{font-family:var(--font-mono);font-size:15px;line-height:1.5;padding:12px 16px;border:0}
+  .comments-none{display:flex;flex-direction:column;gap:8px;padding:16px}
+  .comments-none p{margin:0}
+  .comments-none .pw-btn{align-self:stretch;min-height:44px}
+  #file-more-title,#folder-more-title{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}

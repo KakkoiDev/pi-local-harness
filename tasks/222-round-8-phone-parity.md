@@ -14,9 +14,13 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
   model-gone alert line in Chat with Choose Model… (Ph8_ModelGone), on the desk too, instead of a toast. Its second
   sentence says what the code does, "Pi uses <model> until you choose another model.", not the board's "Pi cannot
   answer until you choose a model": the server falls back to an installed model (for the designer, round 9).
-- [ ] 3 File and folder ⋯ (Ph_FileMore, Ph_FolderMore, Ph8_DocMore, Ph8_Folder); folders open as a level; path as title.
-- [ ] 4 View as Markdown, full screen (Ph8_Source).
-- [ ] 5 Comments always in the document bar; none open (Ph8_CommentsNone).
+- [x] 3 File and folder ⋯ (Ph_FileMore, Ph_FolderMore, Ph8_DocMore, Ph8_Folder): `#file-more` (Rename or Move…, Copy Path,
+  Ask Pi About This File…, View as Markdown, Reload from Disk, Download Draft…, Move to Trash…) and `#folder-more`
+  (New File in <folder>…, Rename or Move…, Copy Path, Move to Trash…), the path as title; on the phone a tapped folder
+  opens as its own level (‹ Files goes up one level). Copy Path copies the full path on the Mac.
+- [x] 4 View as Markdown, full screen (Ph8_Source): the source editor with only the name · Markdown · Done.
+- [x] 5 Comments always in the document bar (Markdown files); none open names the file and holds Ask Pi About This File…
+  (Ph8_CommentsNone).
 - [x] 6 Ask Pi's own sheet for a selection, a block and the file (Ph8_Ask, Ph8_AskFile): `#ask-dialog`, `openAsk()`;
   the question goes the way of the whole-file question (`/api/jobs/create` with the document), never a comment.
 - [x] 7 Preview foot: state, Stop / Start, Open App; the app language in Preview's view menu (Ph8_Preview, Ph8_PreviewMenu).

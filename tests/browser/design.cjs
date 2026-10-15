@@ -672,6 +672,30 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#phonebar').isVisible(),false,'editing: only the document bar');assert.equal(await page.locator('#phone-saved').isVisible(),true,'the save status while editing');
   await page.locator('#phone-edit-done').click();await page.locator('#phonebar').waitFor();
   }
+  { // Round 8 points 3-5 (Ph8_Folder, Ph8_DocMore, Ph8_Source, Ph8_CommentsNone).
+  fs.mkdirSync(join(root,'drafts'),{recursive:true});fs.writeFileSync(join(root,'drafts','idea.md'),'# Idea\n\nA phone-first review mode.\n');
+  await page.goto(`${base}/p/${id}/work`);await page.locator('#file-seg:visible, #phone-docbar:visible').first().waitFor();
+  if(await page.locator('#phone-back').isVisible())await page.locator('#phone-back').click();
+  await page.locator('#file-seg').waitFor();
+  await page.locator('#file-seg [role="radio"]').nth(1).click();await page.getByRole('button',{name:'drafts',exact:true}).click();
+  await page.locator('#phone-docbar').waitFor();assert.equal(await page.locator('#phone-title-text').textContent(),'drafts','a folder opens as a level');
+  assert.equal(await page.locator('#file-tree .pw-row').count(),1,'only the folder\'s rows');
+  await page.locator('#phone-more').click();await page.locator('#folder-more').waitFor();assert.equal(await page.locator('#folder-more-title').textContent(),'drafts/');
+  assert.equal(await page.locator('#folder-more-new').textContent(),'New File in drafts…');await page.locator('#folder-more-close').click();
+  await page.getByRole('button',{name:'idea.md',exact:true}).click();await page.locator('#phone-title-text').filter({hasText:'idea.md'}).waitFor();
+  await page.locator('#phone-more').click();await page.locator('#file-more').waitFor();assert.equal(await page.locator('#file-more-title').textContent(),'drafts/idea.md','the path is the title');
+  assert.deepEqual(await page.locator('#file-more [data-file-more]').allTextContents(),['Rename or Move…','Copy Path','Ask Pi About This File…','View as Markdown','Reload from Disk','Download Draft…','Move to Trash…']);
+  await page.locator('#file-more [data-file-more="markdown"]').click();await page.locator('#document-source').waitFor();
+  assert.equal(await page.locator('#phonebar').isVisible(),false,'View as Markdown is full screen');assert.equal(await page.locator('#phone-source-done').isVisible(),true);
+  assert.match(await page.locator('#document-source').inputValue(),/^# Idea/);
+  await page.locator('#phone-source-done').click();await page.locator('#document-source').waitFor({state:'hidden'});
+  await page.locator('#phone-comments').click();await page.locator('#comments-ask-file').waitFor();
+  assert.equal(await page.locator('#document-comments .comments-none p').first().textContent(),'No open comments in idea.md.');
+  await page.locator('#comments-ask-file').click();await page.locator('#ask-dialog').waitFor();assert.equal(await page.locator('#ask-file').isVisible(),true,'the whole file');
+  await page.locator('#ask-cancel').click();
+  await page.locator('#phone-back').click();assert.equal(await page.locator('#phone-title-text').textContent(),'drafts','back to the folder');
+  await page.locator('#phone-back').click();await page.locator('#phone-docbar').waitFor({state:'hidden'});
+  }
   { // Round 8 point 11 (Ph8_Details, Ph8_Toast, Ph8_Settings): 44 px targets, no ⌘ hints, the toast above the edit bar.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();
   assert.equal(await page.locator('#toast-undo .pw-kbd').isVisible(),false,'no ⌘Z on the phone');
