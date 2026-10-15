@@ -82,6 +82,30 @@ class PaperworkTest(unittest.TestCase):
         self.assertEqual(self.paper.end('r4')['outcome'], 'committed')
         self.assertIn('Kind: docs', (self.root / 'tasks/003-document-the-queue.md').read_text())
 
+    def test_the_harness_proves_red_itself_whatever_order_pi_worked_in(self):
+        """Strategy 1 (bench, 2026-10-15): feature-slugify was solved but not verified because Pi wrote its test after the code.
+        The harness now proves it: without the change the tests fail, with it they pass."""
+        (self.root / 'tests').mkdir()
+        self.paper.start('r6', str(self.root), 'Make x three')
+        (self.root / 'app.py').write_text('x = 3\n'); self.paper.observe('r6')  # the code first
+        (self.root / 'tests/__init__.py').write_text(''); (self.root / 'tests/test_app.py').write_text('import unittest\nimport app\n\n\nclass A(unittest.TestCase):\n    def test_x(self):\n        self.assertEqual(app.x, 3)\n')
+        self.protocol.record(str(self.root), 'python3 -m unittest discover -s tests -t .', True); self.paper.ran('r6', 'python3 -m unittest discover -s tests -t .', True)  # then the test, passing
+        result = self.paper.end('r6')
+        self.assertEqual(result['outcome'], 'committed', result)
+        task = (self.root / 'tasks/003-make-x-three.md').read_text()
+        self.assertIn('Red (proved by the harness): without the change, `python3 -m unittest discover -s tests -t .` fails', task)
+        self.assertEqual((self.root / 'app.py').read_text(), 'x = 3\n', 'the change is back in place')
+
+    def test_tests_that_pass_without_the_change_do_not_verify_it(self):
+        (self.root / 'tests').mkdir(); (self.root / 'tests/__init__.py').write_text('')
+        (self.root / 'tests/test_any.py').write_text('import unittest\n\n\nclass A(unittest.TestCase):\n    def test_true(self):\n        self.assertTrue(True)\n')
+        self.paper.start('r7', str(self.root), 'Make x seven')
+        (self.root / 'app.py').write_text('x = 7\n'); self.paper.observe('r7')
+        self.protocol.record(str(self.root), 'python3 -m unittest discover -s tests -t .', True); self.paper.ran('r7', 'python3 -m unittest discover -s tests -t .', True)
+        result = self.paper.end('r7')
+        self.assertEqual(result['outcome'], 'not verified'); self.assertIn('pass without the change', result['reason'])
+        self.assertEqual((self.root / 'app.py').read_text(), 'x = 7\n')
+
     def test_outside_a_project_nothing_happens(self):
         with tempfile.TemporaryDirectory() as other:
             self.paper.start('r5', other, 'Anything'); (Path(other) / 'a.py').write_text('1')

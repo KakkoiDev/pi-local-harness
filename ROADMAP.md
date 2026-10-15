@@ -234,3 +234,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [189-The bench: fixed scenarios, the real model, one result line per run](tasks/189-bench.md)
 - [x] [190-Bench: everyday prompts, the person's own requests, and the bug the first run found](tasks/190-bench-prompts-history-memory.md)
 - [x] [191-Bench: regression tests, pass^k, first try, the bare baseline, a scripted user](tasks/191-bench-from-others.md)
+- [x] [192-The harness proves Red itself; Pi need not work test-first](tasks/192-harness-proves-red.md)

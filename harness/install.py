@@ -16,6 +16,7 @@ def head(source):
     try:return subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
     except (OSError,subprocess.CalledProcessError):return None
 
+PAPERWORK_184 = "Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. The harness keeps the paperwork: at your first file change it makes the request's task in tasks/ (or uses the task the request names) and its ROADMAP.md line, writes the test runs Gate sees into the task's progress, and when the change is verified (a test failed first, then passed on the final code) marks it done and commits locally. Your job is the content: code, tests, documentation, findings. Write a failing test first, then the change, then run the tests until they pass; run them without pipes or `|| true` so their exit code counts. Do not create task files, tick progress boxes or commit (Gate rule G-013). Report blockers clearly."
 PAPERWORK_BEFORE = "Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. Keep ROADMAP.md and tasks/*.md current, mark only verified work complete, and report blockers clearly. In a folder with ROADMAP.md and tasks/, Gate allows `git commit` only after: a failing test run, the implementation, a passing test run on the final code, a newly checked task box, and a newly checked roadmap box. Run tests without pipes or `|| true` so their exit code counts. Every task file has a `Kind:` line: code (red and green), chore (green), docs, or planning (no test runs, no code changes). A commit that only adds unchecked tasks is a planning commit."
 
 
@@ -58,10 +59,11 @@ def install(prefix, agent, data, source=ROOT, commit=None):
         shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-markdown-'+stamp))
         (data/'AGENTS.md').write_text(current.replace(previous,paragraph))
     # Plan 184: the harness does the paperwork now; the paragraph that told Pi to keep tasks and commit is replaced.
-    if PAPERWORK_BEFORE in current:
-        shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-paperwork-'+stamp))
-        current=current.replace(PAPERWORK_BEFORE,next(part for part in template.split('\n') if part.startswith('Chats belong to one project folder.')))
-        (data/'AGENTS.md').write_text(current)
+    for before in (PAPERWORK_BEFORE, PAPERWORK_184):  # each earlier wording of this paragraph (plan 184, then task 192)
+        if before in current:
+            shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-paperwork-'+stamp))
+            current=current.replace(before,next(part for part in template.split('\n') if part.startswith('Chats belong to one project folder.')))
+            (data/'AGENTS.md').write_text(current)
     # Keep other Pi extensions and custom settings intact.
     link=agent/'extensions/local-harness.ts'
     if link.is_symlink() and str(link.readlink()).endswith('/.pi/extensions/local-harness.ts'):

@@ -15,8 +15,8 @@ request's task under tasks/ (or uses the task the request names) and its ROADMAP
 line, writes the test runs Gate sees into the task's progress, and when the change is
 verified marks it done and commits locally. Your job is the content: code, tests,
 documentation. For a UI bug, reproduce and measure it with the `browser` tool first
-(a scratch workbench at the size the bug needs), then change code. Preserve unrelated edits, add meaningful regression coverage (a failing
-test first, then the change, then the tests passing), run tests/verify_workflow.py,
+(a scratch workbench at the size the bug needs), then change code. Preserve unrelated edits, add meaningful regression coverage (tests for the
+change, before or after it: the harness checks they fail without it and pass with it), run tests/verify_workflow.py,
 and `python3 tests/browser/run.py all` after a UI change (exit 2 means the suites did
 not run: say "not verified", never "passed"). Do not create task files, tick progress
 boxes or commit. Keep README instructions aligned with actual behavior.

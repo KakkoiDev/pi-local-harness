@@ -79,6 +79,7 @@ class Paperwork:
             if not passed and '- [x] Red:' not in text:
                 self.progress(item, f'Red: `{command}` failed at {clock()}')
             if passed:
+                item['test_command'] = command  # the harness proves Red with it at the end, if Pi did not show it
                 answer = self.protocol.verification(item['root'])
                 if answer and answer[2]:
                     line = f'- [x] Green: `{command}` passed at {clock()}'
@@ -100,8 +101,12 @@ class Paperwork:
             else:
                 answer = self.protocol.verification(root)
                 reason = None
-                if not self.protocol.failed_run(root): reason = 'no test run failed first (Red)'
-                elif not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
+                if not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
+                elif not self.protocol.failed_run(root):
+                    # Strategy 1 (bench, 2026-10-15): Pi need not work test-first; the harness proves Red itself.
+                    proof = self.prove_red(item, code)
+                    if proof is True: self.progress(item, f"Red (proved by the harness): without the change, `{item['test_command']}` fails")
+                    else: reason = proof
                 if reason:
                     self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
                     return {'outcome': 'not verified', 'task': task, 'reason': reason}
@@ -120,6 +125,30 @@ class Paperwork:
             if not done or done.returncode:
                 return {'outcome': 'commit failed', 'task': task, 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
             return {'outcome': 'committed', 'task': task, 'message': message}
+
+    def prove_red(self, item, code):
+        """Set the request's code changes aside (tests stay), run its last passing test command: it must fail; put the
+        changes back: it must pass. True, or the reason it is not proved."""
+        root, command = item['root'], item.get('test_command')
+        if not command: return 'no test passed on the final code (Green)'
+        changes = [path for path in code if not re.search(r'(^|/)tests?/|(^|/)test_[^/]*$|_test\.py$|\.test\.[mc]?js$', path)]
+        if not changes: return 'only tests changed: nothing to prove'
+        if any(path in item['before'] for path in changes): return 'a changed file had other edits before the request, so Red cannot be proved'
+        saved = {path: (root / path).read_bytes() if (root / path).exists() else None for path in changes}
+        run = lambda: subprocess.run(command, shell=True, cwd=root, capture_output=True, timeout=600).returncode == 0
+        try:
+            for path in changes:
+                original = subprocess.run(['git', '-C', str(root), 'show', f'HEAD:{path}'], capture_output=True)
+                if original.returncode == 0: (root / path).write_bytes(original.stdout)
+                elif (root / path).exists(): (root / path).unlink()
+            without = run()
+        finally:
+            for path, content in saved.items():
+                if content is None: (root / path).unlink(missing_ok=True)
+                else: (root / path).parent.mkdir(parents=True, exist_ok=True); (root / path).write_bytes(content)
+        if without: return f'the tests pass without the change too (`{command}`): they do not test it'
+        if not run(): return f'the tests fail with the change (`{command}`)'
+        return True
 
     # -- the files ------------------------------------------------------------------------------------------------
     def task_for(self, item):
