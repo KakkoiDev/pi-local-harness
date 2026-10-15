@@ -23,7 +23,7 @@ philosophy. Keep that in mind for every decision.
 ### Read first, in this order
 
 1. `docs/README.md`, then `docs/contributing-for-agents.md` (where things live, the commands, the rules).
-2. `ROADMAP.md`, the last 20 lines: tasks 227 to 243 are yours (242 is done).
+2. `ROADMAP.md`, the last 20 lines: tasks 227 to 244 are yours (242 is done).
 3. `docs/plans/236-plan-mode.md`: the specification of plan mode (tasks 236 to 240).
 4. `docs/plans/179-gate-rules.md`: how a Gate rule is written (id, message, lesson, test).
 5. Each task file before you start it.
@@ -69,6 +69,9 @@ Do them in this order. Each later task depends on the earlier ones:
 5. **236**, then **237**, then **238** (plan mode: choices, plan and check-ins, auto-accept), then **240** (terminal).
 6. **235** (the pong bench scenario): after 236 to 238, because it runs with auto-accept.
 7. **241**: confirm with the person first (the task says why).
+9. **244** (the benchmark of the updated harness on four models, records in the repo, the README table): last, after
+   227, 228, 235-238 and 241. It needs two answers from the person first (Luna, the DeepSeek model id) and the
+   person sets the DeepSeek key themselves.
 8. **239** (plan mode's web cards) and **243** (round 9: updates, other devices, the Terminal app kind, Settings): the
    designer's answers are re-synced into `design/` (2026-10-16); build from the boards. **242** is done.
 

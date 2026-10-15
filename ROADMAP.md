@@ -285,3 +285,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [241-Wake a small model that stops before acting](tasks/241-small-model-wake-ups.md)
 - [x] [242-Round 10 brief for the designer: plan mode](tasks/242-round-10-brief.md)
 - [ ] [243-Build round 9: updates, other devices, the Terminal app kind, Settings](tasks/243-build-round-9.md)
+- [ ] [244-Bench the updated harness on four models, keep the records, publish the table](tasks/244-bench-after-the-updates.md)
