@@ -54,6 +54,15 @@ class BenchTest(unittest.TestCase):
             result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None)
             self.assertEqual(result['user_turns'], 1, 'one answer; the reply was not a question, so the run ended')
 
+    def test_no_harness_against_harness_side_by_side(self):
+        line = lambda scenario, mode, build, resolved, solved, seconds, first: {'scenario': scenario, 'model': 'qwen', 'prompt_level': 'everyday', 'mode': mode, 'harness': build,
+                                                                                'resolved': resolved, 'solved': solved, 'seconds': seconds, 'first_try': first}
+        table = runner.compare([line('a', 'bare', 'abc', False, False, 120, False), line('a', 'harness', 'abc', True, True, 300, True), line('b', 'bare', 'abc', False, True, 60, False), line('b', 'harness', 'abc', True, True, 240, False)])
+        self.assertEqual(table['columns'], ['bare abc', 'harness abc'], 'bare first')
+        self.assertEqual(table['rows'][0]['cells'], {'bare abc': '✗ 2 min', 'harness abc': '✓ 5 min (1 first try)'})
+        self.assertEqual(table['rows'][1]['cells']['bare abc'], '~ 1 min', 'solved but broke its regression tests')
+        self.assertEqual(table['totals'], {'bare abc': '0/2', 'harness abc': '2/2'})
+
     def test_the_console_shows_the_bench(self):
         from harness import admin
         with tempfile.TemporaryDirectory() as data:

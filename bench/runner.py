@@ -222,3 +222,21 @@ def summary(results):
                      'minutes': round(sum(line['seconds'] for line in lines) / n / 60, 1), 'wake_ups': round(sum(line['reports'].get('wake-up', 0) for line in lines) / n, 1),
                      'refusals': round(sum(sum(line['rules'].values()) for line in lines) / n, 1)})
     return rows
+
+
+def compare(results, model=None, level='everyday'):
+    """Side by side (the "no harness vs harness" question): one row per scenario, one column per condition (mode and
+    harness build), each cell the runs' outcome: ✓ resolved on the first try, ✓ resolved, ~ solved but broke the
+    regression tests, ✗ not solved; with minutes. {columns, rows: [{scenario, cells: {column: text}}]}."""
+    lines = [line for line in results if line.get('prompt_level', 'precise') == level and (not model or line['model'] == model)]
+    column = lambda line: f"{line.get('mode', 'harness')} {line.get('harness', '')}"
+    columns = sorted({column(line) for line in lines}, key=lambda name: (not name.startswith('bare'), name))
+    def cell(runs):
+        if not runs: return ''
+        mark = lambda line: '✓' if line.get('resolved', line['solved']) else '~' if line['solved'] else '✗'
+        first = sum(bool(line.get('first_try')) for line in runs)
+        return ' '.join(mark(line) for line in runs) + f" {round(sum(line['seconds'] for line in runs) / len(runs) / 60)} min" + (f' ({first} first try)' if first else '')
+    rows = [{'scenario': name, 'cells': {name_: cell([line for line in lines if line['scenario'] == name and column(line) == name_]) for name_ in columns}}
+            for name in sorted({line['scenario'] for line in lines})]
+    totals = {name: f"{sum(line.get('resolved', line['solved']) for line in lines if column(line) == name)}/{sum(column(line) == name for line in lines)}" for name in columns}
+    return {'columns': columns, 'rows': rows, 'totals': totals}

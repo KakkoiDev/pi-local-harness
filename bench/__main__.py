@@ -9,7 +9,7 @@ from bench import runner
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='python3 -m bench')
-    parser.add_argument('command', choices=['list', 'check', 'run', 'report'])
+    parser.add_argument('command', choices=['list', 'check', 'run', 'report', 'compare'])
     parser.add_argument('ids', nargs='*')
     parser.add_argument('--model'); parser.add_argument('--effort')
     parser.add_argument('--repeat', type=int, default=1)
@@ -43,6 +43,14 @@ def main(argv=None):
                       f"{result['tool_calls']} tool calls · wake-ups {result['reports'].get('wake-up', 0)} · refusals {sum(result['rules'].values())}", flush=True)
         return 0
     results = runner.read_jsonl(Path(args.out) / 'results.jsonl')
+    if args.command == 'compare':
+        table = runner.compare(results, args.model, args.prompt)
+        width = max([len('SCENARIO')] + [len(row['scenario']) for row in table['rows']]) + 2
+        cols = [max(len(name), *(len(row['cells'][name]) for row in table['rows'])) + 2 for name in table['columns']] if table['rows'] else []
+        print('SCENARIO'.ljust(width) + ''.join(name.ljust(size) for name, size in zip(table['columns'], cols)))
+        for row in table['rows']: print(row['scenario'].ljust(width) + ''.join(row['cells'][name].ljust(size) for name, size in zip(table['columns'], cols)))
+        print('resolved'.ljust(width) + ''.join(table['totals'][name].ljust(size) for name, size in zip(table['columns'], cols)))
+        return 0
     for row in runner.summary(results):
         print(f"{row['model']} ({row['effort']}) · {row['mode']} {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} resolved, {row['first_try']} first try, {row['verified']} verified, pass^k {row['pass_k']}, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
     return 0
