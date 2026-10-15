@@ -340,7 +340,7 @@ Installing without a store (checked 2026-10-15; these rules move, the lessons ca
   Apple developer identity; with a free Apple ID that signature lasts 7 days and covers up to 3 devices, so the app stops
   opening each week until it is signed again from the Mac; the yearly paid Apple Developer Program gives a year-long
   signature, more devices, and TestFlight for testers; everything else goes through Apple's App Store review. It
-  recommends the PWA when the app needs nothing a PWA cannot do. The lesson (W14) says the same, with the date checked.
+  recommends the PWA when the app needs nothing a PWA cannot do. The lesson (W15) says the same, with the date checked.
 - What the harness does: checks what is installed and what is missing, downloads only after a yes, builds, signs,
   serves the APK by QR, opens Xcode on the right screen, and says each step in plain words. What the person does: the
   taps on the phone and, for iPhone, the Apple ID sign-in in Xcode (never typed by Pi).

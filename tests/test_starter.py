@@ -41,6 +41,13 @@ class StarterTest(unittest.TestCase):
         said = subprocess.run([sys.executable, '-I', str(check), str(self.folder / 'app/templates')], capture_output=True, text=True); said = said.stdout + said.stderr
         self.assertIn('Found 0 issue(s)', said)
 
+    def test_it_starts_with_a_repository_and_a_first_commit(self):
+        log = subprocess.run(['git', '-C', str(self.folder), 'log', '--format=%an|%s'], capture_output=True, text=True).stdout.split('\n')
+        self.assertEqual(log[0], 'Pi Workbench|Start from the Pi Workbench starter', 'the harness commits each verified request: it needs a repository')
+        branch = subprocess.run(['git', '-C', str(self.folder), 'branch', '--show-current'], capture_output=True, text=True).stdout.strip()
+        self.assertEqual(branch, 'main')
+        self.assertEqual(subprocess.run(['git', '-C', str(self.folder), 'status', '--porcelain'], capture_output=True, text=True).stdout, '', 'everything is in it')
+
     def test_a_folder_that_is_not_empty_is_refused(self):
         with self.assertRaises(SystemExit): new_project(self.folder)
 

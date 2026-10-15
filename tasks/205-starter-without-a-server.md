@@ -23,3 +23,7 @@ Plan 198, "Apps with no server at all". Decisions 2026-10-15: "ok for the type c
   translated again with the page.
 - [x] Opened in the browser: add, reload (kept), the empty-title message, Japanese, the outlined buttons. The service
   worker registers in headless Chromium (the app's built-in pane does not support service workers).
+- [x] Found by the course's writer: a new project had no repository, so the harness's first commit would fail.
+  `new_project.py` now starts it with `git init -b main` and a first commit ("Start from the Pi Workbench starter");
+  tested. And the Basecoat card now says the project's own rules go at the end of `styles/input.css` (`static/app.css`
+  is the build's output).

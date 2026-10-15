@@ -26,4 +26,5 @@ with a small script for the interactive ones and Jinja macros for the complex on
    which projects do not load: they render as plain text. Most examples online are pre-1.0.
 3. Dialogs, dropdown menus, popovers, selects, tabs, toasts, comboboxes and the sidebar are Jinja macros
    (`{% import 'basecoat/dialog.html.jinja' as dialog %}`), with `js/basecoat.min.js` loaded once.
-4. No other CSS framework; the project's own few rules go in `app.css`.
+4. No other CSS framework; the project's own few rules go at the end of `styles/input.css` (`static/app.css` is what the
+   Tailwind build writes: never edit it).

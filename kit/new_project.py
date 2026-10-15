@@ -5,6 +5,7 @@
 """
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -16,6 +17,14 @@ def library(name: str) -> Path:
     return KIT / found["folder"]
 
 
+def start_history(folder: Path) -> None:
+    """A repository with a first commit: the harness commits each verified request, which needs one."""
+    git = ["git", "-C", str(folder), "-c", "user.name=Pi Workbench", "-c", "user.email=pi-workbench@localhost"]
+    subprocess.run([*git, "init", "-q", "-b", "main"], check=True)
+    subprocess.run([*git, "add", "-A"], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "Start from the Pi Workbench starter"], check=True)
+
+
 def new_project(folder: Path, static: bool = False) -> Path:
     if folder.exists() and any(folder.iterdir()):
         raise SystemExit(f"{folder} is not empty; choose a new folder.")
@@ -24,12 +33,14 @@ def new_project(folder: Path, static: bool = False) -> Path:
     if static:  # no server: no htmx (nothing to ask); Basecoat's styles only
         shutil.copytree(basecoat / "css", folder / "vendor" / "basecoat" / "css")
         shutil.copy(basecoat / "LICENSE.md", folder / "vendor" / "basecoat" / "LICENSE.md")
+        start_history(folder)
         return folder
     shutil.copy(htmx / "htmx.min.js", folder / "static" / "htmx.min.js")
     shutil.copy(basecoat / "js" / "basecoat.min.js", folder / "static" / "basecoat.min.js")
     shutil.copytree(basecoat / "css", folder / "vendor" / "basecoat" / "css")
     shutil.copy(basecoat / "LICENSE.md", folder / "vendor" / "basecoat" / "LICENSE.md")
     shutil.copy(htmx / "LICENSE", folder / "static" / "htmx.LICENSE")
+    start_history(folder)
     return folder
 
 
