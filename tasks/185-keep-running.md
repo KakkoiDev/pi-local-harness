@@ -16,3 +16,6 @@ wake it up when it goes idle mid-run, loops, etc."
   summary updated; lesson L-002 updated.
 - [x] Web workers read the verification too, wait 2 s after Pi settles (room for a wake-up, which reuses the recovery
   notice), and report their own "Not verified" answers.
+- [x] Fix after the first commit (the chat browser suite caught it): ending every web request 2 s after Pi settles made
+  answers slower; the extension now says "Harness settled" when it will not wake Pi, and the web ends the request at once
+  (the 2 s wait stays as a fallback). The fake Pi sends it too.

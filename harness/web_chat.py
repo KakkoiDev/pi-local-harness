@@ -440,13 +440,14 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
-            phase='answering'
+            phase='answering';harness_done=False  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
                 if cancelled.is_set():raise ValueError('Stopped')
-                try:event=events.get(timeout=2 if settled else .5)  # plan 184: room for the harness to wake Pi after it settles
+                if settled and harness_done:break
+                try:event=events.get(timeout=2 if settled else .5)  # plan 184: room for the harness to wake Pi after it settles (a fallback: it says "Harness settled")
                 except queue.Empty:
                     if settled:break
                     continue
@@ -457,7 +458,8 @@ class WebChat:
                 if event.get('type')=='extension_ui_request' and event.get('method')=='notify':
                     notice=str(event.get('message',''))
                     if notice.startswith(('Harness recovery stopped:','Harness refused:')):raise ValueError(notice.split(':',1)[1].strip())
-                    if notice.startswith('Harness recovery:'):phase='recovering';settled=False
+                    if notice.startswith('Harness recovery:'):phase='recovering';settled=False;harness_done=False
+                    if notice=='Harness settled':harness_done=True
                 if event.get('type')=='agent_start':
                     settled=False
                     if phase=='recovering':phase='reasking'

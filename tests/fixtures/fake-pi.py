@@ -68,4 +68,5 @@ else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
     emit({'type':'agent_settled'})
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})  # what the extension says when it will not wake Pi (plan 184)
     sys.stdin.readline()

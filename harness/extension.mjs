@@ -285,10 +285,13 @@ export default function harness(pi, dependencies = {}) {
     // G-012 (plan 179, L-005) and plan 184: code changed during the request and Gate saw no passing test on it afterwards.
     // The harness wakes Pi to finish (not when the person stopped it, nor when Pi asked the person something); out of
     // wake-ups, the turn is marked "Not verified".
-    if (!verifiedBefore || pending) return;
+    // The web worker ends the request as soon as the harness says it will not wake Pi ("Harness settled").
+    const settledNow = () => { if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info'); };
+    if (pending) return;
+    if (!verifiedBefore) { settledNow(); return; }
     const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
-    if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; return; }
+    if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; settledNow(); return; }
     const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
     if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
       retries++;
@@ -298,7 +301,7 @@ export default function harness(pi, dependencies = {}) {
       pi.sendUserMessage(`Continue (harness wake-up ${round}): you changed ${files} and no passing test ran on that code yet. Run the tests, fix what fails, and finish the request. If it cannot be tested, say why in one line.`);
       return;
     }
-    verifiedBefore = undefined;
+    verifiedBefore = undefined; settledNow();
     if (!process.env.PI_HARNESS_SHARED_PORT) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
   });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
