@@ -7,6 +7,19 @@ to figure out. We just make it really good at using one way of the most versatil
 Decided 2026-10-15: **FastAPI with Jinja2**, **plain sqlite3** (a data module per table), **PWA only**, the blocks
 catalogue starts with **the dozen common ones**. Scope: new projects first.
 
+## Opinionated. Local. Capable.
+
+Added 2026-10-15: "I want Pi Local Harness to be: Opinionated. Local. Capable." and "I would like the AI agent to have
+access to premade tools and techniques so it doesn't have to figure them out, and reuse those libs and others … the core
+libs packaged directly in the harness … all the uv and other utils packaged in it, or at least referenced … and this
+project itself refactored according to the stack."
+
+- **Opinionated:** one way for each need (below); the harness knows it completely.
+- **Local:** everything Pi needs to build with is on the machine (pinned libraries, their agent cards, the toolchain);
+  no CDN, no docs fetched at build time; works offline once installed.
+- **Capable:** premade, tested pieces (libraries, logic blocks, generators, recipes) so the model assembles and fills
+  in rather than invents.
+
 ## Why
 
 What we have measured so far points the same way:
@@ -50,6 +63,30 @@ the decision below, other databases. Adding one is the person's decision (a Gate
 - **Components** are Basecoat classes and macros only; no hand-written CSS except in one `app.css` for the project's
   own few rules.
 - **Every page** works at 390 px wide and 1440 px wide, and is checked at both.
+
+## The kit: premade libraries, cards, recipes and tools, packaged in the harness
+
+`kit/` in this repository, versioned with the harness:
+
+- **Libraries, vendored and pinned** (plain files, no build step, committed, as p2p-core recommends): htmx 4, Basecoat
+  (CSS and its script), **p2p-core** (browser multiplayer and device-to-device data: same browser, same Wi-Fi with no
+  internet, anywhere, pairing codes; it covers what htmx does not: real-time and peer-to-peer), LittleJS for browser
+  games (as the Kakkoi School handbook routes games to it). Each with its version, licence and source in
+  `kit/libraries.json`; `plh kit update` pins a new version deliberately.
+- **An agent card per library**, in the form p2p-core's AGENTS.md already uses: "the five lines that are almost always
+  right", then the rules. Where the upstream project keeps its own (p2p-core's AGENTS.md, LittleJS-AI), the kit keeps a
+  pinned copy of theirs instead of writing a second one (the handbook's rule: do not duplicate upstream guidance), so
+  it works offline and does not drift.
+- **Recipes and skills**, in the handbook's form: a router from intent to a recipe ("add a page", "add multiplayer",
+  "publish", "serve on my phone"), each recipe a short procedure the harness can also run as a generator; skills as
+  slash commands (`/serve`, `/publish`). The handbook's GitHub recipes are referenced, not copied.
+- **The toolchain, pinned:** `kit/toolchain.json` names exact versions and checksums of uv, the Python uv installs,
+  Tailwind's standalone binary and Chromium for the browser tool. `plh setup` installs them into the harness's own
+  folder (`~/.local/share/pi-local-harness/tools/`), never system-wide; `/doctor` checks them. Pi's commands are fixed
+  (`uv run pytest`, `uv run plh-css`, `uv add` only for the stack's list): it never chooses a package manager or a
+  version.
+- **How Pi reaches it:** the `stack` tool (look up a card, a block, a recipe; run a generator), the keyword guides
+  (task 196) pointing to the right card, and the checks that hold the code to the kit.
 
 ## Logic as known, tested building blocks (functional core)
 
@@ -98,8 +135,40 @@ harness gives it and checks. So:
 5. **Gate rules for the stack** (only in projects made from the template): a new dependency outside the stack's list,
    a `package.json`, a single-page framework or a second CSS framework is sent back ("the stack does not use it; ask
    the person"). Raw SQL outside `app/db.py` and `migrations/` is sent back.
-6. **The workbench eats its own cooking:** plans 151 (component library) and 152 (htmx 4 with server-sent events)
-   move the workbench's own front end to the same stack, so the harness's authors use what Pi uses.
+6. **The harness moves onto its own stack** (see "This project on the stack" below), so its authors use what Pi uses.
+
+## This project on the stack
+
+Today the harness is standard-library Python (no dependencies, by design) and a hand-written ES-module front end.
+With uv packaged in the kit, dependencies are no longer a cost to the person, so the harness can use the stack:
+
+- **Backend:** FastAPI with Jinja2 replaces the standard-library HTTP handler in `harness/web_chat.py`; the queue, Gate,
+  the paperwork and the console stay as they are (they are already plain Python). `pyproject.toml` and `uv.lock`; `plh`
+  starts through `uv run`.
+- **Front end:** htmx 4 and Basecoat replace the single-page modules in `js/`, view by view (plans 151 and 152), with
+  server-sent events for live progress. The browser suites stay the safety net: each view moves only when its suite
+  passes on the new one.
+- **The look:** the 1-bit System 1 design becomes a Basecoat theme (a style pack: tokens, square corners, inversion for
+  selection). That is a design change: it goes to the designer first, as a brief (the person's rule: design changes go
+  through the designer).
+- **Order:** after the kit and the starter project exist and the bench shows the stack pack helps, so the refactor
+  follows a stack that is proven, and each step is measured (the bench runs on the harness's own history scenarios).
+
+## Phones
+
+| Option | What it is | Fits the stack? |
+| --- | --- | --- |
+| **PWA** (the default) | The same app, installed from the browser: icon, full screen, offline pages, notifications | Fully: same code |
+| **Capacitor** | A native iOS/Android shell around the same web app: app stores, native APIs (camera, files, notifications, biometrics) | Yes: the htmx app stays; the shell talks to the person's machine over the tailnet. Needs Xcode / Android Studio to build |
+| **Tauri 2 (mobile)** | Like Capacitor, with a small Rust core | Same idea, a younger mobile story, Rust toolchain |
+| **Hyperview** | Server-driven native screens (its own XML, HXML) with a React Native client: hypermedia, natively | The same philosophy, but a second markup language and React Native |
+| **Flet** | Flutter interfaces written in Python; builds iOS, Android, desktop and web | Python everywhere, logic on the phone (offline), but a second UI way beside htmx |
+| **BeeWare / Kivy** | Native widgets (BeeWare) or custom ones (Kivy, games) in Python | Python, but a second UI way; smaller ecosystems |
+| Swift/Kotlin, React Native, Flutter (Dart) | Native or cross-platform frameworks | Out: another language and ecosystem |
+
+Recommended ladder, still one way at a time: **PWA** for everything; **Capacitor** only when an app needs a store or a
+native API, around the same htmx app. Phone apps that must work fully offline with logic on the device are the one case
+the stack does not cover well (Flet would be the exception path, decided per project).
 
 ## How we know it helps (the bench)
 
@@ -125,13 +194,16 @@ beat the general harness on these scenarios, without losing on the others, or it
 
 ## Phases
 
-1. The decisions below; the template, with its tests and PWA files; the bench's stack track and its baseline (general
-   harness and bare).
+0. The kit's skeleton: `kit/libraries.json` and `kit/toolchain.json` (pinned, licences checked), the vendored htmx 4,
+   Basecoat and p2p-core with their cards, `plh setup` for the toolchain.
+1. The template, with its tests and PWA files; the bench's stack track and its baseline (general harness and bare).
 2. The knowledge pack (HTMX 4 reference, Basecoat catalogue, conventions) and the first blocks, as guides and the
    `stack` tool; the Exercism kata track. Measure.
 3. The checks after every edit (htmx, Basecoat, routes, pages at two sizes). Measure.
 4. The generators. Measure.
-5. The stack's Gate rules. The workbench's own front end on the stack (plans 151, 152).
+5. The stack's Gate rules.
+6. This project on the stack: FastAPI backend, then the views one by one on htmx 4 and Basecoat (after the designer's
+   Basecoat theme), measured on the bench's history scenarios.
 
 ## Decisions for the person
 
