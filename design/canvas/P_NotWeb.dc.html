@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Preview · not a web app: say what it is, dim the view, keep the window</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #fff"><div style="position: absolute; top: 28px; left: 0"><div class="pw-root pw-desk" style="width: 1440px; height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 20px; align-items: stretch; position: relative; color: #000"><section class="pw-window" aria-label="Project" style="width: 250px; flex: none"><div class="pw-titlebar"><a href="Projects.dc.html" class="pw-box" aria-label="Close project"></a><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">pi-local-harness</h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><div class="pw-infobar"><a href="Projects.dc.html" class="pw-infobar__back">‹ Projects</a><span style="margin-left: auto">2 requests</span></div><nav class="pw-window__body" aria-label="Files"><section class="pw-group" aria-labelledby="g-files"><div class="pw-group__head"><h3 class="pw-group__title" id="g-files"><button class="pw-group__toggle" aria-expanded="true" aria-controls="g-files-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Files<span class="pw-group__count">5</span></button></h3></div><div class="pw-group__body" id="g-files-body" role="list"><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">gate/</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">harness/</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">tests/</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">AGENT.md</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">ROADMAP.md</span></a></div></section></nav></section><section class="pw-window" aria-label="Chat" style="flex: 1; min-width: 0"><div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">pi-local-harness</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-infobar" style="padding: 8px 12px"><nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html" aria-current="page">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a></nav><span style="flex: 1"></span><span class="pw-mono" style="font-size: 13px">~/code/pi-local-harness</span><a href="P_Beside.dc.html" class="pw-btn" role="button" aria-pressed="true" aria-controls="preview" style="min-height: 26px; font-size: 14px">Preview<span class="pw-kbd">⌥⌘P</span></a></div><div class="pw-window__body" tabindex="0" aria-label="Messages" style="display: flex; flex-direction: column; justify-content: flex-end"><div class="pw-transcript" style="padding: 20px 24px"><article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>13:10</time></div><p class="pw-msg__body">Why does the queue keep the interrupted job after a restart?</p></article><article class="pw-msg"><div class="pw-msg__label"><b>Pi</b><time>13:12</time></div><p class="pw-msg__body">Interrupted work is kept on purpose: it is never repeated automatically. The badge should count only running and waiting requests.</p></article></div></div><form class="pw-composer"><textarea class="pw-field" rows="2" placeholder="Ask anything, or drop a file here" aria-label="Message"></textarea><div class="pw-composer__row"><button type="button" class="pw-btn">Attach…</button><span style="flex: 1"></span><button type="submit" class="pw-btn pw-btn--default">Send</button></div></form></section><section class="pw-window pw-preview pw-preview--dim" id="preview" aria-label="Preview" style="width: 480px; flex: none"><div class="pw-titlebar"><button class="pw-box" aria-label="Close Preview"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Preview · pi-local-harness</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-toolbar"><label class="pw-address"><span class="pw-address__host">—</span><input aria-label="Page" value="/" disabled></label><button class="pw-btn" disabled>Reload</button></div><div class="pw-toolbar"><div class="pw-seg" role="radiogroup" aria-label="Size"><button role="radio" aria-checked="false" disabled>Phone</button><button role="radio" aria-checked="false" disabled>Tablet</button><button role="radio" aria-checked="false" disabled>Full</button></div><div class="pw-seg" role="radiogroup" aria-label="App language"><button role="radio" aria-checked="false" disabled>English</button><button role="radio" aria-checked="false" disabled>日本語</button></div></div><div class="pw-preview__stage pw-desk"><div class="pw-preview__empty"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><p><b style="font-weight: 600">pi-local-harness is not a web app.</b></p><p class="pw-help" style="margin: 0; color: inherit">It is a Python program you start in the terminal (<span class="pw-mono">plh</span>), so there is no page to show here. Its tests run in Activity.</p></div></div><div class="pw-preview__foot"><span class="pw-glyph" role="status"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>No app</span><button class="pw-btn" disabled>Stop</button><span style="flex: 1"></span><button class="pw-btn" disabled>Open on Phone…</button><button class="pw-btn" disabled>Open in Browser</button></div></section></div></div><div style="position: absolute; top: 0; left: 0; width: 1440px; z-index: 5"><dc-import name="C_MenuBar" open="none" view="chat" status="Ready" statusState="rest" hint-size="1440px,28px"></dc-import></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -513,3 +513,32 @@ The terminal boards are redrawn with the repo's names; nothing in this list asks
 10. **Startup**: Pi's banner and any tmux warning drawn above the harness header.
 11. **Task record** (task 172, question): no × buttons in this system; the button that opened the section closes it (“Show Task Record” / “Hide Task Record”, `aria-expanded`), and the Agent menu item follows its label. Keep it inline under the double rule, not a window: it belongs to the selected request and changes with the selection; Event Info is a window because it follows whatever is selected anywhere. Phone: a Sheet titled “Task record” with Close.
 12. **Thinking levels** (question): show only the 4 that differ: Off, Low, Medium, High, in the web menu and in `/models use <name> <effort>` completion. Seven labels for four behaviours would make three of them lie. A saved minimal/xhigh/max keeps loading and shows as Low/High.
+
+## 2026-10-15 · Round 7: the app, running beside the chat (plan 198)
+
+Boards: canvas page **App preview** — [P_Answers], [P_Beside], [P_Changed], [P_Starting], [P_NotStarted], [P_NotWeb], [P_Error], [P_Fixing], [P_Tablet], [P_Full], [P_OnPhone], [P_Undo], [P_UndoConflict], [P_Undone], [P_Narrow], [P_Japanese], [P_DoneParts], [Ph_PreviewMenu], [Ph_Preview], [Ph_Done]. Cards: PreviewWindow, DoneRow. CSS: the round 7 block at the end of `components/bundle.css` (the canvas boards carry it inline until the next canvas stylesheet).
+
+1. **Preview window** beside the chat (`#preview`, 480px), a third view (Chat · Work · Preview ⌥⌘P) when the chat would drop under 480px; Window → Preview ⌥⌘P and the chat info bar's Preview toggle are one command. Phone: a view in the view menu, not a sheet.
+2. **Dev server lifetime** (`harness/preview.py`, new): start the project's run command when the Preview is first shown (starter: `uv run uvicorn app.main:app --reload` on a free port), stop it when the project closes or plh quits. The first time a project's run command answers, open the Preview once by itself; then remember open/closed per project. One Stop / Start button. Expose the state (`none`, `notweb`, `starting`, `running`, `error` + last stderr line) over the existing SSE stream.
+3. **Reload note**: after a request (or an undo) changes files and the server reloads, the note line “Pi changed N files. Reloaded.”; the iframe reloads only if the server's reloader did not already.
+4. **Sizes**: Phone 390, Tablet 768 × 1024 scaled with `transform: scale()` to fit (caption says the %), Full = the stage's width. The language segment sets the app's language (the starter reads `?lang=` / a cookie), separate from the workbench's.
+5. **Open on Phone…**: the Phone dialog's QR, for the app's own tailnet address (`tailscale serve` a second port while it runs). If phone access is off, the existing phone-off alert.
+6. **Error**: the last stderr line in mono; **Ask Pi to Fix** sends, as the person, “The app stopped with this error: <line> Please fix it so the app starts again.” (label “· from Preview”); **Start Again** restarts.
+7. **DoneRow** under every answer whose request made a commit: head (✓ Done or ! Not verified, files, time), 2–3 plain-words lines, **Show in Preview**, **Undo This Request…**. Pi writes the lines into the task file's “For the person” section; the harness renders them. Move the G-012 sentence out of the answer text into this row.
+8. **Undo** = `git revert` of the request's commit as a new harness commit with its own row (↶ Undone, Redo Request…). If the revert does not apply cleanly, abort it (nothing changes) and show the Note alert naming the later request; **Ask Pi Instead** sends the request in words.
+9. **LessonLine**: at most one per answer, when the harness first sees an idea in this project (first commit, first test, first dependency…), mapped to a KakkoiSchool lesson in the person's language; **Hide** dismisses that one; Settings → “Show lessons” (on).
+10. **Japanese**: every new bar uses flex-wrap and buttons size to their labels; the strings on P_Japanese are the proposed Japanese copy.
+
+Answers to the brief's questions are on [P_Answers]: beside (a view when narrow; a view on the phone), the workbench starts the app when the Preview is shown and not before, “Undo This Request…”, a separate quiet row (with G-012 moved into it), and wrap-everything for Japanese.
+
+### Round 7 update: what is built (tasks 200–205)
+
+New boards: [P_UndoUnsaved], [P_NewProject], [P_NewProjectStatic]; redrawn: [P_Starting], [P_Error], [P_Fixing], [P_Undo], [P_UndoConflict], [P_Undone], [P_Answers].
+
+11. **States** map one to one to task 202's: none (○ No app; a non-app project says what it is, dimmed), starting, running, stopped. Stopped shows the app's last 8 lines in mono, the last one bold; Ask Pi to Fix sends the last line in the message and the 8 lines in a disclosure. Starting copy: “about 15 seconds” the first time.
+12. **Undo** (task 203): the confirmation lists the files from the before-undo check in an open disclosure. The three built refusals become alerts; each title says what did not happen, the detail says why and “Nothing was changed.”, and the advice becomes a button:
+    - changed again after → **Ask Pi Instead** (default). Repo: name the later request (“in “Show the newest note first” (14:51)”), from `git log` of that file.
+    - unsaved changes → **Save Them, Then Undo** (new: commit them as “Your edits · HH:MM”, then revert) · Cancel (default). Repo change.
+    - already undone → never shown in the web (Undo disabled on an undone row); keep it for the terminal.
+    - Undone result as the undo's row text: “Undid “<request>”. 2 files changed back as a new change: nothing is lost, and Redo brings it back.” In the web, drop “(task 001)” from the request name (Activity shows the task).
+13. **New Project…** (tasks 200, 205): kind radios Web app (default) · App with no server · Empty folder, the deciding question as help, and a line that says what gets made. Add `.pw-radio` / `.pw-choice` (bundle.css) and use them in Settings → Appearance too.

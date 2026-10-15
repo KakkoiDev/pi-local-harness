@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The workbench in Japanese: labels wrap, nothing is fixed-width</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #fff"><div style="position: absolute; top: 28px; left: 0"><div class="pw-root pw-desk" style="width: 1440px; height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 20px; align-items: stretch; position: relative; color: #000"><section class="pw-window" aria-label="Chat" style="flex: 1; min-width: 0"><div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">クラスノート</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-infobar" style="padding: 8px 12px"><nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html" aria-current="page">チャット<kbd>⌘1</kbd></a><a href="Final.dc.html">作業<kbd>⌘2</kbd></a></nav><span style="flex: 1"></span><span class="pw-mono" style="font-size: 13px">~/code/クラスノート</span><a href="P_Beside.dc.html" class="pw-btn" role="button" aria-pressed="true" aria-controls="preview" style="min-height: 26px; font-size: 14px">プレビュー<span class="pw-kbd">⌥⌘P</span></a></div><div class="pw-window__body" tabindex="0" aria-label="Messages" style="display: flex; flex-direction: column; justify-content: flex-end"><div class="pw-transcript" style="padding: 20px 24px"><section class="pw-done" aria-label="What was done"><p class="pw-done__head"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>完了</span><span>· 14 ファイル · <time>14:21</time></span></p><p class="pw-done__text">クラスノートを作りました。授業のメモを日本語と英語で書けるページで、スマホにアプリのように追加できます。</p><p class="pw-done__text">試しました：メモを追加して再読み込みしても残っていました。</p><div class="pw-done__actions"><a href="P_Beside.dc.html#preview" class="pw-btn">プレビューで表示</a><a href="P_Undo.dc.html" class="pw-btn">この依頼を取り消す…</a></div><p class="pw-lesson" role="note"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M.5 2.5h5a2.5 2.5 0 0 1 2.5 2.5v9.5a2 2 0 0 0-2-2H.5zM15.5 2.5h-5A2.5 2.5 0 0 0 8 5v9.5a2 2 0 0 1 2-2h5.5z" fill="none" stroke="currentColor"/></svg>レッスン</span><span>このプロジェクトで最初のコミットです。Git は初めてですか？ <a href="#" class="pw-link">T19 Git の基本</a> · 10 分</span><button class="pw-lesson__hide">非表示</button></p></section><article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>あなた</b><time>14:30</time></div><p class="pw-msg__body">メモを削除できますか？間違えて消さないように、先に確認してください。</p></article><article class="pw-msg"><div class="pw-msg__label"><b>Pi</b><time>14:32</time></div><p class="pw-msg__body">各メモに削除ボタンを付けました。削除する前に確認します。1 つ削除しても他のメモが残ることをテストで確かめました。</p><div class="pw-tool"><div class="pw-tool__cmd">$ uv run pytest</div><div class="pw-tool__checks"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gate 許可</span><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>6 件成功</span></div></div></article><section class="pw-done" aria-label="What was done"><p class="pw-done__head"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>完了</span><span>· 2 ファイル · <time>14:32</time></span></p><p class="pw-done__text">各メモに削除ボタンを付けました。削除の前に確認します。</p><p class="pw-done__text">試しました：1 つ削除しても他のメモは残ります。</p><div class="pw-done__actions"><a href="P_Beside.dc.html#preview" class="pw-btn">プレビューで表示</a><a href="P_Undo.dc.html" class="pw-btn">この依頼を取り消す…</a></div></section></div></div><form class="pw-composer"><textarea class="pw-field" rows="2" placeholder="何でも聞いてください。ファイルのドロップもできます" aria-label="Message"></textarea><div class="pw-composer__row"><button type="button" class="pw-btn">添付…</button><span style="flex: 1"></span><button type="submit" class="pw-btn pw-btn--default">送信</button></div></form></section><section class="pw-window pw-preview" id="preview" aria-label="Preview" style="width: 480px; flex: none"><div class="pw-titlebar"><button class="pw-box" aria-label="Close Preview"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">プレビュー · クラスノート</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-toolbar"><label class="pw-address"><span class="pw-address__host">クラスノート</span><input aria-label="ページ" value="/notes"></label><button class="pw-btn">再読み込み</button></div><div class="pw-toolbar"><div class="pw-seg" role="radiogroup" aria-label="サイズ"><button role="radio" aria-checked="true">スマホ</button><button role="radio" aria-checked="false">タブレット</button><button role="radio" aria-checked="false">全幅</button></div><div class="pw-seg" role="radiogroup" aria-label="アプリの言語"><button role="radio" aria-checked="false">English</button><button role="radio" aria-checked="true">日本語</button></div></div><div class="pw-preview__stage pw-desk"><div class="pw-preview__frame" style="width: 390px; height: 600px"><div lang="ja" style="position: relative; font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; font-size: 15px; line-height: 1.4; color: #000; background: #fff; height: 100%">
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #000; color: #fff"><b style="font-size: 18px; font-weight: 600">クラスノート</b><span style="font-size: 13px; border: 1px solid #fff; border-radius: 999px; padding: 2px 9px">EN · 日本語</span></header>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 8px"><span style="flex: 1; border: 1px solid #000; border-radius: 8px; padding: 8px 10px; color: #767676">メモを書く…</span><span style="border-radius: 8px; background: #000; color: #fff; padding: 8px 14px">追加</span></div>
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px"><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">第3週・単語</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">駅（えき）station、電車（でんしゃ）train</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">削除</button></article><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">宿題</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">金曜日までに 12〜15 ページを読む。</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">削除</button></article><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">漢字テスト</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">火曜日、第4〜6課。</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">削除</button></article></div>
+</div></div></div><span class="pw-preview__caption">スマホ · 幅 390</span></div><div class="pw-preview__foot"><span class="pw-glyph" role="status"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3.5 2v12l10-6z" fill="currentColor"/></svg>実行中</span><button class="pw-btn">停止</button><span style="flex: 1"></span><button class="pw-btn">スマホで開く…</button><button class="pw-btn">ブラウザで開く</button></div></section></div></div><div style="position: absolute; top: 0; left: 0; right: 0; height: 28px; border-bottom: 1px solid #000; display: flex; align-items: center; padding: 0 14px; font-family: var(--font-chrome); font-size: 13px">Menu bar in Japanese comes with plan 198; this board checks the windows.</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

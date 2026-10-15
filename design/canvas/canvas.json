@@ -1711,6 +1711,200 @@
    "h": 844,
    "title": "Activity · Task record as a sheet with Close",
    "page": "phone"
+  },
+  "P_Answers.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1060,
+   "title": "Answers: beside or a view, who starts the app, undo wording, where the lines go, New Project kinds, Japanese",
+   "page": "preview"
+  },
+  "P_Beside.dc.html": {
+   "x": 0,
+   "y": 1220,
+   "w": 1440,
+   "h": 900,
+   "title": "1 · Preview beside the chat; under each answer, what was done",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Changed.dc.html": {
+   "x": 1520,
+   "y": 1220,
+   "w": 1440,
+   "h": 900,
+   "title": "2 · While Pi works: “Pi changed 2 files. Reloaded.”",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Starting.dc.html": {
+   "x": 3040,
+   "y": 1220,
+   "w": 1440,
+   "h": 900,
+   "title": "3 · Starting the app (first start installs, about 15 s)",
+   "page": "preview"
+  },
+  "P_NotStarted.dc.html": {
+   "x": 0,
+   "y": 2280,
+   "w": 1440,
+   "h": 900,
+   "title": "4 · No app to show yet",
+   "page": "preview"
+  },
+  "P_NotWeb.dc.html": {
+   "x": 1520,
+   "y": 2280,
+   "w": 1440,
+   "h": 900,
+   "title": "5 · Not an app: say what it is, dim, keep the window",
+   "page": "preview"
+  },
+  "P_Error.dc.html": {
+   "x": 3040,
+   "y": 2280,
+   "w": 1440,
+   "h": 900,
+   "title": "6 · Stopped: the app’s last 8 lines, Ask Pi to Fix, Start Again",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Fixing.dc.html": {
+   "x": 0,
+   "y": 3340,
+   "w": 1440,
+   "h": 900,
+   "title": "7 · Ask Pi to Fix sent the error; Pi is fixing it",
+   "page": "preview"
+  },
+  "P_Tablet.dc.html": {
+   "x": 1520,
+   "y": 3340,
+   "w": 1440,
+   "h": 900,
+   "title": "8 · Tablet: 768 × 1024 scaled to fit",
+   "page": "preview"
+  },
+  "P_Full.dc.html": {
+   "x": 3040,
+   "y": 3340,
+   "w": 1440,
+   "h": 900,
+   "title": "9 · Full: the window’s width",
+   "page": "preview"
+  },
+  "P_OnPhone.dc.html": {
+   "x": 0,
+   "y": 4400,
+   "w": 1440,
+   "h": 900,
+   "title": "10 · Open on Phone…: the app’s QR",
+   "page": "preview"
+  },
+  "P_Undo.dc.html": {
+   "x": 1520,
+   "y": 4400,
+   "w": 1440,
+   "h": 900,
+   "title": "11 · Undo This Request…: the files that change back; Cancel default",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_UndoConflict.dc.html": {
+   "x": 3040,
+   "y": 4400,
+   "w": 1440,
+   "h": 900,
+   "title": "12 · Not undone: changed again after it; Ask Pi Instead",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Undone.dc.html": {
+   "x": 1520,
+   "y": 5460,
+   "w": 1440,
+   "h": 900,
+   "title": "14 · After Undo: its own row; the app reloaded",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Narrow.dc.html": {
+   "x": 1520,
+   "y": 6520,
+   "w": 1024,
+   "h": 900,
+   "title": "17 · Narrow: Preview is a third view, ⌥⌘P",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_Japanese.dc.html": {
+   "x": 2624,
+   "y": 6520,
+   "w": 1440,
+   "h": 900,
+   "title": "18 · The workbench in Japanese",
+   "page": "preview"
+  },
+  "P_DoneParts.dc.html": {
+   "x": 0,
+   "y": 7580,
+   "w": 1440,
+   "h": 1250,
+   "title": "19 · Done row and lesson line: every variant",
+   "page": "preview"
+  },
+  "Ph_PreviewMenu.dc.html": {
+   "x": 1520,
+   "y": 7580,
+   "w": 390,
+   "h": 844,
+   "title": "20 · Phone: the view menu gains Preview",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "Ph_Preview.dc.html": {
+   "x": 1970,
+   "y": 7580,
+   "w": 390,
+   "h": 844,
+   "title": "21 · Phone: Preview view",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "Ph_Done.dc.html": {
+   "x": 2420,
+   "y": 7580,
+   "w": 390,
+   "h": 844,
+   "title": "22 · Phone: the done row",
+   "page": "preview"
+  },
+  "P_UndoUnsaved.dc.html": {
+   "x": 0,
+   "y": 5460,
+   "w": 1440,
+   "h": 900,
+   "title": "13 · Not undone: changes not saved in a commit; Save Them, Then Undo",
+   "page": "preview"
+  },
+  "P_NewProject.dc.html": {
+   "x": 3040,
+   "y": 5460,
+   "w": 1440,
+   "h": 900,
+   "title": "15 · New Project… gets a kind (Web app default)",
+   "page": "preview",
+   "is_interactive": true
+  },
+  "P_NewProjectStatic.dc.html": {
+   "x": 0,
+   "y": 6520,
+   "w": 1440,
+   "h": 900,
+   "title": "16 · New Project… · App with no server",
+   "page": "preview"
   }
  },
  "createdOnFiles": {
@@ -1990,6 +2184,15 @@
    "w": 240,
    "x": 0,
    "y": -260
+  },
+  "pv1": {
+   "kind": "title1",
+   "maxW": 4400,
+   "page": "preview",
+   "text": "App preview — the person’s app beside the chat (plan 198)",
+   "w": 240,
+   "x": 0,
+   "y": -260
   }
  },
  "order": [
@@ -2191,7 +2394,30 @@
   "T_Wayfinding.dc.html",
   "T_Workbench.dc.html",
   "A_Record.dc.html",
-  "Ph_ActivityRecord.dc.html"
+  "Ph_ActivityRecord.dc.html",
+  "P_Answers.dc.html",
+  "P_Beside.dc.html",
+  "P_Changed.dc.html",
+  "P_Starting.dc.html",
+  "P_NotStarted.dc.html",
+  "P_NotWeb.dc.html",
+  "P_Error.dc.html",
+  "P_Fixing.dc.html",
+  "P_Tablet.dc.html",
+  "P_Full.dc.html",
+  "P_OnPhone.dc.html",
+  "P_Undo.dc.html",
+  "P_UndoConflict.dc.html",
+  "P_Undone.dc.html",
+  "P_Narrow.dc.html",
+  "P_Japanese.dc.html",
+  "P_DoneParts.dc.html",
+  "Ph_PreviewMenu.dc.html",
+  "Ph_Preview.dc.html",
+  "Ph_Done.dc.html",
+  "P_UndoUnsaved.dc.html",
+  "P_NewProject.dc.html",
+  "P_NewProjectStatic.dc.html"
  ],
  "pages": [
   {
@@ -2205,6 +2431,10 @@
   {
    "id": "terminal",
    "name": "Terminal"
+  },
+  {
+   "id": "preview",
+   "name": "App preview"
   },
   {
    "id": "states",

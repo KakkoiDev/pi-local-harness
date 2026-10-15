@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Narrow window (the chat would drop under 480 px): Preview is a third view, ⌥⌘P</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div style="width: 1024px; height: 900px; position: relative; overflow: hidden; background: #fff"><div style="position: absolute; top: 28px; left: 0"><div class="pw-root pw-desk" style="width: 1024px; height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 20px; align-items: stretch; position: relative; color: #000"><section class="pw-window" aria-label="Chat" style="flex: 1; min-width: 0"><div class="pw-titlebar"><button class="pw-box" aria-label="Close window"></button><div class="pw-titlebar__stripes"></div><h1 class="pw-titlebar__title">Class Notes</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-infobar" style="padding: 8px 12px"><nav class="pw-seg" aria-label="Project view"><a href="Main.dc.html">Chat<kbd>⌘1</kbd></a><a href="Final.dc.html">Work<kbd>⌘2</kbd></a><a href="P_Narrow.dc.html" aria-current="page">Preview<kbd>⌥⌘P</kbd></a></nav><span style="flex: 1"></span><span class="pw-mono" style="font-size: 13px">~/code/Class Notes</span></div><div class="pw-window__body" style="display: flex; flex-direction: column; overflow: hidden"><div class="pw-preview" style="flex: 1; min-height: 0"><div class="pw-toolbar"><label class="pw-address"><span class="pw-address__host">Class Notes</span><input aria-label="Page" value="/notes"></label><button class="pw-btn">Reload</button></div><div class="pw-toolbar"><div class="pw-seg" role="radiogroup" aria-label="Size"><button role="radio" aria-checked="true">Phone</button><button role="radio" aria-checked="false">Tablet</button><button role="radio" aria-checked="false">Full</button></div><div class="pw-seg" role="radiogroup" aria-label="App language"><button role="radio" aria-checked="true">English</button><button role="radio" aria-checked="false">日本語</button></div></div><div class="pw-preview__stage pw-desk"><div class="pw-preview__frame" style="width: 390px; height: 520px"><div lang="en" style="position: relative; font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; font-size: 15px; line-height: 1.4; color: #000; background: #fff; height: 100%">
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #000; color: #fff"><b style="font-size: 18px; font-weight: 600">Class Notes</b><span style="font-size: 13px; border: 1px solid #fff; border-radius: 999px; padding: 2px 9px">EN · 日本語</span></header>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 8px"><span style="flex: 1; border: 1px solid #000; border-radius: 8px; padding: 8px 10px; color: #767676">Write a note…</span><span style="border-radius: 8px; background: #000; color: #fff; padding: 8px 14px">Add</span></div>
+<div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px"><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">Week 3 · Vocabulary</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">駅 (eki) station, 電車 (densha) train</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">Delete</button></article><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">Homework</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">Read pages 12–15 before Friday.</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">Delete</button></article><article style="border: 1px solid #000; border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start"><div style="flex: 1; min-width: 0"><b style="font-weight: 600">Kanji quiz</b><p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4">Tuesday, lessons 4–6.</p></div><button style="flex: none; border: 1px solid #000; border-radius: 8px; background: #fff; padding: 4px 10px; font: inherit; font-size: 13px">Delete</button></article></div>
+</div></div></div><span class="pw-preview__caption">Phone · 390 wide</span></div><div class="pw-preview__foot"><span class="pw-glyph" role="status"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3.5 2v12l10-6z" fill="currentColor"/></svg>Running</span><button class="pw-btn">Stop</button><span style="flex: 1"></span><button class="pw-btn">Open on Phone…</button><button class="pw-btn">Open in Browser</button></div></div></div></section></div></div><div style="position: absolute; top: 0; left: 0; width: 1024px; z-index: 5"><dc-import name="C_MenuBar" open="none" view="chat" status="Ready" statusState="rest" hint-size="1024px,28px"></dc-import></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1024, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

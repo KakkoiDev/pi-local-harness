@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Answers to the brief’s questions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1060px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; color: #000"><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Beside or a view?</h2><p style="margin: 0"><b>Beside</b>, as its own window to the right of the chat, while the chat keeps at least 480 px. Under that (a narrow window, a small laptop with the Project window open), Preview becomes a third segment: Chat ⌘1 · Work ⌘2 · Preview ⌥⌘P. ⌘3 and ⌘4 are taken by Activity and Gate.</p><p style="margin: 0">The toggle in the chat’s info bar (Preview, pressed when open) and Window → Preview ⌥⌘P are the same command. The Preview also sits beside Work.</p><p style="margin: 0"><b>Phone</b>: a view in the view menu (Chat · Work · Preview), not a sheet. The app needs the whole 390 px and its own bottom sheets; a sheet over the chat would cut its top and fight its gestures. Open App opens it in Safari, where Add to Home Screen installs it.</p></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Who starts the app?</h2><p style="margin: 0">The workbench, when the Preview is shown. The first time a project has an app (Pi’s answer leaves a run command that answers), the Preview opens beside the chat by itself, once; after that it opens as the person left it.</p><p style="margin: 0">Not before it is opened: at about 1.5 s once installed (task 202) there is nothing to win by starting early, and an app nobody looks at should not run beside the model. It stops when the project is closed or plh quits. One Stop / Start button in the Preview’s foot, not a pair: the state word beside it says which is true.</p><p style="margin: 0">Reloads come from the app’s own --reload; the note line only says so.</p></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Undo wording</h2><p style="margin: 0"><b>Undo This Request…</b>. Undo is the word the Mac already teaches; “Take This Back” is friendlier but new, and reads like withdrawing words. The alert names the request by the first line of its plain words, says what goes back, says the notes (data) are not touched, and Cancel is the default.</p><p style="margin: 0"><b>When it overlaps</b> newer requests: nothing changes; a Note alert names the later request and the file, and offers Ask Pi Instead (default), which sends “Take out the Delete buttons and keep the newest-first order” as a request. Never a half-applied revert, never a merge conflict on screen.</p><p style="margin: 0">The undo is a new commit with its own row (↶ Undone) and Redo Request…; the original row says “undone at 14:40”, its Undo disabled (the built “already undone” case never shows).</p><p style="margin: 0"><b>The built messages</b> are right for the terminal. In the web the alert splits each one: the title says what did not happen, the detail says why and “Nothing was changed.”, and the advice becomes a button: “Ask Pi to take that change out by hand” is Ask Pi Instead; “Keep or discard those changes first” is Save Them, Then Undo. Repo: name the later request in the overlap message.</p></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Where the lines go</h2><p style="margin: 0"><b>A separate quiet row under the answer</b>, not inside the bubble. The bubble is Pi talking; the row is the record of a change (one commit): it exists only when files changed, it carries the change’s buttons, and the harness can check it. Its plain words are written by Pi for the task file’s “For the person” section, so Activity and the Undo alert can quote them.</p><p style="margin: 0">Move the G-012 line there too: “! Not verified” becomes the row’s state instead of a bold paragraph appended to the answer.</p><p style="margin: 0">The <b>lesson line</b> sits at the bottom of the same row behind a dotted rule: at most one, Hide removes it, Settings → “Show lessons” turns them off. No × buttons.</p></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">New Project… kinds</h2><p style="margin: 0">Three radio choices with one line each, in that order; <b>Web app</b> the default, as proposed. The deciding question sits under them as help, starting “Not sure?”, so a person who knows skips it.</p><p style="margin: 0">The line above the buttons changes with the choice and says what gets made, so Create is never a surprise. Empty folder keeps today’s line.</p><p style="margin: 0">A new System 1 Radio (14px circle, 8px dot) replaces the browser’s radio here and in Settings.</p><p style="margin: 0">The Preview is the same for both app kinds; a no-server app is served as files, so Starting is near-instant and Stop only stops serving.</p></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Japanese</h2><p style="margin: 0">Every bar wraps (flex-wrap) and every button sizes to its label; no label has a fixed width. The longest Japanese labels on these boards are 「この依頼を取り消す…」 and 「ブラウザで開く」; at 480 px the Preview foot wraps its buttons to a second line before anything clips.</p><p style="margin: 0">The app’s language switch (English · 日本語) is the app’s, not the workbench’s; they are set separately. Mixed Japanese and English in one line use the system font’s Japanese (Hiragino Sans on the Mac).</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1060}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
