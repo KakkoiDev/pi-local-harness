@@ -125,9 +125,21 @@ class WorkQueue:
         self.workers=[thread for thread in self.workers if thread.is_alive()]
         return len(started)
     def public(self, job):
-        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),'files':list(job['data'].get('attachment_names',[]))}
+        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[]))}
     def list(self):
         with self.condition:return [self.public(job) for job in self.jobs]
+    def retry(self, identifier, note=''):
+        """Ask Pi to Retry… (plan 184, A_Retry): queue a request that stopped again, with the person's note; the stopped
+        run keeps its record."""
+        with self.condition:
+            job=next((job for job in self.jobs if job['id']==identifier),None)
+            if not job:raise ValueError('Task not found')
+            if job['status'] not in ('failed','stopped','interrupted'):raise ValueError('Ask Pi to Retry is only for a request that stopped')
+            data={key:copy.deepcopy(value) for key,value in job['data'].items()}
+            note=str(note or '').strip()
+            if note:data['message']=f"{data.get('message','').rstrip()}\n\nNote from the person: {note}"
+            data['retry_of']=identifier
+        return self.add(job['project'],job['chat'],data)
     def cancel(self, identifier):
         with self.condition:
             job=next((job for job in self.jobs if job['id']==identifier),None)
@@ -153,7 +165,7 @@ class WorkQueue:
                 job['progress']='Tool failed; reconsidering' if event.get('isError') else 'Tool finished'
                 for tool in job.get('tools',[]):
                     if tool['id']==event.get('toolCallId'):tool['status']='failed' if event.get('isError') else 'done'
-            elif kind=='extension_ui_request' and event.get('method')=='notify':job['progress']=event.get('message','')
+            elif kind=='extension_ui_request' and event.get('method')=='notify' and event.get('message')!='Harness settled':job['progress']=event.get('message','')  # plan 184: that one is a signal, not a phase
             if time.monotonic()-self.last_persist>=2:self.save(job);self.last_persist=time.monotonic()
     def run_one(self):
         """Run the next request that may start, to its end, in this thread (tests and simple callers)."""

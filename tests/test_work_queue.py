@@ -113,3 +113,28 @@ class QueueTest(unittest.TestCase):
             calls=[];restored=WorkQueue(path,lambda job,emit:calls.append(job['data']['message']),start=False)
             for _ in range(3):restored.run_one()
             self.assertEqual(calls,['first','second','third'])
+
+
+class RetryTest(unittest.TestCase):
+    """Plan 184 part 3 (A_Retry): a request that genuinely stopped is queued again, with the person's note; its record stays."""
+    def test_ask_pi_to_retry_queues_the_request_again_with_a_note(self):
+        import tempfile
+        from pathlib import Path
+        from harness.work_queue import WorkQueue
+        with tempfile.TemporaryDirectory() as directory:
+            def execute(job, emit): raise ValueError('Pi exited unexpectedly: boom')
+            queue = WorkQueue(Path(directory) / 'queue.json', execute, start=False)
+            first = queue.add('p1', 'c1', {'message': 'Run the backup script', 'worker': True})
+            queue.run_one()
+            failed = next(job for job in queue.list() if job['id'] == first['id'])
+            self.assertEqual(failed['status'], 'failed')
+            again = queue.retry(first['id'], 'The drive is mounted now.')
+            self.assertEqual(again['status'], 'queued'); self.assertNotEqual(again['id'], first['id'])
+            self.assertEqual(again['message'], 'Run the backup script\n\nNote from the person: The drive is mounted now.')
+            self.assertEqual(again['retry_of'], first['id'])
+            self.assertEqual(next(job for job in queue.list() if job['id'] == first['id'])['status'], 'failed', 'the failed run stays in its record')
+            self.assertEqual(queue.retry(first['id'], '')['message'], 'Run the backup script', 'the note is optional')
+            with self.assertRaisesRegex(ValueError, 'only for a request that stopped'): queue.retry(again['id'], '')
+            self.assertEqual(queue.public({**queue.jobs[0], 'progress': 'x'})['retry_of'] if 'retry_of' in queue.jobs[0] else None, None)
+            queue.update(queue.jobs[-1], {'type': 'extension_ui_request', 'method': 'notify', 'message': 'Harness settled'})
+            self.assertNotEqual(queue.jobs[-1]['progress'], 'Harness settled', 'the harness signal is not a phase')

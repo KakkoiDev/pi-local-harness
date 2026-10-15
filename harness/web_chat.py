@@ -623,6 +623,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
+            retry=re.fullmatch(r'/api/jobs/([0-9a-f]{32})/retry',path)  # plan 184, A_Retry
+            if retry:self.reply(self.chat.queue.retry(retry.group(1),data.get('note','')));return
             if path.startswith('/api/documents/'):
                 action=path.rsplit('/',1)[-1];store=self.chat.documents
                 if action=='create':self.reply(store.create(data['project'],data['title'],data.get('parent')));return

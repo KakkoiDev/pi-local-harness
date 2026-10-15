@@ -1,5 +1,5 @@
 import { saveDraft,loadDraft } from './drafts.mjs';
-import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
+import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName,askRetry } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext,alsoReadLine } from './context-line.mjs';
 export function installWorkspace(host){
  const $=id=>document.getElementById(id),{api,node,error}=host;
@@ -191,6 +191,7 @@ export function installWorkspace(host){
   facts.prepend(node('dt','','From'),node('dd','',from));
   const back=node('a','pw-btn',{chat:'Open in Chat',comment:'Show Comment',file:'Show in Review'}[origin]);back.href=job.document?'/p/'+job.project+'/work/'+file:'/p/'+job.project+'/chat';back.onclick=event=>{event.preventDefault();openOrigin(job);};actions.append(back);
   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api('/api/jobs/stop',{id:job.id}).catch(e=>error(e.message));/* this request only (task 164) */actions.append(stop);}
+  if(needsAttention(job)){/* plan 184 (A_Retry): Pi genuinely stopped (crash, model gone, wake-ups used up, or stopped by the person) */const retry=node('button','pw-btn','Ask Pi to Retry…');retry.type='button';retry.onclick=async()=>{const answer=await askRetry({request:job.message||'Attached files',project:name});if(!answer)return;try{const again=await api(`/api/jobs/${job.id}/retry`,{note:answer.note});host.toast(`Queued again in ${name}.`);await poll();selectJob(again.id);}catch(e){error(e.message);}};actions.append(retry);}
   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}
   const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.setAttribute('aria-controls','activity-record');record.setAttribute('aria-expanded',String(!$('activity-record').hidden));record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
  }

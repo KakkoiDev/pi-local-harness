@@ -226,6 +226,17 @@ const readline = require('node:readline');
   assert.ok(back.lastBottom<=back.boxBottom+1&&back.lastBottom>back.boxBottom-200,'the answer being written is in view at the bottom: '+JSON.stringify(back));
   await page.locator('#stop').click();await page.locator('#messages [data-live]').waitFor({state:'detached'});
   await page.setViewportSize({width:1440,height:950});
+  // Plan 184 (A_Retry): a request that stopped offers Ask Pi to Retry…, with an optional note; the stopped run keeps its record.
+  await page.keyboard.press('ControlOrMeta+Digit3');const stoppedRow=page.locator('.activity-task').filter({hasText:'Long answer TEST_SLOW'});
+  await stoppedRow.locator('.task-state').filter({hasText:'Stopped'}).waitFor();await stoppedRow.locator('.activity-request').click();
+  await page.locator('#activity-detail').getByRole('button',{name:'Ask Pi to Retry…',exact:true}).click();const retryDialog=page.locator('#retry-dialog');await retryDialog.waitFor();
+  assert.equal(await page.locator('#retry-dialog-request').textContent(),'“Long answer TEST_SLOW”');assert.match(await page.locator('#retry-dialog-help').textContent(),/^Queues the request again in .+\. The failed run stays in its record\.$/);
+  await page.locator('#retry-dialog-note').fill('Try a shorter answer.');await retryDialog.getByRole('button',{name:'Queue Again',exact:true}).click();
+  await page.locator('#toast-text').filter({hasText:/^Queued again in /}).waitFor();
+  const retried=page.locator('.activity-task').filter({hasText:'Note from the person: Try a shorter answer.'});await retried.waitFor();
+  assert.equal(await stoppedRow.locator('.task-state').filter({hasText:'Stopped'}).count(),1,'the stopped run stays');
+  await page.evaluate(async()=>{const {jobs}=await fetch('/api/workspace').then(r=>r.json());for(const job of jobs.filter(job=>job.retry_of&&['queued','running'].includes(job.status)))await fetch(job.status==='queued'?'/api/jobs/cancel':'/api/jobs/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:job.id})});});
+  await leaveApp();await page.locator('#chat-tab').click();
   }
   await page.setViewportSize({width:390,height:844});await page.locator('#open-menu').click();
   assert.equal(await page.locator('#backdrop').isVisible(),true);

@@ -22,3 +22,13 @@ export function askName({title,label,help='',describe,value='',action='Create',a
  if(selectStem&&value){const start=value.lastIndexOf('/')+1,dot=value.lastIndexOf('.');input.setSelectionRange(start,dot>start?dot:value.length);}
  return settled;
 }
+
+/** Ask Pi to Retry… (plan 184, A_Retry): the stopped request quoted, an optional note; resolves {note} or null on Cancel. */
+export function askRetry({request,project}){
+ $('retry-dialog-request').textContent=`“${request}”`;$('retry-dialog-note').value='';
+ $('retry-dialog-help').textContent=`Queues the request again in ${project}. The failed run stays in its record.`;
+ $('retry-dialog-cancel').onclick=()=>$('retry-dialog').close('');
+ const settled=settle($('retry-dialog'),result=>result==='ok'?{note:$('retry-dialog-note').value.trim()}:null);
+ $('retry-dialog-note').focus();
+ return settled;
+}
