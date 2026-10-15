@@ -4,6 +4,7 @@
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { renderView, ansiStyle } from './terminal-render.mjs';
+import { translateView } from './language.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -24,6 +25,7 @@ export const CONSOLE_COMMANDS = {
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
   bench: 'The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.',
   guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
+  update: 'A new version of Pi Workbench on GitHub, and what changed: /update · /update now (asks first).',
 };
 
 /** python3 -m harness.admin <command> <args>, with the live web port when the services run. */
@@ -78,7 +80,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
   // ASCII only when the locale says the terminal is not UTF-8 (C, POSIX, Latin-1…); unset means a UTF-8 terminal, as on macOS.
   const locale = process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '', ascii = Boolean(locale) && !/utf-?8/i.test(locale);
   pi.registerMessageRenderer?.('harness-console', message => message.details?.view
-    ? { render: width => renderView(message.details.view, width, { style: ansiStyle, ascii }), invalidate() {} }
+    ? { render: width => renderView(translateView(message.details.view), width, { style: ansiStyle, ascii }), invalidate() {} }  // the screen translated; Pi reads `content`, in English
     : undefined);
   const show = (name, words, view) => pi.sendMessage({ customType: 'harness-console', display: true, details: { view },
     content: `/${[name, ...words].join(' ')}\n\n${renderView(view, 80, { ascii }).join('\n')}` }); // plain text: what Pi reads

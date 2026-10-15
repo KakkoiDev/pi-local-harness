@@ -7,27 +7,43 @@ const ASCII = { '✓': 'ok', '✗': 'NO', '!': '!!', '▶': '>', '○': 'o', '�
 const plainStyle = { bold: text => text, dim: text => text };
 export const ansiStyle = { bold: text => `\x1b[1m${text}\x1b[22m`, dim: text => `\x1b[2m${text}\x1b[22m` };
 
-const cut = (text, width) => (text.length <= width ? text : text.slice(0, Math.max(0, width - 1)) + '…');
-const pad = (text, width) => text + ' '.repeat(Math.max(0, width - text.length));
+// Columns, not characters: Japanese and other wide characters take two terminal columns (terminal Pi in Japanese).
+const WIDE = /[\u1100-\u115F\u2E80-\u303E\u3041-\u33FF\u3400-\u4DBF\u4E00-\u9FFF\uA000-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60\uFFE0-\uFFE6]|[\u{1F300}-\u{1FAFF}\u{20000}-\u{3FFFD}]/u;
+export function columns(text) {
+  let total = 0;
+  for (const char of String(text).replace(/\x1b\[[0-9;]*m/g, '')) total += WIDE.test(char) ? 2 : 1;
+  return total;
+}
+const cut = (text, width) => {
+  if (columns(text) <= width) return text;
+  let out = '';
+  for (const char of text) { if (columns(out + char) > width - 1) break; out += char; }
+  return out + '…';
+};
+const pad = (text, width) => text + ' '.repeat(Math.max(0, width - columns(text)));
 
+/** Lines of at most `width` columns: English breaks at spaces, Japanese between any two characters. */
 export function wrap(text, width) {
   const lines = []; let line = '';
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    if (line && line.length + 1 + word.length > width) { lines.push(line); line = word; } else line = line ? `${line} ${word}` : word;
+  for (const token of String(text).match(new RegExp(`${WIDE.source}|[^\\s]+?(?=${WIDE.source}|\\s|$)|\\s+`, 'gu')) || []) {
+    if (/^\s+$/.test(token)) { if (line) line += ' '; continue; }
+    if (line && columns(line.trimEnd()) + columns(token) > width) { lines.push(line.trimEnd()); line = token; } else line += token;
   }
+  line = line.trimEnd();
   return line ? [...lines, line] : lines.length ? lines : [''];
 }
 
+const width_ = columns;  // tableLines names its headers `columns`
 function tableLines(part, width, style) {
   const columns = [...part.columns], rows = part.rows.map(row => row.map(String));
   const keep = columns.map((_, index) => index);
   for (const index of part.drop || []) if (width < 78 && keep.includes(index) && keep.length > 2) keep.splice(keep.indexOf(index), 1);
   const widths = {};
-  for (const i of keep) widths[i] = Math.max(columns[i].length, ...rows.map(row => row[i].length));
+  for (const i of keep) widths[i] = Math.max(width_(columns[i]), ...rows.map(row => width_(row[i])));
   const wanted = part.flex ?? keep.at(-1), flex = keep.includes(wanted) ? wanted : keep.at(-1);
   for (const i of keep) if (part.caps?.[String(i)] !== undefined) widths[i] = Math.min(widths[i], part.caps[String(i)]);
   const over = keep.reduce((sum, i) => sum + widths[i], 0) - (width - 2 * (keep.length - 1));
-  if (over > 0) widths[flex] = Math.max(columns[flex].length, widths[flex] - over);
+  if (over > 0) widths[flex] = Math.max(width_(columns[flex]), widths[flex] - over);
   const dim = new Set(part.dim || []);
   const line = (cells, styled) => keep.map((i, n) => { const text = n === keep.length - 1 ? cut(cells[i], widths[i]) : pad(cut(cells[i], widths[i]), widths[i]); return styled && dim.has(i) && text.trim() ? style.dim(text) : text; }).join('  ').replace(/\s+$/, '');
   const rule = '═'.repeat(Math.min(width, keep.reduce((sum, i) => sum + widths[i], 0) + 2 * (keep.length - 1)));
@@ -35,10 +51,10 @@ function tableLines(part, width, style) {
 }
 
 function body(part, width, style) {
-  if (part.kind === 'kv') { const labels = Math.max(0, ...part.rows.map(([label]) => label.length)) + 3; return part.rows.map(([label, value]) => pad(label, labels) + String(value)); }
+  if (part.kind === 'kv') { const labels = Math.max(0, ...part.rows.map(([label]) => columns(label))) + 3; return part.rows.map(([label, value]) => pad(label, labels) + String(value)); }
   if (part.kind === 'table') return part.rows.length ? tableLines(part, width, style) : [part.empty || '(none)'];
   if (part.kind === 'checklist') {
-    const labels = Math.max(0, ...part.items.map(item => item.label.length)) + 2, lines = [];
+    const labels = Math.max(0, ...part.items.map(item => columns(item.label))) + 2, lines = [];
     for (const item of part.items) { lines.push(`${CHECK[item.state]}  ${pad(item.label, labels)}${item.detail}`); if (item.fix) lines.push(' '.repeat(8 + labels) + '→ ' + item.fix); }
     return lines;
   }
@@ -51,7 +67,7 @@ export function renderView(view, width = 80, { style = plainStyle, ascii = false
   width = Math.max(60, width); const inner = width - 2, lines = [];
   if (view.title) {
     const head = `── ${view.title}`, summary = view.summary || '';
-    lines.push(summary ? `── ${style.bold(view.title)}${' '.repeat(Math.max(2, width - head.length - summary.length))}${style.dim(summary)}` : `── ${style.bold(view.title)} ${'─'.repeat(Math.max(3, width - head.length - 1))}`);
+    lines.push(summary ? `── ${style.bold(view.title)}${' '.repeat(Math.max(2, width - columns(head) - columns(summary)))}${style.dim(summary)}` : `── ${style.bold(view.title)} ${'─'.repeat(Math.max(3, width - columns(head) - 1))}`);
   }
   (view.parts || []).forEach((part, index) => {
     if (index && part.gap !== false) lines.push('');

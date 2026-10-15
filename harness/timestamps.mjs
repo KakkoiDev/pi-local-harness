@@ -1,3 +1,4 @@
+import { tr } from './language.mjs';
 const entryType = 'harness-timestamp';
 
 /** What the transcript shows, shared with the tool rows: `/verbose on` adds times to headers and rows (round 7, T_Noise). */
@@ -37,7 +38,7 @@ export function installTimestamps(pi, options = {}) {
       }
       const time = clock(data.timestamp, data.timeZone);
       if (data.label === 'Assistant message started') return [`\x1b[1mPi\x1b[22m ${dim(time)}`];
-      if (/^(Assistant message|Task) (failed|stopped)/.test(data.label)) return [dim(`${time} ${data.label}`)]; // a failed tool shows on its own row
+      if (/^(Assistant message|Task) (failed|stopped)/.test(data.label)) return [dim(`${time} ${tr(data.label)}`)]; // a failed tool shows on its own row
       return [];
     },
     invalidate() {},

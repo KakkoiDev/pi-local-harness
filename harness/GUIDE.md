@@ -91,8 +91,14 @@ In terminal Pi: `/config` lists every setting with what it does and its variable
 
 Type `/harness` and choose from the list (the command goes on the input line; Tab completes model names, settings and
 topics), or `/harness list` to print it: `/status`, `/doctor`, `/queue`, `/job <id>`, `/gate`, `/models`, `/ollama`, `/projects`,
-`/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`. They run at once, without the model, and Pi can explain their output. Pi's own
+`/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`, `/update`. They run at once, without the model, and Pi can explain their output. Pi's own
 commands (`/settings`, `/model`, `/new`, `/compact`…) still work.
+
+## How do I update Pi Workbench?
+
+In terminal Pi, `/update` says whether a new version is on GitHub and what changed; `/update now` updates (it asks
+first), then quit `plh` and start it again: the new version installs as it starts. Your projects and data are not
+touched. An update never overwrites changes you made to Pi Workbench's own files: it says so instead.
 
 ## Something is wrong. What do I do?
 

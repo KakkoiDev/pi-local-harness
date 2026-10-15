@@ -65,6 +65,7 @@ SETTINGS = {
     'python': ('PI_PYTHON', 'python3', _text, 'The Python that runs the services and the console.', str),
     'web_data': ('PI_WEB_DATA', '', _text, 'Folder for chats and uploads (empty: the data folder’s chats/).', str),
     'gate_auth': ('PI_GATE_AUTH', 'admin', _choice('standard', 'admin'), 'Gate profile for Pi’s tools: admin also allows high-risk tools; both enforce the destructive-shell rules.', str),
+    'language': ('PI_HARNESS_LANGUAGE', 'system', _choice('system', 'en', 'ja'), 'The language of terminal Pi’s screens: system (the terminal’s locale), en or ja. /commands stay in English; the web workbench has its own (Settings → Language).', str),
     'audit_log': ('PI_HARNESS_LOG_FILE', '', _text, 'Gate’s audit log (empty: the data folder’s gate-audit.log).', str),
 }
 DEFAULTS = {key: default for key, (_, default, _, _, _) in SETTINGS.items()}
@@ -72,6 +73,7 @@ EXPLAIN = {key: about for key, (_, _, _, about, _) in SETTINGS.items()}
 
 # Set by the harness itself, for each start or each request; shown by /config, never changed there.
 INTERNAL = {
+    'PI_BINARY': 'The Pi program the workbench runs (pi by default; tests and scratch workbenches point it elsewhere).',
     'PI_AGENT_DATA': 'The data folder (config.json lives in it, so it is chosen before plh starts).',
     'PI_CODING_AGENT_DIR': 'Pi’s own settings folder (models.json, AGENTS.md); Pi’s default is ~/.pi/agent.',
     'PI_HARNESS_MEMORY': 'The shared instructions file injected before turns (the data folder’s AGENTS.md).',

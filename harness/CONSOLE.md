@@ -23,6 +23,7 @@ by hand: they read live data.
 | `/undo` | Undo the last change made from the console (asks first). |
 | `/verbose on\|off` | Every timestamp in the transcript, or (default) one header per Pi message. |
 | `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |
+| `/update` · `/update now` | Whether a new version of Pi Workbench is on GitHub and what changed; `now` updates its clone (asks first), and the new version installs the next time `plh` starts. |
 
 When you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
 on the person's input line and they press Return to run it and confirm. Say that in one line; never repeat the command

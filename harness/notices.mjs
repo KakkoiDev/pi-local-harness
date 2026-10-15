@@ -2,6 +2,7 @@
 // bold sentence, not a code word, then what happened, then what to do next (dim). Web workers keep the old prefixes
 // ("Harness recovery:", "Harness recovery stopped:", "Harness refused:"): harness/web_chat.py reads them.
 import { wrap } from './terminal-render.mjs';
+import { tr } from './language.mjs';
 
 const KINDS = {
   loop: { glyph: '!', sentence: 'Harness stopped a loop.', next: 'Pi asks again another way · Esc stops it', web: 'Harness recovery' },
@@ -37,7 +38,7 @@ export function harnessNotice(kind, detail) {
 /** Its lines at `width`: the bold sentence, then the detail and the dim next step indented by two. */
 export function renderNotice(notice, width = 80) {
   const inner = Math.max(20, width - 2);
-  return [`\x1b[1m${notice.glyph} ${notice.sentence}\x1b[22m`,
-    ...wrap(notice.detail, inner).map(line => `  ${line}`),
-    ...wrap(notice.next, inner).map(line => `  \x1b[2m${line}\x1b[22m`)];
+  return [`\x1b[1m${notice.glyph} ${tr(notice.sentence)}\x1b[22m`,  // the screen in the terminal's language; Pi's record stays English
+    ...wrap(tr(notice.detail), inner).map(line => `  ${line}`),
+    ...wrap(tr(notice.next), inner).map(line => `  \x1b[2m${line}\x1b[22m`)];
 }

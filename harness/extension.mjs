@@ -10,6 +10,7 @@ import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
 import { installStartupDisplay, startupLines } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
+import { loadTerminalLanguage } from './language.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
@@ -33,6 +34,7 @@ export default function harness(pi, dependencies = {}) {
   // measure what the harness adds. No extra tools, recovery, wake-ups, paperwork or rules summary.
   const bare = process.env.PI_HARNESS_BARE === '1';
   const extras = bare ? { ...pi, registerTool() {} } : pi;
+  try { loadTerminalLanguage(); } catch {} // terminal Pi's screens: the `language` setting (system, en, ja); /commands stay English
   installTimestamps(pi, dependencies.timestamps);
   const showStartup = installStartupDisplay(pi);
   const root = dependencies.root || moduleRoot;

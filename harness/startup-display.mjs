@@ -1,4 +1,5 @@
 import qrcode from './vendor/qrcode.mjs';
+import { tr } from './language.mjs';
 // Display-only session entries scroll naturally and never enter model context.
 // Task 122: the phone address as a QR code. Modules as booleans (true = dark); error correction M, smallest version.
 export function qrModules(text) {
@@ -56,7 +57,7 @@ export function startupLines(ports, { build = 'checkout', data = '~/pi-local-har
   const phone = ports.remote ? `${ports.remote}  scan →`
     : `off · ${ports.remote_error || 'set remote_hosts and remote_users'}  /guide phone`; // see /guide phone and harness/README.md
   return [`π Pi Workbench  build ${build} · data in ${data}`, `  Web     http://127.0.0.1:${ports.web}`, `  Gate    http://127.0.0.1:${ports.gate}`,
-    `  Phone   ${phone}`, '  Ask in words, or type /harness for commands.', ...(first ? ['  New here? Try “is anything stuck?”, /status or /guide.'] : [])];
+    `  Phone   ${phone}`, '  Ask in words, or type /harness for commands.', ...(first ? ['  New here? Try “is anything stuck?”, /status or /guide.'] : [])].map(line => tr(line));
 }
 
 export function installStartupDisplay(pi) {

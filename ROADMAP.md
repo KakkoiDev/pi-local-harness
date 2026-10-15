@@ -260,3 +260,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [216-The phone does everything the desktop does (round 8 brief)](tasks/216-phone-parity.md)
 - [ ] [217-Pi Workbench makes terminal apps too (Textual)](tasks/217-terminal-apps.md)
 - [x] [218-QR codes in the kit and in Pi's knowledge](tasks/218-qr-codes.md)
+- [ ] [219-Updating Pi Workbench is easy: /update](tasks/219-updates.md)
+- [ ] [220-Terminal Pi in Japanese; /commands stay English](tasks/220-terminal-in-japanese.md)

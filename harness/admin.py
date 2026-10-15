@@ -438,6 +438,7 @@ COMMANDS = {
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
     'bench': ('', 'The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.'),
     'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
+    'update': ('[now]', 'Is a new version of Pi Workbench on GitHub, and what changed; now updates (asks first).'),
 }
 
 
@@ -609,7 +610,31 @@ def build(console, command, args, yes=False):
         rows = console.doctor(); broken = sum(not row['ok'] and not row.get('note') for row in rows)
         items = [{'state': 'ok' if row['ok'] else 'note' if row.get('note') else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]
         return rows, view('Doctor', {'kind': 'checklist', 'items': items}, summary=f'{broken} to fix' if broken else 'all good', hint='/status · /guide')
+    if command == 'update':  # the person, 2026-10-15: "make it easy for the user to update the app"
+        from harness import updates
+        source = update_source()
+        if args[:1] == ['now']:
+            found = updates.check(source)
+            if found['state'] != 'available': return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi Workbench is up to date.'})
+            if not yes:
+                return changed({'confirm': True, 'title': 'Update Pi Workbench?', 'action': 'Update',
+                                'rows': [['Changes', f"{found['behind']} from GitHub"], ['Then', 'quit plh and start it again: the new version installs as it starts']]})
+            done = updates.apply(source)
+            if done['state'] != 'updated': return done, view('Update', {'kind': 'prose', 'text': done.get('why', '')})
+            return changed({'detail': f"Updated to {done['commit']}. Quit plh and start it again to use it."})
+        found = updates.check(source)
+        if found['state'] == 'available':
+            return found, view('Update', {'kind': 'prose', 'text': f"A new version is on GitHub: {found['behind']} change{'s' if found['behind'] != 1 else ''}."},
+                               {'kind': 'lines', 'lines': ['· ' + line for line in found['changes']]}, hint='/update now updates (asks first)')
+        return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi Workbench is up to date.'})
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
+
+
+def update_source():
+    """The clone Pi Workbench was installed from (install.json), or this checkout when it runs from one."""
+    record = ROOT / 'install.json'
+    try: return Path(json.loads(record.read_text())['source'])
+    except (OSError, ValueError, KeyError): return ROOT
 
 
 def run(console, command, args, yes=False, width=80):

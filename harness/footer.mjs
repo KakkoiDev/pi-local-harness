@@ -1,3 +1,4 @@
+import { tr } from './language.mjs';
 // Terminal Pi's footer and workbench notifications (round 6, T_Footer and T_Workbench; task 171). One status item
 // under the input: model · thinking │ state │ Gate today │ phone. The state uses the menu bar's words and glyphs; what
 // needs the person inverts and names /queue until they look. Routine work only changes the footer; one notification
@@ -8,21 +9,21 @@ const inverse = text => `\x1b[7m ${text} \x1b[27m`, dim = text => `\x1b[2m${text
 
 /** The footer line from the workbench's /api/config and /api/workspace, and the problems already seen. */
 export function footerText({ online = true, config = {}, jobs = [], projects = [], gate = {}, seen = new Set() } = {}) {
-  if (!online) return inverse('✗ Workbench not running · /doctor');
-  const model = `${config.model || '?'} · ${config.thinking === false ? 'no thinking' : `${config.effort || 'high'} thinking`}`;
+  if (!online) return inverse(tr('✗ Workbench not running · /doctor'));
+  const model = `${config.model || '?'} · ${tr(config.thinking === false ? 'no thinking' : `${config.effort || 'high'} thinking`)}`;
   const attention = jobs.filter(job => ATTENTION.includes(job.status) && !seen.has(job.id));
   const running = jobs.filter(job => job.status === 'running'), waiting = jobs.filter(job => job.status === 'queued').length;
   const name = id => projects.find(project => project.id === id)?.name || id;
   let state = 'Ready';
   if (attention.length) {
     const kinds = [...new Set(attention.map(job => job.status))];
-    state = inverse(kinds.length === 1 ? `! ${WORD[kinds[0]]} · ${attention.length} need${attention.length === 1 ? 's' : ''} attention · /queue` : `! ${attention.length} need attention · /queue`);
+    state = inverse(tr(kinds.length === 1 ? `! ${WORD[kinds[0]]} · ${attention.length} need${attention.length === 1 ? 's' : ''} attention · /queue` : `! ${attention.length} need attention · /queue`));
   } else if (running.length) {
     const worker = running.find(job => job.role === 'worker') && !running.some(job => job.role === 'chat') ? running.find(job => job.role === 'worker') : null;
-    state = worker ? `▶ Working · worker in ${name(worker.project)}` : `▶ Working${waiting ? ` · ${waiting} waiting` : ''}`;
-  } else if (waiting) state = `○ ${waiting} waiting`;
-  const checks = gate.today ? `Gate today ${gate.today}${gate.blocked_today ? ` · ${gate.blocked_today} blocked` : ''}` : 'Gate today 0';
-  return `${dim(model)}  │  ${state}  │  ${dim(`${checks}  │  Phone ${config.phoneUrl ? 'on' : 'off'}`)}`;
+    state = tr(worker ? `▶ Working · worker in ${name(worker.project)}` : `▶ Working${waiting ? ` · ${waiting} waiting` : ''}`);
+  } else if (waiting) state = tr(`○ ${waiting} waiting`);
+  const checks = tr(gate.today ? `Gate today ${gate.today}${gate.blocked_today ? ` · ${gate.blocked_today} blocked` : ''}` : 'Gate today 0');
+  return `${dim(model)}  │  ${state}  │  ${dim(`${checks}  │  ${tr(`Phone ${config.phoneUrl ? 'on' : 'off'}`)}`)}`;
 }
 
 /** Notification lines for problems not announced yet; `known` remembers them. */

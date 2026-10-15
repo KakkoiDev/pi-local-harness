@@ -2,6 +2,7 @@
 // Gate's verdict and the command's own result as separate words, with the time it took. Nothing ran: say so and point
 // to /gate. The output stays below, without the line the harness adds for Pi.
 import { display, formatTimestamp } from './timestamps.mjs';
+import { tr } from './language.mjs';
 
 const bold = text => `\x1b[1m${text}\x1b[22m`, dim = text => `\x1b[2m${text}\x1b[22m`;
 const DRAWN = ['bash', 'read', 'write', 'edit', 'grep', 'find', 'ls', 'task_box', 'browser'];
@@ -44,6 +45,7 @@ export function checkLines(tool, check) {
 }
 
 export const toolLines = (tool, args, check, width = 80) => [callLine(tool, args, check, width), ...checkLines(tool, check)];
+const shown = lines => lines.map(line => tr(line));  // the check lines in the terminal's language
 
 /** Draw Pi's built-in tools this way; `checks` (toolCallId → check) is filled by the extension's Gate hooks. */
 export function installToolRenderer(pi, checks, { timeZone } = {}) {
@@ -62,7 +64,7 @@ export function installToolRenderer(pi, checks, { timeZone } = {}) {
       renderResult: (result, options, theme, context) => {
         const check = checks.get(context?.toolCallId), ran = !check || ['allowed'].includes(check.gate);
         const below = ran && inner?.renderResult ? inner.renderResult({ ...result, content: (result.content || []).filter(part => !FOR_PI.test(part.text || '')) }, options, theme, context) : undefined;
-        return { render: width => [...checkLines(tool, check), ...(below ? below.render(width) : [])], invalidate() { below?.invalidate?.(); } };
+        return { render: width => [...shown(checkLines(tool, check)), ...(below ? below.render(width) : [])], invalidate() { below?.invalidate?.(); } };
       },
     };
   });
