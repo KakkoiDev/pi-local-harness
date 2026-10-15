@@ -51,6 +51,7 @@ class PaperworkTest(unittest.TestCase):
         self.assertRegex(task, r'- \[x\] Red: `python3 -m unittest` failed at \d\d:\d\d'); self.assertRegex(task, r'- \[x\] Green: `python3 -m unittest` passed at \d\d:\d\d')
         result = self.paper.end('r1')
         self.assertEqual(result['outcome'], 'committed')
+        self.assertEqual(result['commit'], git(self.root, 'rev-parse', '--short=12', 'HEAD').strip(), 'the commit, so the request can be undone')
         self.assertIn('- [x] [003-', (self.root / 'ROADMAP.md').read_text())
         self.assertRegex((self.root / 'tasks/003-fix-the-stuck-detection-so.md').read_text(), r'- \[x\] Done at \d\d:\d\d: verified and committed')
         committed = git(self.root, 'show', '--name-only', '--format=%s%n%an', 'HEAD').split('\n')

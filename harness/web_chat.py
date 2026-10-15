@@ -8,6 +8,7 @@ from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
 from harness.work_queue import WorkQueue
 from harness.preview import Previews
+from harness import undo as undoing
 import json
 import os
 from pathlib import Path
@@ -142,6 +143,12 @@ def pi_command(session, choice=None):
     choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
+
+def committed_commit(notice):
+    """The commit in the harness's "Committed" note, so the answer can offer Undo This Request (plan 198)."""
+    found=re.search(r'· committed as ([0-9a-f]{7,40})$',str(notice))
+    return found.group(1) if found else None
+
 
 def verification_note(before, after):
     """G-012 (plan 179, L-005): the line a request's answer ends with when it changed code and no passing test ran on
@@ -343,6 +350,13 @@ class WebChat:
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
         self.queue.close();self.previews.close()
+    def undo(self, project, commit, preview=False):
+        """Undo This Request (plan 198): what would change back, or the undo itself; waits while Pi works in the project."""
+        root=self.documents.project_path(project)
+        if preview:return undoing.preview(root,commit)
+        busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
+        if busy:raise ProjectBusy(busy[0]['id'])
+        return undoing.undo(root,commit)
     def preview(self, project, action):
         if action not in ('status','start','stop'):raise ValueError('Unknown preview action')
         if action=='start':return self.previews.start(project,self.documents.project_path(project))
@@ -447,7 +461,7 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
-            phase='answering';harness_done=False  # plan 184: the extension says when it will not wake Pi again
+            phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
@@ -467,6 +481,7 @@ class WebChat:
                     if notice.startswith(('Harness recovery stopped:','Harness refused:')):raise ValueError(notice.split(':',1)[1].strip())
                     if notice.startswith('Harness recovery:'):phase='recovering';settled=False;harness_done=False
                     if notice=='Harness settled':harness_done=True
+                    committed=committed_commit(notice) or committed
                 if event.get('type')=='agent_start':
                     settled=False
                     if phase=='recovering':phase='reasking'
@@ -493,7 +508,8 @@ class WebChat:
                 reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
                 reports.report(self.documents.root,'unverified',note.strip(),request=job,project=project)  # plan 184
             if opened:emit({'type':'also_read','files':opened})
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {})})
+            if committed:emit({'type':'committed','commit':committed,'project':project})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
@@ -627,6 +643,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
+            if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview'))));return
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data['project'],path.rsplit('/',1)[-1]));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return

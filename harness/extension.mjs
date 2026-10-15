@@ -334,7 +334,7 @@ export default function harness(pi, dependencies = {}) {
       if (requestId) {
         const result = await call('/request/end', { request: requestId }).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
         requestId = undefined;
-        if (result?.outcome === 'committed') say('committed', `${result.message}`, 'info');
+        if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'commit failed') say('commit-failed', `${result.task}: ${result.reason}`, 'warning');
       }
       if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');

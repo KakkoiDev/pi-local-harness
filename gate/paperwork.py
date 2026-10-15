@@ -124,7 +124,8 @@ class Paperwork:
                                   capture_output=True, text=True, timeout=60) if self.add(root, paths) else None
             if not done or done.returncode:
                 return {'outcome': 'commit failed', 'task': task, 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
-            return {'outcome': 'committed', 'task': task, 'message': message}
+            head = subprocess.run(['git', '-C', str(root), 'rev-parse', '--short=12', 'HEAD'], capture_output=True, text=True, timeout=30).stdout.strip()
+            return {'outcome': 'committed', 'task': task, 'message': message, 'commit': head}  # the handle for Undo This Request
 
     def prove_red(self, item, code):
         """Set the request's code changes aside (tests stay), run its last passing test command: it must fail; put the
