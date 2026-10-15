@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ t("app.name") }}</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/htmx.min.js" defer></script>
+<script src="/static/basecoat.min.js" defer></script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");</script>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+<main class="mx-auto max-w-2xl p-4 grid gap-6">
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

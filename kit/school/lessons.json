@@ -1,0 +1,274 @@
+{
+ "note": "KakkoiSchool lessons the workbench shows at the moment they matter (plan 198, 'Learning along the way'). Source: github.com/KakkoiDev/izumo-io, content/<kind>/<id>.md with .ja.md beside it; read online at school.kakkoi.dev/lessons/<id>.html. Not copied yet: izumo-io has no licence file.",
+ "source": {
+  "repo": "https://github.com/KakkoiDev/izumo-io",
+  "commit": "a833429",
+  "date": "2026-10-06",
+  "site": "https://school.kakkoi.dev/lessons/",
+  "languages": [
+   "en",
+   "ja",
+   "pt"
+  ]
+ },
+ "lessons": [
+  {
+   "id": "a01",
+   "kind": "ai",
+   "when": "first launch",
+   "why": "The three AI risks before anything else; the workbench's own safety rules build on them."
+  },
+  {
+   "id": "r20",
+   "kind": "theory",
+   "when": "first launch; and when Pi's answer is marked not verified (G-012)",
+   "why": "Never trust an AI: why the harness checks, and why the person still looks."
+  },
+  {
+   "id": "r15",
+   "kind": "theory",
+   "when": "first launch",
+   "why": "Working with AI: a force multiplier, not a replacement."
+  },
+  {
+   "id": "a03",
+   "kind": "ai",
+   "when": "the person's first requests are short or vague",
+   "why": "How to ask: the workbench can point here when a request is too vague to act on."
+  },
+  {
+   "id": "a04",
+   "kind": "ai",
+   "when": "the person asks why Pi 'did not know' something",
+   "why": "Context engineering: Pi only knows what it is shown (the 'Pi sees' panel)."
+  },
+  {
+   "id": "a05",
+   "kind": "ai",
+   "when": "the first time the person edits AGENTS.md or Pi's memory",
+   "why": "AGENTS.md as the assistant's memory: the workbench uses exactly this file."
+  },
+  {
+   "id": "a06",
+   "kind": "ai",
+   "when": "the person repeats the same kind of request",
+   "why": "Skills: saved prompts the agent reaches for on its own (the harness's guides)."
+  },
+  {
+   "id": "a07",
+   "kind": "ai",
+   "when": "the person asks for a script or a repeated chore",
+   "why": "Making and running scripts with AI."
+  },
+  {
+   "id": "t02",
+   "kind": "tech",
+   "when": "the first time the person opens terminal Pi",
+   "why": "Terminal basics."
+  },
+  {
+   "id": "t03",
+   "kind": "tech",
+   "when": "later, when a request needs a pipe or a search",
+   "why": "Pipes and power tools."
+  },
+  {
+   "id": "t19",
+   "kind": "tech",
+   "when": "the harness's first commit in a new project",
+   "why": "Git basics: the time machine the harness uses on every verified change."
+  },
+  {
+   "id": "t20",
+   "kind": "tech",
+   "when": "the first push, the first pull request",
+   "why": "GitHub and collaboration: remotes, GitHub Flow, pull requests, conflicts."
+  },
+  {
+   "id": "a18",
+   "kind": "ai",
+   "when": "the first 'put it online' (GitHub Pages) and the first installable PWA",
+   "why": "Put it online: account, Pages, installable app; the closest lesson to the stack's deploy block."
+  },
+  {
+   "id": "t40",
+   "kind": "tech",
+   "when": "a project with two languages goes online",
+   "why": "Shipping kakkoi.dev: a static site in two languages on GitHub Pages."
+  },
+  {
+   "id": "r02",
+   "kind": "theory",
+   "when": "a new project's first page",
+   "why": "Web architecture: clients and servers (FastAPI serves, htmx asks)."
+  },
+  {
+   "id": "t04",
+   "kind": "tech",
+   "when": "a new project's first page",
+   "why": "Hello world: a file in a browser."
+  },
+  {
+   "id": "t05",
+   "kind": "tech",
+   "when": "the first template edit",
+   "why": "HTML tags: what the Jinja templates are made of."
+  },
+  {
+   "id": "t06",
+   "kind": "tech",
+   "when": "the first form",
+   "why": "HTML forms and blocks: htmx forms are plain forms first."
+  },
+  {
+   "id": "t07",
+   "kind": "tech",
+   "when": "the first style change",
+   "why": "CSS basics, under Basecoat and Tailwind."
+  },
+  {
+   "id": "t08",
+   "kind": "tech",
+   "when": "a layout or 'the page' request (the page-layout guide)",
+   "why": "CSS layout: flexbox, grid, responsive; the bug class behind task 173."
+  },
+  {
+   "id": "t12",
+   "kind": "tech",
+   "when": "the first dialog or validation message",
+   "why": "Forms and dialog: validation the stack returns as a 422 fragment."
+  },
+  {
+   "id": "t17",
+   "kind": "tech",
+   "when": "the PWA files (manifest, service worker) are touched",
+   "why": "Offline: service workers, PWA, caching; the starter ships one."
+  },
+  {
+   "id": "t18",
+   "kind": "tech",
+   "when": "before the first deploy",
+   "why": "Polish: performance, lazy loading, error handling."
+  },
+  {
+   "id": "t22",
+   "kind": "tech",
+   "when": "the first new route",
+   "why": "API endpoints and REST; the stack returns fragments, the ideas hold."
+  },
+  {
+   "id": "t24",
+   "kind": "tech",
+   "when": "the first migration or table",
+   "why": "SQLite: tables, CRUD, schema, foreign keys; the stack's database."
+  },
+  {
+   "id": "t25",
+   "kind": "tech",
+   "when": "the first login or account feature",
+   "why": "Authentication: sessions, cookies, password hashing."
+  },
+  {
+   "id": "t26",
+   "kind": "tech",
+   "when": "the person asks how the local model works",
+   "why": "Ollama and chat: the model Pi runs on."
+  },
+  {
+   "id": "t27",
+   "kind": "tech",
+   "when": "the first app that calls a model",
+   "why": "A full-stack AI app."
+  },
+  {
+   "id": "t30",
+   "kind": "tech",
+   "when": "the first JavaScript island, or a pyright error the person asks about",
+   "why": "TypeScript: why every value has a type (the stack's rule, in Python too)."
+  },
+  {
+   "id": "a09",
+   "kind": "ai",
+   "when": "a new game project",
+   "why": "The game course, A09 to A23: LittleJS and p2p-core, the kit's game libraries."
+  },
+  {
+   "id": "a12",
+   "kind": "ai",
+   "when": "the first multiplayer feature",
+   "why": "Other people with no server: p2p-core."
+  },
+  {
+   "id": "a23",
+   "kind": "ai",
+   "when": "the end of a game project",
+   "why": "What we did not build, and what each feature would have cost."
+  },
+  {
+   "id": "r03",
+   "kind": "theory",
+   "when": "a bug request (the bug guide)",
+   "why": "Problem solving: understand before you build; reproduce first (lesson L-008)."
+  },
+  {
+   "id": "r07",
+   "kind": "theory",
+   "when": "the plan for a new feature",
+   "why": "Keep things super simple: the stack's one way."
+  },
+  {
+   "id": "r08",
+   "kind": "theory",
+   "when": "the first refactor",
+   "why": "Code quality: works, fast, easy to change."
+  },
+  {
+   "id": "r16",
+   "kind": "theory",
+   "when": "the first deploy",
+   "why": "Shipping is a skill."
+  },
+  {
+   "id": "r18",
+   "kind": "theory",
+   "when": "the first README or docs request",
+   "why": "Documentation is your best friend."
+  },
+  {
+   "id": "r21",
+   "kind": "theory",
+   "when": "a project's dependencies are updated",
+   "why": "Tech entropy: why the kit pins versions."
+  },
+  {
+   "id": "r04",
+   "kind": "theory",
+   "when": "in 'Learn more'",
+   "why": "The 20/80 rule: the stack teaches the 20%."
+  },
+  {
+   "id": "r09",
+   "kind": "theory",
+   "when": "in 'Learn more'",
+   "why": "How to learn."
+  }
+ ],
+ "left_out": {
+  "t01": "Environment setup: the harness installs the tools (uv, Python, Chromium); a stack version would say so.",
+  "t09-t11, t13-t16": "JavaScript and CSS depth: htmx and Basecoat replace most of it; listed under 'Learn more'.",
+  "t21, t23": "A Node server and a JSON database: the stack uses FastAPI and SQLite (t22, t24).",
+  "t28-t29, t31-t34": "React, Next.js, Nest.js: off the stack.",
+  "t35-t36": "Web Components: off the stack.",
+  "t37-t39": "System design: 'Learn more', for projects that outgrow one machine.",
+  "a02, a08": "Antigravity and a personal toolkit: the workbench is the toolkit.",
+  "a10-a11, a13-a22": "The rest of the game course, reached from a09.",
+  "r01, r05-r06, r10-r14, r17, r19": "Career and general reading: 'Learn more'."
+ },
+ "gaps": [
+  "Making a GitHub account step by step: a18 has one line ('sign up, it is free'). Missing: the username, two-factor authentication, the free plan.",
+  "Connecting this computer to GitHub: gh auth login (or an SSH key); no lesson covers it, and the first push fails without it.",
+  "A repository from the workbench: git init, the first commit, gh repo create, public or private, .gitignore for secrets.",
+  "Hosting the stack: GitHub Pages serves static files only; a FastAPI app needs a host (still undecided in plan 198).",
+  "Python versions of the server lessons (t21-t23 are Node)."
+ ]
+}

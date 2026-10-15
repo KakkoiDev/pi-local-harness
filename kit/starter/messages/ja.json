@@ -1,0 +1,12 @@
+{
+ "app.name": "メモ",
+ "language.en": "English",
+ "language.ja": "日本語",
+ "notes.title": "新しいメモ",
+ "notes.add": "メモを追加",
+ "notes.delete": "削除",
+ "notes.confirm_delete": "このメモを削除しますか？",
+ "notes.empty": "まだメモはありません。上に最初のメモを書いてください。",
+ "error.title_empty": "何か書いてください。",
+ "error.title_long": "120文字以内にしてください。"
+}

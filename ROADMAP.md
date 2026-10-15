@@ -242,3 +242,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [197-The bench compares no harness with the harness, side by side](tasks/197-bench-compare.md)
 - [x] [198-Plan the opinionated stack (HTMX 4, Basecoat, Python, PWA) and logic as tested blocks](tasks/198-plan-one-stack.md)
 - [x] [199-The kit: pinned libraries with their agent cards, the toolchain's pins](tasks/199-the-kit.md)
+- [x] [200-The starter project: a new app on the stack, typed, tested, in English and Japanese](tasks/200-starter-project.md)
+- [x] [201-KakkoiSchool's lessons, mapped to the moments they matter](tasks/201-school-lessons.md)

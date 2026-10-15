@@ -1,0 +1,12 @@
+{
+ "app.name": "Notes",
+ "language.en": "English",
+ "language.ja": "日本語",
+ "notes.title": "New note",
+ "notes.add": "Add Note",
+ "notes.delete": "Delete",
+ "notes.confirm_delete": "Delete this note?",
+ "notes.empty": "No notes yet. Write the first one above.",
+ "error.title_empty": "Write something first.",
+ "error.title_long": "Keep it under 120 characters."
+}

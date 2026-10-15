@@ -41,6 +41,14 @@ class KitTest(unittest.TestCase):
         self.assertTrue(used)
         self.assertEqual(sorted(name for name in used if name.removeprefix('hx-') not in source), [])
 
+    def test_the_school_map_names_each_lesson_once_with_when_and_why(self):
+        school = json.loads((KIT / 'school' / 'lessons.json').read_text())
+        ids = [lesson['id'] for lesson in school['lessons']]
+        self.assertEqual(len(ids), len(set(ids)))
+        for lesson in school['lessons']:
+            self.assertRegex(lesson['id'], r'^[tar]\d\d$'); self.assertTrue(lesson['when'] and lesson['why'], lesson['id'])
+            self.assertEqual(lesson['kind'], {'t': 'tech', 'a': 'ai', 'r': 'theory'}[lesson['id'][0]], lesson['id'])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -25,6 +25,30 @@ GitHub Pages, managing repos and so on. The trade-off is that it might struggle 
 - **The trade-off, accepted:** a project that is not on the stack gets the general harness only, and may struggle.
   New projects are the target.
 
+## The school: lessons at the moment they matter
+
+Added 2026-10-15: "and also an explanation about what is GitHub, how to create an account, and how to use git.
+basically the lessons I teach here: https://school.kakkoi.dev" and "look for every lesson that would make sense to
+include: https://github.com/KakkoiDev/izumo-io".
+
+KakkoiSchool's lessons (the izumo-io repository) are written for the same people this harness is for (starting from
+zero), in English, Japanese and Portuguese. The workbench does not write its own course; it shows the right lesson when
+the person meets the idea for the first time, in their language:
+
+- `kit/school/lessons.json`: 40 lessons chosen out of 123, each with **when** the workbench shows it (the harness's
+  first commit in a project: T19 Git Basics; the first push or pull request: T20; the first "put it online": A18;
+  the first migration: T24 SQLite; an answer marked not verified: R20 Never Trust an AI; a layout request: T08 …) and
+  **why**. Lessons that are off the stack (React, Next.js, Nest.js, a Node server) are listed as left out, with the
+  reason.
+- Shown as one line under Pi's answer ("New to git? Lesson T19, 10 minutes"), never in the way; "teach me" opens it.
+  Pi can also read a lesson to explain the idea on the person's own project.
+- Local: the lessons are copied into the kit (Markdown, en and ja) once izumo-io has a licence, so they work offline;
+  until then, links to school.kakkoi.dev.
+- **Gaps found** (new lessons, written for izumo-io so the school gains them too): making a GitHub account step by step
+  (A18 has one line), connecting this computer to GitHub (`gh auth login`), a repository from the workbench (`git init`,
+  `gh repo create`, public or private, keeping secrets out), hosting an app that has a server (GitHub Pages is static
+  only), and Python versions of the server lessons.
+
 ## Opinionated. Local. Capable.
 
 Added 2026-10-15: "I want Pi Local Harness to be: Opinionated. Local. Capable." and "I would like the AI agent to have
@@ -337,5 +361,7 @@ beat the general harness on these scenarios, without losing on the others, or it
    one recipe (a service and Caddy for HTTPS), or a platform (Fly.io, Render, Railway: easiest, paid). One is the default.
 8. **Issues and pull requests:** decided 2026-10-15, always ask before sending.
 9. **Windows and Linux:** decided 2026-10-15, after the starter project and the bench's stack track.
+10. **KakkoiSchool's lessons in the kit:** izumo-io has no licence file. Add one (CC BY 4.0 suits lessons; MIT if the
+    code samples matter more) so the kit can copy the lessons and work offline, or keep links only.
 6. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
    turn out to need.

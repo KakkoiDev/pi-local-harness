@@ -1,0 +1,16 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "A Pi Workbench project (the stack: FastAPI, Jinja, htmx 4, Basecoat, SQLite)."
+requires-python = ">=3.12"
+dependencies = ["fastapi", "uvicorn", "jinja2", "python-multipart"]
+
+[dependency-groups]
+dev = ["pytest", "httpx2", "pyright[nodejs]", "pytailwindcss"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["app", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

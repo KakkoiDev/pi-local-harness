@@ -1,0 +1,4 @@
+<li id="note-{{ note.id }}" class="card flex-row items-center justify-between gap-4 p-4">
+  <span>{{ note.title }}</span>
+  <button class="btn-ghost" hx-delete="/notes/{{ note.id }}" hx-target="#note-{{ note.id }}" hx-swap="outerHTML" hx-confirm="{{ t('notes.confirm_delete') }}">{{ t("notes.delete") }}</button>
+</li>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="flex items-center justify-between gap-4">
+  <h1 class="text-2xl font-semibold">{{ t("app.name") }}</h1>
+  <form hx-post="/language" class="flex gap-2">
+    <button class="btn-outline" name="lang" value="en">{{ t("language.en") }}</button>
+    <button class="btn-outline" name="lang" value="ja">{{ t("language.ja") }}</button>
+  </form>
+</header>
+{% include "fragments/note_form.html" %}
+<ul id="notes" class="peer grid gap-2">
+  {% for note in notes %}{% include "fragments/note_item.html" %}{% endfor %}
+</ul>
+<p id="empty" class="hidden text-muted-foreground peer-[:not(:has(li))]:block">{{ t("notes.empty") }}</p>
+{% endblock %}

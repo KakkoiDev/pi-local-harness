@@ -1,0 +1,11 @@
+# A Pi Workbench project
+
+Built on the stack (plan 198): FastAPI, Jinja, htmx 4, Basecoat, SQLite, typed Python, English and Japanese.
+
+    uv sync                                   # once
+    uv run tailwindcss -i styles/input.css -o static/app.css --minify
+    uv run uvicorn app.main:app --reload      # http://127.0.0.1:8000
+    uv run pytest && uv run pyright           # tests and types
+
+Logic lives in `app/logic/` as pure functions; data in `app/db.py` and `migrations/`; pages and fragments in
+`app/templates/`; every visible string in `messages/en.json` and `messages/ja.json`.

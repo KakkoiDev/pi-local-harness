@@ -1,0 +1,10 @@
+<form id="note-form" class="card" hx-post="/notes" hx-target="this" hx-swap="outerHTML">
+  <section class="grid gap-2">
+    <div class="field">
+      <label class="label" for="title">{{ t("notes.title") }}</label>
+      <input class="input" id="title" name="title" value="{{ title }}" autocomplete="off"{% if problems %} aria-invalid="true" aria-describedby="title-error"{% endif %}>
+      {% for problem in problems %}<p id="title-error" class="text-destructive text-sm">{{ t(problem.key) }}</p>{% endfor %}
+    </div>
+    <button class="btn">{{ t("notes.add") }}</button>
+  </section>
+</form>
