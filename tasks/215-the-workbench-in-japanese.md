@@ -20,5 +20,5 @@ Plan 198 ("a Japanese UI", decided 2026-10-15). The person: "let's build it then
   file's patterns keep their parts; browser, design.cjs: Japanese menus, tabs and placeholder, then English back).
   Checked in the browser at 1440 and at phone width: Chat, Work, Activity, Gate, the menus and Settings have no English
   left but names; Japanese labels wrap.
-- [ ] Terminal Pi stays in English.
-- [ ] The designer has not drawn the Language group in Settings (it reuses Appearance's layout and the new Radio).
+- [x] Terminal Pi in Japanese too: task 220 (the screens and texts; /commands stay English).
+- [ ] The designer has not drawn the Language group in Settings (it reuses Appearance's layout and the new Radio; in the round 9 brief).

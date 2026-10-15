@@ -10,5 +10,5 @@ The person, 2026-10-15: "I want to make it easy for the user to update the app w
   throwaway repositories as GitHub.
 - [x] Terminal: `/update` (what is new) and `/update now` (asks first; the new version installs when plh starts again,
   through the existing auto_update). CONSOLE.md and the guide ("How do I update Pi Workbench?").
-- [ ] The web: π › Check for Updates… and an "update available" mark: in the round 8 brief for the designer.
+- [ ] The web: π › Check for Updates… and an "update available" mark: in the round 9 brief for the designer (design/briefs/round-9.md).
 - [ ] A check at start (daily, quiet) once the designer has drawn where it shows.

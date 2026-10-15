@@ -51,5 +51,5 @@ Still open:
   window ran past the right edge (the Preview measured its room only when the desk resized; now also when the view or
   Review changes, and it steps aside as a tab without taking over Work); on the phone the chat stopped short of the
   last line after a reload (the thread now stays at its end while it settles). Screenshots retaken.
-- [ ] Round 9 brief for the designer: the model-gone sentence, the Chat commands no view has yet (Compact Now, New
+- [x] Round 9 brief for the designer (design/briefs/round-9.md, published as an artifact): the model-gone sentence, the Chat commands no view has yet (Compact Now, New
   Conversation…, Earlier Conversations ›), Ph8_Settings' rows with no setting behind them, Terminal app in Ph8_NewProject.
