@@ -27,12 +27,21 @@ class KitTest(unittest.TestCase):
             self.assertTrue((KIT / lib['card']).is_file(), f"{lib['name']} has a card")
 
     def test_the_basecoat_card_names_only_basecoat_classes(self):
-        css = ''.join(path.read_text() for path in (KIT / 'vendor/basecoat-1.0.2/css').rglob('*.css'))
+        # What a project loads: basecoat.css and what it imports, not the legacy layer (pre-1.0 classes such as
+        # btn-outline live only there and render as plain text; the first card taught them).
+        folder = KIT / 'vendor/basecoat-1.0.2/css'
+        def loaded(path):
+            text = path.read_text()
+            return text + ''.join(loaded((path.parent / name).resolve()) for name in re.findall(r'@import "([^"]+)"', text))
+        css = loaded(folder / 'basecoat.css')
+        self.assertNotIn('.btn-outline', css)
         card = (KIT / 'cards/basecoat.md').read_text()
         tailwind = re.compile(r'^(grid|flex|gap-\d+|p[xy]?-\d+|m[xy]?-\d+|w-\w+|h-\w+|items-\w+|justify-\w+)$')
         named = {name for value in re.findall(r'class="([^"]+)"', card) for name in value.split()} | set(re.findall(r'`((?:btn|card|field|label|input|select|textarea|table|badge|alert)[\w-]*)`', card))
         missing = sorted(name for name in named if not tailwind.match(name) and not name.endswith('…') and not re.search(r'\.' + re.escape(name) + r'(?![\w-])', css))
         self.assertEqual(missing, [], 'classes the card names that Basecoat does not have')
+        for element, variant in re.findall(r'class="(\w+)"[^>]*data-variant="([\w-]+)"', card):
+            self.assertIn(f".{element}[data-variant='{variant}']", css, f'{element} has no {variant} variant')
 
     def test_the_htmx_card_names_only_htmx_4_attributes(self):
         source = (KIT / 'vendor/htmx-4.0.0/htmx.js').read_text()

@@ -12,7 +12,8 @@
   "pytailwindcss": "idem",
   "pyright[nodejs]": "1.1.414"
  },
- "typescript": "checks JSDoc-typed JS islands; run through the Node pyright brings (tsc), or tsgo when it leaves preview",
+ "typescript": "7.0.2 (the native compiler): checks the JSDoc types of no-server apps (kit/starter-static) in strict mode, 0.4 s; run with only uv: uvx --from nodejs-wheel-binaries==24.19.0 npx --yes -p typescript@7.0.2 tsc -p .",
  "chromium": "the browser tool finds Chrome, Chromium or Playwright's; plh setup can fetch one",
- "tailwindcss": "v4.3.3: the standalone binary, through pytailwindcss with TAILWINDCSS_VERSION pinned and TAILWINDCSS_BIN_DIR=<data>/toolchain/tailwindcss (one checksum-checked copy for every project; without the pin pytailwindcss downloads 'latest' into each project)"
+ "tailwindcss": "v4.3.3: the standalone binary, through pytailwindcss with TAILWINDCSS_VERSION pinned and TAILWINDCSS_BIN_DIR=<data>/toolchain/tailwindcss (one checksum-checked copy for every project; without the pin pytailwindcss downloads 'latest' into each project)",
+ "node": "nodejs-wheel-binaries 24.19.0, through uv (the same Node pyright brings): node --test for no-server apps; no system Node needed"
 }

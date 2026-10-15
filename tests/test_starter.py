@@ -52,5 +52,36 @@ class StarterTest(unittest.TestCase):
             self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
 
 
+class StaticStarterTest(unittest.TestCase):
+    """The app with no server (plan 198, "Apps with no server at all"): browser only, JSDoc types, IndexedDB, GitHub Pages."""
+    def setUp(self):
+        self.folder = Path(tempfile.mkdtemp(prefix='pi-static-')) / 'app'
+        new_project(self.folder, static=True)
+
+    def test_a_new_static_project_has_the_page_the_logic_the_store_and_the_pwa(self):
+        for name in ('index.html', 'js/app.mjs', 'js/logic/notes.mjs', 'js/store.mjs', 'js/i18n.mjs', 'sw.js', 'manifest.webmanifest',
+                     'vendor/basecoat/css/basecoat.css', 'tsconfig.json', 'tests/notes.test.mjs'):
+            self.assertTrue((self.folder / name).is_file(), name)
+        self.assertFalse((self.folder / 'static/htmx.min.js').exists(), 'no server, so nothing for htmx to ask')
+        config = json.loads((self.folder / 'tsconfig.json').read_text())['compilerOptions']
+        self.assertTrue(config['strict'] and config['checkJs'], 'the types rule holds in the browser too')
+
+    def test_the_logic_has_no_dom_storage_clock_or_randomness(self):
+        logic = (self.folder / 'js/logic/notes.mjs').read_text()
+        for forbidden in ('document.', 'window.', 'indexedDB', 'localStorage', 'Date.now', 'new Date', 'Math.random', 'crypto.', 'fetch('):
+            self.assertNotIn(forbidden, logic, forbidden)
+
+    def test_english_and_japanese_have_the_same_keys(self):
+        en, ja = (json.loads((self.folder / f'messages/{language}.json').read_text()) for language in ('en', 'ja'))
+        self.assertEqual(set(en), set(ja))
+
+    @unittest.skipUnless(os.getenv('PI_KIT_HEAVY') == '1', 'PI_KIT_HEAVY=1 type-checks and tests it with uv')
+    def test_its_types_and_tests_pass_with_only_uv(self):
+        node = ['uvx', '--from', 'nodejs-wheel-binaries==24.19.0']
+        for command in ([*node, 'npx', '--yes', '-p', 'typescript@7.0.2', 'tsc', '-p', '.'], [*node, 'node', '--test']):
+            run = subprocess.run(command, cwd=self.folder, capture_output=True, text=True, timeout=600)
+            self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
+
+
 if __name__ == '__main__':
     unittest.main()

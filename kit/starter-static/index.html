@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="static/icon.svg">
+<link rel="stylesheet" href="static/app.css">
+<script type="module" src="js/app.mjs"></script>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+<main class="mx-auto max-w-2xl p-4 grid gap-6">
+  <header class="flex items-center justify-between gap-4">
+    <h1 class="text-2xl font-semibold" data-t="app.name">Notes</h1>
+    <div class="flex gap-2">
+      <button class="btn" data-variant="outline" data-lang="en">English</button>
+      <button class="btn" data-variant="outline" data-lang="ja">日本語</button>
+    </div>
+  </header>
+  <form id="note-form" class="card" novalidate>
+    <section class="grid gap-2">
+      <div class="field">
+        <label class="label" for="title" data-t="notes.title">New note</label>
+        <input class="input" id="title" name="title" autocomplete="off">
+        <p id="title-error" class="text-destructive text-sm" hidden></p>
+      </div>
+      <button class="btn" data-t="notes.add">Add Note</button>
+    </section>
+  </form>
+  <ul id="notes" class="peer grid gap-2"></ul>
+  <p id="empty" class="hidden text-muted-foreground peer-[:not(:has(li))]:block" data-t="notes.empty">No notes yet.</p>
+  <footer class="flex flex-wrap gap-2">
+    <button id="export" class="btn" data-variant="outline" data-t="backup.export">Save a Backup</button>
+    <label class="btn" data-variant="outline"><span data-t="backup.import">Restore a Backup…</span><input id="import" type="file" accept="application/json" class="sr-only"></label>
+  </footer>
+</main>
+<template id="note-item">
+  <li class="card flex-row items-center justify-between gap-4 p-4"><span></span><button class="btn" data-variant="ghost" data-t="notes.delete">Delete</button></li>
+</template>
+</body>
+</html>

@@ -247,3 +247,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [202-The harness runs the project's app, for the Preview beside the chat](tasks/202-preview-runs-the-app.md)
 - [ ] [203-Undo This Request: a new commit that reverses the harness's commit for a request](tasks/203-undo-a-request.md)
 - [x] [204-Pi's browser opens the project's own app (target "app")](tasks/204-browser-opens-the-app.md)
+- [x] [205-The starter for an app with no server, and Basecoat 1.0's variants taught right](tasks/205-starter-without-a-server.md)

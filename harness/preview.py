@@ -28,7 +28,11 @@ def run_command(folder, port):
         styles = [UV, 'run', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
         return ['/bin/sh', '-c', f"{shlex.join(styles)} && {{ {shlex.join([*styles, '--watch=always'])} & exec {shlex.join(server)}; }}"]
     if (folder / 'index.html').is_file():
-        return [sys.executable, '-m', 'http.server', str(port), '--bind', '127.0.0.1']
+        files = [sys.executable, '-m', 'http.server', str(port), '--bind', '127.0.0.1']
+        if not (folder / 'styles' / 'input.css').is_file(): return files
+        # An app with no server (kit/starter-static): the same Tailwind build and watch, then the files.
+        styles = [UV, 'tool', 'run', '--from', 'pytailwindcss', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
+        return ['/bin/sh', '-c', f"{shlex.join(styles)} && {{ {shlex.join([*styles, '--watch=always'])} & exec {shlex.join(files)}; }}"]
     return None
 
 

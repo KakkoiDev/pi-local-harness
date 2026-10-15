@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "../vendor/basecoat/css/basecoat.css";
+@source "../index.html";
+@source "../js";
