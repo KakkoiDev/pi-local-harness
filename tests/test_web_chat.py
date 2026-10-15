@@ -86,6 +86,12 @@ class RpcBridgeTest(unittest.TestCase):
             self.assertEqual(request['message'],'Continue')
             environment=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
             self.assertEqual(environment['token'],'shared-token')
+    def test_pi_binary_names_the_pi_to_run(self):
+        import os
+        from unittest.mock import patch
+        from harness.web_chat import pi_command
+        self.assertEqual(pi_command(None)[0], 'pi')
+        with patch.dict(os.environ, {'PI_BINARY': '/usr/bin/false'}): self.assertEqual(pi_command(None)[0], '/usr/bin/false', 'a scratch workbench must not start the real Pi')
     def test_processes_pi_leaves_running_are_stopped_when_the_request_ends(self):
         import os
         import sys

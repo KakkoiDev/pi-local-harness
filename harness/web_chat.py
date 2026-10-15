@@ -141,7 +141,8 @@ def readable_error(text):
 def pi_command(session, choice=None):
     """session None: a one-off request with no session (comments and whole-file questions, task 115). choice: the model and thinking level chosen in the menu bar (task 147)."""
     choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
-    return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
+    return [os.getenv('PI_BINARY','pi'),'--offline','--mode','rpc',  # PI_BINARY, as the bench and the settings say (it was ignored: found by the phone audit)
+        '--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
 def stop_group(group):
