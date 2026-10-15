@@ -220,7 +220,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [175-The thinking level reaches Ollama; Off turns thinking off](tasks/175-thinking-levels-reach-ollama.md)
 - [x] [176-Gate says which edit does not match, and why](tasks/176-gate-says-which-edit.md)
 - [ ] [177-Build the designer's round 7 (answers to the round 6 notes)](tasks/177-round-7-build.md)
-- [ ] [178-Lessons from the local model's errors](tasks/178-lessons-from-model-errors.md)
+- [x] [178-Lessons from the local model's errors](tasks/178-lessons-from-model-errors.md)
 - [x] [179-Gate's rules as one always-enforced system](tasks/179-plan-gate-rules.md)
 - [x] [180-One command runs the browser suites, or says they did not run](tasks/180-browser-runner.md)
 - [x] [181-Terminal Pi turns are marked "Not verified" too (G-012)](tasks/181-unverified-terminal-turns.md)
