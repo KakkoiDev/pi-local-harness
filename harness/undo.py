@@ -29,7 +29,7 @@ def undone_by(root, full):
 
 def name(title):
     """The request as the web names it: Activity shows the task, so "(task 002)" goes (round 7, point 12)."""
-    return re.sub(r'\s*\(task \d+\)$', '', title)
+    return re.sub(r'\s*\(task \d+(, not verified)?\)$', '', title)
 
 
 def person_lines(root, full, title):
@@ -56,7 +56,7 @@ def preview(root, commit):
     when = datetime.fromisoformat(body.rsplit('\0', 1)[-1].strip()).strftime('%H:%M')
     words = person_lines(root, original_of(root, full), title)  # an undo or a redo quotes the request in plain words
     return {'commit': full[:12], 'title': title, 'name': name(title), 'person': words, 'time': when, 'files': files,
-            'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
+            'verified': not title.endswith(', not verified)'), 'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
             **({'undo_of': reverts.group(1)[:12]} if reverts else {})}
 
 

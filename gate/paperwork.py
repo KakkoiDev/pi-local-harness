@@ -110,24 +110,34 @@ class Paperwork:
                     if proof is True: self.progress(item, f"Red (proved by the harness): without the change, `{item['test_command']}` fails")
                     else: reason = proof
                 if reason:
+                    # Committed too, marked (2026-10-15): every change can be undone the same way; the task stays open.
                     self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
-                    return {'outcome': 'not verified', 'task': task, 'reason': reason}
+                    saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
+                    return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
             self.progress(item, f'Done at {clock()}: verified and committed')
             text = (root / task).read_text(encoding='utf-8')
             roadmap = (root / 'ROADMAP.md').read_text(encoding='utf-8')
             if not re.search(r'- \[ \]', text):
                 roadmap = re.sub(rf'^(\s*)- \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
-            paths = sorted(set(changed) | {task, 'ROADMAP.md'})
-            title = re.match(r'# \d+: (.*)', text)
-            message = f"{title.group(1) if title else Path(task).stem} (task {Path(task).name[:3]})"
-            name, email = self.identity
-            done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', 'commit', '-q', '-m', message, '--', *paths],
-                                  capture_output=True, text=True, timeout=60) if self.add(root, paths) else None
-            if not done or done.returncode:
-                return {'outcome': 'commit failed', 'task': task, 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
-            head = subprocess.run(['git', '-C', str(root), 'rev-parse', '--short=12', 'HEAD'], capture_output=True, text=True, timeout=30).stdout.strip()
-            return {'outcome': 'committed', 'task': task, 'message': message, 'commit': head}  # the handle for Undo This Request
+            saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
+            return {'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+
+    def subject(self, item, mark=''):
+        text = (item['root'] / item['task']).read_text(encoding='utf-8')
+        title = re.match(r'# \d+: (.*)', text)
+        return f"{title.group(1) if title else Path(item['task']).stem} (task {Path(item['task']).name[:3]}{mark})"
+
+    def commit(self, root, paths, message, body=''):
+        """One commit for the request's files, by the harness: {'message', 'commit'} (the handle for Undo This Request),
+        or {'outcome': 'commit failed', 'reason'}."""
+        name, email = self.identity
+        done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', 'commit', '-q', '-m', message,
+                               *(['-m', body] if body else []), '--', *paths], capture_output=True, text=True, timeout=60) if self.add(root, paths) else None
+        if not done or done.returncode:
+            return {'outcome': 'commit failed', 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
+        head = subprocess.run(['git', '-C', str(root), 'rev-parse', '--short=12', 'HEAD'], capture_output=True, text=True, timeout=30).stdout.strip()
+        return {'message': message, 'commit': head}
 
     def prove_red(self, item, code):
         """Set the request's code changes aside (tests stay), run its last passing test command: it must fail; put the

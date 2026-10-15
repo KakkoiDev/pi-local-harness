@@ -16,11 +16,16 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 
 /** A Chromium to drive: PI_BROWSER, Google Chrome, Chromium, or Playwright's download; null when there is none. */
-export function findChrome(env = process.env) {
-  const cache = join(homedir(), 'Library/Caches/ms-playwright');
-  const playwright = existsSync(cache) ? readdirSync(cache).filter(name => name.startsWith('chromium-')).sort().reverse()
-    .flatMap(name => [join(cache, name, 'chrome-mac/Chromium.app/Contents/MacOS/Chromium'), join(cache, name, 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium'), join(cache, name, 'chrome-linux/chrome')]) : [];
-  return [env.PI_BROWSER, env.PI_TEST_CHROME, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium', '/usr/bin/chromium', '/usr/bin/google-chrome', ...playwright]
+/** A Chromium to drive: PI_BROWSER first; then Chromium's headless shell (made for this: no window, no desktop
+ * browser around it, faster to start) from the harness's toolchain or Playwright's cache; then Chrome or Chromium.
+ * Lightpanda was considered (2026-10-15): it has no layout engine, so no boxes, scroll positions or screenshots,
+ * which are the facts this tool exists for. */
+export function findChrome(env = process.env, home = homedir()) {
+  const cache = join(home, 'Library/Caches/ms-playwright'), listed = prefix => existsSync(cache) ? readdirSync(cache).filter(name => name.startsWith(prefix)).sort().reverse() : [];
+  const shells = [join(env.PI_AGENT_DATA || join(home, 'pi-local-harness-data'), 'toolchain/chrome-headless-shell/chrome-headless-shell'),
+    ...listed('chromium_headless_shell-').flatMap(name => [join(cache, name, 'chrome-mac/headless_shell'), join(cache, name, 'chrome-mac-arm64/headless_shell'), join(cache, name, 'chrome-linux/headless_shell')])];
+  const playwright = listed('chromium-').flatMap(name => [join(cache, name, 'chrome-mac/Chromium.app/Contents/MacOS/Chromium'), join(cache, name, 'chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium'), join(cache, name, 'chrome-linux/chrome')]);
+  return [env.PI_BROWSER, env.PI_TEST_CHROME, ...shells, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium', '/usr/bin/chromium', '/usr/bin/google-chrome', ...playwright]
     .find(path => path && existsSync(path)) || null;
 }
 

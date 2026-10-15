@@ -69,13 +69,19 @@ class PaperworkTest(unittest.TestCase):
         self.assertEqual(self.paper.end('r2')['outcome'], 'committed')
         self.assertIn('- [ ] [002-Add the badge]', (self.root / 'ROADMAP.md').read_text(), 'its own boxes are still open: the roadmap line stays open')
 
-    def test_unverified_work_is_left_open_and_said_so(self):
+    def test_unverified_work_is_committed_marked_and_left_open(self):
+        """2026-10-15 (the person: "do recommended"): every change can be undone the same way, so an unverified one is
+        committed too, marked; its task and roadmap line stay open."""
         self.paper.start('r3', str(self.root), 'Rewrite app')
         (self.root / 'app.py').write_text('x = 4\n'); self.paper.observe('r3')
         result = self.paper.end('r3')
         self.assertEqual(result['outcome'], 'not verified')
         self.assertIn('Not verified at', (self.root / 'tasks/003-rewrite-app.md').read_text())
-        self.assertEqual(git(self.root, 'log', '--format=%s', '-1').strip(), 'start', 'nothing committed')
+        subject, body = git(self.root, 'log', '-1', '--format=%s%n%b').split('\n', 1)
+        self.assertEqual(subject, 'Rewrite app (task 003, not verified)')
+        self.assertIn('Not verified: no test passed on the final code (Green)', body)
+        self.assertEqual(result['commit'], git(self.root, 'rev-parse', '--short=12', 'HEAD').strip(), 'Undo This Request works on it too')
+        self.assertIn('- [ ] [003-Rewrite app]', (self.root / 'ROADMAP.md').read_text(), 'the roadmap line stays open')
 
     def test_documentation_only_is_kind_docs_and_needs_no_tests(self):
         self.paper.start('r4', str(self.root), 'Document the queue')

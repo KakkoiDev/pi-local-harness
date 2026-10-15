@@ -144,6 +144,18 @@ def pi_command(session, choice=None):
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
+def stop_group(group):
+    """Stop what is left in a finished request's process group: SIGTERM, then SIGKILL for what ignores it."""
+    import signal
+    for sent in (signal.SIGTERM,signal.SIGKILL):
+        try:os.killpg(group,sent)
+        except (ProcessLookupError,PermissionError):return
+        for _ in range(20):
+            try:os.killpg(group,0)
+            except (ProcessLookupError,PermissionError):return
+            time.sleep(0.05)
+
+
 def preview_lines(data):
     """The app's last lines when a message comes from the Preview's Ask Pi to Fix (at most 8, text only)."""
     if data.get('origin')!='preview' or not isinstance(data.get('lines'),list):return []
@@ -467,7 +479,7 @@ class WebChat:
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
             env={**os.environ,'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
-            process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True)
+            process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
                 self.active[key]['process']=process
                 if cancelled.is_set():process.terminate()
@@ -529,8 +541,9 @@ class WebChat:
                     emit(event)
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
-            if note:
+            if note and not committed:  # with a commit, the DoneRow says "! Not verified" (round 7): the answer stays Pi's words
                 reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
+            if note:
                 reports.report(self.documents.root,'unverified',note.strip(),request=job,project=project)  # plan 184
             if opened:emit({'type':'also_read','files':opened})
             if committed:
@@ -545,6 +558,7 @@ class WebChat:
                 try:process.wait(timeout=5)
                 except subprocess.TimeoutExpired:process.kill();process.wait()
                 process.stdin.close();process.stdout.close()
+                stop_group(process.pid)  # servers and watchers Pi started with `&` (seen in the bench: an http.server left for hours)
             if diagnostics:diagnostics.close()
             with self.lock:
                 self.active.pop(key,None);self.turns.notify_all()

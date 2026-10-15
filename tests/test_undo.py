@@ -84,6 +84,12 @@ class DoneRowTest(unittest.TestCase):
         self.assertRegex(found['time'], r'^\d\d:\d\d$')
         self.assertEqual(len(found['files']), 2)
 
+    def test_an_unverified_request_says_so_and_why(self):
+        other = commit(self.root, {'notes.md': 'z\n'}, 'Bold notes (task 004, not verified)\n\nNot verified: no test passed on the final code (Green).')
+        found = undo.preview(self.root, other)
+        self.assertFalse(found['verified']); self.assertEqual(found['name'], 'Bold notes')
+        self.assertEqual(undo.preview(self.root, self.request)['verified'], True)
+
     def test_without_plain_words_the_row_uses_the_request_name(self):
         other = commit(self.root, {'notes.md': 'y\n'}, 'Fix the notes (task 003)')
         self.assertEqual(undo.preview(self.root, other)['person'], ['Fix the notes'])

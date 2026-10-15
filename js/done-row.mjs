@@ -26,11 +26,12 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed 
   const fill = data => {
     const files = data.files.length, head = node('p', 'pw-done__head'), actions = node('div', 'pw-done__actions');
     const undoRow = Boolean(data.undo_of), redoRow = /^Redo: /.test(data.title);
-    head.append(undoRow && !redoRow ? glyph('undo') : glyph('done'), node('span', '', undoRow && !redoRow ? 'Undone' : redoRow ? 'Redone' : 'Done'),
+    const unverified = data.verified === false;  // committed, marked (G-012 moved here from the answer)
+    head.append(undoRow && !redoRow ? glyph('undo') : unverified ? glyph('caution') : glyph('done'), node('span', '', undoRow && !redoRow ? 'Undone' : redoRow ? 'Redone' : unverified ? 'Not verified' : 'Done'),
       node('span', '', `· ${files} file${files === 1 ? '' : 's'} · ${data.time}${data.undone ? ` · ${undoRow && !redoRow ? 'redone' : 'undone'} at ${data.undone_at}` : ''}`));
     const words = undoRow && !redoRow
       ? [`Undid “${firstSentence(data.person)}”. ${files} file${files === 1 ? '' : 's'} changed back as a new change: nothing is lost, and Redo brings it back.`]
-      : data.person;
+      : unverified ? [...data.person.slice(0, 2), 'Pi did not try it after the last change.'] : data.person;
     const show = node('button', 'pw-btn', 'Show in Preview'); show.type = 'button'; show.onclick = () => showPreview();
     actions.append(show);
     if (undoRow && !redoRow) {

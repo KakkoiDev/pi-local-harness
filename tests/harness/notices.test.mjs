@@ -22,3 +22,10 @@ test('recovery and refusal lead with a bold sentence, then what happened, then w
   assert.match(refused.detail, /yours was not sent/); assert.match(refused.next, /\/queue/); assert.match(refused.web, /^Harness refused: One agent/);
   for (const line of renderNotice(refused, 40)) assert.ok(strip(line).length <= 40, 'wrapped to the width');
 });
+
+test('a change committed but not verified says so and carries its commit (2026-10-15, DoneRow)', () => {
+  const notice = harnessNotice('saved-unverified', 'Bold notes (task 004, not verified) · committed as 0123456789ab');
+  assert.equal(notice.sentence, 'Committed, not verified.');
+  assert.match(notice.detail, /^“Bold notes \(task 004, not verified\)” is committed and marked not verified/);
+  assert.match(notice.web, / · committed as 0123456789ab$/, 'the web side reads the commit from the note (Undo This Request)');
+});

@@ -38,6 +38,10 @@ if 'TEST_READ' in request['message']:  # task 136: files read with the read tool
     for number,path in enumerate(['tasks/001-first-task.md','ROADMAP.md','/etc/hosts',os.path.join(os.getcwd(),'tasks/001-first-task.md')]):
         emit({'type':'tool_execution_start','toolCallId':f'call-file-{number}','toolName':'read','args':{'path':path}})
         emit({'type':'tool_execution_end','toolCallId':f'call-file-{number}','toolName':'read','isError':False})
+if request['message'].rstrip().endswith('TEST_SPAWN'):  # a server Pi starts with `&` and never stops (seen in the bench)
+    import subprocess as sp
+    leftover=sp.Popen(['sleep','300'],stdin=sp.DEVNULL,stdout=sp.DEVNULL,stderr=sp.DEVNULL);  # Pi's bash tool gives commands their own pipes
+    Path(os.environ['PI_FAKE_PIDFILE']).write_text(str(leftover.pid))
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts a looping turn, compacts and re-asks (task 150)

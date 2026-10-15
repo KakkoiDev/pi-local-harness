@@ -10,6 +10,7 @@ const SVG = {
   none: '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>',
   starting: '<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4.5l3 2" fill="none" stroke="currentColor" stroke-width="1.5"/>',
   done: '<path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/>',
+  caution: '<path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/>',
   undo: '<path d="M5.5 2.5 2 6l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 6h7a4 4 0 0 1 0 8H6" fill="none" stroke="currentColor" stroke-width="1.5"/>',
 };
 export function glyph(name, size = 12) {

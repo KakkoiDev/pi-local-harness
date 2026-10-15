@@ -86,6 +86,24 @@ class RpcBridgeTest(unittest.TestCase):
             self.assertEqual(request['message'],'Continue')
             environment=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
             self.assertEqual(environment['token'],'shared-token')
+    def test_processes_pi_leaves_running_are_stopped_when_the_request_ends(self):
+        import os
+        import sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi';pidfile=root/'leftover.pid'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000);self.addCleanup(chat.close);conversation=chat.store.create()
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH'],'PI_FAKE_PIDFILE':str(pidfile),'PI_WEB_CWD':str(root)}):
+                chat.send(conversation['id'],{'message':'Start a server TEST_SPAWN'},lambda event:None)
+            leftover=int(pidfile.read_text())
+            for _ in range(50):
+                try:os.kill(leftover,0)
+                except ProcessLookupError:break
+                time.sleep(0.1)
+            else:
+                os.kill(leftover,9);self.fail('the server Pi started is still running after the request')
     def test_stop_terminates_process_and_releases_conversation(self):
         import os
         import sys

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, existsSync } from 'node:fs';
+import { mkdtempSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { plan, look, findChrome, startScratch } from '../../harness/browser.mjs';
@@ -86,4 +86,13 @@ test('Pi gets it as a tool; the scratch workbench is started once and the person
   handle.stop(); assert.equal(started, -1);
   const failed = await installBrowser({ registerTool: definition => { tool = definition; } }, { see: async () => { throw new Error('No Chromium'); } });
   assert.equal((await tool.execute('2', {})).isError, true);
+});
+
+test('the headless shell is preferred to a full Chrome when it is there (lighter; Lightpanda has no layout)', () => {
+  const home = mkdtempSync(join(tmpdir(), 'pi-home-'));
+  const shell = join(home, 'Library/Caches/ms-playwright/chromium_headless_shell-1200/chrome-mac/headless_shell');
+  const chromium = join(home, 'Library/Caches/ms-playwright/chromium-1200/chrome-mac/Chromium.app/Contents/MacOS/Chromium');
+  for (const path of [shell, chromium]) { mkdirSync(join(path, '..'), { recursive: true }); writeFileSync(path, ''); }
+  assert.equal(findChrome({}, home), shell, 'before Google Chrome and before the full Chromium');
+  assert.equal(findChrome({ PI_BROWSER: chromium }, home), chromium, 'PI_BROWSER always wins');
 });

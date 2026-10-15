@@ -14,6 +14,5 @@ Round 7 (points 7, 8, 12; DoneRow card; boards P_DoneParts, P_Undo, P_UndoConfli
   undone); the Caution alert with the files that change back; the Note alerts for "changed again" (Ask Pi Instead) and
   unsaved edits (Save Them, Then Undo); ↶ Undone rows with Redo Request…. `ask()` gained an extra part.
 - [x] Tried in the browser: undo, the row's "undone at", Redo, and the "changed again" alert naming the later request.
-- [ ] G-012 into the row ("! Not verified"): a change that is not verified is not committed today, so it has no Undo.
-  Waiting for the person: commit unverified changes too (marked), or show the row without Undo.
+- [x] G-012 into the row ("! Not verified"): decided 2026-10-15, unverified changes are committed too, marked (task 213).
 - [ ] The lesson line (task 211).

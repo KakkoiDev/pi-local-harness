@@ -10,6 +10,7 @@ const KINDS = {
   canary: { glyph: '!', sentence: 'Pi drifted from its instructions.', next: 'Pi reads AGENTS.md again and answers again · Esc stops it', web: 'Harness recovery' },
   stopped: { glyph: '✗', sentence: 'Harness stopped retrying.', next: 'Ask again with a hint, or in other words', web: 'Harness recovery stopped' },
   committed: { glyph: '✓', sentence: 'Committed.', next: 'The harness made the task, ticked it and committed locally · git push when you want', web: 'Harness note' },
+  'saved-unverified': { glyph: '!', sentence: 'Committed, not verified.', next: 'Its task stays open · Undo This Request in the web chat takes it back', web: 'Harness note' },
   'commit-failed': { glyph: '!', sentence: 'The harness could not commit.', next: 'The work is there, uncommitted · /reports', web: 'Harness note' },
   'wake-up': { glyph: '▶', sentence: 'Harness woke Pi up.', next: 'Pi continues the request · Esc stops it', web: 'Harness recovery' },
   unverified: { glyph: '!', sentence: 'Not verified.', next: 'Run the tests before relying on it', web: 'Harness note' },
@@ -23,6 +24,7 @@ export function harnessNotice(kind, detail) {
   const said = kind === 'stopped' ? `The problem came back after one retry; the incident is saved in ${detail}.`
     : kind === 'refused' ? `Pi works on one request at a time; yours was not sent.`
     : kind === 'committed' ? `“${detail}”, verified (a test failed first, then passed on the final code).`
+    : kind === 'saved-unverified' ? `“${String(detail).replace(/ · committed as \w+$/, '')}” is committed and marked not verified: the harness did not see a test fail without it and pass with it.`
     : kind === 'commit-failed' ? String(detail)
     : kind === 'wake-up' ? `It stopped with work open: ${detail} changed and no passing test ran on it.`
     : kind === 'unverified' ? `Code changed (${detail}) and no test passed on it after the last change (G-012), whatever the answer says.`
