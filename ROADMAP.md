@@ -249,3 +249,6 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [204-Pi's browser opens the project's own app (target "app")](tasks/204-browser-opens-the-app.md)
 - [x] [205-The starter for an app with no server, and Basecoat 1.0's variants taught right](tasks/205-starter-without-a-server.md)
 - [x] [206-Re-sync the design after round 7's App preview](tasks/206-design-resync-preview.md)
+- [ ] [207-The Preview: the project's app beside the chat](tasks/207-the-preview-window.md)
+- [ ] [208-The DoneRow under each answer, and the undo alerts](tasks/208-done-row-and-undo-alerts.md)
+- [x] [209-New Project… makes a Web app, an App with no server, or an empty folder](tasks/209-new-project-kinds.md)

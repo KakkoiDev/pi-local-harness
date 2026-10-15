@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path
 
 from harness.preview import Previews, run_command
-from harness.web_chat import WebChat
+from harness.web_chat import WebChat, preview_lines
 
 
 def wait(previews, project, states, limit=15):
@@ -105,6 +105,24 @@ class PreviewTest(unittest.TestCase):
         self.assertIn('ImportError: no module named app', status['error'])
         self.assertTrue((self.root / 'previews2' / 'crash.log').is_file(), 'the full output is kept')
 
+    def test_an_app_that_holds_its_port_but_answers_nothing_is_stopped_with_its_lines(self):
+        # uvicorn --reload: the reloader keeps the port while the app inside has crashed (an import error).
+        hang = self.folder('hang', {'index.html': ''})
+        script = ('import socket, sys, time\n'
+                  'print("Traceback (most recent call last):"); print("ModuleNotFoundError: No module named \'markdown\'", flush=True)\n'
+                  'server = socket.socket(); server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); server.bind(("127.0.0.1", int(sys.argv[1]))); server.listen()\n'
+                  'time.sleep(60)\n')
+        previews = Previews(self.root / 'previews4', command=lambda folder, port: [sys.executable, '-c', script, str(port)], limit=60)
+        self.addCleanup(previews.close)
+        previews.start('hang', hang)
+        status = wait(previews, 'hang', ('stopped',), limit=10)
+        self.assertEqual(status['state'], 'stopped', 'the port is open, no page comes back, and its last line is an error: no need to wait the 60 s')
+        self.assertIn("No module named 'markdown'", status['error'])
+        self.assertIsNone(previews.apps['hang'].process.poll(), 'the reloader still runs: a fix starts the app again by itself')
+        old = previews.apps['hang'].process
+        previews.start('hang', hang)
+        self.assertIsNotNone(old.wait(timeout=10), 'Start Again ends the hanging process before starting a new one')
+
     def test_close_stops_every_app(self):
         site = self.folder('site', {'index.html': 'x'})
         self.previews.start('site', site); wait(self.previews, 'site', ('running',))
@@ -131,6 +149,14 @@ class WorkbenchPreviewTest(unittest.TestCase):
         with self.assertRaises(ValueError): chat.preview(None, 'start', cwd=str(root))
         with self.assertRaises(ValueError): chat.preview(project, 'explode')
         with self.assertRaises(ValueError): chat.preview('../etc', 'start')
+
+
+class AskPiToFixTest(unittest.TestCase):
+    def test_a_message_from_the_preview_carries_the_apps_last_lines(self):
+        lines = [f'line {n}' for n in range(12)]
+        self.assertEqual(preview_lines({'origin': 'preview', 'lines': lines}), lines[-8:])
+        self.assertEqual(preview_lines({'lines': lines}), [], 'only from the Preview')
+        self.assertEqual(preview_lines({'origin': 'preview', 'lines': 'nope'}), [])
 
 
 if __name__ == '__main__':

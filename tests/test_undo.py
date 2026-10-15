@@ -111,10 +111,12 @@ class DoneRowTest(unittest.TestCase):
     def test_undoing_an_undo_is_a_redo(self):
         undone = undo.undo(self.root, self.request)
         self.assertEqual(undo.preview(self.root, undone['commit'])['undo_of'], self.request)
+        self.assertEqual(undo.preview(self.root, undone['commit'])['person'][0], 'Added a Delete button to each note. It asks first.', 'the undo row quotes the request in plain words')
         redone = undo.undo(self.root, undone['commit'])
         self.assertEqual(redone['outcome'], 'undone')
         self.assertEqual(git(self.root, 'log', '-1', '--format=%s').strip(), 'Redo: Delete a note (task 002)')
         self.assertIn('def delete', (self.root / 'app.py').read_text())
+        self.assertEqual(undo.preview(self.root, redone['commit'])['person'][0], 'Added a Delete button to each note. It asks first.', 'a redo quotes the request too')
 
 
 class WorkbenchUndoTest(unittest.TestCase):

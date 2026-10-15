@@ -4,8 +4,9 @@ const $=id=>document.getElementById(id);
 function settle(dialog,read){return new Promise(resolve=>{dialog.addEventListener('close',()=>resolve(read(dialog.returnValue)),{once:true});dialog.returnValue='';dialog.showModal();});}
 // plain: the other button is an ordinary one (Show in Activity, Cancel), not a destructive one. escape: what Esc means
 // when the default button acts (Remove from List: Return removes, Esc cancels).
-export function ask({icon:kind='caution',message,detail='',danger,safe,plain=false,escape='default'}){
- $('alert-icon').replaceChildren(icon('alert-'+kind));$('alert-message').textContent=message;$('alert-detail').textContent=detail;
+// extra: one more part under the detail (round 7: the files an undo changes back, the advice the button acts on).
+export function ask({icon:kind='caution',message,detail='',danger,safe,plain=false,escape='default',extra=null}){
+ $('alert-icon').replaceChildren(icon('alert-'+kind));$('alert-message').textContent=message;$('alert-detail').textContent=detail;$('alert-extra').replaceChildren(...(extra?[extra]:[]));$('alert-extra').hidden=!extra;
  $('alert-danger').textContent=danger;$('alert-default').textContent=safe;$('alert-danger').classList.toggle('pw-dialog__danger',!plain);
  const shown=settle($('alert-dialog'),value=>value==='danger'?'danger':value==='default'?'default':escape);$('alert-default').focus();return shown;
 }

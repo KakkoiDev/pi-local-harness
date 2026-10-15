@@ -322,6 +322,7 @@ const readline = require('node:readline');
   // 127: Activity and Gate have their own addresses, show the Projects home, and their close box goes back.
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
   await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.body.dataset.view==='activity');
+  assert.equal(await page.evaluate(()=>getComputedStyle(document.getElementById('preview')).display),'none','round 7: the Preview is a project window; Activity and Gate are app windows');
   assert.equal(await page.evaluate(()=>document.body.dataset.level),'projects','app windows show the Projects home');
   await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();
   await page.waitForURL(`${base}/p/${id}/chat`);
@@ -329,7 +330,7 @@ const readline = require('node:readline');
 
   // 128: the project window has Chat | Work; Activity and Gate are app windows (C_ActivityDesk, C_GateDesk, Menus).
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
-  assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2']);
+  assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.filter(item=>!item.hidden).map(item=>item.textContent)),['Chat⌘1','Work⌘2'],'round 7: Preview is a third segment only when the chat would drop under 480px (P_Narrow)');
   await page.locator('#menubar [aria-controls="menu-window"]').click();
   assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2','Activity · All Projects⌘3','Gate · All Projects⌘4']);
   await page.locator('#menu-window [data-command="view-activity"]').click();await page.waitForURL(`${base}/activity`);
@@ -479,7 +480,10 @@ const readline = require('node:readline');
   const folderRows=await page.locator('#folder-list .pw-row').evaluateAll(rows=>rows.slice(0,3).map(row=>({height:Math.round(row.getBoundingClientRect().height),icon:Boolean(row.querySelector('svg')),label:row.querySelector('.pw-row__label')?.textContent})));
   assert.ok(folderRows.every(row=>row.height>=28&&row.icon&&row.label),'folder rows: '+JSON.stringify(folderRows));
   assert.ok((await page.locator('#folder-path').boundingBox()).width>=240,'the path field is not squeezed');
-  await page.locator('#folder-name').fill('Shop');assert.match(await page.locator('#folder-help').textContent(),/^Creates the folder “.+\/Shop” with ROADMAP\.md and tasks\/001-first-task\.md, then opens its Chat\.$/);
+  await page.locator('#folder-name').fill('Shop');assert.match(await page.locator('#folder-help').textContent(),/^Creates “.+\/Shop” from the web app starter: a small notes app in English and Japanese, with tests\. Ask Pi to turn it into yours\.$/,'round 7 (P_NewProject): Web app is the default');
+  assert.deepEqual(await page.locator('#folder-kind .pw-choice > span').allTextContents(),['Web app','App with no server','Empty folder']);
+  await page.locator('#folder-kind [value="static"]').check();assert.match(await page.locator('#folder-help').textContent(),/from the no-server starter/,'P_NewProjectStatic');
+  await page.locator('#folder-kind [value="empty"]').check();assert.match(await page.locator('#folder-help').textContent(),/^Creates the folder “.+\/Shop” with ROADMAP\.md and tasks\/001-first-task\.md, then opens its Chat\.$/);
   await page.locator('#folder-cancel').click();
 
   // Audit (task 150): at tablet width Activity keeps the request readable (Source and Started move to the detail).

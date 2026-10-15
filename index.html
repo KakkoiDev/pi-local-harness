@@ -107,6 +107,7 @@
       <div id="menu-window" class="pw-menu" role="menu" aria-label="Window" hidden>
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button><!-- round 4: Window is where you are; Chat and Work first --><!-- the project's views; from Activity or Gate they go back to the last project -->
         <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-preview">Preview<span class="pw-menu__key">⌥⌘P</span></button><!-- round 7 -->
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-projects">Projects</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-files">Files</button>
@@ -184,9 +185,11 @@
         <nav class="view-tabs pw-seg" aria-label="Workspace view">
           <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌘1</kbd></button>
           <button id="work-tab" aria-pressed="false">Work<kbd>⌘2</kbd></button>
+          <button id="preview-tab" aria-pressed="false" data-command="toggle-preview" hidden>Preview<kbd>⌥⌘P</kbd></button><!-- P_Narrow: a view when the chat would drop under 480px -->
         </nav>
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
+        <button id="preview-toggle" type="button" class="pw-btn preview-toggle" aria-pressed="false" aria-controls="preview" data-command="toggle-preview">Preview<span class="pw-kbd">⌥⌘P</span></button><!-- P_Beside -->
         <span id="save-status" class="pw-label" role="status"></span><!-- Work view only (Work board) -->
       </div>
       <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
@@ -276,7 +279,13 @@
         <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span>Before a command runs: approve, revise or block. After it runs: verify the result.</span><span id="gate-live" class="infobar-note" role="status">Connecting…</span></div>
         <div id="gate-events" class="pw-table pw-window__body" role="grid" aria-label="Gate checks"></div><!-- not aria-live: #gate-live announces; rows are re-rendered on refresh -->
       </section>
+      <section id="preview-view" class="preview-view" aria-label="Preview" hidden></section><!-- the Preview as a view (P_Narrow); js/preview.mjs moves its body here -->
     </main>
+
+    <section id="preview" class="pw-window window-preview" aria-label="Preview" hidden><!-- round 7: the app beside the chat (PreviewWindow card) -->
+      <div class="pw-titlebar"><button class="pw-box" aria-label="Close Preview" data-command="toggle-preview"></button><div class="pw-titlebar__stripes"></div><h2 id="preview-title" class="pw-titlebar__title">Preview</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
+      <div id="preview-body" class="pw-preview"></div>
+    </section>
 
       <!-- Review window: comments + document requests -->
       <aside id="comments-panel" class="pw-window window-review" aria-label="Review" data-view-only="work">
@@ -307,6 +316,12 @@
     <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
     <p id="folder-detail" class="pw-alert__detail" hidden></p><!-- Locate Folder… (P_Locate) -->
     <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
+    <fieldset id="folder-kind" class="folder-kind" hidden><legend class="pw-label">What are you making?</legend><!-- round 7 (P_NewProject): the kind; Web app the default -->
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="web" checked><span>Web app</span><small>Runs on this Mac while plh is open. For data several people share, logins, payments, or a paid AI key.</small></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="static"><span>App with no server</span><small>Runs in the browser and keeps its data on the device. Works offline; free to publish on GitHub Pages.</small></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="empty"><span>Empty folder</span><small>Start from nothing.</small></label>
+      <p class="pw-help folder-kind__help">Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server.</p>
+    </fieldset>
     <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
     <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav><!-- rows: .pw-row with the folder icon (Dialogs2) -->
     <p id="folder-help" class="pw-help"></p>
@@ -334,14 +349,14 @@
     <form method="dialog" class="window-column"><h2 id="retry-dialog-title" class="pw-dialog__title">Ask Pi to Retry</h2><blockquote id="retry-dialog-request" class="activity-detail__request"></blockquote><label class="pw-label window-column"><span>Add a note for Pi (optional)</span><textarea id="retry-dialog-note" class="pw-field" rows="3"></textarea></label><p id="retry-dialog-help" class="pw-help"></p><div class="pw-dialog__actions"><button id="retry-dialog-cancel" type="button" class="pw-btn">Cancel</button><button value="ok" class="pw-btn pw-btn--default">Queue Again</button></div></form>
   </dialog>
   <dialog id="alert-dialog" class="pw-dialog" role="alertdialog" aria-labelledby="alert-message"><!-- replaces window.confirm -->
-    <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
+    <form method="dialog"><div class="pw-alert"><span id="alert-icon" class="pw-alert__icon" data-icon="alert-caution"></span><div><p id="alert-message" class="pw-alert__message"></p><p id="alert-detail" class="pw-alert__detail"></p><div id="alert-extra" class="alert-extra" hidden></div></div></div><div class="pw-dialog__actions"><button id="alert-danger" value="danger" class="pw-btn pw-dialog__danger"></button><button id="alert-default" value="default" class="pw-btn pw-btn--default"></button></div></form>
   </dialog>
   <dialog id="settings-dialog" class="pw-dialog" aria-labelledby="settings-title"><form id="settings-form" method="dialog" class="window-column">
     <h2 id="settings-title" class="pw-dialog__title">Settings</h2>
     <fieldset class="settings-group"><legend class="pw-label">Appearance</legend>
-      <label class="pw-label settings-option"><input type="radio" name="appearance" value="paper">Paper (black on white)</label>
-      <label class="pw-label settings-option"><input type="radio" name="appearance" value="inverse">Inverse (white on black)</label>
-      <label class="pw-label settings-option"><input type="radio" name="appearance" value="system">Match System</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="paper">Paper (black on white)</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="inverse">Inverse (white on black)</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="system">Match System</label>
     </fieldset>
     <fieldset class="settings-group"><legend class="pw-label">Desktop pattern</legend>
       <div id="settings-pattern" role="radiogroup" aria-label="Desktop pattern" class="settings-patterns"><button type="button" role="radio" aria-checked="true" aria-label="Dots" data-pattern="dots" class="pw-desk"></button><button type="button" role="radio" aria-checked="false" aria-label="Gray" data-pattern="gray" class="pw-desk pw-desk--gray"></button><button type="button" role="radio" aria-checked="false" aria-label="Plain" data-pattern="plain" class="pw-desk pw-desk--plain"></button></div>

@@ -370,3 +370,21 @@ body[data-view="activity"] #workspace-bar,body[data-view="gate"] #workspace-bar{
 .missing-banner p{flex:1;margin:0}
 /* Task 157: the message Open in Chat lands on is outlined for a moment */
 .pw-msg--found{outline:2px solid var(--ink);outline-offset:4px}
+
+/* Round 7: the Preview (PreviewWindow card). Beside the chat as its own window; a view of the main window when narrow. */
+.window-preview{width:480px;flex:none;display:flex;flex-direction:column;min-height:0}
+body[data-view="activity"] .window-preview,body[data-view="gate"] .window-preview{display:none}/* a project's window: Activity and Gate are app windows (task 127) */
+.window-preview>.pw-preview,.preview-view>.pw-preview{flex:1;min-height:0}
+.preview-view{flex:1;min-height:0;display:flex;flex-direction:column}
+.preview-view[hidden]{display:none}
+.pw-preview__gap{flex:1}
+.preview-toggle{min-height:26px;font-size:14px;flex:none}
+#workspace-bar #project-folder{flex:1 1 0;text-align:right}/* the path gives way, so Preview stays on the bar's line (P_Beside) */
+.pw-preview__empty .pw-mono{overflow-wrap:anywhere}
+.alert-extra{margin-top:8px}
+.alert-extra details summary{font-family:var(--font-chrome);font-size:13px}
+.message.change{padding-top:0}
+.folder-kind{border:0;margin:0;padding:0;display:flex;flex-direction:column}
+.folder-kind[hidden]{display:none}
+.folder-kind legend{padding:0;margin-bottom:2px}
+.folder-kind__help{margin:6px 0 0;padding-top:8px;border-top:1px dotted var(--ink)}

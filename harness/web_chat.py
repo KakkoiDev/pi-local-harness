@@ -144,6 +144,12 @@ def pi_command(session, choice=None):
     return ['pi','--offline','--mode','rpc','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
+def preview_lines(data):
+    """The app's last lines when a message comes from the Preview's Ask Pi to Fix (at most 8, text only)."""
+    if data.get('origin')!='preview' or not isinstance(data.get('lines'),list):return []
+    return [str(line)[:500] for line in data['lines'][-8:]]
+
+
 def committed_commit(notice):
     """The commit in the harness's "Committed" note, so the answer can offer Undo This Request (plan 198)."""
     found=re.search(r'· committed as ([0-9a-f]{7,40})$',str(notice))
@@ -358,7 +364,7 @@ class WebChat:
         if busy:raise ProjectBusy(busy[0]['id'])
         result=undoing.undo(root,commit,save_first)
         if result['outcome']=='undone':
-            self.changed(project,root,result['commit'],'Undo')
+            self.changed(project,root,result['commit'],'Redo' if result['message'].startswith('Redone') else 'Undo')
             self.store.append(self.project_chat(project)['id'],{'role':'change','commit':result['commit']})  # its own row (↶ Undone, Redo Request…)
         return result
     def project_for(self, path):
@@ -430,6 +436,8 @@ class WebChat:
             if comment:
                 if not project or len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
                 user_text=self.documents.comment_prompt(comment['path'],comment['id'])
+            lines=preview_lines(data)
+            if lines:user_text+="\n\nThe app's last lines:\n```\n"+'\n'.join(lines)+'\n```'  # Ask Pi to Fix (P_Fixing): Pi gets all 8, the person sees the last
             if data.get('document'):
                 document=self.documents.get(data['document'])
                 if document['project']!=project:raise ValueError('Document belongs to another project')
@@ -454,7 +462,7 @@ class WebChat:
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             if not detached:
-                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display})
+                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
             env={**os.environ,'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
@@ -628,7 +636,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return

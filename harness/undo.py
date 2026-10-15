@@ -54,7 +54,8 @@ def preview(root, commit):
     body = git(root, 'log', '-1', '--format=%B%x00%cI', full).stdout
     reverts = re.search(r'This reverts commit ([0-9a-f]{40})', body)
     when = datetime.fromisoformat(body.rsplit('\0', 1)[-1].strip()).strftime('%H:%M')
-    return {'commit': full[:12], 'title': title, 'name': name(title), 'person': person_lines(root, full, title), 'time': when, 'files': files,
+    words = person_lines(root, original_of(root, full), title)  # an undo or a redo quotes the request in plain words
+    return {'commit': full[:12], 'title': title, 'name': name(title), 'person': words, 'time': when, 'files': files,
             'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
             **({'undo_of': reverts.group(1)[:12]} if reverts else {})}
 
@@ -62,6 +63,15 @@ def preview(root, commit):
 def undone_time(root, full):
     found = git(root, 'log', '-1', '--format=%cI', undone_by(root, full)).stdout.strip()
     return datetime.fromisoformat(found).strftime('%H:%M') if found else ''
+
+
+def original_of(root, full):
+    """Follow undo and redo back to the request itself (each reverts the one before)."""
+    for _ in range(50):
+        found = re.search(r'This reverts commit ([0-9a-f]{40})', git(root, 'log', '-1', '--format=%B', full).stdout)
+        if not found: return full
+        full = found.group(1)
+    return full
 
 
 def later_change(root, full, paths):

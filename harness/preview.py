@@ -2,7 +2,9 @@
 person sees it beside the chat. A project on the stack runs with uvicorn --reload (it follows Pi's edits by itself); a
 plain site (index.html at the top) is served as files. The app's output goes to <data>/previews/<project>.log; when
 the app stops by itself, its last lines say why."""
+import http.client
 import os
+import re
 from pathlib import Path
 import shlex
 import shutil
@@ -15,7 +17,8 @@ import time
 # plh may start at login with a short PATH: find uv where its installers put it.
 UV = shutil.which('uv') or next((str(path) for path in (Path.home() / '.local/bin/uv', Path.home() / '.cargo/bin/uv', Path('/opt/homebrew/bin/uv')) if path.is_file()), 'uv')
 TAILWIND = 'v4.3.3'  # kit/toolchain.json; one copy for every project, in <data>/toolchain
-START_LIMIT = 120  # seconds: the first start of a stack project installs its packages with uv
+START_LIMIT = 120
+CRASHED = re.compile(r'\b\w*(Error|Exception)\b|^Traceback')  # the app's last line says it crashed  # seconds: the first start of a stack project installs its packages with uv
 
 
 def run_command(folder, port):
@@ -57,10 +60,14 @@ def free_port():
         probe.bind(('127.0.0.1', 0)); return probe.getsockname()[1]
 
 
-def answers(port):
+def answers(port, timeout=2):
+    """A page comes back (any status). An open port is not enough: with --reload, uvicorn's reloader keeps the port
+    while the app inside has crashed, and every page hangs."""
     try:
-        with socket.create_connection(('127.0.0.1', port), timeout=0.5): return True
-    except OSError: return False
+        connection = http.client.HTTPConnection('127.0.0.1', port, timeout=timeout)
+        connection.request('GET', '/'); connection.getresponse().read(); connection.close()
+        return True
+    except (OSError, http.client.HTTPException): return False
 
 
 class App:
@@ -95,6 +102,7 @@ class Previews:
         with self.lock:
             app = self.apps.get(project)
             if app and app.state in ('starting', 'running'): return self.status(project)
+            if app and app.process.poll() is None: app.state = 'none'; self.end(app)  # Start Again on an app that hangs under its reloader
             port = free_port(); command = self.command(folder, port)
             if not command: return no_app(folder)
             self.folder.mkdir(parents=True, exist_ok=True)
@@ -108,17 +116,28 @@ class Previews:
         threading.Thread(target=self.watch, args=(app,), daemon=True).start()
         return self.status(project)
 
+    def last_lines(self, app):
+        lines = [line for line in app.log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()] if app.log.exists() else []
+        return '\n'.join(lines[-8:])
+
     def watch(self, app):
-        """Running once the port answers; stopped, with the last lines, when the process ends by itself."""
-        deadline = time.monotonic() + self.limit
-        while app.process.poll() is None:
-            if app.state == 'starting' and answers(app.port): app.state = 'running'
-            if app.state == 'starting' and time.monotonic() > deadline:
-                app.error = f'The app did not answer within {self.limit} seconds.'; self.end(app); break
-            time.sleep(0.1)
+        """Running once a page comes back. Stopped, with the last lines, when the process ends by itself, or when it
+        keeps running but answers nothing (a crashed app under the reloader): then a fix brings it back by itself."""
+        deadline, misses = time.monotonic() + self.limit, 0
+        while app.process.poll() is None and app.state != 'none':
+            if app.state == 'starting':
+                lines = self.last_lines(app)
+                if answers(app.port, 0.5): app.state, app.error = 'running', ''
+                elif time.monotonic() > deadline: app.state, app.error = 'stopped', lines or f'The app did not answer within {self.limit} seconds.'
+                elif time.monotonic() > deadline - self.limit + 3 and CRASHED.search(lines.rsplit('\n', 1)[-1]): app.state, app.error = 'stopped', lines  # it said why: no need to wait
+                time.sleep(0.2); continue
+            if answers(app.port): misses = 0; app.state, app.error = 'running', ''
+            else:
+                misses += 1
+                if misses >= 2 and app.state == 'running': app.state, app.error = 'stopped', self.last_lines(app) or 'The app stopped answering.'
+            time.sleep(2)
         if app.state != 'none':
-            lines = [line for line in app.log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()]
-            app.state, app.error = 'stopped', app.error or '\n'.join(lines[-8:]) or f'The app ended (exit code {app.process.returncode}).'
+            app.state, app.error = 'stopped', self.last_lines(app) or f'The app ended (exit code {app.process.returncode}).'
 
     @staticmethod
     def end(app):
