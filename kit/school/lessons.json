@@ -1,5 +1,5 @@
 {
- "note": "KakkoiSchool lessons the workbench shows at the moment they matter (plan 198, 'Learning along the way'). Source: github.com/KakkoiDev/izumo-io, content/<kind>/<id>.md with .ja.md beside it; read online at school.kakkoi.dev/lessons/<id>.html. Not copied yet: izumo-io has no licence file.",
+ "note": "KakkoiSchool lessons the workbench shows at the moment they matter (plan 198, 'Learning along the way'). Source: github.com/KakkoiDev/izumo-io, content/<kind>/<id>.md with .ja.md beside it; read online at school.kakkoi.dev/lessons/<id>.html. Licence: CC BY 4.0 for the lessons, MIT for code (izumo-io PR #31); copied into the kit once it is merged.",
  "source": {
   "repo": "https://github.com/KakkoiDev/izumo-io",
   "commit": "a833429",
@@ -251,6 +251,42 @@
    "kind": "theory",
    "when": "in 'Learn more'",
    "why": "How to learn."
+  },
+  {
+   "id": "t41",
+   "kind": "tech",
+   "when": "the first time the workbench offers to put a project on GitHub",
+   "why": "Your GitHub account: sign up, a username for life, two-factor, public vs private."
+  },
+  {
+   "id": "t42",
+   "kind": "tech",
+   "when": "the first push fails, or before the first push",
+   "why": "Connect this computer to GitHub: gh auth login (SSH keys as the alternative)."
+  },
+  {
+   "id": "t43",
+   "kind": "tech",
+   "when": "a project gets its GitHub repository",
+   "why": "Your first repository: .gitignore first, gh repo create, keeping secrets out."
+  },
+  {
+   "id": "t44",
+   "kind": "tech",
+   "when": "the first 'put it online' for an app with a server",
+   "why": "Putting a server online: GitHub Pages is files only; three honest options."
+  },
+  {
+   "id": "t45",
+   "kind": "tech",
+   "when": "a new project from the starter",
+   "why": "A Python server with FastAPI and uv: what the starter's app/main.py is."
+  },
+  {
+   "id": "t46",
+   "kind": "tech",
+   "when": "the first htmx attribute in a template",
+   "why": "HTML over the wire with htmx 4: fragments, 422 forms, hx-partial."
   }
  ],
  "left_out": {
@@ -265,10 +301,7 @@
   "r01, r05-r06, r10-r14, r17, r19": "Career and general reading: 'Learn more'."
  },
  "gaps": [
-  "Making a GitHub account step by step: a18 has one line ('sign up, it is free'). Missing: the username, two-factor authentication, the free plan.",
-  "Connecting this computer to GitHub: gh auth login (or an SSH key); no lesson covers it, and the first push fails without it.",
-  "A repository from the workbench: git init, the first commit, gh repo create, public or private, .gitignore for secrets.",
-  "Hosting the stack: GitHub Pages serves static files only; a FastAPI app needs a host (still undecided in plan 198).",
-  "Python versions of the server lessons (t21-t23 are Node)."
+  "Filled by T41-T46 (izumo-io PR #31): a GitHub account, connecting the computer, a first repository, putting a server online, Python and htmx versions of the server lessons.",
+  "Still open: the harness's own default host (plan 198, decision 7); T44 presents the options without one."
  ]
 }

@@ -361,7 +361,7 @@ beat the general harness on these scenarios, without losing on the others, or it
    one recipe (a service and Caddy for HTTPS), or a platform (Fly.io, Render, Railway: easiest, paid). One is the default.
 8. **Issues and pull requests:** decided 2026-10-15, always ask before sending.
 9. **Windows and Linux:** decided 2026-10-15, after the starter project and the bench's stack track.
-10. **KakkoiSchool's lessons in the kit:** izumo-io has no licence file. Add one (CC BY 4.0 suits lessons; MIT if the
-    code samples matter more) so the kit can copy the lessons and work offline, or keep links only.
+10. **KakkoiSchool's lessons in the kit:** decided 2026-10-15: CC BY 4.0 for the lessons, MIT for the code, and the
+    gaps written as T41-T46 (izumo-io PR #31). The kit copies them once merged.
 6. **The blocks catalogue:** start with the dozen above (recommended), or grow it only from what the person's projects
    turn out to need.

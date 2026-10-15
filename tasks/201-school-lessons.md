@@ -15,3 +15,5 @@ https://github.com/KakkoiDev/izumo-io".
 - [x] Gaps: a GitHub account step by step, `gh auth login`, a repository from the workbench, hosting an app with a
   server, Python server lessons.
 - [x] Test (python, `tests/test_kit.py`): each lesson once, with its kind, when and why.
+- [x] 2026-10-15, "do it. and add licence": izumo-io PR #31 (https://github.com/KakkoiDev/izumo-io/pull/31) adds CC BY 4.0 + MIT and
+  lessons T41-T46 for the gaps; mapped in `kit/school/lessons.json`.
