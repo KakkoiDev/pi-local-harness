@@ -45,6 +45,30 @@ def apply_edits(original, args, name='the file'):
     return ''.join(content + [original[at:]]), None
 
 
+def syntax_problem(path):
+    """Strategy 2 (OpenCode's diagnostics after an edit): why a written Python, JavaScript or JSON file does not parse,
+    in one line with its line number, or None."""
+    path = Path(path)
+    try: text = path.read_text(encoding='utf-8')
+    except (OSError, UnicodeDecodeError): return None
+    if path.suffix == '.py':
+        try: compile(text, str(path), 'exec')
+        except SyntaxError as error: return f'{path.name} does not parse: {error.msg} at line {error.lineno}.'
+    elif path.suffix == '.json':
+        try: json.loads(text)
+        except ValueError as error: return f'{path.name} does not parse: {error}.'
+    elif path.suffix in ('.js', '.mjs', '.cjs'):
+        import subprocess
+        try: checked = subprocess.run(['node', '--check', str(path)], capture_output=True, text=True, timeout=20)
+        except (OSError, subprocess.SubprocessError): return None
+        if checked.returncode:
+            lines = checked.stderr.strip().splitlines()
+            where = next((line for line in lines if line.startswith(str(path))), '').rsplit(':', 1)[-1]
+            said = next((line for line in lines if 'Error' in line), lines[-1] if lines else 'syntax error')
+            return f"{path.name} does not parse: {said.strip()}{f' at line {where}' if where.isdigit() else ''}."
+    return None
+
+
 class ProposalLedger:
     def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None, events_file=None):
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
@@ -189,12 +213,17 @@ class ProposalLedger:
         command = proposal.args.get('command')
         if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
             self.protocol.record(cwd, command, exit_code == 0, output)
+        if expected and exit_code == 0:  # strategy 2: the file Pi just wrote still parses
+            problem = syntax_problem(expected[0])
+            if problem:
+                self.notes[token] = f'{problem} Fix it before going on.'
+                self.report('syntax', problem, tool=proposal.tool_name, cwd=cwd, source=source)
         request = self.request_of.pop(token, None)
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
             if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
                 self.paperwork.ran(request, command, exit_code == 0)
             note = self.paperwork.observe(request)
-            if note: self.notes[token] = note
+            if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))
         self.record_event('audit', event.status, proposal, event.reasoning, token, tool_call_id, cwd=cwd, source=source,
                           rule={'DRIFT_DETECTED': 'G-006', 'POSTCONDITION_FAILED': 'G-007'}.get(event.status))
         return event

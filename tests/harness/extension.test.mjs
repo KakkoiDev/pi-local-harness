@@ -146,6 +146,11 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const told=await handlers.tool_result({...greet,content:[{type:'text',text:'Wrote hello.py'}],isError:false});
   assert.match(told.content.at(-1).text,/^This request's task is tasks\/\d+-add-a-greeting\.md \(made\); the harness keeps it/);
   assert.match(readFileSync(join(dir,'ROADMAP.md'),'utf8'),/- \[ \] \[\d+-Add a greeting\]\(tasks\/\d+-add-a-greeting\.md\)/);
+  // Strategy 2: a write that breaks the file's syntax is answered in the same tool result.
+  const brokenPy={toolCallId:'broken-py',toolName:'write',input:{path:join(dir,'broken.py'),content:'def f(:\n'}};
+  assert.equal(await handlers.tool_call(brokenPy),undefined);writeFileSync(join(dir,'broken.py'),'def f(:\n');
+  const said=await handlers.tool_result({...brokenPy,content:[{type:'text',text:'Wrote broken.py'}],isError:false});
+  assert.match(said.content.map(part=>part.text).join('\n'),/broken\.py does not parse: .* at line 1\. Fix it before going on\./);
   // G-012 for terminal Pi (plan 179, L-005): a turn that changed code and ran no passing test after it ends marked.
   // Plan 184: first the harness wakes Pi to finish (it changed code and no passing test ran on it), then, out of
   // wake-ups, it marks the turn. An answer that asks the person something is not woken.

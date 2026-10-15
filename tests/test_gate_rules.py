@@ -182,3 +182,26 @@ class BareTest(unittest.TestCase):
             self.assertEqual(engine.rejection(ActionProposal('execute_command', {'command': 'echo x >> ROADMAP.md'}, 't'), 'admin'), (None, None), 'G-008 is the harness, not safety')
             self.assertEqual(engine.rejection(ActionProposal('execute_command', {'command': 'rm -rf ~'}, 't'), 'admin')[0].id, 'G-003', 'safety stays')
         self.assertEqual([rule.id for rule in rules.RULES if rule.core], ['G-001', 'G-002', 'G-003', 'G-004', 'G-005', 'G-006', 'G-007'])
+
+
+class SyntaxAfterEditTest(unittest.TestCase):
+    """Strategy 2 (OpenCode's diagnostics after an edit): a write or edit that leaves a Python, JavaScript or JSON file
+    unreadable is answered at once, in the same tool result, with the line; a good edit says nothing."""
+    def test_a_broken_file_is_named_with_its_line(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            ledger = ProposalLedger(GateEngine('', '/dev/null'), events_file=root / 'events.jsonl')
+            def write(name, content):
+                args = {'path': name, 'content': content}
+                gate = ledger.propose('write_file', args, 'admin', pi_tool='write', cwd=folder)
+                (root / name).write_text(content)
+                ledger.complete(gate['proposal_id'], 'write_file', args, 'ok', 0)
+                return ledger.last_note(gate['proposal_id'])
+            note = write('app.py', 'def f(:\n    return 1\n')
+            self.assertIn('app.py does not parse', note); self.assertIn('line 1', note)
+            self.assertIsNone(write('ok.py', 'x = 1\n'))
+            self.assertIn('data.json does not parse', write('data.json', '{"a": 1,}'))
+            js = write('page.mjs', 'export const a = ;\n')
+            self.assertIn('page.mjs does not parse', js)
+            self.assertIsNone(write('notes.md', '# (unbalanced'), 'only code is checked')
+            self.assertIn('"kind": "syntax"', (root / 'reports.jsonl').read_text().replace('":"', '": "'))
