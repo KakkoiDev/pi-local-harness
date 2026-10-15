@@ -65,6 +65,15 @@ class AutoUpdateTest(unittest.TestCase):
     def backups(self):
         return sorted(self.package.parent.glob('pi-local-harness.before-*'))
 
+    def test_the_installed_copy_can_start_its_services(self):
+        # 2026-10-15: kit/ (the project starters) and messages/ (the Japanese text) were not installed, so plh stopped at
+        # "No module named 'new_project'". Import what services.py imports, from the installed copy alone.
+        for name in ('kit/new_project.py', 'messages/ja.json'):
+            self.assertTrue((self.package / name).is_file(), name)
+        started = subprocess.run([sys.executable, '-c', 'import harness.web_chat, harness.services'], cwd=self.package,
+                                 env={**self.env, 'PYTHONPATH': str(self.package)}, capture_output=True, text=True)
+        self.assertEqual(started.returncode, 0, started.stderr[-800:])
+
     def test_install_records_its_source_and_commit(self):
         record = json.loads((self.package / 'install.json').read_text())
         self.assertEqual(Path(record['source']), self.source)
