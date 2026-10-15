@@ -1,0 +1,15 @@
+{
+ "id": "history-page-lifts",
+ "title": "The view lifts after Show in Activity (task 173)",
+ "kind": "bug",
+ "timeout_minutes": 60,
+ "browser": true,
+ "source": {
+  "commit": "3274680",
+  "fixed_by": "dd1b6c2",
+  "task": 173
+ },
+ "prompts": {
+  "everyday": "The app has a bug. When i'm in the chat view. and i click on show activity next to the chat agent's answer being created. then click on see chat button to go back to the chat then the view is lifted up. there is white at the bottom of the screen."
+ }
+}

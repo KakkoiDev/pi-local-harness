@@ -232,3 +232,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [187-The harness does the paperwork; Pi only writes content](tasks/187-paperwork.md)
 - [x] [188-A browser tool for Pi: reproduce and measure, don't guess](tasks/188-browser-tool.md)
 - [x] [189-The bench: fixed scenarios, the real model, one result line per run](tasks/189-bench.md)
+- [x] [190-Bench: everyday prompts, the person's own requests, and the bug the first run found](tasks/190-bench-prompts-history-memory.md)

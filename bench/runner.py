@@ -30,10 +30,25 @@ def git(root, *args, check=True):
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, check=check).stdout
 
 
+LEVELS = ('precise', 'everyday', 'vague')
+
+
+def prompt(scenario, level):
+    """The prompt at a level: precise (names files and the expected result), everyday (how a person says it), vague (the
+    symptom); None when the scenario has no fair prompt at that level."""
+    return (scenario.get('prompts') or {}).get(level) or (scenario.get('prompt') if level == 'precise' else None)
+
+
 def prepare(scenario, into):
-    """The scenario's project in a fresh git repository; returns its folder."""
+    """The scenario's project in a fresh git repository; returns its folder. A history scenario starts from this
+    repository at the commit before the person's request was done."""
     project = Path(into) / scenario['id']
-    shutil.copytree(Path(scenario['folder']) / 'project', project)
+    if scenario.get('source'):
+        project.mkdir(parents=True)
+        archive = subprocess.run(['git', '-C', str(ROOT), 'archive', scenario['source']['commit']], capture_output=True, check=True).stdout
+        subprocess.run(['tar', '-x', '-C', str(project)], input=archive, check=True)
+    else:
+        shutil.copytree(Path(scenario['folder']) / 'project', project)
     git(project, 'init', '-q'); git(project, 'add', '-A')
     git(project, '-c', 'user.name=Bench', '-c', 'user.email=bench@localhost', 'commit', '-qm', 'Scenario start')
     return project
@@ -55,8 +70,9 @@ def fair(scenario):
     with tempfile.TemporaryDirectory() as folder:
         project = prepare(scenario, folder)
         before = hidden_check(scenario, project)
-        solution = Path(scenario['folder']) / 'solution'
-        for path in solution.rglob('*'):
+        solution, patch = Path(scenario['folder']) / 'solution', Path(scenario['folder']) / 'solution.patch'
+        if patch.is_file(): subprocess.run(['git', '-C', str(project), 'apply', str(patch)], check=True)  # the real fix, for history scenarios
+        for path in solution.rglob('*') if solution.is_dir() else []:
             if path.is_file(): (project / path.relative_to(solution)).parent.mkdir(parents=True, exist_ok=True); shutil.copy(path, project / path.relative_to(solution))
         after = hidden_check(scenario, project)
     return {'id': scenario['id'], 'fails_at_start': not before[0], 'passes_with_solution': after[0], 'said': after[1] if not after[0] else before[1]}
@@ -81,6 +97,7 @@ def start_workbench(data, cwd, model, effort, extra_env=None):
     """This checkout's services with a scratch data folder and the real Pi; (process, web URL)."""
     data.mkdir(parents=True, exist_ok=True)
     (data / 'model.json').write_text(json.dumps({'model': model, 'effort': effort}))
+    shutil.copy(ROOT / 'harness/AGENTS.md', data / 'AGENTS.md')  # as the installer seeds a real data folder
     env = {key: value for key, value in os.environ.items() if not key.startswith(('PI_HARNESS_', 'PI_WEB_REMOTE_'))}
     env.update({'PI_AGENT_DATA': str(data), 'PI_WEB_DATA': str(data / 'chats'), 'PI_WEB_PORT': '0', 'PI_GATE_PORT': '0', 'PI_TAILSCALE': 'false',
                 'PI_TRASH_DIR': str(data / 'Trash'), 'PI_WEB_CWD': str(cwd), 'PI_HARNESS_LOG_FILE': str(data / 'gate-audit.log'), **(extra_env or {})})
@@ -107,7 +124,7 @@ def read_jsonl(path):
     except OSError: return []
 
 
-def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print):
+def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, level='everyday'):
     """One scenario, one result line (also returned)."""
     stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
     folder = Path(out) / 'runs' / f"{stamp}-{scenario['id']}-{model.replace(':', '_').replace('/', '_')}"
@@ -117,8 +134,8 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print):
     started, result = time.monotonic(), {}
     try:
         registered = call(url, '/api/projects/register', {'path': str(project)})
-        job = call(url, '/api/jobs/create', {'project': registered['project'], 'message': scenario['prompt']})
-        log(f"  {scenario['id']}: sent to {model} ({effort}); request {job['id'][:8]}")
+        job = call(url, '/api/jobs/create', {'project': registered['project'], 'message': prompt(scenario, level)})
+        log(f"  {scenario['id']} ({level}): sent to {model} ({effort}); request {job['id'][:8]}")
         deadline = started + scenario.get('timeout_minutes', 30) * 60
         while True:
             jobs = {item['id']: item for item in call(url, '/api/workspace')['jobs']}
@@ -141,7 +158,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print):
     tasks = sorted(path.name for path in (project / 'tasks').glob('*.md')) if (project / 'tasks').is_dir() else []
     answer = current.get('text', '')
     result = {
-        'time': datetime.now().astimezone().isoformat(timespec='seconds'), 'scenario': scenario['id'], 'kind': scenario.get('kind'), 'model': model, 'effort': effort,
+        'time': datetime.now().astimezone().isoformat(timespec='seconds'), 'scenario': scenario['id'], 'kind': scenario.get('kind'), 'prompt_level': level, 'prompt': prompt(scenario, level), 'model': model, 'effort': effort,
         **versions(model), 'status': current.get('status', 'unknown'), 'timed_out': bool(current.get('timed_out')), 'stopped_because': current.get('progress', '') if current.get('status') != 'completed' else '',
         'solved': solved, 'check': said[-300:], 'verified': bool(commits), 'committed': [line.split('\t', 1)[1] for line in commits],
         'not_verified_mark': 'Not verified (G-012)' in answer, 'tasks_after': tasks, 'seconds': seconds,
@@ -166,11 +183,11 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print):
 def summary(results):
     """Per model and harness build: runs, solved, verified, average minutes, wake-ups and refusals per run."""
     groups = {}
-    for line in results: groups.setdefault((line['model'], line.get('effort', ''), line.get('harness', '')), []).append(line)
+    for line in results: groups.setdefault((line['model'], line.get('effort', ''), line.get('harness', ''), line.get('prompt_level', 'precise')), []).append(line)
     rows = []
-    for (model, effort, build), lines in sorted(groups.items()):
+    for (model, effort, build, level), lines in sorted(groups.items()):
         n = len(lines)
-        rows.append({'model': model, 'effort': effort, 'harness': build, 'runs': n, 'solved': sum(line['solved'] for line in lines), 'verified': sum(line['verified'] for line in lines),
+        rows.append({'model': model, 'effort': effort, 'harness': build, 'prompt_level': level, 'runs': n, 'solved': sum(line['solved'] for line in lines), 'verified': sum(line['verified'] for line in lines),
                      'minutes': round(sum(line['seconds'] for line in lines) / n / 60, 1), 'wake_ups': round(sum(line['reports'].get('wake-up', 0) for line in lines) / n, 1),
                      'refusals': round(sum(sum(line['rules'].values()) for line in lines) / n, 1)})
     return rows

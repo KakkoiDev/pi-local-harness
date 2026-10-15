@@ -3,5 +3,9 @@
  "title": "Page 2 repeats an item",
  "kind": "bug",
  "timeout_minutes": 30,
- "prompt": "Page 2 of `page()` in pager.py repeats the last item of page 1: with the numbers 1 to 10 and 3 per page, page 2 should be 4, 5, 6. Fix it."
+ "prompts": {
+  "precise": "Page 2 of `page()` in pager.py repeats the last item of page 1: with the numbers 1 to 10 and 3 per page, page 2 should be 4, 5, 6. Fix it.",
+  "everyday": "When I look at the second page of results, the first thing on it is something I already saw at the end of page one.",
+  "vague": "Paging is broken."
+ }
 }

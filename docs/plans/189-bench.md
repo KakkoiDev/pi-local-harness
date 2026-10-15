@@ -18,6 +18,33 @@ Built (task 189): `bench/` (see `bench/__init__.py`).
 
 Each also has a reference solution; `python3 -m bench check` proves the check fails at the start and passes with it.
 
+## Prompts: how the request is worded (2026-10-15)
+
+"These are very specific prompts. How about more general prompts? Like what I'm doing with you in this chat?" Each
+scenario now has up to three wordings: **precise** (names the file and the expected result), **everyday** (how a person
+says it; the default) and **vague** (the symptom). A level is left out where its check would not be fair (a vague "Document
+this" cannot be held to the README check). `--prompt` chooses; each result records its level, so the data shows how
+much the wording matters.
+
+## History scenarios: the person's own requests
+
+The repository at the commit before a request was done, the person's words verbatim, and a hidden check of the
+behaviour they asked for (not the fix's own tests, which name details of one implementation). The real fix, as
+`solution.patch`, proves the check fair.
+
+| Scenario | The person's words | Hidden check |
+| --- | --- | --- |
+| history-page-lifts (task 173) | "The app has a bug. When i'm in the chat view. and i click on show activity next to the chat agent's answer being created. then click on see chat button to go back to the chat then the view is lifted up. there is white at the bottom of the screen." | that commit's workbench at 1024×560 with a long chat: nothing around the thread scrolls |
+| history-thinking-off (task 175) | "also, I have a doubt that changing the thinking level in the UI actually changes the model's thinking level." | real Pi with that commit's provider, Off, against a capture endpoint: the request says no thinking |
+| history-hide-record (task 172) | "show task record should say: hide task record when the task record is opened. And I find the ui to close the record hard to figure out. are X to close OK in this design system?" | that commit's Activity: after Show Task Record a button says Hide Task Record and hides it |
+
+## First run (2026-10-15): the bench found a harness bug
+
+qwen3.8:27b-mlx (low), precise prompts: 0 of 5, every tool call "Gate is unavailable". The scratch data folder had no
+AGENTS.md; the extension read it at session start before setting Gate's port, so the read failed and the port was never
+set. Fixed (task 190): the port is set first, a missing memory falls back to the template and is reported, and the
+bench seeds AGENTS.md as the installer does. Those five results are in `results.invalid.jsonl` with the reason.
+
 ## A run
 
 A scratch workbench from this checkout (temporary data folder, the real `pi`, the real Ollama model from

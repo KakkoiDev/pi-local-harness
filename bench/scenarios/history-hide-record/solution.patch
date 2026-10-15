@@ -1,0 +1,51 @@
+diff --git a/chat.css b/chat.css
+index d2ba4ce..a3f1da8 100644
+--- a/chat.css
++++ b/chat.css
+@@ -72,6 +72,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
+ /* Activity and Gate */
+ .activity-panel,.gate-panel{flex:1;min-height:0;display:flex;flex-direction:column}
+ .activity-record{border-top:3px double var(--ink);max-height:40%;overflow:auto}
++.activity-record h4{margin:0;padding:8px 14px 0}
+ .activity-record pre{margin:0;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-wrap}
+ #activity-panel{--pw-cols:130px minmax(0,1fr) 170px 130px 90px 56px} /* C_ActivityDesk */
+ #gate-events{--pw-cols:70px 58px 104px minmax(0,1fr) 150px 70px} /* C_GateDesk */
+diff --git a/index.html b/index.html
+index 36b6c5d..9bd18cd 100644
+--- a/index.html
++++ b/index.html
+@@ -262,7 +262,7 @@
+         <div class="pw-infobar"><button type="button" class="pw-infobar__back app-back" data-command="back-to-project">‹ <span class="app-back__name">Project</span></button><span id="activity-summary" role="status"></span><span class="infobar-note">One agent, one queue, first in first out. Interrupted work is never repeated automatically.</span></div>
+         <div id="activity-list" class="pw-table pw-window__body" role="grid" aria-label="Requests"></div>
+         <section id="activity-detail" class="activity-detail" aria-label="Task details" hidden></section>
+-        <details id="activity-record" class="activity-record" hidden><summary class="pw-label">Markdown task record</summary><pre id="activity-record-text" class="pw-mono"></pre></details>
++        <section id="activity-record" class="activity-record" aria-label="Task record" hidden><h4 class="pw-label">Task record</h4><pre id="activity-record-text" class="pw-mono"></pre></section>
+       </section>
+ 
+       <!-- Gate -->
+diff --git a/js/workspace.mjs b/js/workspace.mjs
+index df76999..62abbeb 100644
+--- a/js/workspace.mjs
++++ b/js/workspace.mjs
+@@ -172,8 +172,10 @@ export function installWorkspace(host){
+  const clock=iso=>{if(!iso)return '';const date=new Date(iso),today=new Date(),yesterday=new Date();yesterday.setDate(today.getDate()-1);return date.toDateString()===today.toDateString()?date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):date.toDateString()===yesterday.toDateString()?'Yesterday':date.toLocaleDateString();};
+  const duration=job=>{if(!job.started)return String.fromCharCode(8212);const seconds=Math.max(0,Math.round(((job.finished?new Date(job.finished):new Date())-new Date(job.started))/1000));return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');};
+  const needsAttention=job=>['failed','stopped','interrupted'].includes(job.status);
+- function selectJob(id){selectedJob=id;$('activity-record').hidden=true;renderActivity();}
+- async function showRecord(id){try{const result=await api('/api/activity-record?id='+id);$('activity-record-text').textContent=result.markdown;$('activity-record').hidden=false;$('activity-record').open=true;$('activity-record').scrollIntoView({block:'nearest'});}catch(e){error(e.message);}}
++ function selectJob(id){selectedJob=id;recordShown(false);renderActivity();}
++ // One button shows and hides the record, its name saying which (2026-10-14: "Hide Task Record" once it is open); the menu item follows.
++ function recordShown(on){$('activity-record').hidden=!on;const label=on?'Hide Task Record':'Show Task Record';document.querySelectorAll('[data-command="task-record"],#activity-detail .activity-record-toggle').forEach(item=>{item.textContent=label;});}
++ async function showRecord(id){if(!$('activity-record').hidden){recordShown(false);return;}try{const result=await api('/api/activity-record?id='+id);$('activity-record-text').textContent=result.markdown;recordShown(true);$('activity-record').scrollIntoView({block:'nearest'});}catch(e){error(e.message);}}
+  function renderJobDetail(job){
+   const detail=$('activity-detail');detail.hidden=!job;detail.replaceChildren();if(!job)return;const item=state.projects.find(project=>project.id===job.project);
+   detail.append(node('h3','pw-label',stateGlyph(job.status).textContent+' in '+(item?.name||job.project)),node('blockquote','activity-detail__request','“'+(job.message||'Attached files')+'”'));
+@@ -189,7 +191,7 @@ export function installWorkspace(host){
+   const back=node('a','pw-btn',{chat:'Open in Chat',comment:'Show Comment',file:'Show in Review'}[origin]);back.href=job.document?'/p/'+job.project+'/work/'+file:'/p/'+job.project+'/chat';back.onclick=event=>{event.preventDefault();openOrigin(job);};actions.append(back);
+   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api('/api/jobs/stop',{id:job.id}).catch(e=>error(e.message));/* this request only (task 164) */actions.append(stop);}
+   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}
+-  const record=node('button','pw-btn','Show Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
++  const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
+  }
+  function renderActivity(){
+   const filter=$('activity-filter').value,scope=$('activity-project').value;syncActivitySeg();if(unchanged('activity',[filter,scope,state.projects,state.jobs,selectedJob,state.jobs.some(job=>job.status==='running')&&Math.floor(Date.now()/10000)]))return;/* a running time keeps moving */

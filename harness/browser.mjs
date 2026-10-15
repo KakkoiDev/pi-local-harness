@@ -69,7 +69,7 @@ export async function launchChrome(chrome) {
 
 // -- the scratch workbench -----------------------------------------------------------------------------------------
 /** This checkout's workbench with a temporary data folder, the fake Pi and a "Demo" project; {url, project, stop}. */
-export async function startScratch({ python = process.env.PI_PYTHON || 'python3' } = {}) {
+export async function startScratch({ python = process.env.PI_PYTHON || 'python3', root = ROOT } = {}) { // root: another checkout's services (the bench's history scenarios)
   const folder = mkdtempSync(join(tmpdir(), 'pi-scratch-workbench-'));
   const bin = join(folder, 'bin'), demo = join(folder, 'Demo');
   mkdirSync(bin); mkdirSync(join(demo, 'tasks'), { recursive: true });
@@ -78,7 +78,7 @@ export async function startScratch({ python = process.env.PI_PYTHON || 'python3'
   writeFileSync(join(demo, 'tasks/001-first-task.md'), '# 001: First task\n\nKind: code\n\n- [ ] Describe the work\n');
   writeFileSync(join(demo, 'notes.md'), '# Notes\n\nA paragraph to comment on.\n');
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^PI_(HARNESS_|WEB_REMOTE_)/.test(key)));
-  const child = spawn(python, [join(ROOT, 'harness/services.py')], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'],
+  const child = spawn(python, [join(root, 'harness/services.py')], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...env, PATH: `${bin}:${process.env.PATH}`, PI_AGENT_DATA: join(folder, 'data'), PI_WEB_DATA: join(folder, 'data/chats'), PI_WEB_PORT: '0', PI_GATE_PORT: '0',
       PI_TAILSCALE: 'false', PI_OLLAMA_URL: 'http://127.0.0.1:9', PI_TRASH_DIR: join(folder, 'Trash'), PI_WEB_CWD: folder, PI_HARNESS_LOG_FILE: join(folder, 'audit.log') } });
   child.stderr.resume(); // an unread pipe fills and stalls the server
@@ -168,7 +168,12 @@ export async function look(input, { chrome = findChrome(), scratch, shots = tmpd
       return result.result.value;
     };
     const go = async address => { const loaded = session.once('Page.loadEventFired', sessionId); await page('Page.navigate', { url: address }); await loaded; await new Promise(resolve => setTimeout(resolve, 400)); };
-    const within = (target, script) => evaluate(`(() => { const page = ${PAGE}; const element = page.find(${JSON.stringify(target)}); if (!element) throw new Error('No element matches ' + ${JSON.stringify(JSON.stringify(target))}); ${script} })()`);
+    // A step waits up to 5 s for its element: a busy machine renders late, and a step must not fail for that.
+    const within = async (target, script) => {
+      const until = Date.now() + 5000;
+      while (!(await evaluate(`(() => { const page = ${PAGE}; return Boolean(page.find(${JSON.stringify(target)})); })()`)) && Date.now() < until) await new Promise(resolve => setTimeout(resolve, 200));
+      return evaluate(`(() => { const page = ${PAGE}; const element = page.find(${JSON.stringify(target)}); if (!element) throw new Error('No element matches ' + ${JSON.stringify(JSON.stringify(target))}); ${script} })()`);
+    };
     await go(url);
     for (const [index, step] of asked.steps.entries()) {
       const [kind] = Object.keys(step || {}), value = step?.[kind];

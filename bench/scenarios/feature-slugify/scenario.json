@@ -3,5 +3,9 @@
  "title": "Do task 2 (slugify)",
  "kind": "feature",
  "timeout_minutes": 30,
- "prompt": "Do task 2."
+ "prompts": {
+  "precise": "Add slugify(title) to text.py as described in tasks/002-slugify-titles.md, with tests.",
+  "everyday": "Do task 2.",
+  "vague": "Next task please."
+ }
 }

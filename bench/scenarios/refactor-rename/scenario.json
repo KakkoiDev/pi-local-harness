@@ -3,5 +3,8 @@
  "title": "Rename a function everywhere",
  "kind": "refactor",
  "timeout_minutes": 30,
- "prompt": "Rename area_rect to rectangle_area everywhere in this project. Behaviour must not change."
+ "prompts": {
+  "precise": "Rename area_rect to rectangle_area everywhere in this project. Behaviour must not change.",
+  "everyday": "area_rect is a confusing name. Call it rectangle_area instead."
+ }
 }

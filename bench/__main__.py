@@ -13,11 +13,14 @@ def main(argv=None):
     parser.add_argument('ids', nargs='*')
     parser.add_argument('--model'); parser.add_argument('--effort')
     parser.add_argument('--repeat', type=int, default=1)
+    parser.add_argument('--prompt', choices=runner.LEVELS, default='everyday', help='how the request is worded (default: everyday)')
     parser.add_argument('--out', default=str(runner.results_dir()))
     args = parser.parse_args(argv)
     chosen = runner.scenarios(args.ids)
     if args.command == 'list':
-        for item in chosen: print(f"{item['id']:18} {item['kind']:9} {item['prompt']}")
+        for item in chosen:
+            print(f"{item['id']:22} {item['kind']:13} {' '.join(level for level in runner.LEVELS if runner.prompt(item, level))}")
+            print(f"    {runner.prompt(item, args.prompt) or '(no ' + args.prompt + ' prompt)'}")
         return 0
     if args.command == 'check':
         bad = 0
@@ -29,16 +32,18 @@ def main(argv=None):
         try: saved = json.loads((Path(runner.os.getenv('PI_AGENT_DATA', str(Path.home() / 'pi-local-harness-data'))) / 'model.json').read_text())
         except (OSError, ValueError): saved = {}
         model, effort = args.model or saved.get('model') or 'gemma4:26b-mlx', args.effort or saved.get('effort') or 'high'
-        print(f'Bench: {len(chosen)} scenario(s) × {args.repeat} with {model} ({effort}); results in {args.out}', flush=True)
+        skipped = [item['id'] for item in chosen if not runner.prompt(item, args.prompt)]; chosen = [item for item in chosen if runner.prompt(item, args.prompt)]
+        if skipped: print(f"No {args.prompt} prompt (skipped): {', '.join(skipped)}")
+        print(f'Bench: {len(chosen)} scenario(s) × {args.repeat}, {args.prompt} prompts, with {model} ({effort}); results in {args.out}', flush=True)
         for _ in range(args.repeat):
             for item in chosen:
-                result = runner.run_one(item, model, effort, args.out, log=lambda text: print(text, flush=True))
+                result = runner.run_one(item, model, effort, args.out, log=lambda text: print(text, flush=True), level=args.prompt)
                 print(f"  {'✓ solved' if result['solved'] else '✗ not solved'} · {'verified, committed' if result['verified'] else 'not verified'} · {result['status']} · {result['seconds'] // 60} min · "
                       f"{result['tool_calls']} tool calls · wake-ups {result['reports'].get('wake-up', 0)} · refusals {sum(result['rules'].values())}", flush=True)
         return 0
     results = runner.read_jsonl(Path(args.out) / 'results.jsonl')
     for row in runner.summary(results):
-        print(f"{row['model']} ({row['effort']}) · harness {row['harness']}: {row['solved']}/{row['runs']} solved, {row['verified']} verified, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
+        print(f"{row['model']} ({row['effort']}) · harness {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} solved, {row['verified']} verified, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
     return 0
 
 

@@ -1,0 +1,14 @@
+{
+ "id": "history-thinking-off",
+ "title": "Does the thinking level do anything? (task 175)",
+ "kind": "investigation",
+ "timeout_minutes": 60,
+ "source": {
+  "commit": "3274680",
+  "fixed_by": "cd5a936",
+  "task": 175
+ },
+ "prompts": {
+  "everyday": "also, I have a doubt that changing the thinking level in the UI actually changes the model's thinking level."
+ }
+}

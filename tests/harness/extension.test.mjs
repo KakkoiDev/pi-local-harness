@@ -243,3 +243,21 @@ test('a workbench request skips the lock the workbench holds, and waits for its 
   assert.equal(await handlers.before_provider_request({payload:{}}),undefined,'an unreachable workbench never blocks the model');
  } finally { globalThis.fetch=fetchBefore;delete process.env.PI_HARNESS_LOCK_HELD;delete process.env.PI_HARNESS_TURN_URL;workbench.release();rmSync(dir,{recursive:true}); }
 });
+
+test('a web worker reaches Gate even when its memory file is missing; the template stands in (bench, 2026-10-15)', async () => {
+ // The first bench run: a scratch data folder had no AGENTS.md, reading it threw at session start before Gate's port
+ // was set, and every tool call answered "Gate is unavailable".
+ const dir=mkdtempSync(join(tmpdir(),'pi-memory-'));
+ const saved={...process.env};
+ Object.assign(process.env,{PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_WEB_PORT:'3999',PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_MEMORY:join(dir,'data','AGENTS.md')});
+ const handlers={};
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},sendUserMessage(){}};
+ try {
+  harness(pi,{root:dir+'/'});
+  await handlers.session_start({},{ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir});
+  const call=await handlers.tool_call({toolCallId:'m',toolName:'read',input:{path:join(dir,'x')}});
+  assert.doesNotMatch(call.reason,/Gate is unavailable/,'the port is set: the call reached for Gate');
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/\[CANARY\]/,'the template stands in for the missing memory');
+  assert.match(readFileSync(join(dir,'data','reports.jsonl'),'utf8'),/"kind":"memory-missing"/);
+ } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});

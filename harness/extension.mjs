@@ -49,6 +49,15 @@ export default function harness(pi, dependencies = {}) {
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
   installToolRenderer(pi, checks);
+  // The persistent memory (AGENTS.md). Missing, the harness's template stands in and it is reported: a memory file that
+  // cannot be read must never stop the session (the first bench run lost every tool to it).
+  let memoryMissing = false;
+  const memory = () => {
+    try { return loadMemory(memoryPath); } catch (error) {
+      if (!memoryMissing) { memoryMissing = true; report(dataDir, 'memory-missing', `${memoryPath}: ${error.message}; the template harness/AGENTS.md stands in`); }
+      try { return loadMemory(`${moduleRoot}harness/AGENTS.md`); } catch { return ''; }
+    }
+  };
   let requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
@@ -105,9 +114,11 @@ export default function harness(pi, dependencies = {}) {
   const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
-    loadMemory(memoryPath);
     let stderr = '';
     const sharedPort = process.env.PI_HARNESS_SHARED_PORT;
+    // A web worker knows Gate's port at once: set it before anything that could fail (bench, 2026-10-15).
+    if (sharedPort) ports = { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN };
+    memory();
     if (!sharedPort) {
     child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, env: { ...process.env, PI_WEB_CWD: process.env.PI_WEB_CWD || homedir() }, stdio: ['ignore', 'pipe', 'pipe'] });
     child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-4000); });
@@ -167,7 +178,7 @@ export default function harness(pi, dependencies = {}) {
     // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
     let gateRules = '';
     try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${gateRules}${chosen}${consoleGuide}` };
+    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     if (event.message?.role === 'assistant') lastAnswer = (event.message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
@@ -225,7 +236,7 @@ export default function harness(pi, dependencies = {}) {
     const recovery = pending; pending = undefined;
     if (!canWake()) { incident('stopped', `recovery repeated ${retries} times: ${recovery.split('\n')[0]}`); say('stopped', join(dataDir, 'session.log'), 'error'); return; }
     retries++;
-    const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
+    const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${memory()}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {
       if (closing) return;

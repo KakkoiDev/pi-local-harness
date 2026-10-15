@@ -1,0 +1,20 @@
+diff --git a/harness/provider.mjs b/harness/provider.mjs
+index 4711eaf..ff2cd2d 100644
+--- a/harness/provider.mjs
++++ b/harness/provider.mjs
+@@ -1,5 +1,8 @@
+ import { readFileSync } from 'node:fs';
+ export const pinned = JSON.parse(readFileSync(new URL('./model.json', import.meta.url), 'utf8'));
++// Ollama's reasoning_effort knows none, low, medium and high. Pi sends nothing for Off unless it is mapped, and Ollama then
++// thinks by default; "minimal" is not an Ollama level. Extra High and Max are not mapped, so Pi sends High for them.
++const OLLAMA_LEVELS = { off: 'none', minimal: 'low' };
+ export function localModels(config = {}) {
+  const models = config.models || [];
+  // The model chosen in the web menu bar (task 147) arrives in PI_HARNESS_MODEL with its capabilities.
+@@ -13,5 +16,5 @@ export function localModels(config = {}) {
+     cost:{input:0,output:0,cacheRead:0,cacheWrite:0}, ...original, id,
+     ...(known ? {reasoning:process.env.PI_HARNESS_MODEL_THINKING === '1'} : {}), // the menu's choice wins over models.json, as input does
+     input:(known ? process.env.PI_HARNESS_MODEL_VISION === '1' : id.startsWith('gemma4'))?['text','image']:(original.input || ['text'])};
+-  })};
++  }).map(model=>model.reasoning ? {thinkingLevelMap:OLLAMA_LEVELS, ...model} : model)};
+ }
