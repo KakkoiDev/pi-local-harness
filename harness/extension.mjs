@@ -21,6 +21,7 @@ import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
+import { harnessTools, activeTools } from './tool-choice.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -195,6 +196,11 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined; steps.reset();
+    // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
+    if (!bare && pi.setActiveTools && pi.getActiveTools) {
+      const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
+      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
+    }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));

@@ -301,3 +301,21 @@ test('the same failing call again and again stops the turn and Pi is asked to ch
   assert.equal(order.at(-1),'reask','asked again, another way');
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });
+
+test('each request gets only the harness tools it needs (strategy 4)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-tools-'));const saved={...process.env};
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_WEB_PORT:'3999'});
+ mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# R\n');
+ const handlers={};let active=['read','bash','edit','write','harness','task_box','browser'];
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},registerTool(){},registerCommand(){},sendUserMessage(){},
+  getActiveTools:()=>active,setActiveTools:names=>{active=names;},getAllTools:()=>['read','bash','edit','write','harness','task_box','browser'].map(name=>({name}))};
+ try {
+  harness(pi,{root:dir+'/'});
+  const ctx={ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir};
+  await handlers.session_start({},ctx);
+  await handlers.input({source:'rpc',text:'Rename area_rect to rectangle_area'},ctx);
+  assert.deepEqual(active,['read','bash','edit','write','task_box'],'a web request about code: no console, no browser');
+  await handlers.input({source:'rpc',text:'the page lifts and leaves white at the bottom'},ctx);
+  assert.deepEqual(active,['read','bash','edit','write','task_box','browser']);
+ } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});
