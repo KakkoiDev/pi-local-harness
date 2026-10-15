@@ -607,8 +607,14 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#pi-status').isVisible(),false,'Ph_Pi: no status strip');assert.equal(await page.locator('#agent-activity').isVisible(),true,'the Agent section shows the state');await page.locator('#pi-close').click();
   { // Task 132: view popup (Ph_Views), detail bar (Ph_ActivityDetail), dialogs as sheets, the bullet tool (PhoneEdit1).
   await page.locator('#phone-view').click();
-  assert.deepEqual(await page.locator('#phone-view-menu>*').evaluateAll(items=>items.map(item=>item.getAttribute('role')==='separator'?'—':item.firstChild.textContent.trim())),['Chat','Work','Preview','—','Activity · all','Gate · all'],'round 7: Preview is a view on the phone (Ph_PreviewMenu)');
-  await page.locator('#phone-view-menu [data-view="activity"]').click();await page.waitForFunction(()=>document.body.dataset.view==='activity');
+  const menuItems=()=>page.locator('#phone-view-menu>*').evaluateAll(items=>items.filter(item=>!item.hidden).map(item=>item.getAttribute('role')==='separator'?'—':item.firstChild.textContent.trim()));
+  assert.deepEqual(await menuItems(),['Chat','Work','Preview'],'round 8 (Ph8_ChatMenu): the views; Activity and Gate are in the π sheet');
+  await page.locator('#phone-view-menu [data-view="preview"]').click();await page.waitForFunction(()=>document.body.dataset.view==='preview');
+  await page.locator('#phone-view').click();
+  assert.deepEqual(await menuItems(),['Chat','Work','Preview','—','App language','English','日本語','—','Reload','Open App'],'Ph8_PreviewMenu: the view\'s commands follow');
+  assert.equal(await page.locator('.pw-preview__foot').getByRole('button',{name:/^(Stop|Start)$/}).count(),1,'Ph8_Preview: Stop / Start in the foot');
+  await page.keyboard.press('Escape');
+  await page.locator('#open-menu').click();await page.locator('#agent-activity').click();await page.waitForFunction(()=>document.body.dataset.view==='activity');
   assert.equal(await page.locator('#phone-view-label').textContent(),'Activity · all');
   await page.locator('#activity-list .activity-task').first().click();await page.waitForFunction(()=>document.body.dataset.pane==='detail');
   assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#phone-back-label').textContent(),'Activity · all');

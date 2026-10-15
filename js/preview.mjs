@@ -154,9 +154,10 @@ export function installPreview({ api, project, send, showView, view, working, on
     body.classList.toggle('pw-preview--dim', status.kind === 'notweb');
     path.disabled = reload.disabled = !running; sizes.enable(app); languages.enable(app);
     onPhone.disabled = inBrowser.disabled = openApp.disabled = !running;
-    // Ph_Preview: on a phone the app takes the width; the foot is the state, the app's language and Open App.
+    // Ph8_Preview (round 8): on a phone the app takes the width; the foot is the state, Stop / Start and Open App. The app's
+    // language moved to Preview's view menu (Ph8_PreviewMenu).
     const small = phoneScreen(); bar2.hidden = small;
-    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, languages.element, node('span', 'pw-preview__gap'), openApp);
+    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), openApp);
     if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
     const word = { running: 'Running', starting: 'Starting…', stopped: 'Stopped' }[status.state] || (status.stopped ? 'Stopped' : 'No app');
     state.replaceChildren(glyph(status.state === 'running' ? 'running' : status.state === 'starting' ? 'starting' : status.state === 'stopped' || status.stopped ? 'stopped' : 'none'), word);
@@ -223,6 +224,10 @@ export function installPreview({ api, project, send, showView, view, working, on
     toggle: () => setShown(!(mode === 'beside' ? !beside.hidden : view() === 'preview')),
     show: (page = '/') => { save({ path: page }); setShown(true); },
     projectChanged, refresh, layout, mode: () => mode,
+    commands: () => ({ language: settings().language, app: status.kind !== 'notweb' && status.kind !== 'empty', running: status.state === 'running' }),
+    setLanguage: value => { save({ language: value }); draw(); load(true); },
+    reload: () => load(true),
+    openApp: () => openApp.click(),
     stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },
   };
