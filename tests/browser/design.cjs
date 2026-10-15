@@ -706,6 +706,19 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.body.dataset.pane==='list');
   await stopAll();
   }
+  { // Round 8 point 10 (Ph8_NewProject, Ph8_ChooseFolder): "Create in … ›" opens the folder browser as its own step; New Folder… makes one.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#open-menu').waitFor();await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
+  assert.equal(await page.locator('#folder-list').isVisible(),false,'one row, not the browser');assert.equal(await page.locator('#folder-where').isVisible(),true);
+  await page.evaluate(folder=>{document.getElementById('folder-path').value=folder;document.getElementById('folder-go').click();},directory);
+  await page.locator('#folder-where-label').filter({hasText:'Create in '}).waitFor();
+  await page.locator('#folder-where').click();await page.locator('#folder-list').waitFor();assert.equal(await page.locator('#folder-name').isVisible(),false,'its own step');
+  assert.ok((await page.locator('#folder-list .pw-row').first().boundingBox()).height>=44,'44 px folder rows');
+  await page.locator('#folder-new').click();await page.locator('#name-dialog-input').fill('Made here');await page.locator('#name-dialog-ok').click();
+  await page.locator('#folder-crumbs [aria-current]').filter({hasText:'Made here'}).waitFor();assert.equal(fs.existsSync(join(directory,'Made here')),true,'New Folder… made it');
+  assert.equal(await page.locator('#folder-choose').textContent(),'Choose “Made here”');await page.locator('#folder-choose').click();
+  await page.locator('#folder-name').waitFor();assert.match(await page.locator('#folder-where-label').textContent(),/^Create in .*Made here$/);
+  await page.locator('#folder-cancel').click();
+  }
   { // Round 8 point 11 (Ph8_Details, Ph8_Toast, Ph8_Settings): 44 px targets, no ⌘ hints, the toast above the edit bar.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();
   assert.equal(await page.locator('#toast-undo .pw-kbd').isVisible(),false,'no ⌘Z on the phone');

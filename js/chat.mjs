@@ -202,6 +202,7 @@ $('model-sheet-list').onclick=async event=>{const item=event.target.closest('[da
 function openThinkingSheet(){if(!modelState.thinking)return;menu(false);for(const radio of $('thinking-levels').querySelectorAll('input'))radio.checked=radio.value===modelState.chosenEffort;
  $('thinking-sheet-note').textContent=`Applies from the next request. ${modelState.model} thinks; with a model that does not, the row reads “No thinking”, dimmed.`;$('thinking-sheet').showModal();}
 $('thinking-levels').onchange=async event=>{try{const choice=await api('/api/effort',{effort:event.target.value});showModel(choice);$('thinking-sheet').close();toast(`Thinking set to ${EFFORT_NAMES[choice.effort].toLowerCase()}. Pi uses it from the next request.`);}catch(e){error(e.message);}};
+for(const [row,name] of [['agent-activity','activity'],['agent-gate','gate']])$(row).addEventListener('click',()=>{panes[name]='list';phoneBar();});/* the π sheet's Activity and Gate open the list; Show in… opens a detail (round 8) */
 $('pi-model').onclick=openModelSheet;$('pi-thinking').onclick=openThinkingSheet;
 $('model-gone-choose').onclick=()=>matchMedia('(max-width:760px)').matches?openModelSheet():$('model-button').click();
 $('effort-button').onclick=()=>effortMenu.open($('effort-button'));

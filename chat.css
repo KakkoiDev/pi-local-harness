@@ -443,3 +443,26 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
   .comments-none .pw-btn{align-self:stretch;min-height:44px}
   #file-more-title,#folder-more-title{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+
+/* Round 8 point 10 (Ph8_NewProject, Ph8_ChooseFolder): the desk keeps its folder browser in the dialog; the phone shows
+   one "Create in ~/code ›" row and opens the browser as its own full-height step. */
+.folder-step,.folder-where{display:none}
+@media (max-width:760px){
+  #folder-dialog:not(.is-browsing) .folder-location,#folder-dialog:not(.is-browsing) #folder-list{display:none}
+  #folder-dialog:not(.is-browsing) .folder-where{display:flex}
+  .folder-where{min-height:48px;align-items:center;border:1px solid var(--ink);gap:8px}
+  #folder-dialog.is-browsing{height:100dvh;max-height:none}
+  #folder-dialog.is-browsing[open]{display:flex;flex-direction:column;gap:8px}
+  #folder-dialog.is-browsing>:not(.folder-step):not(#folder-list):not(#folder-error){display:none}
+  #folder-dialog.is-browsing .folder-step{display:flex}
+  #folder-dialog.is-browsing .sheet-head.folder-step{display:grid;grid-template-columns:1fr auto 1fr}
+  #folder-dialog.is-browsing .sheet-head>:first-child{justify-self:start}
+  .folder-crumbs{flex-wrap:wrap;gap:0 2px;align-items:center}
+  .folder-crumb{min-height:44px;border:0;background:none;color:var(--ink);font:inherit;font-family:var(--font-chrome);font-size:16px;padding:0 4px}
+  .folder-crumb[aria-current]{font-weight:600}
+  .folder-crumb+.folder-crumb::before{content:'›';margin-right:6px;font-weight:400}
+  #folder-dialog.is-browsing #folder-list{flex:1;min-height:0;overflow:auto;max-height:none}
+  #folder-dialog.is-browsing #folder-list .pw-row{min-height:44px}
+  .folder-step__actions{gap:8px}
+  .folder-step__actions .pw-btn{flex:1}
+}

@@ -324,6 +324,8 @@
 
   <!-- Dialogs -->
   <dialog id="folder-dialog" class="pw-dialog">
+    <div class="sheet-head folder-step"><button id="folder-step-back" type="button" class="pw-btn pw-btn--plain pw-btn--touch">‹ <span id="folder-step-back-label">New Project</span></button><h2 class="sheet-head__title">Create In</h2><span></span></div><!-- round 8 (Ph8_ChooseFolder): the phone's folder browser is its own full-height step -->
+    <nav id="folder-crumbs" class="folder-step folder-crumbs" aria-label="Where"></nav>
     <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
     <p id="folder-detail" class="pw-alert__detail" hidden></p><!-- Locate Folder… (P_Locate) -->
     <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
@@ -334,8 +336,10 @@
       <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="empty"><span>Empty folder</span><small>Start from nothing.</small></label>
       <p class="pw-help folder-kind__help">Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server.</p>
     </fieldset>
+    <button id="folder-where" type="button" class="pw-row folder-where"><span id="folder-where-label" class="pw-row__label"></span><span aria-hidden="true">›</span></button><!-- Ph8_NewProject: "Create in ~/code ›" -->
     <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
     <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav><!-- rows: .pw-row with the folder icon (Dialogs2) -->
+    <div class="folder-step folder-step__actions"><button id="folder-new" type="button" class="pw-btn pw-btn--touch">New Folder…</button><button id="folder-choose" type="button" class="pw-btn pw-btn--touch pw-btn--default"></button></div>
     <p id="folder-help" class="pw-help"></p>
     <p id="folder-error" class="pw-help" role="alert"></p>
     <div class="pw-dialog__actions"><button id="folder-remove" class="pw-btn" hidden>Remove from List…</button><span id="folder-remove-gap" class="pw-thread__gap" hidden></span><button id="folder-cancel" class="pw-btn">Cancel</button><button id="folder-use" class="pw-btn pw-btn--default">Use This Folder</button></div>

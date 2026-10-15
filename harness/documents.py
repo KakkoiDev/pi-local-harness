@@ -409,6 +409,14 @@ class DocumentStore:
             if child.is_dir() and not child.name.startswith('.'):
                 entries.append({'name':child.name,'path':str(child.resolve())})
         return {'path':str(path),'parent':str(path.parent),'directories':entries}
+    def create_directory(self, parent, name):
+        """New Folder… in the folder browser (Ph8_ChooseFolder): one new folder in `parent`, never an existing one."""
+        base=Path(parent).expanduser().resolve();name=str(name or '').strip()
+        if not base.is_dir():raise ValueError('Folder not found')
+        if not name or name in {'.','..'} or '/' in name or '\\' in name or name.startswith('.'):raise ValueError('Choose a folder name without “/” that does not start with a dot.')
+        path=base/name
+        if path.exists():raise ValueError(f'“{name}” already exists here.')
+        path.mkdir();return {'path':str(path)}
     def files(self, project):
         path=self.project_path(project);result=[]
         ignored={'.git','node_modules','.venv','__pycache__'}

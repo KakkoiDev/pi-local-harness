@@ -29,7 +29,10 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
 - [x] 9 Document screens: the phone bar (π · view · status) stays above a new document bar (‹ Files · name · Comments ·
   ⋯); it hides on scroll down and returns on scroll up or a tap on the name; while editing only the document bar shows,
   with the save status. A detail screen's back button is now `#detail-back` (the document bar keeps `#phone-back`).
-- [ ] 10 New Project / Add Existing Folder: "Create in ~/code ›" and the folder browser as its own step (Ph8_NewProject, Ph8_ChooseFolder).
+- [x] 10 New Project / Add Existing Folder: one "Create in ~/code ›" row (the folder for the other modes) opens the folder
+  browser as its own full-height step: Home › … crumbs, 44 px folder rows, New Folder… (`/api/directories/create`,
+  one new folder, never an existing one or a dotted name), Choose “<folder>”. Kinds are 44 px rows (point 11); the
+  Terminal app kind stays (task 217), which Ph8_NewProject does not draw yet.
 - [x] 11 Details: 44 px targets, no ⌘ hints on the phone, the toast above the edit bar, Mac-only settings hidden with
   a one-line note (Ph8_Toast, Ph8_Settings, Ph8_Details). Not built: Ph8_Settings' Show lessons, Wait 10 s and Phone
   access rows (no such settings in the web Settings yet).
@@ -40,3 +43,11 @@ clicked before the page was wired (the old 1-in-3 flake), now it waits for the c
 files" check failed once and passed on the rerun (a timing flake, not touched).
 chat.cjs's drop hint was a real race, not a flake: any refresh during a drag replaced "Drop to attach N files"; hint()
 now keeps it while dragging. One chat.cjs run in five timed out somewhere unreported; the other four passed.
+
+Still open:
+
+- [ ] Japanese for round 8's new strings (messages/ja.json).
+- [ ] Found while taking the README screenshots (task 224): with Work, Preview and Review open at 1440 px the Review
+  window runs past the right edge; on the phone the chat does not scroll to the last line of a reply.
+- [ ] Round 9 brief for the designer: the model-gone sentence, the Chat commands no view has yet (Compact Now, New
+  Conversation…, Earlier Conversations ›), Ph8_Settings' rows with no setting behind them, Terminal app in Ph8_NewProject.

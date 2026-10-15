@@ -688,6 +688,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview')),bool(data.get('save'))));return
             if path=='/api/preview/phone':self.chat.documents.project_path(data['project']);self.reply(self.chat.previews.phone(data['project'],(self.phone_url or '').removeprefix('https://').rstrip('/')));return  # P_OnPhone
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
+            if path=='/api/directories/create':self.reply(self.chat.documents.create_directory(data.get('parent'),data.get('name')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
