@@ -39,4 +39,4 @@ task closes.
 | [L-005 Claimed a fix was verified without running its test](L-005-claimed-verified.md) | Checked (G-012); made easy (task 180); enforced for task boxes (G-010) |
 | [L-006 A test that could not pass, and a fix for a guessed cause](L-006-unreproduced-fix.md) | Enforced in part (G-010) |
 | [L-007 Reasoning loops](L-007-reasoning-loops.md) | Checked (loop watch, wake-ups) |
-| [L-008 Could not observe the bug, so it guessed the cause](L-008-could-not-observe-the-bug.md) | Made easy in part (task 180); open |
+| [L-008 Could not observe the bug, so it guessed the cause](L-008-could-not-observe-the-bug.md) | Made easy (browser tool, task 188); open |

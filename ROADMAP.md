@@ -230,3 +230,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [185-Pi keeps running: wake-ups, Gate failures that do not stop the run](tasks/185-keep-running.md)
 - [x] [186-Ask Pi to Retry… for a request that genuinely stopped](tasks/186-ask-pi-to-retry.md)
 - [x] [187-The harness does the paperwork; Pi only writes content](tasks/187-paperwork.md)
+- [x] [188-A browser tool for Pi: reproduce and measure, don't guess](tasks/188-browser-tool.md)

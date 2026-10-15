@@ -19,10 +19,11 @@ import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
+import { installBrowser } from './browser.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   installTimestamps(pi, dependencies.timestamps);
@@ -99,6 +100,8 @@ export default function harness(pi, dependencies = {}) {
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
   installConsole(pi, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installTaskBox(pi, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
+  // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
+  const browserTool = installBrowser(pi, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser') });
   const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
@@ -330,5 +333,5 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('session_before_compact', () => { try { agentLock.acquire(); } catch { return { cancel: true }; } });
   pi.on('session_compact', () => { if (!watch.active) agentLock.release(); });
-  pi.on('session_shutdown', () => { footer.stop(); stop(); });
+  pi.on('session_shutdown', () => { footer.stop(); browserTool.stop(); stop(); });
 }

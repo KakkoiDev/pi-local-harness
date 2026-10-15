@@ -2,11 +2,12 @@
 // Gate's verdict and the command's own result as separate words, with the time it took. Nothing ran: say so and point
 // to /gate. The output stays below, without the line the harness adds for Pi.
 const bold = text => `\x1b[1m${text}\x1b[22m`, dim = text => `\x1b[2m${text}\x1b[22m`;
-const DRAWN = ['bash', 'read', 'write', 'edit', 'grep', 'find', 'ls', 'task_box'];
+const DRAWN = ['bash', 'read', 'write', 'edit', 'grep', 'find', 'ls', 'task_box', 'browser'];
 const FOR_PI = /^(✓ Gate allowed|✗ Gate:|Gate audit unavailable)/;
 
 const argument = (tool, args = {}) => tool === 'bash' ? args.command
   : tool === 'grep' || tool === 'find' ? [args.pattern, args.path].filter(Boolean).join(' ')
+  : tool === 'browser' ? `${args.target || 'scratch'}${args.path || ''} at ${args.width || 1440}×${args.height || 900}`
   : tool === 'task_box' ? `${args.path || ''} · ${args.box || ''}`
   : args.path || args.file_path || '';
 const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.round(seconds) % 60).padStart(2, '0')}`;

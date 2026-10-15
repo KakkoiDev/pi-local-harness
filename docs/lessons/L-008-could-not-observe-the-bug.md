@@ -24,12 +24,16 @@ CSS needed.
 4. *Facts instead of reasoning.* "An absolute element is placed against its nearest positioned ancestor, and makes it
    scrollable" is easy to look up and hard for a small model to reason out across stylesheets and media queries.
 
-**Done** The browser suites can be run from any shell (task 180), once Playwright is installed.
+**Done**
+- Made easy (task 188): Pi's `browser` tool opens a page in headless Chromium (driven through the DevTools protocol, no
+  npm packages) at the size it asks, runs steps (click, type, press, wait, go to a path, POST to the scratch
+  workbench) and returns facts as data: scrolled and scrollable elements, positioned elements and what they are placed
+  against, boxes, computed styles, text, console errors, a screenshot (also shown to a model that sees images). By
+  default it is a scratch workbench from the checkout with a Demo project and the fake Pi; the person's own workbench is
+  refused. Its test reproduces this bug's pattern and finds the desk. Tests: `tests/harness/browser.test.mjs`.
+- The browser suites can be run from any shell (task 180), once Playwright is installed.
 
-**Open** (in order of value)
-- Made easy: a `browser` tool for Pi: open the workbench with scratch data at a given size, do a few steps (click, type,
-  go to a view), and return measurements as data: scrolled elements, positioned parents, element boxes, console errors,
-  a screenshot. "Probe, don't guess."
+**Open**
 - Checked: bug reports carry their conditions: a "Report a Problem…" command in the web workbench records the window
   size, view, scroll positions, console errors and a screenshot into the task.
 - Enforced: a bug task's Red box needs a failing test that reproduces the report (G-010 sees a failing run; the task

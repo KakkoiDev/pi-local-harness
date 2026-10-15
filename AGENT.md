@@ -14,7 +14,8 @@ The harness keeps the paperwork (plan 184): at your first file change it makes t
 request's task under tasks/ (or uses the task the request names) and its ROADMAP.md
 line, writes the test runs Gate sees into the task's progress, and when the change is
 verified marks it done and commits locally. Your job is the content: code, tests,
-documentation. Preserve unrelated edits, add meaningful regression coverage (a failing
+documentation. For a UI bug, reproduce and measure it with the `browser` tool first
+(a scratch workbench at the size the bug needs), then change code. Preserve unrelated edits, add meaningful regression coverage (a failing
 test first, then the change, then the tests passing), run tests/verify_workflow.py,
 and `python3 tests/browser/run.py all` after a UI change (exit 2 means the suites did
 not run: say "not verified", never "passed"). Do not create task files, tick progress
