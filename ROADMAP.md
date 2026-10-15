@@ -266,4 +266,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [222-Build round 8: the phone does everything the desktop does](tasks/222-round-8-phone-parity.md)
 - [x] [223-Re-sync the design backup with the artifacts](tasks/223-design-resync.md)
 - [x] [224-A README a person enjoys reading, with the workbench at the top](tasks/224-readme.md)
-- [ ] [225-The bench with a 4-billion model](tasks/225-bench-small-model.md)
+- [x] [225-The bench with a 4-billion model](tasks/225-bench-small-model.md)
