@@ -604,7 +604,15 @@ const readline = require('node:readline');
   assert.equal(new Set(await page.locator('.pw-composer__row>*').evaluateAll(items=>items.filter(item=>item.getClientRects().length&&item.offsetHeight).map(item=>Math.round(item.getBoundingClientRect().top)))).size,1,'composer controls in one row');
   await page.locator('#open-menu').click();
   assert.equal(await page.locator('#sidebar .sheet-head__title').textContent(),'π Pi Workbench');assert.equal(await page.locator('#sidebar>.pw-titlebar').isVisible(),false);
-  assert.equal(await page.locator('#pi-status').isVisible(),false,'Ph_Pi: no status strip');assert.equal(await page.locator('#agent-activity').isVisible(),true,'the Agent section shows the state');await page.locator('#pi-close').click();
+  assert.equal(await page.locator('#pi-status').isVisible(),false,'Ph_Pi: no status strip');
+  // Round 8 point 2 (Ph8_Pi): Model and Thinking in the π sheet; Model opens its own sheet with ‹ π.
+  assert.equal(await page.locator('#pi-model').isVisible(),true);assert.ok((await page.locator('#pi-model-meta').textContent()).length>0,'the model name');
+  assert.match(await page.locator('#pi-thinking-meta').textContent(),/^(No thinking|Off|Low|Medium|High|Minimal|Extra high|Max)$/);
+  await page.locator('#pi-model').click();await page.locator('#model-sheet').waitFor();assert.equal(await page.locator('#model-sheet-title').textContent(),'Model');
+  await page.locator('#model-sheet').waitFor({state:'hidden'}).catch(()=>page.locator('#model-sheet-back').click());/* no Ollama in the test: the sheet closes with an error */
+  if(await page.locator('#model-sheet').isVisible())await page.locator('#model-sheet-back').click();
+  await page.locator('#error').evaluate(element=>element.hidden=true).catch(()=>{});
+  if(!(await page.locator('#sidebar').isVisible()))await page.locator('#open-menu').click();assert.equal(await page.locator('#agent-activity').isVisible(),true,'the Agent section shows the state');await page.locator('#pi-close').click();
   { // Task 132: view popup (Ph_Views), detail bar (Ph_ActivityDetail), dialogs as sheets, the bullet tool (PhoneEdit1).
   await page.locator('#phone-view').click();
   const menuItems=()=>page.locator('#phone-view-menu>*').evaluateAll(items=>items.filter(item=>!item.hidden).map(item=>item.getAttribute('role')==='separator'?'—':item.firstChild.textContent.trim()));

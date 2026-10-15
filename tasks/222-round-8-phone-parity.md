@@ -10,7 +10,10 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
 - [x] 1 Three places for commands: the view menu is Chat · Work · Preview, then the current view's commands (Preview:
   App language, Reload, Open App); Activity and Gate left it for the π sheet's Agent group. ⋯ on the thing: point 3.
   Not built anywhere yet, so not on the phone either: Chat's Compact Now, New Conversation…, Earlier Conversations ›.
-- [ ] 2 Model and Thinking in the π sheet (Ph_Model, Ph_ModelList, Ph8_Thinking); the model-gone alert line (Ph8_ModelGone).
+- [x] 2 Model and Thinking in the π sheet (Ph_Model, Ph_ModelList, Ph8_Thinking), each its own sheet with ‹ π; the
+  model-gone alert line in Chat with Choose Model… (Ph8_ModelGone), on the desk too, instead of a toast. Its second
+  sentence says what the code does, "Pi uses <model> until you choose another model.", not the board's "Pi cannot
+  answer until you choose a model": the server falls back to an installed model (for the designer, round 9).
 - [ ] 3 File and folder ⋯ (Ph_FileMore, Ph_FolderMore, Ph8_DocMore, Ph8_Folder); folders open as a level; path as title.
 - [ ] 4 View as Markdown, full screen (Ph8_Source).
 - [ ] 5 Comments always in the document bar; none open (Ph8_CommentsNone).

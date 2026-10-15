@@ -152,6 +152,11 @@
             <a id="agent-activity" href="/activity" class="pw-row" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
             <a id="agent-gate" href="/gate" class="pw-row" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
           </div></section>
+        <section class="pw-group phone-model" aria-labelledby="pg-model"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-model"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="model-list"><span data-icon="disclosure-open"></span>Model<span class="pw-group__count">One in memory at a time</span></button></h3></div><!-- round 8 (Ph8_Pi, Ph_Model): the phone's Model and Thinking -->
+          <div id="model-list" class="pw-group__body">
+            <button id="pi-model" type="button" class="pw-row"><span class="pw-row__label">Model</span><span class="pw-row__meta"><span id="pi-model-meta"></span> <span aria-hidden="true">›</span></span></button>
+            <button id="pi-thinking" type="button" class="pw-row"><span class="pw-row__label">Thinking</span><span class="pw-row__meta"><span id="pi-thinking-meta"></span> <span aria-hidden="true">›</span></span></button>
+          </div></section>
       </nav>
       <div class="window-section window-section--actions">
         <button id="new-project" class="pw-btn">New Project…<span class="pw-kbd">⌘N</span></button>
@@ -194,6 +199,7 @@
       </div>
       <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
 
+      <div id="model-gone" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p><span id="model-gone-text"></span> <span id="model-gone-detail" class="pw-help"></span></p><button id="model-gone-choose" type="button" class="pw-btn pw-btn--default">Choose Model…</button></div><!-- round 8 (Ph8_ModelGone): the chosen model is not installed any more -->
       <div id="missing-banner" class="pw-alert-line missing-banner" role="alert" hidden><span data-icon="caution"></span><p id="missing-text"></p><button id="missing-locate" type="button" class="pw-btn pw-btn--default">Locate Folder…</button><button id="missing-remove" type="button" class="pw-btn">Remove from List…</button></div><!-- task 154: a project whose folder is missing (P_MenuMissing) -->
 
       <!-- Chat -->
@@ -342,6 +348,21 @@
       <button type="button" class="pw-menu__item" role="menuitem" data-more="remove">Remove from List…</button>
       <button type="button" class="pw-menu__item" role="menuitem" data-more="trash">Move Project to Trash…</button>
     </div>
+  </dialog>
+  <dialog id="model-sheet" class="pw-dialog phone-pick" aria-labelledby="model-sheet-title"><!-- Ph_ModelList -->
+    <div class="sheet-head"><button id="model-sheet-back" type="button" class="pw-btn pw-btn--plain pw-btn--touch">‹ π</button><h2 id="model-sheet-title" class="sheet-head__title">Model</h2><span></span></div>
+    <div id="model-sheet-list" class="phone-pick__list" role="menu" aria-label="Model"></div>
+    <p class="pw-help">One model in memory at a time. Choosing one shows “Loading…” in its row until it is ready.</p>
+  </dialog>
+  <dialog id="thinking-sheet" class="pw-dialog phone-pick" aria-labelledby="thinking-sheet-title"><!-- Ph8_Thinking -->
+    <div class="sheet-head"><button id="thinking-sheet-back" type="button" class="pw-btn pw-btn--plain pw-btn--touch">‹ π</button><h2 id="thinking-sheet-title" class="sheet-head__title">Thinking</h2><span></span></div>
+    <fieldset id="thinking-levels" class="phone-pick__list">
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="thinking" value="off"><span>Off</span></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="thinking" value="low"><span>Low</span></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="thinking" value="medium"><span>Medium</span></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="thinking" value="high"><span>High</span></label>
+    </fieldset>
+    <p id="thinking-sheet-note" class="pw-help"></p>
   </dialog>
   <dialog id="ask-dialog" class="pw-dialog ask-dialog" aria-labelledby="ask-title"><!-- phone: Ask Pi… on a passage, a block or the whole file (Ph8_Ask, Ph8_AskFile, round 8 point 6) -->
     <form id="ask-form" class="ask-dialog__form">
