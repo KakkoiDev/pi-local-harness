@@ -353,6 +353,11 @@
   </dialog>
   <dialog id="settings-dialog" class="pw-dialog" aria-labelledby="settings-title"><form id="settings-form" method="dialog" class="window-column">
     <h2 id="settings-title" class="pw-dialog__title">Settings</h2>
+    <fieldset class="settings-group"><legend class="pw-label">Language</legend><!-- plan 198: the workbench's own language; the app's is in the Preview -->
+      <label class="pw-label settings-option" data-no-translate><input type="radio" class="pw-radio" name="language" value="en">English</label>
+      <label class="pw-label settings-option" data-no-translate><input type="radio" class="pw-radio" name="language" value="ja">日本語</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="language" value="system">Match System</label>
+    </fieldset>
     <fieldset class="settings-group"><legend class="pw-label">Appearance</legend>
       <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="paper">Paper (black on white)</label>
       <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="inverse">Inverse (white on black)</label>

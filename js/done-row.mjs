@@ -39,7 +39,8 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed 
     } else {
       const undo = node('button', 'pw-btn', 'Undo This Request…'); undo.type = 'button'; undo.disabled = data.undone; undo.onclick = () => run(data, 'undo'); actions.append(undo);
     }
-    row.replaceChildren(head, ...words.map(line => node('p', 'pw-done__text', line)), actions);
+    const ui = undoRow && !redoRow ? words.length : unverified ? 1 : 0;  // the harness's own sentences are translated; Pi's plain words are not
+    row.replaceChildren(head, ...words.map((line, index) => { const paragraph = node('p', 'pw-done__text', line); if (index >= words.length - ui) paragraph.dataset.ui = ''; return paragraph; }), actions);
   };
   const load = async () => {
     try { if (!cache.has(commit)) cache.set(commit, await api('/api/undo', { project, commit, preview: true })); fill(cache.get(commit)); }

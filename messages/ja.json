@@ -1,0 +1,1495 @@
+{
+ "exact": {
+  "About Pi Workbench": "Pi Workbench について",
+  "Settings…": "設定…",
+  "Settings": "設定",
+  "Desktop Pattern…": "デスクトップパターン…",
+  "Desktop pattern": "デスクトップパターン",
+  "Open on Phone…": "スマホで開く…",
+  "Open on Phone": "スマホで開く",
+  "File": "ファイル",
+  "Edit": "編集",
+  "View": "表示",
+  "Project": "プロジェクト",
+  "Agent": "エージェント",
+  "Window": "ウインドウ",
+  "New Project…": "新規プロジェクト…",
+  "New Project": "新規プロジェクト",
+  "Add Existing Folder…": "既存のフォルダを追加…",
+  "New File…": "新規ファイル…",
+  "New File": "新規ファイル",
+  "New Task…": "新規タスク…",
+  "New Task": "新規タスク",
+  "Save": "保存",
+  "Reload from Disk…": "ディスクから再読み込み…",
+  "Reload from Disk": "ディスクから再読み込み",
+  "Download Draft…": "下書きをダウンロード…",
+  "Rename or Move…": "名称変更または移動…",
+  "Rename or Move": "名称変更または移動",
+  "Rename or Move Folder": "フォルダの名称変更または移動",
+  "Move to Trash…": "ゴミ箱に入れる…",
+  "Move to Trash": "ゴミ箱に入れる",
+  "Close Window": "ウインドウを閉じる",
+  "Close window": "ウインドウを閉じる",
+  "Zoom window": "ウインドウをズーム",
+  "Undo": "取り消す",
+  "Redo": "やり直す",
+  "Cut": "カット",
+  "Copy": "コピー",
+  "Paste": "ペースト",
+  "Select All": "すべて選択",
+  "Comment on Selection": "選択部分にコメント",
+  "Ask Pi About Selection…": "選択部分について Pi に聞く…",
+  "Find in Files…": "ファイル内を検索…",
+  "Find Project…": "プロジェクトを検索…",
+  "As Document": "書類として",
+  "As Markdown Source": "Markdown ソースとして",
+  "Show Review": "レビューを表示",
+  "Hide Review": "レビューを隠す",
+  "Show Resolved Comments": "解決済みのコメントを表示",
+  "Next Comment": "次のコメント",
+  "Previous Comment": "前のコメント",
+  "Next comment": "次のコメント",
+  "Previous comment": "前のコメント",
+  "Open Project Chat": "プロジェクトのチャットを開く",
+  "Ask Pi About This Document…": "この書類について Pi に聞く…",
+  "Copy Folder Path": "フォルダのパスをコピー",
+  "Rename Project…": "プロジェクトの名称変更…",
+  "Rename Project": "プロジェクトの名称変更",
+  "Move Project…": "プロジェクトを移動…",
+  "Locate Folder…": "フォルダを探す…",
+  "Remove from List…": "リストから削除…",
+  "Move Project to Trash…": "プロジェクトをゴミ箱に入れる…",
+  "Queue Message": "メッセージをキューに追加",
+  "Attach Files…": "ファイルを添付…",
+  "Record Audio": "音声を録音",
+  "Stop": "停止",
+  "Start": "起動",
+  "Cancel Waiting Request…": "待機中の依頼を取り消す…",
+  "Show Task Record": "タスクの記録を表示",
+  "Hide Task Record": "タスクの記録を隠す",
+  "Reconnect": "再接続",
+  "Chat": "チャット",
+  "Work": "作業",
+  "Preview": "プレビュー",
+  "Projects": "プロジェクト",
+  "Files": "ファイル",
+  "Review": "レビュー",
+  "Event Info": "イベント情報",
+  "Event info": "イベント情報",
+  "Activity": "アクティビティ",
+  "Gate": "Gate",
+  "Activity · All Projects": "アクティビティ · すべてのプロジェクト",
+  "Gate · All Projects": "Gate · すべてのプロジェクト",
+  "Activity · all": "アクティビティ · すべて",
+  "Gate · all": "Gate · すべて",
+  "Menu bar": "メニューバー",
+  "Pi menu": "Pi メニュー",
+  "Pi menu: projects and commands": "Pi メニュー：プロジェクトとコマンド",
+  "Close menu": "メニューを閉じる",
+  "Views": "表示",
+  "Selection": "選択部分",
+  "Block": "ブロック",
+  "Turn Into": "変換",
+  "Add Block Below": "下にブロックを追加",
+  "Move Up": "上へ移動",
+  "Move Down": "下へ移動",
+  "Comment on Paragraph": "段落にコメント",
+  "Ask Pi About Paragraph…": "段落について Pi に聞く…",
+  "Delete Paragraph": "段落を削除",
+  "Skip to conversation": "会話へ移動",
+  "Connecting…": "接続中…",
+  "Agent status. Open Activity": "エージェントの状態。アクティビティを開く",
+  "Model": "モデル",
+  "Thinking level": "思考レベル",
+  "Comments": "コメント",
+  "Comment": "コメント",
+  "Project navigation": "プロジェクトのナビゲーション",
+  "Close": "閉じる",
+  "on this Mac": "この Mac 上",
+  "Find a project": "プロジェクトを検索",
+  "Search projects": "プロジェクトを検索",
+  "Projects and agent": "プロジェクトとエージェント",
+  "All projects": "すべてのプロジェクト",
+  "All Projects": "すべてのプロジェクト",
+  "Local AI": "ローカル AI",
+  "Pi runs on this Mac": "Pi はこの Mac で動いています",
+  "Project files": "プロジェクトのファイル",
+  "Close project and show Projects": "プロジェクトを閉じてプロジェクト一覧を表示",
+  "‹ Projects": "‹ プロジェクト",
+  "Find a file": "ファイルを検索",
+  "Show": "表示",
+  "Workspace view": "作業領域の表示",
+  "Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.": "接続が中断されました。下書きは残っています。アップデートした直後なら、plh を終了してもう一度起動し、再接続してください。",
+  "Messages": "メッセージ",
+  "What are we working on?": "何に取り組みますか？",
+  "Give your agent a place to work. Keep its conversation, plan, and files together.": "エージェントに作業場所を用意しましょう。会話、計画、ファイルをひとつにまとめておけます。",
+  "Use an Existing Folder…": "既存のフォルダを使う…",
+  "Create Your First Project…": "最初のプロジェクトを作成…",
+  "Understand some code": "コードを理解する",
+  "Explore an image": "画像を調べる",
+  "Listen to a recording": "録音を聞く",
+  "Attached files": "添付ファイル",
+  "Message to Pi": "Pi へのメッセージ",
+  "Ask anything, or drop a file here": "何でも聞いてください。ファイルをここにドロップすることもできます",
+  "Attach…": "添付…",
+  "Record": "録音",
+  "Text, images, audio & files": "テキスト、画像、音声、ファイル",
+  "Send": "送信",
+  "Queue": "キューに追加",
+  "Local models can make mistakes. Review important answers.": "ローカルモデルは間違えることがあります。大事な回答は確認してください。",
+  "This project has its own conversation. Ask a question or attach a file.": "このプロジェクトには専用の会話があります。質問するか、ファイルを添付してください。",
+  "Choose a project": "プロジェクトを選んでください",
+  "Choose a project first.": "先にプロジェクトを選んでください。",
+  "You": "あなた",
+  "Pi": "Pi",
+  "Reasoning": "推論",
+  "· from Preview": "· プレビューから",
+  "The app’s last 8 lines": "アプリの最後の 8 行",
+  "Pi answered.": "Pi が回答しました。",
+  "Show in Activity": "アクティビティで表示",
+  "Added to your waiting message: Pi gets both as one request.": "待機中のメッセージに追加しました。Pi は両方をひとつの依頼として受け取ります。",
+  "Transcribing…": "文字起こし中…",
+  "Your dictation was added to the draft of the chat it was recorded in.": "音声入力の結果は、録音したチャットの下書きに追加しました。",
+  "Recording is unavailable; attach an audio file.": "録音できません。音声ファイルを添付してください。",
+  "Stop Recording": "録音を停止",
+  "Dictate": "音声入力",
+  "Dictate (the Mac transcribes it)": "音声入力（Mac が文字起こしします）",
+  "Stop dictating": "音声入力を停止",
+  "Finish the other dictation first.": "先にもう一方の音声入力を終えてください。",
+  "Voice input is unavailable in this browser.": "このブラウザでは音声入力を使えません。",
+  "Cannot read the recording": "録音を読み込めません",
+  "Thinking…": "思考中…",
+  "Responding…": "回答中…",
+  "Tool failed; reconsidering…": "ツールが失敗しました。考え直しています…",
+  "Tool finished; thinking…": "ツールが終了しました。思考中…",
+  "Request failed": "依頼に失敗しました",
+  "Link copied": "リンクをコピーしました",
+  "Address copied": "アドレスをコピーしました",
+  "Path copied": "パスをコピーしました",
+  "Command copied": "コマンドをコピーしました",
+  "Copy Command": "コマンドをコピー",
+  "No thinking": "思考なし",
+  "Thinking set to no. Pi uses it from the next request.": "思考をなしにしました。次の依頼から Pi が使います。",
+  "Minimal": "最小",
+  "Minimal thinking": "思考 最小",
+  "Thinking set to minimal. Pi uses it from the next request.": "思考を「最小」にしました。次の依頼から Pi が使います。",
+  "Low": "低",
+  "Low thinking": "思考 低",
+  "Thinking set to low. Pi uses it from the next request.": "思考を「低」にしました。次の依頼から Pi が使います。",
+  "Medium": "中",
+  "Medium thinking": "思考 中",
+  "Thinking set to medium. Pi uses it from the next request.": "思考を「中」にしました。次の依頼から Pi が使います。",
+  "High": "高",
+  "High thinking": "思考 高",
+  "Thinking set to high. Pi uses it from the next request.": "思考を「高」にしました。次の依頼から Pi が使います。",
+  "Extra high": "最高",
+  "Extra high thinking": "思考 最高",
+  "Thinking set to extra high. Pi uses it from the next request.": "思考を「最高」にしました。次の依頼から Pi が使います。",
+  "Max": "最大",
+  "Max thinking": "思考 最大",
+  "Thinking set to max. Pi uses it from the next request.": "思考を「最大」にしました。次の依頼から Pi が使います。",
+  "Off": "オフ",
+  "Applies from the next request.": "次の依頼から適用されます。",
+  "Looking for local models…": "ローカルモデルを探しています…",
+  "Cannot use tools": "ツールを使えません",
+  "One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.": "メモリに載るモデルは一度にひとつです。「並行」：チャットと作業が同時に動きます。「一度にひとつ」：Pi があなたに回答する間、作業は一時停止します。",
+  "Ollama did not answer within 15 seconds.": "Ollama が 15 秒以内に応答しませんでした。",
+  "no tools": "ツールなし",
+  "not installed": "未インストール",
+  "thinks · parallel": "思考する · 並行",
+  "thinks · one at a time": "思考する · 一度にひとつ",
+  "thinks · checking…": "思考する · 確認中…",
+  "thinks · sees · parallel": "思考する · 画像を見る · 並行",
+  "thinks · sees · one at a time": "思考する · 画像を見る · 一度にひとつ",
+  "thinks · sees · checking…": "思考する · 画像を見る · 確認中…",
+  "no thinking · parallel": "思考なし · 並行",
+  "no thinking · one at a time": "思考なし · 一度にひとつ",
+  "no thinking · checking…": "思考なし · 確認中…",
+  "Close Activity and go back": "アクティビティを閉じて戻る",
+  "Close Gate and go back": "Gate を閉じて戻る",
+  "Back to the project": "プロジェクトに戻る",
+  "Decision": "判定",
+  "Check": "チェック",
+  "Before execution": "実行前",
+  "After execution": "実行後",
+  "Before Execution": "実行前",
+  "After Execution": "実行後",
+  "Before": "実行前",
+  "After": "実行後",
+  "Tool": "ツール",
+  "From": "送信元",
+  "Web": "Web",
+  "Terminal": "ターミナル",
+  "Time": "時刻",
+  "Proposal": "提案",
+  "Command": "コマンド",
+  "No checks match this filter": "このフィルタに合うチェックはありません",
+  "No checks yet": "まだチェックはありません",
+  "Gate checks every command before it runs and verifies the result after. Checks appear here while Pi works.": "Gate はすべてのコマンドを実行前にチェックし、実行後に結果を検証します。Pi が作業するとここにチェックが表示されます。",
+  "All": "すべて",
+  "Problems": "問題",
+  "All Checks": "すべてのチェック",
+  "Blocks & Failures": "ブロックと失敗",
+  "Refresh": "更新",
+  "Before a command runs: approve, revise or block. After it runs: verify the result.": "コマンドの実行前：許可、修正、ブロックのいずれかを判定します。実行後：結果を検証します。",
+  "Gate activity": "Gate のアクティビティ",
+  "Gate checks": "Gate のチェック",
+  "Close Event Info": "イベント情報を閉じる",
+  "Close Review": "レビューを閉じる",
+  "No Gate record": "Gate の記録なし",
+  "Show in Gate": "Gate で表示",
+  "Approved": "許可",
+  "Blocked": "ブロック",
+  "Revise": "修正",
+  "Escalated": "エスカレーション",
+  "Verified": "検証済み",
+  "Check failed": "チェック失敗",
+  "Drift": "ドリフト",
+  "Running": "実行中",
+  "Waiting": "待機中",
+  "Completed": "完了",
+  "Failed": "失敗",
+  "Stopped": "停止",
+  "Interrupted": "中断",
+  "Cancelled": "取り消し",
+  "running": "実行中",
+  "queued": "待ち",
+  "completed": "完了",
+  "failed": "失敗",
+  "stopped": "停止",
+  "interrupted": "中断",
+  "cancelled": "取り消し",
+  "waiting": "待機中",
+  "Language": "言語",
+  "Match System": "システムに合わせる",
+  "Appearance": "外観",
+  "Paper (black on white)": "紙（白地に黒）",
+  "Inverse (white on black)": "反転（黒地に白）",
+  "Dots": "ドット",
+  "Gray": "グレー",
+  "Plain": "無地",
+  "Return sends a message (Shift-Return adds a line)": "Return でメッセージを送信（Shift-Return で改行）",
+  "Cancel": "キャンセル",
+  "OK": "OK",
+  "Data": "データ",
+  "One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.": "ひとりにひとつのエージェント。Pi はこの Mac で動き、モデルはプロバイダの指す場所で動きます。",
+  "Phone access is off.": "スマホからのアクセスはオフです。",
+  "QR code of the phone address": "スマホ用アドレスの QR コード",
+  "Scan with a phone on the same Tailscale account, or open the address.": "同じ Tailscale アカウントのスマホで読み取るか、アドレスを開いてください。",
+  "Phone address": "スマホ用アドレス",
+  "Only hosts in remote_hosts and logins in remote_users are let in. Closing plh stops tailscale serve.": "remote_hosts のホストと remote_users のログインだけが入れます。plh を閉じると tailscale serve も止まります。",
+  "Copy Link": "リンクをコピー",
+  "Done": "完了",
+  "Serve is not enabled on your tailnet. Enable it once at": "tailnet で Serve が有効になっていません。一度だけ次の場所で有効にしてください：",
+  ", then quit plh and start it again.": "（その後 plh を終了して、もう一度起動してください）",
+  "Cancel the waiting request?": "待機中の依頼を取り消しますか？",
+  "It has not started. You can send it again from the chat.": "まだ始まっていません。チャットからもう一度送れます。",
+  "Cancel Request": "依頼を取り消す",
+  "Keep Waiting": "待機を続ける",
+  "Working": "作業中",
+  "Ready": "準備完了",
+  "Nothing yet": "まだ何もありません",
+  "Nothing running": "実行中のものはありません",
+  "Connection interrupted": "接続が中断されました",
+  "Paragraph": "段落",
+  "Paragraph deleted.": "段落を削除しました。",
+  "Heading": "見出し",
+  "Comment on Heading": "見出しにコメント",
+  "Ask Pi About Heading…": "見出しについて Pi に聞く…",
+  "Delete Heading": "見出しを削除",
+  "Heading deleted.": "見出しを削除しました。",
+  "Task": "タスク",
+  "Comment on Task": "タスクにコメント",
+  "Ask Pi About Task…": "タスクについて Pi に聞く…",
+  "Delete Task": "タスクを削除",
+  "Task deleted.": "タスクを削除しました。",
+  "Bullet": "箇条書き",
+  "Comment on Bullet": "箇条書きにコメント",
+  "Ask Pi About Bullet…": "箇条書きについて Pi に聞く…",
+  "Delete Bullet": "箇条書きを削除",
+  "Bullet deleted.": "箇条書きを削除しました。",
+  "Number": "番号付き",
+  "Comment on Number": "番号付きにコメント",
+  "Ask Pi About Number…": "番号付きについて Pi に聞く…",
+  "Delete Number": "番号付きを削除",
+  "Number deleted.": "番号付きを削除しました。",
+  "Quote": "引用",
+  "Comment on Quote": "引用にコメント",
+  "Ask Pi About Quote…": "引用について Pi に聞く…",
+  "Delete Quote": "引用を削除",
+  "Quote deleted.": "引用を削除しました。",
+  "Code": "コード",
+  "Comment on Code": "コードにコメント",
+  "Ask Pi About Code…": "コードについて Pi に聞く…",
+  "Delete Code": "コードを削除",
+  "Code deleted.": "コードを削除しました。",
+  "Raw Markdown": "Markdown（未加工）",
+  "Comment on Raw Markdown": "Markdown（未加工）にコメント",
+  "Ask Pi About Raw Markdown…": "Markdown（未加工）について Pi に聞く…",
+  "Delete Raw Markdown": "Markdown（未加工）を削除",
+  "Raw Markdown deleted.": "Markdown（未加工）を削除しました。",
+  "Ruler": "ルーラー",
+  "Block style": "ブロックのスタイル",
+  "Bulleted list": "箇条書き",
+  "Task checkbox": "タスクのチェックボックス",
+  "Editor mode": "エディタのモード",
+  "Document": "書類",
+  "Markdown Source": "Markdown ソース",
+  "Retry Save": "保存を再試行",
+  "Document editor": "書類エディタ",
+  "File source": "ファイルのソース",
+  "⌘S saves · changes save as you type": "⌘S で保存 · 入力すると自動で保存されます",
+  "No document open": "開いている書類はありません",
+  "Choose a roadmap, task, or file.": "ロードマップ、タスク、ファイルのいずれかを選んでください。",
+  "Unsaved · draft only in this tab (browser storage is unavailable)": "未保存 · 下書きはこのタブだけにあります（ブラウザのストレージを使えません）",
+  "Unsaved": "未保存",
+  "Saving…": "保存中…",
+  "Saved": "保存済み",
+  "Undo applies to the document the block was deleted from.": "取り消しは、ブロックを削除した書類にだけ適用されます。",
+  "Task complete": "タスク完了",
+  "List item": "リストの項目",
+  "Write, or choose a style in the ruler": "入力するか、ルーラーでスタイルを選んでください",
+  "Block text": "ブロックのテキスト",
+  "Your saved draft differs from the file on disk. Download it before reloading.": "保存した下書きがディスク上のファイルと異なります。再読み込みの前にダウンロードしてください。",
+  "Restored your unsaved draft": "未保存の下書きを復元しました",
+  "Live text/code file": "テキスト／コードファイル（自動更新）",
+  "Updated by agent / filesystem": "エージェントまたはファイルシステムが更新しました",
+  "Document request sent": "書類についての依頼を送信しました",
+  "Your unsaved changes in this window will be replaced by the file on disk.": "このウインドウの未保存の変更は、ディスク上のファイルで置き換えられます。",
+  "Reload": "再読み込み",
+  "Keep Editing": "編集を続ける",
+  "Open": "開く",
+  "Resolved": "解決済み",
+  "Deleted": "削除済み",
+  "Your comment": "あなたのコメント",
+  "Comment on the selected passage…": "選択した部分にコメント…",
+  "Clear selected passage": "選択した部分を解除",
+  "Clear Selection": "選択を解除",
+  "Add & Ask Pi": "追加して Pi に聞く",
+  "Add Comment": "コメントを追加",
+  "Comments stay with the file until you choose Ask Pi.": "コメントは「Pi に聞く」を選ぶまでファイルに残ります。",
+  "Saved with the file. Pi sees it only when you ask.": "ファイルと一緒に保存されます。Pi が見るのは、あなたが聞いたときだけです。",
+  "Show resolved in the text": "解決済みを本文に表示",
+  "No unsent comments": "未送信のコメントはありません",
+  "Ask Pi about this whole file": "このファイル全体について Pi に聞く",
+  "e.g. Split the Red steps into separate tests": "例：Red の手順を別々のテストに分けて",
+  "Request about this whole file": "このファイル全体についての依頼",
+  "The answer appears here, not in Chat.": "回答はチャットではなく、ここに表示されます。",
+  "Send Request": "依頼を送信",
+  "Recent requests": "最近の依頼",
+  "Requests": "依頼",
+  "Request": "依頼",
+  "Ask Pi…": "Pi に聞く…",
+  "Ask Pi": "Pi に聞く",
+  "Pi is working on it": "Pi が対応中",
+  "Waiting in queue": "キューで待機中",
+  "Pi could not answer": "Pi は回答できませんでした",
+  "Reply not sent to Pi": "返信は Pi に送られていません",
+  "Pi answered": "Pi が回答しました",
+  "Sent to Pi": "Pi に送信済み",
+  "Not sent to Pi": "Pi に未送信",
+  "Change applied": "変更を適用しました",
+  "Comment deleted. It’s kept under Deleted in Review.": "コメントを削除しました。レビューの「削除済み」に残っています。",
+  "Comment sent to Pi": "コメントを Pi に送信しました",
+  "Reply…": "返信…",
+  "Reply to text comment": "コメントに返信",
+  "Add Note": "メモを追加",
+  "Comment thread": "コメントのスレッド",
+  "Pi’s suggested change was applied.": "Pi が提案した変更を適用しました。",
+  "Pi suggested a rewrite. You kept your text.": "Pi が書き直しを提案しました。あなたの文章をそのまま残しました。",
+  "Suggested change": "提案された変更",
+  "Keep Mine": "自分のものを残す",
+  "Apply Change": "変更を適用",
+  "Reopen": "再び開く",
+  "Resolve": "解決",
+  "Delete": "削除",
+  "Restore": "復元",
+  "Reply saved · not sent to Pi": "返信を保存しました · Pi に未送信",
+  "Saved with the file · not sent to Pi": "ファイルと一緒に保存済み · Pi に未送信",
+  "Add Note keeps your reply with the file. Ask Pi sends the thread with what you typed.": "「メモを追加」は返信をファイルに残します。「Pi に聞く」は入力した内容とともにスレッドを送ります。",
+  "No open comments.": "未解決のコメントはありません。",
+  "Nothing resolved yet.": "解決済みのものはまだありません。",
+  "No deleted comments.": "削除したコメントはありません。",
+  "Passage changed on disk; this thread keeps the original quote.": "ディスク上で該当部分が変わりました。このスレッドは元の引用を残しています。",
+  "Yesterday": "昨日",
+  "Sent to Pi · waiting in queue · follow-up": "Pi に送信済み · キューで待機中 · 追加の依頼",
+  "Sent to Pi · waiting in queue · can no longer be deleted": "Pi に送信済み · キューで待機中 · 削除できなくなりました",
+  "Pi answered · can no longer be deleted": "Pi が回答しました · 削除できなくなりました",
+  "Agent activity": "エージェントのアクティビティ",
+  "Active": "進行中",
+  "Attention": "要確認",
+  "All Work": "すべての作業",
+  "Running & Waiting": "実行中と待機中",
+  "Needs Attention": "要確認",
+  "One agent, one queue, first in first out. Interrupted work is never repeated automatically.": "エージェントはひとつ、キューもひとつ。先に入ったものから順に処理します。中断した作業が自動でやり直されることはありません。",
+  "Task details": "タスクの詳細",
+  "Task record": "タスクの記録",
+  "Phase": "段階",
+  "Last command": "最後のコマンド",
+  "Started": "開始",
+  "Commands": "コマンド",
+  "Result": "結果",
+  "Open in Chat": "チャットで開く",
+  "Show Comment": "コメントを表示",
+  "Show in Review": "レビューで表示",
+  "Ask Pi to Retry…": "Pi に再試行を頼む…",
+  "Ask Pi to Retry": "Pi に再試行を頼む",
+  "Cancel…": "取り消す…",
+  "State": "状態",
+  "Source": "依頼元",
+  "All caught up": "すべて完了しています",
+  "Requests from every project, its comments and whole-file questions wait here in one queue. Terminal Pi runs directly and shows in Gate.": "すべてのプロジェクトの依頼、コメント、ファイル全体についての質問は、ここでひとつのキューに並びます。ターミナルの Pi は直接実行され、Gate に表示されます。",
+  "No tasks match these filters.": "このフィルタに合うタスクはありません。",
+  "Nothing running or waiting": "実行中・待機中のものはありません",
+  "Add a note for Pi (optional)": "Pi へのメモを追加（省略可）",
+  "Queue Again": "もう一度キューに追加",
+  "Waiting for the agent": "エージェントを待っています",
+  "Loading project context": "プロジェクトの情報を読み込み中",
+  "Cancelled before execution": "実行前に取り消されました",
+  "Responding": "回答中",
+  "Thinking": "思考中",
+  "Tool failed; reconsidering": "ツールが失敗しました。考え直しています",
+  "Tool finished": "ツールが終了しました",
+  "Agent stopped before this task completed; review before retrying.": "このタスクの完了前にエージェントが停止しました。再試行の前に確認してください。",
+  "Paused while Pi answers you": "Pi があなたに回答する間、一時停止中",
+  "Resumed": "再開しました",
+  "Preparing attachments…": "添付ファイルを準備中…",
+  "No projects": "プロジェクトはありません",
+  "No matching projects": "一致するプロジェクトはありません",
+  "Your projects will appear here.": "プロジェクトはここに表示されます。",
+  "folder missing": "フォルダが見つかりません",
+  "No folders here.": "ここにフォルダはありません。",
+  "Choose a folder": "フォルダを選択",
+  "Project name": "プロジェクト名",
+  "e.g. Japanese study app": "例：日本語学習アプリ",
+  "What are you making?": "何を作りますか？",
+  "Web app": "Web アプリ",
+  "Runs on this Mac while plh is open. For data several people share, logins, payments, or a paid AI key.": "plh が開いている間、この Mac で動きます。複数の人で共有するデータ、ログイン、支払い、有料の AI キーが必要なときに。",
+  "App with no server": "サーバーなしのアプリ",
+  "Runs in the browser and keeps its data on the device. Works offline; free to publish on GitHub Pages.": "ブラウザで動き、データは端末に保存されます。オフラインでも使え、GitHub Pages で無料で公開できます。",
+  "Empty folder": "空のフォルダ",
+  "Start from nothing.": "何もない状態から始めます。",
+  "Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server.": "迷ったら：複数の人が別々のときに同じデータを使う場合や、アプリに秘密の情報が必要な場合は「Web アプリ」を選んでください。それ以外は「サーバーなしのアプリ」です。",
+  "Parent": "親フォルダ",
+  "Folder path": "フォルダのパス",
+  "Go": "移動",
+  "Folders": "フォルダ",
+  "Use This Folder": "このフォルダを使う",
+  "Create": "作成",
+  "Move Here": "ここに移動",
+  "Make This Folder a Project": "このフォルダをプロジェクトにする",
+  "Registers the folder in place. Nothing is moved or created.": "フォルダをその場で登録します。何も移動・作成しません。",
+  "Try again when that request ends. Moving or trashing the folder now would pull it out from under Pi.": "その依頼が終わってからもう一度お試しください。いまフォルダを移動したりゴミ箱に入れたりすると、Pi が作業中のフォルダがなくなってしまいます。",
+  "Name": "名前",
+  "Rename": "名称変更",
+  "Remove": "削除",
+  "Move": "移動",
+  "The folder stays on your Mac with its files. Add it again with Add Existing Folder…; its chat and comments come back with it.": "フォルダはファイルとともに Mac に残ります。「既存のフォルダを追加…」でもう一度追加すると、チャットとコメントも戻ります。",
+  "Pi is answering about this project.": "Pi がこのプロジェクトについて回答中です。",
+  "The empty folder goes to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.": "空のフォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。",
+  "No plan yet": "まだ計画はありません",
+  "Plan": "計画",
+  "No matching files": "一致するファイルはありません",
+  "Create Roadmap": "ロードマップを作成",
+  "No roadmap or tasks in this folder.": "このフォルダにはロードマップもタスクもありません。",
+  "Adds ROADMAP.md and tasks/001-first-task.md. Nothing else changes.": "ROADMAP.md と tasks/001-first-task.md を追加します。ほかは何も変わりません。",
+  "No other files yet.": "ほかのファイルはまだありません。",
+  "File name": "ファイル名",
+  "Task name": "タスク名",
+  "Any name works; .md is added when there is no extension, and “specs/phone.md” creates the folder too.": "どんな名前でもかまいません。拡張子がなければ .md が付き、「specs/phone.md」のように書くとフォルダも作成されます。",
+  "Numbered after the last task and added to ROADMAP.md.": "最後のタスクの次の番号が付き、ROADMAP.md に追加されます。",
+  "Their comments go with them. You can restore them from the data folder’s .trash.": "コメントも一緒に移動します。データフォルダの .trash から復元できます。",
+  "Its comments go with it. You can restore it from the data folder’s .trash.": "コメントも一緒に移動します。データフォルダの .trash から復元できます。",
+  "Also read:": "ほかに読んだもの：",
+  "Pi sees: nothing from this project": "Pi が見るもの：このプロジェクトからはなし",
+  "Pi sees:": "Pi が見るもの：",
+  "Less": "少なく",
+  "Show fewer": "表示を減らす",
+  "(plan)": "（計画）",
+  "(this file)": "（このファイル）",
+  "Phone": "スマホ",
+  "Tablet": "タブレット",
+  "Full": "全幅",
+  "Size": "サイズ",
+  "App language": "アプリの言語",
+  "Page": "ページ",
+  "The app": "アプリ",
+  "Open in Browser": "ブラウザで開く",
+  "Close Preview": "プレビューを閉じる",
+  "Starting…": "起動中…",
+  "No app": "アプリなし",
+  "Phone · 390 wide": "スマホ · 幅 390",
+  "Tablet · 768 × 1024": "タブレット · 768 × 1024",
+  "The first start installs what the app needs: about 15 seconds. After that it starts in a moment.": "初回の起動では、アプリに必要なものをインストールします（約 15 秒）。2 回目からはすぐに起動します。",
+  "Starting the app…": "アプリを起動中…",
+  "The app stopped because of an error.": "エラーのためアプリが停止しました。",
+  "Pi is fixing this. The app starts again by itself when Pi finishes.": "Pi が修正中です。Pi が終わると、アプリは自動でもう一度起動します。",
+  "Start Again": "もう一度起動",
+  "Ask Pi to Fix": "Pi に修正を頼む",
+  "The app is stopped.": "アプリは停止しています。",
+  "Start runs it again.": "「起動」でもう一度動かせます。",
+  "This project has no app to show yet.": "このプロジェクトには、まだ表示するアプリがありません。",
+  "Ask Pi for one in the chat, for example “Make a notes app for my class, in Japanese and English.” It appears here as soon as it runs.": "チャットで Pi に頼んでください。たとえば「授業用のメモアプリを日本語と英語で作って」。動き始めるとすぐにここに表示されます。",
+  "a Python program": "Python のプログラム",
+  "a JavaScript project": "JavaScript のプロジェクト",
+  "a Rust program": "Rust のプログラム",
+  "a Go program": "Go のプログラム",
+  "What was done": "行ったこと",
+  "Undone": "取り消し済み",
+  "Redone": "やり直し済み",
+  "Not verified": "未検証",
+  "Show in Preview": "プレビューで表示",
+  "Undo This Request…": "この依頼を取り消す…",
+  "Redo Request…": "依頼をやり直す…",
+  "Undo Request": "依頼を取り消す",
+  "Redo Request": "依頼をやり直す",
+  "Pi did not try it after the last change.": "最後の変更のあと、Pi は試していません。",
+  "This change is no longer in the project’s history.": "この変更は、もうプロジェクトの履歴にありません。",
+  "Its changes come back as a new change. Requests after the undo stay.": "変更は新しい変更として戻ります。取り消しのあとの依頼はそのまま残ります。",
+  "Your app’s data is not touched, and requests after this one stay. Undo is saved as a new change, so nothing is lost: it can be redone.": "アプリのデータには触れません。この依頼のあとの依頼もそのまま残ります。取り消しは新しい変更として保存されるので、何も失われず、やり直すこともできます。",
+  "Save Them, Then Undo": "保存してから取り消す",
+  "Ask Pi Instead": "代わりに Pi に頼む",
+  "Pi can take that change out by hand.": "Pi なら、その変更を手作業で取り除けます。",
+  "1 file changes back": "1 ファイルが元に戻ります",
+  "A file has changes that are not saved as a request: made in Work, or in another editor. Undoing now would overwrite them. Nothing was changed.": "ファイルに、依頼として保存されていない変更があります（作業画面か別のエディタでの変更です）。いま取り消すと上書きされます。何も変更していません。",
+  "A folder cannot move inside itself": "フォルダを自分自身の中には移動できません",
+  "A project cannot move inside itself": "プロジェクトを自分自身の中には移動できません",
+  "Already switching models": "すでにモデルを切り替えています",
+  "Ask Pi to Retry is only for a request that stopped": "「Pi に再試行を頼む」は停止した依頼にだけ使えます",
+  "Attach at most eight files": "添付できるのは 8 ファイルまでです",
+  "Audio transcription returned no text": "文字起こしの結果が空でした",
+  "Binary file": "バイナリファイル",
+  "Chats belong to projects. Create or select a project first.": "チャットはプロジェクトに属します。先にプロジェクトを作成するか選んでください。",
+  "Choose Web app, App with no server or Empty folder": "「Web アプリ」「サーバーなしのアプリ」「空のフォルダ」のいずれかを選んでください",
+  "Choose a comment": "コメントを選んでください",
+  "Choose a document": "書類を選んでください",
+  "Choose an absolute folder path": "フォルダの絶対パスを選んでください",
+  "Choose an absolute parent folder": "親フォルダの絶対パスを選んでください",
+  "Choose an existing folder": "既存のフォルダを選んでください",
+  "Comment belongs to another project": "このコメントは別のプロジェクトのものです",
+  "Comment not found": "コメントが見つかりません",
+  "Comment record is outside the workspace": "コメントの記録が作業領域の外にあります",
+  "Comments directory is outside the workspace": "コメントのフォルダが作業領域の外にあります",
+  "Document belongs to another project": "この書類は別のプロジェクトのものです",
+  "Each attachment must be a file": "添付はそれぞれファイルにしてください",
+  "Each file must be at most 12 MiB": "各ファイルは 12 MiB 以下にしてください",
+  "File changed on disk; reload before saving.": "ディスク上のファイルが変更されました。保存する前に再読み込みしてください。",
+  "File is too large": "ファイルが大きすぎます",
+  "File not found": "ファイルが見つかりません",
+  "Folder not found": "フォルダが見つかりません",
+  "Give it a name inside the project folder": "プロジェクトのフォルダ内での名前を付けてください",
+  "Give the file a name inside the project folder": "プロジェクトのフォルダ内でのファイル名を付けてください",
+  "Give the project or page a name": "プロジェクトまたはページに名前を付けてください",
+  "Give the task a name": "タスクに名前を付けてください",
+  "Image content does not match its type": "画像の内容が種類と一致しません",
+  "Invalid Markdown page path": "Markdown ページのパスが正しくありません",
+  "Invalid attachment record": "添付の記録が正しくありません",
+  "Invalid conversation ID": "会話 ID が正しくありません",
+  "Invalid file name": "ファイル名が正しくありません",
+  "Invalid project": "プロジェクトが正しくありません",
+  "Invalid project file": "プロジェクトのファイルが正しくありません",
+  "Invalid project page": "プロジェクトのページが正しくありません",
+  "Invalid task ID": "タスク ID が正しくありません",
+  "Message is too large": "メッセージが大きすぎます",
+  "Message must be text": "メッセージはテキストにしてください",
+  "Not found": "見つかりません",
+  "One agent is already working in the terminal.": "ターミナルですでにエージェントが作業しています。",
+  "One agent is already working in the terminal. Wait for it, or stop it, before the workbench starts.": "ターミナルですでにエージェントが作業しています。終わるのを待つか停止してから、ワークベンチを起動してください。",
+  "Only one agent can run at a time. Wait for the current task or stop it.": "一度に動けるエージェントはひとつです。いまのタスクが終わるのを待つか、停止してください。",
+  "Only queued tasks can be cancelled here; use Stop for active work": "ここで取り消せるのは待ちのタスクだけです。進行中の作業には「停止」を使ってください",
+  "Page is outside the project folder": "ページがプロジェクトのフォルダの外にあります",
+  "Page must be at most 150,000 characters": "ページは 150,000 文字以下にしてください",
+  "Parent folder not found": "親フォルダが見つかりません",
+  "Pi completed without an assistant answer": "Pi は回答せずに終了しました",
+  "Pi is working on a comment or question in this file. Move or trash it when that request ends.": "Pi がこのファイルのコメントまたは質問に対応中です。その依頼が終わってから、移動するかゴミ箱に入れてください。",
+  "Pi is working. Switch models when the queue is empty.": "Pi が作業中です。キューが空になってからモデルを切り替えてください。",
+  "Pi sent nothing for 1 hour. Stopped; the work so far is in its record.": "Pi から 1 時間応答がありませんでした。停止しました。ここまでの作業は記録に残っています。",
+  "Project already exists; add its existing folder instead": "プロジェクトはすでにあります。代わりに既存のフォルダを追加してください",
+  "Project chats are retained with their project": "プロジェクトのチャットはプロジェクトとともに保持されます",
+  "Project is outside the workspace": "プロジェクトが作業領域の外にあります",
+  "Project not found": "プロジェクトが見つかりません",
+  "Queue is full": "キューがいっぱいです",
+  "Queue is shutting down": "キューを終了しています",
+  "Request exceeds 32 MiB": "依頼が 32 MiB を超えています",
+  "Request must be a JSON object": "依頼は JSON オブジェクトにしてください",
+  "Select an anchor from the current document before adding a text comment": "コメントを追加する前に、いまの書類で対象の部分を選んでください",
+  "Select an anchor of at most 2,000 characters": "選ぶ部分は 2,000 文字以下にしてください",
+  "Stop this conversation before deleting it": "削除する前に、この会話を停止してください",
+  "Task not found": "タスクが見つかりません",
+  "Text attachment is too long": "テキストの添付が長すぎます",
+  "Text files must be UTF-8": "テキストファイルは UTF-8 にしてください",
+  "That folder is already a project.": "そのフォルダはすでにプロジェクトです。",
+  "The comment is gone: its page was moved or deleted after it was sent.": "コメントがありません。送信後にページが移動または削除されました。",
+  "The commented page was moved or deleted while Pi worked; the answer is kept in Activity.": "Pi の作業中に、コメントしたページが移動または削除されました。回答はアクティビティに残っています。",
+  "The project folder is missing. Locate it first.": "プロジェクトのフォルダが見つかりません。先にフォルダを探してください。",
+  "The project folder is not missing. Use Move Project… instead.": "プロジェクトのフォルダは見つかっています。代わりに「プロジェクトを移動…」を使ってください。",
+  "The recording is empty": "録音が空です",
+  "The suggested passage is no longer in the page exactly once. Edit the page by hand.": "提案された部分が、ページの中でちょうど 1 か所ではなくなりました。ページを手で編集してください。",
+  "This anchor appears more than once. Select a longer, unique passage.": "この部分は複数か所にあります。もっと長く、ひとつに決まる部分を選んでください。",
+  "This chat has no project; choose a project first": "このチャットにはプロジェクトがありません。先にプロジェクトを選んでください",
+  "This comment has no suggested change": "このコメントには提案された変更がありません",
+  "This comment is already resolved": "このコメントはすでに解決済みです",
+  "This comment is deleted. Restore it first.": "このコメントは削除されています。先に復元してください。",
+  "This comment was sent to Pi and cannot be deleted. Resolve it instead.": "このコメントは Pi に送信済みのため削除できません。代わりに解決にしてください。",
+  "This conversation is already running": "この会話はすでに実行中です",
+  "This file is too large for the text viewer": "このファイルはテキストビューアには大きすぎます",
+  "This folder already has a ROADMAP.md": "このフォルダにはすでに ROADMAP.md があります",
+  "This folder holds the workbench data and cannot be trashed": "このフォルダにはワークベンチのデータがあるため、ゴミ箱に入れられません",
+  "This folder is not in a project": "このフォルダはプロジェクトに含まれていません",
+  "This is a binary file, not a text/code file": "これはテキスト／コードファイルではなく、バイナリファイルです",
+  "This page changed on disk. Reload before applying the change.": "このページはディスク上で変更されました。変更を適用する前に再読み込みしてください。",
+  "This page changed on disk. Reload or copy your draft before merging; your edit was not written.": "このページはディスク上で変更されました。統合する前に再読み込みするか、下書きをコピーしてください。あなたの編集は書き込まれていません。",
+  "This suggested change was already applied or kept": "この提案された変更は、すでに適用されたか見送られています",
+  "Transcription took longer than three minutes; the recording is attached instead.": "文字起こしに 3 分以上かかったため、代わりに録音を添付しました。",
+  "Trash directory is outside the workspace": "ゴミ箱のフォルダが作業領域の外にあります",
+  "Unknown action": "不明な操作です",
+  "Unknown document action": "書類に対する不明な操作です",
+  "Unknown preview action": "プレビューに対する不明な操作です",
+  "Unknown project command": "プロジェクトに対する不明なコマンドです",
+  "Unknown thinking level": "不明な思考レベルです",
+  "Unsupported binary attachment": "対応していないバイナリの添付です",
+  "Voice input must be audio": "音声入力は音声にしてください",
+  "Web chat is shutting down": "Web チャットを終了しています",
+  "Write a comment of at most 10,000 characters": "コメントは 10,000 文字以下で書いてください",
+  "Write a message or attach a file": "メッセージを書くか、ファイルを添付してください",
+  "Write a prompt or choose a comment": "プロンプトを書くか、コメントを選んでください",
+  "Write a reply of at most 10,000 characters": "返信は 10,000 文字以下で書いてください",
+  "not a request Pi Workbench committed": "Pi Workbench がコミットした依頼ではありません",
+  "1 check today": "今日 1 件のチェック"
+ },
+ "patterns": [
+  [
+   "Its {n} files and {m} folders go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルと {m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {n} file and {m} folders go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルと {m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {n} files and {m} folder go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルと {m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {n} file and {m} folder go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルと {m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {m} folders go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {m} folder go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {n} files go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Its {n} file go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
+   "{n} ファイルを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
+  ],
+  [
+   "Creates {where} from the no-server starter: a small notes app in English and Japanese, with tests, that runs from its files. Ask Pi to turn it into yours.",
+   "サーバーなしのひな形から {where} を作成します。英語と日本語の小さなメモアプリで、テスト付き、ファイルだけで動きます。Pi に頼んで、あなたのアプリに作り変えてください。"
+  ],
+  [
+   "{files} have changes that are not saved as a request: made in Work, or in another editor. Undoing now would overwrite them. Nothing was changed.",
+   "{files} に、依頼として保存されていない変更があります（作業画面か別のエディタでの変更です）。いま取り消すと上書きされます。何も変更していません。"
+  ],
+  [
+   "{files} has changes that are not saved as a request: made in Work, or in another editor. Undoing now would overwrite them. Nothing was changed.",
+   "{files} に、依頼として保存されていない変更があります（作業画面か別のエディタでの変更です）。いま取り消すと上書きされます。何も変更していません。"
+  ],
+  [
+   "Creates “{file}” in {project} and opens it. Any name works; .md is added when there is no extension, and “specs/phone.md” creates the folder too.",
+   "{project} に「{file}」を作成して開きます。どんな名前でもかまいません。拡張子がなければ .md が付き、「specs/phone.md」のように書くとフォルダも作成されます。"
+  ],
+  [
+   "Creates {where} from the web app starter: a small notes app in English and Japanese, with tests. Ask Pi to turn it into yours.",
+   "Web アプリのひな形から {where} を作成します。英語と日本語の小さなメモアプリで、テスト付きです。Pi に頼んで、あなたのアプリに作り変えてください。"
+  ],
+  [
+   "Save Them, Then Undo keeps those changes as their own entry (“Your edits · {time}”), then undoes the request.",
+   "「保存してから取り消す」は、それらの変更を別の記録（「Your edits · {time}」）として残してから、依頼を取り消します。"
+  ],
+  [
+   "Points the project at {base}. Chat, comments and Activity stay with it; nothing on disk changes.",
+   "プロジェクトの場所を {base} にします。チャット、コメント、アクティビティはそのまま残り、ディスク上では何も変わりません。"
+  ],
+  [
+   "Moves the folder “{old}” to “{new}”. Folders are created as needed. Their comments move with them.",
+   "フォルダ「{old}」を「{new}」に移動します。必要に応じてフォルダが作成されます。コメントも一緒に移動します。"
+  ],
+  [
+   "Undid “{name}”. {n} files changed back as a new change: nothing is lost, and Redo brings it back.",
+   "「{name}」を取り消しました。{n} ファイルを新しい変更として元に戻しました。何も失われず、やり直しで元に戻せます。"
+  ],
+  [
+   "{files} changed again after it, in “{later}” ({time}), so going back would mix the two. Nothing was changed.",
+   "{files} はそのあと「{later}」（{time}）でまた変更されたため、元に戻すと 2 つが混ざってしまいます。何も変更していません。"
+  ],
+  [
+   "Undid “{name}”. {n} file changed back as a new change: nothing is lost, and Redo brings it back.",
+   "「{name}」を取り消しました。{n} ファイルを新しい変更として元に戻しました。何も失われず、やり直しで元に戻せます。"
+  ],
+  [
+   "Creates the folder {where} with ROADMAP.md and tasks/001-first-task.md, then opens its Chat.",
+   "ROADMAP.md と tasks/001-first-task.md を入れたフォルダ {where} を作成し、そのチャットを開きます。"
+  ],
+  [
+   "Renames the folder “{name}” to “{typed}” in {parent}. Chat, comments and Activity stay with the project.",
+   "{parent} 内のフォルダ「{name}」の名前を「{typed}」に変更します。チャット、コメント、アクティビティはプロジェクトとともに残ります。"
+  ],
+  [
+   "The folder {path} is missing. The chat is kept; Pi cannot work here until you locate it.",
+   "フォルダ {path} が見つかりません。チャットは残っています。フォルダを探すまで、Pi はここで作業できません。"
+  ],
+  [
+   "Moves the file “{old}” to “{new}”. Folders are created as needed. Its comments move with it.",
+   "ファイル「{old}」を「{new}」に移動します。必要に応じてフォルダが作成されます。コメントも一緒に移動します。"
+  ],
+  [
+   "{files} changed again after it, so going back would mix the two. Nothing was changed.",
+   "{files} はそのあとまた変更されたため、元に戻すと 2 つが混ざってしまいます。何も変更していません。"
+  ],
+  [
+   "{missing} is no longer installed in Ollama. Pi uses {model} until you choose another model.",
+   "{missing} は Ollama にインストールされていません。別のモデルを選ぶまで、Pi は {model} を使います。"
+  ],
+  [
+   "{commit} is not a request Pi Workbench committed: only those can be undone here",
+   "{commit} は Pi Workbench がコミットした依頼ではありません。ここで取り消せるのはそれだけです"
+  ],
+  [
+   "“{name}” would make {size} MiB in total. Limit: {limit} MiB per file and 20 MiB in total.",
+   "「{name}」を加えると合計 {size} MiB になります。上限は 1 ファイル {limit} MiB、合計 20 MiB です。"
+  ],
+  [
+   "{path} is missing. Open it to locate the folder or remove it from the list.",
+   "{path} が見つかりません。開いてフォルダを探すか、リストから削除してください。"
+  ],
+  [
+   "Unsupported file type: {name}. Use images, audio, or UTF-8 text/code files.",
+   "対応していないファイルの種類です：{name}。画像、音声、UTF-8 のテキスト／コードファイルを使ってください。"
+  ],
+  [
+   "it is {kind}, so there is no page to show here. Its tests run in Activity.",
+   "{kind}なので、ここに表示するページはありません。テストはアクティビティで実行されます。"
+  ],
+  [
+   "Moves “{name}” into {base}. Chat, comments and Activity stay with the project.",
+   "「{name}」を {base} に移動します。チャット、コメント、アクティビティはプロジェクトとともに残ります。"
+  ],
+  [
+   "Queues the request again in {project}. The failed run stays in its record.",
+   "{project} のキューに依頼をもう一度追加します。失敗した実行は記録に残ります。"
+  ],
+  [
+   "Pi sent nothing for {time}. Stopped; the work so far is in its record.",
+   "Pi から {time}応答がありませんでした。停止しました。ここまでの作業は記録に残っています。"
+  ],
+  [
+   "Creates “tasks/{file}.md” in {project}, adds it to ROADMAP.md, and opens it.",
+   "{project} に「tasks/{file}.md」を作成し、ROADMAP.md に追加して開きます。"
+  ],
+  [
+   "{model} does not think. Choose a model that thinks to set a level.",
+   "{model} は思考しません。レベルを設定するには、思考するモデルを選んでください。"
+  ],
+  [
+   "Type a new name, or a path such as archive/{name} to move it.",
+   "新しい名前を入力してください。archive/{name} のようにパスを書くと移動します。"
+  ],
+  [
+   "“{name}” is {size} MiB. Limit: {limit} MiB per file and 20 MiB in total.",
+   "「{name}」は {size} MiB です。上限は 1 ファイル {limit} MiB、合計 20 MiB です。"
+  ],
+  [
+   "The folder is no longer at {path}. Choose where it is now.",
+   "フォルダはもう {path} にありません。いまある場所を選んでください。"
+  ],
+  [
+   "The Finder could not move the folder to the Trash: {error}",
+   "Finder がフォルダをゴミ箱に入れられませんでした：{error}"
+  ],
+  [
+   "{model} is ready. Ollama keeps only this model in memory.",
+   "{model} の準備ができました。Ollama はこのモデルだけをメモリに置いています。"
+  ],
+  [
+   "Pi can take that change out and keep what “{later}” did.",
+   "Pi なら、その変更を取り除き、「{later}」で行ったことは残せます。"
+  ],
+  [
+   "{n} need attention: {a} failed, {b} interrupted, {c} stopped",
+   "要確認 {n} 件：失敗 {a} 件、中断 {b} 件、停止 {c} 件"
+  ],
+  [
+   "Move the folder “{name}” and its 1 file to the Trash?",
+   "フォルダ「{name}」と、その中の 1 ファイルをゴミ箱に入れますか？"
+  ],
+  [
+   "Move the folder “{name}” and its {n} files to the Trash?",
+   "フォルダ「{name}」と、その中の {n} ファイルをゴミ箱に入れますか？"
+  ],
+  [
+   "“{model}” cannot use tools, so Pi cannot work with it",
+   "「{model}」はツールを使えないため、Pi はこのモデルでは作業できません"
+  ],
+  [
+   "Nothing running or waiting · {c} needs attention",
+   "実行中・待機中のものはありません · 要確認 {c} 件"
+  ],
+  [
+   "Nothing running or waiting · {c} need attention",
+   "実行中・待機中のものはありません · 要確認 {c} 件"
+  ],
+  [
+   "{total} matches for “{query}” in both groups. Esc clears.",
+   "両方のグループで「{query}」に一致：{total} 件。Esc で消去します。"
+  ],
+  [
+   "Pi answered · {time} · can no longer be deleted",
+   "Pi が回答しました · {time} · 削除できなくなりました"
+  ],
+  [
+   "{total} match for “{query}” in both groups. Esc clears.",
+   "両方のグループで「{query}」に一致：{total} 件。Esc で消去します。"
+  ],
+  [
+   "Tailscale could not start phone access: {error}",
+   "Tailscale がスマホからのアクセスを開始できませんでした：{error}"
+  ],
+  [
+   "{n} need attention: {a} interrupted, {b} stopped",
+   "要確認 {n} 件：中断 {a} 件、停止 {b} 件"
+  ],
+  [
+   "{a} running · {b} waiting · {c} needs attention",
+   "実行中 {a} 件 · 待機中 {b} 件 · 要確認 {c} 件"
+  ],
+  [
+   "{n} need attention: {a} failed, {b} interrupted",
+   "要確認 {n} 件：失敗 {a} 件、中断 {b} 件"
+  ],
+  [
+   "{a} running · {b} waiting · {c} need attention",
+   "実行中 {a} 件 · 待機中 {b} 件 · 要確認 {c} 件"
+  ],
+  [
+   "A folder named “{name}” already exists in {parent}.",
+   "{parent} には「{name}」という名前のフォルダがすでにあります。"
+  ],
+  [
+   "{error} The recording is attached instead.",
+   "{error} 代わりに録音を添付しました。"
+  ],
+  [
+   "Could not save the request record: {error}",
+   "依頼の記録を保存できませんでした：{error}"
+  ],
+  [
+   "{n} need attention: {a} failed, {b} stopped",
+   "要確認 {n} 件：失敗 {a} 件、停止 {b} 件"
+  ],
+  [
+   "{model} does not think before answering",
+   "{model} は回答の前に思考しません"
+  ],
+  [
+   "Tablet · 768 × 1024 · shown at {p}%",
+   "タブレット · 768 × 1024 · {p}% で表示"
+  ],
+  [
+   "{a} open tasks · {b} folders · {c} files",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "No plan yet · {b} folders · {c} files",
+   "まだ計画はありません · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "{parent} already has a folder named “{name}”.",
+   "{parent} には「{name}」という名前のフォルダがすでにあります。"
+  ],
+  [
+   "Interrupted · {n} needs attention",
+   "中断 · 要確認 {n} 件"
+  ],
+  [
+   "{n} needs attention: {a} interrupted",
+   "要確認 {n} 件：中断 {a} 件"
+  ],
+  [
+   "{a} open task · {b} folders · {c} files",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "{a} open tasks · {b} folder · {c} files",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "{a} open tasks · {b} folders · {c} file",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "No plan yet · {b} folder · {c} files",
+   "まだ計画はありません · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "No plan yet · {b} folders · {c} file",
+   "まだ計画はありません · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "Undo changed {n} files. Reloaded.",
+   "取り消しで {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "Redo changed {n} files. Reloaded.",
+   "やり直しで {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "Interrupted · {n} need attention",
+   "中断 · 要確認 {n} 件"
+  ],
+  [
+   "Agent status: {status}. Open Activity",
+   "エージェントの状態：{status}。アクティビティを開く"
+  ],
+  [
+   "{n} need attention: {a} interrupted",
+   "要確認 {n} 件：中断 {a} 件"
+  ],
+  [
+   "{a} open task · {b} folder · {c} files",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "{a} open task · {b} folders · {c} file",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "{a} open tasks · {b} folder · {c} file",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "No plan yet · {b} folder · {c} file",
+   "まだ計画はありません · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "Undo changed {n} file. Reloaded.",
+   "取り消しで {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "Redo changed {n} file. Reloaded.",
+   "やり直しで {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "“{name}” can’t be undone by itself.",
+   "「{name}」だけを取り消すことはできません。"
+  ],
+  [
+   "“{model}” is not installed in Ollama",
+   "「{model}」は Ollama にインストールされていません"
+  ],
+  [
+   "Completed · {n} needs attention",
+   "完了 · 要確認 {n} 件"
+  ],
+  [
+   "Cancelled · {n} needs attention",
+   "取り消し · 要確認 {n} 件"
+  ],
+  [
+   "{a} open task · {b} folder · {c} file",
+   "未完了のタスク {a} 件 · {b} フォルダ · {c} ファイル"
+  ],
+  [
+   "Pi changed {n} files. Reloaded.",
+   "Pi が {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "Audio transcription failed: {error}",
+   "文字起こしに失敗しました：{error}"
+  ],
+  [
+   "Next: {n} requests waiting in {project}",
+   "次：{project} で {n} 件の依頼が待機中"
+  ],
+  [
+   "Completed · {n} need attention",
+   "完了 · 要確認 {n} 件"
+  ],
+  [
+   "Cancelled · {n} need attention",
+   "取り消し · 要確認 {n} 件"
+  ],
+  [
+   "Send {n} Unsent Comments to Pi",
+   "未送信のコメント {n} 件を Pi に送信"
+  ],
+  [
+   "{a} running · {c} needs attention",
+   "実行中 {a} 件 · 要確認 {c} 件"
+  ],
+  [
+   "{b} waiting · {c} needs attention",
+   "待機中 {b} 件 · 要確認 {c} 件"
+  ],
+  [
+   "Pi changed {n} file. Reloaded.",
+   "Pi が {n} ファイルを変更しました。再読み込みしました。"
+  ],
+  [
+   "Next: {n} request waiting in {project}",
+   "次：{project} で {n} 件の依頼が待機中"
+  ],
+  [
+   "Running · {n} needs attention",
+   "実行中 · 要確認 {n} 件"
+  ],
+  [
+   "Waiting · {n} needs attention",
+   "待機中 · 要確認 {n} 件"
+  ],
+  [
+   "Stopped · {n} needs attention",
+   "停止 · 要確認 {n} 件"
+  ],
+  [
+   "Send {n} Unsent Comment to Pi",
+   "未送信のコメント {n} 件を Pi に送信"
+  ],
+  [
+   "{a} running · {c} need attention",
+   "実行中 {a} 件 · 要確認 {c} 件"
+  ],
+  [
+   "{b} waiting · {c} need attention",
+   "待機中 {b} 件 · 要確認 {c} 件"
+  ],
+  [
+   "{n} needs attention: {a} stopped",
+   "要確認 {n} 件：停止 {a} 件"
+  ],
+  [
+   "Running · {n} need attention",
+   "実行中 · 要確認 {n} 件"
+  ],
+  [
+   "Waiting · {n} need attention",
+   "待機中 · 要確認 {n} 件"
+  ],
+  [
+   "Failed · {n} needs attention",
+   "失敗 · 要確認 {n} 件"
+  ],
+  [
+   "Stopped · {n} need attention",
+   "停止 · 要確認 {n} 件"
+  ],
+  [
+   "Chat · {project}, your message at {time}",
+   "チャット · {project}、{time} のあなたのメッセージ"
+  ],
+  [
+   "{n} needs attention: {a} failed",
+   "要確認 {n} 件：失敗 {a} 件"
+  ],
+  [
+   "{n} need attention: {a} stopped",
+   "要確認 {n} 件：停止 {a} 件"
+  ],
+  [
+   "Removed “{name}” from the list.",
+   "「{name}」をリストから削除しました。"
+  ],
+  [
+   "Malformed request field: {error}",
+   "依頼の項目の形式が正しくありません：{error}"
+  ],
+  [
+   "Ollama is not reachable: {error}",
+   "Ollama に接続できません：{error}"
+  ],
+  [
+   "Failed · {n} need attention",
+   "失敗 · 要確認 {n} 件"
+  ],
+  [
+   "{n} need attention: {a} failed",
+   "要確認 {n} 件：失敗 {a} 件"
+  ],
+  [
+   "Remove “{name}” from the list?",
+   "「{name}」をリストから削除しますか？"
+  ],
+  [
+   "{time} · the app’s last lines:",
+   "{time} · アプリの最後の行："
+  ],
+  [
+   "· {n} files · {time} · undone at {at}",
+   "· {n} ファイル · {time} · {at} に取り消し"
+  ],
+  [
+   "· {n} files · {time} · redone at {at}",
+   "· {n} ファイル · {time} · {at} にやり直し"
+  ],
+  [
+   "Pi exited unexpectedly: {error}",
+   "Pi が予期せず終了しました：{error}"
+  ],
+  [
+   "Ollama did not answer: {error}",
+   "Ollama が応答しませんでした：{error}"
+  ],
+  [
+   "{n} files · {size} MiB of 20 MiB",
+   "{n} ファイル · {size} MiB / 20 MiB"
+  ],
+  [
+   "Whole-file question on {file}",
+   "{file} 全体についての質問"
+  ],
+  [
+   "· {n} file · {time} · undone at {at}",
+   "· {n} ファイル · {time} · {at} に取り消し"
+  ],
+  [
+   "· {n} file · {time} · redone at {at}",
+   "· {n} ファイル · {time} · {at} にやり直し"
+  ],
+  [
+   "“{name}” can’t be undone yet.",
+   "「{name}」はまだ取り消せません。"
+  ],
+  [
+   "{n} file · {size} MiB of 20 MiB",
+   "{n} ファイル · {size} MiB / 20 MiB"
+  ],
+  [
+   "{project} · send to agent queue",
+   "{project} · エージェントのキューに送ります"
+  ],
+  [
+   "Pi could not answer · {status}",
+   "Pi は回答できませんでした · {status}"
+  ],
+  [
+   "Drop to attach {n} files",
+   "ドロップして {n} ファイルを添付"
+  ],
+  [
+   "Move “{name}” to the Trash?",
+   "「{name}」をゴミ箱に入れますか？"
+  ],
+  [
+   "“{name}” is already undone.",
+   "「{name}」はすでに取り消されています。"
+  ],
+  [
+   "Drop to attach {n} file",
+   "ドロップして {n} ファイルを添付"
+  ],
+  [
+   "{a} approved · {b} blocked",
+   "許可 {a} 件 · ブロック {b} 件"
+  ],
+  [
+   "Reload “{name}” from disk?",
+   "「{name}」をディスクから再読み込みしますか？"
+  ],
+  [
+   "New name or path in {project}",
+   "{project} 内での新しい名前またはパス"
+  ],
+  [
+   "{a} running · {b} waiting",
+   "実行中 {a} 件 · 待機中 {b} 件"
+  ],
+  [
+   "“{name}” is in the Trash.",
+   "「{name}」をゴミ箱に入れました。"
+  ],
+  [
+   "Working · {n} waiting",
+   "作業中 · 待機中 {n} 件"
+  ],
+  [
+   "1 check · {m} blocked",
+   "1 件のチェック · ブロック {m} 件"
+  ],
+  [
+   "{n} checks · {m} blocked",
+   "{n} 件のチェック · ブロック {m} 件"
+  ],
+  [
+   "{name} is not a web app.",
+   "{name} は Web アプリではありません。"
+  ],
+  [
+   "{n} files change back",
+   "{n} ファイルが元に戻ります"
+  ],
+  [
+   "Internal error: {type}: {error}",
+   "内部エラー：{type}：{error}"
+  ],
+  [
+   "Queued again in {project}.",
+   "{project} のキューにもう一度追加しました。"
+  ],
+  [
+   "“{name}” already exists",
+   "「{name}」はすでにあります"
+  ],
+  [
+   "Thinking level: {level}",
+   "思考レベル：{level}"
+  ],
+  [
+   "{n} needs attention",
+   "要確認 {n} 件"
+  ],
+  [
+   "Internal error: {type}",
+   "内部エラー：{type}"
+  ],
+  [
+   "{n} need attention",
+   "要確認 {n} 件"
+  ],
+  [
+   "Interrupted in {project}",
+   "{project} で中断"
+  ],
+  [
+   "Renamed to “{name}”.",
+   "「{name}」に名称変更しました。"
+  ],
+  [
+   "Live · Gate :{port}",
+   "ライブ · Gate :{port}"
+  ],
+  [
+   "{n} checks today",
+   "今日 {n} 件のチェック"
+  ],
+  [
+   "Completed in {project}",
+   "{project} で完了"
+  ],
+  [
+   "Cancelled in {project}",
+   "{project} で取り消し"
+  ],
+  [
+   "Cannot read {name}",
+   "{name} を読み込めません"
+  ],
+  [
+   "Recording · {time}",
+   "録音中 · {time}"
+  ],
+  [
+   "Comment {n} of {total}",
+   "コメント {n} / {total}"
+  ],
+  [
+   "Moved to “{path}”.",
+   "「{path}」に移動しました。"
+  ],
+  [
+   "Full · {w} wide",
+   "全幅 · 幅 {w}"
+  ],
+  [
+   "{from} · request {time}",
+   "{from} · 依頼 {time}"
+  ],
+  [
+   "Running in {project}",
+   "{project} で実行中"
+  ],
+  [
+   "Waiting in {project}",
+   "{project} で待機中"
+  ],
+  [
+   "Stopped in {project}",
+   "{project} で停止"
+  ],
+  [
+   "Comment on {file}",
+   "{file} へのコメント"
+  ],
+  [
+   "· {n} files · {time}",
+   "· {n} ファイル · {time}"
+  ],
+  [
+   "Attention {n}",
+   "要確認 {n}"
+  ],
+  [
+   "Failed in {project}",
+   "{project} で失敗"
+  ],
+  [
+   "Comment · {name}",
+   "コメント · {name}"
+  ],
+  [
+   "Moved to {path}.",
+   "{path} に移動しました。"
+  ],
+  [
+   "Show {n} more",
+   "さらに {n} 件を表示"
+  ],
+  [
+   "Preview · {project}",
+   "プレビュー · {project}"
+  ],
+  [
+   "· {n} file · {time}",
+   "· {n} ファイル · {time}"
+  ],
+  [
+   "Loading {model}…",
+   "{model} を読み込み中…"
+  ],
+  [
+   "Resolved {n}",
+   "解決済み {n}"
+  ],
+  [
+   "{n} projects",
+   "{n} 件のプロジェクト"
+  ],
+  [
+   "More for {project}",
+   "{project} のその他の操作"
+  ],
+  [
+   "Locate “{name}”",
+   "「{name}」を探す"
+  ],
+  [
+   "Back to {project}",
+   "{project} に戻る"
+  ],
+  [
+   "request {time}",
+   "依頼 {time}"
+  ],
+  [
+   "{n} running",
+   "実行中 {n} 件"
+  ],
+  [
+   "{n} waiting",
+   "待機中 {n} 件"
+  ],
+  [
+   "{n} blocked",
+   "ブロック {n} 件"
+  ],
+  [
+   "Deleted {n}",
+   "削除済み {n}"
+  ],
+  [
+   "Comment {n}",
+   "コメント {n}"
+  ],
+  [
+   "{n} project",
+   "{n} 件のプロジェクト"
+  ],
+  [
+   "Files · {n}",
+   "ファイル · {n}"
+  ],
+  [
+   "Redo “{name}”?",
+   "「{name}」をやり直しますか？"
+  ],
+  [
+   "Undo “{name}”?",
+   "「{name}」を取り消しますか？"
+  ],
+  [
+   "Model: {model}",
+   "モデル：{model}"
+  ],
+  [
+   "Remove {name}",
+   "{name} を削除"
+  ],
+  [
+   "Using {tool}…",
+   "{tool} を使用中…"
+  ],
+  [
+   "{n} checks",
+   "{n} 件のチェック"
+  ],
+  [
+   "Active {n}",
+   "進行中 {n}"
+  ],
+  [
+   "queued {time}",
+   "待ち {time}"
+  ],
+  [
+   "Move “{name}”",
+   "「{name}」を移動"
+  ],
+  [
+   "Plan · {n}",
+   "計画 · {n}"
+  ],
+  [
+   "Using {tool}",
+   "{tool} を使用中"
+  ],
+  [
+   "{n} tasks",
+   "{n} 件のタスク"
+  ],
+  [
+   "{n} lines",
+   "{n} 行"
+  ],
+  [
+   "Open {n}",
+   "未解決 {n}"
+  ],
+  [
+   "{n} open",
+   "未完了 {n}"
+  ],
+  [
+   "{n} task",
+   "{n} 件のタスク"
+  ],
+  [
+   "{n} line",
+   "{n} 行"
+  ],
+  [
+   "{n} open tasks",
+   "未完了のタスク {n} 件"
+  ],
+  [
+   "{n} open task",
+   "未完了のタスク {n} 件"
+  ]
+ ]
+}

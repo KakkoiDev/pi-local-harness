@@ -49,7 +49,7 @@ export function fixMessage(error) {
 export function installPreview({ api, project, send, showView, view, working, onLayout }) {
   const body = $('preview-body'), beside = $('preview'), slot = $('preview-view');
   let status = { state: 'none' }, shown = false, timer = 0, lastNote = '', fixing = false, mode = 'beside', loadedSrc = '';
-  const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: 'en', path: '/' });
+  const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: document.documentElement.lang === 'ja' ? 'ja' : 'en', path: '/' });  // the app starts in the workbench's language
   const save = change => writeState('preview.' + (project()?.id || ''), { ...settings(), ...change });
 
   // Its parts, built once (the card's markup).

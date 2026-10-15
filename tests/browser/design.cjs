@@ -323,6 +323,15 @@ const readline = require('node:readline');
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
   await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.body.dataset.view==='activity');
   assert.equal(await page.evaluate(()=>getComputedStyle(document.getElementById('preview')).display),'none','round 7: the Preview is a project window; Activity and Gate are app windows');
+  // Plan 198, the workbench in Japanese: Settings → Language; the interface is translated, names and content are not, and English comes back.
+  await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('ja'));});await page.goto(`${base}/p/${id}/chat`);
+  await page.waitForFunction(()=>document.querySelector('#menubar [aria-controls="menu-file"]')?.textContent==='ファイル');
+  assert.equal(await page.locator('#chat-tab').evaluate(tab=>tab.childNodes[0].nodeValue),'チャット');
+  assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'何でも聞いてください。ファイルをここにドロップすることもできます');
+  assert.equal(await page.evaluate(()=>document.documentElement.lang),'ja');
+  await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('en'));});await page.goto(`${base}/p/${id}/chat`);
+  await page.waitForFunction(()=>document.querySelector('#menubar [aria-controls="menu-file"]')?.textContent==='File');
+  await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.body.dataset.view==='activity');/* back where the next check starts */
   assert.equal(await page.evaluate(()=>document.body.dataset.level),'projects','app windows show the Projects home');
   await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();
   await page.waitForURL(`${base}/p/${id}/chat`);
