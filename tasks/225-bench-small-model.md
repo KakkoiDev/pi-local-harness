@@ -9,7 +9,8 @@ Gemma 4 has no plain 4b in Ollama; the 4-billion one is e4b. Chosen: `gemma4:e4b
 the 26b and 27b runs, so only the size changes). Run after the qwen3.8:27b bench (task 197) finishes: Ollama keeps one
 model in memory.
 
-- [ ] Download `gemma4:e4b-mlx` (approved: "gemma4:e4b-mlx (Recommended)") and check that Ollama reports tools.
+- [x] Download `gemma4:e4b-mlx` (approved: "gemma4:e4b-mlx (Recommended)") and check that Ollama reports tools: it does
+  (completion, vision, audio, tools, thinking). Its thinking is only on or off (levels: false, true), so any effort turns it on.
 - [ ] Every scenario, everyday prompts, with the harness: `python3 -m bench run --prompt everyday --model gemma4:e4b-mlx`.
 - [ ] The same, bare: `--bare`.
 - [ ] Compare with qwen3.8:27b-mlx and gemma4:26b-mlx: solved, first try, verified, wake-ups, refusals; what the harness
