@@ -257,3 +257,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [214-Pi's browser prefers Chromium's headless shell](tasks/214-browser-prefers-headless-shell.md)
 - [ ] [215-The workbench in Japanese: Settings → Language](tasks/215-the-workbench-in-japanese.md)
 - [ ] [210-The Preview on the phone, and Open on Phone…](tasks/210-preview-on-the-phone.md)
+- [ ] [216-The phone does everything the desktop does (round 8 brief)](tasks/216-phone-parity.md)
