@@ -16,6 +16,18 @@ Someone who has never used AI to build software and does not read code. They ask
 - New projects are made from **the starter** (task 200): a web app with a known run command (`uv run uvicorn app.main:app --reload`), English and Japanese, installable on a phone (PWA).
 - The harness already drives a headless browser for Pi (task 188). That is Pi's eyes; this brief is the person's.
 
+## Already built behind it (no UI yet)
+
+- **The app runs under the harness** (task 202): states `none` · `starting` · `running` · `stopped` (with the app's last 8 lines). A web app starts in about 1.5 s once installed, 12 s the very first time. The styles rebuild as templates change.
+- **Undo This Request** (task 203), with these messages today:
+  - "Undone: “Fix the total (task 001)”. 2 files changed back, as a new commit (nothing is lost: it can be redone)."
+  - "Not undone: app.py changed again after “Fix the total (task 001)”, so going back would mix the two. Nothing was changed. Ask Pi to take that change out by hand."
+  - "Not undone: app.py has changes that are not saved in a commit. Undoing would overwrite them. Keep or discard those changes first."
+  - "“Fix the total (task 001)” is already undone."
+  - The preview of an undo lists each file with lines added and removed.
+- **Pi checks the same app** with its browser (task 204), so what Pi tested is what the Preview shows.
+- **Both starters exist** (tasks 200, 205): Web app and App with no server.
+
 ## What to draw
 
 1. **The Preview.** The project's app, live, inside the workbench. A third view (Chat · Work · **Preview**, ⌘3)? Or a window beside the chat, so the person can talk and look at once (proposed: beside the chat on a wide screen, a view on a narrow one). Its bar:
@@ -30,6 +42,13 @@ Someone who has never used AI to build software and does not read code. They ask
    - Stopped by an error: the app's last error line, in monospace, and **Ask Pi to Fix** (sends the error with a short note into the chat), **Start Again**.
 3. **What was done, in plain words**, under each finished answer in the chat: two or three lines Pi writes for someone who does not read code ("Added a Delete button to each note. It asks first. Tried it: deleting one note keeps the others."), then **Show in Preview** and **Undo This Request…** (the request is a commit; undo makes a new commit that reverses it; an alert says what will change back, Cancel default).
 4. **A lesson line**, at most one per answer, when the person meets an idea for the first time (from KakkoiSchool, in their language): "First commit in this project. New to git? **T19 Git Basics**, 10 min." Quiet, dismissable, "Don't show lessons" in Settings.
+
+5. **New Project… gets a kind.** Today New Project… makes an empty folder. Two kinds of app now exist, each a working starter (a small notes app in English and Japanese, with tests):
+   - **Web app**: the app runs on the person's computer (or a host later); data in one database; for anything several people share, or anything with a secret (logins, payments, a paid AI key).
+   - **App with no server**: everything runs in the browser; data stays on the device (a backup is a file); works offline; free on GitHub Pages; people can still share live through p2p-core. For personal tools, flashcards, trackers, games.
+   - **Empty folder**: as today.
+
+   The choice is made by one question, which the dialog can ask in plain words: "Will several people need the same data when they are not online together, or does the app need a secret?" Yes → Web app, No → App with no server. Proposed: three choices, each with a one-line description; the question as help under them; Web app the default.
 
 ## Questions
 
