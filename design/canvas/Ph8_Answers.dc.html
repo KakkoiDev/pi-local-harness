@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Answers to round 8’s questions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 720px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; color: #000"><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">1 · The π sheet</h2><p style="margin: 0"><b>Commands next to what they act on.</b> π keeps the app-wide ones: projects (each with its ⋯), Agent, Model, New Project… / Add Existing Folder…, Settings…, About.</p><p style="margin: 0">The <b>view menu</b> (Chat ▾) switches views and then holds that view’s commands: Chat’s Compact Now, New Conversation…, Earlier Conversations; Preview’s app language. <b>⋯</b> holds the commands of the thing on screen: file, folder, project.</p><p style="margin: 0">The PhoneBar card’s “every menu command” becomes this three-place rule.</p></section><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">2–3 · Model, files, folders</h2><p style="margin: 0">Build Ph_Model and Ph_ModelList as drawn, with the four thinking levels (Ph8_Thinking). When the chosen model is gone, an alert line in Chat with <b>Choose Model…</b> (Ph8_ModelGone).</p><p style="margin: 0">Build Ph_FileMore and Ph_FolderMore. A folder opens as a level with its own ⋯; no inline expand on the phone. The ⋯ sheet’s title is the file’s path, which answers “paths are visible nowhere”.</p></section><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">4–5 · Review and Ask</h2><p style="margin: 0"><b>Comments is always in the document bar</b>, with the open count when there is one. With none open, the sheet says so, keeps Resolved and Deleted one tap away, and holds Ask Pi About This File… (Ph8_CommentsNone).</p><p style="margin: 0"><b>Ask Pi… has its own sheet</b> for a selection, a block and the whole file; only the quote line differs. The answer goes to Review beside the passage, as on the desktop; nothing becomes a comment.</p></section><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">6–7 · Source, Preview, Reload</h2><p style="margin: 0"><b>View as Markdown</b> in the file ⋯: the whole file as source, full screen, Done to go back. Not desktop-only: front matter and broken tables need it.</p><p style="margin: 0"><b>Stop / Start in the Preview foot</b>, beside the state, as on the desktop; the app’s language moves to Preview’s view menu.</p><p style="margin: 0"><b>Reload from Disk</b> in the file ⋯.</p></section><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">8–10 · Landing, status, New Project</h2><p style="margin: 0"><b>Land on the detail.</b> Show in Activity and Show in Gate open that request or event; the status button opens the detail when one thing needs attention, the filtered list when several. Back goes to the list.</p><p style="margin: 0"><b>Status on a document:</b> keep the phone bar while reading (it hides on scroll down, returns on scroll up); only the document bar while editing. Chat is two taps from any document.</p><p style="margin: 0"><b>New Project:</b> “Create in ~/code ›” as one row; the folder browser is its own full-height step (Ph8_ChooseFolder), also used by Add Existing Folder.</p></section><section class="pw-window" style="flex: 1; min-width: 400px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">11–12 · Details, Files bar</h2><p style="margin: 0">Yes to all: 44 px for every listed control with the label inside the hit area; no ⌘ hints on the phone; the toast sits above the edit bar and the keyboard; Settings hides Desktop pattern and “Return sends” and says they are Mac settings.</p><p style="margin: 0"><b>Ph_Files</b>, without “‹ Projects”: on the phone π is the projects list; two ways out of a project would disagree. Ph_FilesNew is corrected.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 720}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

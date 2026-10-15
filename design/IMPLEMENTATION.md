@@ -542,3 +542,20 @@ New boards: [P_UndoUnsaved], [P_NewProject], [P_NewProjectStatic]; redrawn: [P_S
     - already undone → never shown in the web (Undo disabled on an undone row); keep it for the terminal.
     - Undone result as the undo's row text: “Undid “<request>”. 2 files changed back as a new change: nothing is lost, and Redo brings it back.” In the web, drop “(task 001)” from the request name (Activity shows the task).
 13. **New Project…** (tasks 200, 205): kind radios Web app (default) · App with no server · Empty folder, the deciding question as help, and a line that says what gets made. Add `.pw-radio` / `.pw-choice` (bundle.css) and use them in Settings → Appearance too.
+
+## 2026-10-15 · Round 8: the phone does everything the desktop does
+
+Boards: canvas page **Phone parity** — [Ph8_Answers], [Ph8_Map] (every desktop command, where it lives on the phone, taps), [Ph8_Pi], [Ph8_Thinking], [Ph8_ModelGone], [Ph8_ChatMenu], [Ph8_PreviewMenu], [Ph8_Preview], [Ph8_Doc], [Ph8_DocMore], [Ph8_Source], [Ph8_CommentsNone], [Ph8_Ask], [Ph8_AskFile], [Ph8_Folder], [Ph8_NewProject], [Ph8_ChooseFolder], [Ph8_Toast], [Ph8_Settings], [Ph8_Details]. Card: PhoneBar (rewritten).
+
+1. **Three places for commands**: π = app-wide; the view menu = switch view + that view's commands; ⋯ = the thing on screen. Replaces “the π sheet holds every menu command”.
+2. **Model**: build Ph_Model / Ph_ModelList; Thinking lists the four levels. If the chosen model is not installed, Chat shows one alert line “<model> is not installed any more.” with **Choose Model…**, and the unsent message is kept.
+3. **Files**: build Ph_FileMore / Ph_FolderMore; on the phone a folder opens as a level (‹ Files · name · ⋯), never inline. The ⋯ sheet's title is the path. Add **View as Markdown** and **Reload from Disk** to the file ⋯.
+4. **View as Markdown**: a full-screen source editor of the whole file (mono, autosave), Done returns.
+5. **Review**: Comments is always in the document bar. With none open, the sheet says “No open comments in <file>.”, keeps Resolved / Deleted segments, and holds **Ask Pi About This File…**; Show resolved is a 44px row.
+6. **Ask Pi… bug**: from the selection bar and the block sheet, open the Ask sheet (quote, “Your question”, Pi sees, Cancel / Ask), not the Comment composer. The same sheet serves the whole file. The answer goes to Review beside the passage and to Activity; no comment is created.
+7. **Preview foot**: state, **Stop / Start**, Open App; the app language moves to Preview's view menu.
+8. **Landing**: Show in Activity / Show in Gate / the status button (when one item needs attention) open the detail; ‹ goes to the list.
+9. **Document screens**: keep the phone bar while reading (hide on scroll down, show on scroll up); document bar only while editing.
+10. **New Project / Add Existing Folder**: kinds as 44px radio rows; “Create in ~/code ›” is one row that opens the folder browser as its own full-height step (breadcrumb, 44px folder rows, New Folder…, Choose “<folder>”). Add Existing Folder uses the same step.
+11. **Details**: 44px for Show resolved, radios (22px in 44px rows), thread ‹ ›, Dictate, the whole-file row; strip ⌘ hints under 760px; toasts above the edit bar and keyboard (`bottom: edit bar height + safe area`); hide Desktop pattern and Return sends on the phone with a one-line note.
+12. **Files bar**: Ph_Files (no “‹ Projects”); Ph_FilesNew corrected.

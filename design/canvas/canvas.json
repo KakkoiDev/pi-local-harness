@@ -1905,6 +1905,166 @@
    "h": 900,
    "title": "16 · New Project… · App with no server",
    "page": "preview"
+  },
+  "Ph8_Answers.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 720,
+   "title": "Answers to round 8 (phone parity)",
+   "page": "phone8"
+  },
+  "Ph8_Map.dc.html": {
+   "x": 0,
+   "y": 880,
+   "w": 1440,
+   "h": 1520,
+   "title": "Every desktop command on the phone: where, how many taps",
+   "page": "phone8"
+  },
+  "Ph8_Pi.dc.html": {
+   "x": 0,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "1 · π sheet: app-wide only, Model joins",
+   "page": "phone8"
+  },
+  "Ph8_Thinking.dc.html": {
+   "x": 470,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "2 · Thinking: four levels",
+   "page": "phone8"
+  },
+  "Ph8_ModelGone.dc.html": {
+   "x": 940,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "3 · Model gone: Choose Model…",
+   "page": "phone8"
+  },
+  "Ph8_ChatMenu.dc.html": {
+   "x": 1410,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "4 · Chat’s view menu: its commands",
+   "page": "phone8"
+  },
+  "Ph8_PreviewMenu.dc.html": {
+   "x": 1880,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "5 · Preview’s view menu: app language",
+   "page": "phone8"
+  },
+  "Ph8_Preview.dc.html": {
+   "x": 2350,
+   "y": 2560,
+   "w": 390,
+   "h": 844,
+   "title": "6 · Preview foot: Stop / Start",
+   "page": "phone8"
+  },
+  "Ph8_Doc.dc.html": {
+   "x": 0,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "7 · Reading: both bars, Comments always",
+   "page": "phone8"
+  },
+  "Ph8_DocMore.dc.html": {
+   "x": 470,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "8 · File ⋯: View as Markdown, Reload",
+   "page": "phone8"
+  },
+  "Ph8_Source.dc.html": {
+   "x": 940,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "9 · Markdown source, full screen",
+   "page": "phone8"
+  },
+  "Ph8_CommentsNone.dc.html": {
+   "x": 1410,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "10 · Comments with none open",
+   "page": "phone8"
+  },
+  "Ph8_Ask.dc.html": {
+   "x": 1880,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "11 · Ask Pi… own sheet (selection)",
+   "page": "phone8"
+  },
+  "Ph8_AskFile.dc.html": {
+   "x": 2350,
+   "y": 3564,
+   "w": 390,
+   "h": 844,
+   "title": "12 · Ask Pi… whole file",
+   "page": "phone8"
+  },
+  "Ph8_Folder.dc.html": {
+   "x": 0,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "13 · A folder opens as a level",
+   "page": "phone8"
+  },
+  "Ph8_NewProject.dc.html": {
+   "x": 470,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "14 · New Project: 44 px kinds, Create in ›",
+   "page": "phone8"
+  },
+  "Ph8_ChooseFolder.dc.html": {
+   "x": 940,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "15 · Choose a folder: its own step",
+   "page": "phone8"
+  },
+  "Ph8_Toast.dc.html": {
+   "x": 1410,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "16 · Toast above the edit bar, no ⌘",
+   "page": "phone8"
+  },
+  "Ph8_Settings.dc.html": {
+   "x": 1880,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "17 · Settings: Mac-only ones named",
+   "page": "phone8"
+  },
+  "Ph8_Details.dc.html": {
+   "x": 2350,
+   "y": 4568,
+   "w": 390,
+   "h": 844,
+   "title": "18 · 44 px details",
+   "page": "phone8"
   }
  },
  "createdOnFiles": {
@@ -2193,6 +2353,15 @@
    "w": 240,
    "x": 0,
    "y": -260
+  },
+  "ph8": {
+   "kind": "title1",
+   "maxW": 2900,
+   "page": "phone8",
+   "text": "Phone parity — every desktop action on the phone (round 8)",
+   "w": 240,
+   "x": 0,
+   "y": -260
   }
  },
  "order": [
@@ -2417,7 +2586,27 @@
   "Ph_Done.dc.html",
   "P_UndoUnsaved.dc.html",
   "P_NewProject.dc.html",
-  "P_NewProjectStatic.dc.html"
+  "P_NewProjectStatic.dc.html",
+  "Ph8_Answers.dc.html",
+  "Ph8_Map.dc.html",
+  "Ph8_Pi.dc.html",
+  "Ph8_Thinking.dc.html",
+  "Ph8_ModelGone.dc.html",
+  "Ph8_ChatMenu.dc.html",
+  "Ph8_PreviewMenu.dc.html",
+  "Ph8_Preview.dc.html",
+  "Ph8_Doc.dc.html",
+  "Ph8_DocMore.dc.html",
+  "Ph8_Source.dc.html",
+  "Ph8_CommentsNone.dc.html",
+  "Ph8_Ask.dc.html",
+  "Ph8_AskFile.dc.html",
+  "Ph8_Folder.dc.html",
+  "Ph8_NewProject.dc.html",
+  "Ph8_ChooseFolder.dc.html",
+  "Ph8_Toast.dc.html",
+  "Ph8_Settings.dc.html",
+  "Ph8_Details.dc.html"
  ],
  "pages": [
   {
@@ -2443,6 +2632,10 @@
   {
    "id": "phone",
    "name": "Phone pages"
+  },
+  {
+   "id": "phone8",
+   "name": "Phone parity"
   },
   {
    "id": "edit",

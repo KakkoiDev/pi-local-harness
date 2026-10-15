@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New Project: kinds as 44 px rows; Create in is one row that opens its own step</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Ready. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span role="status">Ready</span></button></nav><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .55"></div><section class="pw-sheet" role="dialog" aria-modal="true" aria-label="New Project" style="position: absolute; top: 60px; bottom: 0; max-height: none; padding-bottom: 34px; overflow: auto; gap: 12px"><div class="pw-sheet__head" style="display: grid; grid-template-columns: 1fr auto 1fr"><button class="pw-btn pw-btn--plain pw-btn--touch" style="justify-self: start">Cancel</button><h2 class="pw-dialog__title">New Project</h2><button class="pw-btn pw-btn--touch pw-btn--default" style="justify-self: end">Create</button></div><label class="pw-label" style="display: flex; flex-direction: column; gap: 6px">Name<input class="pw-field" placeholder="e.g. Japanese study app" value="Class Notes"></label><fieldset style="border: 0; margin: 0; padding: 0"><legend class="pw-label" style="padding: 0">What are you making?</legend><label class="pw-choice" style="min-height: 44px; font-size: 16px; grid-template-columns: 22px 1fr"><input type="radio" class="pw-radio" name="kind" style="width: 22px; height: 22px" checked><span>Web app</span><small style="font-size: 13px">Runs on this Mac while plh is open. Shared data, logins, payments, a paid AI key.</small></label><label class="pw-choice" style="min-height: 44px; font-size: 16px; grid-template-columns: 22px 1fr"><input type="radio" class="pw-radio" name="kind" style="width: 22px; height: 22px"><span>App with no server</span><small style="font-size: 13px">Runs in the browser; data stays on the device; works offline.</small></label><label class="pw-choice" style="min-height: 44px; font-size: 16px; grid-template-columns: 22px 1fr"><input type="radio" class="pw-radio" name="kind" style="width: 22px; height: 22px"><span>Empty folder</span><small style="font-size: 13px">Start from nothing.</small></label><p class="pw-help" style="margin: 4px 0 0; padding-top: 6px; border-top: 1px dotted #000; font-size: 13px">Not sure? Several people sharing data, or a secret: Web app. Otherwise, App with no server.</p></fieldset><a href="#" class="pw-row" style="min-height: 44px; font-size: 16px; justify-content: space-between; border: 1px solid #000"><span>Create in</span><span class="pw-row__meta" style="font-size: 15px">~/code <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></a><p class="pw-help" style="margin: 0; font-size: 13px">Creates “~/code/Class Notes” from the web app starter.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

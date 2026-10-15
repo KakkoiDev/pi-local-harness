@@ -13,4 +13,4 @@ perform on mobile. let's get a new artifact to the designer AI to fix all those 
 - [x] Fixed at once, being plain bugs: on a fresh phone "Comments N" opened only the scrim (the desk's Review state hid
   the sheet); `PI_BINARY` was ignored by the web worker, so a scratch workbench started the real Pi (found by the audit,
   task commit 3c589fc); the Preview view's window title was blank.
-- [ ] Build round 8 from the designer's answer.
+- [x] Build round 8 from the designer's answer: task 222.
