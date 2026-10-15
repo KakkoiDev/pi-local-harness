@@ -100,7 +100,13 @@ export function installPreview({ api, project, send, showView, view, working, on
     const others = [...desk.children].filter(child => child !== main && child !== beside && !child.hidden && getComputedStyle(child).display !== 'none').reduce((sum, child) => sum + child.offsetWidth + 24, 0);
     const room = desk.clientWidth - 48 - others;
     const next = matchMedia('(max-width:760px)').matches || room - 480 - 24 < 480 ? 'view' : 'beside';
-    if (next !== mode) { mode = next; if (mode === 'view' && !beside.hidden) { beside.hidden = true; if (shown) showView('preview'); } }
+    if (next !== mode) {
+      mode = next;
+      // Narrowed under the chat: the Preview becomes a view, and stays the one shown. Work with Review leaves no room
+      // either (it ran past the edge at 1440 px, task 224): the Preview steps aside without taking over Work.
+      if (mode === 'view' && !beside.hidden) { beside.hidden = true; if (shown && view() === 'chat') showView('preview'); }
+      else if (mode === 'beside' && settings().open && !['activity', 'gate'].includes(view())) { beside.hidden = false; if (view() === 'preview') showView('chat'); refresh(true); }
+    }
     const home = mode === 'view' ? slot : beside;
     if (body.parentElement !== home) home.append(body);
     $('preview-tab').hidden = mode !== 'view'; $('preview-toggle').hidden = mode === 'view';
