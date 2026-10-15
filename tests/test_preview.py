@@ -123,6 +123,31 @@ class PreviewTest(unittest.TestCase):
         previews.start('hang', hang)
         self.assertIsNotNone(old.wait(timeout=10), 'Start Again ends the hanging process before starting a new one')
 
+    def test_open_on_phone_serves_the_app_on_the_tailnet_while_it_runs(self):
+        site = self.folder('site', {'index.html': 'x'}); other = self.folder('other', {'index.html': 'y'})
+        served = []
+        class Serve:
+            def __init__(self, port): self.port, self.stopped = port, False
+            def poll(self): return 0 if self.stopped else None
+            def terminate(self): self.stopped = True
+            def wait(self, timeout=None): return 0
+        def serve(port, https):
+            served.append((port, https)); return Serve(port), None
+        previews = Previews(self.root / 'previews5', serve=serve); self.addCleanup(previews.close)
+        self.assertIn('not running', previews.phone('site', 'mac.tail.ts.net')['problem'], 'only a running app')
+        previews.start('site', site); wait(previews, 'site', ('running',))
+        found = previews.phone('site', 'mac.tail.ts.net')
+        self.assertEqual(found['url'], 'https://mac.tail.ts.net:8443/'); self.assertEqual(served, [(previews.apps['site'].port, 8443)])
+        self.assertEqual(previews.phone('site', 'mac.tail.ts.net')['url'], found['url']); self.assertEqual(len(served), 1, 'served once')
+        first = previews.apps['site'].phone
+        previews.start('other', other); wait(previews, 'other', ('running',))
+        previews.phone('other', 'mac.tail.ts.net')
+        self.assertTrue(first.stopped, 'one app on the phone address at a time')
+        self.assertEqual(previews.status('other')['phone'], 'https://mac.tail.ts.net:8443/')
+        second = previews.apps['other'].phone; previews.stop('other')
+        self.assertTrue(second.stopped, 'stopping the app stops its phone address')
+        self.assertIn('Phone access is off', previews.phone('site', '')['problem'])
+
     def test_close_stops_every_app(self):
         site = self.folder('site', {'index.html': 'x'})
         self.previews.start('site', site); wait(self.previews, 'site', ('running',))
@@ -149,6 +174,21 @@ class WorkbenchPreviewTest(unittest.TestCase):
         with self.assertRaises(ValueError): chat.preview(None, 'start', cwd=str(root))
         with self.assertRaises(ValueError): chat.preview(project, 'explode')
         with self.assertRaises(ValueError): chat.preview('../etc', 'start')
+
+
+class TailnetServeTest(unittest.TestCase):
+    def test_the_app_is_served_on_its_own_https_port_and_the_workbench_on_the_default(self):
+        import os
+        from unittest.mock import patch
+        from harness.services import tailscale_serve
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root = Path(temp.name)
+        fake = root / 'tailscale'; said = root / 'args'
+        fake.write_text(f'#!/bin/sh\necho "$*" > {said}\necho "Available within your tailnet"\nexec sleep 30\n'); fake.chmod(0o755)
+        with patch.dict(os.environ, {'PI_TAILSCALE': str(fake)}):
+            for https, expected in ((8443, 'serve --https=8443 localhost:5000'), (None, 'serve 5000')):
+                process, problem = tailscale_serve(5000, settle=5, https=https)
+                self.assertIsNone(problem); process.terminate(); process.wait(5)
+                self.assertEqual(said.read_text().strip(), expected)
 
 
 class AskPiToFixTest(unittest.TestCase):

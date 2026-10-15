@@ -21,5 +21,5 @@ Round 7 (design/IMPLEMENTATION.md points 1–6, 10, 11; PreviewWindow card; boar
   the view tabs, New Project kinds, the Preview gone in Activity. Tried in the browser on a scratch workbench: a Web
   app starting, running, Japanese, Tablet, broken (P_Error) and back by itself after the fix; a no-server app created
   from New Project… opening its Preview by itself.
-- [ ] Open on Phone… and the phone view (task 210).
+- [x] Open on Phone… and the phone view: task 210.
 - Browser suite note: design.cjs line 694 (#agent-status → Activity) fails about one run in three, before this work too.

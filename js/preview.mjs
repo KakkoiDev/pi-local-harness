@@ -46,7 +46,12 @@ export function fixMessage(error) {
   return { message: `The app stopped. Its last line: ${lines.at(-1) || 'none'}. Please fix it so the app starts again.`, lines: lines.slice(-8) };
 }
 
-export function installPreview({ api, project, send, showView, view, working, onLayout }) {
+// On this Mac the frame loads the app at 127.0.0.1; from another device (a phone on the tailnet) it cannot, so the
+// Preview uses the app's own tailnet address (P_OnPhone, Ph_Preview).
+const REMOTE = typeof location !== 'undefined' && !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
+const phoneScreen = () => matchMedia('(max-width:760px)').matches;
+
+export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff }) {
   const body = $('preview-body'), beside = $('preview'), slot = $('preview-view');
   let status = { state: 'none' }, shown = false, timer = 0, lastNote = '', fixing = false, mode = 'beside', loadedSrc = '';
   const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: document.documentElement.lang === 'ja' ? 'ja' : 'en', path: '/' });  // the app starts in the workbench's language
@@ -65,8 +70,18 @@ export function installPreview({ api, project, send, showView, view, working, on
   iframe.title = 'The app'; frame.append(iframe);
   const state = node('span', 'pw-glyph'); state.setAttribute('role', 'status');
   const stopStart = button('Stop', () => (status.state === 'running' || status.state === 'starting' ? stop() : start()));
-  const onPhone = button('Open on Phone…', () => $('preview-phone')?.click?.(), { disabled: true });
-  const inBrowser = button('Open in Browser', () => window.open(appAddress(status.url, settings().path, settings().language), '_blank', 'noopener'), { disabled: true });
+  const onPhone = button('Open on Phone…', () => phone().then(url => url && openOnPhone(project().name, url)), { disabled: true });
+  const openApp = button('Open App', () => phone().then(url => url && window.open(url, '_blank', 'noopener')), { disabled: true }); // Ph_Preview: Safari, then Add to Home Screen
+  const inBrowser = button('Open in Browser', () => window.open(appAddress(base(), settings().path, settings().language), '_blank', 'noopener'), { disabled: true });
+  let asked = false;
+  const base = () => (REMOTE && status.phone ? status.phone : status.url);
+  async function phone() {  // the app's tailnet address, served while it runs
+    const found = await api('/api/preview/phone', { project: project().id });
+    if (found.url) { status.phone = found.url; return found.url; }
+    if (/Phone access is off/.test(found.problem || '')) phoneOff?.();
+    else await (await import('./dialogs.mjs')).ask({ icon: 'note', message: 'The app could not be opened on a phone.', detail: found.problem || '', danger: 'Cancel', safe: 'OK', plain: true });
+    return null;
+  }
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
   body.append(bar1, bar2, note, stage, foot);
   path.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); save({ path: path.value.trim() || '/' }); load(true); } };
@@ -119,7 +134,8 @@ export function installPreview({ api, project, send, showView, view, working, on
 
   function load(force = false) {
     if (status.state !== 'running') return;
-    const src = appAddress(status.url, settings().path, settings().language);
+    if (REMOTE && !status.phone) { if (!asked) { asked = true; phone().then(url => { if (url) load(true); }); } return; }
+    const src = appAddress(base(), settings().path, settings().language);
     if (force || src !== loadedSrc) { loadedSrc = src; iframe.src = src; }
   }
 
@@ -137,7 +153,11 @@ export function installPreview({ api, project, send, showView, view, working, on
     const running = status.state === 'running', app = status.kind !== 'notweb' && status.kind !== 'empty';
     body.classList.toggle('pw-preview--dim', status.kind === 'notweb');
     path.disabled = reload.disabled = !running; sizes.enable(app); languages.enable(app);
-    onPhone.disabled = inBrowser.disabled = !running;
+    onPhone.disabled = inBrowser.disabled = openApp.disabled = !running;
+    // Ph_Preview: on a phone the app takes the width; the foot is the state, the app's language and Open App.
+    const small = phoneScreen(); bar2.hidden = small;
+    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, languages.element, node('span', 'pw-preview__gap'), openApp);
+    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
     const word = { running: 'Running', starting: 'Starting…', stopped: 'Stopped' }[status.state] || (status.stopped ? 'Stopped' : 'No app');
     state.replaceChildren(glyph(status.state === 'running' ? 'running' : status.state === 'starting' ? 'starting' : status.state === 'stopped' || status.stopped ? 'stopped' : 'none'), word);
     stopStart.textContent = running || status.state === 'starting' ? 'Stop' : 'Start';
@@ -148,7 +168,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     if (status.note) { note.replaceChildren(glyph(/^Undo/.test(status.note.text) ? 'undo' : 'done'), node('span', '', status.note.text), node('time', '', status.note.time)); }
     if (said && said !== lastNote) { lastNote = said; load(true); }
     if (running) {
-      const fit = frameFor(chosen.size, { width: stage.clientWidth || 448, height: stage.clientHeight || 600 });
+      const fit = frameFor(phoneScreen() ? 'full' : chosen.size, { width: (stage.clientWidth || 448) + (phoneScreen() ? 32 : 0), height: (stage.clientHeight || 600) + (phoneScreen() ? 40 : 0) });
       frame.style.width = fit.width + 'px'; frame.style.height = fit.height + 'px';
       const natural = chosen.size === 'tablet' ? SIZES.tablet : { width: fit.width, height: fit.height };
       iframe.style.width = natural.width + 'px'; iframe.style.height = natural.height + 'px';
@@ -190,7 +210,7 @@ export function installPreview({ api, project, send, showView, view, working, on
   // A project change: its own Preview state (open or closed, size, language, page). The first time a project has an
   // app, the Preview opens by itself, once (P_Answers).
   async function projectChanged() {
-    clearTimeout(timer); status = { state: 'none' }; lastNote = ''; loadedSrc = ''; fixing = false;
+    clearTimeout(timer); status = { state: 'none' }; lastNote = ''; loadedSrc = ''; fixing = false; asked = false;
     const current = project(); if (!current) { beside.hidden = true; return; }
     try { status = await api(`/api/preview?project=${encodeURIComponent(current.id)}`); } catch { status = { state: 'none' }; }
     const chosen = settings();
@@ -203,6 +223,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     toggle: () => setShown(!(mode === 'beside' ? !beside.hidden : view() === 'preview')),
     show: (page = '/') => { save({ path: page }); setShown(true); },
     projectChanged, refresh, layout, mode: () => mode,
+    stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },
   };
 }

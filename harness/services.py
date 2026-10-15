@@ -26,7 +26,7 @@ class Server(http.server.ThreadingHTTPServer):
     request_queue_size = 128
     daemon_threads = True
 
-def tailscale_serve(port, settle=6.0):
+def tailscale_serve(port, settle=6.0, https=None):
     """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process.
 
     When Serve is off for the tailnet, tailscale prints an enable link on stdout and waits instead of exiting;
@@ -34,7 +34,8 @@ def tailscale_serve(port, settle=6.0):
     Ready as soon as tailscale prints "Available …"; otherwise still running after `settle` seconds counts as ready
     (6 s: a slow first start, e.g. macOS checking a new executable, must not pass for a running serve)."""
     try:
-        process = subprocess.Popen([os.getenv('PI_TAILSCALE', 'tailscale'), 'serve', str(port)],
+        target = [f'--https={https}', f'localhost:{port}'] if https else [str(port)]  # https: a second tailnet port (the Preview's app, P_OnPhone)
+        process = subprocess.Popen([os.getenv('PI_TAILSCALE', 'tailscale'), 'serve', *target],
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     except OSError as error:
         return None, f'cannot run tailscale: {error}'

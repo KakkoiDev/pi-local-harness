@@ -70,14 +70,23 @@ def answers(port, timeout=2):
     except (OSError, http.client.HTTPException): return False
 
 
+PHONE_PORT = 8443  # the app's own tailnet address while it runs (P_OnPhone); one app at a time
+
+
+def tailnet_serve(port, https):
+    from harness.services import tailscale_serve
+    return tailscale_serve(port, https=https)
+
+
 class App:
     def __init__(self, process, port, log, first=False):
         self.process, self.port, self.log, self.state, self.error, self.first, self.note = process, port, log, 'starting', '', first, None
+        self.phone, self.phone_url = None, ''
 
 
 class Previews:
-    def __init__(self, folder, command=run_command, limit=START_LIMIT):
-        self.folder, self.command, self.limit = Path(folder), command, limit
+    def __init__(self, folder, command=run_command, limit=START_LIMIT, serve=tailnet_serve):
+        self.folder, self.command, self.limit, self.serve = Path(folder), command, limit, serve
         self.apps, self.lock = {}, threading.RLock()
 
     def status(self, project, folder=None):
@@ -91,7 +100,31 @@ class Previews:
             if lines: found['last'] = lines[-1]
         if app.error: found['error'] = app.error
         if app.note and app.state == 'running': found['note'] = app.note
+        if app.phone and app.phone.poll() is None: found['phone'] = app.phone_url
         return found
+
+    def phone(self, project, host):
+        """Open on Phone (P_OnPhone): the app on the tailnet while it runs, https://<host>:8443/ (tailscale serve). The
+        workbench's own phone address (host) must be on: it is the same machine and the same Serve."""
+        if not host: return {'problem': 'Phone access is off: the workbench is not on the tailnet (remote_hosts in config.json).'}
+        with self.lock:
+            app = self.apps.get(project)
+            if not app or app.state != 'running': return {'problem': 'The app is not running. Start it in the Preview first.'}
+            if app.phone and app.phone.poll() is None: return {'url': app.phone_url}
+            for other in self.apps.values():
+                if other is not app and other.phone: self.end_phone(other)
+            process, problem = self.serve(app.port, PHONE_PORT)
+            if not process: return {'problem': problem or 'Tailscale could not serve the app.'}
+            app.phone, app.phone_url = process, f'https://{host}:{PHONE_PORT}/'
+            return {'url': app.phone_url}
+
+    @staticmethod
+    def end_phone(app):
+        if not app.phone: return
+        app.phone.terminate()
+        try: app.phone.wait(timeout=5)
+        except subprocess.TimeoutExpired: app.phone.kill()
+        app.phone, app.phone_url = None, ''
 
     def note(self, project, text):
         """"Pi changed 2 files. Reloaded." (P_Changed): the app reloads itself; the Preview says so, with the time."""
@@ -102,7 +135,7 @@ class Previews:
         with self.lock:
             app = self.apps.get(project)
             if app and app.state in ('starting', 'running'): return self.status(project)
-            if app and app.process.poll() is None: app.state = 'none'; self.end(app)  # Start Again on an app that hangs under its reloader
+            if app and app.process.poll() is None: app.state = 'none'; self.end_phone(app); self.end(app)  # Start Again on an app that hangs under its reloader
             port = free_port(); command = self.command(folder, port)
             if not command: return no_app(folder)
             self.folder.mkdir(parents=True, exist_ok=True)
@@ -151,7 +184,7 @@ class Previews:
 
     def stop(self, project):
         with self.lock: app = self.apps.pop(project, None)
-        if app: app.state = 'none'; self.end(app)
+        if app: app.state = 'none'; self.end_phone(app); self.end(app)
         return {'state': 'none'}
 
     def close(self):

@@ -656,9 +656,25 @@
   "Write a prompt or choose a comment": "プロンプトを書くか、コメントを選んでください",
   "Write a reply of at most 10,000 characters": "返信は 10,000 文字以下で書いてください",
   "not a request Pi Workbench committed": "Pi Workbench がコミットした依頼ではありません",
-  "1 check today": "今日 1 件のチェック"
+  "1 check today": "今日 1 件のチェック",
+  "Open App": "アプリを開く",
+  "▶ Running": "▶ 実行中",
+  "◷ Starting…": "◷ 起動中…",
+  "⬣ Stopped": "⬣ 停止",
+  "○ No app": "○ アプリなし",
+  "Scan with a phone signed in to the same Tailscale account. To keep it, choose Share, then Add to Home Screen: it opens like any app.": "同じ Tailscale アカウントでサインインしたスマホで読み取ってください。残しておくには、共有から「ホーム画面に追加」を選びます。ほかのアプリと同じように開けます。",
+  "It shows the app while it runs here: if you stop it or close the project, the phone shows “cannot connect”.": "このアプリがここで動いている間だけ表示されます。停止するかプロジェクトを閉じると、スマホには「接続できません」と表示されます。",
+  "The app could not be opened on a phone.": "アプリをスマホで開けませんでした。",
+  "The app is not running. Start it in the Preview first.": "アプリが動いていません。先にプレビューで起動してください。",
+  "Phone access is off: the workbench is not on the tailnet (remote_hosts in config.json).": "スマホからのアクセスはオフです。ワークベンチが tailnet にありません（config.json の remote_hosts）。",
+  "○ Not started": "○ 未起動",
+  "Phone access is not set up. Add this Mac’s tailnet name to remote_hosts and your Tailscale login to remote_users in config.json, then start plh again.": "スマホからのアクセスが設定されていません。config.json の remote_hosts にこの Mac の tailnet 名を、remote_users に Tailscale のログインを追加して、plh を起動し直してください。"
  },
  "patterns": [
+  [
+   "Open {name} on Phone",
+   "{name} をスマホで開く"
+  ],
   [
    "Its {n} files and {m} folders go to the Trash on your Mac. Its chat and comments are kept until you empty the Trash; Put Back in the Finder and Add Existing Folder… bring everything back.",
    "{n} ファイルと {m} フォルダを Mac のゴミ箱に入れます。チャットとコメントはゴミ箱を空にするまで残ります。Finder の「戻す」と「既存のフォルダを追加…」で、すべて元に戻せます。"
