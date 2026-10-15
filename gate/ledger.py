@@ -10,7 +10,8 @@ import threading
 import time
 import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
-from .protocol import Protocol, project_root
+from .protocol import Protocol, project_root, commit_folder, test_folder
+from .paperwork import Paperwork
 from . import rules
 from harness import reports
 
@@ -52,6 +53,9 @@ class ProposalLedger:
         self.events = deque(maxlen=200)
         self.event_sequence = 0
         self.protocol = Protocol(protocol_file)
+        # Plan 184: the paperwork for each request (the extension says when one starts and ends); token → request and note.
+        self.paperwork = Paperwork(self.protocol, data=Path(events_file).parent if events_file else None)
+        self.request_of, self.notes = {}, {}
         # Checks survive a restart of plh: one JSON line per event, the last 200 read back (the person lost them on restart).
         self.events_file = Path(events_file) if events_file else None
         self.day = {}  # 'YYYY-MM-DD' -> {'today': n, 'blocked_today': n}: before-execution checks per day, beyond the 200 kept in memory
@@ -95,7 +99,18 @@ class ProposalLedger:
         with self.lock:
             return copy.deepcopy(list(self.events))
 
-    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None):
+    def start_request(self, request, cwd, text):
+        return self.paperwork.start(request, cwd, text)
+
+    def end_request(self, request):
+        result = self.paperwork.end(request)
+        if result and result.get('outcome') not in ('committed', 'nothing changed'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
+        return result
+
+    def last_note(self, token):
+        return self.notes.pop(token, None)
+
+    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None, request=None):
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
             outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
@@ -107,6 +122,8 @@ class ProposalLedger:
             return refuse(rule.id, None, reason)
         response = {'outcome': 'ALLOW'}
         command = args.get('command') if tool_name == 'execute_command' else None
+        if isinstance(command, str) and request in self.paperwork.requests and commit_folder(command, cwd):
+            return refuse('G-013', 'the harness commits this request when the change is verified (tests failed first, then passed on the final code). Finish the work and run the tests; do not commit.')
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
             return refuse('G-005', reason)
@@ -144,6 +161,7 @@ class ProposalLedger:
                 raise ValueError('Too many pending proposals')
             token = str(uuid.uuid4())
             self.pending[token] = (now, proposal, expected, cwd, tool_call_id, source)
+            if request: self.request_of[token] = request
         self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id, cwd=cwd, source=source)
         response['proposal_id'] = token
         return response
@@ -171,6 +189,12 @@ class ProposalLedger:
         command = proposal.args.get('command')
         if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
             self.protocol.record(cwd, command, exit_code == 0, output)
+        request = self.request_of.pop(token, None)
+        if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
+            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+                self.paperwork.ran(request, command, exit_code == 0)
+            note = self.paperwork.observe(request)
+            if note: self.notes[token] = note
         self.record_event('audit', event.status, proposal, event.reasoning, token, tool_call_id, cwd=cwd, source=source,
                           rule={'DRIFT_DETECTED': 'G-006', 'POSTCONDITION_FAILED': 'G-007'}.get(event.status))
         return event

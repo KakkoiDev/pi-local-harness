@@ -10,11 +10,15 @@ Workers share Gate and never start duplicate services. Shared runtime memory is
 
 ## Request-to-Task Pipeline
 
-Create numbered tasks under tasks/ and link them in ROADMAP.md. Implement authorized
-work, preserve unrelated edits, add meaningful regression coverage, and commit at
-the end of each task. Mark only verified work complete. Run tests/verify_workflow.py
-before completion, and `python3 tests/browser/run.py all` after a UI change (exit 2
-means the suites did not run: say "not verified", never "passed"). Keep README instructions aligned with actual behavior.
+The harness keeps the paperwork (plan 184): at your first file change it makes the
+request's task under tasks/ (or uses the task the request names) and its ROADMAP.md
+line, writes the test runs Gate sees into the task's progress, and when the change is
+verified marks it done and commits locally. Your job is the content: code, tests,
+documentation. Preserve unrelated edits, add meaningful regression coverage (a failing
+test first, then the change, then the tests passing), run tests/verify_workflow.py,
+and `python3 tests/browser/run.py all` after a UI change (exit 2 means the suites did
+not run: say "not verified", never "passed"). Do not create task files, tick progress
+boxes or commit. Keep README instructions aligned with actual behavior.
 
 What Gate enforces (the commit order, plan files, destructive commands…) is not
 restated here: it is one registry in gate/rules.py, always on, summarised in your

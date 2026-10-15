@@ -139,6 +139,13 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(await handlers.tool_result({...box,content:[{type:'text',text:'Ticked'}],isError:false}),undefined,'and verified: the file is what Gate approved');
   const vague=await handlers.tool_call({toolCallId:'box-2',toolName:'task_box',input:{path:'tasks/01.md',box:'Nothing'}});
   assert.equal(vague.block,true);assert.match(vague.reason,/No open box starts with “Nothing”/);
+  // Plan 184: the first change gives the request its task, made by the harness; Pi reads where it is.
+  await handlers.input({source:'interactive',text:'Add a greeting'},ctx);
+  const greet={toolCallId:'greet',toolName:'write',input:{path:join(dir,'hello.py'),content:'print(1)\n'}};
+  assert.equal(await handlers.tool_call(greet),undefined);writeFileSync(join(dir,'hello.py'),'print(1)\n');
+  const told=await handlers.tool_result({...greet,content:[{type:'text',text:'Wrote hello.py'}],isError:false});
+  assert.match(told.content.at(-1).text,/^This request's task is tasks\/\d+-add-a-greeting\.md \(made\); the harness keeps it/);
+  assert.match(readFileSync(join(dir,'ROADMAP.md'),'utf8'),/- \[ \] \[\d+-Add a greeting\]\(tasks\/\d+-add-a-greeting\.md\)/);
   // G-012 for terminal Pi (plan 179, L-005): a turn that changed code and ran no passing test after it ends marked.
   // Plan 184: first the harness wakes Pi to finish (it changed code and no passing test ran on it), then, out of
   // wake-ups, it marks the turn. An answer that asks the person something is not woken.

@@ -23,6 +23,13 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             self.handle_gatekeep()
         elif self.path == '/audit':
             self.handle_audit()
+        elif self.path in ('/request', '/request/end'):  # plan 184: the paperwork for one request
+            try:
+                data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', ''))})
+                else: self.send_json_response({'result': self.ledger.end_request(data['request'])})
+            except Exception as error:
+                self.send_error_response(400, str(error))
         elif self.path == '/verification':  # G-012 for terminal Pi (plan 179)
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
@@ -47,7 +54,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             result = self.ledger.propose(data['tool_name'], data['args'], data.get('auth_level', 'standard'),
                                          pi_tool=data.get('pi_tool'), cwd=data.get('cwd'), tool_call_id=data.get('tool_call_id'),
-                                         source=data.get('source'))
+                                         source=data.get('source'), request=data.get('request'))
             self.send_json_response(result)
         except Exception as error:
             self.send_error_response(400, str(error))
@@ -57,7 +64,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             event = self.ledger.complete(data['proposal_id'], data['tool_name'], data['args'],
                                          data.get('output'), data.get('exit_code', 0))
-            self.send_json_response({'status': event.status, 'reason': event.reasoning})
+            self.send_json_response({'status': event.status, 'reason': event.reasoning, **({'note': note} if (note := self.ledger.last_note(data['proposal_id'])) else {})})
         except KeyError as error:
             self.send_error_response(409, str(error))
         except Exception as error:

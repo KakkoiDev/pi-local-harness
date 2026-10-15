@@ -4,6 +4,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { randomUUID } from 'node:crypto';
 import { localModels } from './provider.mjs';
 import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
@@ -47,7 +48,7 @@ export default function harness(pi, dependencies = {}) {
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
   installToolRenderer(pi, checks);
-  let verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
+  let requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
@@ -174,6 +175,9 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
+    // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
+    requestId = process.env.PI_HARNESS_JOB || randomUUID();
+    await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
@@ -235,7 +239,7 @@ export default function harness(pi, dependencies = {}) {
       args = proposal; piTool = 'edit'; boxes.set(event.toolCallId, proposal);
     }
     try {
-      const result = await gateCall('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
@@ -260,6 +264,8 @@ export default function harness(pi, dependencies = {}) {
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
         args: boxes.get(event.toolCallId) || event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
       boxes.delete(event.toolCallId);
+      // Plan 184: the first change gives the request its task; Pi reads where it is and that the harness keeps it.
+      const told = result.note ? [{ type: 'text', text: result.note }] : [];
       // Round 6 (T_Gate): Gate's verdict and the command's own result are separate words. A command that exits with an
       // error was still allowed: say so, without an alarm. Only Gate's own findings (the command changed) are Gate's.
       if (result.status === 'EXECUTION_FAILED') {
@@ -274,6 +280,7 @@ export default function harness(pi, dependencies = {}) {
         return { isError: true, content: [...event.content, { type: 'text', text: `✗ Gate: ${words} (${result.status}). ${result.reason}` }] };
       }
       check(event.toolCallId, { ok: !event.isError, exit: event.isError ? 1 : 0, seconds });
+      if (told.length) return { content: [...(event.content || []), ...told] };
     } catch (error) {
       check(event.toolCallId, { drift: `could not check the result (${error.message})` });
       notify(`Gate audit failed: ${error.message}`, 'error');
@@ -286,12 +293,21 @@ export default function harness(pi, dependencies = {}) {
     // The harness wakes Pi to finish (not when the person stopped it, nor when Pi asked the person something); out of
     // wake-ups, the turn is marked "Not verified".
     // The web worker ends the request as soon as the harness says it will not wake Pi ("Harness settled").
-    const settledNow = () => { if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info'); };
+    // The request is over: the harness finishes its paperwork (commits when verified), then tells the web worker.
+    const settledNow = async () => {
+      if (requestId) {
+        const result = await call('/request/end', { request: requestId }).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
+        requestId = undefined;
+        if (result?.outcome === 'committed') say('committed', `${result.message}`, 'info');
+        else if (result?.outcome === 'commit failed') say('commit-failed', `${result.task}: ${result.reason}`, 'warning');
+      }
+      if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');
+    };
     if (pending) return;
-    if (!verifiedBefore) { settledNow(); return; }
+    if (!verifiedBefore) { await settledNow(); return; }
     const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
-    if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; settledNow(); return; }
+    if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; await settledNow(); return; }
     const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
     if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
       retries++;
@@ -301,7 +317,7 @@ export default function harness(pi, dependencies = {}) {
       pi.sendUserMessage(`Continue (harness wake-up ${round}): you changed ${files} and no passing test ran on that code yet. Run the tests, fix what fails, and finish the request. If it cannot be tested, say why in one line.`);
       return;
     }
-    verifiedBefore = undefined; settledNow();
+    verifiedBefore = undefined; await settledNow();
     if (!process.env.PI_HARNESS_SHARED_PORT) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
   });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call

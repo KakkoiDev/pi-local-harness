@@ -229,3 +229,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [184-Reports: every incident the harness meets, for the later analysis](tasks/184-reports.md)
 - [x] [185-Pi keeps running: wake-ups, Gate failures that do not stop the run](tasks/185-keep-running.md)
 - [x] [186-Ask Pi to Retry… for a request that genuinely stopped](tasks/186-ask-pi-to-retry.md)
+- [x] [187-The harness does the paperwork; Pi only writes content](tasks/187-paperwork.md)

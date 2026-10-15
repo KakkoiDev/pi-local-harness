@@ -83,6 +83,7 @@ INTERNAL = {
     'PI_HARNESS_CONTEXT': 'The chosen context file of one request.',
     'PI_HARNESS_TURN_URL': 'Where a work request waits for its turn (one-at-a-time model).',
     'PI_HARNESS_LOCK_HELD': 'Set for the workbench’s requests: the workbench holds the agent lock for them.',
+    'PI_HARNESS_JOB': 'The Activity request a web worker runs (plan 184: its paperwork is kept under this id).',
     'PI_WEB_CWD': 'Folder for old chats without a project.',
     'PI_TRASH_DIR': 'Tests only: a folder used instead of the Trash.',
     'PLH_UPDATED': 'Set once after plh updated itself, so it does not update twice.',

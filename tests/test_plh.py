@@ -82,6 +82,17 @@ class LauncherTest(unittest.TestCase):
             self.assertEqual(json.loads((data/'config.json').read_text())['effort'],'medium')
             self.assertFalse((home/'pi-local-agent-data').exists())
 
+    def test_the_paperwork_paragraph_upgrades_without_erasing_memory(self):
+        """Plan 184: Pi no longer keeps tasks or commits; an installed memory with the old paragraph gets the new one."""
+        from harness.install import install, PAPERWORK_BEFORE
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);data=root/'data';data.mkdir()
+            template=(ROOT/'harness/AGENTS.md').read_text();current=next(line for line in template.split('\n') if line.startswith('Chats belong'))
+            (data/'AGENTS.md').write_text(template.replace(current,PAPERWORK_BEFORE)+'\nUser preference: retain this lesson.\n')
+            install(root/'prefix',root/'agent',data)
+            upgraded=(data/'AGENTS.md').read_text();self.assertIn('The harness keeps the paperwork',upgraded);self.assertIn('retain this lesson',upgraded);self.assertNotIn('Keep ROADMAP.md and tasks/*.md current',upgraded)
+            self.assertTrue(list(data.glob('AGENTS.md.before-paperwork-*')))
+
     def test_owned_comment_instructions_upgrade_without_erasing_memory(self):
         from harness.install import install
         with tempfile.TemporaryDirectory() as directory:

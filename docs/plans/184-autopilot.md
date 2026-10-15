@@ -6,6 +6,9 @@ format + guardrails. The model's only job should be to produce content: document
 button in the web UI when the model genuinely stopped, like crashed or something. But I want the gate to wake it up when
 it goes idle mid-run, loops, etc. I want the agent to be able to do all the work I asked it to do."
 
+Status 2026-10-15: built as tasks 184 (reports), 185 (keep running), 186 (Ask Pi to Retry…) and 187 (paperwork, with
+rule G-013: Pi does not commit within a request). Not yet seen with a real model.
+
 Decisions (2026-10-15): the harness commits locally when the work is verified (never pushes); a task is made at the
 first file change (or the request's named task is reused); up to 5 wake-ups per request, `wake_ups` in `/config`, 0 for
 no limit.

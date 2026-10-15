@@ -16,6 +16,9 @@ def head(source):
     try:return subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],capture_output=True,text=True,check=True).stdout.strip()
     except (OSError,subprocess.CalledProcessError):return None
 
+PAPERWORK_BEFORE = "Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. Keep ROADMAP.md and tasks/*.md current, mark only verified work complete, and report blockers clearly. In a folder with ROADMAP.md and tasks/, Gate allows `git commit` only after: a failing test run, the implementation, a passing test run on the final code, a newly checked task box, and a newly checked roadmap box. Run tests without pipes or `|| true` so their exit code counts. Every task file has a `Kind:` line: code (red and green), chore (green), docs, or planning (no test runs, no code changes). A commit that only adds unchecked tasks is a planning commit."
+
+
 def install(prefix, agent, data, source=ROOT, commit=None):
     prefix,agent,data,source=Path(prefix).resolve(),Path(agent).resolve(),Path(data).resolve(),Path(source).resolve()
     commit=commit or head(source)
@@ -54,6 +57,11 @@ def install(prefix, agent, data, source=ROOT, commit=None):
     if previous!=paragraph and previous in current:
         shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-markdown-'+stamp))
         (data/'AGENTS.md').write_text(current.replace(previous,paragraph))
+    # Plan 184: the harness does the paperwork now; the paragraph that told Pi to keep tasks and commit is replaced.
+    if PAPERWORK_BEFORE in current:
+        shutil.copy2(data/'AGENTS.md',data/('AGENTS.md.before-paperwork-'+stamp))
+        current=current.replace(PAPERWORK_BEFORE,next(part for part in template.split('\n') if part.startswith('Chats belong to one project folder.')))
+        (data/'AGENTS.md').write_text(current)
     # Keep other Pi extensions and custom settings intact.
     link=agent/'extensions/local-harness.ts'
     if link.is_symlink() and str(link.readlink()).endswith('/.pi/extensions/local-harness.ts'):

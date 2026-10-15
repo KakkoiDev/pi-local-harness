@@ -38,6 +38,7 @@ RULES = [
     Rule('G-010', 'Red and Green are ticked after the runs', 'before', PROJECT, 'REVISE', 'A task\'s Red box is ticked only after Gate saw a test run fail, its Green box only when the last test run passed.', 'tests/test_gate_rules.py', 'L-006-unreproduced-fix.md'),
     Rule('G-011', 'A Gate failure blocks only that call', 'harness', EVERYWHERE, 'BLOCK', 'If Gate cannot check a tool call (an error, not a decision) after retries, that call does not run and is reported; the run continues. Never work around Gate with another tool.', 'tests/harness/extension.test.mjs', 'L-002-routed-around-gate.md'),
     Rule('G-012', 'Unverified changes are marked', 'end', PROJECT, 'MARK', 'A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.', 'tests/test_gate_rules.py', 'L-005-claimed-verified.md'),
+    Rule('G-013', 'The harness commits', 'before', PROJECT, 'REVISE', 'Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally when the change is verified.', 'tests/test_paperwork.py'),
 ]
 BY_ID = {rule.id: rule for rule in RULES}
 
