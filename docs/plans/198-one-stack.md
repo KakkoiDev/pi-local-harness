@@ -330,9 +330,47 @@ Installing without a store (checked 2026-10-15; these rules move, the lessons ca
   days on up to 3 devices (Developer Mode on, iOS 16 and later), then it must be signed again (the harness re-runs it on
   request); the paid Apple Developer Program (a year) removes the weekly signing and allows TestFlight. In the EU,
   alternative app marketplaces are another route. The PWA stays the answer for most iPhone apps.
+- **Releases on GitHub** (decided 2026-10-15): each Android build can also be published as a GitHub release of the
+  project (`gh release create`, the APK attached), after the person's yes: a fixed link to send to friends, and the
+  history of versions. A release of a public repository is public: anyone can download it; the harness says so before
+  the first one. (A private repository's releases need a GitHub login, which a phone's browser rarely has: public, or
+  the QR over the tailnet.)
+- **Apple's policy, explained to the person** (decided 2026-10-15): the first time someone asks for an iPhone app, the
+  harness says plainly what Apple allows before building anything: an app outside the App Store must be signed by an
+  Apple developer identity; with a free Apple ID that signature lasts 7 days and covers up to 3 devices, so the app stops
+  opening each week until it is signed again from the Mac; the yearly paid Apple Developer Program gives a year-long
+  signature, more devices, and TestFlight for testers; everything else goes through Apple's App Store review. It
+  recommends the PWA when the app needs nothing a PWA cannot do. The lesson (W14) says the same, with the date checked.
 - What the harness does: checks what is installed and what is missing, downloads only after a yes, builds, signs,
   serves the APK by QR, opens Xcode on the right screen, and says each step in plain words. What the person does: the
   taps on the phone and, for iPhone, the Apple ID sign-in in Xcode (never typed by Pi).
+
+## Apps with no server at all
+
+Added 2026-10-15: "is it possible to offer the option and to inform the user that he can ask to try to put all the logic
+on the frontend to make the app run without server at all if possible?"
+
+Yes, as the second kind of project, chosen by one question rather than by taste. When a new project starts, and whenever
+the person asks, the harness asks or answers: **does more than one person need the same data when they are not online
+together, or does the app need a secret (a paid API key, a password check, payments)?**
+
+- **No:** the app can run with no server. Everything runs in the browser; data stays on the device (IndexedDB); it
+  works offline, installs as a PWA, and is hosted free on GitHub Pages with nothing to keep running. People can still
+  share live, with no server of ours, through p2p-core (already in the kit: other tabs, the same Wi-Fi, anyone online
+  through public relays, or pairing codes with no internet). Fits: personal tools, trackers, flashcards, calculators,
+  games (LittleJS), classroom activities.
+- **Yes:** the server stack (FastAPI, SQLite, Funnel or Fly.io).
+
+The harness offers it, never forces it: "This app could run with no server: free on GitHub Pages, works offline, nothing
+to keep on. Want that?" It also says what is lost: data lives on one device unless shared live (a backup is an export
+file), no secrets in the page (anyone can read the page's code), no data shared with people who are offline. An existing
+server project can be asked to move to no server; Pi checks the question above first and explains why not when it
+cannot.
+
+The no-server stack, one way again: plain ES modules with no build step; types through JSDoc checked by TypeScript in
+strict mode (the types rule holds: `tsc --checkJs`, through the Node pyright already brings); Basecoat and Tailwind for
+looks; a small storage block over IndexedDB; the logic as pure functions with tests (`node --test`); a service worker
+for offline. A second starter, `kit/starter-static`, beside the server one.
 
 ## How we know it helps (the bench)
 
@@ -383,14 +421,11 @@ beat the general harness on these scenarios, without losing on the others, or it
    (see Phones).
 4. **Scope:** the stack pack for new projects only (recommended to start), or also a migration helper for existing ones.
 5. **The Python type checker:** decided, pyright.
-7. **Hosting for production:** asked 2026-10-15 for "something that does it simply and for free"; the person suggested
-   Bonto and Fly.io. Checked 2026-10-15: **Bonto** runs Node.js and static sites only (its docs list no Python): it
-   cannot run the stack. **Fly.io** has no free tier for new accounts (a trial of 2 machine hours or 7 days, then a card;
-   volumes, which SQLite needs, are paid per GB): simple and always on, but paid. **Render**'s free tier needs no card
-   but sleeps when idle and wipes its disk on deploy: SQLite data is lost. **Tailscale Funnel** is free on every plan:
-   the app stays on the person's machine with its SQLite file and gets a public HTTPS address (needed to install a PWA);
-   the machine must stay on, and bandwidth has an unpublished cap. Proposed: Funnel as the free default, Fly.io as the
-   "always on, a few dollars a month" step. Waiting for the person.
+7. **Hosting for production:** decided 2026-10-15: **Tailscale Funnel** is the free default (the app stays on the
+   person's machine with its SQLite file and gets a public HTTPS address; the machine must stay on); **Fly.io** is the
+   "more solid" step for someone who wants it always on (paid: a few dollars a month, a volume for SQLite). Checked and
+   left out: Bonto (Node.js and static only), Render's free tier (sleeps, wipes its disk on deploy: SQLite is lost).
+   An app with no server (below) goes to GitHub Pages, free.
 8. **Issues and pull requests:** decided 2026-10-15, always ask before sending.
 9. **Windows and Linux:** decided 2026-10-15, after the starter project and the bench's stack track.
 10. **KakkoiSchool's lessons in the kit:** decided 2026-10-15: CC BY 4.0 for the lessons, MIT for the code, and the
