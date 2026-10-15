@@ -29,14 +29,15 @@ test('it shows what scrolls and what an element is placed against, at the size a
     const shots = mkdtempSync(join(tmpdir(), 'pi-shots-'));
     const result = await look({ target: `http://127.0.0.1:${server.address().port}/`, width: 1024, height: 560, steps: [{ click: 'Send' }],
       probes: ['viewport', 'scrolled', 'scrollable', 'positioned', 'console', { boxes: '.msg' }, { styles: { selector: '#desk', props: ['position', 'overflow-y'] } }, 'screenshot'] }, { chrome, shots });
-    assert.equal(result.size, '1024×560'); assert.deepEqual(result.steps, ['1. click "Send": done']);
-    assert.equal(result.facts.viewport.width, 1024); assert.equal(result.facts.viewport.title, 'clicked');
+    const dump = JSON.stringify(result).slice(0, 1500); // a flake under load (about 1 in 4 with a bench running) prints what the tool saw
+    assert.equal(result.size, '1024×560', dump); assert.deepEqual(result.steps, ['1. click "Send": done'], dump);
+    assert.equal(result.facts.viewport.width, 1024, dump); assert.equal(result.facts.viewport.title, 'clicked', dump);
     assert.ok(result.facts.scrolled.some(item => item.element === 'div#desk' && item.scrollTop === 200), JSON.stringify(result.facts.scrolled));
-    assert.ok(result.facts.scrollable.some(item => item.element === 'div#desk'), 'the desk is scrollable: the fact that solved task 173');
-    assert.deepEqual(result.facts.positioned.find(item => item.element === 'p#announce')?.against, 'div#desk');
+    assert.ok(result.facts.scrollable.some(item => item.element === 'div#desk'), 'the desk is scrollable: the fact that solved task 173 ' + dump);
+    assert.deepEqual(result.facts.positioned.find(item => item.element === 'p#announce')?.against, 'div#desk', dump);
     assert.deepEqual(result.facts['styles #desk'], { position: 'relative', 'overflow-y': 'auto' });
     assert.equal(result.facts['boxes .msg'].length, 3);
-    assert.deepEqual(result.facts.console, [{ level: 'error', text: 'boom' }]);
+    assert.deepEqual(result.facts.console, [{ level: 'error', text: 'boom' }], dump);
     assert.ok(existsSync(result.facts.screenshot));
     const missing = await look({ target: `http://127.0.0.1:${server.address().port}/`, steps: [{ click: 'Nothing here' }, { click: 'Send' }] }, { chrome });
     assert.match(missing.steps[0], /failed, No element matches/); assert.equal(missing.steps.length, 1, 'stops at the first failed step');

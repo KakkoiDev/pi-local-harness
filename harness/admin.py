@@ -588,8 +588,8 @@ def build(console, command, args, yes=False):
     if command == 'bench':  # plan 189: how well the model and the harness do on fixed scenarios
         from bench import runner as bench
         results = bench.read_jsonl(console.data / 'bench' / 'results.jsonl'); rows = bench.summary(results)
-        totals = {'kind': 'table', 'columns': ['MODEL', 'HARNESS', 'RUNS', 'SOLVED', 'VERIFIED', 'MIN', 'WAKE-UPS', 'REFUSALS'], 'flex': 0,
-                  'rows': [[f"{row['model']} {row['effort']}", row['harness'], str(row['runs']), f"{row['solved']}/{row['runs']}", str(row['verified']), str(row['minutes']), str(row['wake_ups']), str(row['refusals'])] for row in rows],
+        totals = {'kind': 'table', 'columns': ['MODEL', 'HARNESS', 'PROMPTS', 'RESOLVED', 'FIRST TRY', 'PASS^K', 'VERIFIED', 'MIN', 'WAKE-UPS'], 'flex': 0, 'drop': [7, 8],
+                  'rows': [[f"{row['model']} {row['effort']}", f"{row.get('mode', 'harness')} {row['harness']}", row.get('prompt_level', ''), f"{row['solved']}/{row['runs']}", str(row.get('first_try', '')), row.get('pass_k', ''), str(row['verified']), str(row['minutes']), str(row['wake_ups'])] for row in rows],
                   'empty': 'No runs yet: python3 -m bench run'}
         latest = {'kind': 'table', 'heading': 'Latest runs', 'columns': ['WHEN', 'SCENARIO', 'MODEL', 'RESULT'], 'flex': 3,
                   'rows': [[short_time(line.get('time')), line['scenario'], line['model'], ('✓ solved' if line['solved'] else '✗ not solved') + (' · verified' if line.get('verified') else '') + f" · {line['seconds'] // 60} min"] for line in results[-12:][::-1]], 'empty': '—'}

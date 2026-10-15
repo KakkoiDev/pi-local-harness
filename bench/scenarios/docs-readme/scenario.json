@@ -6,5 +6,9 @@
  "prompts": {
   "precise": "Write README.md for this project: what pager.py does, an example call with its result, and how to run the tests.",
   "everyday": "Can you write a README for this? Say what it does, show an example, and how to run the tests."
- }
+ },
+ "regression": "python3 -m unittest discover -s tests -t .",
+ "replies": [
+  "Yes, go ahead; use your best judgement."
+ ]
 }

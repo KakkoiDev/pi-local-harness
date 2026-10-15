@@ -11,5 +11,9 @@
  },
  "prompts": {
   "everyday": "The app has a bug. When i'm in the chat view. and i click on show activity next to the chat agent's answer being created. then click on see chat button to go back to the chat then the view is lifted up. there is white at the bottom of the screen."
- }
+ },
+ "regression": "python3 -m unittest tests.test_work_queue tests.test_context tests.test_documents",
+ "replies": [
+  "Yes, please find the cause and fix it."
+ ]
 }

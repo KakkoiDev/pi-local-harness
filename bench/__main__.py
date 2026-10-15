@@ -14,6 +14,7 @@ def main(argv=None):
     parser.add_argument('--model'); parser.add_argument('--effort')
     parser.add_argument('--repeat', type=int, default=1)
     parser.add_argument('--prompt', choices=runner.LEVELS, default='everyday', help='how the request is worded (default: everyday)')
+    parser.add_argument('--bare', action='store_true', help='plain Pi with Gate safety only: the baseline that shows what the harness adds')
     parser.add_argument('--out', default=str(runner.results_dir()))
     args = parser.parse_args(argv)
     chosen = runner.scenarios(args.ids)
@@ -37,13 +38,13 @@ def main(argv=None):
         print(f'Bench: {len(chosen)} scenario(s) × {args.repeat}, {args.prompt} prompts, with {model} ({effort}); results in {args.out}', flush=True)
         for _ in range(args.repeat):
             for item in chosen:
-                result = runner.run_one(item, model, effort, args.out, log=lambda text: print(text, flush=True), level=args.prompt)
-                print(f"  {'✓ solved' if result['solved'] else '✗ not solved'} · {'verified, committed' if result['verified'] else 'not verified'} · {result['status']} · {result['seconds'] // 60} min · "
+                result = runner.run_one(item, model, effort, args.out, log=lambda text: print(text, flush=True), level=args.prompt, bare=args.bare)
+                print(f"  {'✓ resolved' if result['resolved'] else ('✗ solved but broke tests' if result['solved'] else '✗ not solved')}{' (first try)' if result['first_try'] else ''} · {'verified, committed' if result['verified'] else 'not verified'} · {result['status']} · {result['seconds'] // 60} min · "
                       f"{result['tool_calls']} tool calls · wake-ups {result['reports'].get('wake-up', 0)} · refusals {sum(result['rules'].values())}", flush=True)
         return 0
     results = runner.read_jsonl(Path(args.out) / 'results.jsonl')
     for row in runner.summary(results):
-        print(f"{row['model']} ({row['effort']}) · harness {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} solved, {row['verified']} verified, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
+        print(f"{row['model']} ({row['effort']}) · {row['mode']} {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} resolved, {row['first_try']} first try, {row['verified']} verified, pass^k {row['pass_k']}, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
     return 0
 
 

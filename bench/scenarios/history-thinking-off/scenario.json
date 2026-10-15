@@ -10,5 +10,9 @@
  },
  "prompts": {
   "everyday": "also, I have a doubt that changing the thinking level in the UI actually changes the model's thinking level."
- }
+ },
+ "regression": "node --test tests/harness/core.test.mjs",
+ "replies": [
+  "Yes, check it, and fix it if it does not."
+ ]
 }

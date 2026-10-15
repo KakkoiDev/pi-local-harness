@@ -26,6 +26,10 @@ const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
+  // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
+  // measure what the harness adds. No extra tools, recovery, wake-ups, paperwork or rules summary.
+  const bare = process.env.PI_HARNESS_BARE === '1';
+  const extras = bare ? { ...pi, registerTool() {} } : pi;
   installTimestamps(pi, dependencies.timestamps);
   const showStartup = installStartupDisplay(pi);
   const root = dependencies.root || moduleRoot;
@@ -95,7 +99,7 @@ export default function harness(pi, dependencies = {}) {
   const incident = (kind, detail, fields = {}) => report(dataDir, kind, detail, { source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal', cwd: context?.cwd || root, ...fields });
   let lastAnswer = '';
   const trip = (reason, kind = 'loop') => {
-    if (pending || !lastQuestion) return;
+    if (bare || pending || !lastQuestion) return;
     pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n')}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
     recordLesson(memoryPath, kind);
     mkdirSync(dataDir, { recursive: true });
@@ -107,10 +111,10 @@ export default function harness(pi, dependencies = {}) {
     watch.stop();
   };
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
-  installConsole(pi, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
-  installTaskBox(pi, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
+  installConsole(extras, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
+  installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
-  const browserTool = installBrowser(pi, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser') });
+  const browserTool = installBrowser(extras, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser') });
   const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
@@ -177,7 +181,7 @@ export default function harness(pi, dependencies = {}) {
     try { if (!process.env.PI_HARNESS_SHARED_PORT) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
     // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
     let gateRules = '';
-    try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
+    if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${consoleGuide}` };
   });
   pi.on('message_end', event => {
@@ -190,8 +194,8 @@ export default function harness(pi, dependencies = {}) {
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
-    requestId = process.env.PI_HARNESS_JOB || randomUUID();
-    await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));
+    requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();
+    if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
@@ -318,6 +322,7 @@ export default function harness(pi, dependencies = {}) {
       if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');
     };
     if (pending) return;
+    if (bare) { verifiedBefore = undefined; await settledNow(); return; }
     if (!verifiedBefore) { await settledNow(); return; }
     const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);

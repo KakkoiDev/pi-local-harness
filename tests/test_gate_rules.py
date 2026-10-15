@@ -171,3 +171,14 @@ class ConsoleTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class BareTest(unittest.TestCase):
+    """The bench baseline (PI_HARNESS_BARE=1): Gate keeps its core safety rules (G-001 to G-007) and nothing else."""
+    def test_only_the_core_rules_apply(self):
+        from unittest.mock import patch
+        engine = GateEngine('', '/dev/null')
+        with patch.dict('os.environ', {'PI_HARNESS_BARE': '1'}):
+            self.assertEqual(engine.rejection(ActionProposal('execute_command', {'command': 'echo x >> ROADMAP.md'}, 't'), 'admin'), (None, None), 'G-008 is the harness, not safety')
+            self.assertEqual(engine.rejection(ActionProposal('execute_command', {'command': 'rm -rf ~'}, 't'), 'admin')[0].id, 'G-003', 'safety stays')
+        self.assertEqual([rule.id for rule in rules.RULES if rule.core], ['G-001', 'G-002', 'G-003', 'G-004', 'G-005', 'G-006', 'G-007'])

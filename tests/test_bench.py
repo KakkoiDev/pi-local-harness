@@ -42,8 +42,17 @@ class BenchTest(unittest.TestCase):
             self.assertRegex(result['harness'], r'^[0-9a-f]{7,}')
             lines = runner.read_jsonl(Path(folder) / 'out/results.jsonl'); self.assertEqual(len(lines), 1)
             run = Path(result['folder']); self.assertTrue((run / 'project/pager.py').is_file()); self.assertTrue((run / 'answer.md').is_file())
-            self.assertEqual(runner.summary(lines)[0] | {}, {'model': 'fake:1b', 'effort': 'low', 'harness': result['harness'], 'prompt_level': 'vague', 'runs': 1, 'solved': 0, 'verified': 0,
-                                                            'minutes': round(result['seconds'] / 60, 1), 'wake_ups': 0.0, 'refusals': 0.0})
+            self.assertEqual(runner.summary(lines)[0], {'model': 'fake:1b', 'effort': 'low', 'harness': result['harness'], 'prompt_level': 'vague', 'mode': 'harness', 'runs': 1, 'solved': 0,
+                                                       'first_try': 0, 'verified': 0, 'pass_k': '0/1 (k=1)', 'minutes': round(result['seconds'] / 60, 1), 'wake_ups': 0.0, 'refusals': 0.0})
+            self.assertEqual((result['regressions'], result['resolved'], result['user_turns']), (True, False, 0), 'its own tests still pass; the fake Pi asked nothing')
+
+    def test_when_pi_asks_the_scripted_user_answers(self):
+        with tempfile.TemporaryDirectory() as folder:
+            bin = Path(folder) / 'bin'; bin.mkdir()
+            (bin / 'pi').write_text(f'#!{sys.executable}\n' + (ROOT / 'tests/fixtures/fake-pi.py').read_text()); (bin / 'pi').chmod(0o755)
+            scenario = runner.scenarios(['refactor-rename'])[0] | {'prompts': {'everyday': 'Rename it TEST_ASK'}, 'replies': ['Yes, keep it.', 'Never sent']}
+            result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None)
+            self.assertEqual(result['user_turns'], 1, 'one answer; the reply was not a question, so the run ended')
 
     def test_the_console_shows_the_bench(self):
         from harness import admin

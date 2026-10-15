@@ -100,7 +100,7 @@ class ProposalLedger:
             return copy.deepcopy(list(self.events))
 
     def start_request(self, request, cwd, text):
-        return self.paperwork.start(request, cwd, text)
+        return None if rules.bare() else self.paperwork.start(request, cwd, text)
 
     def end_request(self, request):
         result = self.paperwork.end(request)
@@ -122,7 +122,7 @@ class ProposalLedger:
             return refuse(rule.id, None, reason)
         response = {'outcome': 'ALLOW'}
         command = args.get('command') if tool_name == 'execute_command' else None
-        if isinstance(command, str) and request in self.paperwork.requests and commit_folder(command, cwd):
+        if isinstance(command, str) and not rules.bare() and request in self.paperwork.requests and commit_folder(command, cwd):
             return refuse('G-013', 'the harness commits this request when the change is verified (tests failed first, then passed on the final code). Finish the work and run the tests; do not commit.')
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
@@ -141,7 +141,7 @@ class ProposalLedger:
                 content, reason = apply_edits(original, args, path.name)
                 if reason:
                     return refuse('G-004', reason)
-            root = project_root(path.parent) if rules.plan_file(path) else None
+            root = project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
             if root and path.is_file():
                 original = path.read_text(errors='replace')
                 shrinks = rules.plan_shrinks(original, content) if pi_tool == 'write' else None

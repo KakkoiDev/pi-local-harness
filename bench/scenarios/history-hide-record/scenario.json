@@ -11,5 +11,9 @@
  },
  "prompts": {
   "everyday": "show task record should say: hide task record when the task record is opened. And I find the ui to close the record hard to figure out. are X to close OK in this design system?"
- }
+ },
+ "regression": "python3 -m unittest tests.test_work_queue tests.test_context tests.test_documents",
+ "replies": [
+  "Yes, make that change. Keep the design system: no × buttons."
+ ]
 }

@@ -45,6 +45,18 @@ AGENTS.md; the extension read it at session start before setting Gate's port, so
 set. Fixed (task 190): the port is set first, a missing memory falls back to the template and is reported, and the
 bench seeds AGENTS.md as the installer does. Those five results are in `results.invalid.jsonl` with the reason.
 
+## What others do, taken (task 191)
+
+From SWE-bench, Terminal-Bench, τ-bench and Aider Polyglot:
+- **Regression tests** (SWE-bench's PASS_TO_PASS): each scenario names its own existing tests; a run is *resolved* only
+  if the hidden check passes and those still pass.
+- **Reliability** (τ-bench's pass^k): with `--repeat k`, the share of scenarios resolved in every one of their runs.
+- **First try** (Aider's two attempts): resolved with no wake-up, recovery or user reply.
+- **The baseline** (Terminal-Bench's neutral agent): `--bare` runs plain Pi with Gate's core safety rules (G-001 to
+  G-007) and none of the harness, to show what the harness adds.
+- **A scripted user** (τ-bench's simulated user, kept deterministic): when Pi ends by asking the person something, the
+  scenario's next reply is sent, up to its replies.
+
 ## A run
 
 A scratch workbench from this checkout (temporary data folder, the real `pi`, the real Ollama model from

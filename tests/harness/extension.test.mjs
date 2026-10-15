@@ -261,3 +261,19 @@ test('a web worker reaches Gate even when its memory file is missing; the templa
   assert.match(readFileSync(join(dir,'data','reports.jsonl'),'utf8'),/"kind":"memory-missing"/);
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });
+
+test('bare mode (the bench baseline): Pi with Gate safety only, none of the harness around it', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-bare-'));const saved={...process.env};
+ Object.assign(process.env,{PI_HARNESS_BARE:'1',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_WEB_PORT:'3999',PI_AGENT_DATA:join(dir,'data')});
+ const handlers={},tools=[],sent=[];
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},registerTool:tool=>tools.push(tool.name),registerCommand(){},sendUserMessage:text=>sent.push(text)};
+ try {
+  harness(pi,{root:dir+'/'});
+  assert.deepEqual(tools,[],'no harness, task_box or browser tool');
+  await handlers.session_start({},{ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir});
+  assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/G-008/,'no rules summary');
+  await handlers.input({source:'rpc',text:'Fix it'},{ui:{notify(){}},cwd:dir});
+  await handlers.agent_settled({aborted:false},{ui:{notify(){}}});
+  assert.deepEqual(sent,[],'never woken');
+ } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});

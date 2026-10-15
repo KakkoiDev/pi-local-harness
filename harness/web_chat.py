@@ -481,7 +481,7 @@ class WebChat:
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
             if not reply:raise ValueError('Pi completed without an assistant answer')
-            note=verification_note(before,checked())
+            note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
             if note:
                 reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
                 reports.report(self.documents.root,'unverified',note.strip(),request=job,project=project)  # plan 184

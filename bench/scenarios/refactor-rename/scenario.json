@@ -6,5 +6,9 @@
  "prompts": {
   "precise": "Rename area_rect to rectangle_area everywhere in this project. Behaviour must not change.",
   "everyday": "area_rect is a confusing name. Call it rectangle_area instead."
- }
+ },
+ "regression": "python3 -m unittest discover -s tests -t .",
+ "replies": [
+  "Yes, go ahead; use your best judgement."
+ ]
 }

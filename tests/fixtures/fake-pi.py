@@ -64,6 +64,7 @@ if request['message'].rstrip().endswith('TEST_WAIT'):
 else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})
     text=f'[CANARY] reply {count}'
+    if 'TEST_ASK' in request['message']:text='[CANARY] I can do that two ways. Should I keep the old name too?'  # the bench's scripted user answers it
     if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.\n\n| If you are… | Action | A very long example column that should scroll on a phone |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう and a much longer cell to push the width |'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
