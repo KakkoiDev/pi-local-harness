@@ -587,7 +587,7 @@ const readline = require('node:readline');
   await sheet.waitFor({state:'hidden'});
   // Phone bar on a document (PhoneEdit1/6): ‹ Files, the name, Comments N; the status shows elsewhere.
   assert.equal(await page.locator('#phone-back').isVisible(),true);assert.equal(await page.locator('#phone-title-text').textContent(),'ROADMAP.md');
-  assert.equal(await page.locator('#phone-view').isVisible(),false);assert.equal(await page.locator('#document-toolbar').isVisible(),false,'no desk ruler');
+  assert.equal(await page.locator('#phone-view').isVisible(),true,'round 8 (Ph8_Doc): the phone bar stays');assert.equal(await page.locator('#phone-comments').isVisible(),true,'Comments is always there');assert.equal(await page.locator('#phone-more').isVisible(),true,'⋯ for the file');assert.equal(await page.locator('#document-toolbar').isVisible(),false,'no desk ruler');
   // Editing shows the bottom bar; Done hides it.
   await page.locator('#document-editor>.pw-block--paragraph .pw-block__content').first().click();
   await page.locator('#phone-edit-bar').waitFor();assert.equal(await page.locator('#phone-block-style').inputValue(),'text');
@@ -625,9 +625,9 @@ const readline = require('node:readline');
   await page.locator('#open-menu').click();await page.locator('#agent-activity').click();await page.waitForFunction(()=>document.body.dataset.view==='activity');
   assert.equal(await page.locator('#phone-view-label').textContent(),'Activity · all');
   await page.locator('#activity-list .activity-task').first().click();await page.waitForFunction(()=>document.body.dataset.pane==='detail');
-  assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#phone-back-label').textContent(),'Activity · all');
+  assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#detail-back-label').textContent(),'Activity · all');
   assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().innerText(),/^(Open in Chat|Show Comment|Show in Review)$/);
-  await page.locator('#phone-back').click();
+  await page.locator('#detail-back').click();
   await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
   assert.equal(await page.evaluate(()=>document.body.classList.contains('menu-open')),false,'the π sheet closes for a dialog');
   const sheet=await page.locator('#folder-dialog').boundingBox();assert.ok(Math.round(sheet.y+sheet.height)>=840&&Math.round(sheet.width)===390,'a bottom sheet: '+JSON.stringify(sheet));
@@ -660,6 +660,17 @@ const readline = require('node:readline');
   assert.match(await sheet.locator('.thread-head .sheet-head__title').textContent(),/^Comment \d+ of \d+$/);
   const box=await sheet.boundingBox();assert.ok(Math.round(box.y+box.height)>=840&&Math.round(box.width)===390,'a bottom sheet: '+JSON.stringify(box));
   await sheet.getByRole('button',{name:'Close',exact:true}).click();await sheet.waitFor({state:'detached'});
+  }
+  { // Round 8 point 9 (Ph8_Doc): the phone bar hides on scroll down and comes back on scroll up; editing shows only the document bar.
+  fs.writeFileSync(join(root,'LONG.md'),'# Long\n\n'+Array.from({length:60},(_,n)=>`Paragraph ${n} of a long file.`).join('\n\n')+'\n');
+  await page.goto(`${base}/p/${id}/work/LONG.md`);await page.locator('#phone-docbar').waitFor();
+  const scroller=page.locator('#work-panel .pw-window__body');
+  await scroller.evaluate(element=>{element.scrollTop=600;});await page.waitForFunction(()=>document.body.classList.contains('phonebar-away'));
+  assert.equal(await page.locator('#phonebar').isVisible(),false,'scrolled down: only the document bar');assert.equal(await page.locator('#phone-docbar').isVisible(),true);
+  await scroller.evaluate(element=>{element.scrollTop=300;});await page.waitForFunction(()=>!document.body.classList.contains('phonebar-away'));
+  await page.locator('#document-editor .pw-block--paragraph .pw-block__content').first().click();await page.locator('#phone-edit-bar').waitFor();
+  assert.equal(await page.locator('#phonebar').isVisible(),false,'editing: only the document bar');assert.equal(await page.locator('#phone-saved').isVisible(),true,'the save status while editing');
+  await page.locator('#phone-edit-done').click();await page.locator('#phonebar').waitFor();
   }
   { // Round 8 point 11 (Ph8_Details, Ph8_Toast, Ph8_Settings): 44 px targets, no ⌘ hints, the toast above the edit bar.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();

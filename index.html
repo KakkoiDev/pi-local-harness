@@ -125,12 +125,16 @@
   <nav id="phonebar" class="pw-phonebar" aria-label="Menu bar">
     <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π</button>
     <button id="phone-view" class="pw-phonebar__btn" aria-haspopup="menu" aria-expanded="false"><span id="phone-view-label">Chat</span><span data-icon="popup-arrow"></span></button>
-    <button id="phone-back" class="pw-phonebar__btn" hidden>‹ <span id="phone-back-label">Files</span></button>
-    <span id="phone-title" class="phone-title" hidden><span class="pw-titlebar__stripes"></span><span id="phone-title-text" class="pw-titlebar__title"></span><span class="pw-titlebar__stripes"></span></span><!-- PhoneEdit1: the document's name in the bar -->
+    <button id="detail-back" class="pw-phonebar__btn" hidden>‹ <span id="detail-back-label">Activity · all</span></button><!-- Ph_ActivityDetail: a detail screen has only its back button -->
     <span class="pw-menubar__spacer"></span>
-    <button id="phone-comments" class="pw-phonebar__btn" aria-pressed="false" hidden>Comments <span id="phone-comment-count">0</span></button>
-    <span id="phone-saved" class="phone-status" hidden></span>
     <button id="phone-status" type="button" class="pw-statusbtn phone-status" aria-label="Agent status. Open Activity"></button><!-- StatusButton on the phone bar, 44px -->
+  </nav>
+  <nav id="phone-docbar" class="pw-phonebar phone-docbar" aria-label="Document" hidden><!-- round 8 (Ph8_Doc): under the phone bar on a document or folder screen; the phone bar hides on scroll down -->
+    <button id="phone-back" class="pw-phonebar__btn">‹ <span id="phone-back-label">Files</span></button>
+    <span id="phone-title" class="phone-title"><span class="pw-titlebar__stripes"></span><span id="phone-title-text" class="pw-titlebar__title"></span><span class="pw-titlebar__stripes"></span></span>
+    <button id="phone-comments" class="pw-phonebar__btn" aria-pressed="false" hidden>Comments <span id="phone-comment-count"></span></button>
+    <span id="phone-saved" class="phone-status" hidden></span>
+    <button id="phone-more" class="pw-phonebar__btn" aria-haspopup="dialog" aria-label="More" hidden><span data-icon="more"></span></button>
   </nav>
 
   <button id="backdrop" class="pw-scrim" aria-label="Close menu" hidden></button>

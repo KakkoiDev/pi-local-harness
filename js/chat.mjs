@@ -131,12 +131,22 @@ $('settings-cancel').onclick=()=>$('settings-dialog').close('cancel');
 $('settings-form').addEventListener('submit',event=>{if(event.submitter?.value!=='save')return;writeState('language',$('settings-form').elements.language.value);writeState('appearance',$('settings-form').elements.appearance.value);writeState('desktopPattern',$('settings-pattern').querySelector('[aria-checked="true"]').dataset.pattern);writeState('returnSends',$('settings-return').checked);applySettings();});
 // Phone (<=760px): the phone bar's view popup, back button and Comments sheet. body[data-pane] picks the full screen.
 function phoneBar(){const state=workspace?.status(),pane=view==='work'&&!state?.page?'files':panes[view]||'';document.body.dataset.pane=pane;
- const back=view==='work'&&pane==='document'?'Files':pane==='detail'?{activity:'Activity · all',gate:'Gate · all'}[view]:'';/* Ph_ActivityDetail */$('phone-back').hidden=!back;$('open-menu').hidden=Boolean(back);$('phone-back-label').textContent=back||'';
- // PhoneEdit1/6: a document screen shows its name, then Comments N (when it has comments) or the save status.
- const documentScreen=Boolean(phone()&&view==='work'&&pane==='document'&&state?.page),comments=Number($('comment-count').textContent||0);
- $('phone-view').hidden=documentScreen||pane==='detail';/* a detail screen has only its back button (Ph_ActivityDetail) */$('phone-title').hidden=!documentScreen;$('phone-title-text').textContent=state?.page?.split('/').pop()||'';
- $('phone-comments').hidden=!(documentScreen&&!state.textFile&&comments);$('phone-comment-count').textContent=String(comments);
- $('phone-saved').hidden=!documentScreen||!$('phone-comments').hidden;$('phone-saved').textContent=$('phone-saved').hidden?'':$('save-status').textContent;$('phone-status').hidden=documentScreen;}
+ // Ph_ActivityDetail: a detail screen has only its back button in the phone bar.
+ const detail=pane==='detail'?{activity:'Activity · all',gate:'Gate · all'}[view]:'';$('detail-back').hidden=!detail;$('detail-back-label').textContent=detail||'';$('open-menu').hidden=$('phone-view').hidden=Boolean(detail);
+ // Round 8 (Ph8_Doc, Ph8_Folder): the phone bar stays; a document or an opened folder adds the document bar under it:
+ // ‹ Files, the name, Comments (always, on Markdown files) and ⋯ while reading; the save status while editing.
+ const documentScreen=Boolean(phone()&&view==='work'&&pane==='document'&&state?.page),folder=phone()&&view==='work'&&pane==='files'?workspace?.openFolder?.():'';
+ const editing=documentScreen&&!$('phone-edit-bar').hidden,comments=Number($('comment-count').textContent||0);
+ document.body.classList.toggle('doc-screen',Boolean(documentScreen||folder));if(!documentScreen&&!folder)document.body.classList.remove('phonebar-away');
+ $('phone-docbar').hidden=!(documentScreen||folder);$('phone-title-text').textContent=documentScreen?state.page.split('/').pop():folder?folder.split('/').pop():'';
+ $('phone-comments').hidden=!(documentScreen&&!state.textFile)||editing;$('phone-comment-count').textContent=comments?String(comments):'';
+ $('phone-more').hidden=editing||!(documentScreen||folder);$('phone-more').setAttribute('aria-label','More for '+$('phone-title-text').textContent);
+ $('phone-saved').hidden=!documentScreen||!$('phone-comments').hidden;$('phone-saved').textContent=$('phone-saved').hidden?'':$('save-status').textContent;}
+// Ph8_Doc: reading a document, scrolling down hides the phone bar and scrolling up (or tapping the document bar) brings it back.
+{let lastY=0;document.addEventListener('scroll',event=>{const target=event.target;if(!document.body.classList.contains('doc-screen')||!(target instanceof Element)||!target.closest('#work-panel'))return;
+ const y=target.scrollTop;if(y>lastY+8&&y>48)document.body.classList.add('phonebar-away');else if(y<lastY-8||y<=0)document.body.classList.remove('phonebar-away');lastY=y;},true);
+ $('phone-title').onclick=()=>document.body.classList.remove('phonebar-away');}
+new MutationObserver(()=>phoneBar()).observe($('phone-edit-bar'),{attributes:true,attributeFilter:['hidden']});/* editing swaps Comments and ⋯ for the save status */
 // The agent status shows on the phone bar and in the π sheet as on the desk menu bar (Phone, Ph_Pi).
 function mirrorStatus(){const copy=()=>[...$('agent-state').childNodes].map(child=>child.cloneNode(true));$('phone-status').replaceChildren(...copy());$('phone-status').className=$('agent-status').className+' phone-status';$('phone-status').setAttribute('aria-label',$('agent-status').getAttribute('aria-label'));$('pi-status-text').replaceChildren(...copy());const running=workspace?.status().jobs.find(job=>job.status==='running');$('pi-stop').hidden=!running;}
 new MutationObserver(mirrorStatus).observe($('agent-state'),{childList:true,characterData:true,subtree:true});new MutationObserver(()=>phoneBar()).observe($('save-status'),{childList:true,characterData:true,subtree:true});
@@ -145,7 +155,8 @@ $('pi-close').onclick=()=>menu(false);
 function closeCommentsSheet(){$('comments-panel').classList.remove('is-sheet');$('backdrop').hidden=true;$('phone-comments').setAttribute('aria-pressed','false');}
 $('comments-close').onclick=closeCommentsSheet;
 $('phone-copy-link').onclick=()=>navigator.clipboard.writeText(phoneEnable).then(()=>toast('Link copied'),e=>error(e.message));$('phone-copy').onclick=()=>navigator.clipboard.writeText(phoneUrl).then(()=>toast('Address copied'),e=>error(e.message));
-$('phone-back').onclick=()=>{panes[view]=view==='work'?'files':'list';phoneBar();};
+$('detail-back').onclick=()=>{panes[view]='list';phoneBar();};
+$('phone-back').onclick=()=>{if(workspace?.openFolder?.()&&!workspace.status().page){workspace.closeFolder();phoneBar();return;}panes.work='files';phoneBar();};
 $('phone-comments').onclick=()=>{if($('comments-panel').classList.contains('is-sheet')){closeCommentsSheet();return;}$('comments-panel').classList.add('is-sheet');$('backdrop').hidden=false;$('phone-comments').setAttribute('aria-pressed','true');};
 // Model and thinking level (task 147): the menu bar names them and opens a menu for each. Switching models unloads the old one
 // in Ollama, loads the new one and says when it is ready; a model without thinking dims the thinking button and its items.

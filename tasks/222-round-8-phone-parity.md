@@ -21,7 +21,9 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
   the question goes the way of the whole-file question (`/api/jobs/create` with the document), never a comment.
 - [x] 7 Preview foot: state, Stop / Start, Open App; the app language in Preview's view menu (Ph8_Preview, Ph8_PreviewMenu).
 - [ ] 8 Landing on the detail (Activity, Gate, the status button).
-- [ ] 9 Document screens: the phone bar hides on scroll down, returns on scroll up; the document bar only while editing.
+- [x] 9 Document screens: the phone bar (π · view · status) stays above a new document bar (‹ Files · name · Comments ·
+  ⋯); it hides on scroll down and returns on scroll up or a tap on the name; while editing only the document bar shows,
+  with the save status. A detail screen's back button is now `#detail-back` (the document bar keeps `#phone-back`).
 - [ ] 10 New Project / Add Existing Folder: "Create in ~/code ›" and the folder browser as its own step (Ph8_NewProject, Ph8_ChooseFolder).
 - [x] 11 Details: 44 px targets, no ⌘ hints on the phone, the toast above the edit bar, Mac-only settings hidden with
   a one-line note (Ph8_Toast, Ph8_Settings, Ph8_Details). Not built: Ph8_Settings' Show lessons, Wait 10 s and Phone
