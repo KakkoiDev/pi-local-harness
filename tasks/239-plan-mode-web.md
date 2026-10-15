@@ -1,12 +1,28 @@
-# 239: Plan mode in the web workbench (after the designer's round 10)
+# 239: Plan mode in the web workbench
 
 Kind: code
 
-Unblocked 2026-10-16: the designer answered (canvas page "Plan mode"; cards ChoiceCard, PlanCard, CheckInCard,
-AwayCard; IMPLEMENTATION.md round 10 and its version 2 section) and `design/` was re-synced. Formerly blocked until the
-designer answered design/briefs/round-10.md and `design/` was re-synced (the person or Claude does the
-re-sync; see design/README.md "Backup of the two artifacts"). Build from the boards and IMPLEMENTATION.md's "Round
-10" section, not from this file. Design changes go through the designer: do not invent the cards.
+The design is in the repo (read docs/handoff/gpt-sol.md, "Reading the design", first). Build from these files only:
+
+- Words: design/IMPLEMENTATION.md, sections `## 2026-10-16 · Round 10: Pi discusses before it builds (plan 236)` and
+  `### Round 10, version 2 (the person's decisions)` (version 2 wins where they differ).
+- Boards (design/canvas/, page `r10`), in this order:
+  - R10_Answers: the designer's answers, read first.
+  - R10_Choice, R10_ChoiceStates: ChoiceCard and its states.
+  - R10_Plan, R10_PlanStates: PlanCard and its states.
+  - R10_CheckIn, R10_CheckInStates: CheckInCard (the waiting DoneRow) and its states.
+  - R10_AutoOn: the risk alert (shown every time, per version 2, whatever the board's title says).
+  - R10_AgentMenu: Agent › Run on Its Own ⌥⌘A, the status "Working · on its own".
+  - R10_Away: the end-of-run report (AwayCard).
+  - R10_Work: Decisions and "Plan approved" in the task file.
+  - Ph10_Choice, Ph10_Plan, Ph10_CheckIn, Ph10_Away: the phone versions.
+  - (T_PlanMode is the terminal: task 240.)
+- Components: design/system/components/ChoiceCard, PlanCard, CheckInCard, AwayCard (README.md and preview.html), DoneRow
+  (the check-in reuses it), MenuBar (Agent menu), Dialog (the alert pattern). CSS: design/components.css, the block
+  headed "Rounds 9–10: updates, plan mode (plan 236)" (`.pw-card…`, `.pw-tag`, `.pw-option`, `.pw-plan…`, `.pw-facts`,
+  `.pw-auto`).
+- Code to extend: js/chat.mjs (messages, composer), js/done-row.mjs (the DoneRow), index.html (the Agent menu, the
+  composer, Settings), messages/ja.json (Japanese), tests/browser/design.cjs (tests; the phone block for Ph10_*).
 
 ## The pieces (from the designer's answer; the boards are the source)
 - ChoiceCard ("Question 1 of 3", inline also on the phone; the composer answers "Something else", Send reads Answer).
@@ -16,8 +32,6 @@ re-sync; see design/README.md "Backup of the two artifacts"). Build from the boa
 - "Run on its own": the checkbox beside Send, the Agent menu item (⌥⌘A), Settings; the risk alert; "Working · on its
   own" in the status.
 - Decisions and "Plan approved" lightly rendered in Work.
-- Note: the MenuBar card and IMPLEMENTATION.md round 10 item 4 still say "per project"; the version 2 section and the
-  AwayCard card say one setting for all projects, which the person decided. Follow version 2.
 
 ## First list (kept for the record)
 - The choices card in the chat (radio rows, the recommended first with its tag, "Something else…" with a text field,

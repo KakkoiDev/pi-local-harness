@@ -2,8 +2,21 @@
 
 Kind: code
 
-The designer's answer to design/briefs/round-9.md (2026-10-16): canvas page "Updates & devices" (it opens with an
-answers board) and IMPLEMENTATION.md's round 9 section. Build from the boards, not from this list.
+The design is in the repo (read docs/handoff/gpt-sol.md, "Reading the design", first). Build from these files; the list
+below only says which board serves which box:
+
+- Words: design/IMPLEMENTATION.md, section `## 2026-10-16 · Round 9: updates, other devices, Terminal app, Language`.
+- Boards (design/canvas/, page `r9`): R9_Answers (read first), R9_UpdateMenu (π › Check for Updates…, the dot),
+  R9_Update (what is new, Update / Later), R9_UpdateStates (updating, updated, up to date, offline, blocked ×2),
+  R9_Devices (app icon, Dock icon, menu-bar item, Quit), R9_PreviewTerminal (a Terminal app in the Preview),
+  R9_Settings (Settings, Language first); phone: Ph9_Pi (π sheet: Check for Updates…, Add to Home Screen…),
+  Ph9_Update (update sheet), Ph9_Install (Add to Home Screen, once, away from the Mac), Ph9_PreviewTerminal (the key
+  row). Changed existing boards: C_MenuBar, P_NewProject, P_NewProjectStatic, Ph8_NewProject, Ph8_Settings.
+- Components: design/system/components/Dialog/README.md (sections "Settings (round 9)" and "Check for Updates… (round
+  9)"), MenuBar/README.md (π menu), PhoneBar/README.md, PreviewWindow/README.md.
+- Code to extend: harness/updates.py (check/apply), harness/web_chat.py (a new `/api/updates` route), js/chat.mjs and
+  index.html (π menu, Settings), js/preview.mjs (the Terminal app's Preview), harness/settings.py (settings),
+  messages/ja.json, tests/browser/design.cjs.
 
 - [ ] Updates (task 219): a dot on the π title (and π on the phone) when a new version is known; the menu item
   "● New version"; every state drawn: updating, updated, up to date, can't reach GitHub, both blocked cases (the built

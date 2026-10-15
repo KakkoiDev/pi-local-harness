@@ -579,9 +579,9 @@ Boards: canvas page **Plan mode** — [R10_Answers], [R10_Choice], [R10_ChoiceSt
 1. **ChoiceCard**: one question per card, “Question 1 of 3”; 2–4 options, recommended first, selected and tagged; Something else… last, opening a field; **Answer** default. Typing in the composer answers as Something else (label “Your answer to …”, Send reads Answer). Settled: one line with Change…; auto: dotted with an auto tag.
 2. **PlanCard**: Goal, Tasks with “Done when”, Decisions with chosen / given / auto tags; Approve Plan (default) · Change… · Open the Plan. Change… = the composer with “What should change in the plan?”; v1 collapses when v2 arrives. Over 7 tasks: first 5 and “and N more”.
 3. **CheckInCard = the task's DoneRow while it waits**: plain words, Verified, Next, Show in Preview · Undo This Task…; Continue (default) · Review First · Stop Here. Not verified: Review First is the default and Run on its own stops.
-4. **Run on its own** (the name in the UI; `/auto` in the terminal): per project; checkbox beside Send + Agent › Run on Its Own ⌥⌘A; first-time alert; status “Working · on its own”; Needs you waits in Activity (Needs Attention) and is counted by the status; the AwayCard on return.
+4. **Run on its own** (the name in the UI; `/auto` in the terminal): one setting for all projects (Settings › Pi), remembered; the checkbox beside Send and Agent › Run on Its Own ⌥⌘A toggle that same setting; the risk notice every time it is turned on; status “Working · on its own”; nothing is held back (no “Needs you”); the report at the end of each run. Details: version 2 below.
 5. **Work**: plain Markdown; `Plan approved:` renders as a ✓ line under the title, decision states as tags.
-6. **Terminal**: select lists for questions, plan and check-ins; `/auto on` asks once; footer “Auto”; `/status` gains “Run on its own” and “Needs you”; attention segment reads “needs you · /queue”.
+6. **Terminal**: select lists for questions, plan and check-ins; `/auto on` (or `/config set auto on`) shows the risks every time; footer “Auto”; `/status` gains “Run on its own”; a one-line report at the end of a run, `/report` for the full one.
 
 ### Round 10, version 2 (the person's decisions)
 

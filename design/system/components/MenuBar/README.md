@@ -8,7 +8,7 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 - At 760px and below it is replaced by the PhoneBar.
 - The menu bar never changes its titles. Unavailable commands are disabled, not hidden.
 - Window menu: Projects, Files, Review, Event Info, Preview ⌥⌘P (checkboxes), a separator, then the app-level windows **Activity · All Projects ⌘3** and **Gate · All Projects ⌘4** (radio: checked when that window is open). View holds only Chat ⌘1 and Work ⌘2 (disabled while Activity or Gate is open), the editor mode and Review commands.
-- Agent menu: **Show Task Record** / **Hide Task Record** (⌥⌘R, Activity only) follows the label of Activity’s button; then **Run on Its Own** ⌥⌘A (checkbox, per project; round 10). Compact Now, New Conversation… and Earlier Conversations are not built and came off (round 9).
+- Agent menu: **Show Task Record** / **Hide Task Record** (⌥⌘R, Activity only) follows the label of Activity’s button; then **Run on Its Own** ⌥⌘A (checkbox; a quick toggle of the one Settings › Pi setting for all projects, showing the risk notice every time it is turned on; round 10). Compact Now, New Conversation… and Earlier Conversations are not built and came off (round 9).
 - π menu: About Pi Workbench, **Check for Updates…** (round 9), Settings…, Desktop Pattern…, Open on Phone…. When a newer version is known (checked once a day), a 6px dot sits on the π title and the item reads “● New version”.
 ## Model and thinking level (task 147)
 

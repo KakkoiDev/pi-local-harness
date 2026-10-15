@@ -3,8 +3,8 @@
 Kind: code
 
 The person, 2026-10-16: "should we make it clean up the base project then? Or is it useful scaffolding for follow up
-requests in case the model is limited in intelligence?" Decision (proposed by Claude, check with the person if unsure):
-keep the skeleton, replace the sample. The skeleton (storage, i18n, the test setup, service worker, manifest, build
+requests in case the model is limited in intelligence?" Decided (Claude's recommendation; the person said "go ahead",
+2026-10-16): keep the skeleton, replace the sample. The skeleton (storage, i18n, the test setup, service worker, manifest, build
 commands, the folder rules) is what helps a small model on every later request. The sample (the notes feature) only
 shows the pattern once and then misleads: in ~/Code/pong it stayed as dead code, the app still installs as "Notes",
 the README describes a notes app, and messages/*.json hold "Add Note".

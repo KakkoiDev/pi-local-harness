@@ -1,6 +1,7 @@
 # Plan 236: Plan mode, always on: Pi discusses before it builds
 
-Date: 2026-10-16. Status: planned; tasks 236-240. The designer draws the cards first (design/briefs/round-10.md).
+Date: 2026-10-16. Status: planned; tasks 236-240. Designed: canvas page `r10` (design/canvas/R10_*, Ph10_*,
+T_PlanMode), the cards ChoiceCard, PlanCard, CheckInCard, AwayCard (design/system/components/), IMPLEMENTATION.md round 10.
 
 ## What the person asked for
 

@@ -28,6 +28,36 @@ philosophy. Keep that in mind for every decision.
 4. `docs/plans/179-gate-rules.md`: how a Gate rule is written (id, message, lesson, test).
 5. Each task file before you start it.
 
+### Reading the design (you have no access to the design tools: everything is in the repo)
+
+The designer works in two online documents you cannot open. Their full content is copied into `design/` and is the
+only source you need. Never ask for a link; never try to fetch one.
+
+- **What to build, in words:** `design/IMPLEMENTATION.md`. Each round has a section headed `## <date> · Round N: …`.
+  Round 9 starts at the heading `## 2026-10-16 · Round 9: updates, other devices, Terminal app, Language`; round 10 at
+  `## 2026-10-16 · Round 10: Pi discusses before it builds (plan 236)`, followed by `### Round 10, version 2 (the
+  person's decisions)`. Find them with `grep -n "^## \|^### " design/IMPLEMENTATION.md`.
+- **How it looks: the boards**, one HTML file per screen or state in `design/canvas/<Board>.dc.html`. You cannot
+  render them (the viewer `design/view.py` needs a runtime file that is not in the repo), so **read them as text**:
+  - Skip the `<helmet>` block (fonts) and the `<script type="text/x-dc">` block at the end (the canvas's own code).
+  - The markup between them is the screen: element order, visible texts (copy them exactly, including punctuation such
+    as “…”, ·, ›), `class="pw-…"` names, `aria-*` attributes, and inline `style` sizes.
+  - The `pw-*` classes are defined in `design/components.css` (the same CSS the app serves). Use those classes; do not
+    copy inline styles that only position the board on the canvas.
+  - Board names and their titles: `design/canvas/canvas.json`, key `boards`: each board's `title` and `page` (`r9` is
+    "Updates & devices", `r10` is "Plan mode"). Each page's first board (`R9_Answers`, `R10_Answers`) answers the round's
+    questions in words: read it first.
+- **Components:** `design/system/components/<Name>/README.md` (rules: markup, states, copy) and `preview.html` (an
+  example). New in round 10: `ChoiceCard`, `PlanCard`, `CheckInCard`, `AwayCard`. Changed in round 9/10: `Dialog`
+  (Settings, Check for Updates…), `MenuBar` (π and Agent menus), `PhoneBar`.
+- **When two sources disagree, use this order:** (1) the person's decisions in `docs/plans/236-plan-mode.md`
+  ("Decided"); (2) the `### Round 10, version 2` section of IMPLEMENTATION.md; (3) the round's own section of
+  IMPLEMENTATION.md; (4) the component README; (5) the board. A later-dated text wins over an earlier one. Example:
+  a board titled "first time" for the risk alert is overridden by version 2: the alert shows every time.
+- **If something you need is not drawn or not written**, do not invent it. Add a `## Needs design` section to the task
+  file saying exactly what is missing (the screen, the state, the text), leave that box open, tell the person, and move
+  on to the next box or task.
+
 ### The order of work
 
 Do them in this order. Each later task depends on the earlier ones:
@@ -79,12 +109,12 @@ Do them in this order. Each later task depends on the earlier ones:
 - **Nothing is deleted for good:** files go to the Trash (`PI_TRASH_DIR` in tests).
 - **Pi only proposes; a person's yes runs it**, except with Auto-accept on (task 238): then everything runs, after the
   person saw the risks, and a report lists what happened.
-- **UI changes go through the designer.** You build from `design/` (boards in `design/canvas/`, rules in
-  `design/IMPLEMENTATION.md`, cards in `design/system/components/`). If the design you need is not drawn, write what
-  is missing in the task file and ask the person; do not invent markup.
+- **UI changes go through the designer.** Build only from `design/` (see "Reading the design" above). If the design
+  you need is not there, write it under `## Needs design` in the task file and tell the person; do not invent markup.
 - **Every new visible string** gets its Japanese in `messages/ja.json` (English text is the key; patterns use
   `{name}`). Numbers-only parts use the names in `js/i18n.mjs` (`n`, `count`, …).
-- **The repository is public.** No secrets, no personal data, no artifact runtime code.
+- **The repository is public.** No secrets, no personal data, and never `design/canvas/support.js` or any other
+  design-tool runtime file (it is git-ignored on purpose).
 - **Downloads** (models, packages, tools) need the person's yes first: say the name, the source and the size.
 - **The installer:** if you add a folder the harness reads at runtime, add it to `harness/install.py`'s copy list and
   to `tests/test_auto_update.py`'s `test_the_installed_copy_can_start_its_services` (task 226 is why).
@@ -101,4 +131,5 @@ about, and the commands the person can run to check your work.
 - The tasks are written so each can be done and checked alone; 227 is the urgent one (it lost a verified commit in the
   pong project).
 - Plan mode's questions were answered on 2026-10-16 (docs/plans/236-plan-mode.md, "Decided").
-- The designer's round 9 (https://claude.ai/artifact/VdvrKzbQ8jBBYbVbuXFL7S) and round 10 briefs are both waiting.
+- The designer answered rounds 9 and 10; both are in `design/` (re-synced 2026-10-16, including the designer's two
+  later fixes to IMPLEMENTATION.md round 10 points 4 and 6 and the MenuBar card).
