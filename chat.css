@@ -388,3 +388,26 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
 .folder-kind[hidden]{display:none}
 .folder-kind legend{padding:0;margin-bottom:2px}
 .folder-kind__help{margin:6px 0 0;padding-top:8px;border-top:1px dotted var(--ink)}
+
+/* Ask Pi (Ph8_Ask, round 8 point 6): its own sheet on the phone; the quote, the question, Pi sees, Cancel / Ask */
+.ask-dialog__form{display:flex;flex-direction:column;gap:12px}
+.ask-dialog__label{display:flex;flex-direction:column;gap:6px}
+.ask-dialog__file{margin:0;font-size:15px}
+.ask-dialog .pw-review-item__quote,.ask-dialog .pw-help,.ask-dialog .pw-context{margin:0}
+.ask-dialog__actions{display:flex;gap:8px;margin-top:4px}
+.ask-dialog__actions .pw-btn{flex:1}
+
+/* Round 8 point 11 (Ph8_Details, Ph8_Toast): on the phone every control is at least 44 px with its label in the hit area,
+   no keyboard hints (there is no keyboard), and the toast sits above the edit bar instead of over Block style and Done. */
+@media (max-width:760px){
+  .pw-kbd,kbd,#selection-bar .pw-menu__key{display:none}
+  .settings-mac-note.phone-only{display:block;margin:0}
+  .review-footer .pw-label-row{min-height:44px;display:flex;align-items:center;gap:10px}
+  .review-footer .pw-label-row .pw-check{width:22px;height:22px}
+  .pw-choice,.settings-option{min-height:44px;align-items:center}
+  .pw-choice .pw-radio,.settings-option .pw-radio{width:22px;height:22px}
+  .thread-head__nav .pw-btn,.dictate{min-width:44px;min-height:44px}
+  #document-discussion>summary{min-height:44px}
+  #toast{left:8px;right:8px;transform:none;min-width:0;bottom:calc(16px + env(safe-area-inset-bottom))}
+  body:has(#phone-edit-bar:not([hidden])) #toast{bottom:calc(var(--phone-edit-bar,64px) + 8px + env(safe-area-inset-bottom))}
+}

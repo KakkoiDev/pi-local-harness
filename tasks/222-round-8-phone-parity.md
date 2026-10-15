@@ -12,10 +12,17 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
 - [ ] 3 File and folder ⋯ (Ph_FileMore, Ph_FolderMore, Ph8_DocMore, Ph8_Folder); folders open as a level; path as title.
 - [ ] 4 View as Markdown, full screen (Ph8_Source).
 - [ ] 5 Comments always in the document bar; none open (Ph8_CommentsNone).
-- [ ] 6 Ask Pi's own sheet for a selection, a block and the file (Ph8_Ask, Ph8_AskFile).
+- [x] 6 Ask Pi's own sheet for a selection, a block and the file (Ph8_Ask, Ph8_AskFile): `#ask-dialog`, `openAsk()`;
+  the question goes the way of the whole-file question (`/api/jobs/create` with the document), never a comment.
 - [ ] 7 Preview foot: Stop / Start; the app language in Preview's view menu (Ph8_Preview, Ph8_PreviewMenu).
 - [ ] 8 Landing on the detail (Activity, Gate, the status button).
 - [ ] 9 Document screens: the phone bar hides on scroll down, returns on scroll up; the document bar only while editing.
 - [ ] 10 New Project / Add Existing Folder: "Create in ~/code ›" and the folder browser as its own step (Ph8_NewProject, Ph8_ChooseFolder).
-- [ ] 11 Details: 44 px targets, no ⌘ hints on the phone, the toast above the edit bar, Mac-only settings hidden (Ph8_Toast, Ph8_Settings, Ph8_Details).
-- [ ] 12 Files bar without "‹ Projects" (Ph_Files).
+- [x] 11 Details: 44 px targets, no ⌘ hints on the phone, the toast above the edit bar, Mac-only settings hidden with
+  a one-line note (Ph8_Toast, Ph8_Settings, Ph8_Details). Not built: Ph8_Settings' Show lessons, Wait 10 s and Phone
+  access rows (no such settings in the web Settings yet).
+- [x] 12 Files bar without "‹ Projects" (Ph_Files): the code already followed Ph_Files; the designer corrected Ph_FilesNew.
+
+Test fixes on the way: design.cjs knew three project kinds (the Terminal app came in task 217); the status-button check
+clicked before the page was wired (the old 1-in-3 flake), now it waits for the composer. chat.cjs's "Drop to attach 2
+files" check failed once and passed on the rerun (a timing flake, not touched).
