@@ -119,5 +119,5 @@ Request YYYY-MM-DD: "the person's words, quoted".
 - [ ] `python3 tests/verify_workflow.py` ends with "Workflow Verification Passed!".
 - [ ] Both browser suites exit 0 (if any UI, CSS or JS changed).
 - [ ] Task boxes and the ROADMAP line match what you verified.
-- [ ] Docs that describe the changed behaviour are updated (readme.md, harness/README.md, this file).
+- [ ] Docs that describe the changed behaviour are updated (README.md, docs/reference.md, harness/README.md, this file).
 - [ ] The commit message says what changed for the person, not just the code.

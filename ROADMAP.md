@@ -265,3 +265,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [221-Plan installers, the launcher icon and the workbench as a PWA](tasks/221-plan-distribution.md)
 - [ ] [222-Build round 8: the phone does everything the desktop does](tasks/222-round-8-phone-parity.md)
 - [x] [223-Re-sync the design backup with the artifacts](tasks/223-design-resync.md)
+- [x] [224-A README a person enjoys reading, with the workbench at the top](tasks/224-readme.md)

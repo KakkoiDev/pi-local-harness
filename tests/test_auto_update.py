@@ -53,14 +53,14 @@ class AutoUpdateTest(unittest.TestCase):
         self.temp.cleanup()
 
     def commit(self, text):
-        (self.source / 'readme.md').write_text(text)
+        (self.source / 'README.md').write_text(text)
         git(self.source, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qam', 'change')
 
     def launch(self):
         return subprocess.run([str(self.prefix / 'bin/plh')], env=self.env, capture_output=True, text=True, check=True)
 
     def installed(self):
-        return (self.package / 'readme.md').read_text().splitlines()[0]
+        return (self.package / 'README.md').read_text().splitlines()[0]
 
     def backups(self):
         return sorted(self.package.parent.glob('pi-local-harness.before-*'))
@@ -80,7 +80,7 @@ class AutoUpdateTest(unittest.TestCase):
 
     def test_uncommitted_edits_are_not_installed(self):
         self.commit('marker-committed\n')
-        (self.source / 'readme.md').write_text('marker-half-done\n')
+        (self.source / 'README.md').write_text('marker-half-done\n')
         self.launch()
         self.assertEqual(self.installed(), 'marker-committed')
 
@@ -95,7 +95,7 @@ class AutoUpdateTest(unittest.TestCase):
         (self.data / 'config.json').write_text(json.dumps({**config, 'auto_update': False}))
         self.commit('marker-skipped\n')
         self.launch()
-        self.assertEqual(self.installed(), '# Pi local harness')
+        self.assertEqual(self.installed(), '# Pi Workbench')
 
     def test_missing_checkout_still_starts_the_installed_build(self):
         self.commit('marker-unreached\n')

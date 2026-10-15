@@ -3,7 +3,7 @@
 Start here if you are an agent (or a person) about to change this repository.
 
 - [contributing-for-agents.md](contributing-for-agents.md): where things live, the commands, the order of work Gate enforces, rules and recipes. Read it first.
-- [../readme.md](../readme.md): what the app does and how to install and run it.
+- [../README.md](../README.md): what the app does and how to start; [reference.md](reference.md): how it works in detail.
 - [../harness/README.md](../harness/README.md): operations details (services, ports, data folder, validation).
 - [../design/README.md](../design/README.md): the designer's source of truth and how it is synced.
 - [lessons/README.md](lessons/README.md): mistakes the local model made, the evidence, and what the harness now does about each (enforced, checked, made easy, or only told).

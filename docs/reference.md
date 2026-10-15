@@ -1,6 +1,8 @@
-# Pi local harness
+# Pi Workbench: reference
 
-New here? [harness/GUIDE.md](harness/GUIDE.md) answers the common questions (starting, opening the workbench, projects,
+How Pi Workbench works in detail: install and update, projects and chat, data and configuration, the architecture, recovery, where to change things. For a first look, see [the README](../README.md).
+
+New here? [harness/GUIDE.md](../harness/GUIDE.md) answers the common questions (starting, opening the workbench, projects,
 comments, models, the phone, settings, trouble). In terminal Pi, `/guide <words>` prints the matching answers, and Pi
 itself reads them when you ask how to do something.
 
@@ -149,7 +151,7 @@ Edit `~/pi-local-harness-data/config.json`, then restart `plh`:
 ```
 
 `remote_hosts` and `remote_users` open the web UI to your phone through
-`tailscale serve`; see [Phone access over Tailscale](harness/README.md#phone-access-over-tailscale-and-voice-input).
+`tailscale serve`; see [Phone access over Tailscale](../harness/README.md#phone-access-over-tailscale-and-voice-input).
 
 `effort` is the default thinking level. Choose the model and the thinking level from the
 menu bar (click the model name or "High thinking"): the menus list the installed Ollama
@@ -160,7 +162,7 @@ directory and used by terminal Pi (from its next start) and browser workers.
 `config.json` is not supported and stops `plh` with an error. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;
 `PI_GATE_PORT` and `PI_WEB_PORT` override ports. See the
-[operations guide](harness/README.md) for other environment settings.
+[operations guide](../harness/README.md) for other environment settings.
 
 ## Architecture: who does what
 
@@ -196,7 +198,7 @@ Ordinary shell commands work in both profiles: `env`, `ls /`, `whoami`, builds,
 tests, and scoped cleanup such as `rm -rf ./build`. Broad deletion (`rm -fr *`),
 root/home deletion, disk erasure, raw disk writes, and recursive system permission
 changes are blocked. Common shell wrappers are checked. This is an accident guard,
-not a sandbox for arbitrary scripts. [Rules and sources](specs/shell-safety.md).
+not a sandbox for arbitrary scripts. [Rules and sources](../specs/shell-safety.md).
 **Gate · All Projects** (Window menu ⌘4) shows the actual shared ledger: checks, arguments,
 outcomes, reasons, project and source (web or terminal). Checks are saved in
 `gate-events.jsonl` and the latest 200 come back after a restart.
@@ -268,18 +270,18 @@ access needs a separate connection setup.
 | `harness/media.mjs`, `harness/transcribe.py` | Image paths and lazy speech input |
 | `ROADMAP.md`, `tasks/` | Completed and remaining work |
 
-Changing this repository? Start with [docs/README.md](docs/README.md) and the
-[contributing guide for coding agents](docs/contributing-for-agents.md).
+Changing this repository? Start with [docs/README.md](../docs/README.md) and the
+[contributing guide for coding agents](../docs/contributing-for-agents.md).
 
 Run `python3 -m unittest discover -s tests`, `node --test tests/harness/*.test.mjs`,
 and `python3 tests/verify_workflow.py`. Browser regression instructions are in
-[the operations guide](harness/README.md). Browser/RPC fixtures test boundaries;
+[the operations guide](../harness/README.md). Browser/RPC fixtures test boundaries;
 they do not claim to measure model intelligence.
 
 ## UX design guidance
 
 This workbench uses [Impeccable](https://github.com/pbakaus/impeccable) polish and
-hardening guidance. [PRODUCT.md](PRODUCT.md) records product constraints;
-[DESIGN.md](DESIGN.md) records the visual rules (Pi Workbench System 1); [design/](design/README.md) holds the design system, the canvas, the served CSS and icons, and the build guide. Text-selected comments
+hardening guidance. [PRODUCT.md](../PRODUCT.md) records product constraints;
+[DESIGN.md](../DESIGN.md) records the visual rules (Pi Workbench System 1); [design/](../design/README.md) holds the design system, the canvas, the served CSS and icons, and the build guide. Text-selected comments
 were informed by [Jikko's comment implementation](https://github.com/KakkoiDev/jikko/blob/main/comments.go); PLH stores threads in adjacent data-directory Markdown records
 to keep project document bodies directly editable.

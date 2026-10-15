@@ -1,6 +1,6 @@
 # Harness operations
 
-Read [the root README](../readme.md) first for architecture and project workflows.
+Read [the reference](../docs/reference.md) first for architecture and project workflows.
 
 ```sh
 python3 harness/install.py

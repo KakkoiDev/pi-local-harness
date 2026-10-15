@@ -1,6 +1,6 @@
 # Pi local harness contributor instructions
 
-Start user-facing responses with [CANARY]. Read readme.md for the current architecture.
+Start user-facing responses with [CANARY]. Read docs/reference.md for the current architecture.
 
 This repository is a single-agent local project workbench. `plh.py` starts Pi from
 home with explicit harness loading; ordinary `pi` remains independent. The web
