@@ -1,6 +1,8 @@
 // Tool calls in terminal Pi (round 6, T_Gate; task 171): two lines. The glyph, the tool (bold) and its argument; then
 // Gate's verdict and the command's own result as separate words, with the time it took. Nothing ran: say so and point
 // to /gate. The output stays below, without the line the harness adds for Pi.
+import { display, formatTimestamp } from './timestamps.mjs';
+
 const bold = text => `\x1b[1m${text}\x1b[22m`, dim = text => `\x1b[2m${text}\x1b[22m`;
 const DRAWN = ['bash', 'read', 'write', 'edit', 'grep', 'find', 'ls', 'task_box', 'browser'];
 const FOR_PI = /^(✓ Gate allowed|✗ Gate:|Gate audit unavailable)/;
@@ -44,13 +46,19 @@ export function checkLines(tool, check) {
 export const toolLines = (tool, args, check, width = 80) => [callLine(tool, args, check, width), ...checkLines(tool, check)];
 
 /** Draw Pi's built-in tools this way; `checks` (toolCallId → check) is filled by the extension's Gate hooks. */
-export function installToolRenderer(pi, checks) {
+export function installToolRenderer(pi, checks, { timeZone } = {}) {
+  // /verbose on (round 7, T_Noise): the time the tool started, right-aligned on its row.
+  const timed = (line, check, width) => {
+    if (!display.verbose || !check?.started) return line;
+    const time = formatTimestamp(check.started, timeZone).slice(12, 20), shown = line.replace(/\x1b\[[0-9;]*m/g, '').length;
+    return `${line}${' '.repeat(Math.max(2, width - shown - time.length))}${dim(time)}`;
+  };
   pi.registerToolRenderer?.((tool, next) => {
     if (!DRAWN.includes(tool)) return next();
     const inner = next();
     return {
       ...inner,
-      renderCall: (args, _theme, context) => ({ render: width => [callLine(tool, args, checks.get(context?.toolCallId), width)], invalidate() {} }),
+      renderCall: (args, _theme, context) => ({ render: width => [timed(callLine(tool, args, checks.get(context?.toolCallId), width - (display.verbose ? 10 : 0)), checks.get(context?.toolCallId), width)], invalidate() {} }),
       renderResult: (result, options, theme, context) => {
         const check = checks.get(context?.toolCallId), ran = !check || ['allowed'].includes(check.gate);
         const below = ran && inner?.renderResult ? inner.renderResult({ ...result, content: (result.content || []).filter(part => !FOR_PI.test(part.text || '')) }, options, theme, context) : undefined;

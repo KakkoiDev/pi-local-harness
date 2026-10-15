@@ -42,13 +42,31 @@ test('failed and aborted runs do not claim completion; recovery requests are lab
  assert.equal(entries.at(-1).label,'Tool result received: read');
 });
 
-test('/verbose shows every stamp, and [CANARY] never reaches the screen (task 171, T_Noise)', async () => {
+test('/verbose adds no stamp lines, and [CANARY] never reaches the screen (task 171, T_Noise)', async () => {
   const handlers={},entries=[],commands={};let renderer,transform;
   installTimestamps({on:(n,f)=>handlers[n]=f,appendEntry:(_,d)=>entries.push(d),registerEntryRenderer:(_,f)=>renderer=f,registerCommand:(name,options)=>commands[name]=options,registerMarkdownTransformer:f=>transform=f},{now:()=>Date.parse('2026-10-12T15:00:06Z'),timeZone:'Asia/Tokyo'});
   handlers.agent_settled({aborted:false});
   await commands.verbose.handler('on');
-  assert.deepEqual(renderer({data:entries.at(-1)}).render(100),['\x1b[2m[2026-10-13 00:00:06 +09:00] Task completed\x1b[22m']);
+  assert.deepEqual(renderer({data:entries.at(-1)}).render(100),[],'round 7: the times go on the Pi header, never as stamp lines');
   await commands.verbose.handler('off');assert.deepEqual(renderer({data:entries.at(-1)}).render(100),[]);
   assert.equal(transform('[CANARY] Nothing is stuck.',{messageType:'assistant'}),'Nothing is stuck.');
   assert.equal(transform('[CANARY] literal',{messageType:'user'}),'[CANARY] literal','only Pi\'s answers');
+});
+
+test('/verbose on puts the span, the duration and the tool count on the Pi header, never as separate lines (round 7, T_Noise)', async () => {
+  const handlers = {}, entries = [], commands = {}; let renderer, clock = Date.parse('2026-10-14T06:12:56Z');
+  installTimestamps({ on: (n, f) => handlers[n] = f, appendEntry: (_, d) => entries.push(d), registerEntryRenderer: (_, f) => renderer = f, registerCommand: (name, options) => commands[name] = options }, { now: () => clock, timeZone: 'Asia/Tokyo' });
+  const strip = lines => lines.map(line => line.replace(/\x1b\[[0-9;]*m/g, ''));
+  const shown = () => entries.flatMap(data => strip(renderer({ data }).render(100)));
+  await commands.verbose.handler('on');
+  handlers.input({ source: 'interactive' }); handlers.agent_start({});
+  handlers.message_start({ message: { role: 'assistant' } });
+  assert.deepEqual(shown(), ['Pi 15:12:56 → …'], 'while Pi works');
+  clock += 1000; handlers.message_end({ message: { role: 'assistant', stopReason: 'toolUse' } });
+  clock += 1000; handlers.message_end({ message: { role: 'toolResult', toolName: 'bash', isError: true } });
+  clock += 1000; handlers.message_start({ message: { role: 'assistant' } }); handlers.message_end({ message: { role: 'toolResult', toolName: 'read', isError: false } });
+  clock += 3000; handlers.message_end({ message: { role: 'assistant', stopReason: 'stop' } }); handlers.agent_settled({ aborted: false });
+  assert.deepEqual(shown(), ['Pi 15:12:56 → 15:13:02 · 6 s · 2 tool calls'], 'one header for the request; no stamp lines');
+  await commands.verbose.handler('off');
+  assert.deepEqual(shown(), ['Pi 15:12', 'Pi 15:12'], 'off: "Pi 15:12" per Pi message, as before');
 });

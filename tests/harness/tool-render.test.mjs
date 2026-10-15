@@ -38,3 +38,14 @@ test('the renderer draws the harness tools and keeps the output below, without t
   assert.deepEqual(strip(renderers.renderResult({ content: [{ type: 'text', text: 'Gate pre-execution BLOCK…' }] }, {}, {}, { toolCallId: 't2', args: {} }).render(80)),
     ['  ✗ Gate blocked it: Destructive shell guard', '  Nothing ran. /gate blocked'], 'nothing ran: no output, no message meant for Pi');
 });
+
+test('/verbose on adds each tool\'s time at the end of its row (round 7, T_Noise)', async () => {
+  const { display } = await import('../../harness/timestamps.mjs');
+  let resolver; const checks = new Map([['t1', { gate: 'allowed', ok: false, exit: 1, started: Date.parse('2026-10-14T06:12:58Z') }]]);
+  installToolRenderer({ registerToolRenderer: r => { resolver = r; } }, checks, { timeZone: 'Asia/Tokyo' });
+  const row = () => strip(resolver('bash', () => ({})).renderCall({ command: './backup.sh --report' }, {}, { toolCallId: 't1' }).render(60))[0];
+  assert.equal(row(), '✗ bash  ./backup.sh --report');
+  display.verbose = true;
+  try { assert.equal(row(), '✗ bash  ./backup.sh --report'.padEnd(52) + '15:12:58', 'right-aligned, on the row'); }
+  finally { display.verbose = false; }
+});

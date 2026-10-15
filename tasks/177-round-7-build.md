@@ -16,7 +16,9 @@ Ph_ActivityRecord) and answered the round 6 notes (`design/IMPLEMENTATION.md`, "
 - [x] 11 Task record: the button carries `aria-expanded` and `aria-controls`; the section's head shows the heading and
   the record's path; on the phone it opens as a sheet titled "Task record" with Close.
 - [x] T_Gate: a finished read, write or edit reads "✓ read  <path>" (bash keeps ▶).
-- [ ] Open from round 6 (T_Noise): `/verbose on` puts start → end, duration and the tool count on the message header,
-  and each tool's time on its row, not one stamp line per event as built.
+- [x] T_Noise (open from round 6, built 2026-10-15): `/verbose on` puts the request's span, duration and tool count on
+  its first Pi header ("Pi 15:12:56 → 15:13:02 · 6 s · 2 tool calls", "→ …" while Pi works) and each tool's start time
+  right-aligned on its row; no stamp lines. A failed tool no longer adds a "Tool result failed" line: its row says it.
+  Red (node, `tests/harness/timestamps.test.mjs`, `tests/harness/tool-render.test.mjs`), then green.
 
 Tests: python (doctor fix commands and the stale-lock note, the four levels read and completed), node (✓ read), browser (four menu items; the record's aria-expanded, aria-controls and path; the phone sheet with its scrim and Close).
