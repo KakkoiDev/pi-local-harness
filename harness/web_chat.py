@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 from gate.protocol import Protocol, project_root
+from harness import reports
 import queue
 import re
 import subprocess
@@ -445,7 +446,7 @@ class WebChat:
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
                 if cancelled.is_set():raise ValueError('Stopped')
-                try:event=events.get(timeout=1 if settled else .5)
+                try:event=events.get(timeout=2 if settled else .5)  # plan 184: room for the harness to wake Pi after it settles
                 except queue.Empty:
                     if settled:break
                     continue
@@ -479,7 +480,9 @@ class WebChat:
                     emit(event)
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=verification_note(before,checked())
-            if note:reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
+            if note:
+                reply+=note;emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':note}})  # G-012: the answer and its record carry it
+                reports.report(self.documents.root,'unverified',note.strip(),request=job,project=project)  # plan 184
             if opened:emit({'type':'also_read','files':opened})
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)

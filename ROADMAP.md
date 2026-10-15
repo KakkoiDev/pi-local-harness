@@ -227,3 +227,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [182-/gate rules shows how often each rule fired](tasks/182-rule-firing-counts.md)
 - [x] [183-Tick a task box by its label (task_box)](tasks/183-task-box-tool.md)
 - [x] [184-Reports: every incident the harness meets, for the later analysis](tasks/184-reports.md)
+- [x] [185-Pi keeps running: wake-ups, Gate failures that do not stop the run](tasks/185-keep-running.md)

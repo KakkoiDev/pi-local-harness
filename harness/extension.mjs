@@ -17,6 +17,7 @@ import { installFooter } from './footer.mjs';
 import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
+import { report } from './reports.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -57,6 +58,17 @@ export default function harness(pi, dependencies = {}) {
     if (process.env.PI_HARNESS_SHARED_PORT || !pi.appendEntry) ui?.notify(notice.web, level); else pi.appendEntry('harness-notice', notice);
   };
   const stop = () => { agentLock.release(); closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
+  // G-011: a Gate check that fails for a passing reason (no answer, a server error) is tried again before giving up;
+  // a 4xx is Gate refusing the input and is not retried.
+  const gateDelays = dependencies.gateRetryDelays || [1000, 3000, 6000];
+  const gateCall = async (path, body) => {
+    for (let attempt = 0; ; attempt++) {
+      try { return await call(path, body); } catch (error) {
+        if (/Gate HTTP 4\d\d/.test(error.message) || attempt >= gateDelays.length) throw error;
+        await new Promise(resolve => setTimeout(resolve, gateDelays[attempt]));
+      }
+    }
+  };
   const call = async (path, body) => {
     if (!ports) throw new Error('Gate is unavailable');
     const response = await fetch(`http://127.0.0.1:${ports.gate}${path}`, {
@@ -66,6 +78,11 @@ export default function harness(pi, dependencies = {}) {
     if (!response.ok) { let said = ''; try { const body = await response.json(); said = body.error || body.message || ''; } catch {} throw new Error(`Gate HTTP ${response.status}${said ? `: ${said}` : ''}`); } // Gate's reason, so Pi can act on it
     return response.json();
   };
+  // Plan 184: how many times the harness may wake Pi in one request (recoveries and "continue"); 0 is no limit.
+  const wakeUps = () => Number(process.env.PI_HARNESS_WAKE_UPS ?? 5);
+  const canWake = () => !wakeUps() || retries < wakeUps();
+  const incident = (kind, detail, fields = {}) => report(dataDir, kind, detail, { source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal', cwd: context?.cwd || root, ...fields });
+  let lastAnswer = '';
   const trip = (reason, kind = 'loop') => {
     if (pending || !lastQuestion) return;
     pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n')}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
@@ -73,6 +90,7 @@ export default function harness(pi, dependencies = {}) {
     mkdirSync(dataDir, { recursive: true });
     appendFileSync(join(dataDir, 'incident_log.md'), `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
     appendFileSync(join(dataDir, 'session.log'), `${JSON.stringify({ event: 'recovery', reason, question: lastQuestion, reasoning: watch.lines })}\n`);
+    incident('recovery', reason, { trigger: kind });
     say(kind, reason, 'warning'); // the web worker waits for the re-asked turn on this notice's prefix
     context.abort();
     watch.stop();
@@ -148,6 +166,7 @@ export default function harness(pi, dependencies = {}) {
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${loadMemory(memoryPath)}${gateRules}${chosen}${consoleGuide}` };
   });
   pi.on('message_end', event => {
+    if (event.message?.role === 'assistant') lastAnswer = (event.message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
   });
   pi.on('input', async (event, ctx) => {
@@ -155,7 +174,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     lastQuestion = event.text; retries = 0; pending = undefined;
-    if (!process.env.PI_HARNESS_SHARED_PORT) { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012: read before the turn starts; the web marks its own requests
+    lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
       if (attached.action === 'transform') {
@@ -197,7 +216,8 @@ export default function harness(pi, dependencies = {}) {
       return;
     }
     const recovery = pending; pending = undefined;
-    if (retries++ >= 1) { say('stopped', join(dataDir, 'session.log'), 'error'); return; }
+    if (!canWake()) { incident('stopped', `recovery repeated ${retries} times: ${recovery.split('\n')[0]}`); say('stopped', join(dataDir, 'session.log'), 'error'); return; }
+    retries++;
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${loadMemory(memoryPath)}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {
@@ -215,7 +235,7 @@ export default function harness(pi, dependencies = {}) {
       args = proposal; piTool = 'edit'; boxes.set(event.toolCallId, proposal);
     }
     try {
-      const result = await call('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      const result = await gateCall('/gatekeep', { tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
@@ -223,12 +243,12 @@ export default function harness(pi, dependencies = {}) {
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
     } catch (error) {
-      // G-011 (plan 179, L-002): Gate failed (an error, not a decision). Nothing runs, the turn stops and the person is
-      // told, so the model never improvises a way around the check.
+      // G-011 (plan 184, L-002): Gate failed (an error, not a decision) even after retries. This call does not run; the run
+      // goes on (no babysitting) and the failure is reported for the analysis.
       check(event.toolCallId, { gate: 'unavailable', reason: error.message });
-      say('gate-failed', error.message, 'error');
-      context?.abort?.();
-      return { block: true, reason: `G-011 A Gate failure stops the turn: ${error.message}. Nothing ran.` };
+      incident('gate-failed', error.message, { tool: event.toolName });
+      say('gate-failed', error.message, 'warning');
+      return { block: true, reason: `G-011 Gate could not check this call: ${error.message}. It did not run. You may continue; try the call again, or another way within the rules.` };
     }
   });
   pi.on('tool_result', async event => {
@@ -260,13 +280,26 @@ export default function harness(pi, dependencies = {}) {
       return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit unavailable: ${error.message}` }] };
     }
   });
-  pi.on('agent_settled', async () => {
+  pi.on('agent_settled', async event => {
     agentLock.release();
-    // G-012 (plan 179, L-005): code changed during the turn and Gate saw no passing test on it afterwards.
-    if (!verifiedBefore) return;
-    const before = await verifiedBefore; verifiedBefore = undefined;
+    // G-012 (plan 179, L-005) and plan 184: code changed during the request and Gate saw no passing test on it afterwards.
+    // The harness wakes Pi to finish (not when the person stopped it, nor when Pi asked the person something); out of
+    // wake-ups, the turn is marked "Not verified".
+    if (!verifiedBefore || pending) return;
+    const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
-    if (after?.code?.length && !after.verified && before?.state !== after.state) say('unverified', after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : ''), 'warning');
+    if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; return; }
+    const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
+    if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
+      retries++;
+      const round = wakeUps() ? `${retries} of ${wakeUps()}` : `${retries}`;
+      incident('wake-up', `not verified: ${files}`, { round });
+      say('wake-up', `${files} (wake-up ${round})`, 'warning'); // the web worker waits for the next turn on this notice's prefix
+      pi.sendUserMessage(`Continue (harness wake-up ${round}): you changed ${files} and no passing test ran on that code yet. Run the tests, fix what fails, and finish the request. If it cannot be tested, say why in one line.`);
+      return;
+    }
+    verifiedBefore = undefined;
+    if (!process.env.PI_HARNESS_SHARED_PORT) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
   });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
   // and waits while Pi answers the person in chat. An unreachable workbench never blocks the model.

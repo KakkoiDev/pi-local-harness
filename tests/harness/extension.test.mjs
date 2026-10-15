@@ -21,7 +21,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
    abort:()=>order.push('abort'),isIdle:()=>idle,
    compact:options=>{order.push('compact');options.onComplete();}};
  const previous={gate:process.env.PI_GATE_PORT,web:process.env.PI_WEB_PORT,data:process.env.PI_WEB_DATA,workspace:process.env.PI_AGENT_DATA,log:process.env.PI_HARNESS_LOG_FILE};
- process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_AGENT_DATA=join(dir,'workspace');process.env.PI_GATE_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
+ process.env.PI_HARNESS_WAKE_UPS='1';/* plan 184: one wake-up here, so the limit shows */process.env.PI_WEB_DATA=join(dir,'web');process.env.PI_AGENT_DATA=join(dir,'workspace');process.env.PI_GATE_PORT='0';process.env.PI_WEB_PORT='0';process.env.PI_HARNESS_LOG_FILE=join(dir,'audit.log');
  harness(pi,{root:dir+'/',setInterval:(callback,ms)=>{tick=callback;interval=ms;return {unref(){}};}});
  try {
   await handlers.session_start({},ctx);
@@ -72,10 +72,11 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   // 2026-10-14: Gate's own error reaches Pi (it read only "Gate HTTP 400" and worked around Gate), and Pi 1.1's edits list passes.
   const missing=await handlers.tool_call({toolCallId:'edit-missing',toolName:'edit',input:{path:join(dir,'nowhere.md'),edits:[{oldText:'a',newText:'b'}]}});
   assert.equal(missing.block,true);assert.match(missing.reason,/G-004 .*use write to create it/,'a missing file is a decision, not a Gate failure');
-  // G-011 (plan 179, L-002): when Gate itself fails, the call is blocked, the turn stops and the person is told.
+  // G-011 (plan 184): when Gate itself fails, that call is blocked and reported; the run continues (no babysitting).
   const broken=await handlers.tool_call({toolCallId:'edit-broken',toolName:'edit',input:{edits:[{oldText:'a',newText:'b'}]}});
-  assert.equal(broken.block,true);assert.match(broken.reason,/^G-011 .*Gate HTTP 400/);assert.equal(order.at(-1),'abort','the turn stops');
-  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Gate could not check a tool call.');order.splice(0);
+  assert.equal(broken.block,true);assert.match(broken.reason,/^G-011 .*Gate HTTP 400.*continue/);assert.notEqual(order.at(-1),'abort','the turn goes on');
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Gate could not check a tool call.');
+  assert.match(readFileSync(join(dir,'workspace','reports.jsonl'),'utf8'),/"kind":"gate-failed"/,'reported for the analysis');
   writeFileSync(join(dir,'plan.md'),'- [ ] two\n');
   assert.equal(await handlers.tool_call({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]}}),undefined,'the edit is allowed');
   writeFileSync(join(dir,'plan.md'),'- [x] two\n');
@@ -98,6 +99,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   // Incident records are written under PI_AGENT_DATA, not the module root.
   assert.match(readFileSync(join(dir,'workspace','incident_log.md'),'utf8'),/Harness loop/);
   assert.match(readFileSync(join(dir,'workspace','session.log'),'utf8'),/"event":"recovery"/);
+  assert.match(readFileSync(join(dir,'workspace','reports.jsonl'),'utf8'),/"kind":"recovery"/,'plan 184: every recovery is reported');
   assert.equal(existsSync(join(dir,'incident_log.md')),false);assert.equal(existsSync(join(dir,'session.log')),false);
   handlers.input({source:'interactive',text:'Next question'});
   handlers.agent_start({},ctx);
@@ -138,11 +140,24 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const vague=await handlers.tool_call({toolCallId:'box-2',toolName:'task_box',input:{path:'tasks/01.md',box:'Nothing'}});
   assert.equal(vague.block,true);assert.match(vague.reason,/No open box starts with “Nothing”/);
   // G-012 for terminal Pi (plan 179, L-005): a turn that changed code and ran no passing test after it ends marked.
+  // Plan 184: first the harness wakes Pi to finish (it changed code and no passing test ran on it), then, out of
+  // wake-ups, it marks the turn. An answer that asks the person something is not woken.
   await handlers.input({source:'interactive',text:'Change the code'},ctx);
   writeFileSync(join(dir,'app.py'),'x = 3\n');
+  const sent=messages.length;
   await handlers.agent_settled({aborted:false},ctx);
+  assert.match(messages.at(-1),/^Continue \(harness wake-up 1 of 1\)/);assert.equal(messages.length,sent+1);
+  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness woke Pi up.');
+  assert.match(readFileSync(join(dir,'workspace','reports.jsonl'),'utf8'),/"kind":"wake-up"/);
+  await handlers.agent_settled({aborted:false},ctx);
+  assert.equal(messages.length,sent+1,'out of wake-ups');
   const unverified=entries.filter(entry=>entry.type==='harness-notice').at(-1).data;
   assert.equal(unverified.sentence,'Not verified.');assert.match(unverified.detail,/app\.py.*G-012/);
+  await handlers.input({source:'interactive',text:'Change it again'},ctx);writeFileSync(join(dir,'app.py'),'x = 4\n');
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'[CANARY] Should I also update the docs?'}],stopReason:'stop'}});
+  await handlers.agent_settled({aborted:false},ctx);assert.equal(messages.length,sent+1,'a question to the person is not woken');
+  await handlers.input({source:'interactive',text:'Once more'},ctx);writeFileSync(join(dir,'app.py'),'x = 5\n');
+  await handlers.agent_settled({aborted:true},ctx);assert.equal(messages.length,sent+1,'the person stopped it: not woken');
  } finally {
   handlers.session_shutdown();
   for(const [key,value] of Object.entries(previous)) {
