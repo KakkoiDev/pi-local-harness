@@ -11,3 +11,4 @@ The menu bar at 760px and below: π (opens the π sheet), the current view as a 
 - Landing: Show in Activity, Show in Gate and a status with one thing needing attention open the detail; Back goes to the list.
 - No keyboard hints (⌘) on the phone. Toasts sit above the edit bar and the keyboard. Every control at least 44 × 44 with its label inside the hit area; checkboxes and radios 22px in 44px rows.
 - Mac-only settings (Desktop pattern, Return sends) are not shown; Settings says they are Mac settings.
+- Round 9: the π sheet adds **Check for Updates…** (“● New version”, and a dot on π) and **Add to Home Screen…** (only away from the Mac). Chat's view menu shows the views only.

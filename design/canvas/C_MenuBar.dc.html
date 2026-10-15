@@ -14,9 +14,10 @@
 </helmet>
 <div style="height: {{rootH}}; position: relative">
 <nav class="pw-root pw-menubar" role="menubar" aria-label="Menu bar" style="color: #000">
-<div style="position: relative"><a href="M_Pi.dc.html" class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="{{piOpen}}" aria-label="Pi menu">π</a>
+<div style="position: relative"><a href="M_Pi.dc.html" class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="{{piOpen}}" aria-label="{{piLabel}}" style="position: relative">π<sc-if value="{{updateOn}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="position: absolute; top: 3px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: currentColor"></span></sc-if></a>
 <sc-if value="{{piOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu" role="menu" aria-label="Pi">
 <a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">About Pi Workbench</a>
+<a href="R9_Update.dc.html" class="pw-menu__item" role="menuitem">Check for Updates…<sc-if value="{{updateOn}}" hint-placeholder-val="{{false}}"><span class="pw-menu__key">● New version</span></sc-if></a>
 <div class="pw-menu__sep" role="separator"></div>
 <a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Settings…<span class="pw-menu__key">⌘,</span></a>
 <a href="Dialogs2.dc.html" class="pw-menu__item" role="menuitem">Desktop Pattern…</a>
@@ -99,14 +100,7 @@
 <a href="Activity.dc.html" class="pw-menu__item" role="menuitem">Cancel Waiting Request…</a>
 <a href="A_Record.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notActivity}}">{{recItem}}<span class="pw-menu__key">⌥⌘R</span></a>
 <div class="pw-menu__sep" role="separator"></div>
-<a href="S_Compacted.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notChat}}">Compact Now</a>
-<a href="S_NewConversation.dc.html" class="pw-menu__item" role="menuitem" aria-disabled="{{notChat}}">New Conversation…</a>
-<a href="S_Earlier.dc.html" class="pw-menu__item" role="menuitem" aria-haspopup="menu" aria-expanded="{{earlierOpen}}" aria-disabled="{{notChat}}" data-active="{{earlierOpen}}">Earlier Conversations<span class="pw-menu__key">▸</span></a>
-<sc-if value="{{earlierOpen}}" hint-placeholder-val="{{false}}"><div class="pw-menu pw-menu--sub" role="menu" aria-label="Earlier Conversations" style="left: 100%; top: 222px; min-width: 300px">
-<a href="S_Earlier.dc.html" class="pw-menu__item" role="menuitem" data-active="true">13 Oct, 09:12 – 14:30<span class="pw-menu__key">84 messages</span></a>
-<span class="pw-menu__item" role="menuitem">2 Oct, 10:05 – 18:47<span class="pw-menu__key">131 messages</span></span>
-<span class="pw-menu__item" role="menuitem">24 Sep, 16:20 – 17:02<span class="pw-menu__key">12 messages</span></span>
-</div></sc-if>
+<a href="R10_AutoOn.dc.html" class="pw-menu__item" role="menuitemcheckbox" aria-checked="{{autoOn}}">Run on Its Own<span class="pw-menu__key">⌥⌘A</span></a>
 <div class="pw-menu__sep" role="separator"></div>
 <span class="pw-menu__item" role="menuitem" aria-disabled="true">Reconnect</span>
 </div></sc-if></div>
@@ -146,7 +140,7 @@
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"projState":{"editor":"enum","options":["ok","missing","none"],"default":"ok"},"record":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":360}}'>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"enum","options":["none","pi","file","edit","view","project","agent","agentEarlier","window","model","thinking"],"default":"none"},"view":{"editor":"enum","options":["chat","work","activity","gate"],"default":"chat"},"status":{"editor":"text","default":"Working · 1 waiting"},"statusState":{"editor":"enum","options":["rest","hover","pressed","attention"],"default":"rest"},"attn":{"editor":"enum","options":["failed","stopped","interrupted"],"default":"failed"},"modelState":{"editor":"enum","options":["rest","loading","nothink"],"default":"rest"},"projState":{"editor":"enum","options":["ok","missing","none"],"default":"ok"},"record":{"editor":"boolean","default":false},"update":{"editor":"boolean","default":false},"auto":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":360}}'>
 class Component extends DCLogic {
 renderVals() {
 const o = this.props.open ?? 'none';
@@ -158,6 +152,7 @@ const ps = this.props.projState ?? 'ok';
 return {
 piOpen: o === 'pi', fileOpen: o === 'file', editOpen: o === 'edit', viewOpen: o === 'view',
 projectOpen: o === 'project', agentOpen: o === 'agent' || o === 'agentEarlier', earlierOpen: o === 'agentEarlier', windowOpen: o === 'window',
+updateOn: (this.props.update === true || this.props.update === 'true'), autoOn: (this.props.auto === true || this.props.auto === 'true') ? 'true' : 'false', piLabel: (this.props.update === true || this.props.update === 'true') ? 'Pi menu, a new version is ready' : 'Pi menu',
 notActivity: v !== 'activity', recItem: (this.props.record === true || this.props.record === 'true') ? 'Hide Task Record' : 'Show Task Record',
 vChat: v === 'chat', vWork: v === 'work', vActivity: v === 'activity', vGate: v === 'gate', notWork: v !== 'work',
 status: st === 'attention' ? ({ failed: 'Failed', stopped: 'Stopped', interrupted: 'Interrupted' }[this.props.attn ?? 'failed'] + ' · 1 needs attention') : (this.props.status ?? 'Working · 1 waiting'),

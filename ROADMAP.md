@@ -283,4 +283,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [239-Plan mode in the web workbench (after round 10)](tasks/239-plan-mode-web.md)
 - [ ] [240-Plan mode in terminal Pi](tasks/240-plan-mode-terminal.md)
 - [ ] [241-Wake a small model that stops before acting](tasks/241-small-model-wake-ups.md)
-- [ ] [242-Round 10 brief for the designer: plan mode](tasks/242-round-10-brief.md)
+- [x] [242-Round 10 brief for the designer: plan mode](tasks/242-round-10-brief.md)
+- [ ] [243-Build round 9: updates, other devices, the Terminal app kind, Settings](tasks/243-build-round-9.md)

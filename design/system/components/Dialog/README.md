@@ -14,3 +14,11 @@ A modal dialog: the double frame (`shadow-dialog`), no title bar, a bold title, 
 - Name, Create in, then a fieldset “What are you making?” of three `.pw-choice` rows with a `.pw-radio` (14px circle, 8px dot) and one `small` line each: **Web app** (default) · **App with no server** · **Empty folder**.
 - Under the choices, behind a dotted rule, the deciding question as help: “Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server.”
 - Above the buttons, a help line that changes with the choice and says what gets made (“Creates “~/code/Class Notes” from the web app starter: a small notes app in English and Japanese, with tests. Ask Pi to turn it into yours.”). **Cancel** · **Create** (default). Boards: P_NewProject, P_NewProjectStatic.
+
+## Settings (round 9)
+
+Groups, label column left: **Language** (English · 日本語 · Match System, each in its own script; the workbench, Pi's answers, terminal Pi and the Preview's app start in it), **Appearance** (+ Desktop Pattern…), **Typing** (Return sends), **Pi** (Show lessons; Wait 10 seconds before Gate starts the worker), **Updates** (Check for updates once a day; Check Now). Phone access is not a setting. The phone shows Language first and leaves out Desktop pattern and Return sends. Board: R9_Settings, Ph8_Settings.
+
+## Check for Updates… (round 9)
+
+A Note alert “A new version of Pi Workbench is ready”, the versions, up to 20 plain-words lines in a scroll box, “Your projects, chats and settings are not touched.”; Later · **Update**. States: updating (bar), updated (“Restart plh to use it.” + two steps; Restart Now · Done), up to date, can't reach GitHub (Try Again), and the two blocked states with “Nothing was changed.” and a button that asks Pi to do the safe thing. Board: R9_UpdateStates.

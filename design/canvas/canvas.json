@@ -588,21 +588,21 @@
    "is_interactive": true
   },
   "S_NewConversation.dc.html": {
-   "x": 4560,
-   "y": 10820,
+   "x": 0,
+   "y": 940,
    "w": 1440,
    "h": 900,
-   "title": "Agent › New Conversation… alert",
-   "page": "states",
+   "title": "Not built (round 9): Agent › New Conversation… alert",
+   "page": "archive",
    "is_interactive": true
   },
   "S_Fresh.dc.html": {
-   "x": 0,
-   "y": 11840,
+   "x": 1520,
+   "y": 940,
    "w": 1440,
    "h": 900,
-   "title": "Chat · new conversation, earlier one kept",
-   "page": "states",
+   "title": "Not built (round 9): Chat · new conversation, earlier one kept",
+   "page": "archive",
    "is_interactive": true
   },
   "W_Comment.dc.html": {
@@ -650,21 +650,21 @@
    "is_interactive": true
   },
   "S_Earlier.dc.html": {
-   "x": 1520,
-   "y": 14640,
+   "x": 3040,
+   "y": 940,
    "w": 1440,
    "h": 900,
-   "title": "Chat · earlier conversation, read only",
-   "page": "states",
+   "title": "Not built (round 9): Chat · earlier conversation, read only",
+   "page": "archive",
    "is_interactive": true
   },
   "M_AgentEarlier.dc.html": {
-   "x": 3040,
-   "y": 14640,
+   "x": 4560,
+   "y": 940,
    "w": 1440,
    "h": 900,
-   "title": "Agent › Earlier Conversations ▸",
-   "page": "states",
+   "title": "Not built (round 9): Agent › Earlier Conversations ▸",
+   "page": "archive",
    "is_interactive": true
   },
   "A_Retry.dc.html": {
@@ -2065,6 +2065,222 @@
    "h": 844,
    "title": "18 · 44 px details",
    "page": "phone8"
+  },
+  "R9_Answers.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Answers to round 9",
+   "page": "r9"
+  },
+  "R9_UpdateMenu.dc.html": {
+   "x": 0,
+   "y": 1160,
+   "w": 1440,
+   "h": 900,
+   "title": "1 · π › Check for Updates…, the dot on π",
+   "page": "r9"
+  },
+  "R9_Update.dc.html": {
+   "x": 1520,
+   "y": 1160,
+   "w": 1440,
+   "h": 900,
+   "title": "2 · What is new, Update / Later",
+   "page": "r9"
+  },
+  "R9_UpdateStates.dc.html": {
+   "x": 3040,
+   "y": 1160,
+   "w": 1440,
+   "h": 1150,
+   "title": "3 · Updating, updated, up to date, offline, blocked ×2",
+   "page": "r9"
+  },
+  "R9_Devices.dc.html": {
+   "x": 0,
+   "y": 2470,
+   "w": 1440,
+   "h": 800,
+   "title": "4 · App icon, Dock icon, menu-bar item, Quit",
+   "page": "r9"
+  },
+  "R9_PreviewTerminal.dc.html": {
+   "x": 1520,
+   "y": 2470,
+   "w": 1440,
+   "h": 900,
+   "title": "5 · A Terminal app in the Preview",
+   "page": "r9"
+  },
+  "R9_Settings.dc.html": {
+   "x": 3040,
+   "y": 2470,
+   "w": 1440,
+   "h": 1000,
+   "title": "6 · Settings on the desk: Language first",
+   "page": "r9"
+  },
+  "Ph9_Pi.dc.html": {
+   "x": 0,
+   "y": 3630,
+   "w": 390,
+   "h": 844,
+   "title": "7 · π sheet: Check for Updates…, Add to Home Screen…",
+   "page": "r9"
+  },
+  "Ph9_Update.dc.html": {
+   "x": 450,
+   "y": 3630,
+   "w": 390,
+   "h": 844,
+   "title": "8 · Update sheet",
+   "page": "r9"
+  },
+  "Ph9_Install.dc.html": {
+   "x": 900,
+   "y": 3630,
+   "w": 390,
+   "h": 844,
+   "title": "9 · Add to Home Screen (once, away from the Mac)",
+   "page": "r9"
+  },
+  "Ph9_PreviewTerminal.dc.html": {
+   "x": 1350,
+   "y": 3630,
+   "w": 390,
+   "h": 844,
+   "title": "10 · Terminal app on the phone: key row",
+   "page": "r9"
+  },
+  "R10_Answers.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Answers to round 10",
+   "page": "r10"
+  },
+  "R10_Choice.dc.html": {
+   "x": 0,
+   "y": 1160,
+   "w": 1440,
+   "h": 900,
+   "title": "1 · ChoiceCard",
+   "page": "r10"
+  },
+  "R10_ChoiceStates.dc.html": {
+   "x": 1520,
+   "y": 1160,
+   "w": 1440,
+   "h": 1000,
+   "title": "2 · ChoiceCard states",
+   "page": "r10"
+  },
+  "R10_Plan.dc.html": {
+   "x": 3040,
+   "y": 1160,
+   "w": 1440,
+   "h": 900,
+   "title": "3 · PlanCard",
+   "page": "r10"
+  },
+  "R10_PlanStates.dc.html": {
+   "x": 0,
+   "y": 2320,
+   "w": 1440,
+   "h": 1700,
+   "title": "4 · PlanCard states",
+   "page": "r10"
+  },
+  "R10_CheckIn.dc.html": {
+   "x": 1520,
+   "y": 2320,
+   "w": 1440,
+   "h": 900,
+   "title": "5 · CheckInCard (the waiting DoneRow)",
+   "page": "r10"
+  },
+  "R10_CheckInStates.dc.html": {
+   "x": 3040,
+   "y": 2320,
+   "w": 1440,
+   "h": 1000,
+   "title": "6 · CheckInCard states",
+   "page": "r10"
+  },
+  "R10_AutoOn.dc.html": {
+   "x": 0,
+   "y": 4180,
+   "w": 1440,
+   "h": 900,
+   "title": "7 · Run on its own: first time",
+   "page": "r10"
+  },
+  "R10_AgentMenu.dc.html": {
+   "x": 1520,
+   "y": 4180,
+   "w": 1440,
+   "h": 900,
+   "title": "8 · Agent › Run on Its Own; status “on its own”",
+   "page": "r10"
+  },
+  "R10_Away.dc.html": {
+   "x": 3040,
+   "y": 4180,
+   "w": 1440,
+   "h": 900,
+   "title": "9 · While you were away",
+   "page": "r10"
+  },
+  "R10_Work.dc.html": {
+   "x": 0,
+   "y": 5240,
+   "w": 1440,
+   "h": 900,
+   "title": "10 · Decisions in the task file",
+   "page": "r10"
+  },
+  "T_PlanMode.dc.html": {
+   "x": 1520,
+   "y": 5240,
+   "w": 1440,
+   "h": 1200,
+   "title": "11 · Terminal: plan mode and /auto",
+   "page": "r10"
+  },
+  "Ph10_Choice.dc.html": {
+   "x": 3040,
+   "y": 5240,
+   "w": 390,
+   "h": 844,
+   "title": "12 · Phone · ChoiceCard",
+   "page": "r10"
+  },
+  "Ph10_Plan.dc.html": {
+   "x": 3490,
+   "y": 5240,
+   "w": 390,
+   "h": 844,
+   "title": "13 · Phone · PlanCard",
+   "page": "r10"
+  },
+  "Ph10_CheckIn.dc.html": {
+   "x": 3940,
+   "y": 5240,
+   "w": 390,
+   "h": 844,
+   "title": "14 · Phone · CheckInCard",
+   "page": "r10"
+  },
+  "Ph10_Away.dc.html": {
+   "x": 4390,
+   "y": 5240,
+   "w": 390,
+   "h": 844,
+   "title": "15 · Phone · While you were away",
+   "page": "r10"
   }
  },
  "createdOnFiles": {
@@ -2362,6 +2578,24 @@
    "w": 240,
    "x": 0,
    "y": -260
+  },
+  "r9": {
+   "kind": "title1",
+   "maxW": 4500,
+   "page": "r9",
+   "text": "Round 9 — updates, other devices, Terminal app, Language",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "r10": {
+   "kind": "title1",
+   "maxW": 4500,
+   "page": "r10",
+   "text": "Round 10 — Pi discusses before it builds (plan 236)",
+   "w": 240,
+   "x": 0,
+   "y": -260
   }
  },
  "order": [
@@ -2606,7 +2840,34 @@
   "Ph8_ChooseFolder.dc.html",
   "Ph8_Toast.dc.html",
   "Ph8_Settings.dc.html",
-  "Ph8_Details.dc.html"
+  "Ph8_Details.dc.html",
+  "R9_Answers.dc.html",
+  "R9_UpdateMenu.dc.html",
+  "R9_Update.dc.html",
+  "R9_UpdateStates.dc.html",
+  "R9_Devices.dc.html",
+  "R9_PreviewTerminal.dc.html",
+  "R9_Settings.dc.html",
+  "Ph9_Pi.dc.html",
+  "Ph9_Update.dc.html",
+  "Ph9_Install.dc.html",
+  "Ph9_PreviewTerminal.dc.html",
+  "R10_Answers.dc.html",
+  "R10_Choice.dc.html",
+  "R10_ChoiceStates.dc.html",
+  "R10_Plan.dc.html",
+  "R10_PlanStates.dc.html",
+  "R10_CheckIn.dc.html",
+  "R10_CheckInStates.dc.html",
+  "R10_AutoOn.dc.html",
+  "R10_AgentMenu.dc.html",
+  "R10_Away.dc.html",
+  "R10_Work.dc.html",
+  "T_PlanMode.dc.html",
+  "Ph10_Choice.dc.html",
+  "Ph10_Plan.dc.html",
+  "Ph10_CheckIn.dc.html",
+  "Ph10_Away.dc.html"
  ],
  "pages": [
   {
@@ -2636,6 +2897,14 @@
   {
    "id": "phone8",
    "name": "Phone parity"
+  },
+  {
+   "id": "r9",
+   "name": "Updates & devices"
+  },
+  {
+   "id": "r10",
+   "name": "Plan mode"
   },
   {
    "id": "edit",

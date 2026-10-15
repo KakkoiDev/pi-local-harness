@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The app icon, the main computer’s icon and its menu-bar item</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+/* ---- 2026-10-16 · Rounds 9–10: updates, plan mode (plan 236) ---- */
+
+/* Card: a framed card inside Pi's message (ChoiceCard, PlanCard, CheckInCard, AwayCard). Same frame as WorkerCard. */
+.pw-card{align-self:stretch;max-width:640px;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-card__head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-card__title{margin:0;font-size:15px;line-height:20px;font-weight:600;flex:1 1 200px}
+.pw-card__body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.pw-card__body>p{margin:0}
+.pw-card__foot{padding:8px 12px;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pw-card__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+.pw-card__links{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+.pw-card--settled{box-shadow:none}
+.pw-card--auto{border-style:dotted;box-shadow:none}
+.pw-card--old{box-shadow:none;color:var(--ink-disabled);border-color:var(--ink-disabled)}
+/* One answered line: a settled card collapses to it */
+.pw-card__line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:6px 10px;font-size:14px}
+.pw-card__line b{font-weight:600}
+.pw-card__line .pw-link{margin-left:auto;font-size:13px}
+
+/* Tag: a small framed word (Recommended, chosen, given, auto) */
+.pw-tag{display:inline-flex;align-items:center;font-family:var(--font-chrome);font-size:11px;line-height:16px;border:1px solid var(--ink);padding:0 4px;white-space:nowrap}
+.pw-tag--dotted{border-style:dotted}
+
+/* Option rows (ChoiceCard): radio, label, tag, one-line detail */
+.pw-option{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:7px 2px;border-top:1px dotted var(--ink);cursor:default}
+.pw-option:first-child{border-top:0}
+.pw-option__label{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.pw-option small{grid-column:2;font-size:13px;line-height:18px}
+.pw-option .pw-field{grid-column:2;font-size:15px;min-height:30px;padding:4px 8px}
+
+/* PlanCard */
+.pw-plan__goal{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45}
+.pw-plan__h{margin:4px 0 0;font-size:13px;font-weight:600;text-transform:none}
+.pw-plan__tasks{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.pw-plan__tasks small{display:block;font-size:13px;line-height:18px}
+.pw-plan__decisions{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.pw-plan__decisions li{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.pw-facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.pw-facts dt{font-weight:600}.pw-facts dd{margin:0}
+
+/* AutoToggle: next to Send */
+.pw-auto{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:14px;cursor:default;white-space:nowrap}
+
+@media (max-width:760px){
+  .pw-card{max-width:none}
+  .pw-option{min-height:44px;grid-template-columns:22px 1fr;align-items:center}
+  .pw-option .pw-radio{width:22px;height:22px;margin:0}
+  .pw-option .pw-radio:checked::before{width:12px;height:12px}
+  .pw-card__foot .pw-btn{min-height:var(--size-touch);font-size:16px;flex:1 1 auto}
+  .pw-card__links a{min-height:44px;display:inline-flex;align-items:center}
+  .pw-auto{min-height:44px;font-size:15px}
+  .pw-auto .pw-check{width:22px;height:22px}
+}
+</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 800px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; align-items: flex-start; color: #000"><div style="display: flex; flex-direction: column; gap: 8px; width: 1376px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">The app icon: the π tile, 1-bit; the same mark as the welcome screen</p><div class="pw-window" style="padding: 20px; display: flex; flex-direction: row; flex-wrap: wrap; gap: 28px; align-items: flex-end"><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div aria-hidden="true" style="width: 180px; height: 180px; box-sizing: border-box;  border-radius: 40px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 119px; line-height: 1">π</div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Home screen 180 · iOS rounds the corners</figcaption></figure><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div aria-hidden="true" style="width: 192px; height: 192px; box-sizing: border-box;  border-radius: 0px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 127px; line-height: 1">π</div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Manifest 192</figcaption></figure><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div style="position: relative"><div aria-hidden="true" style="width: 256px; height: 256px; box-sizing: border-box;  border-radius: 0px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 128px; line-height: 1">π</div><div style="position: absolute; inset: 26px; border: 1px dashed #000; border-radius: 50%"></div></div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Manifest 512 · maskable: π inside the safe 80%</figcaption></figure><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div aria-hidden="true" style="width: 120px; height: 120px; box-sizing: border-box;  border-radius: 26px; background: #000; color: #fff; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 79px; line-height: 1">π</div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Inverse (dark mode)</figcaption></figure><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div style="display: flex; gap: 10px; align-items: end"><div aria-hidden="true" style="width: 32px; height: 32px; box-sizing: border-box; border: 1px solid #000; border-radius: 0px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 21px; line-height: 1">π</div><div aria-hidden="true" style="width: 16px; height: 16px; box-sizing: border-box; border: 1px solid #000; border-radius: 0px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 11px; line-height: 1">π</div></div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Favicon 32 · 16</figcaption></figure></div></div><div style="display: flex; flex-direction: column; gap: 8px; width: 860px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">The main computer: Dock icon, and the menu-bar item (tray on Windows, status icon on Linux)</p><div class="pw-window" style="padding: 20px; display: flex; flex-direction: row; flex-wrap: wrap; gap: 32px; align-items: flex-start"><figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start"><div style="display: flex; gap: 14px; align-items: end; padding: 8px 14px; border: 1px solid #000; background: #fff"><div style="display: flex; flex-direction: column; align-items: center; gap: 4px"><div aria-hidden="true" style="width: 64px; height: 64px; box-sizing: border-box; border: 1px solid #000; border-radius: 14px; background: #fff; color: #000; display: grid; place-content: center; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 42px; line-height: 1">π</div><span style="width: 4px; height: 4px; border-radius: 50%; background: #000"></span></div></div><figcaption class="pw-label" style="background: #fff; padding: 0 4px">Dock: the same π tile; a dot while running</figcaption></figure><div style="display: flex; flex-direction: column; gap: 0; width: 360px"><div style="height: 24px; border: 1px solid #000; background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 14px; padding: 0 10px; font-size: 13px"><span>⌁</span><span style="background: #000; color: #fff; padding: 0 6px; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600">π</span><span>Thu 16:05</span></div>
+<div class="pw-menu" role="menu" aria-label="Pi Workbench" style="position: static; align-self: flex-end; min-width: 320px; margin-right: 40px">
+<span class="pw-menu__item" role="menuitem" aria-disabled="true" style="color: #000"><span class="pw-glyph"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11M2.5 15.5h11M3.5.5c0 5 4.5 5 4.5 7.5s-4.5 2.5-4.5 7.5M12.5.5c0 5-4.5 5-4.5 7.5s4.5 2.5 4.5 7.5" fill="none" stroke="currentColor"/></svg>Working in Class Notes</span></span>
+<span class="pw-menu__item" role="menuitem" aria-disabled="true" style="color: #000"><span>Gate · 12 checks today</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem"><span>Open Pi Workbench</span><span class="pw-menu__key">⌘O</span></span>
+<span class="pw-menu__item" role="menuitem"><span>Open on Phone…</span></span>
+<span class="pw-menu__item" role="menuitem"><span>Copy Address</span><span class="pw-menu__key">localhost:3000</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitemcheckbox" aria-checked="true"><span>Start at Login</span></span>
+<span class="pw-menu__item" role="menuitem"><span>Check for Updates…</span><span class="pw-menu__key">● New</span></span>
+<div class="pw-menu__sep" role="separator"></div>
+<span class="pw-menu__item" role="menuitem"><span>Quit Pi Workbench</span><span class="pw-menu__key">⌘Q</span></span></div></div></div></div><div style="display: flex; flex-direction: column; gap: 8px; width: 480px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">Quit while Pi works: asks first; Cancel is the default</p><div class="pw-dialog" style="width: 480px; position: static; box-sizing: border-box"><div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p class="pw-alert__message">Quit Pi Workbench while Pi is working?</p><p class="pw-alert__detail">Pi stops “Add subjects to notes” in Class Notes. The request is kept in Activity as Interrupted, and phones lose the workbench until it starts again.</p></div></div><div class="pw-dialog__actions"><button class="pw-btn">Quit</button><button class="pw-btn pw-btn--default">Cancel</button></div></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 800}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

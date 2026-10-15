@@ -559,3 +559,36 @@ Boards: canvas page **Phone parity** — [Ph8_Answers], [Ph8_Map] (every desktop
 10. **New Project / Add Existing Folder**: kinds as 44px radio rows; “Create in ~/code ›” is one row that opens the folder browser as its own full-height step (breadcrumb, 44px folder rows, New Folder…, Choose “<folder>”). Add Existing Folder uses the same step.
 11. **Details**: 44px for Show resolved, radios (22px in 44px rows), thread ‹ ›, Dictate, the whole-file row; strip ⌘ hints under 760px; toasts above the edit bar and keyboard (`bottom: edit bar height + safe area`); hide Desktop pattern and Return sends on the phone with a one-line note.
 12. **Files bar**: Ph_Files (no “‹ Projects”); Ph_FilesNew corrected.
+
+## 2026-10-16 · Round 9: updates, other devices, Terminal app, Language
+
+Boards: canvas page **Updates & devices** — [R9_Answers], [R9_UpdateMenu], [R9_Update], [R9_UpdateStates], [R9_Devices], [R9_PreviewTerminal], [R9_Settings], [Ph9_Pi], [Ph9_Update], [Ph9_Install], [Ph9_PreviewTerminal]; redrawn [P_NewProject], [Ph8_NewProject], [Ph8_Settings], [Ph8_ModelGone], [Ph8_ChatMenu].
+
+1. **Check for Updates…** in π (desk) and the π sheet (phone). The mark: a 6px dot on the π title / π button, and “● New version” on the item. The alert lists up to 20 plain lines; the blocked states keep the built sentences, add “Nothing was changed.” and offer **Ask Pi to Update** / **Ask Pi to Save Them**. Add **Restart Now** once plh can restart itself; until then the built steps.
+2. **Another device**: the install sheet once, only away from the main computer, with the brief's copy and iPhone / Android steps; later π › Add to Home Screen…. The **π tile** is the app icon (180, 192, 512 maskable, inverse, favicons). The main computer: the same tile in the Dock; a menu-bar / tray item: state, Gate count, Open Pi Workbench (default), Open on Phone…, Copy Address, Start at Login, Check for Updates…, Quit (asks first while Pi works).
+3. **Terminal app**: third of four kinds, help “Runs in a terminal window, keys and text only: a quiz, a calculator, a script. The Preview shows it here.” Its Preview: the run command in place of the address, **Restart** in place of Reload, sizes 80 × 24 · 120 × 40 · Fit; the phone adds a key row (Esc, Tab, ↑ ↓, Ctrl, Return).
+4. **Settings**: Language first (desk and phone); add Show lessons, Wait 10 seconds before Gate starts the worker, Check for updates once a day to the web Settings; remove “Phone access” (Open on Phone… shows it).
+5. **Model gone**: keep the fallback and the built sentence.
+6. **Chat commands**: come off. Agent menu loses Compact Now, New Conversation…, Earlier Conversations; the boards move to Archive (S_NewConversation, S_Fresh, S_Earlier, M_AgentEarlier).
+7. **No room**: keep the built behaviour (the Preview steps aside as a tab).
+
+## 2026-10-16 · Round 10: Pi discusses before it builds (plan 236)
+
+Boards: canvas page **Plan mode** — [R10_Answers], [R10_Choice], [R10_ChoiceStates], [R10_Plan], [R10_PlanStates], [R10_CheckIn], [R10_CheckInStates], [R10_AutoOn], [R10_AgentMenu], [R10_Away], [R10_Work], [T_PlanMode], [Ph10_Choice], [Ph10_Plan], [Ph10_CheckIn], [Ph10_Away]. Cards: ChoiceCard, PlanCard, CheckInCard, AwayCard. CSS: the rounds 9–10 block at the end of bundle.css (`.pw-card`, `.pw-tag`, `.pw-option`, `.pw-plan__*`, `.pw-facts`, `.pw-auto`).
+
+1. **ChoiceCard**: one question per card, “Question 1 of 3”; 2–4 options, recommended first, selected and tagged; Something else… last, opening a field; **Answer** default. Typing in the composer answers as Something else (label “Your answer to …”, Send reads Answer). Settled: one line with Change…; auto: dotted with an auto tag.
+2. **PlanCard**: Goal, Tasks with “Done when”, Decisions with chosen / given / auto tags; Approve Plan (default) · Change… · Open the Plan. Change… = the composer with “What should change in the plan?”; v1 collapses when v2 arrives. Over 7 tasks: first 5 and “and N more”.
+3. **CheckInCard = the task's DoneRow while it waits**: plain words, Verified, Next, Show in Preview · Undo This Task…; Continue (default) · Review First · Stop Here. Not verified: Review First is the default and Run on its own stops.
+4. **Run on its own** (the name in the UI; `/auto` in the terminal): per project; checkbox beside Send + Agent › Run on Its Own ⌥⌘A; first-time alert; status “Working · on its own”; Needs you waits in Activity (Needs Attention) and is counted by the status; the AwayCard on return.
+5. **Work**: plain Markdown; `Plan approved:` renders as a ✓ line under the title, decision states as tags.
+6. **Terminal**: select lists for questions, plan and check-ins; `/auto on` asks once; footer “Auto”; `/status` gains “Run on its own” and “Needs you”; attention segment reads “needs you · /queue”.
+
+### Round 10, version 2 (the person's decisions)
+
+Redrawn: [R10_AutoOn], [R10_Away], [R10_AgentMenu], [Ph10_Away], [R9_Settings], [Ph8_Settings], [T_PlanMode], [R10_Answers]. Card: AwayCard (now the run's report).
+
+7. **One question per card**, no multi-question cards.
+8. **Run on its own is one setting for all projects** (Settings › Pi), remembered, no limit. The checkbox beside Send and Agent › Run on Its Own ⌥⌘A toggle the same setting; not in π. `/auto` and `/config set auto` in the terminal.
+9. **Nothing is held back**: publishing, git push, downloads, sending, Move to Trash all run on their own. “Needs you” is removed (no Activity item, no status count, no footer segment).
+10. **The risk notice every time** it is turned on (from the checkbox, the menu, Settings or `/auto on`): Caution alert listing what will happen without asking, the irreversible ones in bold; **Turn On** / **Cancel** (Cancel is the default).
+11. **The report** at the end of every run, shown again when the person comes back if unseen: Done (verified or not), Decided on its own (Change… each), Left this Mac or used the Trash, Problems; Got It · Show in Activity. The harness keeps the record per run (Activity can list past reports).

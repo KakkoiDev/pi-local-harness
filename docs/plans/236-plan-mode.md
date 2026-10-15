@@ -79,20 +79,23 @@ Each catch is a Gate rule with an id, a message, a lesson and a test, like G-001
 
 ## Auto-accept ("YOLO, do the thing and I check later")
 
-- A setting in Settings, **once for all projects** (the person: "like it the user won't forget to set/unset it for 1
-  project in particular"), remembered after a restart, **no time or task limit**. Also `/auto on|off` in the terminal.
-  Always visible while on (the status shows "Auto").
+- Named **"Run on its own"** (the designer, round 10). A setting in Settings, **once for all projects** (the person:
+  "like it the user won't forget to set/unset it for 1 project in particular"), remembered after a restart, **no time
+  or task limit**. The same setting from a checkbox beside Send and the Agent menu (⌥⌘A); not in π. `/auto on|off` in
+  the terminal, "Auto" in its footer. While on, the status reads "Working · on its own".
 - While on: every choice takes the recommended option (recorded `auto`), every plan is approved (`Plan approved:
   auto`), every check-in continues to the next task, and the autopilot keeps going through the roadmap's open tasks.
 - **Everything is automatic** (the person: "everything should be automated and a report made at the end of the run
   saying what was done. we go YOLO and inform the user about the risks first"): publishing, git push, downloads,
   sending an issue or a message, Move to Trash, removing a project included. Files still go to the Trash, never deleted
   for good.
-- **The risks, first:** turning Auto on shows what it will do without asking (the list above) and asks for a yes,
-  every time it is turned on.
-- **The report at the end of the run:** tasks done (verified or not), every decision taken automatically (each
-  changeable), every action that left the machine or moved something to the Trash, problems met. Shown when the run
-  ends and when the person comes back.
+- **The risks, first:** a caution alert every time it is turned on, from any place (Settings, the checkbox, the menu,
+  `/auto on`): what Pi will do without asking (publishing, git push, downloads, sending, the Trash in bold), and that
+  what leaves the Mac cannot be undone. Buttons Turn On / Cancel, **Cancel the default**.
+- **The report at the end of the run** (the AwayCard): four sections with counts: tasks done (each verified or not);
+  every decision Pi made on its own (each with Change…); everything that left the Mac or used the Trash; problems met
+  (tests that failed and were fixed, commands Gate blocked). It ends every run and shows again on return if unseen.
+  The terminal prints a one-line summary at the end and `/report` shows the full report.
 - The bench runs with Auto on, so its runs stay comparable; the bench also scores the plan (tasks written, Done when
   lines, decisions asked).
 
@@ -104,6 +107,17 @@ Each catch is a Gate rule with an id, a message, a lesson and a test, like G-001
 - The web: a choices card and a plan card in the chat (js/), drawn by the designer first.
 - The terminal: `ctx.ui.select` with the options plus "Something else…" (then `ctx.ui.input`); the plan as text with
   Approve / Change.
+
+## The designer's answers (round 10, 2026-10-16)
+
+ChoiceCard: "Question 1 of 3", inline in the chat on the phone too; no "Let Pi choose" (the recommended option is
+preselected, Answer takes it); typing in the composer while a question waits answers "Something else" (the composer's
+label says so; Send reads Answer). PlanCard: Change… puts "What should change in the plan?" in the composer; a new
+version replaces the old, which shrinks to one line; up to 7 tasks, else the first 5 and "and N more · Open the Plan";
+decisions always in full. CheckInCard = the task's DoneRow (round 7) while it waits for Continue / Review First / Stop
+Here; Review First is the default when the task is not verified. Decisions in the task file: plain Markdown, lightly
+rendered; "Plan approved" a quiet line under the title; each decision's state a small tag. Build from the boards on the
+"Plan mode" page and IMPLEMENTATION.md's round 10 sections (the version 2 section overrides the first).
 
 ## Decided (the person, 2026-10-16)
 

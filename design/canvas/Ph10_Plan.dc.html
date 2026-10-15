@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone · PlanCard inline; Open the Plan opens ROADMAP.md in Work</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+/* ---- 2026-10-16 · Rounds 9–10: updates, plan mode (plan 236) ---- */
+
+/* Card: a framed card inside Pi's message (ChoiceCard, PlanCard, CheckInCard, AwayCard). Same frame as WorkerCard. */
+.pw-card{align-self:stretch;max-width:640px;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-card__head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-card__title{margin:0;font-size:15px;line-height:20px;font-weight:600;flex:1 1 200px}
+.pw-card__body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.pw-card__body>p{margin:0}
+.pw-card__foot{padding:8px 12px;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pw-card__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+.pw-card__links{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+.pw-card--settled{box-shadow:none}
+.pw-card--auto{border-style:dotted;box-shadow:none}
+.pw-card--old{box-shadow:none;color:var(--ink-disabled);border-color:var(--ink-disabled)}
+/* One answered line: a settled card collapses to it */
+.pw-card__line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:6px 10px;font-size:14px}
+.pw-card__line b{font-weight:600}
+.pw-card__line .pw-link{margin-left:auto;font-size:13px}
+
+/* Tag: a small framed word (Recommended, chosen, given, auto) */
+.pw-tag{display:inline-flex;align-items:center;font-family:var(--font-chrome);font-size:11px;line-height:16px;border:1px solid var(--ink);padding:0 4px;white-space:nowrap}
+.pw-tag--dotted{border-style:dotted}
+
+/* Option rows (ChoiceCard): radio, label, tag, one-line detail */
+.pw-option{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:7px 2px;border-top:1px dotted var(--ink);cursor:default}
+.pw-option:first-child{border-top:0}
+.pw-option__label{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.pw-option small{grid-column:2;font-size:13px;line-height:18px}
+.pw-option .pw-field{grid-column:2;font-size:15px;min-height:30px;padding:4px 8px}
+
+/* PlanCard */
+.pw-plan__goal{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45}
+.pw-plan__h{margin:4px 0 0;font-size:13px;font-weight:600;text-transform:none}
+.pw-plan__tasks{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.pw-plan__tasks small{display:block;font-size:13px;line-height:18px}
+.pw-plan__decisions{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.pw-plan__decisions li{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.pw-facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.pw-facts dt{font-weight:600}.pw-facts dd{margin:0}
+
+/* AutoToggle: next to Send */
+.pw-auto{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:14px;cursor:default;white-space:nowrap}
+
+@media (max-width:760px){
+  .pw-card{max-width:none}
+  .pw-option{min-height:44px;grid-template-columns:22px 1fr;align-items:center}
+  .pw-option .pw-radio{width:22px;height:22px;margin:0}
+  .pw-option .pw-radio:checked::before{width:12px;height:12px}
+  .pw-card__foot .pw-btn{min-height:var(--size-touch);font-size:16px;flex:1 1 auto}
+  .pw-card__links a{min-height:44px;display:inline-flex;align-items:center}
+  .pw-auto{min-height:44px;font-size:15px}
+  .pw-auto .pw-check{width:22px;height:22px}
+}
+</style>
+</helmet>
+<div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Waiting for you. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg><span role="status">Waiting for you</span></button></nav><div class="pw-window__body" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden"><div class="pw-transcript" style="padding: 16px"><section class="pw-card" aria-label="Plan"><div class="pw-card__head"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11v15h-11z" fill="none" stroke="currentColor"/><path d="M5 4.5h6M5 8h6M5 11.5h4" stroke="currentColor"/></svg><h3 class="pw-card__title">Plan: Class Notes</h3><span>4 tasks · 4 decisions</span></div><div class="pw-card__body"><p class="pw-plan__goal">A notes app for your class: you write notes in Japanese or English, newest first, and find them again by subject.</p><h4 class="pw-plan__h">Tasks</h4><ol class="pw-plan__tasks"><li>Write and keep notes<small>Done when a note you add is still there after a reload.</small></li><li>Subjects<small>Done when each note has a subject, and the list filters by it.</small></li><li>Japanese and English<small>Done when every label switches with EN · 日本語.</small></li><li>Works on the phone<small>Done when it installs from Safari and opens offline.</small></li></ol><h4 class="pw-plan__h">Decisions</h4><ul class="pw-plan__decisions"><li><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><b style="font-weight: 600">Who writes</b><span>only you, on your devices</span><span class="pw-tag">chosen</span></li><li><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><b style="font-weight: 600">Kind</b><span>App with no server</span><span class="pw-tag">chosen</span></li><li><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><b style="font-weight: 600">Sorting</b><span>newest first</span><span class="pw-tag pw-tag--dotted">auto</span></li><li><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><b style="font-weight: 600">Languages</b><span>Japanese and English</span><span class="pw-tag">given</span></li></ul></div><div class="pw-card__foot"><button class="pw-btn pw-btn--default">Approve Plan</button><button class="pw-btn">Change…</button><span style="flex: 1"></span><a href="#" class="pw-btn">Open the Plan</a></div></section></div></div><form class="pw-composer" style="padding-bottom: 30px"><textarea class="pw-field" rows="1" placeholder="Ask anything"></textarea><div class="pw-composer__row"><button type="button" class="pw-btn pw-btn--touch" aria-label="Attach">+</button><label class="pw-auto"><input type="checkbox" class="pw-check">Run on its own</label><span style="flex: 1"></span><button class="pw-btn pw-btn--touch pw-btn--default">Send</button></div></form></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

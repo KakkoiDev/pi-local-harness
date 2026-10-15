@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal · plan mode and Run on its own</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1200px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="A question: Pi’s select list" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">A question: Pi’s select list</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">14:03</span>
+  Before I build, three questions.
+
+── <b style="font-weight:600">Who writes the notes?  1 of 3</b> ─────────────────────────────────────────────
+→ Only you, on your devices        <span style="color:#767676">Recommended</span>
+  <span style="color:#767676">No accounts. Notes stay on your phone and Mac.</span>
+  You and your classmates, shared
+  <span style="color:#767676">Needs a web app with logins.</span>
+  Something else…
+<span style="color:#767676">↑↓ navigate · enter select · escape cancel</span>
+
+✓ Who writes: only you, on your devices
+~ Sorting: newest first <span style="color:#767676">· auto</span></pre></section><section class="pw-window" aria-label="The plan, then Approve / Change… / Open ROADMAP.md" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">The plan, then Approve / Change… / Open ROADMAP.md</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">14:08</span>
+── <b style="font-weight:600">Plan · Class Notes</b> ────────────────────── <span style="color:#767676">4 tasks · 4 decisions</span>
+  Goal  A notes app for your class: notes in Japanese or English,
+        newest first, found again by subject.
+
+  1  Write and keep notes   <span style="color:#767676">done when a note survives a reload</span>
+  2  Subjects               <span style="color:#767676">done when the list filters by it</span>
+  3  Japanese and English   <span style="color:#767676">done when every label switches</span>
+  4  Works on the phone     <span style="color:#767676">done when it installs and opens offline</span>
+
+  ✓ Who writes   only you, on your devices    <span style="color:#767676">chosen</span>
+  ✓ Kind         App with no server           <span style="color:#767676">chosen</span>
+  ~ Sorting      newest first                 <span style="color:#767676">auto</span>
+  ✓ Languages    Japanese and English         <span style="color:#767676">given</span>
+
+→ Approve Plan
+  Change…
+  Open ROADMAP.md
+<span style="color:#767676">↑↓ navigate · enter select · escape cancel</span></pre></section><section class="pw-window" aria-label="A check-in after each verified task" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">A check-in after each verified task</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Task 1 of 4 done · Write and keep notes</b> ─────────── <span style="color:#767676">2 files · 0:41</span>
+  You can write a note; it is still there after a reload.
+  Verified  uv run pytest · 6 passed
+  Next      Task 2: Subjects
+  <span style="color:#767676">/undo takes this task back · the Preview shows it on the web</span>
+
+→ Continue
+  Review First
+  Stop Here
+<span style="color:#767676">↑↓ navigate · enter select · escape cancel</span></pre></section><section class="pw-window" aria-label="/auto on, and the footer" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">/auto on, and the footer</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /auto on
+
+── <b style="font-weight:600">Turn on Run on its own?</b> ───────────────────────────────────────────────────
+  For every project, until /auto off, Pi does all of this without asking:
+  · answers every question with the recommended option
+  · approves its own plans and continues after every task
+  · <b style="font-weight:600">publishes</b>, <b style="font-weight:600">git push</b>es, <b style="font-weight:600">downloads</b>, <b style="font-weight:600">sends</b> messages and issues
+  · <b style="font-weight:600">moves files to the Trash</b>
+  What leaves this Mac can’t be taken back by /undo.
+
+→ Cancel
+  Turn On
+
+✓ Run on its own is on. <span style="color:#767676">/auto off stops it after the current step.</span>
+
+──────────────────────────────────────────────────────────────────────────────
+› <span style="background:#000;color:#fff"> </span>
+<span style="color:#767676">gemma4:26b · high</span> │ ▶ Working · Auto │ <span style="color:#767676">Gate today 14 · 1 blocked │ Phone off</span>
+
+── <b style="font-weight:600">Ran on its own · report</b> ─────────────────── <span style="color:#767676">14:40 – 16:05 · done</span>
+  ✓ 3 tasks <span style="color:#767676">(1 not verified)</span> · ~ 2 decisions · ↑ 3 left this Mac or used the Trash · ! 2 problems
+  <span style="color:#767676">/report shows it in full · /undo, /decisions to change one</span></pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">What changes in T_Outputs and T_Footer</h2><p style="margin: 0"><b>T_Footer</b> gains “Auto” after the state while it is on (“▶ Working · Auto”). Nothing waits for the person, so no new attention segment.</p><p style="margin: 0"><b>T_Outputs</b>: /status gains one row, “Run on its own  on · /auto off”. /config gains the key <span class=pw-mono>auto</span> (the same setting as the web); turning it on, from /auto or /config, shows the risks every time. The run ends with a short report; /report prints it in full.</p><p style="margin: 0">Answered questions print one line (✓ chosen, ~ auto); a replaced plan prints “Plan v1 · replaced by v2”.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1200}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
