@@ -696,6 +696,16 @@ const readline = require('node:readline');
   await page.locator('#phone-back').click();assert.equal(await page.locator('#phone-title-text').textContent(),'drafts','back to the folder');
   await page.locator('#phone-back').click();await page.locator('#phone-docbar').waitFor({state:'hidden'});
   }
+  { // Round 8 point 8: the status button lands on the running request's detail; ‹ goes to the list.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt:not([disabled])').waitFor();
+  await page.locator('#prompt').fill('Landing check TEST_WAIT');await page.locator('#send').click();
+  for(let tries=0;tries<40;tries++){const {jobs}=await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()));if(jobs.some(job=>job.status==='running'))break;await page.waitForTimeout(250);}
+  await page.waitForTimeout(800);/* the status button follows the next poll */await page.locator('#phone-status').click();
+  await page.waitForFunction(()=>document.body.dataset.view==='activity'&&document.body.dataset.pane==='detail');
+  assert.equal(await page.locator('#detail-back').isVisible(),true);await page.locator('#detail-back').click();
+  await page.waitForFunction(()=>document.body.dataset.pane==='list');
+  await stopAll();
+  }
   { // Round 8 point 11 (Ph8_Details, Ph8_Toast, Ph8_Settings): 44 px targets, no ⌘ hints, the toast above the edit bar.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();
   assert.equal(await page.locator('#toast-undo .pw-kbd').isVisible(),false,'no ⌘Z on the phone');

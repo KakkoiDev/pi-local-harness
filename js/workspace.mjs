@@ -366,7 +366,7 @@ export function installWorkspace(host){
  }
  // The status button and the Agent row open the running request itself (StatusButton, round 5), else the next waiting one.
  function openRunning(){const job=state.jobs.find(item=>item.status==='running')||state.jobs.find(item=>item.status==='queued');if(job)openJob(job.id);else host.showActivity();}
- function openJob(id){host.showActivity();$('activity-filter').value='all';$('activity-project').value='all';selectJob(id);document.getElementById('job-'+id)?.scrollIntoView({block:'center'});}
+ function openJob(id){host.showActivity();$('activity-filter').value='all';$('activity-project').value='all';selectJob(id);host.jobOpened?.();/* round 8: the phone lands on the detail */document.getElementById('job-'+id)?.scrollIntoView({block:'center'});}
  // From Activity or Gate into a project (task 128): its window, the view, and a file when the request had one.
  async function goToProject(id,view,file){await selectProject(id,{view});host.setLevel('project');if(file)await openFile(file);host.showView(view);}
  function openProjectChat(){const item=selectedProject();if(item)host.selectChat(item.chat);}

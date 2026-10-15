@@ -24,7 +24,8 @@ IMPLEMENTATION.md "Round 8" (12 build points), the PhoneBar card rewritten aroun
 - [x] 6 Ask Pi's own sheet for a selection, a block and the file (Ph8_Ask, Ph8_AskFile): `#ask-dialog`, `openAsk()`;
   the question goes the way of the whole-file question (`/api/jobs/create` with the document), never a comment.
 - [x] 7 Preview foot: state, Stop / Start, Open App; the app language in Preview's view menu (Ph8_Preview, Ph8_PreviewMenu).
-- [ ] 8 Landing on the detail (Activity, Gate, the status button).
+- [x] 8 Landing on the detail: Show in Activity, the status button (the running request) and Show in Gate open the
+  detail on the phone; ‹ goes to the list.
 - [x] 9 Document screens: the phone bar (π · view · status) stays above a new document bar (‹ Files · name · Comments ·
   ⋯); it hides on scroll down and returns on scroll up or a tap on the name; while editing only the document bar shows,
   with the save status. A detail screen's back button is now `#detail-back` (the document bar keeps `#phone-back`).
