@@ -42,8 +42,14 @@ the person meets the idea for the first time, in their language:
   reason.
 - Shown as one line under Pi's answer ("New to git? Lesson T19, 10 minutes"), never in the way; "teach me" opens it.
   Pi can also read a lesson to explain the idea on the person's own project.
-- Local: the lessons are copied into the kit (Markdown, en and ja) once izumo-io has a licence, so they work offline;
-  until then, links to school.kakkoi.dev.
+- Local: the lessons are copied into the kit (Markdown, en and ja) once izumo-io's licence is merged, so they work
+  offline; until then, links to school.kakkoi.dev.
+- **The Workbench course** (decided 2026-10-15: "new Workbench course … in Izumo-io"): a course in izumo-io beside the
+  AI course, written for the harness's stack only, from the T, A and R lessons (React, Next.js, Nest.js and the Node
+  server lessons stay in the school, not in the course). The school's other lessons stay as they are.
+- **Lesson updates at each build:** `kit/school/lessons.json` pins the izumo-io commit; the harness's build (and
+  `plh update`) compares it with izumo-io's latest, copies changed lessons (en and ja) into the kit, and says which
+  changed; a lesson the map names but izumo-io no longer has is a build error, so the map never points at nothing.
 - **Gaps found** (new lessons, written for izumo-io so the school gains them too): making a GitHub account step by step
   (A18 has one line), connecting this computer to GitHub (`gh auth login`), a repository from the workbench (`git init`,
   `gh repo create`, public or private, keeping secrets out), hosting an app that has a server (GitHub Pages is static
@@ -308,6 +314,26 @@ Recommended ladder, still one way at a time: **PWA** for everything; **Capacitor
 native API, around the same htmx app. Phone apps that must work fully offline with logic on the device are the one case
 the stack does not cover well (Flet would be the exception path, decided per project).
 
+**Decided 2026-10-15:** "so we don't do the cordova or whatever it was for the phone native capabilities? Also will need to
+explain how to compile and install apps on devices without using a store. and will need to make pi harness do as much
+of the work as possible." Capacitor (Cordova's successor) is the stack's native way, the second rung after the PWA.
+
+Installing without a store (checked 2026-10-15; these rules move, the lessons carry the date):
+
+- **Android:** the harness builds the APK itself (`plh phone android`: a JDK and Android's command-line tools in the
+  harness's own toolchain folder, several GB, downloaded once after a yes), signs it with a key it keeps for the
+  project, and serves it over the tailnet with a QR code; the phone opens the link and allows "install unknown apps"
+  once. Google's developer verification also covers sideloaded APKs: it starts on 2026-09-30 in Brazil, Indonesia,
+  Singapore and Thailand and widens from 2027; an "install without verification" path stays, with more steps. The
+  lesson and the harness follow it.
+- **iPhone:** a Mac with Xcode; the harness makes the Xcode project and opens it; a free Apple ID signs the app for 7
+  days on up to 3 devices (Developer Mode on, iOS 16 and later), then it must be signed again (the harness re-runs it on
+  request); the paid Apple Developer Program (a year) removes the weekly signing and allows TestFlight. In the EU,
+  alternative app marketplaces are another route. The PWA stays the answer for most iPhone apps.
+- What the harness does: checks what is installed and what is missing, downloads only after a yes, builds, signs,
+  serves the APK by QR, opens Xcode on the right screen, and says each step in plain words. What the person does: the
+  taps on the phone and, for iPhone, the Apple ID sign-in in Xcode (never typed by Pi).
+
 ## How we know it helps (the bench)
 
 A "stack" track in the bench: scenarios built on the template, in the person's everyday words:
@@ -353,12 +379,18 @@ beat the general harness on these scenarios, without losing on the others, or it
    - **Starlette** alone: what FastAPI is built on; fewer conventions, more for the model to decide.
 2. **Data access:** plain `sqlite3` with a small data module per table (recommended: nothing to learn, the generator
    writes it), or SQLModel (typed models, one more library and its versions).
-3. **Phone:** PWA only (recommended), or PWA plus a Capacitor shell for the stores later. (Hyperview, server-driven
-   native screens, was considered: it brings React Native and its own XML, a second way, against the point.)
+3. **Phone:** decided 2026-10-15: PWA first, Capacitor as the one native way, with installs that need no store
+   (see Phones).
 4. **Scope:** the stack pack for new projects only (recommended to start), or also a migration helper for existing ones.
 5. **The Python type checker:** decided, pyright.
-7. **Hosting for production:** the person's machine and Tailscale Funnel (free; the machine stays on), a small VPS with
-   one recipe (a service and Caddy for HTTPS), or a platform (Fly.io, Render, Railway: easiest, paid). One is the default.
+7. **Hosting for production:** asked 2026-10-15 for "something that does it simply and for free"; the person suggested
+   Bonto and Fly.io. Checked 2026-10-15: **Bonto** runs Node.js and static sites only (its docs list no Python): it
+   cannot run the stack. **Fly.io** has no free tier for new accounts (a trial of 2 machine hours or 7 days, then a card;
+   volumes, which SQLite needs, are paid per GB): simple and always on, but paid. **Render**'s free tier needs no card
+   but sleeps when idle and wipes its disk on deploy: SQLite data is lost. **Tailscale Funnel** is free on every plan:
+   the app stays on the person's machine with its SQLite file and gets a public HTTPS address (needed to install a PWA);
+   the machine must stay on, and bandwidth has an unpublished cap. Proposed: Funnel as the free default, Fly.io as the
+   "always on, a few dollars a month" step. Waiting for the person.
 8. **Issues and pull requests:** decided 2026-10-15, always ask before sending.
 9. **Windows and Linux:** decided 2026-10-15, after the starter project and the bench's stack track.
 10. **KakkoiSchool's lessons in the kit:** decided 2026-10-15: CC BY 4.0 for the lessons, MIT for the code, and the
