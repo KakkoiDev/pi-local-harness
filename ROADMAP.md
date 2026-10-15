@@ -254,4 +254,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [209-New Project… makes a Web app, an App with no server, or an empty folder](tasks/209-new-project-kinds.md)
 - [x] [212-The harness stops what Pi leaves running when a request ends](tasks/212-stop-what-pi-leaves-running.md)
 - [x] [213-Unverified changes are committed too, marked, so every request can be undone](tasks/213-unverified-changes-committed-marked.md)
-- [ ] [214-Pi's browser prefers Chromium's headless shell](tasks/214-browser-prefers-headless-shell.md)
+- [x] [214-Pi's browser prefers Chromium's headless shell](tasks/214-browser-prefers-headless-shell.md)

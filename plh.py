@@ -48,6 +48,8 @@ def update():
 def main():
     directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))).expanduser().resolve()
     settings=configuration(directory)
+    if sys.argv[1:2]==['setup']:  # plh setup [browser]: the toolchain, fetched once (harness/setup.py)
+        sys.path.insert(0,str(ROOT));from harness import setup;sys.exit(setup.main(sys.argv[2:],directory))
     if settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED'):
         try:commit=update()
         except (OSError,ValueError,KeyError,tarfile.TarError,subprocess.CalledProcessError) as error:
