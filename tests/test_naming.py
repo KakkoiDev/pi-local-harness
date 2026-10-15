@@ -25,7 +25,7 @@ class GateNamingTests(unittest.TestCase):
         lines, open_files = self.open_tasks()
         found = [line for line in lines if OLD.search(line)]
         for name in self.tracked():
-            if name == 'tests/test_naming.py' or name == 'ROADMAP.md' or (name.startswith('tasks/') and name not in open_files):
+            if name == 'tests/test_naming.py' or name == 'ROADMAP.md' or name.startswith('kit/vendor/') or (name.startswith('tasks/') and name not in open_files):  # third-party code is not ours to rename
                 continue
             path = ROOT / name
             if OLD.search(name):

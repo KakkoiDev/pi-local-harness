@@ -1,0 +1,52 @@
+{
+ "note": "Pinned, vendored libraries Pi builds with (plan 198). Plain files, no build step; update deliberately with a task.",
+ "libraries": [
+  {
+   "name": "htmx",
+   "version": "4.0.0",
+   "license": "0BSD",
+   "source": "https://www.npmjs.com/package/htmx.org/v/4.0.0",
+   "folder": "vendor/htmx-4.0.0",
+   "main": "htmx.min.js",
+   "card": "cards/htmx.md",
+   "upstream_guides": [
+    "skills/htmx-guidance.md",
+    "skills/htmx-upgrade-from-htmx2.md",
+    "skills/htmx-debugging.md",
+    "skills/htmx-extension-authoring.md"
+   ],
+   "check": "scripts/upgrade-check.py",
+   "sha256": "e484d9171a9db30a39c8f16e3d709d4137f3211c659f8e6125816635033d593f"
+  },
+  {
+   "name": "basecoat",
+   "version": "1.0.2",
+   "license": "MIT",
+   "source": "https://www.npmjs.com/package/basecoat-css/v/1.0.2",
+   "folder": "vendor/basecoat-1.0.2",
+   "main": "css/basecoat.css",
+   "card": "cards/basecoat.md",
+   "sha256": "d07a9a1ad82f2bda7023b5491f6529d986512f9407b3b3c88579b6abeb7ca8fc"
+  },
+  {
+   "name": "p2p-core",
+   "version": "0.1.0",
+   "license": "MIT",
+   "source": "https://github.com/KakkoiDev/p2p-core/tree/v0.1.0",
+   "folder": "vendor/p2p-core-0.1.0",
+   "main": "p2p-core.js",
+   "card": "vendor/p2p-core-0.1.0/AGENTS.md",
+   "sha256": "cce10dfe634ea7c062d0c3ea542df857623792ab607b0ba7ea5a597fa85ae61c"
+  },
+  {
+   "name": "littlejs",
+   "version": "1.27.0",
+   "license": "MIT",
+   "source": "https://www.npmjs.com/package/littlejsengine/v/1.27.0",
+   "folder": "vendor/littlejs-1.27.0",
+   "main": "littlejs.esm.min.js",
+   "card": "cards/littlejs.md",
+   "sha256": "d9be22ee13237db25a29004eefdd2d6e83080cf329d1bc286450fae7979a319b"
+  }
+ ]
+}

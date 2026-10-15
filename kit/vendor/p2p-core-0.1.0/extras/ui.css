@@ -1,0 +1,75 @@
+/* p2p-core dialog and badge. Override the variables to match your game. */
+:root {
+  --p2p-bg: #ffffff;
+  --p2p-fg: #16130d;
+  --p2p-muted: #5d5747;
+  --p2p-accent: #2457d6;
+  --p2p-accent-fg: #ffffff;
+  --p2p-border: #d6d0c2;
+  --p2p-error: #b3261e;
+  --p2p-radius: 12px;
+  --p2p-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --p2p-bg: #1d1b17;
+    --p2p-fg: #f3efe6;
+    --p2p-muted: #b9b2a2;
+    --p2p-accent: #7ea2ff;
+    --p2p-accent-fg: #10131c;
+    --p2p-border: #47423a;
+    --p2p-error: #ff8a80;
+  }
+}
+
+.p2p-dialog {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--p2p-border);
+  border-radius: var(--p2p-radius);
+  background: var(--p2p-bg);
+  color: var(--p2p-fg);
+  font: 16px/1.45 var(--p2p-font);
+}
+.p2p-dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+.p2p-title { margin: 0 0 8px; font-size: 1.25rem; }
+.p2p-text { margin: 8px 0; }
+.p2p-note, .p2p-wait { color: var(--p2p-muted); }
+.p2p-error { margin: 8px 0 0; color: var(--p2p-error); }
+.p2p-error:empty { display: none; }
+.p2p-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.p2p-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--p2p-border);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.p2p-button.p2p-primary { background: var(--p2p-accent); border-color: var(--p2p-accent); color: var(--p2p-accent-fg); }
+.p2p-button.p2p-quiet { margin-left: auto; }
+.p2p-button:focus-visible { outline: 3px solid var(--p2p-accent); outline-offset: 2px; }
+.p2p-code, .p2p-input { display: grid; gap: 8px; margin: 8px 0; }
+/* A QR code must stay dark on light to scan, so it keeps its own paper. */
+.p2p-qr { width: min(100%, 280px); justify-self: center; background: #fff; border-radius: 8px; }
+.p2p-qr svg { display: block; width: 100%; height: auto; }
+.p2p-field {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--p2p-border);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: 12px/1.3 ui-monospace, monospace;
+  word-break: break-all;
+  resize: vertical;
+}
+.p2p-label { display: grid; gap: 4px; }
+.p2p-video { width: 100%; border-radius: 8px; background: #000; }
+.p2p-badge { margin: 0; color: var(--p2p-muted); font: 14px/1.4 var(--p2p-font); }

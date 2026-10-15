@@ -1,0 +1,17 @@
+{
+ "note": "The pinned toolchain (plan 198). Installed by uv into the harness's own folder, never system-wide. Node comes as a Python package for pyright (measured 2026-10-15: pyright 0.56 s on Node, 1.44 s on Bun; Bun is not needed).",
+ "uv": "0.12.22",
+ "python": "3.12",
+ "python_packages": {
+  "fastapi": "latest pinned at the starter project's uv.lock",
+  "uvicorn": "idem",
+  "jinja2": "idem",
+  "python-multipart": "idem",
+  "pytest": "idem",
+  "httpx": "idem",
+  "pytailwindcss": "idem",
+  "pyright[nodejs]": "1.1.414"
+ },
+ "typescript": "checks JSDoc-typed JS islands; run through the Node pyright brings (tsc), or tsgo when it leaves preview",
+ "chromium": "the browser tool finds Chrome, Chromium or Playwright's; plh setup can fetch one"
+}
