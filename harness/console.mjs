@@ -22,6 +22,7 @@ export const CONSOLE_COMMANDS = {
   doctor: 'Checks with what is wrong and what to do.',
   undo: 'Undo the last change made from the console (asks first).',
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
+  bench: 'The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.',
   guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
 };
 

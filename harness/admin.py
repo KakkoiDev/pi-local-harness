@@ -436,6 +436,7 @@ COMMANDS = {
     'doctor': ('', 'Checks with what is wrong and what to do.'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
+    'bench': ('', 'The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.'),
     'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
 }
 
@@ -584,6 +585,15 @@ def build(console, command, args, yes=False):
         settings = {'kind': 'table', 'columns': ['KEY', 'VALUE', 'FROM'], 'flex': 1, 'rows': [[key, value['environment'][key] if key in value['environment'] else shown(item), source(key)] for key, item in value['values'].items()]}  # the value in force
         internal = {'kind': 'kv', 'heading': '── Harness variables · read only', 'rows': [[name, item['value'] or '—'] for name, item in value['internal'].items()]}
         return value, view('Settings', settings, internal, summary=f"{len(value['values'])} settings · {changed_count} changed", hint='/config <key> explains one · /config set <key> <value> asks first · Ollama’s own: /ollama')
+    if command == 'bench':  # plan 189: how well the model and the harness do on fixed scenarios
+        from bench import runner as bench
+        results = bench.read_jsonl(console.data / 'bench' / 'results.jsonl'); rows = bench.summary(results)
+        totals = {'kind': 'table', 'columns': ['MODEL', 'HARNESS', 'RUNS', 'SOLVED', 'VERIFIED', 'MIN', 'WAKE-UPS', 'REFUSALS'], 'flex': 0,
+                  'rows': [[f"{row['model']} {row['effort']}", row['harness'], str(row['runs']), f"{row['solved']}/{row['runs']}", str(row['verified']), str(row['minutes']), str(row['wake_ups']), str(row['refusals'])] for row in rows],
+                  'empty': 'No runs yet: python3 -m bench run'}
+        latest = {'kind': 'table', 'heading': 'Latest runs', 'columns': ['WHEN', 'SCENARIO', 'MODEL', 'RESULT'], 'flex': 3,
+                  'rows': [[short_time(line.get('time')), line['scenario'], line['model'], ('✓ solved' if line['solved'] else '✗ not solved') + (' · verified' if line.get('verified') else '') + f" · {line['seconds'] // 60} min"] for line in results[-12:][::-1]], 'empty': '—'}
+        return {'summary': rows, 'results': results[-50:]}, view('Bench', totals, latest, summary=f'{len(results)} runs', hint='python3 -m bench run [ids] [--model M] · each run’s files: <data>/bench/runs/')
     if command == 'reports':  # plan 184: what went wrong while Pi worked alone
         from harness import reports as incident
         found = incident.read(console.data); found = [item for item in found if not args or item.get('kind') == args[0]]

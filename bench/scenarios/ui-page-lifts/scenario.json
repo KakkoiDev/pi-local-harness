@@ -1,0 +1,8 @@
+{
+ "id": "ui-page-lifts",
+ "title": "The page lifts at tablet width",
+ "kind": "bug",
+ "timeout_minutes": 40,
+ "browser": true,
+ "prompt": "In index.html, at a window 1024 px wide, once the list is long, clicking Add lifts the whole page and leaves an empty band at the bottom. At 1440 px it is fine. Find the cause and fix it."
+}

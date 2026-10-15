@@ -91,7 +91,7 @@ In terminal Pi: `/config` lists every setting with what it does and its variable
 
 Type `/harness` and choose from the list (the command goes on the input line; Tab completes model names, settings and
 topics), or `/harness list` to print it: `/status`, `/doctor`, `/queue`, `/job <id>`, `/gate`, `/models`, `/ollama`, `/projects`,
-`/config`, `/paths`, `/guide`, `/undo`, `/reports`. They run at once, without the model, and Pi can explain their output. Pi's own
+`/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`. They run at once, without the model, and Pi can explain their output. Pi's own
 commands (`/settings`, `/model`, `/new`, `/compact`…) still work.
 
 ## Something is wrong. What do I do?

@@ -1,0 +1,7 @@
+{
+ "id": "docs-readme",
+ "title": "Write the README",
+ "kind": "docs",
+ "timeout_minutes": 20,
+ "prompt": "Write README.md for this project: what pager.py does, an example call with its result, and how to run the tests."
+}
