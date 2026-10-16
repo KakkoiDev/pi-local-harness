@@ -1,5 +1,7 @@
 // One decision at a time (plan 236). Options come from Pi; “Something else…” always comes from the harness.
 import { tr } from './language.mjs';
+import {choiceRows} from './terminal-planning.mjs';
+import {ansiStyle} from './terminal-render.mjs';
 
 export function validateChoice(value) {
   if (!value || typeof value.question !== 'string' || !value.question.trim()) throw Error('Ask one question.');
@@ -28,13 +30,14 @@ export function installChoices(pi, {auto=()=>false, web=()=>false, record=async(
           return {content:[{type:'text',text:'Waiting for the person’s choice. Stop here.'}],details:{...choice,pending:true}};
         } else {
           await pending(choice,ctx);
-          const other=tr('Something else…'),labels=choice.options.map((option,index)=>`${option.label}${index===0?' · '+tr('Recommended'):''}${option.detail?' · '+option.detail:''}`);
+          const other=tr('Something else…'),labels=choiceRows(choice).slice(0,-1);
           const picked=await ctx?.ui?.select?.(choice.question,[...labels,other]);
           if (picked === other) answer=await ctx?.ui?.input?.(tr('Something else…'),choice.question);
           else {const index=labels.indexOf(picked);if(index>=0) answer=choice.options[index].label;}
           if (typeof answer!=='string' || !answer.trim()) { await cancel(ctx); throw Error('No choice was answered. Ask again before changing code.'); }
         }
         const decision={...choice,answer:answer.trim(),state};await record(decision,ctx);
+        if(!web(ctx))ctx?.ui?.notify?.(`${state==='auto'?'~':'✓'} ${choice.question}: ${decision.answer}${state==='auto'?' '+ansiStyle.dim('· '+tr('auto')):''}`,'info');
         return {content:[{type:'text',text:`Choice: ${choice.question} → ${decision.answer}`}],details:decision};
       } catch(error) {return {isError:true,content:[{type:'text',text:error.message}],details:{}};}
     },

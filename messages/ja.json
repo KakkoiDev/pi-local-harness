@@ -1086,7 +1086,22 @@
   "Run on its own is off.": "自動実行はオフです。",
   "For every project, until you turn it off, Pi will do all of this without asking: choose recommended answers, approve plans, continue tasks, publish, git push, download, send messages and issues, move files to the Trash and remove projects. What leaves this Mac (a publish, a push, a message) cannot be taken back by Undo. Every step goes into a report at the end of the run.": "オフにするまで、すべてのプロジェクトでPiが確認せずに実行します：推奨される回答の選択、計画の承認、タスクの続行、公開、git push、ダウンロード、メッセージやIssueの送信、ファイルをゴミ箱に移動、プロジェクトの削除。このMacの外に送ったもの（公開・push・メッセージ）は「取り消す」で元に戻せません。すべての手順は実行終了時のレポートに記録されます。",
   "roadmap done": "ロードマップ完了",
-  "turned off": "オフにしました"
+  "turned off": "オフにしました",
+  "Continue": "続ける",
+  "Review First": "先に確認",
+  "Stop Here": "ここで停止",
+  "Back": "戻る",
+  "Goal": "目標",
+  "tasks": "タスク",
+  "Done when": "完了条件",
+  "Decisions": "決定事項",
+  "Task done": "タスク完了",
+  "Open ROADMAP.md": "ROADMAP.mdを開く",
+  "What should change in the plan?": "計画のどこを変更しますか？",
+  "Stopped here. Reply yes to continue the plan.": "ここで停止しました。計画を続けるには「はい」と返信してください。",
+  "auto": "自動",
+  "on · /auto off": "オン · /auto off",
+  "off · /auto on": "オフ · /auto on"
  },
  "patterns": [
   [
@@ -2544,6 +2559,10 @@
   [
    "Problems · {count}",
    "問題 · {count}"
+  ],
+  [
+   "Task {number} of {total} done",
+   "タスク {number}/{total} 完了"
   ]
  ]
 }

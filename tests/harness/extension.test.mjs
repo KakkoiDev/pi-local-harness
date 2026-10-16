@@ -459,3 +459,27 @@ test('auto check-ins start fresh request identities and finish with a report (ta
   assert.equal(notices.filter(text=>text==='Harness settled').length,1);assert.ok(notices.some(text=>text.startsWith('Harness report: ')));
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
+
+for(const scenario of ['continue','change','unverified']) test(`terminal planning lifecycle: ${scenario} (task 240)`,async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-terminal-plan-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t'});
+ const handlers={},tools={},calls=[],sent=[],notices=[];let ends=0;
+ globalThis.fetch=async(url,options)=>{
+  const path=new URL(url).pathname;calls.push({path,body:JSON.parse(options.body)});
+  return {ok:true,json:async()=>path==='/auto'?{enabled:scenario==='unverified'}:path==='/plan'?{goal:'Pong',tasks:[{title:'Ball',done_when:'Bounces'}]}:path==='/request/end'?{result:++ends===1?{outcome:scenario==='unverified'?'not verified':'committed',message:'Ball',commit:'abc',check_in:{verified:scenario!=='unverified',task:'tasks/001-ball.md',verification:'node --test',next:'tasks/002-score.md'}}:{outcome:'committed',message:'Score',commit:'def',check_in:{verified:true,next:null}}}:{}};
+ };
+ const pi={on:(name,fn)=>handlers[name]=fn,registerTool:tool=>tools[tool.name]=tool,appendEntry(){},registerEntryRenderer(){},sendUserMessage:text=>sent.push(text)};
+ const ctx={cwd:dir,abort(){},ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){},select:async()=>scenario==='change'?'Change…':'Continue',input:async()=> 'Use black and white'}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
+  if(scenario!=='unverified')delete process.env.PI_HARNESS_SHARED_PORT; // use native terminal dialogs with scratch mocked services
+  await handlers.input({source:'interactive',text:'Build a game'},ctx);
+  if(scenario==='change')await tools.propose_plan.execute('plan',{},null,null,ctx);
+  await handlers.agent_settled({aborted:scenario==='change'});
+  if(scenario==='unverified') {assert.deepEqual(sent,[]);assert.ok(notices.some(text=>text.startsWith('Harness check-in: ')));return;}
+  assert.deepEqual(sent,[scenario==='change'?'Use black and white':'yes']);
+  await handlers.input({source:'extension',text:sent[0]},ctx);handlers.agent_start({},ctx);
+  const requests=calls.filter(call=>call.path==='/request');assert.equal(requests.length,2);assert.notEqual(requests[0].body.request,requests[1].body.request);
+  if(scenario==='change') {assert.equal(calls.filter(call=>call.path==='/request/end').length,0);assert.equal(calls.filter(call=>call.path==='/request/pause').length,1);}
+ } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
+});

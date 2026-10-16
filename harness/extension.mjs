@@ -20,6 +20,7 @@ import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installChoices } from './choices.mjs';
 import { installPlanning } from './planning.mjs';
+import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
@@ -113,7 +114,7 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
-  let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false;
+  let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
   installChoices(extras, {
@@ -128,6 +129,7 @@ export default function harness(pi, dependencies = {}) {
   });
   installPlanning(extras, {
     auto:automatic,
+    change:async text=>{pendingPlanReply=text;},
     propose:()=>call('/plan',{request:requestId}),
     approve:state=>call('/plan/approve',{request:requestId,state}),
     web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
@@ -386,7 +388,9 @@ export default function harness(pi, dependencies = {}) {
     agentLock.release();
     if (waitingChoice) {
       if (requestId) await call('/request/pause',{request:requestId});
-      requestId=undefined;notify('Harness settled','info');return;
+      requestId=undefined;
+      if(pendingPlanReply){const text=pendingPlanReply;pendingPlanReply='';waitingChoice=false;nextPlanInput=true;recovering=true;pi.sendUserMessage(text);return;}
+      notify('Harness settled','info');return;
     }
     // G-012 (plan 179, L-005) and plan 184: code changed during the request and Gate saw no passing test on it afterwards.
     // The harness wakes Pi to finish (not when the person stopped it, nor when Pi asked the person something); out of
@@ -412,14 +416,16 @@ export default function harness(pi, dependencies = {}) {
         }
         if (result?.check_in) {
           const check=result.check_in;
-          if (check.next && await automatic()) {
+          if (check.verified && check.next && await automatic()) {
             say('committed',`${result.message} · committed as ${result.commit}`,'info');
             nextPlanInput=true;recovering=true;
             notify('Harness recovery: Continue the next approved task.','info');
             pi.sendUserMessage('yes');return;
           }
           if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness check-in: '+JSON.stringify(check),'info');
-          else notify([result.message,`${tr('Verified')}: ${check.verification}`,check.next ? `${tr('Next')}: ${check.next} · ${tr('Continue?')}` : tr('Plan complete.')].join('\n'),'info');
+          else if(check.next) {
+            if(await checkIn(context,check)==='continue'){nextPlanInput=true;recovering=true;pi.sendUserMessage('yes');return;}
+          } else notify(tr('Plan complete.'),'info');
         }
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'not verified' && result.commit) say('saved-unverified', `${result.message} · committed as ${result.commit}`, 'warning');  // committed too, marked (2026-10-15)

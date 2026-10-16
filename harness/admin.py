@@ -484,7 +484,10 @@ def change_view(value):
         action = value.get('action', 'Apply'); cancel_first = value.get('destructive')
         hint = 'Return cancels · choose ' + action + ' to go ahead' if cancel_first else f'Return {action.lower()} · Esc cancels'
         return view(value['title'], kv(*value.get('rows', [])) if value.get('rows') else {'kind': 'prose', 'text': value['detail']}, hint=hint)
-    return view(None, {'kind': 'lines', 'lines': [value.get('result') or '✓ ' + value['detail']]})
+    lines=[value.get('result') or '✓ ' + value['detail']]
+    if value.get('report'):
+        counts=value['report']['counts'];lines.append(f"Run report: {counts['done']} tasks · {counts['decisions']} decisions · {counts['external']} external actions · {counts['problems']} problems. /report")
+    return view(None, {'kind': 'lines', 'lines': lines})
 
 
 def report_line(kind,item):
@@ -523,7 +526,7 @@ def build(console, command, args, yes=False):
         phone = f"✓ on · {config['phoneUrl']}" if config.get('phoneUrl') else 'off · /guide phone'
         return value, view('Status', kv(['Web', web], ['Model', f"{value['model']['model']} · {value['model']['effort']} thinking · " + ('✓ Ollama answers' if value['ollama'] else '✗ Ollama does not answer')],
                                          ['Queue', ' · '.join(parts)], ['Gate', gate], ['Phone', phone],
-                                         ['Projects', f"{value['projects']} · data in {value['data'].replace(str(Path.home()), '~')} · build {value['build']}"], ['Loop check', 'every 10 s'], ['Run on its own', 'on' if autonomy.enabled(console.data) else 'off']),
+                                         ['Projects', f"{value['projects']} · data in {value['data'].replace(str(Path.home()), '~')} · build {value['build']}"], ['Loop check', 'every 10 s'], ['Run on its own', 'on · /auto off' if autonomy.enabled(console.data) else 'off · /auto on']),
                            hint='/queue · /gate blocked · /doctor')
     if command == 'queue':
         rows = console.queue(args[0] if args else None); names = {item['id']: item['name'] for item in console.projects()}

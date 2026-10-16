@@ -142,3 +142,6 @@ New apps and features start with a plan. Pi fills the Goal and real tasks, asks 
 ## How do I let Pi work on its own?
 
 `/auto on` turns on Run on its own for every project, immediately and until `/auto off`. Every enable shows the risks and defaults to Cancel: Pi chooses recommended answers, approves plans, continues tasks, publishes, pushes, downloads, sends and uses the Trash without another question. What leaves the Mac cannot be taken back by Undo. `/auto status` shows the shared setting; `/report` shows the last run’s tasks, decisions, external actions and problems. An unverified task stops the run for review. The terminal prints the report counts at the end.
+
+
+In terminal Pi, plan previews offer Approve Plan, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Continue starts the next request, Review First shows the task text and Stop Here leaves the plan ready to resume with “yes”. An unverified task defaults to Review First.

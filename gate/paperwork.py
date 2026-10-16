@@ -193,7 +193,7 @@ class Paperwork:
                 first.write_text(first_text.rstrip()+'\n\nRequest '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
-            return {'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
+            return {'root':str(root),'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
 
     def approve_plan(self, request, state='chosen'):
         if state not in {'chosen','auto'}:raise ValueError('Approval must come from the person or auto-accept.')
@@ -300,13 +300,17 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             result=self._end(request,review)
+            if item and result and result.get('outcome')=='not verified':
+                plan=self.plan_state(item['root'])
+                if item.get('task') in plan.get('tasks',[]):
+                    result['check_in']={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks'])}
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
                 from harness.autonomy import enabled
                 outcome=result['outcome']
-                self.runs.step_finished(item['root'])
                 if outcome in {'committed','not verified','plan incomplete'}:
                     self.runs.add(item['root'],'done',{'task':result.get('task'),'verified':outcome=='committed','commit':result.get('commit'),'reason':result.get('reason')})
                 if outcome not in {'committed','nothing changed'}:self.runs.add(item['root'],'problems',{'reason':result.get('reason',outcome)})
+                self.runs.step_finished(item['root'])
                 if not (outcome=='committed' and result.get('check_in',{}).get('next') and enabled(self.data)):
                     result['report']=self.runs.finish(item['root'],'roadmap done' if outcome=='committed' and result.get('check_in') and not result['check_in']['next'] else outcome)
             return result
@@ -370,7 +374,7 @@ class Paperwork:
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
                 plan.update(index=index,check_in=bool(next_task),finished=not bool(next_task));self.plan_state(root,plan)
-                result['check_in']={'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'number':index+1,'total':len(plan['tasks']),'question':'Continue?' if next_task else 'Plan complete.'}
+                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Continue?' if next_task else 'Plan complete.'}
             return result
 
     def sample_cleanup(self, item):

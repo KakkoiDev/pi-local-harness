@@ -40,6 +40,6 @@ test('the harness-owned choice words follow Japanese while Pi’s labels stay in
   try {
     const {tool}=setup();let shown;
     await tool.execute('ja',question,null,null,{ui:{select:async(_q,options)=>{shown=options;return options[0];}}});
-    assert.equal(shown.at(-1),'別の回答…');assert.match(shown[0],/Only me · おすすめ/);
+    assert.equal(shown.at(-1),'別の回答…');assert.match(shown[0],/Only me +\x1b\[2mおすすめ/);
   } finally {loadTerminalLanguage('en');}
 });

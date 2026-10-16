@@ -9,11 +9,17 @@ design/system/components/TerminalOutput/README.md. Copy the existing patterns of
 terminal-render.mjs.
 
 ## Steps
-- [ ] `ask_choices`: select with the options (the recommended marked "(recommended)"), then "Something else…" opens
+- [x] `ask_choices`: select with the options (the recommended marked "(recommended)"), then "Something else…" opens
   an input. Answered choices print one line: `✓ Ball speed: medium`.
-- [ ] The plan: printed as text (Goal, tasks, decisions) and a select: Approve / Change… / Open ROADMAP.md.
-- [ ] Check-ins: a select: Continue / Review first / Stop here.
-- [ ] Auto: `/auto on|off` (the risks every time, Cancel the default), the footer's "Auto", `/status`'s "Run on its own"
+- [x] The plan: printed as text (Goal, tasks, decisions) and a select: Approve / Change… / Open ROADMAP.md.
+- [x] Check-ins: a select: Continue / Review first / Stop here.
+- [x] Auto: `/auto on|off` (the risks every time, Cancel the default), the footer's "Auto", `/status`'s "Run on its own"
   row, a one-line report at the end of a run, `/report` for the full report.
-- [ ] Japanese: the fixed words in messages/ja.json (harness/language.mjs translates the screen; Pi reads English).
-- [ ] Tests in tests/harness/ (fake ctx.ui like the existing console tests).
+- [x] Japanese: the fixed words in messages/ja.json (harness/language.mjs translates the screen; Pi reads English).
+- [x] Tests in tests/harness/ (fake ctx.ui like the existing console tests).
+
+## Result
+
+Native select lists follow T_PlanMode with monochrome dim recommendation/detail text and one-line answered choices. Plan previews use the shared terminal renderer; Open ROADMAP.md reads the actual source, and Change collects the person’s words then starts a fresh planning request without approval. Check-ins show verification and the next task; Continue starts a fresh request, Review First shows the actual task, Stop Here leaves the plan resumable. Unverified defaults to Review First and never continues automatically.
+
+The shared `/auto` risk confirmation defaults to Cancel; footer, `/status`, completion counts and `/report` use the same persistent setting and report records. Fixed text is translated to Japanese. Native-dialog, lifecycle, Japanese and installed-copy tests cover these paths.

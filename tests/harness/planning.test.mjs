@@ -12,3 +12,19 @@ for (const [mode,pick,expected] of [['terminal','Approve Plan','chosen'],['termi
     assert.equal(paused,!expected);
   });
 }
+
+test('Change collects the person’s plan edit and pauses without approving',async()=>{
+ let tool,changed=null,paused=false,approved=false;
+ installPlanning({registerTool:value=>tool=value},{propose:async()=>plan,approve:async()=>approved=true,change:async text=>changed=text,cancel:async()=>paused=true});
+ const result=await tool.execute('change',{},null,null,{ui:{select:async()=> 'Change…',input:async()=> 'Keep notes only on this Mac'}});
+ assert.equal(changed,'Keep notes only on this Mac');assert.equal(approved,false);assert.equal(paused,true);assert.equal(result.isError,undefined);
+});
+
+test('Open ROADMAP.md shows the actual source and returns to approval',async()=>{
+ const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');const {tmpdir}=await import('node:os');const {join}=await import('node:path');
+ const dir=mkdtempSync(join(tmpdir(),'plh-plan-open-'));writeFileSync(join(dir,'ROADMAP.md'),'# Actual Roadmap\nThe person’s text.');
+ let tool,count=0,approved=false;const shown=[];
+ installPlanning({registerTool:value=>tool=value},{propose:async()=>({...plan,root:dir}),approve:async()=>approved=true,cancel:async()=>{}});
+ try {await tool.execute('open',{},null,null,{ui:{select:async(title)=>{shown.push(title);return ++count===1?'Open ROADMAP.md':count===2?'Back':'Approve Plan';}}});assert.match(shown[1],/The person’s text/);assert.equal(approved,true);}
+ finally{rmSync(dir,{recursive:true,force:true});}
+});
