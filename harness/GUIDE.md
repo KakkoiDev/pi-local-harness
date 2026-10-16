@@ -110,3 +110,9 @@ again, reload. "Connection interrupted" in the browser: `plh` stopped; start it 
 
 In `~/pi-local-harness-data` (`/paths` lists each part): settings, the model choice, chats, comments, Activity records,
 Gate's history, backups and the app's own trash. Project files stay in their own folders.
+
+### Which tests actually ran?
+
+Open a request in Activity. Its Tests list comes from Gate: each command, exit code, printed counts, duration and
+time. The data folder keeps `test-runs.jsonl` and the last 200 output lines in `test-runs/<id>.txt`. Bench results
+include those records and output files too. Counts are shown only when the runner printed a recognised summary.

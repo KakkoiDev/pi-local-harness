@@ -355,7 +355,7 @@ class WebChat:
             # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
             chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
             projects.append({**project,'chat':chat})
-        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
+        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
         with self.lock:
@@ -569,11 +569,12 @@ class WebChat:
                 try:context_file.unlink()
                 except OSError:pass
 
-def with_checks(jobs,events):
+def with_checks(jobs,events,test_runs=()):
     """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""
     checks={}
     for event in events:
         if event.get('tool_call'):checks.setdefault(event['tool_call'],[]).append({'event':event['id'],'phase':event['phase'],'outcome':event['outcome'],'reason':event['reason']})
+    jobs=[{**job,'test_runs':[run for run in test_runs if run.get('request')==job['id']]} for job in jobs]
     return [{**job,'tools':[{**tool,'checks':checks.get(tool['id'],[])} for tool in job['tools']]} if 'tools' in job else job for job in jobs]
 
 from http.server import BaseHTTPRequestHandler

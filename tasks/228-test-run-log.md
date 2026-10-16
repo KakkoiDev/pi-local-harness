@@ -21,14 +21,22 @@ node's `ℹ pass N`, unittest's `Ran N tests` + `OK`/`FAILED (failures=N)`, pyte
   the request's runs into its result.json (bench/runner.py).
 
 ## Steps
-- [ ] Red: python tests (tests/test_gate_*.py style) for the count parser on real outputs of node --test, unittest,
+- [x] Red: python tests (tests/test_gate_*.py style) for the count parser on real outputs of node --test, unittest,
   pytest, tsc (no counts: exit code only).
-- [ ] Red: an audit of a test command writes one JSON line with the fields above.
-- [ ] Implement in Gate's audit path (after the command ran).
-- [ ] Activity detail: a "Tests" list (copy the existing detail list markup; no new design needed, it is a list of rows).
-- [ ] bench/runner.py: `test_runs` in result.json.
-- [ ] Green; `python3 tests/verify_workflow.py`.
+- [x] Red: an audit of a test command writes one JSON line with the fields above.
+- [x] Implement in Gate's audit path (after the command ran).
+- [x] Activity detail: a "Tests" list (copy the existing detail list markup; no new design needed, it is a list of rows).
+- [x] bench/runner.py: `test_runs` in result.json.
+- [x] Green; `python3 tests/verify_workflow.py`.
 
 ## Done when
 For any request one can answer "which tests ran, on what, with what result" from the log, the Activity detail and
 the bench result, without trusting Pi's own words.
+
+## Result
+
+Gate saves one record for each recognised audited test run, including failures, and keeps the last 200 output
+lines separately. Drift is excluded. The shared recogniser now includes `npx tsc`. Activity and bench records use
+this evidence; bench folders retain the output files. Both browser suites passed, with the Tests list inspected at
+1440, 1024 and 390 px and Japanese counts checked. Full workflow verification passed with
+`PYTHONDONTWRITEBYTECODE=1` (the existing bytecode-cache issue documented in task 227).

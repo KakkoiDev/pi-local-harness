@@ -185,7 +185,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
         'resolved': solved and kept is not False, 'user_turns': user_turns, 'verified': any(not line.endswith(', not verified)') for line in commits), 'committed': [line.split('\t', 1)[1] for line in commits],
         'not_verified_mark': 'Not verified (G-012)' in answer or any(line.endswith(', not verified)') for line in commits), 'tasks_after': tasks, 'seconds': seconds,
         'tool_calls': len(tools), 'tools_failed': sum(tool.get('status') == 'failed' for tool in tools),
-        'reports': counts(reports, 'kind'), 'rules': counts([line for line in gate if line.get('phase') == 'gate' and line.get('outcome') != 'ALLOW'], 'rule'),
+        'test_runs': read_jsonl(data / 'test-runs.jsonl'), 'reports': counts(reports, 'kind'), 'rules': counts([line for line in gate if line.get('phase') == 'gate' and line.get('outcome') != 'ALLOW'], 'rule'),
         'gate_checks': sum(line.get('phase') == 'gate' for line in gate), 'folder': str(folder),
     }
     result['first_try'] = result['resolved'] and not result['reports'].get('wake-up') and not result['reports'].get('recovery') and not user_turns
@@ -193,8 +193,9 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     shutil.copytree(project, folder / 'project', ignore=shutil.ignore_patterns('.git'))
     (folder / 'git-log.txt').write_text(git(project, 'log', '--stat', '--format=%h %an %s', check=False))
     (folder / 'answer.md').write_text(answer)
-    for name in ('reports.jsonl', 'gate-events.jsonl', 'services.log'):
+    for name in ('reports.jsonl', 'gate-events.jsonl', 'test-runs.jsonl', 'services.log'):
         if (data / name).exists(): shutil.copy(data / name, folder / name)
+    if (data / 'test-runs').is_dir(): shutil.copytree(data / 'test-runs', folder / 'test-runs')
     for record in (data / 'activity').glob('*.md') if (data / 'activity').is_dir() else []: shutil.copy(record, folder / f'request-{record.name}')
     (folder / 'result.json').write_text(json.dumps(result, indent=1, ensure_ascii=False))
     Path(out).mkdir(parents=True, exist_ok=True)

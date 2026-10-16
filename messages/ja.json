@@ -1012,7 +1012,8 @@
   "New Folder…": "新規フォルダ…",
   "New Folder": "新規フォルダ",
   "Folder name": "フォルダ名",
-  "Choose a folder name without “/” that does not start with a dot.": "「/」を含まず、ドットで始まらないフォルダ名にしてください。"
+  "Choose a folder name without “/” that does not start with a dot.": "「/」を含まず、ドットで始まらないフォルダ名にしてください。",
+  "Tests": "テスト"
  },
  "patterns": [
   [
@@ -2410,6 +2411,26 @@
   [
    "More for {name}",
    "{name} のその他"
+  ],
+  [
+   "Exit code: {name}",
+   "終了コード：{name}"
+  ],
+  [
+   "{n} passed",
+   "{n} 件成功"
+  ],
+  [
+   "{n} failed",
+   "{n} 件失敗"
+  ],
+  [
+   "{n} skipped",
+   "{n} 件スキップ"
+  ],
+  [
+   "{n} s",
+   "{n} 秒"
   ]
  ]
 }

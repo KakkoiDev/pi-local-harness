@@ -33,10 +33,13 @@ class BenchTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             bin = Path(folder) / 'bin'; bin.mkdir()
             (bin / 'pi').write_text(f'#!{sys.executable}\n' + (ROOT / 'tests/fixtures/fake-pi.py').read_text()); (bin / 'pi').chmod(0o755)
-            scenario = runner.scenarios(['bug-pagination'])[0]
+            scenario = runner.scenarios(['bug-pagination'])[0] | {'prompts': {'vague': 'Paging is broken. TEST_RUN_LOG'}}
             result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None, level='vague')
-            self.assertEqual((result['prompt_level'], result['prompt']), ('vague', 'Paging is broken.'))
+            self.assertEqual((result['prompt_level'], result['prompt']), ('vague', 'Paging is broken. TEST_RUN_LOG'))
             self.assertEqual((result['scenario'], result['model'], result['effort'], result['status']), ('bug-pagination', 'fake:1b', 'low', 'completed'))
+            self.assertEqual(len(result['test_runs']),1)
+            test_run=result['test_runs'][0]; self.assertEqual(test_run['counts'],{'pass':3,'fail':1,'skipped':0})
+            self.assertTrue((Path(result['folder'])/test_run['output_file']).is_file())
             self.assertFalse(result['solved'], 'the fake Pi changes nothing'); self.assertFalse(result['verified'])
             for key in ('harness', 'pi', 'ollama', 'seconds', 'tool_calls', 'reports', 'rules', 'gate_checks', 'check'): self.assertIn(key, result)
             self.assertRegex(result['harness'], r'^[0-9a-f]{7,}')

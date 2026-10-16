@@ -914,6 +914,15 @@ const readline = require('node:readline');
   await more.locator('#project-more-close').click();await more.waitFor({state:'hidden'});
   await page.setViewportSize({width:1440,height:900});
   }
+  // Task 228: Activity uses Gate's saved evidence, including counts and a failed exit.
+  const tested=await post('/api/jobs/create',{project:id,message:'Check the tests TEST_RUN_LOG'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(data=>data.jobs.some(job=>job.id===id&&job.status==='completed')),tested.id);
+  await page.goto(`${base}/activity`);await page.locator('#job-'+tested.id+' .activity-request').click();
+  const testList=page.locator('#activity-detail section[aria-label="Tests"]');await testList.waitFor();
+  assert.match(await testList.textContent(),/node --test tests\/app.test.mjs/);
+  assert.match(await testList.textContent(),/Exit code: 1/);assert.match(await testList.textContent(),/3 passed/);assert.match(await testList.textContent(),/1 failed/);
+  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});if(width===390)await page.locator('#job-'+tested.id+' .activity-request').click();await testList.waitFor();await testList.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-228-activity-${width}.png`});}
+  await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.getByRole('heading',{name:'テスト',exact:true}).waitFor();assert.equal(await page.getByText('3 件成功',{exact:true}).count(),1);
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

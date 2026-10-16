@@ -12,7 +12,7 @@ import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
 from .protocol import Protocol, project_root, commit_folder, test_folder
 from .paperwork import Paperwork
-from . import rules
+from . import rules, test_runs
 from harness import reports
 
 def apply_edits(original, args, name='the file'):
@@ -119,6 +119,9 @@ class ProposalLedger:
     def report(self, kind, detail, **fields):
         if self.events_file: reports.report(self.events_file.parent, kind, detail, **fields)
 
+    def test_runs(self):
+        return test_runs.read(self.events_file.parent if self.events_file else None)
+
     def recent_events(self):
         with self.lock:
             return copy.deepcopy(list(self.events))
@@ -219,6 +222,12 @@ class ProposalLedger:
                 self.notes[token] = f'{problem} Fix it before going on.'
                 self.report('syntax', problem, tool=proposal.tool_name, cwd=cwd, source=source)
         request = self.request_of.pop(token, None)
+        folder = test_folder(command, cwd) if isinstance(command, str) and proposal.tool_name == 'execute_command' else None
+        if folder and self.events_file and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+            try:
+                test_runs.record(self.events_file.parent, request=request, project=project_root(folder) or folder, cwd=folder,
+                                 command=command, exit_code=exit_code, duration=self.clock() - created, output=output)
+            except OSError as error: self.report('test-log', str(error), request=request, cwd=cwd)
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
             if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
                 self.paperwork.ran(request, command, exit_code == 0)
