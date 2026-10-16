@@ -21,7 +21,11 @@ phases.
 - [ ] The transitions offered: after Planning: "Plan another task" (Discussion) or "Start building" (Implementation);
   from Discussion with planned tasks waiting: "Build the planned tasks".
 - [ ] Discussion: the web-search tool allowed (the person: "online searches are OK"); find what Pi offers or add one.
-- [ ] The phase button in the web: needs a board first. Write design/briefs/round-11.md (the phase control in the chat,
-  its three states, the offers above, the terminal's `/discuss` `/plan` `/build`, the phone) and ask the person to send
-  it to the designer; build after the re-sync.
-- [ ] Update docs/plans/236-plan-mode.md and tasks 55-57 (mark them "taken over by task 247").
+- [x] Prepare design/briefs/round-11.md: the phase control, all three states and transitions, terminal commands, phone, Run on its own and task check-ins.
+- [ ] The person sends the brief to the designer; build the web phase control after the design re-sync.
+- [x] Update docs/plans/236-plan-mode.md and tasks 55-57 (mark them "taken over by task 247").
+
+
+## Needs design
+
+The current design has no phase control or phase-transition offers. The reviewable brief is design/briefs/round-11.md. It also asks for task 234’s per-file selection reasons. No phase UI has been invented or implemented; the phase persistence, Gate policy, terminal commands and search integration remain open above. The round 10 runtime stays in place until task 247 adapts it.

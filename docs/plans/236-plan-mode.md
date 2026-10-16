@@ -3,6 +3,14 @@
 Date: 2026-10-16. Status: planned; tasks 236-240. Designed: canvas page `r10` (design/canvas/R10_*, Ph10_*,
 T_PlanMode), the cards ChoiceCard, PlanCard, CheckInCard, AwayCard (design/system/components/), IMPLEMENTATION.md round 10.
 
+## Current specification · 2026-10-17
+
+CONSTITUTION.md and task 247 supersede the gating described below. Every request, including a small fix, uses Discussion → Planning → Implementation. The project phase is the permission: Discussion permits reads and online searches; Planning permits ROADMAP.md and tasks/; Implementation permits the active task's changes. Only the person changes phase, except Run on its own may move Planning to Implementation and continue between tasks. System 1 owns task layouts and evidence-based progress; the model supplies content.
+
+Keep the choices, plan review, task check-ins and Run on its own built in tasks 236–240. Replace the small-fix exception and “no approved plan” catch during task 247; task 250 replaces assumption-word guesses with typed classifier questions and abstention to the person. Planning offers “Plan another task” or “Start building”; Discussion with waiting planned tasks offers “Build the planned tasks”. The existing runtime has not yet been migrated. The phase UI needs the boards requested in design/briefs/round-11.md.
+
+The remaining text records round 10's previous specification and decisions; it must not override the constitution.
+
 ## What the person asked for
 
 > "I'm thinking that we should move to a permanent 'plan mode' where when the model is unsure, the gate will catch it.

@@ -46,3 +46,5 @@ no commit yet, use the latest harness-created project commit. A later human comm
 Web previews, execution and terminal requests use the same selector; recovery inputs select again. Each selection
 is persisted immediately, including reasons and per-turn history. Files from the latest Pi Workbench commit are
 used when this request has no commit yet. Task remains open only for the designed reason display.
+
+The missing reason display is included in design/briefs/round-11.md (2026-10-17); its box remains open until the designer supplies it.
