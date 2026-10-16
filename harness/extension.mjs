@@ -10,7 +10,7 @@ import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
 import { installStartupDisplay, startupLines } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
-import { loadTerminalLanguage } from './language.mjs';
+import { loadTerminalLanguage, tr } from './language.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
@@ -19,6 +19,7 @@ import { installFooter } from './footer.mjs';
 import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installChoices } from './choices.mjs';
+import { installPlanning } from './planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
@@ -28,7 +29,7 @@ import { loadGuides, chooseGuides } from './guides.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
@@ -121,6 +122,13 @@ export default function harness(pi, dependencies = {}) {
       if (process.env.PI_HARNESS_SHARED_PORT) {ctx?.ui?.notify?.('Harness choice: '+JSON.stringify(pending),'info');pauseChoice(ctx);}
     },
     record:async decision=>{await call('/decision',{request:requestId,...decision});assistantText='';},
+    cancel:pauseChoice,
+  });
+  installPlanning(extras, {
+    propose:()=>call('/plan',{request:requestId}),
+    approve:state=>call('/plan/approve',{request:requestId,state}),
+    web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
+    pending:async(plan,ctx)=>{ctx?.ui?.notify?.('Harness plan: '+JSON.stringify(plan),'info');pauseChoice(ctx);},
     cancel:pauseChoice,
   });
   const trip = (reason, kind = 'loop') => {
@@ -248,7 +256,12 @@ export default function harness(pi, dependencies = {}) {
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();
-    if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).catch(error => incident('paperwork', `could not start: ${error.message}`));
+    if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(answer=>{
+      if (answer.root && !answer.planning?.approved) {
+        const planning=guides.find(guide=>guide.name==='planning');
+        if (planning && !chosenGuides.includes(planning)) chosenGuides=[planning,...chosenGuides];
+      }
+    }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
     try {
       const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
@@ -388,6 +401,11 @@ export default function harness(pi, dependencies = {}) {
           return;
         }
         requestId = undefined;
+        if (result?.check_in) {
+          const check=result.check_in;
+          if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness check-in: '+JSON.stringify(check),'info');
+          else notify([result.message,`${tr('Verified')}: ${check.verification}`,check.next ? `${tr('Next')}: ${check.next} · ${tr('Continue?')}` : tr('Plan complete.')].join('\n'),'info');
+        }
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'not verified' && result.commit) say('saved-unverified', `${result.message} · committed as ${result.commit}`, 'warning');  // committed too, marked (2026-10-15)
         else if (result?.outcome === 'plan incomplete') say('plan-incomplete', `Plan incomplete (G-014): ${result.reason}${result.commit ? ` · committed as ${result.commit}` : ''}`, 'warning');

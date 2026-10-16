@@ -26,10 +26,16 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
         elif self.path in ('/request', '/request/end'):  # plan 184: the paperwork for one request
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-                if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', ''))})
+                if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', '')), 'planning':self.ledger.paperwork.plan_status(data['request'])})
                 else: self.send_json_response({'result': self.ledger.end_request(data['request'],review=data.get('review',True))})
             except Exception as error:
                 self.send_error_response(400, str(error))
+        elif self.path in ('/plan','/plan/approve'):
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                result=self.ledger.paperwork.propose_plan(data['request']) if self.path=='/plan' else self.ledger.paperwork.approve_plan(data['request'],data.get('state','chosen'))
+                self.send_json_response(result)
+            except Exception as error:self.send_error_response(400,str(error))
         elif self.path in ('/choice','/request/pause'):
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))

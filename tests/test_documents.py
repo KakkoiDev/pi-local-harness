@@ -170,6 +170,14 @@ class NewFileAndTaskTest(unittest.TestCase):
         parent = Path(self.temp.name) / 'code'; parent.mkdir()
         self.project = self.store.create_project('Demo', str(parent)); self.root = parent / 'Demo'
 
+    def test_first_task_guides_planning_instead_of_pretending_to_be_the_app_task(self):
+        task=(self.root/'tasks/001-first-task.md').read_text()
+        self.assertIn('Kind: planning',task)
+        self.assertIn('Ask for plan approval before code',task)
+        self.assertIn('Done when:',task)
+        self.assertNotIn('Define the outcome',task)
+        self.assertIn('[001-Plan this app](tasks/001-first-task.md)',(self.root/'ROADMAP.md').read_text())
+
     def test_file_names_default_to_markdown_and_keep_other_extensions(self):
         self.assertEqual(self.store.create_file(self.project, 'notes')['path'], f'projects/{self.project}/notes.md')
         self.assertEqual((self.root / 'notes.md').read_text(), '# notes\n\n')

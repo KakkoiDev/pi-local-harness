@@ -59,6 +59,7 @@ class Paperwork:
         self.requests = {}
         self.lock = threading.RLock()
         self.choices = {}
+        self.plans = {}
 
     def choice_file(self,root):
         if not self.data:return None
@@ -98,6 +99,7 @@ class Paperwork:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this decision.')
             if not item['task']:item['task'],_=self.task_for(item)
+            was_approved=self.plan_status_for_item(item)
             path=item['root']/item['task'];text=path.read_text(encoding='utf-8')
             line=f"- {clean(question)}: {clean(answer)} ({state} {datetime.now().astimezone().isoformat(timespec='seconds')})\n"
             section=re.search(r'^## Decisions\s*\n',text,re.M)
@@ -107,9 +109,100 @@ class Paperwork:
                 position=section.end()+end.start() if end else len(text)
                 text=text[:position].rstrip()+'\n'+line+'\n'+text[position:]
             path.write_text(text,encoding='utf-8')
+            if was_approved:
+                plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
             waiting=self.waiting_choice(item['root'])
             if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
             return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
+
+    def plan_state(self, root, value=None):
+        file = Path(self.data)/'plans'/(hashlib.sha256(str(root).encode()).hexdigest()+'.json') if self.data else None
+        if value is not None:
+            if file:
+                file.parent.mkdir(parents=True, exist_ok=True)
+                temporary=file.with_suffix('.tmp'); temporary.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8'); temporary.replace(file)
+            else:self.plans[str(root)]=value
+            return value
+        try:return json.loads(file.read_text(encoding='utf-8')) if file else self.plans.get(str(root),{})
+        except (OSError,ValueError):return {}
+
+    def plan_digest(self, root, tasks):
+        # Progress, approval stamps and the harness's roadmap ticks do not change the approved scope.
+        texts=[]
+        for path in ['ROADMAP.md',*tasks]:
+            try:text=(root/path).read_text(encoding='utf-8')
+            except OSError:return None
+            if path=='ROADMAP.md':
+                goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
+                text=goal[1] if goal else text
+            text=re.sub(r'^## (?:Progress \(kept by the harness\)|For the person)\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
+            text=re.sub(r'^Plan approved:.*\n?', '', text, flags=re.M)
+            text=re.sub(r'- \[[ x]\]', '- []', text)
+            texts.append('\n'.join(line.rstrip() for line in text.splitlines() if line.strip()))
+        return hashlib.sha256('\n'.join(texts).encode()).hexdigest()
+
+    def plan_status_for_item(self,item):
+        plan=self.plan_state(item['root'])
+        return bool(not item.get('new_plan') and plan.get('approved') and item.get('task') in plan.get('tasks',[]) and plan.get('digest')==self.plan_digest(item['root'],plan['tasks']))
+
+    def plan_status(self, request, small_fix=False):
+        from .planning import requires_plan
+        item=self.requests.get(request)
+        if not item:return {'required':False,'approved':False}
+        root=item['root'];state=self.plan_state(root);task=item.get('task');text=''
+        if task and (root/task).is_file():text=(root/task).read_text(encoding='utf-8')
+        required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8'),re.M)))
+        approved=bool(not item.get('new_plan') and state.get('approved') and task in state.get('tasks',[]) and state.get('digest')==self.plan_digest(root,state['tasks']))
+        return {'required':required or bool(state.get('pending') or state.get('check_in') or task in state.get('tasks',[])), 'approved':approved,'task':task}
+
+    def propose_plan(self, request):
+        """Preview the actual Markdown plan; the model cannot approve its own proposal."""
+        with self.lock:
+            item=self.requests.get(request)
+            if not item:raise ValueError('No active request for this plan.')
+            root=item['root'];gaps=rules.plan_gaps(root)
+            if gaps:raise ValueError('; '.join(gaps))
+            roadmap=(root/'ROADMAP.md').read_text(encoding='utf-8')
+            paths=re.findall(r'^\s*- \[ \].*?\((tasks/[^)]+\.md)\)',roadmap,re.M)
+            tasks=[]
+            for path in paths:
+                if not (root/path).resolve().is_relative_to(root):raise ValueError('Task must stay inside the project.')
+                text=(root/path).read_text(encoding='utf-8')
+                if 'Kind: audit' in text or 'Kind: planning' in text:continue
+                title=re.search(r'^# (?:\d+: )?(.+)',text,re.M)
+                done=re.search(r'^Done when:\s*(.+)',text,re.M)
+                if not title or not done:raise ValueError('Each task needs a title and Done when.')
+                decisions=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
+                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions[1].strip() if decisions else ''})
+            if not tasks:raise ValueError('The plan needs at least one open task.')
+            goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',roadmap,re.M|re.S)
+            first=root/tasks[0]['path']
+            first_text=first.read_text(encoding='utf-8')
+            if not re.search(r'^Request ',first_text,re.M):
+                first.write_text(first_text.rstrip()+'\n\nRequest '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”\n',encoding='utf-8')
+            state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
+            self.plan_state(root,state);item['task']=tasks[0]['path']
+            return {'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
+
+    def approve_plan(self, request, state='chosen'):
+        if state not in {'chosen','auto'}:raise ValueError('Approval must come from the person or auto-accept.')
+        with self.lock:
+            item=self.requests[request];root=item['root'];plan=self.plan_state(root)
+            if not plan.get('pending'):raise ValueError('No plan is waiting for approval.')
+            if plan['digest']!=self.plan_digest(root,plan['tasks']):raise ValueError('The plan changed. Propose it again before approval.')
+            for path in plan['tasks']:
+                file=root/path;text=re.sub(r'^Plan approved:.*\n?', '',file.read_text(encoding='utf-8'),flags=re.M)
+                lines=text.splitlines();lines.insert(1,'\nPlan approved: '+state+' '+datetime.now().astimezone().isoformat(timespec='seconds'))
+                file.write_text('\n'.join(lines)+'\n',encoding='utf-8')
+            for file in (root/'tasks').glob('*.md'):
+                text=file.read_text(encoding='utf-8')
+                if 'Kind: planning' in text:
+                    file.write_text(text.replace('- [ ]','- [x]'),encoding='utf-8')
+                    roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*)- \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1- [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
+            plan.update(pending=False,approved=True,index=0,check_in=False)
+            self.plan_state(root,plan);item['task']=plan['tasks'][0]
+            item['new_plan']=False
+            return self.plan_status(request)
 
     # -- a request's life -------------------------------------------------------------------------------------------
     def start(self, request, cwd, text):
@@ -120,13 +213,31 @@ class Paperwork:
         except CheckFailed: before = {}
         with self.lock:
             item={'root':root,'text':str(text or '').strip(),'before':before,'task':None}
+            from harness.context import mentioned
+            named=mentioned(item['text'],[path.relative_to(root).as_posix() for path in (root/'tasks').glob('*.md')])
+            item['task']=next(iter(named),None)
             self.requests[request]=item
+            from .planning import approval
+            plan=self.plan_state(root)
+            from .planning import FEATURE, PLAN
+            item['new_plan']=bool(FEATURE.search(item['text']) or PLAN.search(item['text']))
+            if plan.get('approved') and not plan.get('check_in') and not item['new_plan'] and not item['task']:
+                item['task']=plan['tasks'][plan.get('index',0)]
+            if plan.get('pending') and approval(item['text']):
+                item['before']={path:value for path,value in before.items() if not plan_path(path)}
+                item['before'].update({path:value for path,value in plan.get('before',{}).items() if plan_path(path)})
+                self.approve_plan(request)
+            elif plan.get('approved') and plan.get('check_in') and approval(item['text']):
+                index=plan.get('index',0)+1
+                if index<len(plan['tasks']):
+                    item['task']=plan['tasks'][index];plan.update(index=index,check_in=False);self.plan_state(root,plan)
             waiting=self.waiting_choice(root)
             prefix=f"Choice: {waiting['question']} → " if waiting else ''
             if waiting and item['text'].startswith(prefix) and item['text'][len(prefix):].strip():
                 item['task']=waiting['task']
                 item['before']={path:value for path,value in before.items() if not plan_path(path)}
                 item['before'].update({path:value for path,value in waiting.get('before',{}).items() if plan_path(path)})
+                item['new_plan']=False
                 self.decision(request,waiting['question'],item['text'][len(prefix):],'chosen')
         return str(root)
 
@@ -211,6 +322,9 @@ class Paperwork:
                     self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
                     saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
                     return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
+            planned=self.plan_status_for_item(item)
+            if planned:
+                self.write(item,re.sub(r'- \[ \]', '- [x]', (root/task).read_text(encoding='utf-8')))
             self.progress(item, f'Done at {clock()}: verified and committed')
             text = (root / task).read_text(encoding='utf-8')
             roadmap = (root / 'ROADMAP.md').read_text(encoding='utf-8')
@@ -218,7 +332,12 @@ class Paperwork:
                 roadmap = re.sub(rf'^(\s*)- \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
             saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
-            return {'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+            result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+            if planned and result['outcome']=='committed':
+                plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
+                plan.update(index=index,check_in=True);self.plan_state(root,plan)
+                result['check_in']={'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'question':'Continue?' if next_task else 'Plan complete.'}
+            return result
 
     def sample_cleanup(self, item):
         """Once, before the first code request is committed: name the sample left from the starter's first commit."""

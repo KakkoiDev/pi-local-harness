@@ -140,12 +140,12 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   const vague=await handlers.tool_call({toolCallId:'box-2',toolName:'task_box',input:{path:'tasks/01.md',box:'Nothing'}});
   assert.equal(vague.block,true);assert.match(vague.reason,/No open box starts with “Nothing”/);
   // Plan 184: the first change gives the request its task, made by the harness; Pi reads where it is.
-  await handlers.input({source:'interactive',text:'Add a greeting'},ctx);
+  await handlers.input({source:'interactive',text:'Fix a greeting'},ctx);
   const greet={toolCallId:'greet',toolName:'write',input:{path:join(dir,'hello.py'),content:'print(1)\n'}};
   assert.equal(await handlers.tool_call(greet),undefined);writeFileSync(join(dir,'hello.py'),'print(1)\n');
   const told=await handlers.tool_result({...greet,content:[{type:'text',text:'Wrote hello.py'}],isError:false});
-  assert.match(told.content.at(-1).text,/^This request's task is tasks\/\d+-add-a-greeting\.md \(made\); the harness keeps it/);
-  assert.match(readFileSync(join(dir,'ROADMAP.md'),'utf8'),/- \[ \] \[\d+-Add a greeting\]\(tasks\/\d+-add-a-greeting\.md\)/);
+  assert.match(told.content.at(-1).text,/^This request's task is tasks\/\d+-fix-a-greeting\.md \(made\); the harness keeps it/);
+  assert.match(readFileSync(join(dir,'ROADMAP.md'),'utf8'),/- \[ \] \[\d+-Fix a greeting\]\(tasks\/\d+-fix-a-greeting\.md\)/);
   // Strategy 2: a write that breaks the file's syntax is answered in the same tool result.
   const brokenPy={toolCallId:'broken-py',toolName:'write',input:{path:join(dir,'broken.py'),content:'def f(:\n'}};
   assert.equal(await handlers.tool_call(brokenPy),undefined);writeFileSync(join(dir,'broken.py'),'def f(:\n');
@@ -419,4 +419,23 @@ test('ask_choices records a terminal answer and clears the assumption Gate quote
   assert.equal(result.isError,undefined);assert.equal(result.details.answer,'Blue');
   assert.equal(await handlers.tool_call({...write,toolCallId:'answered'}),undefined);
   const task=readFileSync(join(dir,'tasks/002-fix-the-app.md'),'utf8');assert.match(task,/Which colour\?: Blue \(chosen /);
+});
+
+test('a project-defining request always gets planning guidance and code waits for the terminal approval (task 237)', async t => {
+  const dir=mkdtempSync(join(tmpdir(),'pi-plan-')),handlers={},tools={};
+  const keys=['PI_AGENT_DATA','PI_GATE_PORT','PI_WEB_PORT','PI_TAILSCALE','PI_OLLAMA_URL'];const before=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_GATE_PORT:'0',PI_WEB_PORT:'0',PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9'});
+  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# Game\n## Goal\nA pong game.\n## Tasks\n- [ ] [Ball](tasks/001-ball.md)\n');writeFileSync(join(dir,'tasks/001-ball.md'),'# 001: Ball\n- [ ] Bounce\nDone when: The ball bounces.\nFiles: game.py\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+  const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){},select:async(_question,options)=>options[0]},abort(){},isIdle:()=>true};
+  harness({on:(name,fn)=>{handlers[name]=fn;},registerTool:tool=>{tools[tool.name]=tool;}},{root:dir+'/'});
+  t.after(async()=>{handlers.session_shutdown?.();await new Promise(resolve=>setTimeout(resolve,300));for(const key of keys){if(before[key]===undefined)delete process.env[key];else process.env[key]=before[key];}rmSync(dir,{recursive:true,force:true});});
+  await handlers.session_start({},ctx);await handlers.input({source:'interactive',text:'Build a pong game'},ctx);
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/who uses this; screens and controls/);
+  const write={toolCallId:'early',toolName:'write',input:{path:join(dir,'game.py'),content:'speed=5\n'}};
+  assert.match((await handlers.tool_call(write)).reason,/G-015/);
+  const result=await tools.propose_plan.execute('plan',{},null,null,ctx);assert.equal(result.isError,undefined);
+  assert.match(readFileSync(join(dir,'tasks/001-ball.md'),'utf8'),/Plan approved: chosen/);
+  assert.equal(await handlers.tool_call({...write,toolCallId:'approved'}),undefined);
+  const refused=await handlers.tool_call({...write,toolCallId:'outside',input:{path:join(dir,'other.py'),content:'x=1\n'}});
+  assert.match(refused.reason,/Files:/);
 });

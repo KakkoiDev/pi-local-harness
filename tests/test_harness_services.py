@@ -120,7 +120,7 @@ class TailnetRecoveryTest(unittest.TestCase):
             fake.write_text('#!'+sys.executable+'\n'+f'''from pathlib import Path
 import os,time
 count=Path({str(count)!r});n=int(count.read_text())+1 if count.exists() else 1
-count.write_text(str(n));Path({str(pid)!r}).write_text(str(os.getpid()))
+temporary=count.with_suffix('.tmp');temporary.write_text(str(n));temporary.replace(count);Path({str(pid)!r}).write_text(str(os.getpid()))
 print('Available within your tailnet',flush=True)
 time.sleep(.2 if n==1 else 30)
 ''');fake.chmod(0o755)
@@ -129,7 +129,7 @@ time.sleep(.2 if n==1 else 30)
                 self.assertIsNone(problem)
                 try:
                     deadline=time.monotonic()+4
-                    while time.monotonic()<deadline and int(count.read_text())<2:time.sleep(.05)
+                    while time.monotonic()<deadline and (not count.exists() or int(count.read_text())<2):time.sleep(.05)
                     self.assertGreaterEqual(int(count.read_text()),2,'Serve reconnects after its first session exits')
                     self.assertIsNone(process.poll())
                     child=int(pid.read_text())

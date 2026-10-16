@@ -10,7 +10,7 @@ import threading
 import time
 import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
-from .protocol import Protocol, project_root, commit_folder, test_folder
+from .protocol import Protocol, project_root, commit_folder, test_folder, is_documentation
 from .paperwork import Paperwork
 from . import rules, test_runs
 from harness import reports
@@ -165,6 +165,17 @@ class ProposalLedger:
             if self.paperwork.waiting_choice(root):return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             rejected=rules.planning_refusal(task,assistant_text,required=False)
             if rejected:return refuse(*rejected)
+            if item and not is_documentation(args.get('path','')):
+                status=self.paperwork.plan_status(request,small_fix=bool(re.search(r'^This is a small fix[.!]?\s*$',assistant_text,re.M|re.I)))
+                if status['required'] and not status['approved']:
+                    return refuse('G-015','Plan first: write the plan and ask the person to approve it with propose_plan before changing code.')
+                if status['approved']:
+                    from .planning import file_allowed
+                    path=Path(args.get('path',''))
+                    if path.is_absolute():
+                        try:path=path.resolve().relative_to(root)
+                        except ValueError:return refuse('G-015','Code must stay inside the active task’s project.')
+                    if not file_allowed(task,path.as_posix()):return refuse('G-015','This file is outside the active task’s Files: line. Change the plan and ask for approval first.')
         expected = None
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()

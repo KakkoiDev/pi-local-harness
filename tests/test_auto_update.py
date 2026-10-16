@@ -68,7 +68,7 @@ class AutoUpdateTest(unittest.TestCase):
     def test_the_installed_copy_can_start_its_services(self):
         # 2026-10-15: kit/ (the project starters) and messages/ (the Japanese text) were not installed, so plh stopped at
         # "No module named 'new_project'". Import what services.py imports, from the installed copy alone.
-        for name in ('kit/new_project.py', 'messages/ja.json', 'gate/test_runs.py', 'kit/starters.json', 'harness/audit.py', 'harness/choices.mjs', 'kit/publish_audit.py', 'kit/publish-audit.md'):
+        for name in ('kit/new_project.py', 'messages/ja.json', 'gate/test_runs.py', 'kit/starters.json', 'harness/audit.py', 'harness/choices.mjs', 'harness/planning.mjs', 'gate/planning.py', 'harness/guides/planning.md', 'kit/publish_audit.py', 'kit/publish-audit.md'):
             self.assertTrue((self.package / name).is_file(), name)
         started = subprocess.run([sys.executable, '-c', 'import harness.web_chat, harness.services'], cwd=self.package,
                                  env={**self.env, 'PYTHONPATH': str(self.package)}, capture_output=True, text=True)

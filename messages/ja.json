@@ -1061,7 +1061,18 @@
   "Recommended": "おすすめ",
   "Project-defining code changes need Plan approved: in the active task; small fixes skip approval.": "プロジェクトの方針を決める変更には、作業中のタスクの Plan approved: が必要です。小さな修正は承認を省略します。",
   "An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.": "最後の回答以降の Pi の文章や推論に推測があれば、内容を変更する前に ask_choices で質問します。",
-  "Every Decisions line in the active task must be chosen, auto or given before code changes.": "コードを変更する前に、作業中のタスクの Decisions を chosen、auto、given のいずれかで確定します。"
+  "Every Decisions line in the active task must be chosen, auto or given before code changes.": "コードを変更する前に、作業中のタスクの Decisions を chosen、auto、given のいずれかで確定します。",
+  "Propose the plan": "計画を提案",
+  "Approve Plan": "計画を承認",
+  "Change…": "変更…",
+  "Open the Plan": "計画を開く",
+  "Waiting for plan approval. Stop here.": "計画の承認を待っています。ここで停止してください。",
+  "The plan is waiting for changes or approval. Stop here.": "計画の変更または承認を待っています。ここで停止してください。",
+  "Plan approved. Build the first task only, then verify it and stop for a check-in.": "計画が承認されました。最初のタスクだけを実装し、検証して確認を待ってください。",
+  "Plan complete.": "計画は完了しました。",
+  "Next": "次",
+  "Continue?": "続けますか？",
+  "Approve Plan?": "計画を承認しますか？"
  },
  "patterns": [
   [

@@ -254,3 +254,61 @@ class ChoicePaperworkTest(PaperworkTest):
         self.assertEqual(self.paper.requests['answer']['task'],'tasks/002-add-the-badge.md')
         self.assertIn('Who uses it?: My household (chosen ',(self.root/'tasks/002-add-the-badge.md').read_text())
         self.assertIsNone(self.paper.waiting_choice(self.root))
+
+class PlanLifecycleTest(PaperworkTest):
+    def test_plan_waits_for_person_approval_survives_restart_and_reuses_task(self):
+        self.paper.start('plan',str(self.root),'Add a scoreboard')
+        value=self.paper.propose_plan('plan')
+        self.assertEqual(value['tasks'][0]['path'],'tasks/002-add-the-badge.md')
+        self.assertFalse(self.paper.plan_status('plan')['approved'])
+        self.paper.pause('plan')
+        self.paper=Paperwork(self.protocol,data=self.data.name)
+        self.paper.start('changed',str(self.root),'yes but change the colour')
+        self.assertFalse(self.paper.plan_status('changed')['approved'])
+        self.paper.pause('changed')
+        self.paper.start('approved',str(self.root),'yes')
+        status=self.paper.plan_status('approved')
+        self.assertTrue(status['approved']);self.assertEqual(status['task'],'tasks/002-add-the-badge.md')
+        self.assertIn('Plan approved: chosen',(self.root/status['task']).read_text())
+        (self.root/status['task']).write_text((self.root/status['task']).read_text().replace('The badge shows the count.','Different scope.'))
+        self.assertFalse(self.paper.plan_status('approved')['approved'],'editing the approved scope requires another approval')
+
+    def test_verified_planned_task_ticks_and_checks_in_before_next_request(self):
+        roadmap=self.root/'ROADMAP.md';roadmap.write_text(roadmap.read_text()+'- [ ] [Next](tasks/003-next.md)\n')
+        (self.root/'tasks/003-next.md').write_text('# 003: Next\n\n- [ ] Next step\n\nDone when: Next works.\n')
+        git(self.root,'add','.');git(self.root,'-c','user.name=t','-c','user.email=t@t','commit','-qm','More tasks')
+        self.paper.start('plan',str(self.root),'Add the badge');self.paper.propose_plan('plan');self.paper.pause('plan')
+        self.paper.start('r',str(self.root),'go')
+        (self.root/'app.py').write_text('x=7\n');self.paper.observe('r')
+        for passed in [False,True]:
+            self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('r','python3 -m unittest',passed)
+        result=self.paper.end('r')
+        self.assertEqual(result['outcome'],'committed');self.assertTrue(result['check_in']['verified'])
+        self.assertEqual(result['check_in']['next'],'tasks/003-next.md')
+        self.assertIn('- [x] Show the count',(self.root/'tasks/002-add-the-badge.md').read_text())
+        self.assertIn('- [x] [002-',roadmap.read_text())
+        self.paper.start('next',str(self.root),'ok')
+        self.assertEqual(self.paper.requests['next']['task'],'tasks/003-next.md')
+        self.assertTrue(self.paper.plan_status('next')['approved'])
+
+    def test_gate_refuses_before_approval_and_limits_the_active_task_files(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        ledger=ProposalLedger(GateEngine('','/dev/null'),protocol_file=Path(self.data.name)/'scope-runs.json',events_file=Path(self.data.name)/'scope-events.jsonl')
+        ledger.start_request('p',str(self.root),'Add a new scoreboard')
+        def write(path):return ledger.propose('write_file',{'path':path,'content':(self.root/path).read_text()+'\n' if path=='ROADMAP.md' else 'x=3\n'},'admin',pi_tool='write',cwd=str(self.root),request='p')
+        self.assertEqual(write('app.py')['rule'],'G-015')
+        self.assertEqual(write('ROADMAP.md')['outcome'],'ALLOW')
+        self.assertEqual(write('HELP.md')['outcome'],'ALLOW')
+        task=self.root/'tasks/002-add-the-badge.md';task.write_text(task.read_text()+'\nFiles: app.py\n')
+        ledger.paperwork.propose_plan('p');ledger.paperwork.approve_plan('p')
+        self.assertEqual(write('app.py')['outcome'],'ALLOW')
+        self.assertEqual(write('other.py')['rule'],'G-015')
+
+    def test_pi_title_supplies_commit_subject_and_full_request_stays_in_the_plan(self):
+        request='Add a greeting. '+('More details. '*90)
+        self.paper.start('title',str(self.root),request)
+        task=self.root/'tasks/002-add-the-badge.md';task.write_text(task.read_text().replace('002: Add the badge','002: Greeting'))
+        self.paper.propose_plan('title')
+        self.assertIn(request.strip(),task.read_text())
+        self.assertEqual(self.paper.subject(self.paper.requests['title']),'Greeting (task 002)')

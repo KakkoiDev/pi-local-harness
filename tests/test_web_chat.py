@@ -295,3 +295,17 @@ class PendingChoiceBridgeTest(unittest.TestCase):
             saved=chat.store.get(conversation['id'])['messages'][-1]
             self.assertEqual(saved['content'],'Who uses it?');self.assertTrue(saved['choice']['pending'])
             self.assertTrue(any(event['type']=='choice' for event in events));self.assertEqual(events[-1]['type'],'done')
+
+    def test_a_plan_preview_is_saved_without_treating_its_pause_as_a_crash(self):
+        import os,sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000,gate_token='shared-token');self.addCleanup(chat.close)
+            conversation=chat.store.create();events=[]
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],{'message':'TEST_PLAN'},events.append)
+            saved=chat.store.get(conversation['id'])['messages'][-1]
+            self.assertIn('Approve Plan?',saved['content']);self.assertTrue(saved['plan']['pending'])
+            self.assertTrue(any(event['type']=='plan' for event in events));self.assertEqual(events[-1]['type'],'done')

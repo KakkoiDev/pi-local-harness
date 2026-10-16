@@ -12,7 +12,7 @@ cut at 70 characters: "I want to make a very basic and minimal pong game. white 
   and minimal pong game".
 - [x] Use it for the task file name and its title. Keep the full request in the task's "Request" line (it is already
   there).
-- [ ] Better title from Pi: in plan mode (task 237) Pi names each task in its plan; the paperwork renames the request's
+- [x] Better title from Pi: in plan mode (task 237) Pi names each task in its plan; the paperwork renames the request's
   task when Pi gives a title (a `title` field in the plan, or the task file's first heading changed by Pi). The
   heuristic stays as the fallback for small models.
 - [x] Green.
@@ -27,3 +27,5 @@ adds the plan protocol; the existing heading already supplies the commit subject
 
 The existing request quote was actually capped at 600 characters. A failing regression exposed this; task bodies
 now keep the complete request as specified, while only the title is shortened.
+
+Task 237 verifies a Pi-changed heading supplies the short task and commit title while the full request remains in its body. The plan protocol reads actual task headings rather than regenerating titles from request prose.

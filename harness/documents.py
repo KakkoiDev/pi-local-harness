@@ -394,8 +394,8 @@ class DocumentStore:
         path=base/name
         with self.lock:
             if path.exists():raise ValueError('Project already exists; add its existing folder instead')
-            plan={'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] Define the first task\n',
-                  'tasks/001-first-task.md':'# First task\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n'}
+            plan={'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-Plan this app](tasks/001-first-task.md)\n',
+                  'tasks/001-first-task.md':'# 001: Plan this app\n\nKind: planning\n\n- [ ] Discuss who uses it, screens, rules, data and language\n- [ ] Write the Goal and real tasks, each with Done when\n- [ ] Ask for plan approval before code\n\nDone when: The person has approved the app plan.\n'}
             if kind=='empty':
                 path.mkdir();(path/'tasks').mkdir()
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
@@ -448,10 +448,10 @@ class DocumentStore:
         with self.lock:
             if (root/'ROADMAP.md').exists():raise ValueError('This folder already has a ROADMAP.md')
             name=self.registry.get(project,{}).get('name',root.name)
-            (root/'ROADMAP.md').write_text(f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-First task](tasks/001-first-task.md)\n',encoding='utf-8')
+            (root/'ROADMAP.md').write_text(f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-Plan this app](tasks/001-first-task.md)\n',encoding='utf-8')
             (root/'tasks').mkdir(exist_ok=True)
             first=root/'tasks'/'001-first-task.md'
-            if not first.exists():first.write_text('# First task\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n',encoding='utf-8')
+            if not first.exists():first.write_text('# 001: Plan this app\n\nKind: planning\n\n- [ ] Discuss who uses it, screens, rules, data and language\n- [ ] Write the Goal and real tasks, each with Done when\n- [ ] Ask for plan approval before code\n\nDone when: The person has approved the app plan.\n',encoding='utf-8')
             starter.ensure_task(root)
         return {'path':f'projects/{project}/ROADMAP.md'}
     def read_file(self, relative):
