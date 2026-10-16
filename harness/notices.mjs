@@ -14,6 +14,7 @@ const KINDS = {
   'saved-unverified': { glyph: '!', sentence: 'Committed, not verified.', next: 'Its task stays open · Undo This Request in the web chat takes it back', web: 'Harness note' },
   'commit-failed': { glyph: '!', sentence: 'The harness could not commit.', next: 'The work is there, uncommitted · /reports', web: 'Harness note' },
   'wake-up': { glyph: '▶', sentence: 'Harness woke Pi up.', next: 'Pi continues the request · Esc stops it', web: 'Harness recovery' },
+  'plan-incomplete': { glyph: '!', sentence: 'Plan incomplete.', next: 'Its task stays open · Undo This Request in the web chat takes it back', web: 'Harness note' },
   unverified: { glyph: '!', sentence: 'Not verified.', next: 'Run the tests before relying on it', web: 'Harness note' },
   'gate-failed': { glyph: '✗', sentence: 'Gate could not check a tool call.', next: 'Pi continues · /reports lists it', web: 'Harness note' },
   refused: { glyph: '■', sentence: 'Another request is running.', next: '/queue shows it · stop it in the web Activity, then send yours again', web: 'Harness refused' },

@@ -40,6 +40,7 @@ RULES = [
     Rule('G-011', 'A Gate failure blocks only that call', 'harness', EVERYWHERE, 'BLOCK', 'If Gate cannot check a tool call (an error, not a decision) after retries, that call does not run and is reported; the run continues. Never work around Gate with another tool.', 'tests/harness/extension.test.mjs', 'L-002-routed-around-gate.md'),
     Rule('G-012', 'Unverified changes are marked', 'end', PROJECT, 'MARK', 'A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.', 'tests/test_gate_rules.py', 'L-005-claimed-verified.md'),
     Rule('G-013', 'The harness commits', 'before', PROJECT, 'REVISE', 'Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally: a verified change marked done, an unverified one marked "not verified" with its task left open.', 'tests/test_paperwork.py'),
+    Rule('G-014', 'Plans are complete', 'end', PROJECT, 'MARK', 'A code request needs a real Goal, no starter placeholder task, and a checkbox and Done when: line in every linked task. Ask once to fill the gaps; otherwise mark Plan incomplete.', 'tests/test_gate_rules.py', 'L-007-empty-pong-plan.md'),
 ]
 BY_ID = {rule.id: rule for rule in RULES}
 
@@ -107,6 +108,30 @@ def newly_ticked(original, content):
         if match and line.strip() not in before and re.sub(r'\[[xX]\]', '[ ]', line.strip(), count=1) in before:
             ticked.append(match.group(1))
     return ticked
+
+
+def plan_gaps(root):
+    """G-014: concrete omissions in a project's Goal and linked tasks; never read outside its folder."""
+    root = Path(root).resolve()
+    roadmap = (root/'ROADMAP.md').read_text(encoding='utf-8',errors='replace')
+    gaps = []
+    goal = re.search(r'^## Goal[^\n]*\n(.*?)(?=^## |\Z)',roadmap,re.M|re.S)
+    if not goal or not goal[1].strip() or re.search(r'^\s*Describe what we are building\.\s*$',goal[1],re.M):
+        gaps.append('ROADMAP.md: write the Goal in one or two sentences.')
+    if 'Define the first task' in roadmap: gaps.append('ROADMAP.md: replace the placeholder Define the first task with the real tasks.')
+    first = root/'tasks/001-first-task.md'
+    if first.is_file() and not first.is_symlink():
+        text = re.sub(r'^Kind:\s*\S+\s*$', '', first.read_text(encoding='utf-8',errors='replace').split('## Progress (kept by the harness)')[0], flags=re.M)
+        if text.split() == '# First task - [ ] Define the outcome - [ ] Implement - [ ] Verify'.split():
+            gaps.append('tasks/001-first-task.md: replace the unchanged starter task with the real first task.')
+    for name in dict.fromkeys(re.findall(r'\]\((tasks/[^)#]+\.md)(?:#[^)]*)?\)',roadmap)):
+        path = root/name
+        if not path.resolve().is_relative_to(root) or path.is_symlink() or not path.is_file():
+            gaps.append(name+': link an existing task inside this project.');continue
+        text = path.read_text(encoding='utf-8',errors='replace')
+        if not re.search(r'^\s*[-*]\s+\[[ xX~]\]',text,re.M): gaps.append(name+': add at least one checkbox.')
+        if not re.search(r'^Done when:\s*\S',text,re.M): gaps.append(name+': add a Done when: line.')
+    return gaps
 
 
 if __name__ == '__main__':

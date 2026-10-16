@@ -84,6 +84,12 @@ class DoneRowTest(unittest.TestCase):
         self.assertRegex(found['time'], r'^\d\d:\d\d$')
         self.assertEqual(len(found['files']), 2)
 
+    def test_an_incomplete_plan_is_visible_and_never_verified(self):
+        other=commit(self.root,{'notes.md':'z\n'},'Game (task 004, plan incomplete)\n\nPlan incomplete (G-014): ROADMAP.md: write the Goal in one or two sentences.')
+        found=undo.preview(self.root,other)
+        self.assertFalse(found['verified']);self.assertEqual(found['name'],'Game')
+        self.assertIn('Plan incomplete (G-014)',found['person'][0]);self.assertTrue(found['plan_incomplete'])
+
     def test_an_unverified_request_says_so_and_why(self):
         other = commit(self.root, {'notes.md': 'z\n'}, 'Bold notes (task 004, not verified)\n\nNot verified: no test passed on the final code (Green).')
         found = undo.preview(self.root, other)

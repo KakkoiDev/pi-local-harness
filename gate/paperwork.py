@@ -18,6 +18,7 @@ import re
 import subprocess
 import threading
 
+from . import rules
 from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 
 PROGRESS = '## Progress (kept by the harness)'
@@ -114,12 +115,21 @@ class Paperwork:
                 item['sample_checked'] = True
                 instruction = self.sample_cleanup(item)
                 if instruction: return {'outcome': 'continue', 'instruction': instruction, 'task': item['task']}
+            gaps = rules.plan_gaps(item['root']) if item['task'] and any(not plan_path(path) and not is_documentation(path) for path in self.changes(item)) else []
+            if review and gaps and not item.get('plan_checked'):
+                item['plan_checked'] = True
+                return {'outcome': 'continue', 'kind': 'plan', 'task': item['task'], 'instruction': 'G-014: fill the plan before finishing. '+ '; '.join(gaps)}
             self.requests.pop(request, None)
             if not item['task']: return {'outcome': 'nothing changed'}
             root, task = item['root'], item['task']
             changed = self.changes(item)
             code = [path for path in changed if not plan_path(path) and not is_documentation(path)]
             text = (root / task).read_text(encoding='utf-8')
+            if gaps:
+                reason = '; '.join(gaps)
+                self.write(item,text.rstrip('\n')+f'\n\nPlan incomplete (G-014): {reason} The task stays open.\n')
+                saved = self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
+                return {'outcome':'plan incomplete','task':task,'reason':reason,**saved}
             if not code:
                 text = re.sub(r'^Kind:\s*\S+', 'Kind: docs', text, count=1, flags=re.MULTILINE); self.write(item, text)
             else:
@@ -239,7 +249,7 @@ class Paperwork:
         words = re.findall(r'[a-z0-9]+', title.lower())[:5] or ['request']
         path = f'tasks/{number:03d}-{"-".join(words)}.md'
         quoted = item['text']
-        (root / path).write_text(f'# {number:03d}: {title}\n\nKind: code\n\nRequest {datetime.now():%Y-%m-%d}: “{quoted}”\n\n{PROGRESS}\n', encoding='utf-8')
+        (root / path).write_text(f'# {number:03d}: {title}\n\nKind: code\n\nRequest {datetime.now():%Y-%m-%d}: “{quoted}”\n\nDone when: {title}.\n\n{PROGRESS}\n', encoding='utf-8')
         roadmap = root / 'ROADMAP.md'
         roadmap.write_text(roadmap.read_text(encoding='utf-8').rstrip('\n') + f'\n- [ ] [{number:03d}-{title}]({path})\n', encoding='utf-8')
         return path, True

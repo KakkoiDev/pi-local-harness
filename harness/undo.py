@@ -29,7 +29,7 @@ def undone_by(root, full):
 
 def name(title):
     """The request as the web names it: Activity shows the task, so "(task 002)" goes (round 7, point 12)."""
-    return re.sub(r'\s*\(task \d+(, not verified)?\)$', '', title)
+    return re.sub(r'\s*\(task \d+(, (?:not verified|plan incomplete))?\)$', '', title)
 
 
 def person_lines(root, full, title):
@@ -55,8 +55,10 @@ def preview(root, commit):
     reverts = re.search(r'This reverts commit ([0-9a-f]{40})', body)
     when = datetime.fromisoformat(body.rsplit('\0', 1)[-1].strip()).strftime('%H:%M')
     words = person_lines(root, original_of(root, full), title)  # an undo or a redo quotes the request in plain words
+    incomplete=re.search(r'^Plan incomplete \(G-014\): .+',body,re.M)
+    if incomplete:words=[incomplete[0],*words][:3]
     return {'commit': full[:12], 'title': title, 'name': name(title), 'person': words, 'time': when, 'files': files,
-            'verified': not title.endswith(', not verified)'), 'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
+            'verified': not title.endswith((', not verified)', ', plan incomplete)')), **({'plan_incomplete':True} if incomplete else {}), 'undone': bool(undone_by(root, full)), **({'undone_at': undone_time(root, full)} if undone_by(root, full) else {}),
             **({'undo_of': reverts.group(1)[:12]} if reverts else {})}
 
 

@@ -26,6 +26,8 @@ In the workbench, **New Project…** (⌘N) creates a folder with `ROADMAP.md` a
 uses a folder you already have, in place. The Projects window lists them; choose one to open its Chat.
 For an app made from a starter, the first code request includes one check for leftover sample notes files and names.
 Pi gets a cleanup pass while keeping the storage, languages, tests and build setup.
+After code changes, Gate also checks the Goal and linked tasks. Pi gets one chance to fill missing plan details;
+otherwise the request is saved with “Plan incomplete” and its task stays open.
 
 ## How do I rename, move or delete a project?
 

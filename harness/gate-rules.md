@@ -14,3 +14,4 @@ When a rule sends an action back, do what its message says; never work around it
 - G-011 A Gate failure blocks only that call: If Gate cannot check a tool call (an error, not a decision) after retries, that call does not run and is reported; the run continues. Never work around Gate with another tool.
 - G-012 Unverified changes are marked: A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.
 - G-013 The harness commits: Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally: a verified change marked done, an unverified one marked "not verified" with its task left open.
+- G-014 Plans are complete: A code request needs a real Goal, no starter placeholder task, and a checkbox and Done when: line in every linked task. Ask once to fill the gaps; otherwise mark Plan incomplete.

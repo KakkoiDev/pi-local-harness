@@ -205,3 +205,57 @@ class SyntaxAfterEditTest(unittest.TestCase):
             self.assertIn('page.mjs does not parse', js)
             self.assertIsNone(write('notes.md', '# (unbalanced'), 'only code is checked')
             self.assertIn('"kind": "syntax"', (root / 'reports.jsonl').read_text().replace('":"', '": "'))
+
+
+class FilledPlanTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);(self.root/'tasks').mkdir()
+        (self.root/'ROADMAP.md').write_text('# Game\n\n## Goal\nA working pong game.\n\n## Tasks\n- [ ] [Ball](tasks/002-ball.md)\n')
+        (self.root/'tasks/002-ball.md').write_text('# Ball\n- [ ] Move it\n\nDone when: The ball bounces off both walls.\n')
+
+    def test_G014_names_each_missing_plan_requirement(self):
+        self.assertEqual(rules.plan_gaps(self.root),[])
+        roadmap=self.root/'ROADMAP.md';original=roadmap.read_text()
+        roadmap.write_text(original.replace('A working pong game.','Describe what we are building.'))
+        self.assertIn('ROADMAP.md: write the Goal in one or two sentences.',rules.plan_gaps(self.root))
+        roadmap.write_text(original+'- [ ] Define the first task\n')
+        self.assertTrue(any('Define the first task' in gap for gap in rules.plan_gaps(self.root)))
+        roadmap.write_text(original)
+        task=self.root/'tasks/002-ball.md';task.write_text('# Ball\n')
+        gaps=rules.plan_gaps(self.root)
+        self.assertIn('tasks/002-ball.md: add at least one checkbox.',gaps)
+        self.assertIn('tasks/002-ball.md: add a Done when: line.',gaps)
+        (self.root/'tasks/001-first-task.md').write_text('# First task\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n')
+        self.assertTrue(any('001-first-task.md' in gap for gap in rules.plan_gaps(self.root)))
+
+    def test_G014_reasks_once_then_commits_marked_plan_incomplete(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        subprocess.run(['git','init','-q',str(self.root)],check=True)
+        def git(*args):return subprocess.run(['git','-C',str(self.root),'-c','user.name=t','-c','user.email=t@t',*args],capture_output=True,text=True,check=True).stdout
+        (self.root/'app.py').write_text('x=1\n');git('add','.');git('commit','-qm','Start')
+        paper=Paperwork(Protocol(self.root/'runs.json'));paper.start('r',str(self.root),'Do task 2')
+        (self.root/'app.py').write_text('x=2\n');paper.observe('r')
+        (self.root/'ROADMAP.md').write_text('# Game\n\n## Goal\nDescribe what we are building.\n\n- [ ] [Ball](tasks/002-ball.md)\n')
+        result=paper.end('r');self.assertEqual(result['outcome'],'continue');self.assertEqual(result['kind'],'plan')
+        self.assertIn('ROADMAP.md: write the Goal',result['instruction'])
+        result=paper.end('r');self.assertEqual(result['outcome'],'plan incomplete')
+        self.assertIn('Plan incomplete (G-014)',(self.root/'tasks/002-ball.md').read_text())
+        self.assertIn('plan incomplete',git('log','-1','--format=%s'))
+        self.assertIn('- [ ] [Ball]',(self.root/'ROADMAP.md').read_text())
+
+    def test_G014_correction_is_rechecked_and_document_only_requests_skip_it(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        def git(*args):return subprocess.run(['git','-C',str(self.root),'-c','user.name=t','-c','user.email=t@t',*args],capture_output=True,text=True,check=True).stdout
+        git('init','-q');(self.root/'app.py').write_text('x=1\n');git('add','.');git('commit','-qm','Start')
+        paper=Paperwork(Protocol(self.root/'runs.json'));paper.start('r',str(self.root),'Do task 2')
+        (self.root/'app.py').write_text('x=2\n');paper.observe('r')
+        task=self.root/'tasks/002-ball.md';task.write_text('# Ball\n- [ ] Move it\n')
+        self.assertEqual(paper.end('r')['outcome'],'continue')
+        task.write_text('# Ball\n- [ ] Move it\nDone when: The ball moves.\n')
+        self.assertEqual(paper.end('r')['outcome'],'not verified','the plan is now valid; separate test verification still applies')
+        paper.start('docs',str(self.root),'Explain it');(self.root/'HELP.md').write_text('# Help\n');paper.observe('docs')
+        (self.root/'ROADMAP.md').write_text('# Plan\n## Goal\nDescribe what we are building.\n')
+        self.assertEqual(paper.end('docs')['outcome'],'committed','G-014 applies to requests that changed code')

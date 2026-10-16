@@ -31,7 +31,7 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed 
       node('span', '', `· ${files} file${files === 1 ? '' : 's'} · ${data.time}${data.undone ? ` · ${undoRow && !redoRow ? 'redone' : 'undone'} at ${data.undone_at}` : ''}`));
     const words = undoRow && !redoRow
       ? [`Undid “${firstSentence(data.person)}”. ${files} file${files === 1 ? '' : 's'} changed back as a new change: nothing is lost, and Redo brings it back.`]
-      : unverified ? [...data.person.slice(0, 2), 'Pi did not try it after the last change.'] : data.person;
+      : unverified && !data.plan_incomplete ? [...data.person.slice(0, 2), 'Pi did not try it after the last change.'] : data.person;
     const show = node('button', 'pw-btn', 'Show in Preview'); show.type = 'button'; show.onclick = () => showPreview();
     actions.append(show);
     if (undoRow && !redoRow) {
@@ -39,8 +39,8 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed 
     } else {
       const undo = node('button', 'pw-btn', 'Undo This Request…'); undo.type = 'button'; undo.disabled = data.undone; undo.onclick = () => run(data, 'undo'); actions.append(undo);
     }
-    const ui = undoRow && !redoRow ? words.length : unverified ? 1 : 0;  // the harness's own sentences are translated; Pi's plain words are not
-    row.replaceChildren(head, ...words.map((line, index) => { const paragraph = node('p', 'pw-done__text', line); if (index >= words.length - ui) paragraph.dataset.ui = ''; return paragraph; }), actions);
+    const ui = undoRow && !redoRow ? words.length : unverified && !data.plan_incomplete ? 1 : 0;  // the harness's own sentences are translated; Pi's plain words are not
+    row.replaceChildren(head, ...words.map((line, index) => { const paragraph = node('p', 'pw-done__text', line); if (index >= words.length - ui || data.plan_incomplete && index === 0) paragraph.dataset.ui = ''; return paragraph; }), actions);
   };
   const load = async () => {
     try { if (!cache.has(commit)) cache.set(commit, await api('/api/undo', { project, commit, preview: true })); fill(cache.get(commit)); }

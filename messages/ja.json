@@ -938,6 +938,7 @@
   "Pi drifted from its instructions.": "Pi が指示から外れました。",
   "Harness stopped retrying.": "ハーネスは再試行をやめました。",
   "Committed.": "コミットしました。",
+  "Plan incomplete.": "計画が未完成です。",
   "This project started from the sample notes app.": "このプロジェクトはサンプルのメモアプリから始まりました。",
   "Committed, not verified.": "コミットしました（未検証）。",
   "The harness could not commit.": "ハーネスはコミットできませんでした。",
@@ -1017,6 +1018,8 @@
   "Tests": "テスト"
  },
  "patterns": [
+  ["Plan incomplete (G-014): {reason} · committed as {commit}", "計画が未完成です（G-014）：{reason} · {commit} としてコミットしました"],
+  ["Plan incomplete (G-014): {reason}", "計画が未完成です（G-014）：{reason}"],
   [
    "Cannot read {path}: {error}",
    "{path} を読み込めません：{error}"

@@ -381,11 +381,11 @@ test('context is selected again for user turns and recovery inputs (task 234)', 
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
 
-test('starter cleanup resumes the same request once before its commit (task 229)', async () => {
+for (const kind of ['starter','plan']) test(`${kind} cleanup resumes the same request once before its commit (tasks 229, 233)`, async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-sample-review-')),saved={...process.env},fetchBefore=globalThis.fetch;
  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t'});
  const handlers={},calls=[],sent=[],notices=[];let ends=0;
- globalThis.fetch=async(url,options)=>{const path=new URL(url).pathname;calls.push({path,body:JSON.parse(options.body)});return {ok:true,json:async()=>path==='/request/end'?{result:++ends===1?{outcome:'continue',instruction:'Replace the unused notes sample; keep storage.'}:{outcome:'committed',message:'Game',commit:'abc'}}:{}};};
+ globalThis.fetch=async(url,options)=>{const path=new URL(url).pathname;calls.push({path,body:JSON.parse(options.body)});return {ok:true,json:async()=>path==='/request/end'?{result:++ends===1?{outcome:'continue',kind,instruction:'Replace the unused notes sample; keep storage.'}:{outcome:'committed',message:'Game',commit:'abc'}}:{}};};
  const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},sendUserMessage:text=>sent.push(text)};
  const ctx={cwd:dir,ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){}}};
  try {
@@ -393,6 +393,7 @@ test('starter cleanup resumes the same request once before its commit (task 229)
   await handlers.input({source:'interactive',text:'Build a game'},ctx);
   await handlers.agent_settled({aborted:false});
   assert.equal(sent.length,1);assert.match(sent[0],/Replace the unused notes sample/);
+  assert.ok(notices.some(text=>text.includes(kind==='plan'?'Plan incomplete.':'This project started from the sample notes app.')));
   assert.equal(notices.filter(text=>text==='Harness settled').length,0);
   await handlers.agent_settled({aborted:false});assert.equal(ends,1,'old cleanup settle cannot end the request');
   await handlers.input({source:'extension',text:sent[0]},ctx);handlers.agent_start({},ctx);

@@ -363,14 +363,15 @@ export default function harness(pi, dependencies = {}) {
         if (result?.outcome === 'continue') {
           recovering = true; retries++;
           verifiedBefore = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
-          incident('wake-up', 'starter sample cleanup');
-          say('wake-up', { message: 'This project started from the sample notes app.' }, 'warning');
+          incident('wake-up', result.kind === 'plan' ? 'plan incomplete' : 'starter sample cleanup');
+          say('wake-up', { message: result.kind === 'plan' ? 'Plan incomplete.' : 'This project started from the sample notes app.' }, 'warning');
           pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${result.instruction}`);
           return;
         }
         requestId = undefined;
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'not verified' && result.commit) say('saved-unverified', `${result.message} · committed as ${result.commit}`, 'warning');  // committed too, marked (2026-10-15)
+        else if (result?.outcome === 'plan incomplete') say('plan-incomplete', `Plan incomplete (G-014): ${result.reason}${result.commit ? ` · committed as ${result.commit}` : ''}`, 'warning');
         else if (result?.outcome === 'commit failed') say('commit-failed', `${result.task}: ${result.reason}`, 'warning');
       }
       if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');

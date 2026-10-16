@@ -29,6 +29,22 @@ const readline = require('node:readline');
   const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]);
   const created=await post('/api/projects/create',{name:'Design check',parent:directory});
   const root=join(directory,'Design check');
+  await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/ROADMAP.md`));
+  await page.locator('#work-tab.active').waitFor();await page.locator('#chat-tab').click();
+  // Task 233: a marked plan uses the existing request row without falsely claiming no tests ran.
+  await page.evaluate(async()=>{
+    const {doneRow}=await import('/js/done-row.mjs');
+    const row=doneRow('0123456789ab',{project:'fixture',api:async()=>({title:'Game (task 004, plan incomplete)',name:'Game',person:['Plan incomplete (G-014): ROADMAP.md: write the Goal in one or two sentences.','Built the game.'],plan_incomplete:true,verified:false,files:[{path:'app.py',added:1,removed:0}],time:'14:20'}),ask:async()=>null,showPreview(){},send(){},changed(){}});
+    row.id='plan-regression-row';document.querySelector('#messages').append(row);
+  });
+  const incompleteRow=page.locator('#plan-regression-row');await incompleteRow.locator('button').first().waitFor();
+  assert.match(await incompleteRow.textContent(),/Plan incomplete \(G-014\)/);
+  assert.doesNotMatch(await incompleteRow.textContent(),/Pi did not try it after the last change/);
+  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});await incompleteRow.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-233-plan-${width}.png`});}
+  await page.evaluate(async()=>{const {applyLanguage}=await import('/js/i18n.mjs');await applyLanguage('ja',{root:document.querySelector('#plan-regression-row')});});
+  assert.match(await incompleteRow.textContent(),/計画が未完成です/);
+  await incompleteRow.evaluate(row=>row.remove());await page.setViewportSize({width:1440,height:900});
+
   fs.writeFileSync(join(root,'ROADMAP.md'),'# Design check\n\nThe goal is a calm workbench.\n\n- [x] Done item\n- [ ] Open item\n');
   await page.goto(base);
   await page.locator('#work-tab').click();
