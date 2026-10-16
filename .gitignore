@@ -9,3 +9,4 @@ Screenshot *.png
 design/canvas/support.js
 
 .bench-local/
+node_modules/

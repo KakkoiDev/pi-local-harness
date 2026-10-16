@@ -255,6 +255,12 @@ reject foreign browser origins. Gate also requires a per-run `X-Gate-Token` that
 no CORS headers, so web pages cannot query it. The layout supports mobile sizes; physical-phone
 access needs a separate connection setup.
 
+For local music and sound creation, see [music setup and limits](music.md). The optional
+`music` tool uses a saved Blips bank and Strudel event patterns, preserving numbered
+revisions. Its successful files join the existing chat attachments and audio player.
+See [application integration and source reuse](music-projects.md) and the
+[LLM music guide](../harness/music/AGENT_GUIDE.md).
+
 ## Where to change things
 
 | File | Responsibility |

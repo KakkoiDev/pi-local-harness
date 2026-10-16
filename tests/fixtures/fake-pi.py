@@ -32,6 +32,15 @@ if 'TEST_RUN_LOG' in request['message']:
     args={'command':'node --test tests/app.test.mjs'}
     gate=call_gate('/gatekeep',{'tool_name':'execute_command','args':args,'auth_level':'admin','cwd':os.getcwd(),'source':'web','request':os.environ['PI_HARNESS_JOB']})
     call_gate('/audit',{'proposal_id':gate['proposal_id'],'tool_name':'execute_command','args':args,'output':'ℹ pass 3\nℹ fail 1\nℹ skipped 0','exit_code':1})
+if request['message'].rstrip().endswith('TEST_MUSIC'):
+    import wave, math, struct
+    output=Path.cwd()/'assets/music/demo/0001';output.mkdir(parents=True,exist_ok=True)
+    with wave.open(str(output/'audio.wav'),'wb') as audio:
+        audio.setparams((1,2,44100,0,'NONE','not compressed'))
+        audio.writeframes(b''.join(struct.pack('<h',int(4000*math.sin(i/10))) for i in range(4410)))
+    (output/'score.json').write_text('{"layers": []}')
+    emit({'type':'tool_execution_end','toolCallId':'call-music','toolName':'music','isError':False,
+          'result':{'details':{'artifacts':[str(output/'audio.wav'),str(output/'score.json')]}}})
 if request['message'].rstrip().endswith('TEST_TOOL'):
     gate=call_gate('/gatekeep',{'tool_name':'execute_command','args':{'command':'cat README.md'},'auth_level':'admin','tool_call_id':'call-read','cwd':os.getcwd(),'source':'web'})
     emit({'type':'tool_execution_start','toolCallId':'call-read','toolName':'bash','args':{'command':'cat README.md'}})

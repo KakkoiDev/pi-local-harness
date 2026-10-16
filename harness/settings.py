@@ -50,6 +50,7 @@ def _url(value):
 
 # key: (environment variable, default, check, what it does, how the value goes into the variable)
 SETTINGS = {
+    'blips': ('PI_BLIPS', 'blips', _text, 'Path to the Chip Pops blips CLI used for local music and effects.', str),
     'effort': ('PI_WEB_EFFORT', 'high', _effort, 'Default thinking level when none is chosen in the menu bar.', str),
     'gate_port': ('PI_GATE_PORT', 8000, _number(0, 65535), 'Port of Gate, the command checker (0 picks a free one).', str),
     'web_port': ('PI_WEB_PORT', 3000, _number(0, 65535), 'Port of the web workbench on 127.0.0.1 (0 picks a free one).', str),

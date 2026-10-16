@@ -47,6 +47,16 @@ choose **New Project…**, and say hello to Pi.
 
 To stop everything, quit Pi (`/quit`, or Ctrl-C twice).
 
+## Music and sound effects
+
+Ask Pi for a short track or sound effects, then ask for changes in the same chat.
+It uses a curated Blips bank and Strudel patterns, and returns WAV audio
+with editable source. Run `plh setup music` and install the Chip Pops `blips` CLI
+and library first. Start with the uplifting composition pattern for melodies, chords,
+bass and song sections. See [setup and limits](docs/music.md),
+[using audio in your projects](docs/music-projects.md), and the
+[LLM operating guide](harness/music/AGENT_GUIDE.md).
+
 ## Updating
 
 Type `/update` in terminal Pi. It shows what is new, in plain words, and updates when you say yes. The next time

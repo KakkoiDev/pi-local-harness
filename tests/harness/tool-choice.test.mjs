@@ -19,3 +19,10 @@ test('the active set keeps Pi\'s own tools and other extensions\' tools, and swi
 test('web automation has the console tool for its final publication audit',()=>{
  assert.ok(harnessTools('yes',{terminal:false,tasks:true,auto:true}).includes('harness'));
 });
+
+test('music is selected for creation and remains available for conversational follow-ups', () => {
+ assert.deepEqual(harnessTools('Create a cheerful 20 second background loop', {terminal:false,tasks:false}), ['music']);
+ assert.deepEqual(harnessTools('Create a cheerful track', {terminal:false,tasks:false}), ['music']);
+ assert.deepEqual(harnessTools('Make it more playful', {terminal:false,tasks:false,music:true}), ['music']);
+ assert.deepEqual(activeTools(['read','music'], [], ['read','music']), ['read']);
+});

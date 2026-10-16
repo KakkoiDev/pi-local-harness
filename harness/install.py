@@ -32,7 +32,7 @@ def install(prefix, agent, data, source=ROOT, commit=None):
     target.parent.mkdir(parents=True,exist_ok=True)
     stage=target.parent/('.plh-install-'+uuid.uuid4().hex);stage.mkdir()
     for item in ['harness','gate','.pi','js','specs','design','fonts','kit','messages']:
-        shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+        shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc','node_modules'))
     for item in ['plh.py','agent_api.py','index.html','chat.css','README.md','PRODUCT.md','DESIGN.md']:
         shutil.copy2(ROOT/item,stage/item)
     # plh reads this on launch to follow the checkout (see plh.py update).

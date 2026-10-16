@@ -327,3 +327,22 @@ class PendingChoiceBridgeTest(unittest.TestCase):
             saved=chat.store.get(conversation['id'])['messages'][-1]
             self.assertIn('Approve Plan?',saved['content']);self.assertTrue(saved['plan']['pending'])
             self.assertTrue(any(event['type']=='plan' for event in events));self.assertEqual(events[-1]['type'],'done')
+
+
+class MusicChatTest(unittest.TestCase):
+    def test_rpc_music_results_become_persisted_audible_attachments(self):
+        import os, sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'chats',12345,3000,data_root=root/'workspace');self.addCleanup(chat.close)
+            project=chat.documents.create_project('Music');conversation=chat.project_chat(project);events=[]
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+                chat.send(conversation['id'],{'message':'Make a tune TEST_MUSIC'},events.append)
+            message=chat.store.get(conversation['id'])['messages'][-1]
+            self.assertEqual([file['mime'] for file in message['attachments']],['audio/wav','application/json'])
+            for file in message['attachments']:
+                self.assertTrue((chat.store.folder(conversation['id'])/'uploads'/file['url'].split('/')[-1]).is_file())
+            self.assertEqual(events[-1]['conversation']['messages'][-1]['attachments'],message['attachments'])

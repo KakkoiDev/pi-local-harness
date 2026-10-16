@@ -3,6 +3,7 @@ from harness import autonomy
 import base64
 from datetime import datetime
 from harness.context import build_context, build_project_context
+from harness.music_artifacts import music_attachments
 from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
@@ -532,6 +533,7 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
+            artifact_sets={}
             decisions=[];run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
@@ -583,6 +585,11 @@ class WebChat:
                     if event.get('toolName')=='propose_plan' and details.get('pending') is False:
                         pending_plan={**details,'approved':True,'state':'auto' if autonomy.enabled(self.documents.root) else 'chosen'}
                         emit({'type':'plan',**pending_plan})
+                if event.get('type')=='tool_execution_end' and not detached:
+                    published=music_attachments(event,folder_root,folder/'uploads',identifier)
+                    if published:
+                        group=((event.get('result') or {}).get('details') or {}).get('musicName','music')
+                        artifact_sets[str(group)]=published  # last successful revision of each named composition
                 if event.get('type')=='tool_execution_start' and event.get('toolName')=='read' and folder_root:
                     name=self.read_path(folder_root,(event.get('args') or {}))
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
@@ -601,7 +608,7 @@ class WebChat:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
