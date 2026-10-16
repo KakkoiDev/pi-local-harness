@@ -12,6 +12,7 @@ In a project with ROADMAP.md and tasks/, for each request (the extension tells G
 """
 from datetime import datetime
 import hashlib
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -104,11 +105,16 @@ class Paperwork:
                     if '- [x] Green:' in text: self.write(item, re.sub(r'- \[x\] Green: .*', line.replace('\\', r'\\'), text, count=1))
                     else: self.progress(item, line[6:])
 
-    def end(self, request):
+    def end(self, request, review=True):
         """The request is over: mark it done and commit, or leave it open and say why. None outside a project."""
         with self.lock:
-            item = self.requests.pop(request, None)
+            item = self.requests.get(request)
             if not item: return None
+            if review and not item.get('sample_checked'):
+                item['sample_checked'] = True
+                instruction = self.sample_cleanup(item)
+                if instruction: return {'outcome': 'continue', 'instruction': instruction, 'task': item['task']}
+            self.requests.pop(request, None)
             if not item['task']: return {'outcome': 'nothing changed'}
             root, task = item['root'], item['task']
             changed = self.changes(item)
@@ -138,6 +144,44 @@ class Paperwork:
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
             saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
             return {'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+
+    def sample_cleanup(self, item):
+        """Once, before the first code request is committed: name the sample left from the starter's first commit."""
+        root = item['root']
+        if not any(not plan_path(path) and not is_documentation(path) for path in self.changes(item)): return None
+        def git(*args):
+            result = subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, timeout=10)
+            return result.stdout if result.returncode == 0 else ''
+        history = git('log', '--reverse', '--format=%H%x00%s').splitlines()
+        if not history: return None
+        baseline, subject = history[0].split('\0', 1)
+        if subject != 'Start from the Pi Workbench starter': return None
+        for revision in git('log', '--author=^Pi Workbench <', '--format=%H', baseline+'..HEAD').splitlines():
+            paths = git('diff-tree', '--no-commit-id', '--name-only', '-r', revision).splitlines()
+            if any(not plan_path(path) and not is_documentation(path) for path in paths): return None
+        registry = json.loads((Path(__file__).resolve().parent.parent/'kit/starters.json').read_text(encoding='utf-8'))
+        original = set(git('ls-tree', '-r', '--name-only', baseline).splitlines())
+        spec = next((entry for entry in registry.values() if entry['identify'] in original), None)
+        if not spec: return None
+        remaining = []
+        for name in spec['sample_files']:
+            path = root/name
+            if path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(root) and path.read_text(encoding='utf-8',errors='replace') == git('show', baseline+':'+name): remaining.append(name+' (unchanged sample)')
+        for pattern in spec['rename']:
+            for path in sorted(root.glob(pattern)):
+                if not path.is_file() or path.is_symlink() or not path.resolve().is_relative_to(root): continue
+                text = path.read_text(encoding='utf-8',errors='replace'); name = path.relative_to(root).as_posix()
+                if path.suffix == '.json' or path.name.endswith('.webmanifest'):
+                    try: values = json.loads(text)
+                    except ValueError: continue
+                    if not isinstance(values,dict): continue
+                    keys = [key for key,value in values.items() if key.startswith('notes.') or key in {'app.name','name','short_name'} and value == 'Notes']
+                    if keys: remaining.append(name+' ('+', '.join(keys)+')')
+                elif re.search(r'\bnotes?\b', text, re.I): remaining.append(name+' (notes sample text)')
+        if not remaining: return None
+        return ('This project started from the sample notes app. Replace or remove what the new app does not use: '+
+                '; '.join(remaining)+'. Keep the skeleton ('+', '.join(spec['skeleton'])+
+                '). Adapt domain-specific parts of storage as needed. Update sw.js’s file list, the manifest’s name and the README to the new app. Run the tests again after cleanup.')
 
     def subject(self, item, mark=''):
         text = (item['root'] / item['task']).read_text(encoding='utf-8')

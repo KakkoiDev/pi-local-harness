@@ -938,6 +938,7 @@
   "Pi drifted from its instructions.": "Pi が指示から外れました。",
   "Harness stopped retrying.": "ハーネスは再試行をやめました。",
   "Committed.": "コミットしました。",
+  "This project started from the sample notes app.": "このプロジェクトはサンプルのメモアプリから始まりました。",
   "Committed, not verified.": "コミットしました（未検証）。",
   "The harness could not commit.": "ハーネスはコミットできませんでした。",
   "Harness woke Pi up.": "ハーネスが Pi を起こしました。",

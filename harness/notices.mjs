@@ -27,11 +27,11 @@ export function harnessNotice(kind, detail) {
     : kind === 'committed' ? `“${detail}”, verified (a test failed first, then passed on the final code).`
     : kind === 'saved-unverified' ? `“${String(detail).replace(/ · committed as \w+$/, '')}” is committed and marked not verified: the harness did not see a test fail without it and pass with it.`
     : kind === 'commit-failed' ? String(detail)
-    : kind === 'wake-up' ? `It stopped with work open: ${detail} changed and no passing test ran on it.`
+    : kind === 'wake-up' ? typeof detail === 'object' ? detail.message : `It stopped with work open: ${detail} changed and no passing test ran on it.`
     : kind === 'unverified' ? `Code changed (${detail}) and no test passed on it after the last change (G-012), whatever the answer says.`
     : kind === 'gate-failed' ? `${detail}. That call did not run; Pi was told and continues (G-011).`
     : String(detail).replace(/^(Loop|Hang) detected: |^Instruction drift: |^Stuck: /, '').replace(/^./, letter => letter.toUpperCase());
-  const web = kind === 'gate-failed' ? `Gate could not check a tool call (${detail}); that call did not run and Pi continues.` : kind === 'stopped' ? `recovery repeated. Stopped automatic retries; the incident is saved in ${detail}.` : detail;
+  const web = kind === 'gate-failed' ? `Gate could not check a tool call (${detail}); that call did not run and Pi continues.` : kind === 'stopped' ? `recovery repeated. Stopped automatic retries; the incident is saved in ${detail}.` : typeof detail === 'object' ? detail.message : detail;
   return { kind, glyph: shape.glyph, sentence: shape.sentence, detail: said, next: shape.next, web: `${shape.web}: ${web}` };
 }
 

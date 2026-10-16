@@ -27,7 +27,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
                 if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', ''))})
-                else: self.send_json_response({'result': self.ledger.end_request(data['request'])})
+                else: self.send_json_response({'result': self.ledger.end_request(data['request'],review=data.get('review',True))})
             except Exception as error:
                 self.send_error_response(400, str(error))
         elif self.path == '/context':

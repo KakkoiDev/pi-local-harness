@@ -359,7 +359,15 @@ export default function harness(pi, dependencies = {}) {
     // The request is over: the harness finishes its paperwork (commits when verified), then tells the web worker.
     const settledNow = async () => {
       if (requestId) {
-        const result = await call('/request/end', { request: requestId }).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
+        const result = await call('/request/end', { request: requestId, review: !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing }).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
+        if (result?.outcome === 'continue') {
+          recovering = true; retries++;
+          verifiedBefore = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
+          incident('wake-up', 'starter sample cleanup');
+          say('wake-up', { message: 'This project started from the sample notes app.' }, 'warning');
+          pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${result.instruction}`);
+          return;
+        }
         requestId = undefined;
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'not verified' && result.commit) say('saved-unverified', `${result.message} · committed as ${result.commit}`, 'warning');  // committed too, marked (2026-10-15)

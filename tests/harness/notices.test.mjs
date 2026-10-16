@@ -29,3 +29,10 @@ test('a change committed but not verified says so and carries its commit (2026-1
   assert.match(notice.detail, /^“Bold notes \(task 004, not verified\)” is committed and marked not verified/);
   assert.match(notice.web, / · committed as 0123456789ab$/, 'the web side reads the commit from the note (Undo This Request)');
 });
+
+
+test('a starter cleanup wake-up uses the sample explanation rather than claiming tests are missing (task 229)', () => {
+  const notice=harnessNotice('wake-up',{message:'This project started from the sample notes app.'});
+  assert.equal(notice.detail,'This project started from the sample notes app.');
+  assert.equal(notice.web,'Harness recovery: This project started from the sample notes app.');
+});

@@ -14,3 +14,8 @@ Rules live in `js/logic/` as pure functions with tests; the data in `js/store.mj
 
 `tests/files.test.mjs` checks every local page asset, manifest icon, service-worker cache entry and module import.
 Build the styles before running tests. Removing a referenced file fails with its path, so cleanup cannot silently break offline installation.
+
+The notes feature is a sample to replace on the first real request. Keep the skeleton: storage, i18n, test setup,
+build commands and folder rules (and, in web apps, the service worker and manifest). Adapt domain-specific storage
+to the new app. Remove unused sample logic, tests and UI; rename the app in messages and the manifest, and update
+README and the cache list together. The harness asks once about unchanged sample files before committing.

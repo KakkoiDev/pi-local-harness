@@ -24,6 +24,8 @@ it works as long as `plh` runs. After `plh` updates, quit it, start it again and
 
 In the workbench, **New Project…** (⌘N) creates a folder with `ROADMAP.md` and a first task. **Add Existing Folder…** (⌘O)
 uses a folder you already have, in place. The Projects window lists them; choose one to open its Chat.
+For an app made from a starter, the first code request includes one check for leftover sample notes files and names.
+Pi gets a cleanup pass while keeping the storage, languages, tests and build setup.
 
 ## How do I rename, move or delete a project?
 

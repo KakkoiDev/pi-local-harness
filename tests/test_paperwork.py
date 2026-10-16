@@ -182,3 +182,54 @@ class ShortTitleTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class StarterSampleTest(unittest.TestCase):
+    def project(self, kind):
+        from kit.new_project import new_project
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
+        root=Path(temporary.name)/'app'
+        new_project(root,static=kind=='static',tui=kind=='tui',files={'ROADMAP.md':'# Plan\n\n## Goal\nBuild a game.\n\n## Tasks\n', 'tasks/.keep':''})
+        paper=Paperwork(Protocol(Path(temporary.name)/'runs.json'))
+        return root,paper
+
+    def test_first_code_request_reasks_once_about_unchanged_samples_in_each_starter(self):
+        for kind,main,sample in [('static','js/app.mjs','js/logic/notes.mjs'),('web','app/main.py','app/logic/notes.py'),('tui','app/tui.py','app/logic/notes.py')]:
+            with self.subTest(kind=kind):
+                root,paper=self.project(kind);before=git(root,'rev-parse','HEAD')
+                paper.start('first',str(root),'Build a pong game')
+                with (root/main).open('a') as file:file.write('\n# changed\n' if main.endswith('.py') else '\n// changed\n')
+                paper.observe('first');result=paper.end('first')
+                self.assertEqual(result['outcome'],'continue')
+                self.assertIn(sample,result['instruction']);self.assertIn('messages/en.json',result['instruction'])
+                self.assertIn('Keep the skeleton',result['instruction'])
+                self.assertEqual(git(root,'rev-parse','HEAD'),before,'no commit before cleanup can run')
+                self.assertIn('first',paper.requests,'the recovery still owns the request')
+                self.assertNotEqual(paper.end('first')['outcome'],'continue','one cleanup wake-up')
+                paper.start('later',str(root),'Polish the game')
+                with (root/main).open('a') as file:file.write('\n# polish\n' if main.endswith('.py') else '\n// polish\n')
+                paper.observe('later');self.assertNotEqual(paper.end('later')['outcome'],'continue','only the first code request')
+
+    def test_documentation_does_not_use_up_the_first_code_review_and_stop_skips_the_wake(self):
+        root,paper=self.project('static')
+        paper.start('docs',str(root),'Write instructions');(root/'HELP.md').write_text('Read this.\n');paper.observe('docs')
+        self.assertEqual(paper.end('docs')['outcome'],'committed')
+        paper.start('code',str(root),'Build a game');(root/'js/app.mjs').write_text('export const game=1;\n');paper.observe('code')
+        self.assertEqual(paper.end('code')['outcome'],'continue')
+        self.assertNotEqual(paper.end('code',review=False)['outcome'],'continue')
+
+    def test_replaced_sample_and_names_need_no_cleanup(self):
+        import json
+        root,paper=self.project('static');paper.start('game',str(root),'Build a game')
+        for name in ['js/logic/notes.mjs','tests/notes.test.mjs']:(root/name).unlink()
+        (root/'js/app.mjs').write_text('export const game=1;\n');(root/'index.html').write_text('<h1>Pong</h1>');(root/'README.md').write_text('# Pong\nA game.\n')
+        for path in (root/'messages').glob('*.json'):path.write_text(json.dumps({'app.name':'Pong'}))
+        (root/'manifest.webmanifest').write_text(json.dumps({'name':'Pong','short_name':'Pong'}))
+        paper.observe('game');self.assertNotEqual(paper.end('game')['outcome'],'continue')
+        for name in ['js/store.mjs','js/i18n.mjs','sw.js','tests/i18n.test.mjs','tests/files.test.mjs','tsconfig.json']:
+            self.assertTrue((root/name).is_file(),name)
+
+    def test_stopping_first_request_does_not_queue_sample_cleanup(self):
+        root,paper=self.project('web');paper.start('stop',str(root),'Build a game')
+        (root/'app/main.py').write_text('x=1\n');paper.observe('stop')
+        self.assertNotEqual(paper.end('stop',review=False)['outcome'],'continue')

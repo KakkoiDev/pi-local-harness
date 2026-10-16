@@ -129,9 +129,9 @@ class ProposalLedger:
     def start_request(self, request, cwd, text):
         return None if rules.bare() else self.paperwork.start(request, cwd, text)
 
-    def end_request(self, request):
-        result = self.paperwork.end(request)
-        if result and result.get('outcome') not in ('committed', 'nothing changed'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
+    def end_request(self, request, review=True):
+        result = self.paperwork.end(request,review=review)
+        if result and result.get('outcome') not in ('committed', 'nothing changed', 'continue'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
         return result
 
     def last_note(self, token):

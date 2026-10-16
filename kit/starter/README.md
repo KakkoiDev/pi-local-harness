@@ -15,3 +15,8 @@ In Pi Workbench, the Preview runs all of this for you (the server, and the style
 `tests/test_files.py` checks template assets (including literal `url_for` static paths), manifest icons and the
 service-worker cache list without starting the app. Build the styles before running tests. A missing referenced file
 fails with its path, so cleanup cannot silently break offline installation.
+
+The notes feature is a sample to replace on the first real request. Keep the skeleton: storage, i18n, test setup,
+build commands and folder rules (and, in web apps, the service worker and manifest). Adapt domain-specific storage
+to the new app. Remove unused sample logic, tests and UI; rename the app in messages and the manifest, and update
+README and the cache list together. The harness asks once about unchanged sample files before committing.
