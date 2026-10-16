@@ -19,7 +19,7 @@ const readline = require('node:readline');
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
   const base=`http://127.0.0.1:${ports.web}`;
   browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
-  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
+  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
   page.on('pageerror',e=>errors.push(e.message));
   // The server's stderr (its request log) must be read: an unread pipe fills up and the server stalls mid-request.
   const serverLog=[];server.stderr.on('data',chunk=>{serverLog.push(...String(chunk).split('\n').filter(line=>line&&!/" (200|304) -/.test(line)));serverLog.splice(0,Math.max(0,serverLog.length-40));});
@@ -384,7 +384,7 @@ const readline = require('node:readline');
   // 130: the Projects window has a Projects group and an Agent section over every project (C_ProjectsWin).
   const stopAll=async()=>{const {jobs}=await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()));for(const job of jobs.filter(job=>job.status==='queued'))await post('/api/jobs/cancel',{id:job.id});for(const job of jobs.filter(job=>job.status==='running'))await post('/api/jobs/stop',{id:job.id});};
   await stopAll();await page.goto(`${base}/activity`);await page.waitForFunction(()=>document.querySelector('#agent-activity-meta').textContent==='Nothing running',null,{timeout:20000});
-  await page.goto(`${base}/projects`);await page.locator('#agent-activity').waitFor();
+  await page.goto(`${base}/projects`);await page.locator('#agent-activity-meta').filter({hasText:'Nothing running'}).waitFor();
   assert.equal(await page.locator('#pg-agent .pw-group__count').textContent(),'All projects');
   assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running');
   assert.match(await page.locator('#agent-gate-meta').textContent(),/^\d+ checks? today$/,'no blocked check yet');
@@ -939,10 +939,10 @@ const readline = require('node:readline');
   assert.match(await testList.textContent(),/node --test tests\/app.test.mjs/);
   assert.match(await testList.textContent(),/Exit code: 1/);assert.match(await testList.textContent(),/3 passed/);assert.match(await testList.textContent(),/1 failed/);
   for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});if(width===390)await page.locator('#job-'+tested.id+' .activity-request').click();await testList.waitFor();await testList.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-228-activity-${width}.png`});}
-  await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.getByRole('heading',{name:'テスト',exact:true}).waitFor();assert.equal(await page.getByText('3 件成功',{exact:true}).count(),1);
+  await page.setViewportSize({width:1440,height:900});await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.getByRole('heading',{name:'テスト',exact:true}).waitFor();assert.equal(await page.getByText('3 件成功',{exact:true}).count(),1);
   // Round 10: the card answers through the real composer and keeps its settled state after reload.
   await page.setViewportSize({width:1440,height:900});
-  await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));
+  await post('/api/settings',{language:'en'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));
   const choiceJob=await post('/api/jobs/create',{project:created.project,message:'Discuss the app TEST_CHOICE'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),choiceJob.id);
   await page.goto(`${base}/p/${created.project}/chat`);
@@ -976,7 +976,7 @@ const readline = require('node:readline');
   // All four card families use the drawn phone dimensions and long-plan/auto states.
   await page.evaluate(async()=>{
    const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');
-   const stage=document.createElement('div');stage.id='round10-cards';document.querySelector('#messages').append(stage);
+   const stage=document.createElement('div');stage.id='round10-cards';document.querySelector('#messages').after(stage);
    const noop=()=>{},decisions='- Sorting: newest (auto)\n- Languages: Japanese and English (given)';
    stage.append(choiceCard({question:'Sorting?',options:[{label:'Newest'},{label:'Oldest'}],answer:'Newest',state:'auto'},{change:noop}),planCard({goal:'Keep notes',tasks:Array.from({length:9},(_,n)=>({title:'Task '+n,done_when:'It works',decisions}))},{name:'Class Notes',approve:noop,change:noop,open:noop}),awayCard({id:'report',started:'2026-10-16T14:40:00+09:00',ended:'2026-10-16T16:05:00+09:00',outcome:'roadmap done',done:[{task:'Ball',verified:true}],decisions:[{question:'Sort',answer:'Newest'}],external:[{action:'Published',url:'https://example.com'}],problems:[{reason:'A test failed, then passed'}]},{change:noop,seen:noop,activity:noop}));
   });
@@ -984,16 +984,45 @@ const readline = require('node:readline');
   assert.equal(await page.locator('#round10-cards .pw-plan__tasks>li').count(),6);
   assert.equal(await page.locator('#round10-cards .pw-plan__decisions .pw-tag').count(),3);
   for(const width of [1440,390]){await page.setViewportSize({width,height:900});await page.locator('#round10-cards').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width===390){const sizes=await page.locator('#round10-cards .pw-card__foot button').evaluateAll(items=>items.map(e=>e.getBoundingClientRect().height));assert.ok(sizes.every(h=>h>=44));}await page.screenshot({path:`/tmp/plh-239-cards-${width}.png`});}
-  await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();
+  await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();
   await page.locator('#send').filter({hasText:'送信'}).waitFor();
   await page.evaluate(async()=>{
-   const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');const stage=document.createElement('div');stage.id='round10-ja';document.querySelector('#messages').append(stage);const noop=()=>{};
+   const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');const stage=document.createElement('div');stage.id='round10-ja';document.querySelector('#messages').after(stage);const noop=()=>{};
    stage.append(choiceCard({question:'Tasks',options:[{label:'Tasks'},{label:'Decisions'}],number:1,total:3},{answer:noop}),planCard({goal:'Tasks',tasks:[{title:'Tasks',done_when:'it works',decisions:'- Tasks: Decisions (given)'}]},{name:'Notes',approve:noop,change:noop,open:noop}),awayCard({id:'ja',done:[],decisions:[],external:[],problems:[]},{seen:noop,change:noop,activity:noop}));
   });
   await page.locator('#round10-ja button').filter({hasText:'計画を承認'}).waitFor();
   assert.equal(await page.locator('#round10-ja .pw-option__label').first().evaluate(el=>el.firstChild.textContent),'Tasks','person options keep their original words');
   assert.equal(await page.locator('#round10-ja .pw-plan__goal').textContent(),'Tasks');
   assert.match(await page.locator('#round10-ja .pw-plan__tasks small').textContent(),/完了条件/);
+  // Round 9: every designed update state uses the safe backend result; these routes never fetch the real clone.
+  await post('/api/settings',{language:'en'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));await page.reload();
+  for(const [state,why,title,action] of [
+   ['current','','Pi Workbench is up to date.',''],['unknown','','Can’t check for updates right now.','Try Again'],
+   ['blocked','This copy has its own changes (2 commits not on GitHub), so it is not updated automatically.','This copy is not updated automatically.','Ask Pi to Update'],
+   ['blocked','Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.','Pi Workbench can’t update yet.','Ask Pi to Save Them'],
+   ['available','','A new version of Pi Workbench is ready','Update']]){
+   updateFixture={state,why,changes:Array.from({length:25},(_,n)=>'Change '+n)};
+   await page.setViewportSize({width:1440,height:900});await page.locator('#menubar [aria-controls="menu-pi"]').click();await page.locator('#menu-pi [data-command="check-updates"]').click();
+   const update=page.locator('#updates-dialog');await update.getByRole('heading',{name:title,exact:true}).waitFor();
+   if(action)assert.equal(await update.getByRole('button',{name:action,exact:true}).count(),1);
+   if(state==='blocked')assert.match(await update.textContent(),/Nothing was changed/);
+   if(state==='available'){assert.equal(await update.locator('li').count(),20);await update.getByRole('button',{name:'Update',exact:true}).click();await update.getByRole('heading',{name:'Updating Pi Workbench…',exact:true}).waitFor();await update.getByRole('heading',{name:/Updated to abc1234/}).waitFor();}
+   await page.keyboard.press('Escape');
+  }
+  const manifest=await page.evaluate(()=>fetch('/design/app-icons/manifest.webmanifest').then(r=>r.json()));assert.equal(manifest.display,'standalone');assert.equal(manifest.icons[1].purpose,'maskable');
+  for(const icon of manifest.icons)assert.equal(await page.evaluate(async src=>(await fetch(src)).status,icon.src),200);
+  await page.keyboard.press('ControlOrMeta+Comma');const round9Settings=page.locator('#settings-dialog');await round9Settings.waitFor();assert.equal(await round9Settings.locator('legend').first().textContent(),'Language');await round9Settings.getByLabel('Check for updates once a day').uncheck();await page.waitForFunction(()=>fetch('/api/settings').then(r=>r.json()).then(d=>!d.updates_daily));await round9Settings.getByRole('button',{name:'Done',exact:true}).click();
+  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>document.querySelector('#install-dialog').showModal());const home=page.locator('#install-dialog');await home.getByRole('radio',{name:'Android',exact:true}).click();assert.match(await home.textContent(),/Choose Install app/);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await home.getByRole('button',{name:'Done',exact:true}).click();
+  // Terminal Preview controls share the real socket bridge's tested key protocol.
+  const terminalStatus={state:'running',kind:'app',terminal:true,command:'python -m app.tui',url:base+'/round9-terminal'};
+  await page.route('**/api/preview?*',route=>route.fulfill({json:terminalStatus}));let terminalRestarts=0;
+  await page.route('**/api/preview/{start,stop}',route=>{terminalRestarts++;return route.fulfill({json:terminalStatus});});
+  await page.route('**/round9-terminal*',route=>route.fulfill({contentType:'text/html',body:'<textarea aria-label="Terminal"></textarea><script>addEventListener("message",event=>{document.body.dataset.key=event.data.key||"";});</script>'}));
+  await page.evaluate(id=>localStorage.setItem('plh.preview.'+id,JSON.stringify({open:true,seen:true,size:'phone',path:'/round9-terminal',language:'en'})),created.project);
+  await page.setViewportSize({width:1440,height:900});await page.reload();await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).waitFor();assert.equal(await page.locator('#preview-body input[aria-label="Page"]').inputValue(),'python -m app.tui');
+  await page.locator('#preview-body').getByRole('radio',{name:'120 × 40',exact:true}).click();assert.match(await page.locator('#preview-body .pw-preview__caption').textContent(),/120 × 40/);const restarted=page.waitForResponse(response=>response.url().endsWith('/api/preview/start'));await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).click();await restarted;assert.equal(terminalRestarts,2);
+  await page.setViewportSize({width:390,height:844});await page.locator('.pw-terminal-keys').waitFor();await page.frameLocator('#preview-body iframe').getByRole('textbox',{name:'Terminal'}).waitFor();await page.locator('.pw-terminal-keys').getByRole('button',{name:'Return',exact:true}).click();await page.frameLocator('#preview-body iframe').locator('body[data-key="Enter"]').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'/tmp/plh-243-terminal-phone.png'});
+  await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.locator('#preview-body').getByRole('button',{name:'再起動',exact:true}).waitFor();
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

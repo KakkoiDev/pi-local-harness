@@ -68,3 +68,8 @@ Linux after the starter project and the bench's stack track".
    with the steps to allow them explained), sign later.
 2. **Windows now or after the port?** Proposed: Mac and Linux installers first; Windows once the harness runs there.
 3. **Release channel.** Proposed: installed copies follow tagged releases; `/update` offers the newest release.
+
+
+## Round 9 installer UI (task 243)
+
+Use the same π tile as `design/app-icons/` in the Dock and the menu bar or tray. The installer owns this native item: current state (Working in the project / Ready / Needs attention), Gate's count, Open Pi Workbench (default), Open on Phone…, Copy Address, Start at Login, Check for Updates…, Quit Pi Workbench. Quitting during work asks first, with Cancel as the default, explains which request stops, and retains it in Activity as Interrupted. Build the native lifecycle with the installers; the web workbench provides the icon, update window and remote Home Screen instructions.

@@ -1127,7 +1127,54 @@
   "What leaves this Mac (a publish, a push, a message) can’t be taken back by Undo. Every step goes into a report at the end of the run.": "この Mac から外部へ送ったもの（公開、push、メッセージ）は「取り消す」では戻せません。終了時のレポートにすべての操作を記録します。",
   "Working · on its own": "作業中 · 自動",
   "no passing test run after the last change": "最後の変更後にテストが成功していません",
-  "verified": "検証済み"
+  "verified": "検証済み",
+  "Question numbering must be within its total.": "質問番号は合計の範囲内にしてください。",
+  "Check for Updates…": "アップデートを確認…",
+  "● New version": "● 新しいバージョン",
+  "Check for updates once a day": "1日1回アップデートを確認",
+  "Check Now": "今すぐ確認",
+  "Updates": "アップデート",
+  "Changes apply at once; terminal Pi’s /settings shows the same values.": "変更はすぐに適用されます。ターミナル Pi の /settings にも同じ値が表示されます。",
+  "Runs in a terminal window, keys and text only: a quiz, a calculator, a script. The Preview shows it here.": "キーとテキストだけのターミナルアプリです。クイズ、計算機、スクリプトなど。プレビューに表示されます。",
+  "Add to Home Screen": "ホーム画面に追加",
+  "Add to Home Screen…": "ホーム画面に追加…",
+  "A new version of Pi Workbench is ready": "Pi Workbench の新しいバージョンがあります",
+  "Pi Workbench is up to date.": "Pi Workbench は最新です。",
+  "Checked just now. It checks again once a day.": "たった今確認しました。1日1回確認します。",
+  "This copy is not updated automatically.": "このコピーは自動更新されません。",
+  "Pi Workbench can’t update yet.": "Pi Workbench はまだ更新できません。",
+  "Can’t check for updates right now.": "今はアップデートを確認できません。",
+  "GitHub can’t be reached from this Mac. Check the connection, then try again.": "この Mac から GitHub に接続できません。接続を確認して再試行してください。",
+  "Ask Pi to Update": "Pi に更新を依頼",
+  "Ask Pi to Save Them": "Pi に保存を依頼",
+  "Try Again": "再試行",
+  "Later": "後で",
+  "Update": "更新",
+  "Updating Pi Workbench…": "Pi Workbench を更新中…",
+  "Checking for updates…": "アップデートを確認中…",
+  "Nothing was changed.": "変更は行われませんでした。",
+  "Keep this window open. Pi’s current request finishes first.": "このウインドウを開いたままにしてください。Pi の現在のリクエストが先に完了します。",
+  "The π icon opens the workbench full screen.": "π アイコンでワークベンチを全画面表示します。",
+  "Tap Share at the bottom of Safari.": "Safari 下部の共有をタップします。",
+  "Choose Add to Home Screen.": "「ホーム画面に追加」を選びます。",
+  "Tap Add.": "「追加」をタップします。",
+  "Open the ⋮ menu.": "⋮ メニューを開きます。",
+  "Choose Install app.": "「アプリをインストール」を選びます。",
+  "Add Pi Workbench to this phone. It opens the workbench running on your Mac: Pi and the model keep running there, nothing runs on this phone. The Mac must be on and Tailscale connected.": "Pi Workbench をこのスマホのホーム画面に追加します。ワークベンチ、Pi、モデルは Mac で動き続け、このスマホでは動きません。Mac の電源と Tailscale 接続が必要です。",
+  "Takes about a minute. Your projects, chats and settings are not touched. Pi’s current request finishes first.": "約1分かかります。プロジェクト、チャット、設定は変更されません。Pi の現在のリクエストが先に完了します。",
+  "All projects. Pi answers, plans, builds, publishes, pushes, downloads, sends and uses the Trash without asking. Turning it on shows these risks first.": "すべてのプロジェクトで、Pi が回答、計画、作成、公開、プッシュ、ダウンロード、送信、ゴミ箱への移動を確認なしで行います。有効にする前にリスクを表示します。",
+  "Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server. Keys and text only: Terminal app.": "迷ったら：複数の人が同じデータを使う場合や秘密のキーが必要なら「Web アプリ」。それ以外は「サーバーなしアプリ」。キーとテキストだけなら「ターミナルアプリ」です。",
+  "Runs": "実行コマンド",
+  "Restart": "再起動",
+  "Terminal size": "ターミナルのサイズ",
+  "Fit": "合わせる",
+  "Esc": "Esc",
+  "Tab": "Tab",
+  "Ctrl": "Ctrl",
+  "Return": "Return",
+  "Quit plh: Quit in the π menu-bar item, or Control-C in its terminal.\nStart it again: open Pi Workbench, or type plh.\nThis page reconnects by itself.": "plh を終了：メニューバーの π から終了するか、ターミナルで Control-C を押します。\n再起動：Pi Workbench を開くか、plh と入力します。\nこのページは自動で再接続します。",
+  "Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.": "Pi Workbench のファイルに未コミットの編集があります。更新すると上書きされるため、更新できません。",
+  "This copy has its own changes (1 commit not on GitHub), so it is not updated automatically.": "このコピーには GitHub にないコミットが1件あるため、自動更新されません。"
  },
  "patterns": [
   [
@@ -2669,8 +2716,22 @@
   [
    "· continued by you · {time}",
    "· あなたが続行 · {time}"
+  ],
+  [
+   "Updated to {name}. Restart plh to use it.",
+   "{name} に更新しました。plh を再起動してください。"
+  ],
+  [
+   "80 × 24 · click it to type; ⌘. sends Control-C",
+   "80 × 24 · クリックして入力。⌘. で Control-C"
+  ],
+  [
+   "120 × 40 · click it to type; ⌘. sends Control-C",
+   "120 × 40 · クリックして入力。⌘. で Control-C"
+  ],
+  [
+   "This copy has its own changes ({n} commits not on GitHub), so it is not updated automatically.",
+   "このコピーには GitHub にないコミットが {n} 件あるため、自動更新されません。"
   ]
- ],
- "Question numbering must be within its total.": "質問番号は合計の範囲内にしてください。",
- "roadmap done": "ロードマップ完了"
+ ]
 }

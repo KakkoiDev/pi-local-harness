@@ -11,6 +11,13 @@ export function terminalLanguage(setting = process.env.PI_HARNESS_LANGUAGE, env 
   return locale === 'ja' ? 'ja' : 'en';
 }
 
+/** Web Settings and a terminal request read the same saved choice on each turn. */
+export function requestLanguage(data,env=process.env){
+ let setting=env.PI_HARNESS_LANGUAGE;
+ try{const saved=JSON.parse(readFileSync(`${data}/config.json`,'utf8'));if(['en','ja','system'].includes(saved.language))setting=saved.language;}catch{}
+ return terminalLanguage(setting,env);
+}
+
 let current = null;
 /** Load the dictionary for a language ('en' clears it); returns the language. */
 export function loadTerminalLanguage(language = terminalLanguage()) {

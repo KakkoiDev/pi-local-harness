@@ -60,12 +60,15 @@ export function installPreview({ api, project, send, showView, view, working, on
   // Its parts, built once (the card's markup).
   const host = node('span', 'pw-address__host'), path = node('input'); path.setAttribute('aria-label', 'Page');
   const address = node('label', 'pw-address'); address.append(host, path);
-  const reload = button('Reload', () => load(true));
+  const reload = button('Reload', () => status.terminal?restart():load(true));
   const sizes = segment('Size', [['phone', 'Phone'], ['tablet', 'Tablet'], ['full', 'Full']], value => { save({ size: value }); draw(); });
+  let terminalNatural={width:816,height:488},terminalAdjustments=0,control=false;
+  const terminalSizes=segment('Terminal size',[['80x24','80 × 24'],['120x40','120 × 40'],['fit','Fit']],value=>{save({terminalSize:value});terminalAdjustments=0;terminalNatural=value==='120x40'?{width:1216,height:808}:{width:816,height:488};draw();});
   const languages = segment('App language', [['en', 'English'], ['ja', '日本語']], value => { save({ language: value }); load(true); });
   const bar1 = node('div', 'pw-toolbar'), bar2 = node('div', 'pw-toolbar'); bar1.append(address, reload); bar2.append(sizes.element, languages.element);
   const note = node('p', 'pw-preview__note'); note.setAttribute('role', 'status'); note.hidden = true;
   const stage = node('div', 'pw-preview__stage pw-desk');
+  const keys=node('div','pw-terminal-keys');
   const frame = node('div', 'pw-preview__frame'), iframe = node('iframe'), caption = node('span', 'pw-preview__caption');
   iframe.title = 'The app'; frame.append(iframe);
   const state = node('span', 'pw-glyph'); state.setAttribute('role', 'status');
@@ -83,7 +86,14 @@ export function installPreview({ api, project, send, showView, view, working, on
     return null;
   }
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
-  body.append(bar1, bar2, note, stage, foot);
+  body.append(bar1, bar2, note, stage,keys, foot);
+  const terminalKey=(key,value)=>{if(!iframe.src)return;iframe.contentWindow.postMessage({type:key==='Control'?'pi-terminal-control':'pi-terminal-key',key,value},new URL(iframe.src).origin);};
+  for(const [key,label] of [['Escape','Esc'],['Tab','Tab'],['ArrowUp','↑'],['ArrowDown','↓'],['Control','Ctrl'],['Enter','Return']]){const el=button(label,()=>{if(key==='Control'){control=!control;el.setAttribute('aria-pressed',String(control));}terminalKey(key,control);});if(key==='Control')el.setAttribute('aria-pressed','false');keys.append(el);}
+  window.addEventListener('message',event=>{if(!status.terminal||event.source!==iframe.contentWindow||!iframe.src||event.origin!==new URL(iframe.src).origin)return;
+   if(event.data?.type==='pi-terminal-control'){control=false;keys.querySelector('[aria-pressed]')?.setAttribute('aria-pressed','false');}
+   const selected=settings().terminalSize||'80x24',target=selected==='120x40'?[120,40]:[80,24],{width,height}=event.data||{};
+   if(event.data?.type==='pi-terminal-size'&&selected!=='fit'&&Number.isInteger(width)&&width>0&&Number.isInteger(height)&&height>0&&terminalAdjustments<4&&(width!==target[0]||height!==target[1])){terminalAdjustments++;terminalNatural={width:Math.ceil(terminalNatural.width*target[0]/width),height:Math.ceil(terminalNatural.height*target[1]/height)};draw();}
+  });
   path.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); save({ path: path.value.trim() || '/' }); load(true); } };
 
   function segment(label, items, choose) {
@@ -112,6 +122,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     $('preview-tab').hidden = mode !== 'view'; $('preview-toggle').hidden = mode === 'view';
     onLayout?.(mode);
   }
+  window.addEventListener('keydown',event=>{if(status.terminal&&visible()&&(event.metaKey||event.ctrlKey)&&event.code==='Period'){event.preventDefault();terminalKey('Interrupt');}});
   new ResizeObserver(layout).observe($('desk'));
 
   function visible() { return mode === 'beside' ? !beside.hidden && !['activity', 'gate'].includes(view()) : view() === 'preview'; }
@@ -135,6 +146,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     draw();
     if (visible()) timer = setTimeout(refresh, status.state === 'running' ? 2000 : 1000);
   }
+  async function restart(){await stop();await start();}
   async function start() { status = await api('/api/preview/start', { project: project().id }); fixing = false; draw(); refresh(); }
   async function stop() { await api('/api/preview/stop', { project: project().id }); status = { state: 'none', kind: 'app', stopped: true }; loadedSrc = ''; draw(); }
 
@@ -154,17 +166,18 @@ export function installPreview({ api, project, send, showView, view, working, on
   function draw() {
     const current = project(), chosen = settings();
     $('preview-title').textContent = current ? `Preview · ${current.name}` : 'Preview';
-    host.textContent = status.kind === 'notweb' || !current ? '—' : current.name; path.value = chosen.path;
+    host.textContent = status.terminal?'Runs':status.kind === 'notweb' || !current ? '—' : current.name; path.value = status.terminal?status.command:chosen.path;reload.textContent=status.terminal?'Restart':'Reload';
+    const terminal=Boolean(status.terminal);keys.hidden=!terminal||!phoneScreen();terminalSizes.sync(chosen.terminalSize||'80x24');bar2.replaceChildren(terminal?terminalSizes.element:sizes.element,languages.element);
     sizes.sync(chosen.size); languages.sync(chosen.language);
     const running = status.state === 'running', app = status.kind !== 'notweb' && status.kind !== 'empty';
     body.classList.toggle('pw-preview--dim', status.kind === 'notweb');
-    path.disabled = reload.disabled = !running; sizes.enable(app); languages.enable(app);
+    path.disabled = !running||terminal;reload.disabled = !running; sizes.enable(app); languages.enable(app);
     onPhone.disabled = inBrowser.disabled = openApp.disabled = !running;
     // Ph8_Preview (round 8): on a phone the app takes the width; the foot is the state, Stop / Start and Open App. The app's
     // language moved to Preview's view menu (Ph8_PreviewMenu).
     const small = phoneScreen(); bar2.hidden = small;
     if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), openApp);
-    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
+    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(terminal?terminalSizes.element:sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
     const word = { running: 'Running', starting: 'Starting…', stopped: 'Stopped' }[status.state] || (status.stopped ? 'Stopped' : 'No app');
     state.replaceChildren(glyph(status.state === 'running' ? 'running' : status.state === 'starting' ? 'starting' : status.state === 'stopped' || status.stopped ? 'stopped' : 'none'), word);
     stopStart.textContent = running || status.state === 'starting' ? 'Stop' : 'Start';
@@ -175,9 +188,10 @@ export function installPreview({ api, project, send, showView, view, working, on
     if (status.note) { note.replaceChildren(glyph(/^Undo/.test(status.note.text) ? 'undo' : 'done'), node('span', '', status.note.text), node('time', '', status.note.time)); }
     if (said && said !== lastNote) { lastNote = said; load(true); }
     if (running) {
-      const fit = frameFor(phoneScreen() ? 'full' : chosen.size, { width: (stage.clientWidth || 448) + (phoneScreen() ? 32 : 0), height: (stage.clientHeight || 600) + (phoneScreen() ? 40 : 0) });
+      let fit = frameFor(phoneScreen() ? 'full' : chosen.size, { width: (stage.clientWidth || 448) + (phoneScreen() ? 32 : 0), height: (stage.clientHeight || 600) + (phoneScreen() ? 40 : 0) });
+      if(terminal){const natural=chosen.terminalSize==='fit'?{width:Math.max(200,stage.clientWidth-32),height:Math.max(200,stage.clientHeight-40)}:terminalNatural;const scale=Math.min(1,Math.max(200,stage.clientWidth-32)/natural.width);fit={width:Math.round(natural.width*scale),height:Math.round(natural.height*scale),scale,caption:chosen.terminalSize==='fit'?'Fit':(chosen.terminalSize==='120x40'?'120 × 40':'80 × 24')+' · click it to type; ⌘. sends Control-C'};}
       frame.style.width = fit.width + 'px'; frame.style.height = fit.height + 'px';
-      const natural = chosen.size === 'tablet' ? SIZES.tablet : { width: fit.width, height: fit.height };
+      const natural = terminal?(chosen.terminalSize==='fit'?{width:fit.width,height:fit.height}:terminalNatural):chosen.size === 'tablet' ? SIZES.tablet : { width: fit.width, height: fit.height };
       iframe.style.width = natural.width + 'px'; iframe.style.height = natural.height + 'px';
       iframe.style.transform = fit.scale < 1 ? `scale(${fit.scale})` : ''; iframe.style.transformOrigin = '0 0';
       frame.toggleAttribute('data-scaled', fit.scale < 1); caption.textContent = fit.caption;
@@ -232,7 +246,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     projectChanged, refresh, layout, mode: () => mode,
     commands: () => ({ language: settings().language, app: status.kind !== 'notweb' && status.kind !== 'empty', running: status.state === 'running' }),
     setLanguage: value => { save({ language: value }); draw(); load(true); },
-    reload: () => load(true),
+    reload: () => status.terminal?restart():load(true),
     openApp: () => openApp.click(),
     stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },

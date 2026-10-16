@@ -25,7 +25,7 @@ def run_command(folder, port):
     """How this project's app runs, or None when it has no app to show."""
     folder = Path(folder)
     if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'tui.py').is_file() and (folder / 'serve.py').is_file():
-        return [UV, 'run', 'python', 'serve.py', str(port)]  # a terminal app (kit/starter-tui): in the browser through textual-serve
+        return [UV, 'run', 'python', str(Path(__file__).with_name('terminal-preview.py')), str(port)]  # a terminal app (kit/starter-tui): in the browser through textual-serve
     if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'main.py').is_file():
         server = [UV, 'run', 'uvicorn', 'app.main:app', '--reload', '--host', '127.0.0.1', '--port', str(port)]
         if not (folder / 'styles' / 'input.css').is_file(): return server
@@ -84,6 +84,7 @@ class App:
     def __init__(self, process, port, log, first=False):
         self.process, self.port, self.log, self.state, self.error, self.first, self.note = process, port, log, 'starting', '', first, None
         self.phone, self.phone_url = None, ''
+        self.terminal=False
 
 
 class Previews:
@@ -95,8 +96,10 @@ class Previews:
         """The state (none · starting · running · stopped) and what the Preview shows with it: while starting, whether it
         is the first start and the app's last line; when stopped, its last 8 lines; the note after a change."""
         with self.lock: app = self.apps.get(project)
-        if not app: return ({'state': 'none', 'kind': 'app'} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
-        found = {'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.port}/', 'first': app.first}
+        terminal=bool(folder and (Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()) if not app else app.terminal
+        extra={'terminal':True,'command':'python -m app.tui'} if terminal else {}
+        if not app: return ({'state': 'none', 'kind': 'app',**extra} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
+        found = {**extra,'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.port}/', 'first': app.first}
         if app.state == 'starting':
             lines = [line for line in app.log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()] if app.log.exists() else []
             if lines: found['last'] = lines[-1]
@@ -143,11 +146,15 @@ class Previews:
             self.folder.mkdir(parents=True, exist_ok=True)
             log = self.folder / f'{project}.log'
             env = {key: value for key, value in os.environ.items() if not key.startswith(('PI_', 'VIRTUAL_ENV'))}
+            from harness.autonomy import read
+            language=read(self.folder.parent/'config.json',{}).get('language')
+            if language in ('en','ja'):env['APP_LANG']=language
             env.update(TAILWINDCSS_VERSION=TAILWIND, TAILWINDCSS_BIN_DIR=str(self.folder.parent / 'toolchain' / 'tailwindcss'))
             with log.open('w', encoding='utf-8') as output:
                 process = subprocess.Popen(command, cwd=folder, env=env, stdout=output, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
             first = (Path(folder) / 'pyproject.toml').is_file() and not (Path(folder) / '.venv').exists()
             self.apps[project] = app = App(process, port, log, first)
+            app.terminal=(Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()
         threading.Thread(target=self.watch, args=(app,), daemon=True).start()
         return self.status(project)
 

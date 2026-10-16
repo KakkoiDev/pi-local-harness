@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff"><title>Pi Workbench</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 fill=%22white%22/%3E%3Ctext x=%228%22 y=%2213%22 font-size=%2213%22 text-anchor=%22middle%22 font-family=%22Georgia,serif%22 font-style=%22italic%22%3E%CF%80%3C/text%3E%3C/svg%3E"><!-- π, inline: no /favicon.ico request -->
+  <link rel="manifest" href="/design/app-icons/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/design/app-icons/pi-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/design/app-icons/pi-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/design/app-icons/pi-16.png">
+  <link rel="icon" type="image/png" media="(prefers-color-scheme:dark)" href="/design/app-icons/pi-192-dark.png">
   <script>/* Settings apply before first paint; js/chat.mjs applySettings() does the same after Save. */try{const read=key=>JSON.parse(localStorage.getItem('plh.'+key)),appearance=read('appearance'),root=document.documentElement;if(appearance==='system')root.dataset.appearance='system';else root.dataset.theme=appearance==='inverse'?'dark':'light';root.dataset.pattern=read('desktopPattern')||'dots';}catch{}</script>
   <link rel="stylesheet" href="/design/tokens.css">
   <link rel="stylesheet" href="/design/components.css">
@@ -24,10 +28,12 @@
 
   <!-- menu bar (desktop). On phone it is hidden and #phonebar shows instead. -->
   <nav id="menubar" class="pw-menubar" role="menubar" aria-label="Menu bar">
-    <div class="menubar-slot"><button class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pi" aria-label="Pi menu">π</button>
+    <div class="menubar-slot"><button class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pi" aria-label="Pi menu">π<span class="pw-update-dot" data-update-mark hidden></span></button>
       <div id="menu-pi" class="pw-menu" role="menu" aria-label="Pi" hidden>
         <button class="pw-menu__item" role="menuitem" data-command="about">About Pi Workbench</button>
         <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitem" data-command="check-updates">Check for Updates…<span class="pw-menu__key" data-update-label></span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="install-app" hidden>Add to Home Screen…</button>
         <button class="pw-menu__item" role="menuitem" data-command="settings">Settings…<span class="pw-menu__key">⌘,</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="desktop-pattern">Desktop Pattern…</button>
         <button class="pw-menu__item" role="menuitem" data-command="open-on-phone">Open on Phone…</button>
@@ -125,7 +131,7 @@
 
   <!-- phone bar (≤760px) -->
   <nav id="phonebar" class="pw-phonebar" aria-label="Menu bar">
-    <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π</button>
+    <button id="open-menu" class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" aria-expanded="false">π<span class="pw-update-dot" data-update-mark hidden></span></button>
     <button id="phone-view" class="pw-phonebar__btn" aria-haspopup="menu" aria-expanded="false"><span id="phone-view-label">Chat</span><span data-icon="popup-arrow"></span></button>
     <button id="detail-back" class="pw-phonebar__btn" hidden>‹ <span id="detail-back-label">Activity · all</span></button><!-- Ph_ActivityDetail: a detail screen has only its back button -->
     <span class="pw-menubar__spacer"></span>
@@ -170,6 +176,8 @@
         <button id="add-folder" class="pw-btn">Add Existing Folder…<span class="pw-kbd">⌘O</span></button>
       </div>
       <div class="window-section window-section--actions pi-sheet-extra"><!-- phone: the π sheet also holds Settings and About -->
+        <button id="pi-updates" class="pw-btn">Check for Updates…<span data-update-label></span></button>
+        <button id="pi-install" class="pw-btn" data-command="install-app" hidden>Add to Home Screen…</button>
         <button id="pi-settings" class="pw-btn">Settings…</button>
         <button id="pi-about" class="pw-btn">About Pi Workbench</button>
       </div>
@@ -335,9 +343,9 @@
     <fieldset id="folder-kind" class="folder-kind" hidden><legend class="pw-label">What are you making?</legend><!-- round 7 (P_NewProject): the kind; Web app the default -->
       <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="web" checked><span>Web app</span><small>Runs on this Mac while plh is open. For data several people share, logins, payments, or a paid AI key.</small></label>
       <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="static"><span>App with no server</span><small>Runs in the browser and keeps its data on the device. Works offline; free to publish on GitHub Pages.</small></label>
-      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="tui"><span>Terminal app</span><small>Runs in a terminal, keys and text only; the Preview shows it in the browser.</small></label>
+      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="tui"><span>Terminal app</span><small>Runs in a terminal window, keys and text only: a quiz, a calculator, a script. The Preview shows it here.</small></label>
       <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="empty"><span>Empty folder</span><small>Start from nothing.</small></label>
-      <p class="pw-help folder-kind__help">Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server.</p>
+      <p class="pw-help folder-kind__help">Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server. Keys and text only: Terminal app.</p>
     </fieldset>
     <button id="folder-where" type="button" class="pw-row folder-where"><span id="folder-where-label" class="pw-row__label"></span><span aria-hidden="true">›</span></button><!-- Ph8_NewProject: "Create in ~/code ›" -->
     <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
@@ -436,8 +444,10 @@
     </fieldset>
     <label class="pw-label settings-option desk-only"><input id="settings-return" type="checkbox" class="pw-check">Return sends a message (Shift-Return adds a line)</label>
     <p class="pw-help phone-only settings-mac-note">Desktop pattern and “Return sends” are Mac settings; change them in Settings on the Mac.</p><!-- Ph8_Settings -->
-    <h3 class="pw-label">Pi</h3><label class="pw-auto"><input id="settings-auto" type="checkbox" class="pw-check">Run on its own</label>
-    <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn">Cancel</button><button value="save" class="pw-btn pw-btn--default">Save</button></div>
+    <h3 class="pw-label">Pi</h3><label class="pw-auto"><input id="settings-auto" type="checkbox" class="pw-check">Run on its own</label><p class="pw-help">All projects. Pi answers, plans, builds, publishes, pushes, downloads, sends and uses the Trash without asking. Turning it on shows these risks first.</p>
+    <fieldset class="settings-group"><legend class="pw-label">Updates</legend><label class="pw-label settings-option"><input id="settings-updates" type="checkbox" class="pw-check">Check for updates once a day</label><button id="settings-check-updates" type="button" class="pw-btn">Check Now</button></fieldset>
+    <p class="pw-help">Changes apply at once; terminal Pi’s /settings shows the same values.</p>
+    <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn pw-btn--default">Done</button></div>
   </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd><dt class="pw-label">Gate</dt><dd id="about-gate" class="pw-mono"></dd><dt class="pw-label">Data</dt><dd id="about-data" class="pw-mono"></dd></dl><!-- Dialogs2 About --><p class="pw-help">One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-dialog-title"><form method="dialog" class="window-column">

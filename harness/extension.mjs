@@ -10,7 +10,7 @@ import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
 import { installStartupDisplay, startupLines } from './startup-display.mjs';
 import { installTimestamps } from './timestamps.mjs';
-import { loadTerminalLanguage, tr } from './language.mjs';
+import { loadTerminalLanguage, requestLanguage, tr } from './language.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
@@ -239,7 +239,8 @@ export default function harness(pi, dependencies = {}) {
     let gateRules = '';
     if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
-    return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
+    const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;

@@ -471,3 +471,11 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
 .pw-block--plan:not(:focus-within)>.pw-block__content{display:none}
 .pw-block--plan:focus-within>.pw-plan-reading{display:none}
 .pw-plan-reading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 8px;min-height:24px;flex:1;cursor:text}
+
+/* Round 9: a mark on the menu title, and the bounded plain update list. */
+.pw-update-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-left:4px;vertical-align:top}
+.pw-update-changes{max-height:40vh;overflow:auto;padding-left:24px}
+
+.pw-terminal-keys{display:flex;gap:4px;padding:4px;flex-wrap:wrap;border-top:1px solid var(--ink)}
+.pw-terminal-keys .pw-btn{min-width:44px;min-height:44px;flex:1}
+.pw-terminal-keys [aria-pressed=true]{background:var(--ink);color:var(--paper)}

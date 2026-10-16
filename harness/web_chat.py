@@ -193,6 +193,9 @@ class WebChat:
         self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode)
+        from harness.web_updates import UpdateService
+        from harness.admin import update_source
+        self.updates=UpdateService(self.documents.root,update_source())
         self.previews=Previews(self.documents.root/'.previews')  # plan 198: the project's app beside the chat
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
@@ -365,7 +368,7 @@ class WebChat:
             # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
             chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
             projects.append({**project,'chat':chat})
-        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
+        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'language':autonomy.read(self.documents.root/'config.json',{}).get('language'),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
         with self.lock:
@@ -508,7 +511,7 @@ class WebChat:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
-            env={**os.environ,'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            env={**os.environ,'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
@@ -671,6 +674,8 @@ class WebHandler(BaseHTTPRequestHandler):
                 identifier=parse_qs(urlparse(self.path).query)['id'][0]
                 if not re.fullmatch(r'[0-9a-f]{32}',identifier):raise ValueError('Invalid task ID')
                 record=self.chat.queue.records/(identifier+'.md');self.reply({'markdown':record.read_text(),'path':str(record).replace(str(Path.home()),'~',1)});return
+            if path=='/api/updates':self.reply(self.chat.updates.daily());return
+            if path=='/api/settings':self.reply(self.chat.updates.settings());return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
@@ -702,7 +707,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -725,6 +730,12 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
+            if path=='/api/updates':
+                action=data.get('action','check')
+                if action not in ('check','apply'):raise ValueError('Unknown update action.')
+                if action=='apply' and any(job['status'] in ('queued','running') for job in self.chat.queue.list()):raise ValueError('Pi is working. Let its request finish before updating.')
+                self.reply(self.chat.updates.update() if action=='apply' else self.chat.updates.check());return
             if path=='/api/auto':
                 from harness.autonomy import set_enabled
                 self.reply(set_enabled(self.chat.documents.root,data.get('enabled'),confirmed=data.get('confirmed') is True));return

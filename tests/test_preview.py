@@ -37,6 +37,12 @@ class PreviewTest(unittest.TestCase):
         for path, text in files.items(): (folder / path).parent.mkdir(parents=True, exist_ok=True); (folder / path).write_text(text)
         return folder
 
+    def test_terminal_preview_reports_its_actual_run_command(self):
+        folder=self.folder('terminal',{'pyproject.toml':'[project]\nname="app"\n','app/tui.py':'','serve.py':''})
+        found=self.previews.status('terminal',folder)
+        self.assertTrue(found['terminal'])
+        self.assertEqual(found['command'],'python -m app.tui')
+
     def test_the_run_command_depends_on_the_kind_of_project(self):
         stack = self.folder('stack', {'pyproject.toml': '[project]\nname="app"\n', 'app/main.py': ''})
         command = run_command(stack, 4000)
@@ -51,7 +57,7 @@ class PreviewTest(unittest.TestCase):
         self.assertEqual(run_command(site, 4000)[1:4], ['-m', 'http.server', '4000'])
         self.assertIsNone(run_command(self.folder('notes', {'README.md': '# Notes'}), 4000))
         tui = self.folder('tui', {'pyproject.toml': '[project]\nname="app"\n', 'app/tui.py': '', 'serve.py': ''})
-        self.assertEqual(run_command(tui, 4000)[1:], ['run', 'python', 'serve.py', '4000'], 'a terminal app, in the browser through textual-serve')
+        self.assertEqual(run_command(tui,4000)[1:3],['run','python']);self.assertEqual(Path(run_command(tui,4000)[3]).name,'terminal-preview.py');self.assertEqual(run_command(tui,4000)[-1],'4000')
         styled = self.folder('styled', {'index.html': '', 'styles/input.css': '@import "tailwindcss";'})
         shell = run_command(styled, 4000)[-1]
         self.assertIn('--from pytailwindcss tailwindcss -i styles/input.css -o static/app.css && {', shell, 'a no-server app gets its styles too')

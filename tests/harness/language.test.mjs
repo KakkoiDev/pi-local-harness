@@ -67,3 +67,8 @@ test('automatic run counts and risks are translated in Japanese',()=>{
  try {assert.equal(tr('Run report: 2 tasks · 1 decisions · 0 external actions · 3 problems. /report'),'実行レポート：タスク 2件・決定 1件・外部への操作 0件・問題 3件。/report');assert.equal(tr('Turn On'),'オンにする');}
  finally {loadTerminalLanguage('en');}
 });
+
+test('a changed shared language is read again for the next request',async()=>{
+ const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs'),{tmpdir}=await import('node:os'),{join}=await import('node:path');const {requestLanguage}=await import('../../harness/language.mjs');const folder=mkdtempSync(join(tmpdir(),'pi-language-'));
+ try{writeFileSync(join(folder,'config.json'),JSON.stringify({language:'ja'}));assert.equal(requestLanguage(folder,{LANG:'en_US.UTF-8'}),'ja');writeFileSync(join(folder,'config.json'),JSON.stringify({language:'en'}));assert.equal(requestLanguage(folder,{LANG:'ja_JP.UTF-8'}),'en');}finally{rmSync(folder,{recursive:true,force:true});}
+});
