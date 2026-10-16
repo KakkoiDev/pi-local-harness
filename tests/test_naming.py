@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Laya was the checker's old name (task 96); since 2026-10-17 Laya is System 1's classifier (CONSTITUTION.md, task
 # 246). So the old name is flagged only where it names the checker: "Laya gate", "Laya checks", PI_LAYA_…, laya_port.
 OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|\bPI_LAYA|\bLAYA_', re.I)
-CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/246-laya-classifier\.md$')
+CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/250-laya-classifier\.md$')
 
 
 class GateNamingTests(unittest.TestCase):

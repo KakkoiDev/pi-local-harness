@@ -41,7 +41,7 @@ Every decision climbs the same ladder and stops at the first rung that can answe
 
 System 2 is not on the ladder. When System 1 cannot decide with confidence, it asks the person, never the model.
 
-**Enforced by:** code rungs: Gate's rules. Not yet: Laya (task 246); the person's card (ChoiceCard, task 236).
+**Enforced by:** code rungs: Gate's rules. Not yet: Laya (task 250); the person's card (ChoiceCard, task 236).
 
 ## Article 3. Always a recommendation
 
@@ -80,7 +80,7 @@ Even then, what System 2 produces goes back through System 1 (Article 7).
 The model never lays out a task plan, ticks a box, picks the next step, decides the phase, judges its own work as done
 or verified, or answers a question that code or Laya already answers.
 
-**Enforced by:** G-010 for Red and Green boxes. Not yet: the rest (tasks 233, 237, 246, 247).
+**Enforced by:** G-010 for Red and Green boxes. Not yet: the rest (tasks 233, 237, 247, 250).
 
 ## Article 7. Every action passes through System 1
 

@@ -5,6 +5,55 @@ improvise: every rule it needs is in the prompt or in a file the prompt names.
 
 ---
 
+## Status on 2026-10-17 (read this first when you resume)
+
+### First: merge the person's music feature
+
+The person added a feature directly on `main` in their own checkout and pushed it: commit `fa98338` "feat: add
+chat-driven Blips and Strudel music creation" (harness/music.mjs, harness/music/, harness/music_artifacts.py, setup,
+settings, tool choice, web_chat, tests). `harness-next` has 24 commits `main` does not have (your tasks 227-246). The two
+must be merged before anything else, and before any push.
+
+1. In the worktree (`/Users/kakkoidev/Code/pi-local-harness-next`, branch `harness-next`), with a clean `git status`:
+   `git fetch origin && git merge origin/main`.
+2. Six files conflict: `.gitignore`, `harness/extension.mjs`, `harness/tool-choice.mjs`, `harness/web_chat.py`,
+   `tests/fixtures/fake-pi.py`, `tests/harness/tool-choice.test.mjs` (and possibly `tests/test_web_chat.py`). **Keep
+   both sides** in every conflict: the music tools and routes from `main`, your plan mode, phases, test log, recovery
+   and wake-up changes from `harness-next`. Read both versions of each hunk (`git show origin/main:<file>`,
+   `git show HEAD:<file>`); do not pick one side wholesale.
+3. Also check the files that merged without a conflict but both sides touched: `harness/install.py` (keep every folder
+   in the copy list, including `harness/music/` if it needs to be installed, and the test in
+   `tests/test_auto_update.py`), `harness/settings.py`, `harness/setup.py`, `README.md`.
+4. Run everything: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`,
+   `python3 tests/browser/run.py all`. Fix until green.
+5. Commit the merge ("merge: the person's music feature into harness-next"), then tell the person. Push only when they
+   say so; then `git push origin HEAD:main` (a fast-forward of `main` now) and fast-forward their checkout:
+   `git -C /Users/kakkoidev/Code/pi-local-harness merge --ff-only harness-next`.
+
+### Done since the first handoff (by you)
+
+227, 228, 229, 230, 231, 232, 233, 235, 237, 238, 239, 240, 242, 246 (Tailscale sharing recovery). Partly done:
+241 (small-model wake-ups), 243 (round 9), 244 (bench tables). Still open: 234, 236 (its box list), 241, 243, 244,
+245 (waits for the person).
+
+### Added on 2026-10-17 (by Claude, with the person)
+
+- `CONSTITUTION.md` at the root: how the project uses AI. **Read it before any other task.** System 1 (code and the Laya
+  classifier) decides; System 2 (the model) only produces. The decision ladder: code, then Laya, then the person, never
+  the model. Three phases for every request.
+- **250** Laya as System 1's classifier (laya-mlx). Your own task 246 (Tailscale) kept its number; the Laya task is 250.
+- **247** Three phases for every request: takes over the old tasks 55-57 and changes the gating of 236-237 (the phase is
+  the permission). You already built 236-240: adapt them in 247; do not undo them.
+- **248** Rename the design system to "Pi Workbench 1-bit". **The project stays "Pi Workbench".**
+- **249** The decision log and the bench's "model's share of decisions".
+
+### Order from here
+
+1. The merge above.
+2. Finish 234, 236, 241, 243 (each task file says what is left).
+3. 247, then 250, then 249, then 248.
+4. 244 (the bench on e4b, 27b and ChatGPT Luna) last, so it measures the finished harness; 245 when the person says.
+
 ## The prompt
 
 You are taking over development of **Pi Workbench** (the repository `pi-local-harness`): a local AI coding workbench.
@@ -73,7 +122,7 @@ Do them in this order. Each later task depends on the earlier ones:
 9. **244** (the benchmark of the updated harness on Gemma 4 e4b, Qwen 3.8 27B and ChatGPT Luna, records in the repo,
    the README table): last, after 227, 228, 235-238 and 241. The person sets the OpenAI key themselves.
 10. **245** (DeepSeek Flash): only when the person says it is set up.
-11. **246** (Laya, the classifier), **247** (three phases: it takes over 55-57 and changes 236-237's gating), **248**
+11. **250** (Laya, the classifier), **247** (three phases: it takes over 55-57 and changes 236-237's gating), **248**
     (rename the design system only; the project stays "Pi Workbench"), **249** (the decision log). Added 2026-10-17 with CONSTITUTION.md; read it first. Do
     247 before finishing 236-237 if you have not started them; if you have, finish them and let 247 adapt them.
 8. **239** (plan mode's web cards) and **243** (round 9: updates, other devices, the Terminal app kind, Settings): the

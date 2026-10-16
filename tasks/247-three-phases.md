@@ -9,7 +9,7 @@ validation is the end of each task in Implementation).
 
 This task takes over the open tasks 55 (Gate guides each step), 56 (the phases; drop its "check" phase) and 57 (show the
 phase and step, release a stuck step), and changes plan 236: the phase is the permission, so the "no approved plan"
-catch becomes "not in Implementation", and the assumption words become a Laya question (task 246) asked in Planning and
+catch becomes "not in Implementation", and the assumption words become a Laya question (task 250) asked in Planning and
 Implementation. ChoiceCards (236), the plan and check-ins (237) and Run on its own (238) stay as specified, inside the
 phases.
 
