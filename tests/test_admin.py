@@ -181,3 +181,17 @@ class AdminChangeTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PublishAuditConsoleTest(unittest.TestCase):
+    def test_audit_previews_before_running_commands_and_targets_the_project_folder(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data=Path(directory)/'data';store=DocumentStore(data);project=store.create_project('Game')
+            root=store.project_path(project);console=admin.Console(data)
+            result={'ready':False,'task':'tasks/002-ready-to-publish.md','checks':[{'key':'types','passed':False,'exit_code':1,'command':'tsc -p .','output':'Type mismatch'}]}
+            with patch('harness.audit.run',return_value=result) as run:
+                preview,_=admin.build(console,'audit',[str(root)])
+                self.assertTrue(preview['confirm']);run.assert_not_called()
+                value,shape=admin.build(console,'audit',[str(root)],yes=True)
+                self.assertFalse(value['ready']);self.assertEqual(run.call_args.args[0],root)
+                self.assertIn('Type mismatch',str(shape))

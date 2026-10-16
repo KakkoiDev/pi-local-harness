@@ -134,6 +134,7 @@ class DocumentStore:
             if roadmap.is_file():
                 text=roadmap.read_text(encoding='utf-8')
                 roadmap.write_text(text+('' if text.endswith('\n') or not text else '\n')+f'- [ ] [{number}-{title}](tasks/{name})\n',encoding='utf-8')
+            starter.ensure_task(root,reset=True)
         return {'path':f'projects/{project}/tasks/{name}'}
     def save(self, relative, markdown, revision):
         if not isinstance(markdown,str) or len(markdown)>150000:raise ValueError('Page must be at most 150,000 characters')
@@ -451,6 +452,7 @@ class DocumentStore:
             (root/'tasks').mkdir(exist_ok=True)
             first=root/'tasks'/'001-first-task.md'
             if not first.exists():first.write_text('# First task\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n',encoding='utf-8')
+            starter.ensure_task(root)
         return {'path':f'projects/{project}/ROADMAP.md'}
     def read_file(self, relative):
         path=Path(relative)

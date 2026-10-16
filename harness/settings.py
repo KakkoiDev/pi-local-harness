@@ -73,6 +73,7 @@ EXPLAIN = {key: about for key, (_, _, _, about, _) in SETTINGS.items()}
 
 # Set by the harness itself, for each start or each request; shown by /config, never changed there.
 INTERNAL = {
+    'PYTHONPATH': 'Inherited Python module search paths; publication checks add the installed harness for its checkers.',
     'PI_BINARY': 'The Pi program the workbench runs (pi by default; tests and scratch workbenches point it elsewhere).',
     'PI_AGENT_DATA': 'The data folder (config.json lives in it, so it is chosen before plh starts).',
     'PI_CODING_AGENT_DIR': 'Pi’s own settings folder (models.json, AGENTS.md); Pi’s default is ~/.pi/agent.',

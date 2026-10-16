@@ -76,7 +76,7 @@ class ProjectCommandsTest(unittest.TestCase):
 
     def test_trash_moves_the_folder_to_the_trash_and_put_back_brings_it_back(self):
         summary = self.store.project_summary(self.project)
-        self.assertEqual((summary['files'], summary['folders']), (2, 1), 'ROADMAP.md, tasks/001-first-task.md; tasks/')
+        self.assertEqual((summary['files'], summary['folders']), (3, 1), 'ROADMAP.md, first task, publication audit; tasks/')
         self.store.trash_project(self.project)
         self.assertTrue((self.trash / 'Japanese study app' / 'ROADMAP.md').is_file()); self.assertFalse((self.code / 'Japanese study app').exists())
         self.assertNotIn(self.project, self.listed())

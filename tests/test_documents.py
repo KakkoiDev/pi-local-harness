@@ -223,10 +223,11 @@ class NewFileAndTaskTest(unittest.TestCase):
 
     def test_tasks_take_the_next_number_a_template_and_a_roadmap_line(self):
         created = self.store.create_task(self.project, 'Phone layouts')
-        self.assertEqual(created['path'], f'projects/{self.project}/tasks/002-phone-layouts.md')
-        self.assertEqual((self.root / 'tasks/002-phone-layouts.md').read_text(),
+        self.assertEqual(created['path'], f'projects/{self.project}/tasks/003-phone-layouts.md')
+        self.assertEqual((self.root / 'tasks/003-phone-layouts.md').read_text(),
                          '# Phone layouts\n\nKind: code\n\n- [ ] Define the outcome\n- [ ] Implement\n- [ ] Verify\n')
-        self.assertTrue((self.root / 'ROADMAP.md').read_text().endswith('- [ ] Define the first task\n- [ ] [002-Phone layouts](tasks/002-phone-layouts.md)\n'))
+        self.assertIn('- [ ] [003-Phone layouts](tasks/003-phone-layouts.md)',(self.root / 'ROADMAP.md').read_text())
+        self.assertIn('-ready-to-publish.md)',(self.root / 'ROADMAP.md').read_text().splitlines()[-1])
         (self.root / 'tasks/041-later.md').write_text('# Later\n')
         self.assertEqual(self.store.create_task(self.project, 'Ünïcode & symbols!')['path'], f'projects/{self.project}/tasks/042-ünïcode-symbols.md')
 

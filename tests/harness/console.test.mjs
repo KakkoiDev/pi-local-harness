@@ -115,3 +115,15 @@ test('Tab completes each command\'s words from the backend, filtered by what is 
   assert.equal(asked.length, 1, 'cached for a moment');
   assert.equal(await commands.status.getArgumentCompletions?.(''), undefined, 'nothing to complete for /status');
 });
+
+test('/audit uses the current project folder, including spaces, and Pi only proposes it (task 231)', async () => {
+  const commands = {}, calls = []; let tool, editor;
+  installConsole({ registerCommand: (name, value) => { commands[name] = value; }, registerTool: value => { tool = value; }, sendMessage() {} },
+    { run: async (name, words) => { calls.push(words); return { ok: false, code: 3, text: JSON.stringify({ preview: { title: 'Run publication audit?', action: 'Run Audit' } }) }; } });
+  const ctx = { cwd: '/scratch/My Game', ui: { select: async () => 'Cancel', setEditorText: value => { editor = value; } } };
+  await commands.audit.handler('', ctx);
+  assert.deepEqual(calls[0], ['/scratch/My Game', '--view']);
+  await tool.execute('audit', { command: 'audit', args: '--yes' }, undefined, undefined, ctx);
+  assert.deepEqual(calls[1], ['/scratch/My Game']);
+  assert.equal(editor, '/audit');
+});

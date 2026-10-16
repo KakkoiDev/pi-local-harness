@@ -272,7 +272,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [228-Every test run is logged](tasks/228-test-run-log.md)
 - [x] [229-Starters split into a skeleton to keep and a sample to replace](tasks/229-starter-sample-and-skeleton.md)
 - [x] [230-A default test: every file the app refers to exists](tasks/230-referenced-files-test.md)
-- [ ] [231-"Ready to publish": an audit task at the end of every roadmap](tasks/231-ready-to-publish-audit.md)
+- [x] [231-"Ready to publish": an audit task at the end of every roadmap](tasks/231-ready-to-publish-audit.md)
 - [ ] [232-Tasks get a short title](tasks/232-short-task-titles.md)
 - [ ] [233-Gate checks that the plan is filled in](tasks/233-plan-files-filled.md)
 - [ ] [234-Each turn, only the needed files are in context](tasks/234-context-only-what-is-needed.md)

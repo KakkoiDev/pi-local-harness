@@ -123,3 +123,7 @@ Gate's history, backups and the app's own trash. Project files stay in their own
 Open a request in Activity. Its Tests list comes from Gate: each command, exit code, printed counts, duration and
 time. The data folder keeps `test-runs.jsonl` and the last 200 output lines in `test-runs/<id>.txt`. Bench results
 include those records and output files too. Counts are shown only when the runner printed a recognised summary.
+
+## How do I check whether my app is ready to publish?
+
+Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confirmation it runs the publication checks offline and records each command in the last roadmap task. Failed commands leave their boxes open. The full test result is logged. Other roadmap tasks must also be complete. Missing tools require a separate approved installation; the audit never downloads them. App descriptions are checked for starter leftovers and consistent README, manifest and English app names; arbitrary prose still needs human review.

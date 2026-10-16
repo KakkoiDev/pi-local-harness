@@ -84,6 +84,8 @@ class Paperwork:
             content = [path for path in self.changes(item) if not plan_path(path)]
             if not content: return None
             item['task'], made = self.task_for(item)
+            from kit.publish_audit import ensure_task
+            ensure_task(item['root'],reset=True)
             self.progress(item, f'Started at {clock()}: {", ".join(content[:6])}{" …" if len(content) > 6 else ""}')
             return (f"This request's task is {item['task']} ({'made' if made else 'named in the request'}); the harness keeps it and "
                     "ROADMAP.md up to date and commits when the change is verified. Write content only: no task files, boxes or commits. "

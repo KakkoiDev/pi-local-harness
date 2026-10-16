@@ -10,6 +10,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+try:
+    from .publish_audit import ensure_task
+except ImportError:  # the standalone kit/new_project.py command
+    from publish_audit import ensure_task
+
 KIT = Path(__file__).resolve().parent
 
 
@@ -20,6 +25,7 @@ def library(name: str) -> Path:
 
 def start_history(folder: Path, message: str = "Start from the Pi Workbench starter") -> None:
     """A repository with a first commit: the harness commits each verified request, which needs one."""
+    ensure_task(folder)
     git = ["git", "-C", str(folder), "-c", "user.name=Pi Workbench", "-c", "user.email=pi-workbench@localhost"]
     subprocess.run([*git, "init", "-q", "-b", "main"], check=True)
     subprocess.run([*git, "add", "-A"], check=True)

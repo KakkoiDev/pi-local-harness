@@ -434,6 +434,7 @@ COMMANDS = {
     'config': ('[set <key> <value>]', 'config.json with each key explained; set changes one (asks first).'),
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
+    'audit': ('[folder]', 'Run the publication checks for this project (asks first; offline).'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
     'bench': ('', 'The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.'),
@@ -606,6 +607,15 @@ def build(console, command, args, yes=False):
                                                                summary=f'{len(found)} reported', hint='/reports <kind> · /gate rules · docs/lessons/ turns them into fixes')
     if command == 'paths':
         value = console.paths(); return value, view('Paths', kv(*[[key, path.replace(str(Path.home()), '~')] for key, path in value.items()]), hint='/config · /doctor')
+    if command == 'audit':
+        from gate.protocol import project_root
+        from harness import audit
+        root=project_root(Path(args[0]).expanduser().resolve() if args else Path.cwd())
+        if root is None:raise ValueError('Open a project with ROADMAP.md before running /audit.')
+        if not yes:return changed({'confirm':True,'title':'Run publication audit?','action':'Run Audit','rows':[['Folder',str(root)],['Checks','Files, unused code, references, strict types, tests and app names.'],['Downloads','Offline only; install missing tools separately after approval.']]})
+        value=audit.run(root,console.data)
+        items=[{'state':'ok' if row['passed'] else 'fix','label':audit.LABELS[row['key']],'detail':row['command'],'fix':row['output']} for row in value['checks']]
+        return value,view('Publication audit',{'kind':'checklist','items':items},summary='Ready to publish' if value['ready'] else 'Publication checks need attention or roadmap tasks remain open.')
     if command == 'doctor':
         rows = console.doctor(); broken = sum(not row['ok'] and not row.get('note') for row in rows)
         items = [{'state': 'ok' if row['ok'] else 'note' if row.get('note') else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]

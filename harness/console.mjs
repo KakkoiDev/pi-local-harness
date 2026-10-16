@@ -21,6 +21,7 @@ export const CONSOLE_COMMANDS = {
   config: 'config.json explained; /config set <key> <value> changes one (asks first).',
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
+  audit: 'Run the publication checks for this project (asks first; offline).',
   undo: 'Undo the last change made from the console (asks first).',
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
   bench: 'The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.',
@@ -62,7 +63,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
     parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
     async execute(_id, params, _signal, _update, ctx) {
       const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');
-      const { code, text } = await run(params.command, words, { webPort: ports()?.web });
+      const { code, text } = await run(params.command, params.command === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words, { webPort: ports()?.web });
       const line = `/${[params.command, ...words].join(' ')}`, ui = ctx?.ui;
       // T_Changes: Pi never changes anything. A change goes on the input line with a dim hint; Return runs it and the
       // person confirms. A question answered from live data offers its command the same way, if the line is empty.
@@ -115,9 +116,10 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
           if (String(args).trim() === 'list') args = '';
         }
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
+        const target = name === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words;
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
         const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${tr(line)}`)) }], hint: '/harness lists the commands' });
-        let { ok, code, text } = await run(name, [...words, '--view'], options);
+        let { ok, code, text } = await run(name, [...target, '--view'], options);
         if (code === 3) { // a change: what changes from what to what; it runs only after the person's yes (plan 158, C1)
           const shape = parse(text), preview = shape?.preview || {};
           const action = preview.action || 'Apply', choices = preview.destructive ? ['Cancel', action] : [action, 'Cancel'];
@@ -125,7 +127,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
           const choice = ctx?.ui?.select ? await ctx.ui.select(`${preview.title || 'Apply this change?'}\n\n${detail}`, choices)
             : ((await ctx?.ui?.confirm?.(preview.title || 'Apply this change?', detail)) ? action : 'Cancel');
           if (choice !== action) { show(name, words, { title: null, parts: [{ kind: 'lines', lines: ['○ Not changed.'] }] }); return; }
-          ({ ok, code, text } = await run(name, [...words, '--yes', '--view'], options));
+          ({ ok, code, text } = await run(name, [...target, '--yes', '--view'], options));
         }
         const view = ok ? parse(text) : null;
         show(name, words, view || failed(text || '(no output)'));

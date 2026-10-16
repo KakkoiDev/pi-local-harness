@@ -20,6 +20,7 @@ by hand: they read live data.
 | `/config` · `/config set <key> <value>` | `config.json` with each key explained; `set` changes one (asks first). (`/settings` and `/model` are Pi's own.) |
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
+| `/audit [folder]` | Run publication checks offline after confirmation: files, unused code, references, strict types, all tests, and consistent app names. The audit task records each command and failed checks stay open. |
 | `/undo` | Undo the last change made from the console (asks first). |
 | `/verbose on\|off` | Every timestamp in the transcript, or (default) one header per Pi message. |
 | `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |

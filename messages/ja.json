@@ -1015,11 +1015,40 @@
   "New Folder": "新規フォルダ",
   "Folder name": "フォルダ名",
   "Choose a folder name without “/” that does not start with a dot.": "「/」を含まず、ドットで始まらないフォルダ名にしてください。",
-  "Tests": "テスト"
+  "Tests": "テスト",
+  "Run the publication checks for this project (asks first; offline).": "このプロジェクトの公開前チェックを実行します（確認あり・オフライン）。",
+  "Open a project with ROADMAP.md before running /audit.": "/audit を実行する前に ROADMAP.md のあるプロジェクトを開いてください。",
+  "Run publication audit?": "公開前チェックを実行しますか？",
+  "Run Audit": "チェックを実行",
+  "Checks": "チェック",
+  "Files, unused code, references, strict types, tests and app names.": "ファイル、未使用コード、参照、厳密な型、テスト、アプリ名。",
+  "Offline only; install missing tools separately after approval.": "オフラインでのみ実行します。不足するツールは承認後に別途インストールしてください。",
+  "Publication audit": "公開前チェック",
+  "Ready to publish": "公開準備完了",
+  "Publication checks need attention or roadmap tasks remain open.": "公開前チェックに問題があるか、ロードマップに未完了のタスクがあります。",
+  "No unused files": "未使用ファイルなし",
+  "No unused code": "未使用コードなし",
+  "Every referenced file exists": "参照先のファイルがすべて存在",
+  "Types": "型",
+  "All tests pass": "すべてのテストが成功",
+  "The README and the manifest describe this app": "README とマニフェストがこのアプリを説明",
+  "Folder": "フォルダ",
+  "Passed.": "成功しました。",
+  "No passing tests were recorded.": "成功したテストの記録がありません。",
+  "Strict type checking must be enabled.": "厳密な型チェックを有効にしてください。",
+  "A roadmap with open tasks is needed before the publication audit.": "公開前チェックには未完了のタスクがあるロードマップが必要です。",
+  "README.md: replace the starter description with this app’s name and description.": "README.md：スターターの説明を、このアプリの名前と説明に置き換えてください。",
+  "README.md, manifest and English app name: use consistent app names.": "README.md、マニフェスト、英語のアプリ名を統一してください。"
  },
  "patterns": [
-  ["Plan incomplete (G-014): {reason} · committed as {commit}", "計画が未完成です（G-014）：{reason} · {commit} としてコミットしました"],
-  ["Plan incomplete (G-014): {reason}", "計画が未完成です（G-014）：{reason}"],
+  [
+   "Plan incomplete (G-014): {reason} · committed as {commit}",
+   "計画が未完成です（G-014）：{reason} · {commit} としてコミットしました"
+  ],
+  [
+   "Plan incomplete (G-014): {reason}",
+   "計画が未完成です（G-014）：{reason}"
+  ],
   [
    "Cannot read {path}: {error}",
    "{path} を読み込めません：{error}"

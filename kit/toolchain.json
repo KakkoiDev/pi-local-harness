@@ -13,7 +13,8 @@
   "pyright[nodejs]": "1.1.414",
   "segno": "1.6.6: QR codes for Python projects (cards/qrcode.md); strict pyright passes",
   "textual": "8.2.8: terminal apps (kit/starter-tui); pinned in its uv.lock",
-  "textual-serve": "1.1.3: a terminal app in a browser (the Preview, a phone)"
+  "textual-serve": "1.1.3: a terminal app in a browser (the Preview, a phone)",
+  "vulture": "2.16"
  },
  "typescript": "7.0.2 (the native compiler): checks the JSDoc types of no-server apps (kit/starter-static) in strict mode, 0.4 s; run with only uv: uvx --from nodejs-wheel-binaries==24.19.0 npx --yes -p typescript@7.0.2 tsc -p .",
  "chromium": "Chrome for Testing headless shell 155.0.8059.79 (harness/setup.py HEADLESS_SHELL), installed by `plh setup browser` into <data>/toolchain/chrome-headless-shell, checked against the MD5 Google's storage publishes. Measured 2026-10-15 on this Mac with Pi's browser tool: 525 ms and ~420 MB per look vs 837 ms and 922 MB for the full Chromium; 211 MB on disk vs 305 MB. Lightpanda: no layout engine, not usable.",

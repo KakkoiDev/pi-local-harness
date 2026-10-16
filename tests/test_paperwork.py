@@ -56,7 +56,7 @@ class PaperworkTest(unittest.TestCase):
         self.assertRegex((self.root / 'tasks/003-fix-the-stuck-detection-so.md').read_text(), r'- \[x\] Done at \d\d:\d\d: verified and committed')
         committed = git(self.root, 'show', '--name-only', '--format=%s%n%an', 'HEAD').split('\n')
         self.assertEqual(committed[0], 'Fix the stuck detection so a hang is reported (task 003)'); self.assertEqual(committed[1], 'Pi Workbench')
-        self.assertEqual(sorted(filter(None, committed[2:])), ['ROADMAP.md', 'app.py', 'tasks/003-fix-the-stuck-detection-so.md'])
+        self.assertEqual(sorted(filter(None, committed[2:])), ['ROADMAP.md', 'app.py', 'tasks/003-fix-the-stuck-detection-so.md', 'tasks/004-ready-to-publish.md'])
         self.assertIn('notes.txt', git(self.root, 'status', '--porcelain'), "the person's own edit stays uncommitted")
 
     def test_a_request_that_names_a_task_uses_it(self):
