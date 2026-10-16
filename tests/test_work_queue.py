@@ -20,6 +20,16 @@ class QueueTest(unittest.TestCase):
             queue.run_one();queue.run_one()
             self.assertEqual(calls,[('One','chat-one','first'),('Two','chat-two','second')])
             self.assertEqual([job['status'] for job in queue.list()],['failed','completed'])
+    def test_context_reasons_are_kept_for_each_turn_and_survive_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'queue.json';queue=WorkQueue(path,lambda job,emit:None,start=False)
+            public=queue.add('One','chat',{'message':'work'});job=queue.jobs[0]
+            for name in ['README.md','app.py']:
+                queue.update(job,{'type':'context','included':[name],'omitted':[],'reasons':{name:'Named in the request'},'chars':100})
+            turns=WorkQueue(path,lambda job,emit:None,start=False).list()[0]['context_turns']
+            self.assertEqual([turn['included'] for turn in turns],[['README.md'],['app.py']])
+            self.assertEqual(turns[1]['reasons'],{'app.py':'Named in the request'})
+
     def test_tool_calls_are_kept_on_the_task(self):
         with tempfile.TemporaryDirectory() as directory:
             def execute(job,emit):

@@ -45,7 +45,10 @@ its state: not sent, waiting, Pi working, answered.
 ## What does Pi see?
 
 Under each place you send something, "Pi sees:" lists the files Pi gets with that request (the plan, the current file,
-files you mention, related ones). After an answer, "Also read:" lists the files Pi opened itself.
+files you mention, related ones). Web and terminal Pi choose again for each message and recovery. Project rules,
+the plan and the active task take priority; generated files, dependencies, licences, binaries and files over 40 KB
+are excluded. Activity records each selection and why each file was chosen. After an answer, "Also read:" lists
+the files Pi opened itself.
 
 ## Where do I see what Pi is doing?
 

@@ -418,7 +418,10 @@ class DocumentStore:
         if path.exists():raise ValueError(f'“{name}” already exists here.')
         path.mkdir();return {'path':str(path)}
     def files(self, project):
-        path=self.project_path(project);result=[]
+        return self.inventory(self.project_path(project),project)
+    @staticmethod
+    def inventory(path, project=''):
+        path=Path(path);result=[]
         ignored={'.git','node_modules','.venv','__pycache__'}
         import os
         for directory,dirs,files in os.walk(path,followlinks=False):
@@ -427,7 +430,7 @@ class DocumentStore:
                 file=Path(directory)/name
                 if file.is_symlink():continue
                 entry={'path':'projects/'+project+'/'+str(file.relative_to(path)),'name':str(file.relative_to(path)),'size':file.stat().st_size}
-                if entry['name']=='ROADMAP.md' or entry['name'].startswith('tasks/') and name.endswith('.md'):entry.update(self.progress(file))
+                if entry['name']=='ROADMAP.md' or entry['name'].startswith('tasks/') and name.endswith('.md'):entry.update(DocumentStore.progress(file))
                 result.append(entry)
                 if len(result)>=2000:return result
         return result

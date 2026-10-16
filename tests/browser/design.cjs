@@ -823,16 +823,17 @@ const readline = require('node:readline');
   }
   { // Task 136: "Also read:" after an answer lists files Pi opened beyond its context; nothing when there are none.
   await stopAll();const reads=await post('/api/projects/create',{name:'Reads',parent:directory});
+  fs.writeFileSync(join(directory,'Reads','unrelated.txt'),'Outside the selected context.');
   const old=new Date(Date.now()-7200e3);for(const file of ['ROADMAP.md','tasks/001-first-task.md'])fs.utimesSync(join(directory,'Reads',file),old,old);/* not "changed in the last hour" */
   await page.goto(`${base}/p/${reads.project}/chat`);await page.locator('#prompt').fill('Look around TEST_READ');await page.locator('#send').click();
   const after=page.locator('#thread .pw-msg .pw-context--after').last();await after.waitFor({timeout:20000});
-  assert.equal(await after.textContent(),'Also read:001-first-task.md');assert.equal(await after.locator('a').getAttribute('title'),'tasks/001-first-task.md');
+  assert.equal(await after.textContent(),'Also read:unrelated.txt');assert.equal(await after.locator('a').getAttribute('title'),'unrelated.txt');
   const count=await page.locator('#thread .pw-msg').count();await page.locator('#prompt').fill('Just answer');await page.locator('#send').click();
   await page.waitForFunction(n=>document.querySelectorAll('#thread .pw-msg').length>=n+2&&!document.querySelector('#thread .pw-msg:last-child')?.classList.contains('pw-msg--user'),count,{timeout:20000});
   assert.equal(await page.locator('#thread .pw-msg').last().locator('.pw-context--after').count(),0,'nothing when Pi read nothing more');
   await page.goto(`${base}/p/${reads.project}/work/ROADMAP.md`);await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Whole file TEST_READ');await page.getByRole('button',{name:'Send Request'}).click();
   await page.locator('#document-requests .document-request .pw-context--after').first().waitFor({state:'attached',timeout:20000});
-  assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:001-first-task.md');
+  assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:unrelated.txt');
   }
   { // Round 5 (task 163): the model menu says what each model runs at once, and lists a chosen model that is gone.
   await page.route('**/api/models',route=>route.fulfill({json:{models:[{id:'gemma4:26b-mlx',tools:true,thinking:true,vision:true,at_once:'parallel'},{id:'qwen3:8b',tools:true,thinking:false,vision:false,at_once:'checking'},{id:'mistral:7b',tools:true,thinking:false,vision:false,at_once:'unknown'}],current:{model:'gemma4:26b-mlx',effort:'high',chosenEffort:'high',thinking:true,missing:'gone:7b'}}}));

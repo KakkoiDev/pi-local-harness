@@ -150,7 +150,9 @@ class WorkQueue:
         with self.condition:
             kind=event.get('type')
             if kind=='status':job['progress']=event['text']
-            if kind=='context':job['context']={'included':event['included'],'omitted':event['omitted'],'chars':event['chars']}
+            if kind=='context':
+                job['context']={'included':event['included'],'omitted':event['omitted'],'reasons':event.get('reasons',{}),'chars':event['chars']}
+                job.setdefault('context_turns',[]).append({'time':now(),**copy.deepcopy(job['context'])})
             elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136
             elif kind=='paused':job['paused']=bool(event.get('paused'))  # task 164: waiting while Pi answers the chat
             elif kind=='message_update':
@@ -166,7 +168,7 @@ class WorkQueue:
                 for tool in job.get('tools',[]):
                     if tool['id']==event.get('toolCallId'):tool['status']='failed' if event.get('isError') else 'done'
             elif kind=='extension_ui_request' and event.get('method')=='notify' and event.get('message')!='Harness settled':job['progress']=event.get('message','')  # plan 184: that one is a signal, not a phase
-            if time.monotonic()-self.last_persist>=2:self.save(job);self.last_persist=time.monotonic()
+            if kind=='context' or time.monotonic()-self.last_persist>=2:self.save(job);self.last_persist=time.monotonic()
     def run_one(self):
         """Run the next request that may start, to its end, in this thread (tests and simple callers)."""
         with self.condition:

@@ -33,6 +33,11 @@ class ServicesTest(unittest.TestCase):
                 with urllib.request.urlopen(request,timeout=3) as response:
                     self.assertIsNone(response.headers.get('Access-Control-Allow-Origin'))
                     return json.load(response)
+            project=Path(temporary.name)/'project';project.mkdir();(project/'README.md').write_text('# Rules\n')
+            chosen=post('/context',{'cwd':str(project),'text':'read the rules','request':'terminal-test'})
+            self.assertIn('README.md',chosen['included']);self.assertEqual(chosen['reasons']['README.md'],'Project rules')
+            (project/'README.md').write_text('# Changed rules\n')
+            self.assertIn('Changed rules',post('/context',{'cwd':str(project),'text':'read the rules'})['text'])
             # A web page must not reach Gate: no CORS, no foreign Origin/Host, no missing or wrong token.
             probe={'tool_name':'read_file','args':{'path':'x'}}
             for headers in [{'Origin':'https://evil.example'},{'Origin':base},{'X-Gate-Token':''},{'X-Gate-Token':'wrong'},{'Host':'evil.example:'+str(ports['gate'])}]:

@@ -30,6 +30,12 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                 else: self.send_json_response({'result': self.ledger.end_request(data['request'])})
             except Exception as error:
                 self.send_error_response(400, str(error))
+        elif self.path == '/context':
+            try:
+                data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                self.send_json_response(self.context_provider(data))
+            except Exception as error:
+                self.send_error_response(400, str(error))
         elif self.path == '/verification':  # G-012 for terminal Pi (plan 179)
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))

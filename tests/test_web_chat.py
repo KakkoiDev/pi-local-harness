@@ -209,6 +209,7 @@ class AlsoReadTest(unittest.TestCase):
             executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
             chat=WebChat(root/'chats',12345,3000,data_root=root/'workspace');self.addCleanup(chat.close)
             project=chat.documents.create_project('Reads');conversation=chat.project_chat(project)
+            (chat.documents.project_path(project)/'unrelated.txt').write_text('Outside the selected context.\n')
             old=time.time()-7200
             for file in chat.documents.project_path(project).rglob('*'):os.utime(file,(old,old))  # not "changed in the last hour", so not in the context
             path=f'projects/{project}/ROADMAP.md';entry=chat.documents.comment(path,'Check it TEST_READ','Describe what we are building.')
@@ -216,13 +217,13 @@ class AlsoReadTest(unittest.TestCase):
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
                 chat.send(conversation['id'],{'message':'Look around TEST_READ'},events.append)
                 chat.send(conversation['id'],{'message':'','document_comment':{'path':path,'id':entry['id']}},events.append)
-            self.assertEqual(chat.store.get(conversation['id'])['messages'][-1]['also_read'],['tasks/001-first-task.md'],'not ROADMAP.md (in the context), not outside the project, once')
+            self.assertEqual(chat.store.get(conversation['id'])['messages'][-1]['also_read'],['unrelated.txt'],'not ROADMAP.md (in the context), not outside the project, once')
             answer=[reply for reply in chat.documents.get(path)['comments'][0]['replies'] if reply['author']=='pi'][-1]
-            self.assertEqual(answer['also_read'],['tasks/001-first-task.md'])
-            self.assertEqual([event['files'] for event in events if event.get('type')=='also_read'],[['tasks/001-first-task.md']]*2)
+            self.assertEqual(answer['also_read'],['unrelated.txt'])
+            self.assertEqual([event['files'] for event in events if event.get('type')=='also_read'],[['unrelated.txt']]*2)
             queue=WorkQueue(root/'queue',lambda job,emit:None);self.addCleanup(queue.close)
-            job={'id':'0'*32,'project':project,'chat':conversation['id'],'data':{'message':'x'},'created':'','status':'running','progress':'','text':'','thinking':''};queue.update(job,{'type':'also_read','files':['tasks/001-first-task.md']})
-            self.assertEqual(job['also_read'],['tasks/001-first-task.md'],'the job keeps it for Activity and whole-file answers')
+            job={'id':'0'*32,'project':project,'chat':conversation['id'],'data':{'message':'x'},'created':'','status':'running','progress':'','text':'','thinking':''};queue.update(job,{'type':'also_read','files':['unrelated.txt']})
+            self.assertEqual(job['also_read'],['unrelated.txt'],'the job keeps it for Activity and whole-file answers')
 
 
 class LongRequestTest(unittest.TestCase):

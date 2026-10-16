@@ -360,3 +360,23 @@ for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} rec
   await handlers.agent_settled({aborted:false},ctx);assert.equal(calls.filter(call=>call.path==='/request/end').length,1);
  } finally { handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true}); }
 });
+
+test('context is selected again for user turns and recovery inputs (task 234)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-context-turn-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t'});
+ const handlers={},queries=[];let version='first';
+ globalThis.fetch=async(url,options)=>{const path=new URL(url).pathname;if(path==='/context')queries.push(JSON.parse(options.body));return {ok:true,json:async()=>path==='/context'?{text:`selected ${version}`,included:['README.md'],reasons:{'README.md':'Project rules'}}:{}};};
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},sendUserMessage(){}};
+ const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){}}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
+  await handlers.input({source:'interactive',text:'make the ball faster'},ctx);
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/selected first/);
+  version='resumed';await handlers.input({source:'extension',text:'Harness recovery: continue'},ctx);
+  const resumed=handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt;
+  assert.match(resumed,/selected resumed/);assert.doesNotMatch(resumed,/selected first/);
+  assert.equal(queries.length,2);assert.equal(queries[1].text,'make the ball faster');assert.equal(queries[1].request,queries[0].request);
+  version='next';await handlers.input({source:'interactive',text:'fix the clock'},ctx);
+  assert.equal(queries[2].text,'fix the clock');assert.notEqual(queries[2].request,queries[0].request);
+ } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
+});

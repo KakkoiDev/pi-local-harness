@@ -70,7 +70,7 @@ export default function harness(pi, dependencies = {}) {
       try { return loadMemory(`${moduleRoot}harness/AGENTS.md`); } catch { return ''; }
     }
   };
-  let requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, recovering = false, closing = false;
+  let chosenContext = '', contextAttempted = false, requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, recovering = false, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
@@ -105,6 +105,12 @@ export default function harness(pi, dependencies = {}) {
   const wakeUps = () => Number(process.env.PI_HARNESS_WAKE_UPS ?? 5);
   const canWake = () => !wakeUps() || retries < wakeUps();
   const incident = (kind, detail, fields = {}) => report(dataDir, kind, detail, { source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal', cwd: context?.cwd || root, ...fields });
+  const refreshContext = async () => {
+    if (bare || !ports) return;
+    contextAttempted = true;
+    try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
+    catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
+  };
   let lastAnswer = '';
   const trip = (reason, kind = 'loop') => {
     if (bare || pending || !lastQuestion) return;
@@ -199,7 +205,8 @@ export default function harness(pi, dependencies = {}) {
     if (!lastQuestion && event.prompt) lastQuestion = event.prompt;
     // Task 114: the web worker's chosen context for this turn; the system prompt is rebuilt each turn, so it never piles up in history.
     let chosen = '';
-    try { if (process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
+    if (chosenContext) chosen = `\n\nContext for this request:\n${chosenContext}`;
+    try { if (!contextAttempted && process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
     // Plan 158: a terminal session is the harness console; Pi learns its commands (web workers share the port and skip it).
     let consoleGuide = '';
     try { if (!process.env.PI_HARNESS_SHARED_PORT) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
@@ -214,10 +221,11 @@ export default function harness(pi, dependencies = {}) {
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
   });
   pi.on('input', async (event, ctx) => {
-    if (event.source === 'extension') return { action: 'continue' };
+    if (ctx) context = ctx;
+    if (event.source === 'extension') { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
+    chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     chosenGuides = bare ? [] : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
@@ -235,6 +243,7 @@ export default function harness(pi, dependencies = {}) {
         lastQuestion = attached.text;
         lastImages = attached.images;
       } else lastImages = event.images || [];
+      await refreshContext();
       return attached;
     } catch (error) { notify(`Media attachment failed: ${error.message}`, 'error'); return { action: 'handled' }; }
   });

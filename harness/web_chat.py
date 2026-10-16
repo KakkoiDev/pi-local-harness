@@ -1,7 +1,7 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
 import base64
 from datetime import datetime
-from harness.context import build_context
+from harness.context import build_context, build_project_context
 from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
@@ -407,13 +407,33 @@ class WebChat:
         except (OSError,ValueError):return None
         return str(file.relative_to(root)) if file.is_relative_to(root) and file.is_file() else None
 
-    def select_context(self, project, data):
+    def select_context(self, project, data, task=None):
         """The context a request carries (task 114); the request and its preview (task 133) both use this."""
         comment=data.get('document_comment')
         entry=self.documents.get(comment['path'])['comments'] if comment else []
         thread=next((item for item in entry if item['id']==comment['id']),None) if comment else None
         return build_context(self.documents,project,data.get('message','') or (thread or {}).get('text',''),current=(comment or {}).get('path') or data.get('document'),
-            passage=(thread or {}).get('anchor',''),thread=json.dumps(thread,ensure_ascii=False) if thread else '')
+            passage=(thread or {}).get('anchor',''),thread=json.dumps(thread,ensure_ascii=False) if thread else '',task=task)
+
+    def turn_context(self, data):
+        """Rebuild at each user/recovery input; web jobs retain their document and thread selection."""
+        request=data.get('request'); job=None
+        with self.queue.condition:
+            job=next((item for item in self.queue.jobs if item['id']==request),None)
+            project=job['project'] if job else None
+            payload=dict(job['data']) if job else None
+        ledger=getattr(self,'ledger',None)
+        task=(ledger.paperwork.requests.get(request) or {}).get('task') if ledger else None
+        if project:
+            chosen=self.select_context(project,payload,task=task)
+            root=self.documents.project_path(project)
+        else:
+            root=Path(data.get('cwd') or '.').resolve()
+            chosen=build_project_context(root,data.get('text',''),task=task)
+        event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text'])}
+        if job:self.queue.update(job,event)
+        else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars')})
+        return {**chosen,'text':f'Active project folder: {root}\nWork only in this folder. This context is current for this turn.\n\n'+chosen['text']}
 
     def context_preview(self, project, data):
         """What "Pi sees:" shows before sending: the items of the same selection and its size in tokens (about 4 characters each)."""
@@ -470,7 +490,7 @@ class WebChat:
                         "The context below was chosen for this request and is current; it overrides older context in this conversation.\n\n")
                 context_file=folder/(f'context-{job}.md' if job else 'context.md');  # two requests of one chat can run at once
                 context_file.write_text(header+chosen['text'],encoding='utf-8')
-                emit({'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'chars':len(chosen['text'])})
+                emit({'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text'])})
             if not prompt.strip():raise ValueError('Write a message or attach a file')
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]

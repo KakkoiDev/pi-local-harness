@@ -36,6 +36,36 @@ class ContextTest(unittest.TestCase):
     def build(self, request, **options):
         return build_context(self.store, self.project, request, **options)
 
+    def test_pong_context_keeps_rules_and_relevant_code_without_generated_files(self):
+        self.write('README.md','# Rules\nKeep the skeleton working.\n')
+        self.write('js/app.mjs','export const ballSpeed = 3; // the ball crosses the screen\n')
+        for name in ['vendor/basecoat/LICENSE.md','vendor/app.mjs','node_modules/ball.mjs','.venv/ball.py','dist/ball.js','static/app.css','uv.lock','LICENSE.md']:
+            self.write(name,'ball speed')
+        self.write('large-ball.txt','ball speed '*5000);self.write('ball.bin','ball\0speed')
+        result=self.build('make the ball faster')
+        self.assertTrue({'README.md','ROADMAP.md','tasks/007-queue-badge.md','js/app.mjs'} <= set(result['included']))
+        self.assertFalse(any(name in result['text'] for name in ['vendor/','LICENSE','uv.lock','large-ball.txt','ball.bin','dist/ball.js','static/app.css']))
+        self.assertEqual(set(result['reasons']),set(result['included']))
+        self.assertEqual(result['reasons']['README.md'],'Project rules')
+        self.write('js/app.mjs','export const clock = 3;\n');self.write('js/ball.mjs','export const ballSpeed = 4;\n')
+        again=self.build('make the ball faster')
+        self.assertIn('js/ball.mjs',again['included']);self.assertNotIn('js/app.mjs',again['included'])
+
+    def test_task_paths_and_last_harness_commit_join_the_selection(self):
+        import subprocess
+        self.write('README.md','# Rules\n');self.write('js/logic/ball.mjs','export const speed=3;\n')
+        self.write('tasks/007-queue-badge.md','# Queue badge\n- [x] Read\n- [ ] Fix\nFiles: js/logic/ball.mjs\n')
+        self.write('unrelated.py','x=1\n')
+        def git(*args):return subprocess.run(['git','-C',str(self.root),*args],capture_output=True,text=True,check=True).stdout
+        git('init','-q');git('add','.');git('-c','user.name=Pi Workbench','-c','user.email=pi@localhost','commit','-qm','Verified request')
+        self.write('unrelated.py','x=2\n');git('add','unrelated.py');git('-c','user.name=Person','-c','user.email=person@localhost','commit','-qm','Own edit')
+        result=self.build('continue task 7')
+        self.assertIn('js/logic/ball.mjs',result['included'])
+        self.assertEqual(result['reasons']['js/logic/ball.mjs'],'Listed by the current task')
+        self.assertIn('unrelated.py',result['included'])
+        self.assertEqual(result['reasons']['unrelated.py'],'Last harness commit')
+
+
     def test_plan_is_compressed_to_headings_and_open_work(self):
         result = self.build('What next?')
         self.assertIn('# Repo roadmap', result['text']); self.assertIn('## Tasks', result['text'])
@@ -70,7 +100,7 @@ class ContextTest(unittest.TestCase):
         self.assertIn('harness/work_queue.py', result['included'], 'linked from the current document')
         self.assertIn('tasks/007-queue-badge.md', self.build('Anything?')['included'], 'the active task: open with some boxes checked')
         self.write('harness/fresh.py', 'FRESH = 1\n')
-        self.assertIn('harness/fresh.py', self.build('Anything?')['included'], 'changed in the last hour')
+        self.assertIn('harness/fresh.py', self.build('check fresh.py')['included'], 'named in this request')
         self.assertIn('harness/work_queue.py', self.build('Why is the queue slow?')['included'], 'file name shares a word')
 
     def test_budget_leaves_lower_priority_out_and_says_so(self):

@@ -2,19 +2,18 @@
 
 Replaces sending the whole project snapshot (every task file) with every message. Order, highest first:
 plan (ROADMAP headings and open items, open tasks with progress), the current document, files the request
-mentions, then, while room is left, files linked from the document, the active task, files changed in the
-last hour and files whose name shares a word with the request; finally the file names. A footer says what
+mentions, then, while room is left, files linked from the document, the active task, files changed by the
+last harness commit and files relevant to the request; finally the file names. A footer says what
 was left out. Pi can read anything else with its tools.
 """
 import re
-import time
+import subprocess
 from pathlib import Path
 
 BUDGET = 16000          # characters, about 4k tokens of a 32k window
 FILE_CAP = 3000         # characters per chosen file
 WHOLE_DOCUMENT = 6000   # a larger current document is cut to the passage's section plus its headings
 NAMES_CAP = 150
-RECENT_SECONDS = 3600
 
 TASK = re.compile(r'^tasks/[^/]+\.md$')
 LINK = re.compile(r'\]\(([^)\s]+)\)')
@@ -63,12 +62,63 @@ def mentioned(text, names):
     return found
 
 
-def build_context(store, project, request, current=None, passage='', thread='', budget=BUDGET, now=None):
-    root = store.project_path(project); now = now or time.time()
-    files = store.files(project); names = [item['name'] for item in files]; meta = {item['name']: item for item in files}
+
+def select_files(root, files, request, current=None, task=None, changed=None):
+    """One selection for web and terminal: exclude generated, vendored, binary and >40 KB files; keep project rules,
+    plan and active task, then named/task/last-request files and request relevance (names before contents).
+    With no current-request commit, use the latest Pi Workbench commit, never a person's later commit.
+    """
+    root = Path(root).resolve(); safe, bodies = [], {}
+    excluded = {'vendor','node_modules','.venv','.git','__pycache__','dist','build','coverage','.next'}
+    locks = {'package-lock.json','pnpm-lock.yaml','yarn.lock','uv.lock','poetry.lock','cargo.lock','composer.lock'}
+    for item in files:
+        name=item['name']; path=root/name; parts=Path(name).parts; base=Path(name).name.lower()
+        if set(parts) & excluded or base.startswith('license') or base in locks or base.endswith(('.lock','.pyc','.map','.min.js','.min.css')) or name in {'static/app.css','static/app.js'}: continue
+        try:
+            if not path.resolve().is_relative_to(root) or path.is_symlink() or path.stat().st_size > 40*1024: continue
+            text=path.read_text(encoding='utf-8')
+        except (OSError,UnicodeError): continue
+        if '\0' in text: continue
+        safe.append(item);bodies[name]=text
+    names=[item['name'] for item in safe];meta={item['name']:item for item in safe};reasons={};ordered=[]
+    def add(name, reason):
+        if name in meta and name not in reasons: ordered.append(name);reasons[name]=reason
+    tasks=sorted(name for name in names if TASK.match(name) and not (meta[name].get('total') and meta[name].get('done')==meta[name]['total']))
+    named=mentioned(request,names)
+    active=task if task in meta else next((name for name in named if TASK.match(name)),None)
+    active=active or next((name for name in tasks if meta[name].get('done')),None) or next(iter(tasks),None)
+    add('README.md','Project rules');add('ROADMAP.md','Plan')
+    if active: add(active,'Task in progress')
+    if current: add(current,'Current document')
+    for name in named: add(name,'Named in the request')
+    if active:
+        for name in mentioned(bodies[active],names): add(name,'Listed by the current task')
+    if current in bodies:
+        for link in LINK.findall(bodies[current]):
+            add(str(Path(current).parent/link),'Linked from the current document');add(link,'Linked from the current document')
+    if changed is None:
+        try:
+            revision=subprocess.run(['git','-C',str(root),'log','-1','--author=^Pi Workbench <','--format=%H'],capture_output=True,text=True,timeout=5).stdout.strip()
+            changed=subprocess.run(['git','-C',str(root),'diff-tree','--root','--no-commit-id','--name-only','-r',revision],capture_output=True,text=True,timeout=5).stdout.splitlines() if revision else []
+        except (OSError,subprocess.SubprocessError): changed=[]
+    for name in changed: add(name,'Last harness commit')
+    words=set(re.findall(r'[a-z]{3,}|[一-龯ぁ-んァ-ン]+',request.lower()))-{'the','and','for','make','this','that','with','from','please','can','you'}
+    score=lambda text:len(words & set(re.findall(r'[a-z]{3,}|[一-龯ぁ-んァ-ン]+',text.lower())))
+    for name in sorted(names,key=lambda name:(-score(name),name)):
+        if score(name): add(name,'Relevant file name')
+    for name in sorted(names,key=lambda name:(-score(bodies[name]),name)):
+        if not TASK.match(name) and score(bodies[name]): add(name,'Relevant contents')
+    return {'files':safe,'names':ordered,'reasons':reasons,'task':active,'bodies':bodies}
+
+
+def build_context(store, project, request, current=None, passage='', thread='', budget=BUDGET, now=None, task=None, changed=None):
+    root = store.project_path(project)
     current_name = current.split('/', 2)[2] if current else None
+    selection=select_files(root,store.files(project),f'{request}\n{passage}\n{thread}',current_name,task,changed)
+    files=selection['files'];names=[item['name'] for item in files];meta={item['name']:item for item in files}
     sections, included, omitted, items = [], [], [], []
     used = 0
+    reserved={name:min(FILE_CAP,len(selection['bodies'][name]))+80 for name in ['README.md',selection['task']] if name in selection['bodies']}
 
     def read(name, cap):
         try: return (root / name).read_text(encoding='utf-8', errors='replace')[:cap]
@@ -77,13 +127,14 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     def offer(title, body, name=None, required=False, kind=None):
         nonlocal used
         block = f'## {title}\n{body.strip()}\n'
-        if not required and used + len(block) > budget:
+        reserved.pop(name,None); available=max(0,budget-sum(reserved.values()))
+        if not required and used + len(block) > available:
             if name: omitted.append(name)
             return False
-        if required and used + len(block) > budget: block = block[:max(0, budget - used)]
+        if required and used + len(block) > available: block = block[:max(0, available - used)]
         sections.append(block); used += len(block)
         if name and name not in included:
-            included.append(name); items.append({'label': name.rsplit('/', 1)[-1], 'path': name, 'kind': kind})
+            included.append(name); items.append({'label': name.rsplit('/', 1)[-1], 'path': name, 'kind': kind, 'reason':selection['reasons'].get(name,'Plan')})
         return True
 
     # 1. Plan
@@ -107,24 +158,15 @@ def build_context(store, project, request, current=None, passage='', thread='', 
             mine = next((item for item in items if item.get('path') == current_name), None)
             if mine: items.remove(mine); items.insert(0, {**mine, 'kind': 'this file'})
 
+    if 'README.md' in meta: offer('Project rules: README.md',read('README.md',FILE_CAP),'README.md',required=True,kind='related')
+
     # 3. Mentioned files, then 4. auto-selected while room is left
     chosen = [name for name in mentioned(f'{request}\n{passage}\n{thread}', names) if name != current_name]
-    for name in chosen: offer(f'Mentioned: {name}', read(name, FILE_CAP), name, kind='mentioned')
-    candidates = []
-    if document:
-        base = Path(current_name).parent
-        for link in LINK.findall(document):
-            for name in {str((base / link).as_posix()).lstrip('./'), link.lstrip('./')}:
-                if name in meta: candidates.append(name)
-    active = [name for name in open_tasks if meta[name].get('done')]
-    candidates += active[:1]
-    recent = sorted((name for name in names if now - (root / name).stat().st_mtime < RECENT_SECONDS), key=lambda name: -(root / name).stat().st_mtime)
-    candidates += recent[:3]
-    words = {word for word in re.findall(r'[a-z]{4,}', request.lower())}
-    candidates += [name for name in sorted(names) if words & set(re.split(r'[-_./]', name.lower()))][:3]
-    for name in candidates:
+    for name in chosen:
+        if name not in included: offer(f'Mentioned: {name}', read(name, FILE_CAP), name, required=name==selection['task'], kind='mentioned')
+    for name in selection['names']:
         if name in included or name in omitted or name == current_name or name == 'ROADMAP.md': continue
-        offer(f'Related: {name}', read(name, FILE_CAP), name, kind='related')
+        offer(f'Related: {name}',read(name,FILE_CAP),name,required=name==selection['task'],kind='related')
 
     # 5. File names only
     listed = names if len(names) <= NAMES_CAP else _compress_names(names)
@@ -139,7 +181,7 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     if omitted: footer = f"Not included (over the context budget): {', '.join(omitted)}. " + footer
     sections.append(footer + '\n')
     # items: what the "Pi sees:" line shows (task 133), files in the order Pi gets them plus the open-task count.
-    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted, 'items': items, 'open_tasks': len(open_tasks)}
+    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted, 'items': items, 'reasons': {name:selection['reasons'].get(name,'Plan') for name in included}, 'open_tasks': len(open_tasks)}
 
 
 def _compress_names(names):
@@ -150,3 +192,12 @@ def _compress_names(names):
         if len(parts) <= 2: shown.append(name)
         else: folders.setdefault('/'.join(parts[:2]) + '/', 0); folders['/'.join(parts[:2]) + '/'] += 1
     return shown + [f'{folder} ({count} files)' for folder, count in sorted(folders.items())]
+
+
+def build_project_context(root, request, **options):
+    """The terminal uses the web selector without registering a project or writing into its folder."""
+    from harness.documents import DocumentStore
+    class ProjectFiles:
+        def project_path(self, _project): return Path(root).resolve()
+        def files(self, _project): return DocumentStore.inventory(Path(root).resolve())
+    return build_context(ProjectFiles(), '', request, **options)
