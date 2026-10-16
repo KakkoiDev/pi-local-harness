@@ -1,5 +1,6 @@
 """Bounded, one-use proposal correlation for concurrent pi tool calls."""
-from collections import deque
+from collections import deque, OrderedDict
+import difflib
 from datetime import datetime
 import copy
 import hashlib
@@ -73,6 +74,7 @@ class ProposalLedger:
     def __init__(self, engine, clock=time.monotonic, limit=1024, ttl=3600, protocol_file=None, events_file=None):
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
         self.pending = {}
+        self.edit_failures = OrderedDict()
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
@@ -197,6 +199,28 @@ class ProposalLedger:
                 original = path.read_text()
                 content, reason = apply_edits(original, args, path.name)
                 if reason:
+                    key=(request,str(path.resolve()))
+                    with self.lock:
+                        repeated=key in self.edit_failures
+                        self.edit_failures[key]=True;self.edit_failures.move_to_end(key)
+                        while len(self.edit_failures)>self.limit:self.edit_failures.popitem(last=False)
+                    if repeated:
+                        edits=args.get('edits', [args])
+                        if isinstance(edits,str):
+                            try:edits=json.loads(edits)
+                            except ValueError:edits=[]
+                        if isinstance(edits,dict):edits=[edits]
+                        lines=original.splitlines()
+                        hints=[]
+                        for edit in edits if isinstance(edits,list) else []:
+                            old=edit.get('oldText','') if isinstance(edit,dict) else ''
+                            size=len(old.splitlines())
+                            # Bound diagnostic work and output, even for a model's giant replacement attempt.
+                            if not old or size>80:continue
+                            windows=['\n'.join(lines[n:n+size]) for n in range(min(len(lines)-size+1,20000))]
+                            for match in difflib.get_close_matches(old,windows,n=2,cutoff=.4):
+                                if match not in hints:hints.append(match)
+                        if hints:reason+='\nClosest current text (copy exactly):\n'+'\n---\n'.join(hints[:3])[:6000]
                     return refuse('G-004', reason)
             root = project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
             if root and path.is_file():

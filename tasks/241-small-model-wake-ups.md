@@ -17,7 +17,13 @@ starting if it is unclear.
    of a broken turn (an incident in session.log).
 
 ## Steps
-- [ ] Red: extension tests for 1 and 3 (fake pi events with the replies from the bench: bug-pagination and
+- [x] Red: extension tests for 1 and 3 (fake pi events with the replies from the bench: bug-pagination and
   history-page-lifts in task 225); Gate test for 2.
-- [ ] Implement; each wake counts toward `canWake()`'s limit.
+- [x] Implement; each wake counts toward `canWake()`'s limit.
 - [ ] Run the e4b bench again (task 225's commands) and the 27b one; record both in this file.
+
+## Result
+
+The fake-extension tests reproduce both stopped-with-a-promise and tool-call-as-text replies. They prove one no-action wake per request, retaining the original request and counting against the shared retry budget. An aborted turn or a question is not woken. Finalized assistant text has leaked template tokens removed through Pi's message replacement hook; the incident count is kept in reports and session.log. Bare Pi keeps its original answer for comparison.
+
+The second G-004 on a file includes the closest current windows of the attempted old text. The diagnostic is bounded in memory and output and never changes the file. Red and targeted green runs are in scratch logs. Live benchmark comparison remains open until recorded below.

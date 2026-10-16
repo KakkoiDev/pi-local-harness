@@ -1101,7 +1101,8 @@
   "Stopped here. Reply yes to continue the plan.": "ここで停止しました。計画を続けるには「はい」と返信してください。",
   "auto": "自動",
   "on · /auto off": "オン · /auto off",
-  "off · /auto on": "オフ · /auto on"
+  "off · /auto on": "オフ · /auto on",
+  "Nothing ran: your tool call was written as text. Call the tool.": "何も実行されませんでした。ツール呼び出しが通常の文章になっています。ツールを呼び出してください。"
  },
  "patterns": [
   [
@@ -2563,6 +2564,14 @@
   [
    "Task {number} of {total} done",
    "タスク {number}/{total} 完了"
+  ],
+  [
+   "You said: '{sentence}'. Do it now with a tool call.",
+   "「{sentence}」と述べました。今すぐツールを呼び出して実行してください。"
+  ],
+  [
+   "Removed {count} leaked template tokens.",
+   "漏れたテンプレートトークンを{count}個除去しました。"
   ]
  ]
 }

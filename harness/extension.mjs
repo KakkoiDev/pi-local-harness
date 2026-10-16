@@ -114,6 +114,7 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
+  let noActionWoken=false, textualToolSeen=false;
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -241,9 +242,22 @@ export default function harness(pi, dependencies = {}) {
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
   pi.on('message_end', event => {
-    if (event.message?.role === 'assistant') assistantText+='\n'+(event.message.content || []).map(part=>part.type === 'thinking' ? part.thinking || '' : part.type === 'text' ? part.text || '' : '').join('\n')+'\n';
-    if (event.message?.role === 'assistant') lastAnswer = (event.message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
-    if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
+    let message=event.message, replacement;
+    if(message?.role==='assistant')textualToolSeen ||= /(?:\b(?:bash|read|write|edit)\s*[{(]|<\|tool_call\|>|^\s*call:)/mi.test((message.content||[]).filter(part=>part.type==='text').map(part=>part.text).join(''));
+    if (!bare && message?.role==='assistant') {
+      let count=0;
+      const content=[...(message.content||[])];
+      for(let i=0;i<content.length;i++)if(content[i].type==='text')content[i]={...content[i],text:(message.content[i].text||'').replace(/<channel\|>|<\|[^<>\n]*\|>/g,()=>{count++;return '';})};
+      if(count){
+        message={...message,content};replacement={message};
+        incident('template-tokens',`Removed ${count} leaked template tokens.`,{count});
+        appendFileSync(join(dataDir,'session.log'),JSON.stringify({event:'template-tokens',count,question:lastQuestion})+'\n');
+      }
+    }
+    if (message?.role === 'assistant') assistantText+='\n'+(message.content || []).map(part=>part.type === 'thinking' ? part.thinking || '' : part.type === 'text' ? part.text || '' : '').join('\n')+'\n';
+    if (message?.role === 'assistant') lastAnswer = (message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
+    if (missingCanary(message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
+    return replacement;
   });
   pi.on('input', async (event, ctx) => {
     if (ctx) context = ctx;
@@ -251,7 +265,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension' && !chain) { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    assistantText='';waitingChoice=false;
+    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     chosenGuides = bare ? [] : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
@@ -440,6 +454,16 @@ export default function harness(pi, dependencies = {}) {
     if (!verifiedBefore) { await settledNow(); return; }
     const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
+    const changing=/\b(?:fix|add|build|create|make|implement|refactor|rename|repair|do task|next task)\b|修正|追加|作って|作成/.test(lastQuestion.toLowerCase());
+    const textualTool=textualToolSeen || /(?:\b(?:bash|read|write|edit)\s*[{(]|<\|tool_call\|>|^\s*call:)/mi.test(assistantText);
+    const announced=lastAnswer.match(/(?:\b(?:I will|I'll start|Let me|Next, I)\b|\bFirst,)[^\n]*/i);
+    if(typeof before?.state==='string' && before.state===after?.state && changing && !noActionWoken && (textualTool||announced) && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing){
+      noActionWoken=true;recovering=true;retries++;
+      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      incident('wake-up',instruction,{trigger:'no-action',round:retries});
+      say('wake-up',instruction,'warning');
+      pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);return;
+    }
     if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; await settledNow(); return; }
     const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
     if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {

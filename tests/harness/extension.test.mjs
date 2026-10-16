@@ -483,3 +483,31 @@ for(const scenario of ['continue','change','unverified']) test(`terminal plannin
   if(scenario==='change') {assert.equal(calls.filter(call=>call.path==='/request/end').length,0);assert.equal(calls.filter(call=>call.path==='/request/pause').length,1);}
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
+
+for(const answer of ['[CANARY] I will start Task 2 by reading text.py.', '[CANARY] `bash{command: "ls -F"}`', '[CANARY] First, target showView(next).<channel|>', '[CANARY] <|tool_call|>']) test(`wake a stopped model once: ${answer} (task 241)`,async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-no-action-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
+ const handlers={},sent=[],calls=[];
+ globalThis.fetch=async(url,options)=>{const path=new URL(url).pathname;calls.push(path);return {ok:true,json:async()=>path==='/verification'?{verification:{state:'unchanged',code:[],verified:false}}:{}};};
+ const pi={on:(name,fn)=>handlers[name]=fn,appendEntry(){},registerEntryRenderer(){},sendUserMessage:text=>sent.push(text)};
+ const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){}}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
+  await handlers.input({source:'interactive',text:'Do task 2'},ctx);handlers.agent_start({},ctx);
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:answer}]}});await handlers.agent_settled({aborted:false});
+  assert.equal(sent.length,1);assert.match(sent[0],/tool call|Call the tool/);assert.equal(calls.filter(p=>p==='/request/end').length,0);
+  await handlers.input({source:'extension',text:sent[0]},ctx);handlers.agent_start({},ctx);
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:answer}]}});await handlers.agent_settled({aborted:false});
+  assert.equal(sent.length,1,'one no-action wake per request, within canWake limit');
+ }finally{handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
+});
+
+test('template tokens are removed from finalized answers and logged (task 241)',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-tokens-')),saved=process.env.PI_AGENT_DATA,handlers={};process.env.PI_AGENT_DATA=dir;
+ try{
+  harness({on:(name,fn)=>handlers[name]=fn},{root:dir+'/',setInterval:()=>({unref(){}})});
+  const result=handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'[CANARY] First, target showView(next).<channel|><|im_end|>'}]}});
+  assert.equal(result.message.content[0].text,'[CANARY] First, target showView(next).');
+  assert.match(readFileSync(join(dir,'session.log'),'utf8'),/template-tokens/);assert.match(readFileSync(join(dir,'reports.jsonl'),'utf8'),/template-tokens/);
+ }finally{if(saved===undefined)delete process.env.PI_AGENT_DATA;else process.env.PI_AGENT_DATA=saved;rmSync(dir,{recursive:true,force:true});}
+});

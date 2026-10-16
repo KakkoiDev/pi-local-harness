@@ -65,6 +65,17 @@ class DecisionsNameTheirRuleTest(unittest.TestCase):
         self.assertEqual([event.get('rule') for event in events], ['G-003', 'G-001', 'G-002', 'G-004', 'G-004'])
         self.assertTrue(events[0]['reason'].startswith('G-003 '), 'Pi reads the rule id and can look it up')
 
+    def test_second_G004_shows_closest_current_lines(self):
+        (self.root / 'edit.txt').write_text('header\nvalue = 42\nreturn value\nfooter\n')
+        args = {'path': 'edit.txt', 'edits': [{'oldText': 'value = 41\nreturn value', 'newText': 'value = 43\nreturn value'}]}
+        first = self.propose('write_file', args, 'edit')
+        self.assertNotIn('Closest current text', first['reason'])
+        second = self.propose('write_file', args, 'edit')
+        self.assertEqual(second['rule'], 'G-004')
+        self.assertIn('Closest current text', second['reason'])
+        self.assertIn('value = 42\nreturn value', second['reason'])
+        self.assertEqual((self.root / 'edit.txt').read_text(), 'header\nvalue = 42\nreturn value\nfooter\n')
+
     def test_the_audit_names_its_rule(self):
         path = self.root / 'b.txt'
         allowed = self.propose('write_file', {'path': 'b.txt', 'content': 'x'}, 'write')
