@@ -1,6 +1,7 @@
 """plh setup: the toolchain the harness fetches once into <data>/toolchain (plan 198, kit/toolchain.json).
 
-    plh setup            everything below
+    plh setup            the browser (default)
+    plh setup music      optional Strudel sample renderer
     plh setup browser    Chromium's headless shell, the browser Pi drives (task 215)
 
 The browser: Chrome for Testing's headless shell, pinned, checked against the MD5 Google's storage publishes for the
@@ -15,6 +16,7 @@ from pathlib import Path
 import platform as host
 import shutil
 import sys
+import subprocess
 import tempfile
 import urllib.request
 import zipfile
@@ -62,10 +64,26 @@ def browser(data, base=STORE, machine=None):
     return f'Installed the browser for Pi: headless shell {HEADLESS_SHELL} in {target} ({len(body) // 1_000_000} MB downloaded, checked).'
 
 
+def music(data):
+    """Opt-in npm runtime, independent of Pi and the browser; preserve lockfile integrity."""
+    source = Path(__file__).resolve().parent / 'music'
+    target = Path(data) / 'toolchain/music'
+    target.mkdir(parents=True, exist_ok=True)
+    for file in source.iterdir():
+        if file.is_file() and file.suffix in ('.mjs', '.json', '.md'):
+            shutil.copy2(file, target / file.name)
+    subprocess.run(['npm', 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], cwd=target, check=True)
+    return f'Installed the local music renderer in {target}. Install Chip Pops and its blips CLI, then generate its library once.'
+
+
 def main(argv, data):
     steps = argv or ['browser']
     for step in steps:
-        if step != 'browser': print(f'Unknown setup step “{step}”. Steps: browser.'); return 2
+        if step == 'music':
+            try: print(music(data))
+            except (OSError, subprocess.CalledProcessError) as error: print(f'Not installed: {error}'); return 1
+            continue
+        if step != 'browser': print(f'Unknown setup step “{step}”. Steps: browser, music.'); return 2
         try: print(browser(data))
         except (OSError, ValueError) as error: print(f'Not installed: {error}'); return 1
     return 0

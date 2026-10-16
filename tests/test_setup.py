@@ -64,8 +64,22 @@ class SetupTest(unittest.TestCase):
         import os, subprocess, sys
         run = subprocess.run([sys.executable, str(Path(__file__).resolve().parent.parent / 'plh.py'), 'setup', 'nothing'], capture_output=True, text=True, timeout=60,
                              env={**os.environ, 'PI_AGENT_DATA': str(self.data), 'PATH': '/usr/bin:/bin'})
-        self.assertEqual(run.returncode, 2, run.stderr); self.assertIn('Unknown setup step “nothing”. Steps: browser.', run.stdout)
+        self.assertEqual(run.returncode, 2, run.stderr); self.assertIn('Unknown setup step “nothing”. Steps: browser, music.', run.stdout)
 
 
 if __name__ == '__main__':
     unittest.main()
+
+class MusicSetupTest(unittest.TestCase):
+    def test_music_installs_locked_runtime_into_toolchain_without_copying_dependencies(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(setup.subprocess,'run') as run:
+                said=setup.music(Path(directory))
+            target=Path(directory)/'toolchain/music'
+            self.assertTrue((target/'package-lock.json').is_file())
+            self.assertTrue((target/'bootstrap.mjs').is_file())
+            self.assertFalse((target/'node_modules').exists())
+            self.assertEqual(run.call_args.args[0],['npm','ci','--ignore-scripts','--no-audit','--no-fund'])
+            self.assertEqual(run.call_args.kwargs['cwd'],target)
+            self.assertIn('blips',said)

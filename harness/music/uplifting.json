@@ -1,0 +1,92 @@
+{
+  "style": "uplifting-major",
+  "score": {
+    "bpm": 120,
+    "seconds": 32,
+    "loop": true,
+    "layers": [
+      {
+        "id": "lead",
+        "sound": "lead",
+        "rhythm": "x*8",
+        "notes": "<[E4 G4 A4 G4 E4 D4 C4 E4] [D4 G4 B4 A4 G4 E4 D4 G4] [C4 E4 A4 G4 E4 C4 E4 G4] [F4 A4 G4 E4 D4 E4 G4 C5]>",
+        "gain": 0.3
+      },
+      {
+        "id": "variation",
+        "sound": "lead",
+        "rhythm": "x*8",
+        "notes": "<[G4 A4 C5 A4 G4 E4 D4 E4] [G4 B4 D5 B4 A4 G4 E4 D4] [A4 C5 E5 C5 B4 A4 G4 E4] [A4 G4 F4 A4 G4 E4 D4 C5]>",
+        "gain": 0.3
+      },
+      {
+        "id": "chords",
+        "sound": "chords",
+        "rhythm": "x*4",
+        "notes": "<[C4,E4,G4] [G3,B3,D4] [A3,C4,E4] [F3,A3,C4]>",
+        "gain": 0.1
+      },
+      {
+        "id": "bass",
+        "sound": "bass",
+        "rhythm": "x*4",
+        "notes": "<C3 G3 A3 F3>",
+        "gain": 0.28
+      },
+      {
+        "id": "beat",
+        "sound": "click",
+        "rhythm": "x ~ x ~",
+        "speed": "1",
+        "gain": 0.08
+      }
+    ],
+    "sections": [
+      {
+        "id": "intro",
+        "cycles": 4,
+        "layers": [
+          "chords",
+          "bass"
+        ]
+      },
+      {
+        "id": "theme",
+        "cycles": 4,
+        "layers": [
+          "lead",
+          "chords",
+          "bass",
+          "beat"
+        ]
+      },
+      {
+        "id": "variation",
+        "cycles": 4,
+        "layers": [
+          "variation",
+          "chords",
+          "bass",
+          "beat"
+        ]
+      },
+      {
+        "id": "return",
+        "cycles": 4,
+        "layers": [
+          "lead",
+          "chords",
+          "bass",
+          "beat"
+        ]
+      }
+    ]
+  },
+  "bankRoles": {
+    "lead": "tone:true; notes C4\u2013E5",
+    "chords": "tone:true; notes G3\u2013G4",
+    "bass": "tone:true; notes C3\u2013A3",
+    "click": "ordinary short click effect"
+  },
+  "note": "Read-only starting pattern, not a render. Select actual catalog IDs for these four aliases, then create with this score. Keep pitches within two octaves of each instrument root. Customize melody/variation without rebuilding the timing."
+}

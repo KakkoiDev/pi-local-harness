@@ -7,3 +7,5 @@ session.log
 test_gate_audit.log
 Screenshot *.png
 design/canvas/support.js
+
+node_modules/

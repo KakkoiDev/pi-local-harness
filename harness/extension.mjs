@@ -24,10 +24,11 @@ import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
 import { harnessTools, activeTools } from './tool-choice.mjs';
 import { loadGuides, chooseGuides } from './guides.mjs';
+import { installMusic, musicAvailable } from './music.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
@@ -120,6 +121,7 @@ export default function harness(pi, dependencies = {}) {
   };
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
   installConsole(extras, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
+  installMusic(extras);
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
   // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.
@@ -206,6 +208,7 @@ export default function harness(pi, dependencies = {}) {
     // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
     let gateRules = '';
     if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
+    if (!bare && musicAvailable(context?.cwd || root) && !chosenGuides.some(item => item.name === 'music')) { const musicGuide = guides.find(item => item.name === 'music'); if (musicGuide) chosenGuides = [...chosenGuides, musicGuide]; }
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
@@ -223,7 +226,7 @@ export default function harness(pi, dependencies = {}) {
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
       const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
-      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
+      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks, music: musicAvailable(folder) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();

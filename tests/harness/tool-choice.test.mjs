@@ -15,3 +15,10 @@ test('the active set keeps Pi\'s own tools and other extensions\' tools, and swi
   assert.deepEqual(activeTools(['read', 'bash'], ['harness'], ['read', 'bash', 'harness']), ['read', 'bash', 'harness'], 'adds a harness tool that is registered');
   assert.deepEqual(activeTools(['read'], ['browser'], ['read']), ['read'], 'never one that is not registered');
 });
+
+test('music is selected for creation and remains available for conversational follow-ups', () => {
+ assert.deepEqual(harnessTools('Create a cheerful 20 second background loop', {terminal:false,tasks:false}), ['music']);
+ assert.deepEqual(harnessTools('Create a cheerful track', {terminal:false,tasks:false}), ['music']);
+ assert.deepEqual(harnessTools('Make it more playful', {terminal:false,tasks:false,music:true}), ['music']);
+ assert.deepEqual(activeTools(['read','music'], [], ['read','music']), ['read']);
+});
