@@ -33,7 +33,7 @@ score "11", serve "towards the player who lost the point".
 ## Steps
 - [x] Write the scenario; `python3 -m bench check feature-pong-starter` passes on solution/ and fails on the starter
   as made (red, green for the checker itself).
-- [ ] Run it once with the harness and once bare on the model in config, and record the result in this file.
+- [x] Run it once with the harness and once bare on the model in config, and record the result in this file.
 
 ## Done when
 `python3 -m bench run feature-pong-starter` grades all six checks, and the comparison table shows it.
@@ -45,3 +45,17 @@ The scenario creates the current static starter through `kit.new_project.new_pro
 Request verification remains a separate runner grade: only Pi Workbench commits after the baseline HEAD count, so the starter's own initial commit cannot claim success. The hidden checker never sees or manufactures a verified request commit.
 
 Red: the runtime-starter regression failed with a missing project source before runtime setup was implemented. Green: that test and 27 benchmark/document tests passed. `python3 -m bench check feature-pong-starter` fails on the untouched starter and passes with the reference solution, using the installed Chromium headless shell.
+
+
+### Live comparison · 2026-10-16
+
+Everyday prompt, `gemma4:26b-mlx`, high thinking, Pi 1.1.0, Ollama 0.40.5, model digest `f0fc7e0ae494`, task 241 core build `bcbce0a`. Both runs used scratch workbenches and automatic acceptance. The build is reported dirty because worktree changes were present; this is a development comparison, before task 239 was committed, not the final task 244 measurement.
+
+| Mode | Solved | Verified / committed | Minutes | Tool calls | Wake-ups | Refusals |
+|---|---|---|---|---|---|---|
+| Harness | No | No | 9.2 | 0 | 1 | 0 |
+| Bare | No | No | 6.7 | 1 | 0 | 0 |
+
+The harness woke the model once after it stopped without acting. Its final response still asked for approval and described a plan in prose; it did not call the planning tool or build the game. Bare Pi also stopped at a prose plan asking for approval. Neither produced a request commit. The app checks failed; the bare check's short diagnostic ended in a browser-server broken-pipe message, so that diagnostic alone does not identify a game defect. The lack of implementation and request verification is independently recorded.
+
+The path-free machine summary is in `docs/bench/2026-10-16-pong/results.jsonl`. Full scratch outputs stay ignored in `.bench-local/`; project copies and service logs are not committed. Task 244 will measure the final build across all requested models and scenarios.
