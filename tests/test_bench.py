@@ -9,6 +9,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from bench import runner
@@ -47,7 +48,10 @@ class BenchTest(unittest.TestCase):
             bin = Path(folder) / 'bin'; bin.mkdir()
             (bin / 'pi').write_text(f'#!{sys.executable}\n' + (ROOT / 'tests/fixtures/fake-pi.py').read_text()); (bin / 'pi').chmod(0o755)
             scenario = runner.scenarios(['bug-pagination'])[0] | {'prompts': {'vague': 'Paging is broken. TEST_RUN_LOG'}}
-            result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None, level='vague')
+            order=[];versions,start=runner.versions,runner.start_workbench
+            with patch.object(runner,'versions',side_effect=lambda *args:(order.append('versions'),versions(*args))[1]),patch.object(runner,'start_workbench',side_effect=lambda *args:(order.append('start'),start(*args))[1]):
+                result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None, level='vague')
+            self.assertEqual(order,['versions','start'],'record the build before the request runs')
             self.assertEqual((result['prompt_level'], result['prompt']), ('vague', 'Paging is broken. TEST_RUN_LOG'))
             self.assertEqual((result['scenario'], result['model'], result['effort'], result['status']), ('bug-pagination', 'fake:1b', 'low', 'completed'))
             self.assertEqual(len(result['test_runs']),1)
@@ -57,7 +61,7 @@ class BenchTest(unittest.TestCase):
             for key in ('harness', 'pi', 'ollama', 'seconds', 'tool_calls', 'reports', 'rules', 'gate_checks', 'check'): self.assertIn(key, result)
             self.assertRegex(result['harness'], r'^[0-9a-f]{7,}')
             lines = runner.read_jsonl(Path(folder) / 'out/results.jsonl'); self.assertEqual(len(lines), 1)
-            run = Path(result['folder']); self.assertTrue((run / 'project/pager.py').is_file()); self.assertTrue((run / 'answer.md').is_file())
+            run = Path(result['folder']); self.assertTrue((run / 'project/pager.py').is_file()); self.assertTrue((run / 'answer.md').is_file()); self.assertTrue((run / 'check.txt').is_file()); self.assertTrue((run / 'regressions.txt').is_file())
             self.assertEqual(runner.summary(lines)[0], {'model': 'fake:1b', 'effort': 'low', 'harness': result['harness'], 'prompt_level': 'vague', 'mode': 'harness', 'runs': 1, 'solved': 0,
                                                        'first_try': 0, 'verified': 0, 'pass_k': '0/1 (k=1)', 'minutes': round(result['seconds'] / 60, 1), 'wake_ups': 0.0, 'refusals': 0.0})
             self.assertEqual((result['regressions'], result['resolved'], result['user_turns']), (True, False, 0), 'its own tests still pass; the fake Pi asked nothing')
@@ -78,6 +82,18 @@ class BenchTest(unittest.TestCase):
         self.assertEqual(table['rows'][0]['cells'], {'bare abc': '✗ 2 min', 'harness abc': '✓ 5 min (1 first try)'})
         self.assertEqual(table['rows'][1]['cells']['bare abc'], '~ 1 min', 'solved but broke its regression tests')
         self.assertEqual(table['totals'], {'bare abc': '0/2', 'harness abc': '2/2'})
+
+    def test_readme_table_uses_resolved_median_and_keeps_pending_models(self):
+        from bench.__main__ import main
+        with tempfile.TemporaryDirectory() as folder:
+            out=Path(folder);readme=out/'README.md';readme.write_text('Intro\n\n## How well it works\n\n<!-- bench:start -->old<!-- bench:end -->\nKeep this.\n')
+            line={'model':'gemma4:e4b-mlx','harness':'abc1234','time':'2026-10-17T01:00:00+09:00','prompt_level':'everyday','verified':True,'solved':True,'resolved':False,'seconds':60,'mode':'harness'}
+            lines=[line,line|{'resolved':True,'seconds':600},line|{'mode':'bare','verified':False,'resolved':True,'seconds':120}]
+            (out/'results.jsonl').write_text(''.join(json.dumps(item)+'\n' for item in lines))
+            self.assertEqual(main(['readme','--out',str(out),'--readme',str(readme)]),0)
+            text=readme.read_text();self.assertIn('| Gemma 4 e4b (4B) | This Mac (Ollama) | 1/2 | 1/1 | 2/2 | 5.5 | abc1234 | 2026-10-17 |',text)
+            self.assertIn('ChatGPT Luna | OpenAI API | Pending',text);self.assertIn('Keep this.',text);self.assertNotIn('-->old',text)
+            self.assertEqual(main(['readme','--out',str(out),'--readme',str(readme)]),0);self.assertEqual(readme.read_text(),text)
 
     def test_the_console_shows_the_bench(self):
         from harness import admin

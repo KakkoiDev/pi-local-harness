@@ -9,8 +9,9 @@ from bench import runner
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='python3 -m bench')
-    parser.add_argument('command', choices=['list', 'check', 'run', 'report', 'compare'])
+    parser.add_argument('command', choices=['list', 'check', 'run', 'report', 'compare', 'readme'])
     parser.add_argument('ids', nargs='*')
+    parser.add_argument('--readme', default=str(runner.ROOT / 'README.md'))
     parser.add_argument('--model'); parser.add_argument('--effort')
     parser.add_argument('--repeat', type=int, default=1)
     parser.add_argument('--prompt', choices=runner.LEVELS, default='everyday', help='how the request is worded (default: everyday)')
@@ -43,6 +44,12 @@ def main(argv=None):
                       f"{result['tool_calls']} tool calls · wake-ups {result['reports'].get('wake-up', 0)} · refusals {sum(result['rules'].values())}", flush=True)
         return 0
     results = runner.read_jsonl(Path(args.out) / 'results.jsonl')
+    if args.command == 'readme':
+        path=Path(args.readme);text=path.read_text();start,end='<!-- bench:start -->','<!-- bench:end -->'
+        table=start+'\n'+runner.readme_table(results)+'\n'+end
+        if start in text and end in text:text=text[:text.index(start)]+table+text[text.index(end)+len(end):]
+        else:text=text.rstrip()+'\n\n## How well it works\n\n'+table+'\n'
+        path.write_text(text);return 0
     if args.command == 'compare':
         table = runner.compare(results, args.model, args.prompt)
         width = max([len('SCENARIO')] + [len(row['scenario']) for row in table['rows']]) + 2

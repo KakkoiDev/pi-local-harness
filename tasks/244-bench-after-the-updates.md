@@ -48,3 +48,16 @@ DeepSeek Flash comes later, in its own task (245), once the person has set it up
   words on what the harness adds at each size, and a link to `docs/bench/<date>/`. Generate it with a new
   `python3 -m bench readme` (bench/__main__.py) so it can be redone, with a test in tests/test_bench*.py.
 - [ ] Update task 225 and plan 189 (docs/plans/189-bench.md) with the new numbers and what changed since 2026-10-15.
+
+
+## Person’s decision · 2026-10-16
+
+Run the two local models and leave Luna pending. Neither OPENAI_API_KEY nor Pi’s OpenAI auth is configured in this environment. Nine scenarios mean 18 runs per local model (harness and bare), 36 local runs total. Luna and its tiny authentication check have not run.
+
+## Runner preparation
+
+- [x] Red: README generation is absent, and a fake-Pi run records the build after launch.
+- [x] Generate the README table from everyday results, count resolved runs, use median harness minutes, keep absent models pending and preserve surrounding prose. Record the build before launch and retain full checker logs.
+- [x] Green: the seven scratch benchmark tests pass, including idempotent generation and metadata order.
+
+The local batch uses ignored `.bench-local/` in this worktree so its scratch artifacts survive pauses without writing to the person's data folder. Sanitized copies will be published under `docs/bench/`.

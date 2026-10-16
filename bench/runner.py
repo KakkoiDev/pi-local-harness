@@ -10,6 +10,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+from statistics import median
 
 ROOT = Path(__file__).resolve().parent.parent
 SCENARIOS = ROOT / 'bench' / 'scenarios'
@@ -73,7 +74,7 @@ def hidden_check(scenario, project):
     else:
         run = subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', str(check), '-p', 'test_*.py'], cwd=project, capture_output=True, text=True, timeout=300,
                              env={**os.environ, 'PYTHONPATH': str(project)})
-    return run.returncode == 0, (run.stdout + run.stderr).strip()[-1500:]
+    return run.returncode == 0, (run.stdout + run.stderr).strip()
 
 
 def regressions(scenario, project):
@@ -82,7 +83,7 @@ def regressions(scenario, project):
     command = scenario.get('regression')
     if not command: return None, ''
     run = subprocess.run(command, shell=True, cwd=project, capture_output=True, text=True, timeout=600)
-    return run.returncode == 0, (run.stdout + run.stderr).strip()[-800:]
+    return run.returncode == 0, (run.stdout + run.stderr).strip()
 
 
 def fair(scenario):
@@ -160,6 +161,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     work = Path(tempfile.mkdtemp(prefix='pi-bench-'))
     project, data = prepare(scenario, work), work / 'data'
     baseline = git(project, 'rev-parse', 'HEAD').strip()
+    build=versions(model)
     process, url = start_workbench(data, work, model, effort, {**(extra_env or {}), **({'PI_HARNESS_BARE': '1'} if bare else {})})
     started, result = time.monotonic(), {}
     try:
@@ -198,7 +200,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     result = {
         'first_try': None,  # set below
         'time': datetime.now().astimezone().isoformat(timespec='seconds'), 'scenario': scenario['id'], 'kind': scenario.get('kind'), 'prompt_level': level, 'prompt': prompt(scenario, level), 'model': model, 'effort': effort,
-        **versions(model), 'status': current.get('status', 'unknown'), 'timed_out': bool(current.get('timed_out')), 'stopped_because': current.get('progress', '') if current.get('status') != 'completed' else '',
+        **build, 'status': current.get('status', 'unknown'), 'timed_out': bool(current.get('timed_out')), 'stopped_because': current.get('progress', '') if current.get('status') != 'completed' else '',
         'mode': 'bare' if bare else 'harness', 'solved': solved, 'check': said[-300:], 'regressions': kept, 'regressions_said': kept_said[-300:] if kept is False else '',
         'resolved': solved and kept is not False, 'user_turns': user_turns, 'verified': any(not line.endswith(', not verified)') for line in commits), 'committed': [line.split('\t', 1)[1] for line in commits],
         'not_verified_mark': 'Not verified (G-012)' in answer or any(line.endswith(', not verified)') for line in commits), 'tasks_after': tasks, 'plan':planning_metrics(project,data), 'seconds': seconds,
@@ -211,6 +213,8 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     shutil.copytree(project, folder / 'project', ignore=shutil.ignore_patterns('.git'))
     (folder / 'git-log.txt').write_text(git(project, 'log', '--stat', '--format=%h %an %s', check=False))
     (folder / 'answer.md').write_text(answer)
+    (folder / 'check.txt').write_text(said)
+    (folder / 'regressions.txt').write_text(kept_said)
     for name in ('reports.jsonl', 'gate-events.jsonl', 'test-runs.jsonl', 'services.log'):
         if (data / name).exists(): shutil.copy(data / name, folder / name)
     if (data / 'test-runs').is_dir(): shutil.copytree(data / 'test-runs', folder / 'test-runs')
@@ -269,3 +273,21 @@ def compare(results, model=None, level='everyday'):
             for name in sorted({line['scenario'] for line in lines})]
     totals = {name: f"{sum(line.get('resolved', line['solved']) for line in lines if column(line) == name)}/{sum(column(line) == name for line in lines)}" for name in columns}
     return {'columns': columns, 'rows': rows, 'totals': totals}
+
+
+def readme_table(results):
+    """Everyday runs only; keep absent models visibly pending and do not mix builds into one score."""
+    models=[('gemma4:e4b-mlx','Gemma 4 e4b (4B)','This Mac (Ollama)'),('qwen3.8:27b-mlx','Qwen 3.8 27B','This Mac (Ollama)'),('luna','ChatGPT Luna','OpenAI API')]
+    rows=['| Model | Where it runs | Solved with harness | Solved bare | Verified and committed by harness | Median minutes (harness) | Harness build | Date |','|---|---|---|---|---|---|---|---|']
+    for model,name,where in models:
+        found=[item for item in results if item.get('prompt_level')=='everyday' and (item['model']==model or model=='luna' and 'luna' in item['model'].lower())]
+        builds=sorted(set(item['harness'] for item in found))
+        if not builds:rows.append(f'| {name} | {where} | Pending | Pending | Pending | — | — | — |');continue
+        for build in builds:
+            lines=[item for item in found if item['harness']==build];harness=[item for item in lines if item.get('mode','harness')=='harness'];bare=[item for item in lines if item.get('mode')=='bare']
+            score=lambda items:f"{sum(bool(item.get('resolved',item.get('solved'))) for item in items)}/{len(items)}" if items else 'Pending'
+            verified=f"{sum(bool(item.get('verified')) for item in harness)}/{len(harness)}" if harness else 'Pending'
+            minutes=str(round(median(item['seconds'] for item in harness)/60,1)) if harness else '—'
+            dates=', '.join(sorted(set(item['time'][:10] for item in lines)))
+            rows.append(f'| {name} | {where} | {score(harness)} | {score(bare)} | {verified} | {minutes} | {build} | {dates} |')
+    return '\n'.join(rows)
