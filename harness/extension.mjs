@@ -455,7 +455,7 @@ export default function harness(pi, dependencies = {}) {
     if (!verifiedBefore) { await settledNow(); return; }
     const before = await verifiedBefore;
     const after = await call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
-    const changing=/\b(?:fix|add|build|create|make|implement|refactor|rename|repair|do task|next task)\b|修正|追加|作って|作成/.test(lastQuestion.toLowerCase());
+    const changing=/\b(?:fix|add|build|create|make|implement|write|document|refactor|rename|repair|do task|next task)\b|修正|追加|作って|作成|書いて|文書化/.test(lastQuestion.toLowerCase());
     const textualTool=textualToolSeen || /(?:\b(?:bash|read|write|edit)\s*[{(]|<\|tool_call\|>|^\s*call:)/mi.test(assistantText);
     const announced=lastAnswer.match(/(?:\b(?:I will|I'll start|Let me|Next, I)\b|\bFirst,)[^\n]*/i);
     if(typeof before?.state==='string' && before.state===after?.state && changing && !noActionWoken && (textualTool||announced) && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing){

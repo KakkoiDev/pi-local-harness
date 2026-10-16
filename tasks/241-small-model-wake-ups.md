@@ -27,3 +27,7 @@ starting if it is unclear.
 The fake-extension tests reproduce both stopped-with-a-promise and tool-call-as-text replies. They prove one no-action wake per request, retaining the original request and counting against the shared retry budget. An aborted turn or a question is not woken. Finalized assistant text has leaked template tokens removed through Pi's message replacement hook; the incident count is kept in reports and session.log. Bare Pi keeps its original answer for comparison.
 
 The second G-004 on a file includes the closest current windows of the attempted old text. The diagnostic is bounded in memory and output and never changes the file. Red and targeted green runs are in scratch logs. Live benchmark comparison remains open until recorded below.
+
+## README request found during task 244 preflight
+
+Build 5d7f250's e4b run solved pagination (58 seconds, verified), but the README run stopped after promising to read pager.py (13 seconds, one tool, no wake). The change-intent verbs omitted “write.” The real request and answer reproduce a failing fake-extension test; adding write/document and the matching Japanese verbs makes that test pass. This retains the existing once-per-request and shared retry limits. The first two completed runs and interrupted Pong scratch are retained under ignored `.bench-local/244-2026-10-17/`, excluded from the final comparison. The complete local batch restarts on the fixed committed build.

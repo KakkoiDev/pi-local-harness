@@ -484,7 +484,7 @@ for(const scenario of ['continue','change','unverified']) test(`terminal plannin
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
 
-for(const answer of ['[CANARY] I will start Task 2 by reading text.py.', '[CANARY] `bash{command: "ls -F"}`', '[CANARY] First, target showView(next).<channel|>', '[CANARY] <|tool_call|>']) test(`wake a stopped model once: ${answer} (task 241)`,async()=>{
+for(const answer of ['[CANARY] I will start Task 2 by reading text.py.', '[CANARY] `bash{command: "ls -F"}`', '[CANARY] First, target showView(next).<channel|>', '[CANARY] <|tool_call|>', '[CANARY] I will read pager.py before writing README.md.']) test(`wake a stopped model once: ${answer} (task 241)`,async()=>{
  const dir=mkdtempSync(join(tmpdir(),'pi-no-action-')),saved={...process.env},fetchBefore=globalThis.fetch;
  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
  const handlers={},sent=[],calls=[];
@@ -493,7 +493,7 @@ for(const answer of ['[CANARY] I will start Task 2 by reading text.py.', '[CANAR
  const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){}}};
  try {
   harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
-  await handlers.input({source:'interactive',text:'Do task 2'},ctx);handlers.agent_start({},ctx);
+  await handlers.input({source:'interactive',text:answer.includes('README.md')?'Can you write a README for this? Say what it does, show an example, and how to run the tests.':'Do task 2'},ctx);handlers.agent_start({},ctx);
   handlers.message_end({message:{role:'assistant',content:[{type:'text',text:answer}]}});await handlers.agent_settled({aborted:false});
   assert.equal(sent.length,1);assert.match(sent[0],/tool call|Call the tool/);assert.equal(calls.filter(p=>p==='/request/end').length,0);
   await handlers.input({source:'extension',text:sent[0]},ctx);handlers.agent_start({},ctx);
