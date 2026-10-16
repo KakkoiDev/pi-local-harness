@@ -268,7 +268,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [224-A README a person enjoys reading, with the workbench at the top](tasks/224-readme.md)
 - [x] [225-The bench with a 4-billion model](tasks/225-bench-small-model.md)
 - [x] [226-The installed copy starts: kit/ and messages/ are installed](tasks/226-install-kit-and-messages.md)
-- [ ] [227-A loop recovery keeps the request open](tasks/227-recovery-keeps-the-request-open.md)
+- [x] [227-A loop recovery keeps the request open](tasks/227-recovery-keeps-the-request-open.md)
 - [ ] [228-Every test run is logged](tasks/228-test-run-log.md)
 - [ ] [229-Starters split into a skeleton to keep and a sample to replace](tasks/229-starter-sample-and-skeleton.md)
 - [ ] [230-A default test: every file the app refers to exists](tasks/230-referenced-files-test.md)

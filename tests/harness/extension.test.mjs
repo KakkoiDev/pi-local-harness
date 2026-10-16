@@ -161,6 +161,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.match(messages.at(-1),/^Continue \(harness wake-up 1 of 1\)/);assert.equal(messages.length,sent+1);
   assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness woke Pi up.');
   assert.match(readFileSync(join(dir,'workspace','reports.jsonl'),'utf8'),/"kind":"wake-up"/);
+  handlers.agent_start({},ctx);
   await handlers.agent_settled({aborted:false},ctx);
   assert.equal(messages.length,sent+1,'out of wake-ups');
   const unverified=entries.filter(entry=>entry.type==='harness-notice').at(-1).data;
@@ -323,4 +324,39 @@ test('each request gets only the harness tools it needs (strategy 4)', async () 
   assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Guides for this request/);
   assert.match(readFileSync(join(dir,'data','reports.jsonl'),'utf8'),/"kind":"guide","detail":"page-layout"/);
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});
+
+for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} recovery keeps its request until the resumed turn settles (task 227)`, async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-recovery-request-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_WEB_DATA:join(dir,'web'),PI_TRASH_DIR:join(dir,'trash'),PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
+ writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+ const handlers={},calls=[],messages=[],notices=[];let tick,compact,changed=false,verified=false;
+ globalThis.fetch=async(url,options)=>{
+  const path=new URL(url).pathname,body=JSON.parse(options.body);calls.push({path,body});
+  return {ok:true,json:async()=>path==='/verification'?{verification:{state:changed?'after':'before',code:changed?['app.py']:[],verified}}:{}};
+ };
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},sendUserMessage:message=>messages.push(message)};
+ const ctx={cwd:dir,ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){}},abort(){},isIdle:()=>trigger==='hang',compact:options=>{compact=options;}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:callback=>{tick=callback;return {unref(){}};}});
+  await handlers.session_start({},ctx);await handlers.input({source:'interactive',text:'Fix the code'},ctx);handlers.agent_start({},ctx);changed=true;
+  if(trigger==='loop') { handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'a\nb\nc\na\nb\nc\n'}});tick(); }
+  if(trigger==='hang') { handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'thinking'}});tick(); }
+  if(trigger==='canary') handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'Forgot the token'}]}});
+  if(trigger!=='wake-up') handlers.agent_end({},ctx);
+  await handlers.agent_settled({aborted:trigger!=='wake-up'},ctx);
+  assert.equal(calls.filter(call=>call.path==='/request/end').length,0,'the interrupted turn must not close the request');
+  await new Promise(resolve=>setTimeout(resolve,10));
+  if(compact) compact.onComplete();
+  assert.equal(messages.length,1,'one continuation is queued');
+  await handlers.agent_settled({aborted:true},ctx);
+  assert.equal(calls.filter(call=>call.path==='/request/end').length,0,'a settle while the continuation is queued must not close it');
+  assert.equal(notices.includes('Harness settled'),false,'the web worker must keep waiting');
+  await handlers.input({source:'extension',text:'Continue'},ctx);handlers.agent_start({},ctx);
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'[CANARY] Done.'}]}});
+  verified=true;handlers.agent_end({},ctx);await handlers.agent_settled({aborted:false},ctx);
+  const requests=calls.filter(call=>call.path==='/request'),ends=calls.filter(call=>call.path==='/request/end');
+  assert.equal(requests.length,1);assert.deepEqual(ends.map(call=>call.body.request),[requests[0].body.request]);
+  await handlers.agent_settled({aborted:false},ctx);assert.equal(calls.filter(call=>call.path==='/request/end').length,1);
+ } finally { handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true}); }
 });

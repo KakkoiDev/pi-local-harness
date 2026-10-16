@@ -17,15 +17,25 @@ there was no request left to finish, so nothing was verified, committed or ticke
   copy their setup).
 
 ## Steps
-- [ ] Red: a test where a recovery is pending at `agent_end`: then `agent_settled` (aborted) must NOT call
+- [x] Red: a test where a recovery is pending at `agent_end`: then `agent_settled` (aborted) must NOT call
   `/request/end`, and the request id must still be set when the re-asked turn settles; that final settle calls
   `/request/end` once.
-- [ ] Fix: keep a `recovering` flag from the moment the recovery is queued until the re-asked turn starts
+- [x] Fix: keep a `recovering` flag from the moment the recovery is queued until the re-asked turn starts
   (`agent_start` after the re-ask, or the re-ask's `input` with source `extension`). `agent_settled` returns while
   `recovering`. Do not reset `retries` for the re-ask (the limit `canWake()` must still count recoveries).
-- [ ] Same for the "wake Pi to finish" path (G-012): check it cannot end the request between the wake and the next turn.
-- [ ] Green: the test passes; run `node --test tests/harness/*.test.mjs`.
+- [x] Same for the "wake Pi to finish" path (G-012): check it cannot end the request between the wake and the next turn.
+- [x] Green: the test passes; run `node --test tests/harness/*.test.mjs`.
 
 ## Done when
 A request interrupted by a loop, hang or drift recovery is committed once, at its real end, with the verification of
 the final code. The paperwork test shows one `/request/end` per request.
+
+## Result
+
+Regression tests cover loop, hang, instruction-drift and G-012 wake-ups, including a second settle while the
+continuation waits. Each retains the original request and ends it exactly once after the resumed turn verifies.
+The existing bounded-retry test now starts the resumed turn before settling it, matching Pi’s lifecycle.
+
+Validation: all 100 Node tests passed. Full workflow verification uses `PYTHONDONTWRITEBYTECODE=1`: the existing
+`test_the_harness_proves_red_itself_whatever_order_pi_worked_in` otherwise reuses stale bytecode when same-size
+Python source is restored within one timestamp second. It fails alone normally and passes alone with this setting.

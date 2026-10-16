@@ -70,7 +70,7 @@ export default function harness(pi, dependencies = {}) {
       try { return loadMemory(`${moduleRoot}harness/AGENTS.md`); } catch { return ''; }
     }
   };
-  let requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, closing = false;
+  let requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, recovering = false, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
@@ -217,7 +217,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension') return { action: 'continue' };
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    lastQuestion = event.text; retries = 0; pending = undefined; steps.reset();
+    lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     chosenGuides = bare ? [] : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
@@ -240,7 +240,7 @@ export default function harness(pi, dependencies = {}) {
   });
   // Task 116: agent_end can fire again before a new turn while the usage reading is still stale; compact at most once per turn.
   let compactedThisTurn = false;
-  pi.on('agent_start', (_event, ctx) => { context = ctx; compactedThisTurn = false; watch.start(); });
+  pi.on('agent_start', (_event, ctx) => { context = ctx; recovering = false; compactedThisTurn = false; watch.start(); });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
     watch.touch();
@@ -271,7 +271,7 @@ export default function harness(pi, dependencies = {}) {
     }
     const recovery = pending; pending = undefined;
     if (!canWake()) { incident('stopped', `recovery repeated ${retries} times: ${recovery.split('\n')[0]}`); say('stopped', join(dataDir, 'session.log'), 'error'); return; }
-    retries++;
+    recovering = true; retries++;
     const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${memory()}` }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {
@@ -358,7 +358,8 @@ export default function harness(pi, dependencies = {}) {
       }
       if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');
     };
-    if (pending) return;
+    // agent_end clears pending before abort cleanup settles; the re-asked turn still owns the request.
+    if (pending || recovering) return;
     if (bare) { verifiedBefore = undefined; await settledNow(); return; }
     if (!verifiedBefore) { await settledNow(); return; }
     const before = await verifiedBefore;
@@ -366,7 +367,7 @@ export default function harness(pi, dependencies = {}) {
     if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; await settledNow(); return; }
     const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
     if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
-      retries++;
+      recovering = true; retries++;
       const round = wakeUps() ? `${retries} of ${wakeUps()}` : `${retries}`;
       incident('wake-up', `not verified: ${files}`, { round });
       say('wake-up', `${files} (wake-up ${round})`, 'warning'); // the web worker waits for the next turn on this notice's prefix
