@@ -22,8 +22,9 @@ philosophy. Keep that in mind for every decision.
 
 ### Read first, in this order
 
+0. `CONSTITUTION.md`: how the project uses AI (System 1 decides, System 2 produces). It wins over every other file.
 1. `docs/README.md`, then `docs/contributing-for-agents.md` (where things live, the commands, the rules).
-2. `ROADMAP.md`, the last 20 lines: tasks 227 to 245 are yours (242 is done; 245 waits for the person).
+2. `ROADMAP.md`, the last 20 lines: tasks 227 to 249 are yours (242 is done; 245 waits for the person).
 3. `docs/plans/236-plan-mode.md`: the specification of plan mode (tasks 236 to 240).
 4. `docs/plans/179-gate-rules.md`: how a Gate rule is written (id, message, lesson, test).
 5. Each task file before you start it.
@@ -72,6 +73,9 @@ Do them in this order. Each later task depends on the earlier ones:
 9. **244** (the benchmark of the updated harness on Gemma 4 e4b, Qwen 3.8 27B and ChatGPT Luna, records in the repo,
    the README table): last, after 227, 228, 235-238 and 241. The person sets the OpenAI key themselves.
 10. **245** (DeepSeek Flash): only when the person says it is set up.
+11. **246** (Laya, the classifier), **247** (three phases: it takes over 55-57 and changes 236-237's gating), **248**
+    (rename the design system), **249** (the decision log). Added 2026-10-17 with CONSTITUTION.md; read it first. Do
+    247 before finishing 236-237 if you have not started them; if you have, finish them and let 247 adapt them.
 8. **239** (plan mode's web cards) and **243** (round 9: updates, other devices, the Terminal app kind, Settings): the
    designer's answers are re-synced into `design/` (2026-10-16); build from the boards. **242** is done.
 

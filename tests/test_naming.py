@@ -8,11 +8,14 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OLD = re.compile('laya', re.I)
+# Laya was the checker's old name (task 96); since 2026-10-17 Laya is System 1's classifier (CONSTITUTION.md, task
+# 246). So the old name is flagged only where it names the checker: "Laya gate", "Laya checks", PI_LAYA_…, laya_port.
+OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|\bPI_LAYA|\bLAYA_', re.I)
+CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/246-laya-classifier\.md$')
 
 
 class GateNamingTests(unittest.TestCase):
-    """The checker is named Gate. Closed task records keep the old name as history."""
+    """The checker is named Gate. Closed task records keep the old name as history; Laya now names the classifier."""
 
     def tracked(self):
         return subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
@@ -28,7 +31,7 @@ class GateNamingTests(unittest.TestCase):
             if name == 'tests/test_naming.py' or name == 'ROADMAP.md' or name.startswith('kit/vendor/') or (name.startswith('tasks/') and name not in open_files):  # third-party code is not ours to rename
                 continue
             path = ROOT / name
-            if OLD.search(name):
+            if OLD.search(name) or ('laya' in name.lower() and not CLASSIFIER_FILES.search(name)):
                 found.append(name)
             elif path.is_file() and path.suffix not in {'.woff2', '.png', '.jpg', '.ico'}:
                 if OLD.search(path.read_text(encoding='utf-8', errors='ignore')):

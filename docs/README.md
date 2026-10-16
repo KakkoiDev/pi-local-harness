@@ -1,6 +1,6 @@
 # Documentation
 
-Start here if you are an agent (or a person) about to change this repository.
+Start here if you are an agent (or a person) about to change this repository. First of all: [../CONSTITUTION.md](../CONSTITUTION.md), how the project uses AI (System 1 decides, System 2 produces).
 
 - [contributing-for-agents.md](contributing-for-agents.md): where things live, the commands, the order of work Gate enforces, rules and recipes. Read it first.
 - [../README.md](../README.md): what the app does and how to start; [reference.md](reference.md): how it works in detail.
