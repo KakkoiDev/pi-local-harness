@@ -26,6 +26,8 @@ In the workbench, **New Project…** (⌘N) creates a folder with `ROADMAP.md` a
 uses a folder you already have, in place. The Projects window lists them; choose one to open its Chat.
 For an app made from a starter, the first code request includes one check for leftover sample notes files and names.
 Pi gets a cleanup pass while keeping the storage, languages, tests and build setup.
+A Terminal app runs in Preview with keys and text. Restart runs it again; choose 80 × 24, 120 × 40 or Fit. On a phone,
+the key row sends Esc, Tab, arrows and Return; Ctrl applies to the next letter. ⌘. sends Control-C.
 After code changes, Gate also checks the Goal and linked tasks. Pi gets one chance to fill missing plan details;
 otherwise the request is saved with “Plan incomplete” and its task stays open.
 
@@ -105,7 +107,23 @@ topics), or `/harness list` to print it: `/status`, `/doctor`, `/queue`, `/job <
 `/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`, `/update`. They run at once, without the model, and Pi can explain their output. Pi's own
 commands (`/settings`, `/model`, `/new`, `/compact`…) still work.
 
+## How do I change the language?
+
+Open π › Settings…: Language is first and changes take effect immediately. Web and terminal Pi share the saved
+choice; Pi reads it again on the next request. A Terminal app starts in that language; Preview's language control can
+override it. Appearance and typing preferences apply to this browser.
+
+## How do I add it to my phone's Home Screen?
+
+While using the workbench away from the Mac, choose π › Add to Home Screen… for the iPhone or Android steps.
+The π icon opens the workbench running on the Mac, so the Mac must stay on with Tailscale connected.
+
 ## How do I update Pi Workbench?
+
+In the web workbench, π › Check for Updates… checks GitHub and shows what changed. A dot on π marks a known new
+version. Update waits for Pi's request to finish; after it succeeds, quit `plh` and start it again. Settings can turn the
+quiet daily check off. If the copy has edited files or its own commits, the window explains why it stopped and can
+prepare a request asking Pi to help.
 
 In terminal Pi, `/update` says whether a new version is on GitHub and what changed; `/update now` updates (it asks
 first), then quit `plh` and start it again: the new version installs as it starts. Your projects and data are not
