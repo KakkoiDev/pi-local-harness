@@ -1,10 +1,10 @@
-# 244: Bench the updated harness on four models, keep the records, publish the table in the README
+# 244: Bench the updated harness on three models, keep the records, publish the table in the README
 
 Kind: chore
 
 The person, 2026-10-16: "I also want GPT sol to run new benchmarks with our updated harness and keep all the artifacts
 in the project like we did and publish the performance on the readme page as a table with: our 4b and 27b models,
-luna benching too" and "I also want to do the benching with deepseek flash, I will provide a key".
+luna benching too"; "luna is chat gpt luna, the haiku equivalent in ChatGPT"; DeepSeek Flash later (task 245).
 
 Run it after tasks 227 (the early commit), 228 (test-run log), 235 (the pong scenario), 236-238 (plan mode,
 auto-accept) and 241 (small-model wake-ups) are done: the point is to measure the updated harness.
@@ -15,13 +15,14 @@ auto-accept) and 241 (small-model wake-ups) are done: the point is to measure th
 |---|---|---|
 | Gemma 4 e4b (4B) | `gemma4:e4b-mlx` | Ollama, this Mac (installed) |
 | Qwen 3.8 27B | `qwen3.8:27b-mlx` | Ollama, this Mac (installed) |
-| Luna | **to confirm with the person**: the exact model name and where it runs. Do not guess. | ? |
-| DeepSeek Flash | **to confirm**: the exact model id and Pi's provider name for DeepSeek | DeepSeek's API (a key from the person) |
+| ChatGPT Luna | OpenAI's small, fast model ("the Haiku equivalent in ChatGPT", the person, 2026-10-16). Its exact API id: list the models the key can use (`GET https://api.openai.com/v1/models`, or Pi's own model list for its OpenAI provider) and pick the one named Luna; if none or several match, ask the person. | OpenAI's API (a key the person sets) |
 
-## The DeepSeek key (never in the repo, never in a chat or a log)
+DeepSeek Flash comes later, in its own task (245), once the person has set it up.
 
-- The person sets it themselves, in their own shell or Pi's own settings, e.g. `export DEEPSEEK_API_KEY=…` in their
-  shell profile (find the exact variable Pi reads for DeepSeek in Pi's documentation: `pi --help`, or Pi's docs). Ask
+## The OpenAI key (never in the repo, never in a chat or a log)
+
+- The person sets it themselves, in their own shell or Pi's own settings, e.g. `export OPENAI_API_KEY=…` in their
+  shell profile (check the exact variable Pi reads for OpenAI in Pi's documentation: `pi --help`, or Pi's docs). Ask
   the person to set it; do not ask them to paste it to you.
 - Check it works with one tiny request through Pi, without printing the key.
 - grep the repo and the bench records for the key before every commit (`git diff --cached | grep -c <first 6 chars>`
@@ -30,7 +31,7 @@ auto-accept) and 241 (small-model wake-ups) are done: the point is to measure th
 
 ## Steps
 
-- [ ] Confirm Luna and the DeepSeek model id with the person; the key is set by the person.
+- [ ] The person has set the OpenAI key; Luna's exact API id found (see the table) and checked with one tiny request.
 - [ ] For each model, with the same harness build (record its commit): every scenario (`python3 -m bench list`, the
   pong one included), everyday prompts, with the harness and bare:
   `python3 -m bench run --prompt everyday --model <model>` then the same with `--bare`. Auto-accept on (the bench does
