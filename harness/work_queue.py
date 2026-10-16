@@ -2,6 +2,8 @@
 from harness.markdown_records import read_record,write_record
 import copy
 import json
+import os
+import re
 from pathlib import Path
 import threading
 import time
@@ -10,6 +12,14 @@ from urllib.parse import quote
 from datetime import datetime
 
 def now():return datetime.now().astimezone().isoformat(timespec='seconds')
+
+def display_text(text,streaming=False):
+    if os.getenv('PI_HARNESS_BARE')=='1':return text
+    text=re.sub(r'<channel\|>|<\|[^<>\n]*\|>','',text)
+    if streaming:
+        before,mark,tail=text.rpartition('<')
+        if mark and (tail.startswith('|') or 'channel|>'.startswith(tail)):text=before
+    return text
 
 class WorkQueue:
     # Task 164 (plan 156 phase 2): two lanes. The chat lane runs one chat request at a time; the work lane runs workers,
@@ -39,7 +49,7 @@ class WorkQueue:
             data=job['data'];origin=data.get('document') or (data.get('document_comment') or {}).get('path')
             body=f"# {data.get('message') or 'Attached files'}\n\nStatus: **{job['status']}**\n\nProject: {job['project']}\n\nChat: [Open chat](/?chat={job['chat']})\n"
             if origin:body+=f"\nDocument: [Open document](/?document={quote(origin,safe='')})\n"
-            body+=f"\nCreated: {job['created']}\n\n## Request\n\n{data.get('message','')}\n\n## Result\n\n{job.get('text') or job.get('progress','')}\n"
+            body+=f"\nCreated: {job['created']}\n\n## Request\n\n{data.get('message','')}\n\n## Result\n\n{display_text(job.get('text',''),streaming=job['status']=='running') or job.get('progress','')}\n"
             if job.get('thinking'):body+='\n## Reasoning\n\n'+job['thinking']+'\n'
             record=copy.deepcopy(job)
             write_record(self.records/(job['id']+'.md'),record,body)
@@ -112,7 +122,7 @@ class WorkQueue:
             with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
         finally:
             with self.condition:
-                self.drop_attachments(job);self.save(job);self.condition.notify_all()
+                job['text']=display_text(job.get('text',''));self.drop_attachments(job);self.save(job);self.condition.notify_all()
     def dispatch(self):
         """Start every queued request that may run now, each in its own thread; FIFO within each lane."""
         started=[]
@@ -125,7 +135,7 @@ class WorkQueue:
         self.workers=[thread for thread in self.workers if thread.is_alive()]
         return len(started)
     def public(self, job):
-        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[]))}
+        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'text':display_text(job.get('text',''),streaming=job.get('status')=='running'),'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[]))}
     def list(self):
         with self.condition:return [self.public(job) for job in self.jobs]
     def retry(self, identifier, note=''):
@@ -156,6 +166,7 @@ class WorkQueue:
             elif kind in ('choice','plan','check_in','report','decision'):job[kind]={key:value for key,value in event.items() if key!='type'}
             elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136
             elif kind=='paused':job['paused']=bool(event.get('paused'))  # task 164: waiting while Pi answers the chat
+            elif kind=='assistant_final':job['text']=display_text(event['text'])[-50000:]
             elif kind=='message_update':
                 delta=event['assistantMessageEvent']
                 if delta['type']=='text_start':job['text']=''

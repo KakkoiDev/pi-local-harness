@@ -94,7 +94,8 @@ else:
     text=f'[CANARY] reply {count}'
     if 'TEST_ASK' in request['message']:text='[CANARY] I can do that two ways. Should I keep the old name too?'  # the bench's scripted user answers it
     if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.\n\n| If you are… | Action | A very long example column that should scroll on a phone |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう and a much longer cell to push the width |'
-    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})
+    if 'TEST_FINAL_TEXT' in request['message']:text='[CANARY] clean answer'
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})  # what the extension says when it will not wake Pi (plan 184)

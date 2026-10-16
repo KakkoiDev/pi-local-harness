@@ -600,6 +600,7 @@ class WebChat:
             if committed:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
+            emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})

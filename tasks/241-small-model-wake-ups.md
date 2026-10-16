@@ -31,3 +31,7 @@ The second G-004 on a file includes the closest current windows of the attempted
 ## README request found during task 244 preflight
 
 Build 5d7f250's e4b run solved pagination (58 seconds, verified), but the README run stopped after promising to read pager.py (13 seconds, one tool, no wake). The change-intent verbs omitted “write.” The real request and answer reproduce a failing fake-extension test; adding write/document and the matching Japanese verbs makes that test pass. This retains the existing once-per-request and shared retry limits. The first two completed runs and interrupted Pong scratch are retained under ignored `.bench-local/244-2026-10-17/`, excluded from the final comparison. The complete local batch restarts on the fixed committed build.
+
+## Activity finalized-answer bridge found during local runs
+
+Pi's supported message_end replacement cleans the stored conversation, but Activity formerly kept only streamed deltas. A completed slugify run therefore retained a leaked template token in its request record despite the extension counting its removal. Fake-Pi and queue tests reproduce the mismatch and split tokens. The worker now sends its finalized answer to the queue; Activity hides complete and incomplete template markers while streaming, then saves the final answer for reloads. Bare mode keeps the unmodified baseline. The 31 queue/web tests pass. The earlier local runs remain pre-fix evidence under ignored `.bench-local/244-final-2026-10-17/`, excluded from the final comparison.

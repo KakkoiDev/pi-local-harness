@@ -73,6 +73,16 @@ class ToolChecksTest(unittest.TestCase):
         self.assertNotIn('checks',jobs[0]['tools'][0])
 
 class RpcBridgeTest(unittest.TestCase):
+    def test_queue_receives_the_finalized_answer_after_streaming(self):
+        import os,sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi';executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000,gate_token='shared-token');self.addCleanup(chat.close);conversation=chat.store.create();events=[]
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],{'message':'TEST_FINAL_TEXT'},events.append)
+            self.assertEqual([event['text'] for event in events if event['type']=='assistant_final'],['[CANARY] clean answer'])
+
     def test_real_subprocess_protocol_preserves_session_and_streams(self):
         import os
         import sys

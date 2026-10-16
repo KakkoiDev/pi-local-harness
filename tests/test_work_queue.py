@@ -20,6 +20,20 @@ class QueueTest(unittest.TestCase):
             queue.run_one();queue.run_one()
             self.assertEqual(calls,[('One','chat-one','first'),('Two','chat-two','second')])
             self.assertEqual([job['status'] for job in queue.list()],['failed','completed'])
+    def test_stream_tokens_are_hidden_and_final_answer_survives_restart(self):
+        import os
+        from unittest.mock import patch
+        for bare in (False,True):
+            with self.subTest(bare=bare),tempfile.TemporaryDirectory() as directory,patch.dict(os.environ,{'PI_HARNESS_BARE':'1' if bare else '0'}):
+                path=Path(directory)/'queue.json';shown=[]
+                def execute(job,emit):
+                    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'Before <chan'}});shown.append(queue.list()[0]['text'])
+                    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'nel|>after <|im_end|>'}});shown.append(queue.list()[0]['text'])
+                    emit({'type':'assistant_final','text':'Final <channel|>answer'})
+                queue=WorkQueue(path,execute,start=False);queue.add('One','chat',{'message':'Write it'});queue.run_one()
+                self.assertEqual(shown,['Before <chan','Before <channel|>after <|im_end|>'] if bare else ['Before ','Before after '])
+                self.assertEqual(WorkQueue(path,execute,start=False).list()[0]['text'],'Final <channel|>answer' if bare else 'Final answer')
+
     def test_context_reasons_are_kept_for_each_turn_and_survive_restart(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'queue.json';queue=WorkQueue(path,lambda job,emit:None,start=False)
