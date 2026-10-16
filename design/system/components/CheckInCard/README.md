@@ -7,3 +7,8 @@ After each verified task in a plan: the task's DoneRow while it waits for the pe
 - **Continued**: it settles into the ordinary DoneRow, its head adding “continued by you · 14:33” or the dotted `auto` tag.
 - **Not verified**: the head says so with the caution glyph, “Not verified: no passing test run after the last change”, and **Review First** becomes the default. Run on its own stops here too.
 - **Stop Here**: one settled line “Stopped after task 1 of 4 · you · 14:34 · Continue Plan”.
+
+## Round 11 (replaces the round 10 labels)
+
+- The head's right side reads “Waiting for you to check it”. Buttons: **Accept and Continue** (default; replaces Continue) · Review First · Stop Here. Stop Here pauses without accepting; the card keeps waiting. All of this stays in Implementation.
+- The last task: **Accept Task**; then one settled line “All 4 planned tasks are built · still Implementation · Back to Discussion” (Back to Discussion is the person's choice; Pi never moves the phase).

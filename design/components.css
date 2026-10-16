@@ -552,3 +552,53 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-auto{min-height:44px;font-size:15px}
   .pw-auto .pw-check{width:22px;height:22px}
 }
+
+/* ---- 2026-10-17 · Round 11: three phases for every request (task 247), context reasons (task 234) ---- */
+
+/* PhaseControl: a popup button in the composer row; the project's phase, set only by the person. */
+.pw-phase{position:relative;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 26px 0 10px;font-family:var(--font-chrome);font-size:14px;line-height:18px;color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:0;box-shadow:var(--shadow-popup);white-space:nowrap;cursor:default}
+.pw-phase::after{content:"";position:absolute;right:9px;top:50%;margin-top:-2px;border:4px solid transparent;border-top:5px solid currentColor;border-bottom:0}
+.pw-phase:hover{background:var(--wash)}
+.pw-phase[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-phase:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-phase[aria-busy="true"]{border-style:dotted;box-shadow:none}
+.pw-phase__label{font-weight:600}
+.pw-phase .pw-tag{margin-left:2px}
+.pw-phase-menu{min-width:340px}
+.pw-phase-menu .pw-menu__item{height:auto;min-height:44px;padding-top:6px;padding-bottom:6px;align-items:flex-start;flex-direction:column;gap:1px;white-space:normal}
+.pw-phase-menu .pw-menu__item>span:first-child{display:flex;width:100%;justify-content:space-between;gap:16px;font-weight:600}
+.pw-phase-menu small{font-size:13px;line-height:17px;font-weight:400}
+.pw-phase-menu .pw-menu__note{white-space:normal}
+
+/* PhaseLine: a quiet line in the chat each time the phase changes */
+.pw-phase-line{align-self:center;display:flex;align-items:center;gap:8px;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:3px 12px}
+
+/* WaitingStrip: in Discussion, planned tasks that wait to be built */
+.pw-waiting{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:8px 16px;border-top:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-waiting__tasks{flex:1 1 200px;min-width:0}
+
+/* Phase refusal inside a tool row: same layout as Gate's block, named by the phase */
+.pw-tool__reason{margin:0;padding:6px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-why{font-family:var(--font-chrome);font-size:13px}
+.pw-why>summary{cursor:default;text-decoration:underline;text-underline-offset:2px}
+.pw-why ul{margin:4px 0 0;padding-left:18px}
+
+/* ContextLine reasons: a Why? button opens the list with the full path and the reason for each file */
+.pw-context__why{flex:none;font:inherit;color:inherit;background:none;border:0;padding:0 2px;margin-left:6px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+.pw-context__why[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg);text-decoration:none}
+.pw-reasons{background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:8px 0;font-family:var(--font-chrome);font-size:14px;line-height:18px;width:440px}
+.pw-reasons h3{margin:0 12px 6px;font-size:13px;font-weight:600}
+.pw-reasons ol{margin:0;padding:0;list-style:none}
+.pw-reasons li{display:grid;grid-template-columns:1fr auto;gap:0 12px;padding:5px 12px;border-top:1px dotted var(--ink)}
+.pw-reasons li:first-child{border-top:0}
+.pw-reasons .pw-reasons__path{grid-column:1/-1;font-family:var(--font-mono);font-size:12px;color:var(--ink-disabled);overflow-wrap:anywhere}
+.pw-reasons .pw-reasons__why{grid-column:1/-1;font-size:13px}
+.pw-reasons p{margin:6px 12px 0;font-size:12px}
+
+@media (max-width:760px){
+  .pw-phase{height:44px;font-size:16px;padding-right:30px}
+  .pw-phase-menu .pw-menu__item{min-height:64px}
+  .pw-reasons{width:auto;border:0;box-shadow:none;padding:0}
+  .pw-reasons li{padding:8px 0;min-height:44px}
+  .pw-context__why{min-height:44px}
+}

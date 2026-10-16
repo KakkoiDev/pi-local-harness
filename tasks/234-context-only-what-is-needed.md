@@ -48,3 +48,11 @@ is persisted immediately, including reasons and per-turn history. Files from the
 used when this request has no commit yet. Task remains open only for the designed reason display.
 
 The missing reason display is included in design/briefs/round-11.md (2026-10-17); its box remains open until the designer supplies it.
+
+## The design for the reasons (round 11, 2026-10-17)
+
+The "Pi sees" line stays one line; the word in parentheses after each file is its reason: rules, plan, task, named,
+changed or related. A Why? button opens the full list (each file's reason as a sentence and its full path): a popover
+on the desk, a sheet on the phone. Boards: design/canvas/R11_Context, R11_ContextParts, Ph11_Context; card
+design/system/components/ContextLine ("Round 11: why each file (task 234)"); CSS `.pw-context__why`, `.pw-reasons`,
+`.pw-why` in design/components.css. IMPLEMENTATION.md round 11.

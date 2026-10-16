@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal · three phases</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1250px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; align-content: flex-start; color: #000"><section class="pw-window" aria-label="/status, /plan, /build" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">/status, /plan, /build</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">› /status
+
+── <b style="font-weight:600">Status · Class Notes</b> ──────────────────────────────────────────────────────
+  Phase          Discussion   <span style="color:#767676">/plan to plan · /build when tasks wait</span>
+  Planned tasks  4 waiting    <span style="color:#767676">001 Write and keep notes … 004 Works on the phone</span>
+  Run on its own off          <span style="color:#767676">/auto on</span>
+  Model          gemma4:26b · high
+
+› /plan
+✓ Phase: Planning. <span style="color:#767676">Pi may write ROADMAP.md and tasks/ only. The web shows it too.</span>
+
+› /build
+✓ Phase: Implementation. <span style="color:#767676">Pi changes only the files of the task in progress.</span>
+
+› /build <span style="color:#767676">(no planned task)</span>
+■ Not changed: nothing is planned yet. <span style="color:#767676">/plan first, then /build.</span>
+
+──────────────────────────────────────────────────────────────────────────────
+› <span style="background:#000;color:#fff"> </span>
+<span style="color:#767676">gemma4:26b · high</span> │ <b style="font-weight:600">Discussion</b> │ Ready │ <span style="color:#767676">Gate today 14 │ Phone off</span></pre></section><section class="pw-window" aria-label="Planning ready, and tasks waiting" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Planning ready, and tasks waiting</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000"><b style="font-weight:600">Pi</b> <span style="color:#767676">14:08</span>
+── <b style="font-weight:600">Plan · Class Notes</b> ────────────────────── <span style="color:#767676">4 tasks · 4 decisions</span>
+  1  Write and keep notes   <span style="color:#767676">done when a note survives a reload</span>
+  2  Subjects               <span style="color:#767676">done when the list filters by it</span>
+  3  Japanese and English   <span style="color:#767676">done when every label switches</span>
+  4  Works on the phone     <span style="color:#767676">done when it installs and opens offline</span>
+
+→ Start building           <span style="color:#767676">approves the plan · Implementation</span>
+  Plan another task        <span style="color:#767676">keeps it waiting · Discussion</span>
+  Change…
+  Open ROADMAP.md
+<span style="color:#767676">↑↓ navigate · enter select · escape cancel</span>
+
+<span style="color:#767676">In Discussion with tasks waiting:</span>
+── <b style="font-weight:600">4 planned tasks wait</b> ──────────────────────────────────────────────────────
+→ Build the planned tasks  <span style="color:#767676">review the list first</span>
+  Not now</pre></section><section class="pw-window" aria-label="Check-in, a refusal, the footer with Run on its own" style="width: 646px; flex: none"><div class="pw-titlebar"><span class="pw-box" aria-hidden="true"></span><div class="pw-titlebar__stripes"></div><h3 class="pw-titlebar__title">Check-in, a refusal, the footer with Run on its own</h3><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><pre style="margin: 0; padding: 8px 10px; font-family: var(--font-mono); font-size: 13px; line-height: 18px; white-space: pre; overflow: hidden; background: #fff; color: #000">── <b style="font-weight:600">Task 1 of 4 done · Write and keep notes</b> ─── <span style="color:#767676">waiting for you</span>
+  You can write a note; it is still there after a reload.
+  Verified  uv run pytest · 6 passed
+  Next      Task 2: Subjects
+
+→ Accept and continue
+  Review first
+  Stop here
+<span style="color:#767676">↑↓ navigate · enter select · escape cancel</span>
+
+<b style="font-weight:600">Pi</b> <span style="color:#767676">14:21</span>
+▶ write app/notes.js
+■ Not in this phase · Discussion
+  Not written: Pi can read, search and talk, but can’t write files.
+  <span style="color:#767676">/plan to plan this change · Pi won’t change the phase itself</span>
+
+──────────────────────────────────────────────────────────────────────────────
+› <span style="background:#000;color:#fff"> </span>
+<span style="color:#767676">gemma4:26b · high</span> │ <b style="font-weight:600">Implementation</b> │ ▶ Working · Auto │ <span style="color:#767676">Gate today 14 │ Phone off</span></pre></section><section class="pw-window" style="flex: 1; min-width: 300px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 20px"><h2 class="pw-dialog__title" style="margin: 0">Terminal (task 247)</h2><p style="margin: 0"><b>/discuss</b>, <b>/plan</b>, <b>/build</b> change the shared project phase; the web button follows within a second. Pi’s tool calls never change it.</p><p style="margin: 0">The footer gains the phase as its second segment, bold. /status gains Phase and Planned tasks.</p><p style="margin: 0">/build with nothing planned is refused with its reason; /build with tasks waiting asks “Build the planned tasks” with the list, like the web review.</p><p style="margin: 0">A refusal prints “■ Not in this phase · <phase>”, the sentence, and the command to use; Gate’s block keeps “✗ Gate blocked”.</p></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1250}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -29,3 +29,22 @@ phases.
 ## Needs design
 
 The current design has no phase control or phase-transition offers. The reviewable brief is design/briefs/round-11.md. It also asks for task 234’s per-file selection reasons. No phase UI has been invented or implemented; the phase persistence, Gate policy, terminal commands and search integration remain open above. The round 10 runtime stays in place until task 247 adapts it.
+
+## The design (round 11, in the repo since 2026-10-17)
+
+Read docs/handoff/gpt-sol.md "Reading the design" first. Then:
+- Words: design/IMPLEMENTATION.md, `## 2026-10-17 · Round 11: three phases for every request (task 247) and context
+  reasons (task 234)` and its `### Changed round 10 text (one specification)`, which replaces the round 10 labels you
+  built (PlanCard: Approve Plan becomes Start Building, the only approval, and Plan Another Task; CheckInCard: Continue
+  becomes Accept and Continue, Accept Task for the last task, Stop Here pauses without accepting; Run on its own presses
+  Start Building and never moves to Discussion or Planning).
+- Boards (design/canvas/, page `r11` "Phases"): R11_Answers (read first), R11_Parts, R11_Discussion, R11_PhaseMenu,
+  R11_Planning, R11_Waiting, R11_BuildReview, R11_Implementation, R11_CheckIn, R11_Auto, R11_SaveFailed, R11_Refusals;
+  terminal T_Phases; phone Ph11_Discussion, Ph11_PhaseSheet, Ph11_Planning, Ph11_Waiting, Ph11_BuildReview,
+  Ph11_Implementation, Ph11_CheckIn, Ph11_Auto, Ph11_Refusal, Ph11_SaveFailed. (R11_Context, R11_ContextParts and
+  Ph11_Context are task 234's.)
+- Components: design/system/components/PhaseControl (new: Desk, Phone, Refusal, with the three refusal sentences),
+  PlanCard and CheckInCard (their "Round 11" sections), TerminalOutput ("Phases (round 11)"), AwayCard (its round 11
+  bullet). CSS: the round 11 block at the end of design/components.css (`.pw-phase`, `.pw-phase-menu`,
+  `.pw-phase-line`, `.pw-waiting`, `.pw-tool__reason`, `.pw-why`, `.pw-context__why`, `.pw-reasons`).
+- The round 11 brief step above is done: the designer answered.

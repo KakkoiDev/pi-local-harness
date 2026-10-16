@@ -592,3 +592,26 @@ Redrawn: [R10_AutoOn], [R10_Away], [R10_AgentMenu], [Ph10_Away], [R9_Settings], 
 9. **Nothing is held back**: publishing, git push, downloads, sending, Move to Trash all run on their own. “Needs you” is removed (no Activity item, no status count, no footer segment).
 10. **The risk notice every time** it is turned on (from the checkbox, the menu, Settings or `/auto on`): Caution alert listing what will happen without asking, the irreversible ones in bold; **Turn On** / **Cancel** (Cancel is the default).
 11. **The report** at the end of every run, shown again when the person comes back if unseen: Done (verified or not), Decided on its own (Change… each), Left this Mac or used the Trash, Problems; Got It · Show in Activity. The harness keeps the record per run (Activity can list past reports).
+
+## 2026-10-17 · Round 11: three phases for every request (task 247) and context reasons (task 234)
+
+Boards: canvas page **Phases** — [R11_Answers], [R11_Parts], [R11_Discussion], [R11_PhaseMenu], [R11_Planning], [R11_Waiting], [R11_BuildReview], [R11_Implementation], [R11_CheckIn], [R11_Auto], [R11_SaveFailed], [R11_Refusals], [R11_Context], [R11_ContextParts], [T_Phases], [Ph11_Discussion], [Ph11_PhaseSheet], [Ph11_Planning], [Ph11_Waiting], [Ph11_BuildReview], [Ph11_Implementation], [Ph11_CheckIn], [Ph11_Auto], [Ph11_Refusal], [Ph11_SaveFailed], [Ph11_Context]. Cards: **PhaseControl** (new), PlanCard, CheckInCard, ContextLine, AwayCard, TerminalOutput (each with a round 11 section). CSS: the round 11 block at the end of bundle.css (`.pw-phase`, `.pw-phase-menu`, `.pw-phase-line`, `.pw-waiting`, `.pw-why`, `.pw-context__why`, `.pw-reasons`).
+
+1. **The phase** belongs to the project (saved with it, shared by web and terminal, restored on restart). Discussion is the start. The harness enforces it on every file write; the person (and Run on its own's two moves) changes it; Pi's tool calls cannot. Small fixes use the same three phases.
+2. **PhaseControl** (see its card): first in the composer row; a popup button with a three-item radio menu, shortcuts ⇧⌘1–3, Implementation disabled with “No planned task yet. Plan one first.” when nothing is planned. Phone: its own 44 px row above the field and a 64 px-row sheet. Every change writes a phase line in the chat. The placeholder follows the phase.
+3. **Planning ready**: the PlanCard's foot is Start Building (default) · Plan Another Task · Change… · Open the Plan. Start Building approves and enters Implementation; Plan Another Task keeps the plan waiting and returns to Discussion.
+4. **Tasks waiting in Discussion**: the waiting strip and **Build the Planned Tasks…** → the review (checkboxes per task, Done when, Open the Plan) → Start Building. Unchecked tasks stay waiting.
+5. **Check-in**: Accept and Continue (default) · Review First · Stop Here, inside Implementation. Last task: Accept Task, then “All N planned tasks are built · Back to Discussion”.
+6. **Run on its own**: may move Planning → Implementation (it presses Start Building) and continue between tasks; risk notice every time it is turned on, status “on its own”, auto labels and the report are unchanged from round 10 v2. The phase button shows a dotted auto tag; each automatic move a phase line with the tag.
+7. **Refusals**: Gate's blocked row, named by the phase, Change Phase… + Why?; the three sentences are in the PhaseControl card. Pi explains, never picks the phase.
+8. **Save failure**: the button shows “<phase>…” dotted while saving; on failure it reverts, with the alert line and Try Again. No partial state: the old phase stays enforced.
+9. **Terminal**: `/discuss`, `/plan`, `/build`; the phase as the footer's second segment; `/status` Phase and Planned tasks; the same offers as Pi's select lists; refusals “■ Not in this phase · <phase>” (T_Phases).
+10. **Context reasons (234)**: one reason word per file in the Pi sees line (rules · plan · task · named · changed · related), +N unchanged, **Why?** opens the per-file reason and full path (popover on the desk, sheet on the phone). The words and sentences come from the selector's recorded reasons.
+
+### Changed round 10 text (one specification)
+
+- **PlanCard**: “Approve Plan (default)” → **Start Building** (default) and **Plan Another Task**; there is no Approve Plan any more. “Plan approved · by you” → “Plan approved: building · Start Building · you”.
+- **CheckInCard**: “Continue (the default)” → **Accept and Continue**; last task **Accept Task**. Stop Here no longer accepts.
+- **Run on its own**: “approves its own plans” now means it presses Start Building, moving Planning → Implementation; it never moves to Discussion or Planning.
+- **Round 10 point 5 (Work)** is unchanged; the task files now come from the harness's layout in Planning.
+- ChoiceCard and the report (AwayCard) are unchanged.

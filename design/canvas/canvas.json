@@ -2281,6 +2281,214 @@
    "h": 844,
    "title": "15 · Phone · While you were away",
    "page": "r10"
+  },
+  "R11_Answers.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 560,
+   "title": "Round 11 in brief (spec in IMPLEMENTATION.md)",
+   "page": "r11"
+  },
+  "R11_Parts.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1750,
+   "title": "Phase control states, phase lines, PlanCard and CheckInCard as changed",
+   "page": "r11"
+  },
+  "R11_Discussion.dc.html": {
+   "x": 0,
+   "y": 1910,
+   "w": 1440,
+   "h": 900,
+   "title": "1 · Discussion",
+   "page": "r11"
+  },
+  "R11_PhaseMenu.dc.html": {
+   "x": 1520,
+   "y": 1910,
+   "w": 1440,
+   "h": 900,
+   "title": "2 · The phase menu open",
+   "page": "r11"
+  },
+  "R11_Planning.dc.html": {
+   "x": 3040,
+   "y": 1910,
+   "w": 1440,
+   "h": 900,
+   "title": "3 · Planning ready: Start Building / Plan Another Task",
+   "page": "r11"
+  },
+  "R11_Waiting.dc.html": {
+   "x": 0,
+   "y": 2970,
+   "w": 1440,
+   "h": 900,
+   "title": "4 · Discussion with planned tasks waiting",
+   "page": "r11"
+  },
+  "R11_BuildReview.dc.html": {
+   "x": 1520,
+   "y": 2970,
+   "w": 1440,
+   "h": 900,
+   "title": "5 · Build the Planned Tasks…: review",
+   "page": "r11"
+  },
+  "R11_Implementation.dc.html": {
+   "x": 3040,
+   "y": 2970,
+   "w": 1440,
+   "h": 900,
+   "title": "6 · Implementation",
+   "page": "r11"
+  },
+  "R11_CheckIn.dc.html": {
+   "x": 0,
+   "y": 4030,
+   "w": 1440,
+   "h": 900,
+   "title": "7 · A task awaiting validation",
+   "page": "r11"
+  },
+  "R11_Auto.dc.html": {
+   "x": 1520,
+   "y": 4030,
+   "w": 1440,
+   "h": 900,
+   "title": "8 · Run on its own",
+   "page": "r11"
+  },
+  "R11_SaveFailed.dc.html": {
+   "x": 3040,
+   "y": 4030,
+   "w": 1440,
+   "h": 900,
+   "title": "9 · Phase not saved: Try Again",
+   "page": "r11"
+  },
+  "R11_Refusals.dc.html": {
+   "x": 0,
+   "y": 5090,
+   "w": 1440,
+   "h": 1000,
+   "title": "10 · Phase refusals beside Gate’s block",
+   "page": "r11"
+  },
+  "R11_Context.dc.html": {
+   "x": 1520,
+   "y": 5090,
+   "w": 1440,
+   "h": 900,
+   "title": "11 · Context reasons: Why?",
+   "page": "r11"
+  },
+  "R11_ContextParts.dc.html": {
+   "x": 3040,
+   "y": 5090,
+   "w": 1440,
+   "h": 760,
+   "title": "12 · ContextLine with reasons",
+   "page": "r11"
+  },
+  "T_Phases.dc.html": {
+   "x": 0,
+   "y": 6250,
+   "w": 1440,
+   "h": 1250,
+   "title": "13 · Terminal: /discuss /plan /build, offers, refusal, footer",
+   "page": "r11"
+  },
+  "Ph11_Discussion.dc.html": {
+   "x": 0,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "14 · Phone · Discussion",
+   "page": "r11"
+  },
+  "Ph11_PhaseSheet.dc.html": {
+   "x": 450,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "15 · Phone · phase sheet",
+   "page": "r11"
+  },
+  "Ph11_Planning.dc.html": {
+   "x": 900,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "16 · Phone · Planning ready",
+   "page": "r11"
+  },
+  "Ph11_Waiting.dc.html": {
+   "x": 1350,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "17 · Phone · tasks waiting",
+   "page": "r11"
+  },
+  "Ph11_BuildReview.dc.html": {
+   "x": 1800,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "18 · Phone · build review",
+   "page": "r11"
+  },
+  "Ph11_Implementation.dc.html": {
+   "x": 2250,
+   "y": 7660,
+   "w": 390,
+   "h": 844,
+   "title": "19 · Phone · Implementation",
+   "page": "r11"
+  },
+  "Ph11_CheckIn.dc.html": {
+   "x": 0,
+   "y": 8664,
+   "w": 390,
+   "h": 844,
+   "title": "20 · Phone · awaiting validation",
+   "page": "r11"
+  },
+  "Ph11_Auto.dc.html": {
+   "x": 450,
+   "y": 8664,
+   "w": 390,
+   "h": 844,
+   "title": "21 · Phone · Run on its own",
+   "page": "r11"
+  },
+  "Ph11_Refusal.dc.html": {
+   "x": 900,
+   "y": 8664,
+   "w": 390,
+   "h": 844,
+   "title": "22 · Phone · refusal",
+   "page": "r11"
+  },
+  "Ph11_SaveFailed.dc.html": {
+   "x": 1350,
+   "y": 8664,
+   "w": 390,
+   "h": 844,
+   "title": "23 · Phone · not saved",
+   "page": "r11"
+  },
+  "Ph11_Context.dc.html": {
+   "x": 1800,
+   "y": 8664,
+   "w": 390,
+   "h": 844,
+   "title": "24 · Phone · Why? sheet",
+   "page": "r11"
   }
  },
  "createdOnFiles": {
@@ -2596,6 +2804,15 @@
    "w": 240,
    "x": 0,
    "y": -260
+  },
+  "r11": {
+   "kind": "title1",
+   "maxW": 4500,
+   "page": "r11",
+   "text": "Round 11 — Discussion, Planning, Implementation (task 247) · context reasons (task 234)",
+   "w": 240,
+   "x": 0,
+   "y": -260
   }
  },
  "order": [
@@ -2867,7 +3084,33 @@
   "Ph10_Choice.dc.html",
   "Ph10_Plan.dc.html",
   "Ph10_CheckIn.dc.html",
-  "Ph10_Away.dc.html"
+  "Ph10_Away.dc.html",
+  "R11_Answers.dc.html",
+  "R11_Parts.dc.html",
+  "R11_Discussion.dc.html",
+  "R11_PhaseMenu.dc.html",
+  "R11_Planning.dc.html",
+  "R11_Waiting.dc.html",
+  "R11_BuildReview.dc.html",
+  "R11_Implementation.dc.html",
+  "R11_CheckIn.dc.html",
+  "R11_Auto.dc.html",
+  "R11_SaveFailed.dc.html",
+  "R11_Refusals.dc.html",
+  "R11_Context.dc.html",
+  "R11_ContextParts.dc.html",
+  "T_Phases.dc.html",
+  "Ph11_Discussion.dc.html",
+  "Ph11_PhaseSheet.dc.html",
+  "Ph11_Planning.dc.html",
+  "Ph11_Waiting.dc.html",
+  "Ph11_BuildReview.dc.html",
+  "Ph11_Implementation.dc.html",
+  "Ph11_CheckIn.dc.html",
+  "Ph11_Auto.dc.html",
+  "Ph11_Refusal.dc.html",
+  "Ph11_SaveFailed.dc.html",
+  "Ph11_Context.dc.html"
  ],
  "pages": [
   {
@@ -2905,6 +3148,10 @@
   {
    "id": "r10",
    "name": "Plan mode"
+  },
+  {
+   "id": "r11",
+   "name": "Phases"
   },
   {
    "id": "edit",

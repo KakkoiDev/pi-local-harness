@@ -35,3 +35,10 @@ How terminal Pi (`plh`) draws System 1 on a character grid (round 6). Boards: th
 - Recovery: one retry by itself (“Pi asks again another way · Esc stops it”), then “✗ Harness stopped retrying.”
 - `/doctor` names existing commands that fix a problem (`→ /ollama restart`, `→ /config set …`), each asking first. A stale agent lock is a note: it clears itself.
 - Pi’s own banner and any tmux warning sit above the harness header.
+
+## Phases (round 11)
+
+- `/discuss`, `/plan`, `/build` set the shared project phase (“✓ Phase: Planning. Pi may write ROADMAP.md and tasks/ only.”); `/build` with nothing planned: “■ Not changed: nothing is planned yet. /plan first, then /build.”; with tasks waiting it shows “Build the planned tasks” as Pi's select list.
+- The footer's second segment is the phase, bold: `gemma4:26b · high │ Discussion │ Ready │ …`; `/status` gains Phase and Planned tasks.
+- Planning ready: “→ Start building / Plan another task / Change… / Open ROADMAP.md”. Check-in: “→ Accept and continue / Review first / Stop here”.
+- Refusal: “■ Not in this phase · <phase>”, the sentence, and the command to use (dim). Board: T_Phases.
