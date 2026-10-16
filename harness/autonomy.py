@@ -96,6 +96,10 @@ class RunReports:
             value=read(self.file(identifier))
             return {**value,'counts':{kind:len(value[kind]) for kind in KINDS}} if value else None
 
+    def list(self):
+        """Finished unseen runs remain available even while a newer run is working."""
+        return sorted((value for path in self.folder.glob('*.json') if path.stem!='index' and (value:=self.get(path.stem))),key=lambda value:value['started'],reverse=True)
+
     def latest(self):
         identifier=self.index()['latest'];return self.get(identifier) if identifier else None
 

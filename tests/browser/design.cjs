@@ -940,6 +940,60 @@ const readline = require('node:readline');
   assert.match(await testList.textContent(),/Exit code: 1/);assert.match(await testList.textContent(),/3 passed/);assert.match(await testList.textContent(),/1 failed/);
   for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});if(width===390)await page.locator('#job-'+tested.id+' .activity-request').click();await testList.waitFor();await testList.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-228-activity-${width}.png`});}
   await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.getByRole('heading',{name:'テスト',exact:true}).waitFor();assert.equal(await page.getByText('3 件成功',{exact:true}).count(),1);
+  // Round 10: the card answers through the real composer and keeps its settled state after reload.
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));
+  const choiceJob=await post('/api/jobs/create',{project:created.project,message:'Discuss the app TEST_CHOICE'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),choiceJob.id);
+  await page.goto(`${base}/p/${created.project}/chat`);
+  const choiceCard=page.locator('.pw-card[aria-label="Who uses it?"]');await choiceCard.waitFor();
+  assert.equal(await choiceCard.locator('input[type="radio"]').first().isChecked(),true);
+  await choiceCard.getByText('Something else…',{exact:true}).click();
+  await choiceCard.getByRole('textbox',{name:'Your answer'}).fill('A study group');
+  await choiceCard.getByRole('button',{name:'Answer',exact:true}).click();
+  await page.locator('.pw-card--settled').filter({hasText:'A study group'}).waitFor();
+  await page.reload();await page.locator('.pw-card--settled').filter({hasText:'A study group'}).waitFor();
+  // Same global switch from the composer, menu, and Settings: risks every time, Cancel owns Return.
+  for(let attempt=0;attempt<2;attempt++){
+   await page.locator('#auto-composer').check();await page.locator('#alert-dialog').waitFor();
+   assert.equal(await page.locator('#alert-default').textContent(),'Cancel');
+   assert.equal(await page.locator('#alert-default').evaluate(el=>el===document.activeElement),true);
+   assert.ok(await page.locator('#alert-extra b').count()>=5);
+   if(attempt===0){await page.locator('#alert-default').click();await page.waitForFunction(()=>!document.querySelector('#auto-composer').checked);}
+   else {await page.locator('#alert-danger').click();await page.waitForFunction(()=>fetch('/api/auto').then(r=>r.json()).then(d=>d.enabled));await page.locator('#auto-composer').uncheck();await page.waitForFunction(()=>fetch('/api/auto').then(r=>r.json()).then(d=>!d.enabled));}
+  }
+  const planJob=await post('/api/jobs/create',{project:created.project,message:'Discuss a plan TEST_PLAN'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),planJob.id);
+  await page.reload();const planCard=page.locator('.pw-card[aria-label="Plan"]').last();await planCard.waitFor();
+  assert.match(await planCard.textContent(),/Move the ball/);await planCard.getByRole('button',{name:'Change…',exact:true}).click();
+  assert.equal(await page.locator('#send').textContent(),'Send Change');assert.equal(await page.locator('#prompt').inputValue(),'');
+  const checkJob=await post('/api/jobs/create',{project:created.project,message:'Check in TEST_CHECK_IN'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),checkJob.id);
+  await page.reload();const checkCard=page.locator('.pw-card').filter({hasText:'Task 1 of 2 done, not verified:'}).last();await checkCard.waitFor();
+  assert.equal(await checkCard.locator('.pw-btn--default').textContent(),'Review First');
+  await checkCard.getByRole('button',{name:'Stop Here',exact:true}).click();await page.getByText(/Stopped after task 1 of 2/).waitFor();
+  await page.reload();await page.getByText(/Stopped after task 1 of 2/).waitFor();
+  // All four card families use the drawn phone dimensions and long-plan/auto states.
+  await page.evaluate(async()=>{
+   const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');
+   const stage=document.createElement('div');stage.id='round10-cards';document.querySelector('#messages').append(stage);
+   const noop=()=>{},decisions='- Sorting: newest (auto)\n- Languages: Japanese and English (given)';
+   stage.append(choiceCard({question:'Sorting?',options:[{label:'Newest'},{label:'Oldest'}],answer:'Newest',state:'auto'},{change:noop}),planCard({goal:'Keep notes',tasks:Array.from({length:9},(_,n)=>({title:'Task '+n,done_when:'It works',decisions}))},{name:'Class Notes',approve:noop,change:noop,open:noop}),awayCard({id:'report',started:'2026-10-16T14:40:00+09:00',ended:'2026-10-16T16:05:00+09:00',outcome:'roadmap done',done:[{task:'Ball',verified:true}],decisions:[{question:'Sort',answer:'Newest'}],external:[{action:'Published',url:'https://example.com'}],problems:[{reason:'A test failed, then passed'}]},{change:noop,seen:noop,activity:noop}));
+  });
+  assert.equal(await page.locator('#round10-cards .pw-card--auto').count(),1);
+  assert.equal(await page.locator('#round10-cards .pw-plan__tasks>li').count(),6);
+  assert.equal(await page.locator('#round10-cards .pw-plan__decisions .pw-tag').count(),3);
+  for(const width of [1440,390]){await page.setViewportSize({width,height:900});await page.locator('#round10-cards').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width===390){const sizes=await page.locator('#round10-cards .pw-card__foot button').evaluateAll(items=>items.map(e=>e.getBoundingClientRect().height));assert.ok(sizes.every(h=>h>=44));}await page.screenshot({path:`/tmp/plh-239-cards-${width}.png`});}
+  await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();
+  await page.locator('#send').filter({hasText:'送信'}).waitFor();
+  await page.evaluate(async()=>{
+   const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');const stage=document.createElement('div');stage.id='round10-ja';document.querySelector('#messages').append(stage);const noop=()=>{};
+   stage.append(choiceCard({question:'Tasks',options:[{label:'Tasks'},{label:'Decisions'}],number:1,total:3},{answer:noop}),planCard({goal:'Tasks',tasks:[{title:'Tasks',done_when:'it works',decisions:'- Tasks: Decisions (given)'}]},{name:'Notes',approve:noop,change:noop,open:noop}),awayCard({id:'ja',done:[],decisions:[],external:[],problems:[]},{seen:noop,change:noop,activity:noop}));
+  });
+  await page.locator('#round10-ja button').filter({hasText:'計画を承認'}).waitFor();
+  assert.equal(await page.locator('#round10-ja .pw-option__label').first().evaluate(el=>el.firstChild.textContent),'Tasks','person options keep their original words');
+  assert.equal(await page.locator('#round10-ja .pw-plan__goal').textContent(),'Tasks');
+  assert.match(await page.locator('#round10-ja .pw-plan__tasks small').textContent(),/完了条件/);
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
  }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}

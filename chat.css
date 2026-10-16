@@ -466,3 +466,8 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
   .folder-step__actions{gap:8px}
   .folder-step__actions .pw-btn{flex:1}
 }
+
+/* Round 10: read approval and decision tags; focusing restores their exact editable Markdown. */
+.pw-block--plan:not(:focus-within)>.pw-block__content{display:none}
+.pw-block--plan:focus-within>.pw-plan-reading{display:none}
+.pw-plan-reading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 8px;min-height:24px;flex:1;cursor:text}

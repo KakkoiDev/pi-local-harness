@@ -24,6 +24,14 @@ class WebChatTest(unittest.TestCase):
             store.delete(first['id'])
             self.assertEqual(len(store.list()),1)
             with self.assertRaises(ValueError):store.get('../outside')
+    def test_stop_check_in_is_durable_and_cannot_approve_a_plan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store=ConversationStore(Path(directory));chat=store.create()
+            store.append(chat['id'],{'role':'assistant','content':'Ball','check_in':{'task':'tasks/001.md','next':'tasks/002.md'}})
+            store.stop_check_in(chat['id'],0)
+            self.assertEqual(ConversationStore(Path(directory)).get(chat['id'])['messages'][0]['check_in']['state'],'stopped')
+            with self.assertRaises(ValueError):store.stop_check_in(chat['id'],3)
+
     def test_uploads_attach_images_transcribe_audio_and_read_text(self):
         calls=[]
         def transcribe(path):

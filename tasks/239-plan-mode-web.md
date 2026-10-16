@@ -43,6 +43,14 @@ The design is in the repo (read docs/handoff/gpt-sol.md, "Reading the design", f
 - The phone versions (sheets) and the Japanese text (messages/ja.json).
 
 ## Steps
-- [ ] Re-read IMPLEMENTATION.md round 10; list every board and build each, with tests in tests/browser/design.cjs
+- [x] Re-read IMPLEMENTATION.md round 10; list every board and build each, with tests in tests/browser/design.cjs
   (the phone block for phone boards). Copy how round 8 was built (task 222) and tested.
-- [ ] Green on `python3 tests/browser/run.py all`.
+- [x] Green on `python3 tests/browser/run.py all`.
+
+## Result
+
+Round 10 uses the shared ChoiceCard, PlanCard, waiting DoneRow and AwayCard components. Answers, changed plan versions, approvals and stopped check-ins survive reloads. Plans keep all decisions and shorten only the task preview when there are more than seven tasks. Unverified check-ins default to Review First.
+
+The composer, Settings and Agent menu share the remembered global setting, with Cancel as the default in the repeated risk alert. Finished unseen reports reappear with their four counted sections; decision changes open the composer. Work decorates approval lines and decision tags while retaining the original Markdown for editing.
+
+Red: the missing card module and durable report/check-in methods failed their focused tests, and the browser could not find the choice card. Focused Python and Node suites pass. Browser coverage exercises real composer answers, reloads, repeated risk confirmation, plans, stopped unverified check-ins, long plans, automatic decisions, report sections, phone dimensions and Japanese controls without translating the person's text.

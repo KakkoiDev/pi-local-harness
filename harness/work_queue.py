@@ -153,6 +153,7 @@ class WorkQueue:
             if kind=='context':
                 job['context']={'included':event['included'],'omitted':event['omitted'],'reasons':event.get('reasons',{}),'chars':event['chars']}
                 job.setdefault('context_turns',[]).append({'time':now(),**copy.deepcopy(job['context'])})
+            elif kind in ('choice','plan','check_in','report','decision'):job[kind]={key:value for key,value in event.items() if key!='type'}
             elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136
             elif kind=='paused':job['paused']=bool(event.get('paused'))  # task 164: waiting while Pi answers the chat
             elif kind=='message_update':

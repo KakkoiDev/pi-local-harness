@@ -4,7 +4,7 @@
 // Pi wrote is never translated: chat messages, documents, file and project names, code, the app in the Preview.
 // Translations: messages/ja.json, {"exact": {"English": "日本語"}, "patterns": [["Preview · {name}", "プレビュー · {name}"]]}.
 
-const SKIP = '[data-no-translate], .pw-msg__body, .pw-msg__reasoning, #document-editor, #source-editor, .pw-done__text:not([data-ui]), .pw-row__label, .pw-preview__frame, .pw-preview__error, .pw-mono, pre, code, iframe, script, style, #project-folder, .file-link, ' +
+const SKIP = '[data-no-translate], .pw-msg__body, .pw-msg__reasoning, #document-editor .pw-block__content, #document-editor .pw-block__handle, #source-editor, .pw-done__text:not([data-ui]), .pw-row__label, .pw-preview__frame, .pw-preview__error, .pw-mono, pre, code, iframe, script, style, #project-folder, .file-link, ' +
   // what the person or Pi wrote, shown in the workbench's own places (found by the translation's review, 2026-10-15)
   '.activity-request, .activity-detail__request, .pw-thread__msg, .document-request > p, .agent-reply, #retry-dialog-request, .pw-tool__cmd, .pw-tool__reason, .event-info__reason, .pw-suggest, .pw-review-item__text, .pw-review-item__quote';
 // Parts that are counts match only numbers, so a pattern like "{n} tasks" never rewrites a sentence that ends in "tasks".

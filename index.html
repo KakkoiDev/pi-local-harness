@@ -101,6 +101,8 @@
         <button class="pw-menu__item" role="menuitem" data-command="cancel-waiting">Cancel Waiting Request…</button>
         <button class="pw-menu__item" role="menuitem" data-command="task-record">Show Task Record</button>
         <div class="pw-menu__sep" role="separator"></div>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="run-on-own">Run on Its Own<span class="pw-menu__key">⌥⌘A</span></button>
+        <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="reconnect">Reconnect</button>
       </div></div>
     <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-window">Window</button>
@@ -230,6 +232,7 @@
             <span id="hint" class="pw-help">Text, images, audio &amp; files</span>
             <span class="pw-menubar__spacer"></span>
             <button id="stop" type="button" class="pw-btn" hidden>Stop<span class="pw-kbd">⌘.</span></button>
+            <label class="pw-auto"><input id="auto-composer" type="checkbox" class="pw-check">Run on its own</label>
             <button id="send" type="submit" class="pw-btn pw-btn--default" disabled>Send</button>
           </div>
           <p id="chat-context" class="pw-context" hidden></p><!-- ContextLine: Pi sees (task 134) -->
@@ -433,6 +436,7 @@
     </fieldset>
     <label class="pw-label settings-option desk-only"><input id="settings-return" type="checkbox" class="pw-check">Return sends a message (Shift-Return adds a line)</label>
     <p class="pw-help phone-only settings-mac-note">Desktop pattern and “Return sends” are Mac settings; change them in Settings on the Mac.</p><!-- Ph8_Settings -->
+    <h3 class="pw-label">Pi</h3><label class="pw-auto"><input id="settings-auto" type="checkbox" class="pw-check">Run on its own</label>
     <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn">Cancel</button><button value="save" class="pw-btn pw-btn--default">Save</button></div>
   </form></dialog>
   <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd><dt class="pw-label">Gate</dt><dd id="about-gate" class="pw-mono"></dd><dt class="pw-label">Data</dt><dd id="about-data" class="pw-mono"></dd></dl><!-- Dialogs2 About --><p class="pw-help">One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>

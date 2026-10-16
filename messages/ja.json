@@ -1074,13 +1074,13 @@
   "Continue?": "続けますか？",
   "Approve Plan?": "計画を承認しますか？",
   "Run on its own": "自動で実行",
-  "Turn on Run on Its Own?": "自動実行をオンにしますか？",
+  "Turn on Run on Its Own?": "自動で進めますか？",
   "Turn On": "オンにする",
   "Auto": "自動",
   "Run report": "実行レポート",
   "No automatic run yet.": "自動実行の記録はまだありません。",
   "Decided on its own": "自動で決めたこと",
-  "Left this Mac or used the Trash": "このMacの外に送ったもの・ゴミ箱に移したもの",
+  "Left this Mac or used the Trash": "外部への操作とゴミ箱",
   "None.": "なし。",
   "Run on its own is on.": "自動実行はオンです。",
   "Run on its own is off.": "自動実行はオフです。",
@@ -1102,7 +1102,32 @@
   "auto": "自動",
   "on · /auto off": "オン · /auto off",
   "off · /auto on": "オフ · /auto on",
-  "Nothing ran: your tool call was written as text. Call the tool.": "何も実行されませんでした。ツール呼び出しが通常の文章になっています。ツールを呼び出してください。"
+  "Nothing ran: your tool call was written as text. Call the tool.": "何も実行されませんでした。ツール呼び出しが通常の文章になっています。ツールを呼び出してください。",
+  "Run on Its Own": "自動で進める",
+  "Plan approved": "計画を承認済み",
+  "chosen": "選択済み",
+  "given": "指定済み",
+  "Your answer": "あなたの回答",
+  "Type your answer": "回答を入力",
+  "or type your answer below": "または下に回答を入力",
+  "Send Change": "変更を送信",
+  "Continue Plan": "計画を続ける",
+  "Undo This Task…": "このタスクを取り消す…",
+  "Ran on its own: report": "自動実行のレポート",
+  "Report: ran on its own": "レポート：自動実行",
+  "Got It": "確認しました",
+  "For every project, until you turn it off, Pi will do all of this without asking:": "オフにするまで、すべてのプロジェクトで次の操作を確認なしに行います：",
+  "answer every question with the recommended option": "すべての質問で推奨の選択肢を選ぶ",
+  "approve its own plans and continue after every task": "計画を承認し、各タスクの後も続ける",
+  "publish (GitHub Pages and other hosts)": "公開する（GitHub Pages など）",
+  "git push to GitHub": "GitHub に git push する",
+  "download files and packages": "ファイルやパッケージをダウンロードする",
+  "send messages and issues": "メッセージや issue を送信する",
+  "move files to the Trash": "ファイルをゴミ箱に移す",
+  "What leaves this Mac (a publish, a push, a message) can’t be taken back by Undo. Every step goes into a report at the end of the run.": "この Mac から外部へ送ったもの（公開、push、メッセージ）は「取り消す」では戻せません。終了時のレポートにすべての操作を記録します。",
+  "Working · on its own": "作業中 · 自動",
+  "no passing test run after the last change": "最後の変更後にテストが成功していません",
+  "verified": "検証済み"
  },
  "patterns": [
   [
@@ -2572,6 +2597,80 @@
   [
    "Removed {count} leaked template tokens.",
    "漏れたテンプレートトークンを{count}個除去しました。"
+  ],
+  [
+   "Question {n} of {total}",
+   "質問 {n}/{total}"
+  ],
+  [
+   "Your answer to “{question}” (or choose above)",
+   "「{question}」への回答（または上で選択）"
+  ],
+  [
+   "Plan: {name}",
+   "計画：{name}"
+  ],
+  [
+   "{n} tasks · {count} decisions",
+   "タスク {n} 件 · 決定 {count} 件"
+  ],
+  [
+   "Done when {text}",
+   "完了条件：{text}"
+  ],
+  [
+   "and {n} more tasks · Open the Plan",
+   "ほか {n} 件のタスク · 計画を開く"
+  ],
+  [
+   "Plan v{n} · replaced by v{m} at {time}",
+   "計画 v{n} · {time} に v{m} に更新"
+  ],
+  [
+   "Plan approved · {n} tasks · {count} decisions · by you · {time}",
+   "計画を承認済み · タスク {n} 件 · 決定 {count} 件 · あなた · {time}"
+  ],
+  [
+   "Plan approved · {n} tasks · {count} decisions",
+   "計画を承認済み · タスク {n} 件 · 決定 {count} 件"
+  ],
+  [
+   "Task {n} of {total} done: {title}",
+   "タスク {n}/{total} 完了：{title}"
+  ],
+  [
+   "Task {n} of {total} done, not verified: {title}",
+   "タスク {n}/{total} 完了・未検証：{title}"
+  ],
+  [
+   "Stopped after task {n} of {total} · you · {time}",
+   "タスク {n}/{total} の後で停止 · あなた · {time}"
+  ],
+  [
+   "Done · {n} tasks",
+   "完了 · タスク {n} 件"
+  ],
+  [
+   "Decided on its own · {n}",
+   "自動で決めたこと · {n} 件"
+  ],
+  [
+   "Left this Mac or used the Trash · {n}",
+   "外部への操作とゴミ箱 · {n} 件"
+  ],
+  [
+   "Problems · {n}",
+   "問題 · {n} 件"
+  ],
+  [
+   "not verified: {reason}",
+   "未検証：{reason}"
+  ],
+  [
+   "· continued by you · {time}",
+   "· あなたが続行 · {time}"
   ]
- ]
+ ],
+ "Question numbering must be within its total.": "質問番号は合計の範囲内にしてください。",
+ "roadmap done": "ロードマップ完了"
 }

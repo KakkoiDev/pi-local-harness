@@ -15,6 +15,14 @@ class AutonomyTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.data=Path(self.temp.name)
 
+    def test_report_list_keeps_unseen_finished_runs_when_a_new_run_starts(self):
+        runs=RunReports(self.data)
+        first=runs.begin('/scratch/one');runs.finish('/scratch/one','roadmap done')
+        runs.begin('/scratch/two')
+        self.assertEqual([r['id'] for r in runs.list() if r.get('ended') and not r['seen']],[first])
+        runs.mark_seen(first)
+        self.assertEqual([r for r in runs.list() if r.get('ended') and not r['seen']],[])
+
     def test_every_enable_needs_the_risks_confirmed_and_the_setting_is_global_and_live(self):
         self.assertFalse(validate({})['auto_accept']);self.assertFalse(enabled(self.data))
         for _ in range(2):

@@ -13,14 +13,15 @@ export function validateChoice(value) {
     return { label: option.label.replace(/\s+/g,' ').trim(), ...(option.detail ? {detail:option.detail.replace(/\s+/g,' ').trim()} : {}) };
   });
   if (new Set(options.map(option=>option.label.toLowerCase())).size !== options.length || options.some(option=>option.label === 'Something else…')) throw Error('Use distinct options; the harness adds Something else….');
-  return { question:value.question.replace(/\s+/g,' ').trim(), options, recommended:0, allow_other:true };
+  if(value.number!==undefined||value.total!==undefined)if(!Number.isInteger(value.number)||!Number.isInteger(value.total)||value.number<1||value.total<value.number)throw Error('Question numbering must be within its total.');
+  return { ...(value.number?{number:value.number,total:value.total}:{}),question:value.question.replace(/\s+/g,' ').trim(), options, recommended:0, allow_other:true };
 }
 
 export function installChoices(pi, {auto=()=>false, web=()=>false, record=async()=>{}, pending=async()=>{}, cancel=async()=>{}} = {}) {
   pi.registerTool?.({
     name:'ask_choices',label:'Ask a choice',
     description:'Ask one decision the request, code and conventions do not answer. Offer 2–4 short options, recommended first (recommended: 0). The harness adds Something else…. Wait for the answer before using the decision.',
-    parameters:{type:'object',properties:{question:{type:'string'},options:{type:'array',items:{type:'object',properties:{label:{type:'string'},detail:{type:'string'}},required:['label']}},recommended:{type:'number',enum:[0]},allow_other:{type:'boolean'}},required:['question','options','recommended']},
+    parameters:{type:'object',properties:{question:{type:'string'},number:{type:'number',description:'This question’s number, only when the total is known.'},total:{type:'number',description:'Known total number of questions; omit both numbers if not known.'},options:{type:'array',items:{type:'object',properties:{label:{type:'string'},detail:{type:'string'}},required:['label']}},recommended:{type:'number',enum:[0]},allow_other:{type:'boolean'}},required:['question','options','recommended']},
     async execute(_id,params,_signal,_update,ctx) {
       try {
         const choice=validateChoice(params);let answer,state='chosen';

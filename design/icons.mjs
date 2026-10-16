@@ -9,6 +9,8 @@ export const ICONS = {
   // Objects
   folder: '<path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/>',
   file: '<path d="M2.5.5h7l4 4v11h-11zM9.5.5v4h4" fill="none" stroke="currentColor"/>',
+  question: '<circle cx="8" cy="8" r="7" fill="none" stroke="currentColor"/><path d="M5.8 6.2a2.2 2.2 0 1 1 3 2c-.6.3-.8.7-.8 1.3v.5M8 11.6v1.4" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  clock: '<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor"/><path d="M8 4v4h3.5" fill="none" stroke="currentColor"/>',
   // Navigation
   'disclosure-closed': '<path d="M5 3.5v9l6-4.5z" fill="currentColor"/>',
   'disclosure-open': '<path d="M3.5 5h9l-4.5 6z" fill="currentColor"/>',

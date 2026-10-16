@@ -1,6 +1,7 @@
 // DoneRow (round 7; boards P_DoneParts, P_Undo, P_UndoConflict, P_UndoUnsaved, P_Undone): under each answer whose
 // request made a commit, what was done in plain words, Show in Preview and Undo This Request…. An undo is its own row
 // (↶ Undone, Redo Request…). The undo itself is harness/undo.py (task 203, 208); these are its alerts.
+import {frameCheckIn} from './plan-cards.mjs';
 import { glyph } from './preview.mjs';
 
 const node = (tag, className = '', text) => { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; };
@@ -21,7 +22,7 @@ export function fileLines(files) {
   return list;
 }
 
-export function doneRow(commit, { project, api, ask, showPreview, send, changed }) {
+export function doneRow(commit, { project, api, ask, showPreview, send, changed, checkIn, checkState, checkActions }) {
   const row = node('section', 'pw-done'); row.setAttribute('aria-label', 'What was done');
   const fill = data => {
     const files = data.files.length, head = node('p', 'pw-done__head'), actions = node('div', 'pw-done__actions');
@@ -41,6 +42,7 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed 
     }
     const ui = undoRow && !redoRow ? words.length : unverified && !data.plan_incomplete ? 1 : 0;  // the harness's own sentences are translated; Pi's plain words are not
     row.replaceChildren(head, ...words.map((line, index) => { const paragraph = node('p', 'pw-done__text', line); if (index >= words.length - ui || data.plan_incomplete && index === 0) paragraph.dataset.ui = ''; return paragraph; }), actions);
+    if(checkIn?.next)frameCheckIn(row,checkIn,{data,state:checkState,...checkActions,undo:()=>run(data,'undo')});
   };
   const load = async () => {
     try { if (!cache.has(commit)) cache.set(commit, await api('/api/undo', { project, commit, preview: true })); fill(cache.get(commit)); }

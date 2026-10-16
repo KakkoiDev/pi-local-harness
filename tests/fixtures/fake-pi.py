@@ -55,8 +55,14 @@ if request['message'].rstrip().endswith('TEST_PLAN'):
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_CHECK_IN'):
+    check={'task':'tasks/001-first-task.md','title':'Move the ball','verified':False,'reason':'no passing test run after the last change','next':'tasks/002-score.md','number':1,'total':2}
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness check-in: '+json.dumps(check)})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'The ball moves.'}]}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_CHOICE'):
-    choice={'question':'Who uses it?','options':[{'label':'Only me'},{'label':'A team'}],'recommended':0,'pending':True}
+    choice={'number':1,'total':3,'question':'Who uses it?','options':[{'label':'Only me'},{'label':'A team'}],'recommended':0,'pending':True}
     emit({'type':'extension_ui_request','method':'notify','message':'Harness choice: '+json.dumps(choice)})
     emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
     emit({'type':'agent_settled'})

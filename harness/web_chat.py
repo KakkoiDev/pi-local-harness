@@ -70,6 +70,15 @@ class ConversationStore:
             temporary=folder/'conversation.tmp'
             temporary.write_text(json.dumps(value,ensure_ascii=False));temporary.replace(folder/'conversation.json')
         return value
+    def stop_check_in(self,identifier,index):
+        with self.lock:
+            value=self.get(identifier)
+            if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(value['messages']):raise ValueError('Check-in not found.')
+            message=value['messages'][index]
+            if message.get('role')!='assistant' or not message.get('check_in'):raise ValueError('Check-in not found.')
+            message['check_in'].update(state='stopped',when=timestamp())
+            return self.save(value)
+
     def create(self):
         return self.save({'id':uuid.uuid4().hex,'title':'New conversation','messages':[],'created':timestamp()})
     def list(self):
@@ -356,7 +365,7 @@ class WebChat:
             # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
             chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
             projects.append({**project,'chat':chat})
-        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
+        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
     def stop(self, identifier):
         """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
         with self.lock:
@@ -520,7 +529,7 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
-            run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
+            decisions=[];run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
@@ -564,12 +573,19 @@ class WebChat:
                 if event.get('type')=='message_update':
                     delta=event.get('assistantMessageEvent',{})
                     if delta.get('type')=='thinking_delta':thought+=delta.get('delta','')
+                if event.get('type')=='tool_execution_end' and not event.get('isError'):
+                    details=(event.get('result') or {}).get('details') or {}
+                    if event.get('toolName')=='ask_choices' and details.get('answer'):
+                        decisions.append(details);emit({'type':'decision',**details})
+                    if event.get('toolName')=='propose_plan' and details.get('pending') is False:
+                        pending_plan={**details,'approved':True,'state':'auto' if autonomy.enabled(self.documents.root) else 'chosen'}
+                        emit({'type':'plan',**pending_plan})
                 if event.get('type')=='tool_execution_start' and event.get('toolName')=='read' and folder_root:
                     name=self.read_path(folder_root,(event.get('args') or {}))
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
-            if pending_plan:reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nApprove Plan?'
+            if pending_plan and not pending_plan.get('approved'):reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nApprove Plan?'
             if pending_choice:reply=pending_choice['question']
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
@@ -581,7 +597,7 @@ class WebChat:
             if committed:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
@@ -686,7 +702,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -712,6 +728,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/auto':
                 from harness.autonomy import set_enabled
                 self.reply(set_enabled(self.chat.documents.root,data.get('enabled'),confirmed=data.get('confirmed') is True));return
+            stopped=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/stop',path)
+            if stopped:self.reply(self.chat.store.stop_check_in(stopped[1],data.get('index')));return
             if path=='/api/reports/seen':
                 from harness.autonomy import RunReports
                 self.reply(RunReports(self.chat.documents.root).mark_seen(data.get('id')));return
