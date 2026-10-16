@@ -109,6 +109,54 @@ class TerminalStarterTest(unittest.TestCase):
             run = subprocess.run(command, cwd=self.folder, capture_output=True, text=True, timeout=600)
             self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
 
+class ReferencedFilesTest(unittest.TestCase):
+    """Task 230: each starter owns a dependency-free guard, including files only used offline."""
+    def test_static_guard_names_each_missing_reference(self):
+        with tempfile.TemporaryDirectory(prefix='pi-references-') as directory:
+            folder=Path(directory)/'app';new_project(folder,static=True)
+            guard=folder/'tests/files.test.mjs'
+            self.assertTrue(guard.is_file(),'the static starter needs its referenced-files test')
+            (folder/'static/app.css').write_text('/* scratch build output */')
+            def run():return subprocess.run(['node','--test',str(guard)],cwd=folder,capture_output=True,text=True)
+            self.assertEqual(run().returncode,0)
+            # The separate probe paths prove all four sources, including nested modules and query strings.
+            (folder/'js/probe').mkdir();(folder/'js/probe/use.mjs').write_text("import {\n unused\n} from './only-module.mjs?version=1';\n")
+            (folder/'js/probe/only-module.mjs').write_text('export {};\n')
+            (folder/'static/cache-only.txt').write_text('cache')
+            sw=folder/'sw.js';sw.write_text(sw.read_text().replace('const SHELL = [', "const SHELL = ['static/cache-only.txt',"))
+            (folder/'static/page-only.svg').write_text('<svg/>')
+            with (folder/'index.html').open('a') as file:file.write('<img src="static/page-only.svg">')
+            manifest=folder/'manifest.webmanifest';data=json.loads(manifest.read_text())
+            (folder/'static/manifest-only.svg').write_text('<svg/>');data['icons'].append({'src':'static/manifest-only.svg'});manifest.write_text(json.dumps(data))
+            cases=['js/logic/notes.mjs','static/cache-only.txt','static/page-only.svg','static/manifest-only.svg','js/probe/only-module.mjs']
+            for name in cases:
+                path=folder/name;body=path.read_bytes();path.unlink()
+                try:
+                    result=run();self.assertNotEqual(result.returncode,0,name);self.assertIn(name,result.stdout+result.stderr)
+                finally:path.write_bytes(body)
+            self.assertEqual(run().returncode,0)
+
+    def test_web_guard_names_missing_template_manifest_and_cache_files(self):
+        with tempfile.TemporaryDirectory(prefix='pi-references-') as directory:
+            folder=Path(directory)/'app';new_project(folder)
+            guard=folder/'tests/test_files.py'
+            self.assertTrue(guard.is_file(),'the web starter needs its referenced-files test')
+            (folder/'static/app.css').write_text('/* scratch build output */')
+            (folder/'static/template-only.svg').write_text('<svg/>')
+            with (folder/'app/templates/base.html').open('a') as file:file.write("<img src=\"{{ url_for('static', path='template-only.svg') }}\">\n")
+            def run():return subprocess.run([sys.executable,str(guard)],cwd=folder,capture_output=True,text=True)
+            self.assertEqual(run().returncode,0)
+            (folder/'static/cache-only.txt').write_text('cache')
+            sw=folder/'static/sw.js';sw.write_text(sw.read_text().replace('const SHELL = [', 'const SHELL = ["/static/cache-only.txt",'))
+            manifest=folder/'static/manifest.webmanifest';data=json.loads(manifest.read_text())
+            (folder/'static/manifest-only.svg').write_text('<svg/>');data['icons'].append({'src':'/static/manifest-only.svg'});manifest.write_text(json.dumps(data))
+            for name in ['static/cache-only.txt','static/manifest-only.svg','static/template-only.svg']:
+                path=folder/name;body=path.read_bytes();path.unlink()
+                try:
+                    result=run();self.assertNotEqual(result.returncode,0,name);self.assertIn(name,result.stdout+result.stderr)
+                finally:path.write_bytes(body)
+            self.assertEqual(run().returncode,0)
+
 
 if __name__ == '__main__':
     unittest.main()

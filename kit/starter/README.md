@@ -11,3 +11,7 @@ Logic lives in `app/logic/` as pure functions; data in `app/db.py` and `migratio
 `app/templates/`; every visible string in `messages/en.json` and `messages/ja.json`.
 
 In Pi Workbench, the Preview runs all of this for you (the server, and the styles as you change the templates).
+
+`tests/test_files.py` checks template assets (including literal `url_for` static paths), manifest icons and the
+service-worker cache list without starting the app. Build the styles before running tests. A missing referenced file
+fails with its path, so cleanup cannot silently break offline installation.
