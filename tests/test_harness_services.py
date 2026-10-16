@@ -109,3 +109,70 @@ class ServerBacklogTest(unittest.TestCase):
         """Task 154: the default backlog of 5 made macOS reset connections while a page loaded its modules."""
         from harness.services import Server
         self.assertGreaterEqual(Server.request_queue_size, 64)
+
+class TailnetRecoveryTest(unittest.TestCase):
+    def test_a_lost_serve_session_restarts_and_shutdown_stops_only_its_child(self):
+        import time
+        from unittest.mock import patch
+        from harness.services import tailscale_serve
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);fake=root/'tailscale';count=root/'starts';pid=root/'pid'
+            fake.write_text('#!'+sys.executable+'\n'+f'''from pathlib import Path
+import os,time
+count=Path({str(count)!r});n=int(count.read_text())+1 if count.exists() else 1
+count.write_text(str(n));Path({str(pid)!r}).write_text(str(os.getpid()))
+print('Available within your tailnet',flush=True)
+time.sleep(.2 if n==1 else 30)
+''');fake.chmod(0o755)
+            with patch.dict(os.environ,{'PI_TAILSCALE':str(fake)}):
+                process,problem=tailscale_serve(5000,settle=1)
+                self.assertIsNone(problem)
+                try:
+                    deadline=time.monotonic()+4
+                    while time.monotonic()<deadline and int(count.read_text())<2:time.sleep(.05)
+                    self.assertGreaterEqual(int(count.read_text()),2,'Serve reconnects after its first session exits')
+                    self.assertIsNone(process.poll())
+                    child=int(pid.read_text())
+                finally:process.terminate();process.wait(timeout=5)
+                with self.assertRaises(ProcessLookupError):os.kill(child,0)
+                starts=count.read_text();time.sleep(.3);self.assertEqual(count.read_text(),starts,'closing sharing cannot restart it')
+
+    def test_closing_during_reconnection_stops_the_late_replacement(self):
+        import threading
+        from unittest.mock import Mock
+        from harness.services import ServeProcess
+        entered=threading.Event();release=threading.Event()
+        old=Mock();old.poll.return_value=1
+        replacement=Mock();replacement.poll.return_value=None
+        def restart(_stopped):
+            entered.set();release.wait(2)
+            return replacement,None
+        process=ServeProcess(old,restart)
+        try:
+            self.assertTrue(entered.wait(2))
+            process.terminate();release.set();process.wait(timeout=3)
+            replacement.terminate.assert_called_once()
+            replacement.wait.assert_called_once()
+            self.assertIsNotNone(process.poll())
+        finally:release.set();process.terminate();process.wait(timeout=3)
+
+    def test_shutdown_cancels_a_reconnection_waiting_for_readiness(self):
+        import threading,time
+        from unittest.mock import patch
+        from harness.services import _tailscale_start
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);fake=root/'tailscale';pid=root/'pid'
+            fake.write_text('#!'+sys.executable+'\n'+f"import os,time\nfrom pathlib import Path\nPath({str(pid)!r}).write_text(str(os.getpid()))\ntime.sleep(30)\n");fake.chmod(0o755)
+            stopped=threading.Event();result=[]
+            with patch.dict(os.environ,{'PI_TAILSCALE':str(fake)}):
+                thread=threading.Thread(target=lambda:result.append(_tailscale_start(5000,settle=10,stopped=stopped)))
+                thread.start()
+                try:
+                    deadline=time.monotonic()+2
+                    while not pid.exists() and time.monotonic()<deadline:time.sleep(.02)
+                    self.assertTrue(pid.exists())
+                    child=int(pid.read_text());stopped.set();thread.join(3)
+                    self.assertFalse(thread.is_alive(),'shutdown does not wait for the readiness timeout')
+                    with self.assertRaises(ProcessLookupError):os.kill(child,0)
+                    self.assertEqual(result,[(None,None)])
+                finally:stopped.set();thread.join(3)

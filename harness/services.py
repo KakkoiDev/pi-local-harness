@@ -1,4 +1,5 @@
 """Owned, loopback-only services. Emits readiness only after both sockets bind."""
+from collections import deque
 import functools
 import http.server
 import json
@@ -26,7 +27,7 @@ class Server(http.server.ThreadingHTTPServer):
     request_queue_size = 128
     daemon_threads = True
 
-def tailscale_serve(port, settle=6.0, https=None):
+def _tailscale_start(port, settle=6.0, https=None, stopped=None):
     """Run `tailscale serve <port>` in the foreground: the tailnet HTTPS proxy lasts only as long as this process.
 
     When Serve is off for the tailnet, tailscale prints an enable link on stdout and waits instead of exiting;
@@ -39,12 +40,21 @@ def tailscale_serve(port, settle=6.0, https=None):
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     except OSError as error:
         return None, f'cannot run tailscale: {error}'
-    output = []
-    threading.Thread(target=lambda: output.extend(process.stdout), daemon=True).start()
+    output = deque(maxlen=64)
+    def drain():
+        try:
+            for line in process.stdout:output.append(line[-2000:])
+        finally:process.stdout.close()
+    threading.Thread(target=drain, daemon=True).start()
     deadline = time.monotonic() + settle
-    while time.monotonic() < deadline and process.poll() is None and 'not enabled' not in ''.join(output) and 'Available' not in ''.join(output):
+    while not (stopped and stopped.is_set()) and time.monotonic() < deadline and process.poll() is None and 'not enabled' not in ''.join(list(output)) and 'Available' not in ''.join(list(output)):
         time.sleep(0.05)
-    text = ''.join(output)
+    if stopped and stopped.is_set():
+        process.terminate()
+        try:process.wait(timeout=2)
+        except subprocess.TimeoutExpired:process.kill();process.wait()
+        return None,None
+    text = ''.join(list(output))
     if 'not enabled' in text:
         process.terminate()
         try: process.wait(5)
@@ -54,6 +64,55 @@ def tailscale_serve(port, settle=6.0, https=None):
     if process.poll() is None:
         return process, None
     return None, f'tailscale serve exited ({process.returncode}): {text.strip()[-500:]}'
+
+
+
+class ServeProcess:
+    """Own one foreground share and reconnect after a Serve-session exit, without persistent tailnet changes."""
+    def __init__(self, process, restart):
+        self.process,self.restart=process,restart
+        self.stopped=threading.Event();self.done=threading.Event();self.lock=threading.Lock()
+        self.thread=threading.Thread(target=self.watch,daemon=True)
+        self.thread.start()
+
+    def watch(self):
+        try:
+            while not self.stopped.wait(1):
+                if self.process.poll() is None:continue
+                replacement,_=self.restart(self.stopped)
+                if replacement:
+                    with self.lock:self.process=replacement
+                elif self.stopped.wait(2):break
+        finally:
+            with self.lock:
+                if self.process.poll() is None:self.process.terminate()
+                try:self.process.wait(timeout=5)
+                except subprocess.TimeoutExpired:self.process.kill();self.process.wait()
+            self.done.set()
+
+    def poll(self):
+        return 0 if self.done.is_set() else None
+
+    def terminate(self):
+        self.stopped.set()
+        with self.lock:
+            if self.process.poll() is None:self.process.terminate()
+
+    def wait(self, timeout=None):
+        if not self.done.wait(timeout):raise subprocess.TimeoutExpired('tailscale serve',timeout)
+        return 0
+
+    def kill(self):
+        self.stopped.set()
+        with self.lock:
+            if self.process.poll() is None:self.process.kill()
+
+
+def tailscale_serve(port, settle=6.0, https=None):
+    """Keep this owned foreground share alive across Tailscale restarts; terminate still ends sharing."""
+    process,problem=_tailscale_start(port,settle=settle,https=https)
+    if not process:return None,problem
+    return ServeProcess(process,lambda stopped:_tailscale_start(port,settle=settle,https=https,stopped=stopped)),None
 
 
 def main():

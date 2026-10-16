@@ -83,6 +83,10 @@ enabled for the tailnet, then `/config set remote_hosts ["your-mac.tailnet.ts.ne
 ["you@example.com"]`, and restart `plh`. Then **π › Open on Phone…** shows the address and a QR code to scan. If it says
 phone access is off, it also says why (often: enable Serve once for the tailnet, at the link shown).
 
+While the workbench runs, it reconnects if its Tailscale Serve session exits. The same recovery applies to an app
+shared from Preview. Closing the workbench or stopping that share ends recovery and its owned Serve process. This
+does not keep a sleeping Mac reachable or reconnect a device that is signed out of Tailscale.
+
 ## Can I talk instead of typing?
 
 Yes. **Record** in the chat composer, or the microphone (Dictate) next to a comment field. The Mac transcribes it (Whisper)

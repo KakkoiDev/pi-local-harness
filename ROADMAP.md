@@ -287,3 +287,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [243-Build round 9: updates, other devices, the Terminal app kind, Settings](tasks/243-build-round-9.md)
 - [ ] [244-Bench the updated harness on three models (e4b, 27b, ChatGPT Luna), keep the records, publish the table](tasks/244-bench-after-the-updates.md)
 - [ ] [245-Bench DeepSeek Flash (later, when the person has set it up)](tasks/245-bench-deepseek-flash.md)
+- [x] [246-Recover sharing when a Tailscale Serve session stops](tasks/246-tailscale-sharing-recovery.md)
