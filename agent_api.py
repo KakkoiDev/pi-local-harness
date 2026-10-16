@@ -30,6 +30,18 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                 else: self.send_json_response({'result': self.ledger.end_request(data['request'],review=data.get('review',True))})
             except Exception as error:
                 self.send_error_response(400, str(error))
+        elif self.path in ('/choice','/request/pause'):
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                if self.path=='/choice':result=self.ledger.paperwork.choice_pending(data['request'],data['choice'])
+                else:self.ledger.paperwork.pause(data['request']);result={}
+                self.send_json_response(result)
+            except Exception as error:self.send_error_response(400,str(error))
+        elif self.path == '/decision':
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                self.send_json_response(self.ledger.paperwork.decision(data['request'],data['question'],data['answer'],data.get('state','chosen')))
+            except Exception as error:self.send_error_response(400,str(error))
         elif self.path == '/context':
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
@@ -60,7 +72,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             result = self.ledger.propose(data['tool_name'], data['args'], data.get('auth_level', 'standard'),
                                          pi_tool=data.get('pi_tool'), cwd=data.get('cwd'), tool_call_id=data.get('tool_call_id'),
-                                         source=data.get('source'), request=data.get('request'))
+                                         source=data.get('source'), request=data.get('request'),assistant_text=data.get('assistant_text',''))
             self.send_json_response(result)
         except Exception as error:
             self.send_error_response(400, str(error))

@@ -519,7 +519,7 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
-            phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
+            pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
@@ -538,6 +538,8 @@ class WebChat:
                     notice=str(event.get('message',''))
                     if notice.startswith(('Harness recovery stopped:','Harness refused:')):raise ValueError(notice.split(':',1)[1].strip())
                     if notice.startswith('Harness recovery:'):phase='recovering';settled=False;harness_done=False
+                    if notice.startswith('Harness choice: '):
+                        pending_choice=json.loads(notice.removeprefix('Harness choice: '));emit({'type':'choice',**pending_choice})
                     if notice=='Harness settled':harness_done=True
                     committed=committed_commit(notice) or committed
                 if event.get('type')=='agent_start':
@@ -548,7 +550,7 @@ class WebChat:
                 if event.get('type')=='message_end':
                     message=event.get('message',{})
                     if message.get('role')=='assistant':
-                        if message.get('stopReason')=='aborted' and phase=='recovering':continue  # stopped to recover; wait for the re-ask
+                        if message.get('stopReason')=='aborted' and (phase=='recovering' or pending_choice):continue  # stopped to recover; wait for the re-ask
                         if message.get('stopReason') in ('error','aborted'):raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
@@ -560,6 +562,7 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
+            if pending_choice:reply=pending_choice['question']
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
             if note and not committed:  # with a commit, the DoneRow says "! Not verified" (round 7): the answer stays Pi's words
@@ -570,7 +573,7 @@ class WebChat:
             if committed:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'choice':pending_choice} if pending_choice else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:

@@ -26,4 +26,9 @@ Chats belong to one project folder. Use its working directory and the current ro
 
 A starter contains a sample notes feature and a skeleton. On the first code request, replace or remove the sample the new app does not use; keep storage, i18n, test setup, service worker, manifest, build commands and folder rules, adapting domain-specific parts. `kit/starters.json` lists them. Update cache file lists, app names, both languages and README together; run the referenced-files test after cleanup. The harness asks once about unchanged sample files before committing.
 
+
+## Project decisions
+
+Before using a decision not answered by the request, current code or project conventions, call `ask_choices` with one question, two to four short options, optional one-line details, `recommended: 0`, and `allow_other: true`. The recommended option is first; the harness adds “Something else…”. Write options in the person’s language. Wait for the answer before using it. Gate quotes assumptions in your visible text or reasoning and asks you to turn them into choices. A cancelled or pending question is not permission. Answered choices are recorded in the task’s Decisions section with chosen, auto or given evidence and a time. Plan approval and task check-ins follow the planning protocol; a small fix can skip plan approval.
+
 Document comments are requests only after the user sends them to the queue. The request identifies the page, comment ID, selected text, and Markdown comment record. Read the actual current page, perform the requested work, verify it, and update that comment's agent_reply in the comments frontmatter array with the result. Preserve every other comment and field.

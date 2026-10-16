@@ -18,6 +18,7 @@ import { installConsole } from './console.mjs';
 import { installFooter } from './footer.mjs';
 import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
+import { installChoices } from './choices.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { installBrowser } from './browser.mjs';
@@ -27,7 +28,7 @@ import { loadGuides, chooseGuides } from './guides.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', task_box: 'write_file', browser: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
@@ -111,7 +112,17 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
-  let lastAnswer = '';
+  let lastAnswer = '', assistantText = '', waitingChoice = false;
+  const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
+  installChoices(extras, {
+    web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
+    pending:async (choice,ctx)=>{
+      const pending=await call('/choice',{request:requestId,choice});
+      if (process.env.PI_HARNESS_SHARED_PORT) {ctx?.ui?.notify?.('Harness choice: '+JSON.stringify(pending),'info');pauseChoice(ctx);}
+    },
+    record:async decision=>{await call('/decision',{request:requestId,...decision});assistantText='';},
+    cancel:pauseChoice,
+  });
   const trip = (reason, kind = 'loop') => {
     if (bare || pending || !lastQuestion) return;
     pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n')}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
@@ -217,6 +228,7 @@ export default function harness(pi, dependencies = {}) {
     return { systemPrompt: `${event.systemPrompt}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
   pi.on('message_end', event => {
+    if (event.message?.role === 'assistant') assistantText+='\n'+(event.message.content || []).map(part=>part.type === 'thinking' ? part.thinking || '' : part.type === 'text' ? part.text || '' : '').join('\n')+'\n';
     if (event.message?.role === 'assistant') lastAnswer = (event.message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
     if (missingCanary(event.message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
   });
@@ -225,6 +237,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension') { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
+    assistantText='';waitingChoice=false;
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     chosenGuides = bare ? [] : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
@@ -252,6 +265,7 @@ export default function harness(pi, dependencies = {}) {
   pi.on('agent_start', (_event, ctx) => { context = ctx; recovering = false; compactedThisTurn = false; watch.start(); });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
+    if (stream.type === 'text_delta' || stream.type === 'thinking_delta') assistantText+=stream.delta || '';
     watch.touch();
     if (stream.type === 'thinking_start' || stream.type === 'thinking_delta') watch.thinking = true;
     if (stream.type === 'thinking_delta') watch.feed(stream.delta);
@@ -266,6 +280,7 @@ export default function harness(pi, dependencies = {}) {
   const COMPACT_AT = 0.6;
   pi.on('agent_end', (_event, ctx) => {
     watch.stop();
+    if (waitingChoice) return;
     if (!pending) {
       const usage = ctx?.getContextUsage?.();
       if (!compactedThisTurn && usage?.tokens && usage.tokens > COMPACT_AT * usage.contextWindow) {
@@ -298,7 +313,7 @@ export default function harness(pi, dependencies = {}) {
       args = proposal; piTool = 'edit'; boxes.set(event.toolCallId, proposal);
     }
     try {
-      const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, assistant_text: assistantText, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
@@ -352,6 +367,10 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('agent_settled', async event => {
     agentLock.release();
+    if (waitingChoice) {
+      if (requestId) await call('/request/pause',{request:requestId});
+      requestId=undefined;notify('Harness settled','info');return;
+    }
     // G-012 (plan 179, L-005) and plan 184: code changed during the request and Gate saw no passing test on it afterwards.
     // The harness wakes Pi to finish (not when the person stopped it, nor when Pi asked the person something); out of
     // wake-ups, the turn is marked "Not verified".

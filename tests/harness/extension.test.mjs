@@ -402,3 +402,21 @@ for (const kind of ['starter','plan']) test(`${kind} cleanup resumes the same re
   assert.equal(notices.filter(text=>text==='Harness settled').length,1);
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
+
+test('ask_choices records a terminal answer and clears the assumption Gate quoted (task 236)', async t => {
+  const dir=mkdtempSync(join(tmpdir(),'pi-choices-')),handlers={},tools={};
+  const keys=['PI_AGENT_DATA','PI_GATE_PORT','PI_WEB_PORT','PI_TAILSCALE','PI_OLLAMA_URL'];const before=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_GATE_PORT:'0',PI_WEB_PORT:'0',PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9'});
+  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# App\n## Goal\nBuild an app.\n- [ ] [App](tasks/001-app.md)\n');writeFileSync(join(dir,'tasks/001-app.md'),'# App\n- [ ] Build\nDone when: It works.\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+  const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){},select:async(_question,options)=>options[0]},abort(){},isIdle:()=>true};
+  harness({on:(name,fn)=>{handlers[name]=fn;},registerTool:tool=>{tools[tool.name]=tool;}},{root:dir+'/'});
+  t.after(async()=>{handlers.session_shutdown?.();await new Promise(resolve=>setTimeout(resolve,300));for(const key of keys){if(before[key]===undefined)delete process.env[key];else process.env[key]=before[key];}rmSync(dir,{recursive:true,force:true});});
+  await handlers.session_start({},ctx);await handlers.input({source:'interactive',text:'Fix the app'},ctx);
+  handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:"I'll assume blue."}});
+  const write={toolCallId:'assumed',toolName:'write',input:{path:join(dir,'app.py'),content:'colour="blue"\n'}};
+  assert.match((await handlers.tool_call(write)).reason,/G-016.*I.ll assume blue/);
+  const result=await tools.ask_choices.execute('choose',{question:'Which colour?',options:[{label:'Blue'},{label:'Green'}],recommended:0},null,null,ctx);
+  assert.equal(result.isError,undefined);assert.equal(result.details.answer,'Blue');
+  assert.equal(await handlers.tool_call({...write,toolCallId:'answered'}),undefined);
+  const task=readFileSync(join(dir,'tasks/002-fix-the-app.md'),'utf8');assert.match(task,/Which colour\?: Blue \(chosen /);
+});

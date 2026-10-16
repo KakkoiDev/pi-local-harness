@@ -48,6 +48,13 @@ if request['message'].rstrip().endswith('TEST_SPAWN'):  # a server Pi starts wit
     Path(os.environ['PI_FAKE_PIDFILE']).write_text(str(leftover.pid))
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
+if request['message'].rstrip().endswith('TEST_CHOICE'):
+    choice={'question':'Who uses it?','options':[{'label':'Only me'},{'label':'A team'}],'recommended':0,'pending':True}
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness choice: '+json.dumps(choice)})
+    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
+    emit({'type':'agent_settled'})
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts a looping turn, compacts and re-asks (task 150)
     notify=lambda text:emit({'type':'extension_ui_request','method':'notify','message':text})
     notify('Harness recovery: Loop detected: the same three thought lines occurred twice.')

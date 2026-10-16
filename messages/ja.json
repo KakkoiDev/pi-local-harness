@@ -1038,7 +1038,30 @@
   "Strict type checking must be enabled.": "厳密な型チェックを有効にしてください。",
   "A roadmap with open tasks is needed before the publication audit.": "公開前チェックには未完了のタスクがあるロードマップが必要です。",
   "README.md: replace the starter description with this app’s name and description.": "README.md：スターターの説明を、このアプリの名前と説明に置き換えてください。",
-  "README.md, manifest and English app name: use consistent app names.": "README.md、マニフェスト、英語のアプリ名を統一してください。"
+  "README.md, manifest and English app name: use consistent app names.": "README.md、マニフェスト、英語のアプリ名を統一してください。",
+  "Ask a choice": "選択肢で質問",
+  "Ask one question.": "質問は一つにしてください。",
+  "Put the recommended option first (recommended: 0).": "おすすめの選択肢を先頭にしてください（recommended: 0）。",
+  "Always allow Something else….": "「別の回答…」を必ず選べるようにしてください。",
+  "Offer two to four options.": "選択肢を2〜4個示してください。",
+  "Each option needs a short label and an optional detail.": "各選択肢には短いラベルと任意の説明を付けてください。",
+  "Use distinct options; the harness adds Something else….": "重複しない選択肢にしてください。「別の回答…」はハーネスが追加します。",
+  "Waiting for the person’s choice. Stop here.": "回答を待っています。ここで停止してください。",
+  "No choice was answered. Ask again before changing code.": "回答されていません。コードを変更する前にもう一度質問してください。",
+  "No active request for this choice.": "この質問に対応する実行中のリクエストがありません。",
+  "No active request for this decision.": "この決定に対応する実行中のリクエストがありません。",
+  "A decision must be chosen, auto or given.": "決定は chosen、auto、given のいずれかである必要があります。",
+  "A decision needs a question and an answer.": "決定には質問と回答が必要です。",
+  "Plan approval before code": "コード変更前に計画を承認",
+  "Ask instead of assuming": "推測せずに質問",
+  "Decisions are settled": "決定事項を確定",
+  "Plan first: write the plan and ask the person to approve it before code changes.": "先に計画を書き、コードを変更する前に承認を求めてください。",
+  "A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.": "回答を待っている質問があります。ask_choices で質問し、回答を待ってから内容を変更してください。",
+  "Something else…": "別の回答…",
+  "Recommended": "おすすめ",
+  "Project-defining code changes need Plan approved: in the active task; small fixes skip approval.": "プロジェクトの方針を決める変更には、作業中のタスクの Plan approved: が必要です。小さな修正は承認を省略します。",
+  "An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.": "最後の回答以降の Pi の文章や推論に推測があれば、内容を変更する前に ask_choices で質問します。",
+  "Every Decisions line in the active task must be chosen, auto or given before code changes.": "コードを変更する前に、作業中のタスクの Decisions を chosen、auto、given のいずれかで確定します。"
  },
  "patterns": [
   [
@@ -2464,6 +2487,18 @@
   [
    "{n} s",
    "{n} 秒"
+  ],
+  [
+   "Choice: {question} → {answer}",
+   "選択：{question} → {answer}"
+  ],
+  [
+   "You wrote: “{sentence}” Turn this assumption into one ask_choices question and wait for the person’s answer.",
+   "「{sentence}」と書きました。この推測を ask_choices の質問にして、回答を待ってください。"
+  ],
+  [
+   "This decision is not settled: “{line}” Ask with ask_choices; record chosen, auto or given.",
+   "この決定は未確定です：「{line}」。ask_choices で質問し、chosen、auto、given を記録してください。"
   ]
  ]
 }

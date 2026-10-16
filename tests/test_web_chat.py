@@ -279,3 +279,19 @@ class DocumentContextTest(unittest.TestCase):
             self.assertIn('Describe what we are building.',comment_env['context'],'the page is in the context')
             self.assertTrue(any(event.get('type')=='message_update' for event in events),'the answer still streams to the job')
             self.assertEqual(next(item for item in chat.documents.get(path)['comments'] if item['id']==entry['id'])['agent_reply'],'[CANARY] reply 1')
+
+
+class PendingChoiceBridgeTest(unittest.TestCase):
+    def test_a_pending_choice_is_saved_and_an_intentional_pause_is_not_a_crash(self):
+        import os,sys
+        from unittest.mock import patch
+        from harness.web_chat import WebChat
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);executable=root/'pi'
+            executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
+            chat=WebChat(root/'data',12345,3000,gate_token='shared-token');self.addCleanup(chat.close)
+            conversation=chat.store.create();events=[]
+            with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],{'message':'TEST_CHOICE'},events.append)
+            saved=chat.store.get(conversation['id'])['messages'][-1]
+            self.assertEqual(saved['content'],'Who uses it?');self.assertTrue(saved['choice']['pending'])
+            self.assertTrue(any(event['type']=='choice' for event in events));self.assertEqual(events[-1]['type'],'done')

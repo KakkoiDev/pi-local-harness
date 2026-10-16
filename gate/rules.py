@@ -41,6 +41,9 @@ RULES = [
     Rule('G-012', 'Unverified changes are marked', 'end', PROJECT, 'MARK', 'A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.', 'tests/test_gate_rules.py', 'L-005-claimed-verified.md'),
     Rule('G-013', 'The harness commits', 'before', PROJECT, 'REVISE', 'Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally: a verified change marked done, an unverified one marked "not verified" with its task left open.', 'tests/test_paperwork.py'),
     Rule('G-014', 'Plans are complete', 'end', PROJECT, 'MARK', 'A code request needs a real Goal, no starter placeholder task, and a checkbox and Done when: line in every linked task. Ask once to fill the gaps; otherwise mark Plan incomplete.', 'tests/test_gate_rules.py', 'L-007-empty-pong-plan.md'),
+    Rule('G-015', 'Plan approval before code', 'before', PROJECT, 'REVISE', 'Project-defining code changes need Plan approved: in the active task; small fixes skip approval.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
+    Rule('G-016', 'Ask instead of assuming', 'before', PROJECT, 'REVISE', 'An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
+    Rule('G-017', 'Decisions are settled', 'before', PROJECT, 'REVISE', 'Every Decisions line in the active task must be chosen, auto or given before code changes.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
 ]
 BY_ID = {rule.id: rule for rule in RULES}
 
@@ -137,3 +140,20 @@ def plan_gaps(root):
 if __name__ == '__main__':
     write_summary()
     print(f'Wrote {SUMMARY_FILE}')
+
+
+# One list for visible text and reasoning; the person's next answer clears the evidence in the extension.
+ASSUMPTIONS=re.compile(r"I[’']ll assume|I assume|let[’']s say|probably|I guess|for now I[’']ll|default to|arbitrarily|not specified|unclear|I[’']m not sure|仮に|とりあえず|たぶん|不明",re.I)
+
+
+def planning_refusal(task,assistant_text,required=False):
+    for sentence in re.split(r'(?<=[.!?。！？])\s*|\n',assistant_text):
+        if ASSUMPTIONS.search(sentence):return 'G-016',f'You wrote: “{sentence.strip()}” Turn this assumption into one ask_choices question and wait for the person’s answer.'
+    if required and not re.search(r'^Plan approved:\s*\S',task,re.M):
+        return 'G-015','Plan first: write the plan and ask the person to approve it before code changes.'
+    section=re.search(r'^## Decisions\s*\n([\s\S]*?)(?=^## |\Z)',task,re.M)
+    if section:
+        for line in section[1].splitlines():
+            if line.strip() and not re.search(r'\((?:chosen|auto|given)(?:\s|:|\))',line):
+                return 'G-017',f'This decision is not settled: “{line.strip()}” Ask with ask_choices; record chosen, auto or given.'
+    return None

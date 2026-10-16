@@ -233,3 +233,24 @@ class StarterSampleTest(unittest.TestCase):
         root,paper=self.project('web');paper.start('stop',str(root),'Build a game')
         (root/'app/main.py').write_text('x=1\n');paper.observe('stop')
         self.assertNotEqual(paper.end('stop',review=False)['outcome'],'continue')
+
+class ChoicePaperworkTest(PaperworkTest):
+    def test_an_answered_choice_is_a_timed_decision_and_keeps_existing_sections(self):
+        self.paper.start('choice',str(self.root),'Do task 2')
+        for state in ['chosen','auto','given']:
+            self.paper.decision('choice','Who uses it?','My household',state)
+        text=(self.root/'tasks/002-add-the-badge.md').read_text()
+        self.assertIn('## Decisions',text)
+        for state in ['chosen','auto','given']:self.assertRegex(text,r'Who uses it\?: My household \('+state+r' \d{4}-\d{2}-\d{2}')
+        self.assertIn('Done when: The badge shows the count.',text)
+        with self.assertRaises(ValueError):self.paper.decision('choice','Speed?','Fast','assumed')
+
+    def test_a_web_choice_survives_the_worker_and_its_answer_uses_the_same_task(self):
+        self.paper.start('waiting',str(self.root),'Do task 2')
+        self.paper.choice_pending('waiting',{'question':'Who uses it?','options':[{'label':'Me'},{'label':'Team'}],'recommended':0})
+        self.paper.pause('waiting')
+        self.paper=Paperwork(self.protocol,data=self.data.name,identity=('Pi Workbench','harness@localhost'))
+        self.paper.start('answer',str(self.root),'Choice: Who uses it? → My household')
+        self.assertEqual(self.paper.requests['answer']['task'],'tasks/002-add-the-badge.md')
+        self.assertIn('Who uses it?: My household (chosen ',(self.root/'tasks/002-add-the-badge.md').read_text())
+        self.assertIsNone(self.paper.waiting_choice(self.root))

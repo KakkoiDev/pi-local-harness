@@ -58,6 +58,58 @@ class Paperwork:
         self.protocol, self.data, self.identity = protocol, data, identity
         self.requests = {}
         self.lock = threading.RLock()
+        self.choices = {}
+
+    def choice_file(self,root):
+        if not self.data:return None
+        return Path(self.data)/'planning'/(hashlib.sha256(str(root).encode()).hexdigest()+'.json')
+
+    def waiting_choice(self,root):
+        file=self.choice_file(root)
+        try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(str(root))
+        except (OSError,ValueError):return None
+        return value if value and value.get('pending') else None
+
+    def choice_pending(self,request,choice):
+        with self.lock:
+            item=self.requests.get(request)
+            if not item:raise ValueError('No active request for this choice.')
+            if not item['task']:item['task'],_=self.task_for(item)
+            value={**choice,'task':item['task'],'before':item['before'],'pending':True}
+            self.save_choice(item['root'],value)
+            return {key:value[key] for key in ['question','options','recommended','task','pending']}
+
+    def save_choice(self,root,value):
+        file=self.choice_file(root)
+        if file:
+            file.parent.mkdir(parents=True,exist_ok=True)
+            temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
+        else:self.choices[str(root)]=value
+
+    def pause(self,request):
+        with self.lock:self.requests.pop(request,None)
+
+    def decision(self,request,question,answer,state='chosen'):
+        """An answered choice is evidence, kept in the task rather than inferred from Pi's prose."""
+        if state not in {'chosen','auto','given'}:raise ValueError('A decision must be chosen, auto or given.')
+        clean=lambda value:' '.join(str(value).split())
+        if not clean(question) or not clean(answer):raise ValueError('A decision needs a question and an answer.')
+        with self.lock:
+            item=self.requests.get(request)
+            if not item:raise ValueError('No active request for this decision.')
+            if not item['task']:item['task'],_=self.task_for(item)
+            path=item['root']/item['task'];text=path.read_text(encoding='utf-8')
+            line=f"- {clean(question)}: {clean(answer)} ({state} {datetime.now().astimezone().isoformat(timespec='seconds')})\n"
+            section=re.search(r'^## Decisions\s*\n',text,re.M)
+            if not section:text=text.rstrip()+'\n\n## Decisions\n\n'+line
+            else:
+                end=re.search(r'^## ',text[section.end():],re.M)
+                position=section.end()+end.start() if end else len(text)
+                text=text[:position].rstrip()+'\n'+line+'\n'+text[position:]
+            path.write_text(text,encoding='utf-8')
+            waiting=self.waiting_choice(item['root'])
+            if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
+            return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
 
     # -- a request's life -------------------------------------------------------------------------------------------
     def start(self, request, cwd, text):
@@ -66,7 +118,16 @@ class Paperwork:
         if not root: return None
         try: before = {path: fingerprint(root, path) for path in (changed_paths(root) or {})}
         except CheckFailed: before = {}
-        with self.lock: self.requests[request] = {'root': root, 'text': str(text or '').strip(), 'before': before, 'task': None}
+        with self.lock:
+            item={'root':root,'text':str(text or '').strip(),'before':before,'task':None}
+            self.requests[request]=item
+            waiting=self.waiting_choice(root)
+            prefix=f"Choice: {waiting['question']} → " if waiting else ''
+            if waiting and item['text'].startswith(prefix) and item['text'][len(prefix):].strip():
+                item['task']=waiting['task']
+                item['before']={path:value for path,value in before.items() if not plan_path(path)}
+                item['before'].update({path:value for path,value in waiting.get('before',{}).items() if plan_path(path)})
+                self.decision(request,waiting['question'],item['text'][len(prefix):],'chosen')
         return str(root)
 
     def changes(self, item):
@@ -80,10 +141,12 @@ class Paperwork:
         """After a tool ran: the note for Pi the first time the request gets its task, else None."""
         with self.lock:
             item = self.requests.get(request)
-            if not item or item['task']: return None
+            if not item or item.get('observed'): return None
             content = [path for path in self.changes(item) if not plan_path(path)]
             if not content: return None
-            item['task'], made = self.task_for(item)
+            made=False
+            if not item['task']:item['task'],made=self.task_for(item)
+            item['observed']=True
             from kit.publish_audit import ensure_task
             ensure_task(item['root'],reset=True)
             self.progress(item, f'Started at {clock()}: {", ".join(content[:6])}{" …" if len(content) > 6 else ""}')

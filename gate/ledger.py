@@ -137,7 +137,7 @@ class ProposalLedger:
     def last_note(self, token):
         return self.notes.pop(token, None)
 
-    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None, request=None):
+    def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None, request=None, assistant_text=""):
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
             outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
@@ -154,6 +154,17 @@ class ProposalLedger:
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
             return refuse('G-005', reason)
+        root=project_root(cwd) if cwd and not rules.bare() else None
+        if root and pi_tool in ('write','edit') and not rules.plan_file(Path(args.get('path',''))):
+            item=self.paperwork.requests.get(request);task=''
+            if item:
+                from harness.context import mentioned
+                paths=[path.relative_to(root).as_posix() for path in (root/'tasks').glob('*.md')]
+                active=item.get('task') or next(iter(mentioned(item['text'],paths)),None)
+                if active:task=(root/active).read_text(encoding='utf-8')
+            if self.paperwork.waiting_choice(root):return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
+            rejected=rules.planning_refusal(task,assistant_text,required=False)
+            if rejected:return refuse(*rejected)
         expected = None
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()

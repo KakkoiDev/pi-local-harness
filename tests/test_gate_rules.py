@@ -259,3 +259,27 @@ class FilledPlanTest(unittest.TestCase):
         paper.start('docs',str(self.root),'Explain it');(self.root/'HELP.md').write_text('# Help\n');paper.observe('docs')
         (self.root/'ROADMAP.md').write_text('# Plan\n## Goal\nDescribe what we are building.\n')
         self.assertEqual(paper.end('docs')['outcome'],'committed','G-014 applies to requests that changed code')
+
+class PlanningCatchesTest(unittest.TestCase):
+    def test_G015_code_waits_for_an_approved_plan_and_G017_decisions_are_settled(self):
+        self.assertEqual(rules.planning_refusal('Build it','',required=True)[0],'G-015')
+        self.assertIsNone(rules.planning_refusal('Plan approved: chosen 2026-10-16\n','',required=True))
+        for line in ['- Speed: fast (assumed)','- Speed: fast']:
+            self.assertEqual(rules.planning_refusal('## Decisions\n'+line+'\n','',required=False)[0],'G-017')
+        for state in ['chosen','auto','given']:
+            self.assertIsNone(rules.planning_refusal('## Decisions\n- Speed: fast ('+state+' 2026-10-16)\n','',required=False))
+
+    def test_G016_quotes_assumptions_in_english_and_japanese(self):
+        for sentence in ["I'll assume the speed is 5.",'たぶん速度は5です。','For now I’ll use blue.','The size is not specified.']:
+            rule,reason=rules.planning_refusal('',sentence,required=False)
+            self.assertEqual(rule,'G-016');self.assertIn(sentence,reason)
+        self.assertIsNone(rules.planning_refusal('','The user chose blue.',required=False))
+
+    def test_G016_write_is_revised_but_plan_edits_are_allowed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'tasks').mkdir();(root/'ROADMAP.md').write_text('# Plan\n')
+            ledger=ProposalLedger(GateEngine('',str(root/'log')))
+            for path in ['app.py','README.md','ROADMAP.md','tasks/001.md']:
+                result=ledger.propose('write_file',{'path':path,'content':'New text'},'admin',pi_tool='write',cwd=str(root),assistant_text="I'll assume blue.")
+                self.assertEqual(result['outcome'],'ALLOW' if path in ['ROADMAP.md','tasks/001.md'] else 'REVISE')
+                if result['outcome']=='REVISE':self.assertEqual(result['rule'],'G-016')
