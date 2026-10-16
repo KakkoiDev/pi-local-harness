@@ -287,7 +287,7 @@
   "It has not started. You can send it again from the chat.": "まだ始まっていません。チャットからもう一度送れます。",
   "Cancel Request": "依頼を取り消す",
   "Keep Waiting": "待機を続ける",
-  "Working": "作業中",
+  "Working": "実行中",
   "Ready": "準備完了",
   "Nothing yet": "まだ何もありません",
   "Nothing running": "実行中のものはありません",
@@ -1072,7 +1072,21 @@
   "Plan complete.": "計画は完了しました。",
   "Next": "次",
   "Continue?": "続けますか？",
-  "Approve Plan?": "計画を承認しますか？"
+  "Approve Plan?": "計画を承認しますか？",
+  "Run on its own": "自動で実行",
+  "Turn on Run on Its Own?": "自動実行をオンにしますか？",
+  "Turn On": "オンにする",
+  "Auto": "自動",
+  "Run report": "実行レポート",
+  "No automatic run yet.": "自動実行の記録はまだありません。",
+  "Decided on its own": "自動で決めたこと",
+  "Left this Mac or used the Trash": "このMacの外に送ったもの・ゴミ箱に移したもの",
+  "None.": "なし。",
+  "Run on its own is on.": "自動実行はオンです。",
+  "Run on its own is off.": "自動実行はオフです。",
+  "For every project, until you turn it off, Pi will do all of this without asking: choose recommended answers, approve plans, continue tasks, publish, git push, download, send messages and issues, move files to the Trash and remove projects. What leaves this Mac (a publish, a push, a message) cannot be taken back by Undo. Every step goes into a report at the end of the run.": "オフにするまで、すべてのプロジェクトでPiが確認せずに実行します：推奨される回答の選択、計画の承認、タスクの続行、公開、git push、ダウンロード、メッセージやIssueの送信、ファイルをゴミ箱に移動、プロジェクトの削除。このMacの外に送ったもの（公開・push・メッセージ）は「取り消す」で元に戻せません。すべての手順は実行終了時のレポートに記録されます。",
+  "roadmap done": "ロードマップ完了",
+  "turned off": "オフにしました"
  },
  "patterns": [
   [
@@ -2510,6 +2524,26 @@
   [
    "This decision is not settled: “{line}” Ask with ask_choices; record chosen, auto or given.",
    "この決定は未確定です：「{line}」。ask_choices で質問し、chosen、auto、given を記録してください。"
+  ],
+  [
+   "Run report: {tasks} tasks · {decisions} decisions · {external} external actions · {problems} problems. /report",
+   "実行レポート：タスク {tasks}件・決定 {decisions}件・外部への操作 {external}件・問題 {problems}件。/report"
+  ],
+  [
+   "Done · {count}",
+   "完了 · {count}"
+  ],
+  [
+   "Decided on its own · {count}",
+   "自動で決めたこと · {count}"
+  ],
+  [
+   "Left this Mac or used the Trash · {count}",
+   "このMacの外への送信・ゴミ箱への移動 · {count}"
+  ],
+  [
+   "Problems · {count}",
+   "問題 · {count}"
   ]
  ]
 }

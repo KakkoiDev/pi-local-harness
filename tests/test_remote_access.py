@@ -47,6 +47,17 @@ class RemoteAccessTest(unittest.TestCase):
     def remote(self, **extra):
         return {'Host': HOST, 'Tailscale-User-Login': USER, **extra}
 
+    def test_auto_api_requires_risks_on_every_enable_and_updates_the_live_global_setting(self):
+        headers={'Host':f'127.0.0.1:{self.server.server_port}'}
+        for _ in range(2):
+            status,preview=self.call('/api/auto',headers,{'enabled':True})
+            self.assertEqual(status,200);self.assertTrue(preview['confirm']);self.assertTrue(preview['destructive'])
+            self.assertIn('git push',preview['detail'])
+            status,value=self.call('/api/auto',headers,{'enabled':True,'confirmed':True});self.assertTrue(value['enabled'])
+        self.assertTrue(self.call('/api/config',headers)[1]['auto_accept'])
+        self.call('/api/auto',headers,{'enabled':False});self.assertFalse(self.call('/api/auto',headers)[1]['enabled'])
+        self.assertEqual(self.call('/api/auto',headers,{'enabled':'true','confirmed':True})[0],400)
+
     def test_remote_host_is_rejected_until_configured(self):
         status, value = self.call('/api/config', self.remote())
         self.assertEqual(status, 403)

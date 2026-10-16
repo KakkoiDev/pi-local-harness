@@ -45,6 +45,7 @@ class AuditTest(unittest.TestCase):
         audit.ensure_task(self.root)
         def run(argv,**options):
             from subprocess import CompletedProcess
+            if argv[0]=='git':return CompletedProcess(argv,128,b'',b'')
             return CompletedProcess(argv,1 if 'tsc' in argv else 0,'ℹ pass 2\nℹ fail 0\n','')
         with patch('harness.audit.subprocess.run',side_effect=run):result=audit.run(self.root,self.root/'data')
         checks={item['key']:item for item in result['checks']}

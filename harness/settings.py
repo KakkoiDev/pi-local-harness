@@ -56,6 +56,7 @@ SETTINGS = {
     'whisper_model': ('PI_WHISPER_MODEL', 'mlx-community/whisper-base-mlx', _text, 'Speech-to-text model for voice input (Whisper, MLX).', str),
     'remote_hosts': ('PI_WEB_REMOTE_HOSTS', [], _names, 'Tailnet host names allowed to open the web UI from a phone (tailscale serve).', ','.join),
     'remote_users': ('PI_WEB_REMOTE_USERS', [], _names, 'Tailscale logins allowed with those hosts.', ','.join),
+    'auto_accept': (None, False, _flag, 'Run on its own for every project: recommended choices, approved plans, continued tasks and external actions. Turning on always requires the risk confirmation; takes effect immediately.', None),
     'auto_update': (None, True, _flag, 'Update the installed build when plh starts.', None),
     'silence_seconds': ('PI_HARNESS_SILENCE_SECONDS', 3600, _number(60, 7 * 24 * 3600), 'A request stops when Pi has sent nothing (no step, no output, no tool event) for this long. Long work that reports is fine.', str),
     'wake_ups': ('PI_HARNESS_WAKE_UPS', 5, _number(0, 1000), 'How many times the harness may wake Pi in one request (after a loop, a hang, or stopping with work open) before it stops and offers Ask Pi to Retry…. 0: no limit (plan 184).', str),

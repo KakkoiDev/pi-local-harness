@@ -15,3 +15,7 @@ test('the active set keeps Pi\'s own tools and other extensions\' tools, and swi
   assert.deepEqual(activeTools(['read', 'bash'], ['harness'], ['read', 'bash', 'harness']), ['read', 'bash', 'harness'], 'adds a harness tool that is registered');
   assert.deepEqual(activeTools(['read'], ['browser'], ['read']), ['read'], 'never one that is not registered');
 });
+
+test('web automation has the console tool for its final publication audit',()=>{
+ assert.ok(harnessTools('yes',{terminal:false,tasks:true,auto:true}).includes('harness'));
+});

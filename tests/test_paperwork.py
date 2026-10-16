@@ -312,3 +312,64 @@ class PlanLifecycleTest(PaperworkTest):
         self.paper.propose_plan('title')
         self.assertIn(request.strip(),task.read_text())
         self.assertEqual(self.paper.subject(self.paper.requests['title']),'Greeting (task 002)')
+
+    def test_approved_tasks_cannot_be_skipped_or_lose_their_approval_stamp(self):
+        roadmap=self.root/'ROADMAP.md';roadmap.write_text(roadmap.read_text()+'- [ ] [Next](tasks/003-next.md)\n')
+        (self.root/'tasks/003-next.md').write_text('# 003: Next\n- [ ] Next\nDone when: Next works.\n')
+        self.paper.start('p',str(self.root),'Add the badge');self.paper.propose_plan('p');self.paper.approve_plan('p')
+        self.paper.start('skip',str(self.root),'Do task 3')
+        self.assertFalse(self.paper.plan_status('skip')['approved'])
+        task=self.root/'tasks/002-add-the-badge.md';original=task.read_text();task.write_text(original.replace('Plan approved: chosen','Approval removed: chosen'))
+        self.assertFalse(self.paper.plan_status('p')['approved'])
+        task.write_text(original+'\n## For the person\nThe badge counts items.\n')
+        self.assertTrue(self.paper.plan_status('p')['approved'],'the required person-facing summary does not change scope')
+
+    def test_automatic_run_reports_tasks_decisions_and_final_audit_then_allows_a_new_fix(self):
+        from harness.autonomy import set_enabled,RunReports
+        set_enabled(self.data.name,True,confirmed=True)
+        self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
+        self.paper.decision('plan','Colour','Blue','auto')
+        (self.root/'app.py').write_text('x=8\n');self.paper.observe('plan')
+        for passed in [False,True]:
+            self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('plan','python3 -m unittest',passed)
+        first=self.paper.end('plan');self.assertNotIn('report',first)
+        self.assertTrue(first['check_in']['next'].endswith('-ready-to-publish.md'))
+        self.paper.start('audit',str(self.root),'yes');task=self.root/self.paper.requests['audit']['task']
+        # The audit runner, tested separately, ticks these only after its actual commands pass.
+        task.write_text(task.read_text().replace('- [ ]','- [x]'))
+        from unittest.mock import patch
+        with patch('harness.audit.verified',return_value=True):final=self.paper.end('audit')
+        report=final['report']
+        self.assertEqual(report['outcome'],'roadmap done');self.assertEqual(report['counts']['done'],2)
+        self.assertEqual(report['counts']['decisions'],2)
+        self.assertTrue(all(item['verified'] for item in report['done']))
+        self.assertEqual(RunReports(self.data.name).latest()['id'],report['id'])
+        self.paper.start('fix',str(self.root),'Fix the label')
+        self.assertIsNone(self.paper.requests['fix']['task']);self.assertFalse(self.paper.plan_status('fix')['required'])
+
+    def test_automatic_audit_is_not_marked_verified_without_its_real_checks(self):
+        from harness.autonomy import set_enabled
+        set_enabled(self.data.name,True,confirmed=True)
+        self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
+        state=self.paper.plan_state(self.root);state.update(index=1,check_in=False);self.paper.plan_state(self.root,state)
+        self.paper.start('audit',str(self.root),'Do task 3')
+        task=self.root/self.paper.requests['audit']['task'];task.write_text(task.read_text().replace('- [ ]','- [x]'))
+        result=self.paper.end('audit')
+        self.assertEqual(result['outcome'],'not verified');self.assertIn('publication checks',result['reason'])
+        self.assertFalse(result['report']['done'][0]['verified'])
+
+    def test_auto_report_includes_gate_blocks_and_completed_network_commands(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        from harness.autonomy import set_enabled,RunReports
+        set_enabled(self.data.name,True,confirmed=True)
+        ledger=ProposalLedger(GateEngine('','/dev/null'),protocol_file=Path(self.data.name)/'runs.json',events_file=Path(self.data.name)/'events.jsonl')
+        ledger.start_request('auto',str(self.root),'Fix the label')
+        blocked=ledger.propose('execute_command',{'command':'rm -rf /'},'admin',cwd=str(self.root),request='auto')
+        self.assertEqual(blocked['outcome'],'BLOCK')
+        args={'command':'curl https://example.invalid'}
+        proposed=ledger.propose('execute_command',args,'admin',cwd=str(self.root),request='auto')
+        # Audit a simulated successful command; this test never opens a network connection.
+        ledger.complete(proposed['proposal_id'],'execute_command',args,'ok',0)
+        report=RunReports(self.data.name).latest()
+        self.assertEqual(report['counts']['external'],1);self.assertEqual(report['counts']['problems'],1)

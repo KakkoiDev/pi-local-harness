@@ -1,4 +1,5 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
+from harness import autonomy
 import base64
 from datetime import datetime
 from harness.context import build_context, build_project_context
@@ -519,7 +520,7 @@ class WebChat:
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
-            pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
+            run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
@@ -538,6 +539,8 @@ class WebChat:
                     notice=str(event.get('message',''))
                     if notice.startswith(('Harness recovery stopped:','Harness refused:')):raise ValueError(notice.split(':',1)[1].strip())
                     if notice.startswith('Harness recovery:'):phase='recovering';settled=False;harness_done=False
+                    if notice.startswith('Harness report: '):
+                        run_report=json.loads(notice.removeprefix('Harness report: '));emit({'type':'report',**run_report})
                     if notice.startswith('Harness plan: '):
                         pending_plan=json.loads(notice.removeprefix('Harness plan: '));emit({'type':'plan',**pending_plan})
                     if notice.startswith('Harness check-in: '):
@@ -578,7 +581,7 @@ class WebChat:
             if committed:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         finally:
@@ -660,7 +663,10 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/gate':
                 self.reply({'events':self.chat.gate_events(),'gate_port':self.chat.gate_port});return
             if path=='/api/conversations':self.reply(self.chat.store.list());return
-            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'phoneError':self.phone_error,'phoneEnable':serve_link(self.phone_error),'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root)});return
+            if path=='/api/config':choice=self.chat.choice();self.reply({'model':choice['model'],'effort':choice['effort'],'thinking':choice['thinking'],'chosenEffort':choice['chosenEffort'],'missing':choice['missing'],'maxFileBytes':MAX_UPLOAD,'phoneUrl':self.phone_url,'phoneError':self.phone_error,'phoneEnable':serve_link(self.phone_error),'gatePort':self.chat.gate_port,'dataRoot':str(self.chat.documents.root),'auto_accept':autonomy.enabled(self.chat.documents.root)});return
+            if path=='/api/auto':
+                from harness.autonomy import enabled,RunReports
+                self.reply({'enabled':enabled(self.chat.documents.root),'report':RunReports(self.chat.documents.root).latest()});return
             if path=='/api/models':self.reply(self.chat.model_list());return
             if path=='/api/context-preview':
                 query={key:values[0] for key,values in parse_qs(urlparse(self.path).query).items()}
@@ -703,6 +709,12 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if path=='/api/auto':
+                from harness.autonomy import set_enabled
+                self.reply(set_enabled(self.chat.documents.root,data.get('enabled'),confirmed=data.get('confirmed') is True));return
+            if path=='/api/reports/seen':
+                from harness.autonomy import RunReports
+                self.reply(RunReports(self.chat.documents.root).mark_seen(data.get('id')));return
             if path=='/api/projects/create':
                 project=self.chat.documents.create_project(data['name'],data.get('parent'),data.get('kind','empty'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/projects/register':

@@ -109,6 +109,8 @@ def start_workbench(data, cwd, model, effort, extra_env=None):
     """This checkout's services with a scratch data folder and the real Pi; (process, web URL)."""
     data.mkdir(parents=True, exist_ok=True)
     (data / 'model.json').write_text(json.dumps({'model': model, 'effort': effort}))
+    from harness.autonomy import set_enabled
+    set_enabled(data,True,confirmed=True)  # scratch bench runs always choose recommendations
     shutil.copy(ROOT / 'harness/AGENTS.md', data / 'AGENTS.md')  # as the installer seeds a real data folder
     env = {key: value for key, value in os.environ.items() if not key.startswith(('PI_HARNESS_', 'PI_WEB_REMOTE_'))}
     env.update({'PI_AGENT_DATA': str(data), 'PI_WEB_DATA': str(data / 'chats'), 'PI_WEB_PORT': '0', 'PI_GATE_PORT': '0', 'PI_TAILSCALE': 'false',
@@ -183,7 +185,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
         **versions(model), 'status': current.get('status', 'unknown'), 'timed_out': bool(current.get('timed_out')), 'stopped_because': current.get('progress', '') if current.get('status') != 'completed' else '',
         'mode': 'bare' if bare else 'harness', 'solved': solved, 'check': said[-300:], 'regressions': kept, 'regressions_said': kept_said[-300:] if kept is False else '',
         'resolved': solved and kept is not False, 'user_turns': user_turns, 'verified': any(not line.endswith(', not verified)') for line in commits), 'committed': [line.split('\t', 1)[1] for line in commits],
-        'not_verified_mark': 'Not verified (G-012)' in answer or any(line.endswith(', not verified)') for line in commits), 'tasks_after': tasks, 'seconds': seconds,
+        'not_verified_mark': 'Not verified (G-012)' in answer or any(line.endswith(', not verified)') for line in commits), 'tasks_after': tasks, 'plan':planning_metrics(project,data), 'seconds': seconds,
         'tool_calls': len(tools), 'tools_failed': sum(tool.get('status') == 'failed' for tool in tools),
         'test_runs': read_jsonl(data / 'test-runs.jsonl'), 'reports': counts(reports, 'kind'), 'rules': counts([line for line in gate if line.get('phase') == 'gate' and line.get('outcome') != 'ALLOW'], 'rule'),
         'gate_checks': sum(line.get('phase') == 'gate' for line in gate), 'folder': str(folder),
@@ -202,6 +204,16 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     with (Path(out) / 'results.jsonl').open('a', encoding='utf-8') as handle: handle.write(json.dumps(result, ensure_ascii=False) + '\n')
     shutil.rmtree(work, ignore_errors=True)
     return result
+
+
+def planning_metrics(project,data):
+    """Plan evidence, separate from whether the hidden app check passed."""
+    from harness.autonomy import RunReports
+    texts=[path.read_text(encoding='utf-8') for path in (Path(project)/'tasks').glob('*.md') if not path.name.endswith('-ready-to-publish.md')]
+    texts=[text for text in texts if 'Kind: planning' not in text]
+    report=RunReports(data).latest() or {}
+    return {'tasks':len(texts),'done_when':sum(bool(re.search(r'^Done when:',text,re.M)) for text in texts),
+            'decisions_asked':sum(item.get('question')!='Plan approval' for item in report.get('decisions',[]))}
 
 
 def summary(results):

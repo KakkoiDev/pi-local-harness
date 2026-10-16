@@ -142,7 +142,7 @@ def run(root,data,request=None,project=None):
     passed=all(row['passed'] for row in rows);roadmap=root/'ROADMAP.md'
     plan=roadmap.read_text(encoding='utf-8');plan=re.sub(r'^(\s*- )\[[ xX]\](.*\('+re.escape(task)+r'\))',lambda match:match[1]+'['+('x' if passed else ' ')+']'+match[2],plan,flags=re.M);roadmap.write_text(plan,encoding='utf-8')
     ready=passed and not re.search(r'^\s*- \[ \]',plan,re.M)
-    result={'time':when,'task':task,'checks':rows,'ready':ready}
+    result={'time':when,'project':str(root),'state':project_state(root),'task':task,'checks':rows,'ready':ready}
     (data/'audits').mkdir(parents=True,exist_ok=True);(data/'audits'/f'{time.time_ns()}.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     return result
 
@@ -155,5 +155,39 @@ def main(argv=None):
     print('\n'.join(problems) if problems else 'Passed.')
     return 1 if problems else 0
 
+
+
+
+
+def project_state(root):
+    """All versioned/unignored audit inputs, including README; plan bookkeeping is excluded."""
+    import hashlib
+    result=subprocess.run(['git','-C',str(root),'ls-files','-co','--exclude-standard','-z'],capture_output=True)
+    if result.returncode:return None
+    names=sorted(set(result.stdout.decode().split('\0'))- {''})
+    state=hashlib.sha256()
+    for name in names:
+        if name=='ROADMAP.md' or name.startswith('tasks/'):continue
+        path=Path(root)/name
+        state.update(name.encode()+b'\0')
+        if path.is_symlink():
+            import os
+            state.update(b'<link>'+os.readlink(path).encode())
+        elif path.is_file():
+            with path.open('rb') as handle:
+                for chunk in iter(lambda:handle.read(1024*1024),b''):state.update(chunk)
+        else:state.update(b'<absent>')
+        state.update(b'\0')
+    return state.hexdigest()
+
+
+def verified(root,data,task):
+    if not data:return False
+    for path in sorted((Path(data)/'audits').glob('*.json'),reverse=True):
+        try:value=json.loads(path.read_text(encoding='utf-8'))
+        except (OSError,ValueError):continue
+        if value.get('project')==str(root) and value.get('task')==task:
+            return bool(value.get('checks') and {row.get('key') for row in value['checks']}==set(LABELS) and all(row.get('passed') for row in value['checks']) and value.get('state') and value['state']==project_state(root))
+    return False
 
 if __name__=='__main__':raise SystemExit(main())

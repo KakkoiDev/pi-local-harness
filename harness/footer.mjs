@@ -22,6 +22,7 @@ export function footerText({ online = true, config = {}, jobs = [], projects = [
     const worker = running.find(job => job.role === 'worker') && !running.some(job => job.role === 'chat') ? running.find(job => job.role === 'worker') : null;
     state = tr(worker ? `▶ Working · worker in ${name(worker.project)}` : `▶ Working${waiting ? ` · ${waiting} waiting` : ''}`);
   } else if (waiting) state = tr(`○ ${waiting} waiting`);
+  if (config.auto_accept) state+=` · ${tr('Auto')}`;
   const checks = tr(gate.today ? `Gate today ${gate.today}${gate.blocked_today ? ` · ${gate.blocked_today} blocked` : ''}` : 'Gate today 0');
   return `${dim(model)}  │  ${state}  │  ${dim(`${checks}  │  ${tr(`Phone ${config.phoneUrl ? 'on' : 'off'}`)}`)}`;
 }

@@ -26,7 +26,7 @@ by hand: they read live data.
 | `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |
 | `/update` · `/update now` | Whether a new version of Pi Workbench is on GitHub and what changed; `now` updates its clone (asks first), and the new version installs the next time `plh` starts. |
 
-When you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
+With Run on its own off, when you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
 on the person's input line and they press Return to run it and confirm. Say that in one line; never repeat the command
 list in prose (point to `/harness`).
 
@@ -48,5 +48,7 @@ a few words (`guide phone`, `guide model`); answer from that, in a few lines. Th
 
 `/config set`, `/models use` and `/undo` ask the person before changing anything; each change backs up the file it
 changes (`<data>/backups/`) and is a line in `<data>/admin-log.jsonl`. Ollama changes and model removals are logged the same way; nothing
-is deleted (a removed model goes to the Trash). You may only **propose** a change (tell the person which command to type); it runs after their yes. Never
+is deleted (a removed model goes to the Trash). With Run on its own off, you may only **propose** a change (tell the person which command to type); it runs after their yes. Never
 change these files or Ollama's settings with shell commands.
+
+`/auto on|off|status` controls Run on its own for all projects immediately; on shows the risks every time, with Cancel first. `/config set auto true` uses the same confirmation. `/report` shows the last run’s four report sections.

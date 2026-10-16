@@ -30,6 +30,21 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                 else: self.send_json_response({'result': self.ledger.end_request(data['request'],review=data.get('review',True))})
             except Exception as error:
                 self.send_error_response(400, str(error))
+        elif self.path=='/auto/action':
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                item=self.ledger.paperwork.requests.get(data.get('request'))
+                if not item:raise ValueError('No active request for this action.')
+                runs=self.ledger.paperwork.runs;command=data.get('command');args=data.get('args',[])
+                if runs:
+                    if data.get('code')!=0:runs.add(item['root'],'problems',{'reason':'Automatic console command failed: '+str(command),'command':command,'args':args})
+                    elif command=='models' and args[:1] in (['pull'],['remove']) or command=='update' and args[:1]==['now']:
+                        runs.add(item['root'],'external',{'action':'Ran /'+command+' '+' '.join(args)})
+                self.send_json_response({})
+            except Exception as error:self.send_error_response(400,str(error))
+        elif self.path=='/auto':
+            from harness.autonomy import enabled
+            self.send_json_response({'enabled':enabled(self.ledger.paperwork.data)})
         elif self.path in ('/plan','/plan/approve'):
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))

@@ -439,3 +439,23 @@ test('a project-defining request always gets planning guidance and code waits fo
   const refused=await handlers.tool_call({...write,toolCallId:'outside',input:{path:join(dir,'other.py'),content:'x=1\n'}});
   assert.match(refused.reason,/Files:/);
 });
+
+test('auto check-ins start fresh request identities and finish with a report (task 238)',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-auto-chain-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_JOB:'initial-job'});
+ const handlers={},calls=[],sent=[],notices=[];let ends=0;
+ globalThis.fetch=async(url,options)=>{
+  const path=new URL(url).pathname;calls.push({path,body:JSON.parse(options.body)});
+  return {ok:true,json:async()=>path==='/auto'?{enabled:true}:path==='/request/end'?{result:++ends===1?{outcome:'committed',message:'Ball',commit:'abc',check_in:{verified:true,next:'tasks/002-score.md'}}:{outcome:'committed',message:'Score',commit:'def',check_in:{verified:true,next:null},report:{counts:{done:2,decisions:1,external:0,problems:0}}}}:{}};
+ };
+ const pi={on:(name,fn)=>handlers[name]=fn,appendEntry(){},registerEntryRenderer(){},sendUserMessage:text=>sent.push(text)};
+ const ctx={cwd:dir,ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){}}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
+  await handlers.input({source:'interactive',text:'Build a game'},ctx);await handlers.agent_settled({aborted:false});
+  assert.deepEqual(sent,['yes']);assert.equal(notices.filter(text=>text==='Harness settled').length,0);
+  await handlers.input({source:'extension',text:'yes'},ctx);handlers.agent_start({},ctx);await handlers.agent_settled({aborted:false});
+  const requests=calls.filter(call=>call.path==='/request');assert.equal(requests.length,2);assert.notEqual(requests[0].body.request,requests[1].body.request);
+  assert.equal(notices.filter(text=>text==='Harness settled').length,1);assert.ok(notices.some(text=>text.startsWith('Harness report: ')));
+ } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
+});

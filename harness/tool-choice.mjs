@@ -4,8 +4,8 @@ const PAGE = /\b(page|pages|view|screen|layout|scroll\w*|click\w*|button|css|htm
 const OURS = ['harness', 'task_box', 'browser', 'ask_choices', 'propose_plan'];
 
 /** The harness tools a request gets. terminal: a terminal Pi session; tasks: the project keeps tasks/ and ROADMAP.md. */
-export function harnessTools(text, { terminal, tasks }) {
-  return [...(terminal ? ['harness'] : []), ...(tasks ? ['task_box', 'ask_choices', 'propose_plan'] : []), ...(PAGE.test(String(text || '')) ? ['browser'] : [])];
+export function harnessTools(text, { terminal, tasks, auto=false }) {
+  return [...(terminal || auto ? ['harness'] : []), ...(tasks ? ['task_box', 'ask_choices', 'propose_plan'] : []), ...(PAGE.test(String(text || '')) ? ['browser'] : [])];
 }
 
 /** The active set: the current one without the harness's tools, plus the ones chosen that are registered. */

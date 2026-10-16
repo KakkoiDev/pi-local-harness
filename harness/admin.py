@@ -8,6 +8,7 @@ changes come in a later phase, each with a confirmation by the person, a backup 
     python3 -m harness.admin help
     python3 -m harness.admin gate 20 blocked --json
 """
+from harness import autonomy
 import json
 import os
 import re
@@ -282,7 +283,12 @@ class Console:
         except ValueError as error: raise ValueError(f'{key} must be {error}.') from None
 
     def set_config(self, key, raw, yes=False):
-        value = self.setting(key, raw); path = self.data / 'config.json'
+        if key=='auto':key='auto_accept'
+        value = self.setting(key, raw)
+        if key=='auto_accept':
+            from harness.autonomy import set_enabled
+            return set_enabled(self.data,value,confirmed=yes)
+        path = self.data / 'config.json'
         try: saved = json.loads(path.read_text())
         except (OSError, ValueError): saved = {}
         before = {**DEFAULTS, **saved}.get(key)
@@ -431,6 +437,8 @@ COMMANDS = {
     'models': ('[use <name> [effort]] [check [name] [--all] [--force]] [pull <name>] [remove <name>]', 'Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.'),
     'ollama': ('[set <key> <value>] [restart]', 'Ollama: version, models folder, parallel slots, context, keep-alive; set and restart ask first.'),
     'projects': ('', 'Projects and their folders.'),
+    'auto': ('[on|off|status]', 'Run on its own for all projects; on always shows the risks first.'),
+    'report': ('', 'The last automatic run’s report.'),
     'config': ('[set <key> <value>]', 'config.json with each key explained; set changes one (asks first).'),
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
@@ -479,6 +487,12 @@ def change_view(value):
     return view(None, {'kind': 'lines', 'lines': [value.get('result') or '✓ ' + value['detail']]})
 
 
+def report_line(kind,item):
+    if kind=='done':return ('✓ ' if item.get('verified') else '! ')+str(item.get('task',''))+(' · '+item['reason'] if item.get('reason') else '')
+    if kind=='decisions':return item.get('question','')+': '+item.get('answer','')+' (auto)'
+    return str(item.get('action') or item.get('reason') or '')+' · '+item.get('when','')
+
+
 def build(console, command, args, yes=False):
     """(data, view) for a command: data for --json and tools, the view for people (harness/terminal.py renders it).
     A change without yes returns its preview ({confirm: True, …}) and changes nothing."""
@@ -487,6 +501,19 @@ def build(console, command, args, yes=False):
     if command in ('harness', 'help'):
         rows = [['Ask in words', 'e.g. “is anything stuck?”, “switch to qwen”']] + [[f'/{name}', about] for name, (usage, about) in COMMANDS.items() if name != 'harness']
         return {name: about for name, (_, about) in COMMANDS.items()}, view('Harness commands', kv(*rows), hint='Type a command, or ask in words · python3 -m harness.admin <command> --json for raw data')
+    if command=='auto':
+        from harness.autonomy import enabled,set_enabled
+        action=args[0] if args else 'status'
+        if action not in {'on','off','status'}:raise ValueError('Usage: /auto on|off|status')
+        if action=='status':
+            value={'enabled':enabled(console.data)};return value,view('Run on its own',kv(['Run on its own','on' if value['enabled'] else 'off']))
+        return changed(set_enabled(console.data,action=='on',confirmed=yes))
+    if command=='report':
+        from harness.autonomy import RunReports,KINDS
+        value=RunReports(console.data).latest()
+        if not value:return None,view('Run report',{'kind':'lines','lines':['No automatic run yet.']})
+        titles={'done':'Done','decisions':'Decided on its own','external':'Left this Mac or used the Trash','problems':'Problems'}
+        return value,view('Run report',*[{'kind':'lines','heading':f'{titles[kind]} · {value["counts"][kind]}','lines':[report_line(kind,item) for item in value[kind]] or ['None.']} for kind in KINDS],summary=value.get('outcome','Working'))
     if command == 'status':
         value = console.status(); queue = value['queue']; config = console.web('/api/config') or {}
         attention = queue['failed'] + queue['stopped'] + queue['interrupted']
@@ -496,7 +523,7 @@ def build(console, command, args, yes=False):
         phone = f"✓ on · {config['phoneUrl']}" if config.get('phoneUrl') else 'off · /guide phone'
         return value, view('Status', kv(['Web', web], ['Model', f"{value['model']['model']} · {value['model']['effort']} thinking · " + ('✓ Ollama answers' if value['ollama'] else '✗ Ollama does not answer')],
                                          ['Queue', ' · '.join(parts)], ['Gate', gate], ['Phone', phone],
-                                         ['Projects', f"{value['projects']} · data in {value['data'].replace(str(Path.home()), '~')} · build {value['build']}"], ['Loop check', 'every 10 s']),
+                                         ['Projects', f"{value['projects']} · data in {value['data'].replace(str(Path.home()), '~')} · build {value['build']}"], ['Loop check', 'every 10 s'], ['Run on its own', 'on' if autonomy.enabled(console.data) else 'off']),
                            hint='/queue · /gate blocked · /doctor')
     if command == 'queue':
         rows = console.queue(args[0] if args else None); names = {item['id']: item['name'] for item in console.projects()}

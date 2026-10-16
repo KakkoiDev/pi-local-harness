@@ -138,3 +138,7 @@ When a project decision is missing from your request, its code and its conventio
 
 
 New apps and features start with a plan. Pi fills the Goal and real tasks, asks about unanswered decisions, then uses `propose_plan` to show what it will build. Approve Plan (or a plain “yes” reply) authorizes that scope; changing it requires another approval. Small fixes skip approval. Each planned task gets its own verified commit and check-in; reply “yes” to start the next task as a fresh request. Optional `Files:` lines limit each task to its listed files or folders.
+
+## How do I let Pi work on its own?
+
+`/auto on` turns on Run on its own for every project, immediately and until `/auto off`. Every enable shows the risks and defaults to Cancel: Pi chooses recommended answers, approves plans, continues tasks, publishes, pushes, downloads, sends and uses the Trash without another question. What leaves the Mac cannot be taken back by Undo. `/auto status` shows the shared setting; `/report` shows the last run’s tasks, decisions, external actions and problems. An unverified task stops the run for review. The terminal prints the report counts at the end.

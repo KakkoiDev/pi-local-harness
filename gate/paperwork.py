@@ -60,6 +60,8 @@ class Paperwork:
         self.lock = threading.RLock()
         self.choices = {}
         self.plans = {}
+        from harness.autonomy import RunReports
+        self.runs=RunReports(data) if data else None
 
     def choice_file(self,root):
         if not self.data:return None
@@ -88,7 +90,9 @@ class Paperwork:
         else:self.choices[str(root)]=value
 
     def pause(self,request):
-        with self.lock:self.requests.pop(request,None)
+        with self.lock:
+            item=self.requests.pop(request,None)
+            if item and item.get('auto_run'):self.runs.finish(item['root'],'waiting for person')
 
     def decision(self,request,question,answer,state='chosen'):
         """An answered choice is evidence, kept in the task rather than inferred from Pi's prose."""
@@ -113,6 +117,7 @@ class Paperwork:
                 plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
             waiting=self.waiting_choice(item['root'])
             if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
+            if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',{'task':item['task'],'question':clean(question),'answer':clean(answer)})
             return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
 
     def plan_state(self, root, value=None):
@@ -136,6 +141,9 @@ class Paperwork:
                 goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
                 text=goal[1] if goal else text
             text=re.sub(r'^## (?:Progress \(kept by the harness\)|For the person)\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
+            if path.endswith('-ready-to-publish.md'):
+                text=re.sub(r'^## Last audit\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
+                text=re.sub(r'^(- \[[ x]\] [^:\n]+):.*$',r'\1',text,flags=re.M)
             text=re.sub(r'^Plan approved:.*\n?', '', text, flags=re.M)
             text=re.sub(r'- \[[ x]\]', '- []', text)
             texts.append('\n'.join(line.rstrip() for line in text.splitlines() if line.strip()))
@@ -143,7 +151,7 @@ class Paperwork:
 
     def plan_status_for_item(self,item):
         plan=self.plan_state(item['root'])
-        return bool(not item.get('new_plan') and plan.get('approved') and item.get('task') in plan.get('tasks',[]) and plan.get('digest')==self.plan_digest(item['root'],plan['tasks']))
+        return bool(not item.get('new_plan') and not plan.get('finished') and plan.get('approved') and item.get('task')==plan['tasks'][plan.get('index',0)] and re.search(r'^Plan approved: (?:chosen|auto) ',(item['root']/item['task']).read_text(encoding='utf-8'),re.M) and plan.get('digest')==self.plan_digest(item['root'],plan['tasks']))
 
     def plan_status(self, request, small_fix=False):
         from .planning import requires_plan
@@ -152,7 +160,7 @@ class Paperwork:
         root=item['root'];state=self.plan_state(root);task=item.get('task');text=''
         if task and (root/task).is_file():text=(root/task).read_text(encoding='utf-8')
         required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8'),re.M)))
-        approved=bool(not item.get('new_plan') and state.get('approved') and task in state.get('tasks',[]) and state.get('digest')==self.plan_digest(root,state['tasks']))
+        approved=self.plan_status_for_item(item)
         return {'required':required or bool(state.get('pending') or state.get('check_in') or task in state.get('tasks',[])), 'approved':approved,'task':task}
 
     def propose_plan(self, request):
@@ -160,7 +168,10 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this plan.')
-            root=item['root'];gaps=rules.plan_gaps(root)
+            root=item['root']
+            from kit.publish_audit import ensure_task
+            ensure_task(root,reset=True)
+            gaps=rules.plan_gaps(root)
             if gaps:raise ValueError('; '.join(gaps))
             roadmap=(root/'ROADMAP.md').read_text(encoding='utf-8')
             paths=re.findall(r'^\s*- \[ \].*?\((tasks/[^)]+\.md)\)',roadmap,re.M)
@@ -199,9 +210,10 @@ class Paperwork:
                 if 'Kind: planning' in text:
                     file.write_text(text.replace('- [ ]','- [x]'),encoding='utf-8')
                     roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*)- \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1- [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
-            plan.update(pending=False,approved=True,index=0,check_in=False)
+            plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
             item['new_plan']=False
+            if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
             return self.plan_status(request)
 
     # -- a request's life -------------------------------------------------------------------------------------------
@@ -216,12 +228,14 @@ class Paperwork:
             from harness.context import mentioned
             named=mentioned(item['text'],[path.relative_to(root).as_posix() for path in (root/'tasks').glob('*.md')])
             item['task']=next(iter(named),None)
+            from harness.autonomy import enabled
+            if self.runs and enabled(self.data):item['auto_run']=self.runs.begin(root)
             self.requests[request]=item
             from .planning import approval
             plan=self.plan_state(root)
             from .planning import FEATURE, PLAN
             item['new_plan']=bool(FEATURE.search(item['text']) or PLAN.search(item['text']))
-            if plan.get('approved') and not plan.get('check_in') and not item['new_plan'] and not item['task']:
+            if plan.get('approved') and not plan.get('finished') and not plan.get('check_in') and not item['new_plan'] and not item['task']:
                 item['task']=plan['tasks'][plan.get('index',0)]
             if plan.get('pending') and approval(item['text']):
                 item['before']={path:value for path,value in before.items() if not plan_path(path)}
@@ -283,6 +297,21 @@ class Paperwork:
                     else: self.progress(item, line[6:])
 
     def end(self, request, review=True):
+        with self.lock:
+            item=self.requests.get(request)
+            result=self._end(request,review)
+            if item and item.get('auto_run') and result and result.get('outcome')!='continue':
+                from harness.autonomy import enabled
+                outcome=result['outcome']
+                self.runs.step_finished(item['root'])
+                if outcome in {'committed','not verified','plan incomplete'}:
+                    self.runs.add(item['root'],'done',{'task':result.get('task'),'verified':outcome=='committed','commit':result.get('commit'),'reason':result.get('reason')})
+                if outcome not in {'committed','nothing changed'}:self.runs.add(item['root'],'problems',{'reason':result.get('reason',outcome)})
+                if not (outcome=='committed' and result.get('check_in',{}).get('next') and enabled(self.data)):
+                    result['report']=self.runs.finish(item['root'],'roadmap done' if outcome=='committed' and result.get('check_in') and not result['check_in']['next'] else outcome)
+            return result
+
+    def _end(self, request, review=True):
         """The request is over: mark it done and commit, or leave it open and say why. None outside a project."""
         with self.lock:
             item = self.requests.get(request)
@@ -306,9 +335,14 @@ class Paperwork:
                 self.write(item,text.rstrip('\n')+f'\n\nPlan incomplete (G-014): {reason} The task stays open.\n')
                 saved = self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
                 return {'outcome':'plan incomplete','task':task,'reason':reason,**saved}
-            if not code:
+            from harness.audit import verified as audit_verified
+            if task.endswith('-ready-to-publish.md') and (re.search(r'^- \[ \]',text,re.M) or not audit_verified(root,self.data,task)):
+                reason='publication checks are still open; run /audit and fix every failed check'
+                saved=self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
+                return {'outcome':'not verified','task':task,'reason':reason,**saved}
+            if not code and not self.plan_status_for_item(item):
                 text = re.sub(r'^Kind:\s*\S+', 'Kind: docs', text, count=1, flags=re.MULTILINE); self.write(item, text)
-            else:
+            if code:
                 answer = self.protocol.verification(root)
                 reason = None
                 if not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
@@ -335,8 +369,8 @@ class Paperwork:
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
-                plan.update(index=index,check_in=True);self.plan_state(root,plan)
-                result['check_in']={'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'question':'Continue?' if next_task else 'Plan complete.'}
+                plan.update(index=index,check_in=bool(next_task),finished=not bool(next_task));self.plan_state(root,plan)
+                result['check_in']={'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'number':index+1,'total':len(plan['tasks']),'question':'Continue?' if next_task else 'Plan complete.'}
             return result
 
     def sample_cleanup(self, item):

@@ -278,7 +278,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [234-Each turn, only the needed files are in context](tasks/234-context-only-what-is-needed.md)
 - [ ] [235-Bench scenario: a pong game from the starter](tasks/235-bench-pong-from-starter.md)
 - [ ] [236-Plan mode: decisions become choices, Gate catches guesses](tasks/236-plan-mode-choices.md)
-- [ ] [237-Plan mode: plan before code, approval, check-ins](tasks/237-plan-mode-plan-and-check-ins.md)
+- [x] [237-Plan mode: plan before code, approval, check-ins](tasks/237-plan-mode-plan-and-check-ins.md)
 - [ ] [238-Auto-accept: run the plan, check later](tasks/238-auto-accept.md)
 - [ ] [239-Plan mode in the web workbench (after round 10)](tasks/239-plan-mode-web.md)
 - [ ] [240-Plan mode in terminal Pi](tasks/240-plan-mode-terminal.md)

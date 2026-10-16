@@ -113,9 +113,11 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
-  let lastAnswer = '', assistantText = '', waitingChoice = false;
+  let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false;
+  const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
   installChoices(extras, {
+    auto:automatic,
     web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
     pending:async (choice,ctx)=>{
       const pending=await call('/choice',{request:requestId,choice});
@@ -125,6 +127,7 @@ export default function harness(pi, dependencies = {}) {
     cancel:pauseChoice,
   });
   installPlanning(extras, {
+    auto:automatic,
     propose:()=>call('/plan',{request:requestId}),
     approve:state=>call('/plan/approve',{request:requestId,state}),
     web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
@@ -144,7 +147,7 @@ export default function harness(pi, dependencies = {}) {
     watch.stop();
   };
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
-  installConsole(extras, { ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
+  installConsole(extras, { auto:automatic, recordAuto:action=>call('/auto/action',{request:requestId,...action}), ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
   // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.
@@ -242,7 +245,8 @@ export default function harness(pi, dependencies = {}) {
   });
   pi.on('input', async (event, ctx) => {
     if (ctx) context = ctx;
-    if (event.source === 'extension') { await refreshContext(); return { action: 'continue' }; }
+    const chain=nextPlanInput;nextPlanInput=false;
+    if (event.source === 'extension' && !chain) { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     assistantText='';waitingChoice=false;
@@ -252,10 +256,10 @@ export default function harness(pi, dependencies = {}) {
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
       const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
-      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
+      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks, auto:await automatic() }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
-    requestId = bare ? undefined : process.env.PI_HARNESS_JOB || randomUUID();
+    requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(answer=>{
       if (answer.root && !answer.planning?.approved) {
         const planning=guides.find(guide=>guide.name==='planning');
@@ -401,8 +405,19 @@ export default function harness(pi, dependencies = {}) {
           return;
         }
         requestId = undefined;
+        if (result?.report) {
+          const report=result.report;
+          notify(tr(`Run report: ${report.counts.done} tasks · ${report.counts.decisions} decisions · ${report.counts.external} external actions · ${report.counts.problems} problems. /report`),'info');
+          if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness report: '+JSON.stringify(report),'info');
+        }
         if (result?.check_in) {
           const check=result.check_in;
+          if (check.next && await automatic()) {
+            say('committed',`${result.message} · committed as ${result.commit}`,'info');
+            nextPlanInput=true;recovering=true;
+            notify('Harness recovery: Continue the next approved task.','info');
+            pi.sendUserMessage('yes');return;
+          }
           if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness check-in: '+JSON.stringify(check),'info');
           else notify([result.message,`${tr('Verified')}: ${check.verification}`,check.next ? `${tr('Next')}: ${check.next} · ${tr('Continue?')}` : tr('Plan complete.')].join('\n'),'info');
         }

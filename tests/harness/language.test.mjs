@@ -1,3 +1,4 @@
+import { loadTerminalLanguage, tr } from '../../harness/language.mjs';
 // Terminal Pi in Japanese (the person, 2026-10-15): only the screens and texts; /commands stay in English. Japanese
 // characters take two terminal columns, so tables and wrapping count columns, not characters.
 import { test } from 'node:test';
@@ -59,4 +60,10 @@ test('the terminal translates what the agent found left out: dim tool rows, star
     assert.equal(view.parts[1].rows[1][1], '/Users/a/Running');
     assert.notEqual(view.parts[2].lines[0], '○ Not changed.');
   } finally { loadTerminalLanguage('en'); }
+});
+
+test('automatic run counts and risks are translated in Japanese',()=>{
+ loadTerminalLanguage('ja');
+ try {assert.equal(tr('Run report: 2 tasks · 1 decisions · 0 external actions · 3 problems. /report'),'実行レポート：タスク 2件・決定 1件・外部への操作 0件・問題 3件。/report');assert.equal(tr('Turn On'),'オンにする');}
+ finally {loadTerminalLanguage('en');}
 });

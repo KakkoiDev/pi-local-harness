@@ -104,6 +104,14 @@ class ProposalLedger:
 
     def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None, cwd=None, source=None, rule=None):
         # Show scope, not uploaded file bodies or tool output.
+        if self.paperwork.runs and cwd:
+            root=project_root(cwd)
+            if root:
+                if (phase=='gate' and outcome!='ALLOW') or (phase=='audit' and outcome not in {'SUCCESS','VERIFIED'}):
+                    self.paperwork.runs.add(root,'problems',{'reason':reason,'tool':proposal.tool_name,'rule':rule})
+                command=proposal.args.get('command','')
+                if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
+                    self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:

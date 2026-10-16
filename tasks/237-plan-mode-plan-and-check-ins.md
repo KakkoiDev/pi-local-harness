@@ -18,7 +18,7 @@ filled).
 - [x] Gate rule (task 236's "no approved plan"): code writes are refused until then; plan files are always allowed.
 - [x] A plan may have several tasks; the harness works them in roadmap order, one per request turn chain. Gate allows
   code for the task in progress only (the task file's `Files:` line when present; otherwise any code file).
-- [ ] Check-in: when a task is verified (G-012 green), the paperwork commits it, ticks its roadmap box, and Pi stops
+- [x] Check-in: when a task is verified (G-012 green), the paperwork commits it, ticks its roadmap box, and Pi stops
   with a check-in message: done / how verified / next task / "Continue?". The person's yes (or auto-accept) starts the
   next task as a new request. The early-commit bug (task 227) must be fixed first.
 - [x] Red/green tests for each: approval words, the refusal before approval, the check-in after a verified task, the
@@ -32,4 +32,4 @@ for approval, built task by task with a check-in after each, and ticked each box
 
 The backend persists plan proposals and person approvals, validates their scope after restart, blocks code until approval and enforces the active task’s Files line. Exact English/Japanese approval words live in one policy. Pi’s plan headings supply commit subjects and the complete request stays in the first task. Starters have a planning checklist instead of fake implementation tasks. Terminal approval and web preview persistence are tested; web cards belong to task 239 and terminal presentation to task 240.
 
-Verified planned tasks tick their own boxes and roadmap line, commit separately and wait for a new person reply before the next task. The check-in step remains open for the shared automatic continuation setting in task 238.
+Verified planned tasks tick their own boxes and roadmap line, commit separately and wait for a new person reply before the next task. Task 238 connects the same check-in to automatic continuation with a fresh request identity; unverified tasks stop for review.

@@ -127,3 +127,28 @@ test('/audit uses the current project folder, including spaces, and Pi only prop
   assert.deepEqual(calls[1], ['/scratch/My Game']);
   assert.equal(editor, '/audit');
 });
+
+test('Run on its own always shows the risks with Cancel first, even while auto is on',async()=>{
+  const commands={},calls=[],asked=[];
+  installConsole({registerCommand:(name,options)=>commands[name]=options,sendMessage(){}},{auto:async()=>true,run:async(name,args)=>{
+    calls.push(args);
+    return args.includes('--yes')?{ok:true,code:0,text:'{}'}:{ok:false,code:3,text:JSON.stringify({preview:{title:'Turn on Run on Its Own?',detail:'publish, git push, download, send, Trash; cannot be undone',action:'Turn On',destructive:true}})};
+  }});
+  await commands.auto.handler('on',{ui:{select:async(title,options)=>{asked.push({title,options});return options[0];}}});
+  assert.deepEqual(asked[0].options,['Cancel','Turn On']);assert.match(asked[0].title,/git push.*Trash/);
+  assert.equal(calls.some(args=>args.includes('--yes')),false);
+});
+
+test('automatic audit keeps its project folder when confirming the command',async()=>{
+ const tools={},calls=[];
+ installConsole({registerTool:tool=>tools[tool.name]=tool},{auto:async()=>true,run:async(name,args)=>{calls.push(args);return {code:args.includes('--yes')?0:3,text:'Audit result'};}});
+ await tools.harness.execute('audit',{command:'audit'},null,null,{cwd:'/scratch/My Game'});
+ assert.deepEqual(calls,[['/scratch/My Game'],['/scratch/My Game','--yes']]);
+});
+
+test('automatic console actions are reported after execution',async()=>{
+ const tools={},records=[];
+ installConsole({registerTool:tool=>tools[tool.name]=tool},{auto:async()=>true,recordAuto:async value=>records.push(value),run:async(name,args)=>({code:args.includes('--yes')?0:3,text:'Result'})});
+ await tools.harness.execute('pull',{command:'models',args:'pull tiny-model'});
+ assert.deepEqual(records,[{command:'models',args:['pull','tiny-model'],code:0}]);
+});

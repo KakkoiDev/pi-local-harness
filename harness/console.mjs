@@ -18,6 +18,8 @@ export const CONSOLE_COMMANDS = {
   models: 'Installed models; /models use · check · pull · remove <name> (changes ask first).',
   ollama: 'Ollama settings; /ollama set <key> <value> and /ollama restart ask first.',
   projects: 'Projects and their folders.',
+  auto: 'Run on its own for all projects: /auto on|off|status (on always asks about the risks).',
+  report: 'The last automatic run’s report.',
   config: 'config.json explained; /config set <key> <value> changes one (asks first).',
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
@@ -52,18 +54,25 @@ export function completeAdmin(command, { webPort } = {}) {
 const COMPLETES = ['queue', 'job', 'gate', 'models', 'ollama', 'config', 'guide', 'reports'];
 
 /** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
-export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin } = {}) {
+export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin, auto = async()=>false, recordAuto=async()=>{} } = {}) {
   // The harness tool: the same commands for Pi, run from the harness's own folder (Pi once tried `python3 -m harness.admin`
   // from the home folder, where it is not found). Reads only: a change returns its preview and asks Pi to have the person
   // type the command, which then asks for their yes (plan 158, C1).
   pi.registerTool?.({
     name: 'harness', label: 'Harness console',
-    description: 'Ask the Pi Workbench harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes (config set, models use|pull|remove, ollama set, undo) are not applied: you get what would change, and the person types the command.',
+    description: 'Ask the Pi Workbench harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes are previewed for the person unless Run on its own is on; then changes run automatically. Turning automation on always requires the person’s risk confirmation.',
     promptSnippet: 'harness: the Pi Workbench console (status, doctor, queue, gate, models, config, guide for how-to questions)',
     parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
     async execute(_id, params, _signal, _update, ctx) {
       const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');
-      const { code, text } = await run(params.command, params.command === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words, { webPort: ports()?.web });
+      const target=params.command === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words;
+      let { code, text } = await run(params.command, target, { webPort: ports()?.web });
+      // Enabling automation always needs the person's risk confirmation, including from Pi.
+      const enabling=params.command==='auto' && words[0]==='on' || params.command==='config' && words[0]==='set' && ['auto','auto_accept'].includes(words[1]);
+      if (code===3 && !enabling && await auto()) {
+        ({code,text}=await run(params.command,[...target,'--yes'],{webPort:ports()?.web}));
+        await recordAuto({command:params.command,args:words,code});
+      }
       const line = `/${[params.command, ...words].join(' ')}`, ui = ctx?.ui;
       // T_Changes: Pi never changes anything. A change goes on the input line with a dim hint; Return runs it and the
       // person confirms. A question answered from live data offers its command the same way, if the line is empty.
@@ -122,11 +131,11 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
         let { ok, code, text } = await run(name, [...target, '--view'], options);
         if (code === 3) { // a change: what changes from what to what; it runs only after the person's yes (plan 158, C1)
           const shape = parse(text), preview = shape?.preview || {};
-          const action = preview.action || 'Apply', choices = preview.destructive ? ['Cancel', action] : [action, 'Cancel'];
+          const action = preview.action || 'Apply', actionLabel=tr(action), choices = preview.destructive ? [tr('Cancel'), actionLabel] : [actionLabel, tr('Cancel')];
           const detail = (preview.rows || []).map(([label, value]) => `${label.padEnd(10)} ${value}`).join('\n') || preview.detail || '';
-          const choice = ctx?.ui?.select ? await ctx.ui.select(`${preview.title || 'Apply this change?'}\n\n${detail}`, choices)
-            : ((await ctx?.ui?.confirm?.(preview.title || 'Apply this change?', detail)) ? action : 'Cancel');
-          if (choice !== action) { show(name, words, { title: null, parts: [{ kind: 'lines', lines: ['○ Not changed.'] }] }); return; }
+          const choice = ctx?.ui?.select ? await ctx.ui.select(`${tr(preview.title || 'Apply this change?')}\n\n${tr(detail)}`, choices)
+            : ((await ctx?.ui?.confirm?.(tr(preview.title || 'Apply this change?'), tr(detail))) ? actionLabel : tr('Cancel'));
+          if (choice !== actionLabel) { show(name, words, { title: null, parts: [{ kind: 'lines', lines: ['○ Not changed.'] }] }); return; }
           ({ ok, code, text } = await run(name, [...target, '--yes', '--view'], options));
         }
         const view = ok ? parse(text) : null;
