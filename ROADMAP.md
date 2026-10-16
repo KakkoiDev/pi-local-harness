@@ -290,5 +290,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [246-Recover sharing when a Tailscale Serve session stops](tasks/246-tailscale-sharing-recovery.md)
 - [ ] [246-Laya: System 1's classifier](tasks/246-laya-classifier.md)
 - [ ] [247-Three phases for every request](tasks/247-three-phases.md)
-- [ ] [248-The design system is "Pi Workbench 1-bit"](tasks/248-rename-design-system.md)
+- [ ] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
 - [ ] [249-Every decision logged with who took it](tasks/249-decision-log.md)

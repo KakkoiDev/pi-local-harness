@@ -74,7 +74,7 @@ Do them in this order. Each later task depends on the earlier ones:
    the README table): last, after 227, 228, 235-238 and 241. The person sets the OpenAI key themselves.
 10. **245** (DeepSeek Flash): only when the person says it is set up.
 11. **246** (Laya, the classifier), **247** (three phases: it takes over 55-57 and changes 236-237's gating), **248**
-    (rename the design system), **249** (the decision log). Added 2026-10-17 with CONSTITUTION.md; read it first. Do
+    (rename the design system only; the project stays "Pi Workbench"), **249** (the decision log). Added 2026-10-17 with CONSTITUTION.md; read it first. Do
     247 before finishing 236-237 if you have not started them; if you have, finish them and let 247 adapt them.
 8. **239** (plan mode's web cards) and **243** (round 9: updates, other devices, the Terminal app kind, Settings): the
    designer's answers are re-synced into `design/` (2026-10-16); build from the boards. **242** is done.
