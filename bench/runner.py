@@ -44,6 +44,10 @@ def prepare(scenario, into):
     """The scenario's project in a fresh git repository; returns its folder. A history scenario starts from this
     repository at the commit before the person's request was done."""
     project = Path(into) / scenario['id']
+    if scenario.get('starter'):
+        from kit.new_project import new_project, initial_plan
+        if scenario['starter'] != 'static': raise ValueError('Unknown benchmark starter')
+        return new_project(project, static=True, files=initial_plan(scenario['id']))
     if scenario.get('source'):
         project.mkdir(parents=True)
         archive = subprocess.run(['git', '-C', str(ROOT), 'archive', scenario['source']['commit']], capture_output=True, check=True).stdout
@@ -53,6 +57,12 @@ def prepare(scenario, into):
     git(project, 'init', '-q'); git(project, 'add', '-A')
     git(project, '-c', 'user.name=Bench', '-c', 'user.email=bench@localhost', 'commit', '-qm', 'Scenario start')
     return project
+
+
+def request_commits(project, baseline):
+    """Only this request's commits: a runtime starter already has a Workbench commit."""
+    return [line for line in git(project, 'log', baseline + '..HEAD', '--format=%an\t%s', check=False).splitlines()
+            if line.startswith('Pi Workbench\t')]
 
 
 def hidden_check(scenario, project):
@@ -84,6 +94,11 @@ def fair(scenario):
         if patch.is_file(): subprocess.run(['git', '-C', str(project), 'apply', str(patch)], check=True)  # the real fix, for history scenarios
         for path in solution.rglob('*') if solution.is_dir() else []:
             if path.is_file(): (project / path.relative_to(solution)).parent.mkdir(parents=True, exist_ok=True); shutil.copy(path, project / path.relative_to(solution))
+        for name in scenario.get('solution_trash', []):
+            source = project / name
+            if Path(name).is_absolute() or '..' in Path(name).parts: raise ValueError('Outside-project solution path')
+            if source.exists():
+                target = Path(folder) / 'Trash' / name; target.parent.mkdir(parents=True, exist_ok=True); shutil.move(source, target)
         after, kept_after = hidden_check(scenario, project), regressions(scenario, project)
     regression_ok = kept_before[0] is None or (kept_before[0] and kept_after[0])
     return {'id': scenario['id'], 'fails_at_start': not before[0], 'passes_with_solution': after[0] and bool(regression_ok),
@@ -144,6 +159,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     folder = Path(out) / 'runs' / f"{stamp}-{scenario['id']}-{model.replace(':', '_').replace('/', '_')}"
     work = Path(tempfile.mkdtemp(prefix='pi-bench-'))
     project, data = prepare(scenario, work), work / 'data'
+    baseline = git(project, 'rev-parse', 'HEAD').strip()
     process, url = start_workbench(data, work, model, effort, {**(extra_env or {}), **({'PI_HARNESS_BARE': '1'} if bare else {})})
     started, result = time.monotonic(), {}
     try:
@@ -176,7 +192,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     solved, said = hidden_check(scenario, project)
     kept, kept_said = regressions(scenario, project)
     reports, gate = read_jsonl(data / 'reports.jsonl'), read_jsonl(data / 'gate-events.jsonl')
-    commits = [line for line in git(project, 'log', '--format=%an\t%s', check=False).splitlines() if line.startswith('Pi Workbench\t')]
+    commits = request_commits(project, baseline)
     tasks = sorted(path.name for path in (project / 'tasks').glob('*.md')) if (project / 'tasks').is_dir() else []
     answer = current.get('text', '')
     result = {

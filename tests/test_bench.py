@@ -29,6 +29,19 @@ class BenchTest(unittest.TestCase):
             self.assertTrue(verdict['fails_at_start'], f"{item['id']} is already solved at the start")
             self.assertTrue(verdict['passes_with_solution'], f"{item['id']}: {verdict['said']}")
 
+    def test_runtime_static_starter_and_request_commit_boundary(self):
+        scenario = {'id': 'scratch-pong', 'starter': 'static', 'folder': '/not-a-copy'}
+        with tempfile.TemporaryDirectory() as folder:
+            project = runner.prepare(scenario, folder)
+            self.assertTrue((project / 'js/logic/notes.mjs').is_file())
+            self.assertIn('Plan this app', (project / 'ROADMAP.md').read_text())
+            baseline = runner.git(project, 'rev-parse', 'HEAD').strip()
+            self.assertEqual(runner.request_commits(project, baseline), [])
+            (project / 'game.txt').write_text('game')
+            runner.git(project, 'add', 'game.txt')
+            runner.git(project, '-c', 'user.name=Pi Workbench', '-c', 'user.email=bench@localhost', 'commit', '-qm', 'Build Pong')
+            self.assertEqual(runner.request_commits(project, baseline), ['Pi Workbench\tBuild Pong'])
+
     def test_a_run_goes_through_a_scratch_workbench_and_records_one_line(self):
         with tempfile.TemporaryDirectory() as folder:
             bin = Path(folder) / 'bin'; bin.mkdir()

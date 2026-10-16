@@ -23,6 +23,12 @@ def library(name: str) -> Path:
     return KIT / found["folder"]
 
 
+def initial_plan(name: str) -> dict[str, str]:
+    """The same first planning task in the web workbench and runtime benchmarks."""
+    return {'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-Plan this app](tasks/001-first-task.md)\n',
+                  'tasks/001-first-task.md':'# 001: Plan this app\n\nKind: planning\n\n- [ ] Discuss who uses it, screens, rules, data and language\n- [ ] Write the Goal and real tasks, each with Done when\n- [ ] Ask for plan approval before code\n\nDone when: The person has approved the app plan.\n'}
+
+
 def start_history(folder: Path, message: str = "Start from the Pi Workbench starter") -> None:
     """A repository with a first commit: the harness commits each verified request, which needs one."""
     ensure_task(folder)

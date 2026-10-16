@@ -1,0 +1,20 @@
+{
+ "id": "feature-pong-starter",
+ "title": "Build minimal Pong from the current static starter",
+ "kind": "feature",
+ "starter": "static",
+ "prompts": {
+  "everyday": "I want to make a very basic and minimal pong game. white pales and white ball and black background. arrows control the right pale and w/s the left one.",
+  "precise": "I want to make a very basic and minimal pong game. white pales and white ball and black background. arrows control the right pale and w/s the left one. Use one 640 by 360 canvas, white 10 by 64 paddles inset 20 pixels, a white 8 pixel ball moving at 240 pixels per second, and a black background. W/S move the left paddle; ArrowUp/ArrowDown move the right paddle. Play to 11; serve towards the player who lost the point. Replace the starter sample, fill the plan, and test the game."
+ },
+ "replies": [
+  "Medium ball speed.",
+  "11 points.",
+  "Towards the player who lost the point."
+ ],
+ "solution_trash": [
+  "js/logic/notes.mjs",
+  "tests/notes.test.mjs"
+ ],
+ "timeout_minutes": 30
+}

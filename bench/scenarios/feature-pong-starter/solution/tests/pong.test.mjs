@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {createGame,step} from '../js/logic/pong.mjs';
+test('both paddles move independently and stay inside the board',()=>{const g=createGame();step(g,.1,new Set(['w','ArrowDown']));assert.equal(g.left,118);assert.equal(g.right,178);step(g,10,new Set(['w','ArrowDown']));assert.equal(g.left,0);assert.equal(g.right,296);});
+test('wall and paddle bounce',()=>{const g=createGame();g.y=3;g.vy=-100;step(g,.01,new Set());assert.ok(g.vy>0);g.x=35;g.y=g.left+20;g.vx=-240;step(g,.01,new Set());assert.ok(g.vx>0);});
+test('scoring serves towards loser and stops at eleven',()=>{const g=createGame();g.x=-1;g.score[1]=10;step(g,0,new Set());assert.deepEqual(g.score,[0,11]);assert.equal(g.winner,1);assert.ok(g.vx<0);const x=g.x;step(g,1,new Set());assert.equal(g.x,x);});

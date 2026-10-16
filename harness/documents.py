@@ -394,8 +394,7 @@ class DocumentStore:
         path=base/name
         with self.lock:
             if path.exists():raise ValueError('Project already exists; add its existing folder instead')
-            plan={'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-Plan this app](tasks/001-first-task.md)\n',
-                  'tasks/001-first-task.md':'# 001: Plan this app\n\nKind: planning\n\n- [ ] Discuss who uses it, screens, rules, data and language\n- [ ] Write the Goal and real tasks, each with Done when\n- [ ] Ask for plan approval before code\n\nDone when: The person has approved the app plan.\n'}
+            plan=starter.initial_plan(name)
             if kind=='empty':
                 path.mkdir();(path/'tasks').mkdir()
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
