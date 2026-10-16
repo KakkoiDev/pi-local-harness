@@ -61,3 +61,8 @@ Run the two local models and leave Luna pending. Neither OPENAI_API_KEY nor Pi�
 - [x] Green: the seven scratch benchmark tests pass, including idempotent generation and metadata order.
 
 The local batch uses ignored `.bench-local/` in this worktree so its scratch artifacts survive pauses without writing to the person's data folder. Sanitized copies will be published under `docs/bench/`.
+
+
+## Person’s decision · 2026-10-17
+
+Use the 22 completed records in `.bench-local/244-scored-2026-10-17/` for now. Do not start the remaining 14 runs. The saved batch records build `3847bc1`, high effort, everyday prompts: Gemma has all nine harness and nine bare runs; Qwen has four harness runs and no bare runs. This is a partial historical batch, before the music merge and tasks 247/250/249/248, not a measurement of those later changes. Luna remains pending. Preserve and sanitize these records when publishing task 244 after the roadmap work; label the missing runs explicitly and do not imply a paired Qwen comparison.
