@@ -22,6 +22,22 @@ from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 PROGRESS = '## Progress (kept by the harness)'
 
 
+def short_title(text):
+    """A short first sentence without request filler; the full request stays in the task."""
+    title = str(text or '').strip().splitlines()[0] if str(text or '').strip() else ''
+    title = re.split(r'(?<=[.!?])\s+|[。！？]', title, maxsplit=1)[0].strip()
+    while True:
+        shorter = re.sub(r'^(?:I want to|I would like to|Can you|Please|make a|create a)\s+', '', title, count=1, flags=re.I).strip()
+        if shorter == title: break
+        title = shorter
+    title = title.rstrip('.:;!? ') or 'Request'
+    title = title[0].upper() + title[1:]
+    if len(title) > 48:
+        words = title[:48].rsplit(' ', 1)
+        title = (words[0] if len(words) > 1 else '') + '…'
+    return title
+
+
 def plan_path(path):
     return path == 'ROADMAP.md' or (path.startswith('tasks/') and path.endswith('.md'))
 
@@ -175,11 +191,10 @@ class Paperwork:
             if PROGRESS not in text: (root / named[0]).write_text(text.rstrip('\n') + f'\n\n{PROGRESS}\n', encoding='utf-8')
             return named[0], False
         number = max([int(match.group(1)) for name in names if (match := re.match(r'tasks/(\d+)-', name))] or [0]) + 1
-        first = item['text'].splitlines()[0].strip() if item['text'] else 'Request'
-        title = re.sub(r'[.:;!?\s]+$', '', first)[:70] or 'Request'
+        title = short_title(item['text'])
         words = re.findall(r'[a-z0-9]+', title.lower())[:5] or ['request']
         path = f'tasks/{number:03d}-{"-".join(words)}.md'
-        quoted = item['text'][:600] + ('…' if len(item['text']) > 600 else '')
+        quoted = item['text']
         (root / path).write_text(f'# {number:03d}: {title}\n\nKind: code\n\nRequest {datetime.now():%Y-%m-%d}: “{quoted}”\n\n{PROGRESS}\n', encoding='utf-8')
         roadmap = root / 'ROADMAP.md'
         roadmap.write_text(roadmap.read_text(encoding='utf-8').rstrip('\n') + f'\n- [ ] [{number:03d}-{title}]({path})\n', encoding='utf-8')

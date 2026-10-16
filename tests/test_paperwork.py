@@ -119,6 +119,24 @@ class PaperworkTest(unittest.TestCase):
             self.assertIsNone(self.paper.observe('r5')); self.assertIsNone(self.paper.end('r5'))
 
 
+    def test_short_title_names_the_file_and_keeps_the_whole_request(self):
+        request='I want to make a very basic and minimal pong game. white paddles and white ball.'
+        self.paper.start('short',str(self.root),request)
+        (self.root/'app.py').write_text('x = 3\n'); self.paper.observe('short')
+        name='tasks/003-very-basic-and-minimal-pong.md'
+        text=(self.root/name).read_text()
+        self.assertIn('# 003: Very basic and minimal pong game',text)
+        self.assertIn(request,text)
+        self.assertIn(f'[003-Very basic and minimal pong game]({name})',(self.root/'ROADMAP.md').read_text())
+
+
+    def test_a_short_title_does_not_shorten_the_request_body(self):
+        request=('Please make a clock. '+('Keep this detail. '*60)).rstrip()
+        self.paper.start('long',str(self.root),request)
+        (self.root/'app.py').write_text('x = 3\n'); self.paper.observe('long')
+        self.assertIn(request,(self.root/'tasks/003-clock.md').read_text())
+
+
 class LedgerTest(PaperworkTest):
     """Through Gate: tool calls carry the request; the audit writes runs into the task and passes the task note to Pi."""
     def test_gate_runs_the_paperwork_for_a_request(self):
@@ -138,6 +156,28 @@ class LedgerTest(PaperworkTest):
         self.assertEqual((commit['outcome'], commit['rule']), ('REVISE', 'G-013'), 'Pi does not commit: the harness does')
         self.assertEqual(ledger.end_request('r9')['outcome'], 'committed')
         self.assertIn('Speed up the app (task 003)', git(self.root, 'log', '--format=%s', '-1'))
+
+
+class ShortTitleTest(unittest.TestCase):
+    def test_request_openings_and_details_do_not_become_the_title(self):
+        from gate.paperwork import short_title
+        cases = {
+            'I want to make a very basic and minimal pong game. white pales…': 'Very basic and minimal pong game',
+            'I would like to create a useful clock. Add seconds.': 'Useful clock',
+            'Can you please make a clock? With seconds.': 'Clock',
+            'Please create a clock\nUse seconds.': 'Clock',
+            'Fix app.mjs so it starts. More details.': 'Fix app.mjs so it starts',
+            '時計を作る。秒も表示する。': '時計を作る',
+            '': 'Request',
+        }
+        for request, title in cases.items():
+            with self.subTest(request=request): self.assertEqual(short_title(request),title)
+
+    def test_long_titles_end_at_a_word_boundary(self):
+        from gate.paperwork import short_title
+        self.assertEqual(short_title('Please create a clock with alarms for every working day and holidays'), 'Clock with alarms for every working day and…')
+        self.assertLessEqual(len(short_title('word '*30)),48)
+        self.assertEqual(short_title('x'*60),'…')
 
 
 if __name__ == '__main__':
