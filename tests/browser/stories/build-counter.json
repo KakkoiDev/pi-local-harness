@@ -1,0 +1,24 @@
+{
+ "steps": [
+  {
+   "think": "Write the test first."
+  },
+  {
+   "write": "tests/test_counter.py",
+   "content": "import unittest\nfrom counter import Counter\n\n\nclass CounterTest(unittest.TestCase):\n    def test_click_counts(self):\n        counter = Counter()\n        counter.click()\n        self.assertEqual(counter.value, 1)\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "counter.py",
+   "content": "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def click(self):\n        self.value += 1\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] The counter counts clicks."
+  }
+ ]
+}

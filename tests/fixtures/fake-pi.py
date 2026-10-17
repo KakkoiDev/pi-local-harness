@@ -8,6 +8,14 @@ if '--session' in sys.argv:session=counter=Path(sys.argv[sys.argv.index('--sessi
 else:  # --no-session (task 115): record beside the context file, count replies on their own
     session=Path(os.environ['PI_HARNESS_CONTEXT']).parent/'session.jsonl';counter=session.with_name('oneoff')
 request=json.loads(sys.stdin.readline())
+if os.environ.get('PI_FAKE_SESSION_CWD')=='1' and '--session' in sys.argv:
+    # Task 264, review P0-3: like Pi 1.1, the session's header keeps the folder it was created in, and later turns work
+    # there, whatever folder the process starts in.
+    stored=session.with_suffix('.cwd')
+    if not stored.exists():stored.write_text(os.getcwd())
+    elif not Path(stored.read_text()).is_dir():
+        sys.stderr.write(f'Stored session working directory does not exist: {stored.read_text()}\n');sys.exit(1)
+    else:os.chdir(stored.read_text())
 assert int(os.environ['PI_HARNESS_SHARED_PORT'])>0
 session.with_suffix('.request.json').write_text(json.dumps(request))
 session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':os.environ.get('PI_HARNESS_TOKEN'),'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv}))
@@ -19,6 +27,99 @@ def call_gate(path,body):
     import urllib.request
     call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':os.environ['PI_HARNESS_TOKEN']})
     with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
+def scripted_story():
+    """Task 264: `TEST_SCRIPT=<name>` plays $PI_FAKE_SCRIPTS/<name>.json (tests/browser/stories/) the way the harness
+    extension drives a real Pi turn: /request, each tool call through /gatekeep and /audit (a refused call does not run),
+    /request/end, then the notices the web worker reads (check-in, committed, report, settled). Steps: {"think"},
+    {"read"}, {"write","content"}, {"bash"} (really runs, in the project), {"say"}, {"crash"}, {"hang"}, and the pauses:
+    {"choice"} and {"plan"} wait for the person (their "Choice: … → …" or Start Building's "Build the approved task."
+    resumes the script after it); {"wait"} ends the request (a check-in) and "Continue the approved task." resumes it.
+    With Run on its own, choices and plans are taken at once and a verified check-in continues by itself."""
+    import re,subprocess,uuid
+    found=re.search(r'TEST_SCRIPT=([\w-]+)',request['message']);state=session.with_suffix('.script')
+    resume=request['message'].strip().startswith('Choice: ') or request['message'].strip() in ('Build the approved task.','Continue the approved task.')
+    if found:name,index=found[1],0
+    elif state.exists() and resume:name,index=json.loads(state.read_text())
+    else:return
+    spec=json.loads((Path(os.environ['PI_FAKE_SCRIPTS'])/f'{name}.json').read_text(encoding='utf-8'))
+    steps=spec['steps'];text=spec.get('say','[CANARY] done');job=os.environ['PI_HARNESS_JOB']
+    notify=lambda message:emit({'type':'extension_ui_request','method':'notify','message':message})
+    def settle(answer,stop='stop'):
+        emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':answer}] if answer else [],'stopReason':stop}})
+        emit({'type':'agent_settled'});notify('Harness settled');sys.stdin.readline();sys.exit(0)
+    def gate(path,body):
+        try:return call_gate(path,body)
+        except Exception as error:  # G-011: the extension blocks the call and says Gate could not check it
+            reason=getattr(error,'read',lambda:b'')().decode(errors='replace') or str(error)
+            if path=='/gatekeep':notify(f'Harness note: Gate could not check a tool call ({reason}); that call did not run and Pi continues.')
+            return {'outcome':'UNAVAILABLE','reason':reason,'error':reason}
+    automatic=lambda:bool(gate('/auto',{}).get('enabled'))
+    def tool(number,name,gate_name,args,run):
+        identifier=f'call-{name}-{number}'
+        checked=gate('/gatekeep',{'tool_name':gate_name,'args':args,'pi_tool':name,'auth_level':'admin','tool_call_id':identifier,'cwd':os.getcwd(),'source':'web','request':job})
+        emit({'type':'tool_execution_start','toolCallId':identifier,'toolName':name,'args':args})
+        if checked.get('outcome')!='ALLOW':
+            emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':True,'result':{'content':[{'type':'text','text':str(checked.get('reason'))}]}});return
+        output,code=run()
+        gate('/audit',{'proposal_id':checked['proposal_id'],'tool_name':gate_name,'args':args,'output':output,'exit_code':code})
+        emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':code!=0})
+    def finish():
+        """/request/end as the extension does it; True when Run on its own accepted a verified check-in with a next task."""
+        for _ in range(3):
+            result=(gate('/request/end',{'request':job,'review':True}) or {}).get('result') or {}
+            if result.get('outcome')!='continue':break
+        if result.get('report'):notify('Harness report: '+json.dumps(result['report']))
+        check=result.get('check_in');more=False
+        if check and check.get('verified') and automatic():
+            gate('/phase/accept',{'cwd':check['root'],'state':'auto'});check['accepted']=True;more=bool(check.get('next'))
+        if check and not more:notify('Harness check-in: '+json.dumps(check))
+        if result.get('commit'):
+            label={'committed':'','not verified':' (not verified)','plan incomplete':' (plan incomplete)'}.get(result.get('outcome'),'')
+            notify(f"Harness note: “{result.get('message')}”{label} · committed as {result['commit']}")
+        return more
+    gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    while index<len(steps):
+        step=steps[index];index+=1
+        if 'think' in step:emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':step['think']}})
+        if 'say' in step:text=step['say']
+        if 'read' in step:tool(index,'read','read_file',{'path':step['read']},lambda:(Path(step['read']).read_text(errors='replace'),0) if Path(step['read']).is_file() else ('No such file',1))
+        if 'write' in step:
+            def write():
+                target=Path(step['write']);target.parent.mkdir(parents=True,exist_ok=True);target.write_text(step['content'],encoding='utf-8');return 'written',0
+            tool(index,'write','write_file',{'path':step['write'],'content':step['content']},write)
+        if 'bash' in step:
+            def bash():
+                done=subprocess.run(step['bash'],shell=True,capture_output=True,text=True,timeout=120);return done.stdout+done.stderr,done.returncode
+            tool(index,'bash','execute_command',{'command':step['bash']},bash)
+        if 'hang' in step:time.sleep(step['hang'])
+        if 'crash' in step:sys.stderr.write(step['crash']+'\n');sys.exit(3)
+        if ('plan' in step or 'choice' in step) and automatic():
+            # Run on its own (harness/planning.mjs, choices.mjs): the recommended answer and the plan are taken at once
+            if 'plan' in step:
+                plan=gate('/plan',{'request':job,'content':step['plan']});gate('/plan/approve',{'request':job,'state':'auto'})
+                emit({'type':'tool_execution_end','toolCallId':f'call-plan-{index}','toolName':'propose_plan','isError':False,'result':{'details':{**plan,'pending':False}}})
+            else:
+                choice=step['choice'];answer=choice['options'][choice.get('recommended',0)]['label']
+                gate('/choice',{'request':job,'choice':choice});gate('/decision',{'request':job,'question':choice['question'],'answer':answer,'state':'auto'})
+                emit({'type':'tool_execution_end','toolCallId':f'call-choice-{index}','toolName':'ask_choices','isError':False,'result':{'details':{'question':choice['question'],'answer':answer,'state':'auto'}}})
+        elif 'plan' in step or 'choice' in step:
+            shown=gate('/plan',{'request':job,'content':step['plan']}) if 'plan' in step else gate('/choice',{'request':job,'choice':step['choice']})
+            if shown.get('error'):  # the tool fails and Pi reads why; nothing waits for the person
+                emit({'type':'tool_execution_end','toolCallId':f'call-control-{index}','toolName':'propose_plan' if 'plan' in step else 'ask_choices','isError':True,'result':{'content':[{'type':'text','text':shown['error']}]}})
+                text=f"[CANARY] I could not show it: {shown['error']}";continue
+            state.write_text(json.dumps([name,index]))
+            notify(('Harness plan: ' if 'plan' in step else 'Harness choice: ')+json.dumps(shown))
+            gate('/request/pause',{'request':job});settle(step.get('before',''),'aborted')
+        if 'wait' in step:
+            if not finish():state.write_text(json.dumps([name,index]));settle(text)
+            # Run on its own (the extension): a recovery notice, then a new request identity for the next approved task
+            emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}});emit({'type':'agent_settled'})
+            notify('Harness recovery: Continue the next approved task.');emit({'type':'agent_start'})
+            job=uuid.uuid4().hex;gate('/request',{'request':job,'cwd':os.getcwd(),'text':'Continue the approved task.'})
+    state.unlink(missing_ok=True);finish()
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':text}})
+    settle(text)
+scripted_story()
 if '\nPerson: Tighten this TEST_SUGGEST\n' in request['message']:
     import re
     message=request['message'];anchor=message.split('\nSelected text: ',1)[1].split('\nThe thread so far',1)[0]

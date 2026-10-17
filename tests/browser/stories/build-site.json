@@ -1,0 +1,21 @@
+{
+ "steps": [
+  {
+   "write": "tests/test_page.py",
+   "content": "import unittest\nfrom pathlib import Path\n\n\nclass Page(unittest.TestCase):\n    def test_greets(self):\n        self.assertIn('Hello from Pi', Path('index.html').read_text())\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "index.html",
+   "content": "<!doctype html><title>Greeting</title><h1>Hello from Pi</h1>\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] The page greets you."
+  }
+ ]
+}

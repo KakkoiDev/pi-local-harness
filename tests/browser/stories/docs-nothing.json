@@ -1,0 +1,10 @@
+{
+ "steps": [
+  {
+   "read": "ROADMAP.md"
+  },
+  {
+   "say": "[CANARY] The docs are fine as they are."
+  }
+ ]
+}

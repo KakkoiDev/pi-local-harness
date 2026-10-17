@@ -6,6 +6,7 @@ Start here if you are an agent (or a person) about to change this repository. Fi
 - [../README.md](../README.md): what the app does and how to start; [reference.md](reference.md): how it works in detail.
 - [../harness/README.md](../harness/README.md): operations details (services, ports, data folder, validation).
 - [../design/README.md](../design/README.md): the designer's source of truth and how it is synced.
+- [user-stories.md](user-stories.md): every user story with its acceptance, surfaces and end-to-end test (the `stories` browser suite, `tests/harness/stories.test.mjs`), and the coverage table.
 - [lessons/README.md](lessons/README.md): mistakes the local model made, the evidence, and what the harness now does about each (enforced, checked, made easy, or only told).
 
 Plans for larger projects (not started; each needs the person's go-ahead):

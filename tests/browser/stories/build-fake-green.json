@@ -1,0 +1,21 @@
+{
+ "steps": [
+  {
+   "write": "tests/test_counter.py",
+   "content": "import unittest\n\n\nclass T(unittest.TestCase):\n    def test_fails(self):\n        self.fail('no counter yet')\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "counter.py",
+   "content": "# counter\n"
+  },
+  {
+   "bash": "python3 -m unittest --help"
+  },
+  {
+   "say": "[CANARY] Done (claimed)."
+  }
+ ]
+}

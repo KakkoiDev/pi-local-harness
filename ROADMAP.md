@@ -302,3 +302,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [257-Return to the end of a running chat from Activity](tasks/257-reveal-running-chat-at-the-end.md)
 - [x] [258-Record Colibri model support for Claude](tasks/258-record-colibri-model-support.md)
 - [x] [259-Request Claude’s independent review of all work and logs](tasks/259-request-independent-claude-review.md)
+
+- [ ] [264-Every user story has an end-to-end test](tasks/264-user-story-e2e.md)

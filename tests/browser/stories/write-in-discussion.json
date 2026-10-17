@@ -1,0 +1,11 @@
+{
+ "steps": [
+  {
+   "write": "app.py",
+   "content": "print(\"hello\")\n"
+  },
+  {
+   "say": "[CANARY] I tried to write app.py."
+  }
+ ]
+}

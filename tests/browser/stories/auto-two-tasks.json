@@ -1,0 +1,87 @@
+{
+ "steps": [
+  {
+   "choice": {
+    "number": 1,
+    "total": 1,
+    "question": "Who uses it?",
+    "options": [
+     {
+      "label": "Only me"
+     },
+     {
+      "label": "A team"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "plan": {
+    "goal": "A click counter with a reset.",
+    "tasks": [
+     {
+      "title": "Count clicks",
+      "kind": "code",
+      "files": [
+       "counter.py",
+       "tests/"
+      ],
+      "done_when": "Each click adds one.",
+      "content": "Test a click, then implement it."
+     },
+     {
+      "title": "Reset the count",
+      "kind": "code",
+      "files": [
+       "counter.py",
+       "tests/"
+      ],
+      "done_when": "Reset sets the count to zero.",
+      "content": "Test reset, then implement it."
+     }
+    ]
+   }
+  },
+  {
+   "think": "Write the test first."
+  },
+  {
+   "write": "tests/test_counter.py",
+   "content": "import unittest\nfrom counter import Counter\n\n\nclass CounterTest(unittest.TestCase):\n    def test_click_counts(self):\n        counter = Counter()\n        counter.click()\n        self.assertEqual(counter.value, 1)\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "counter.py",
+   "content": "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def click(self):\n        self.value += 1\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] The counter counts clicks."
+  },
+  {
+   "wait": "check-in"
+  },
+  {
+   "write": "tests/test_counter.py",
+   "content": "import unittest\nfrom counter import Counter\n\n\nclass CounterTest(unittest.TestCase):\n    def test_click_counts(self):\n        counter = Counter()\n        counter.click()\n        self.assertEqual(counter.value, 1)\n\n    def test_reset(self):\n        counter = Counter()\n        counter.click()\n        counter.reset()\n        self.assertEqual(counter.value, 0)\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "counter.py",
+   "content": "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def click(self):\n        self.value += 1\n\n    def reset(self):\n        self.value = 0\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] Reset works."
+  }
+ ]
+}

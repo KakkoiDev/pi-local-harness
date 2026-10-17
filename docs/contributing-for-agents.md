@@ -50,9 +50,10 @@ Browser suites (slow, ~2 minutes each; run before committing any UI change):
 # once: install Playwright somewhere outside the repo and a Chromium for it
 mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 && npx playwright install chromium && cd -
 # every time:
-python3 tests/browser/run.py design   # or chat, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
+python3 tests/browser/run.py design   # or chat, stories, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/design.cjs   # design conformance; prints "Design checks passed."
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/chat.cjs     # regression; prints "UX regression passed: …"
+python3 tests/browser/run.py stories  # user-story journeys (docs/user-stories.md); xfail = a known review defect, XPASS = remove the marker
 ```
 
 Each suite starts its own server on random ports with a temporary data folder and a fake Pi (`tests/fixtures/fake-pi.py`). A non-zero exit code means it failed, whatever the last line says; never pipe a suite through `tail` without keeping its exit code. A suite that spawns a server must read the server's stderr (an unread pipe fills and the server stalls); on failure both suites print the server's error lines.

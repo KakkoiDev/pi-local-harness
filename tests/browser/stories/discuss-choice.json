@@ -1,0 +1,23 @@
+{
+ "steps": [
+  {
+   "choice": {
+    "number": 1,
+    "total": 1,
+    "question": "Which colours?",
+    "options": [
+     {
+      "label": "Black on white"
+     },
+     {
+      "label": "White on black"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "say": "[CANARY] Noted: we will use those colours."
+  }
+ ]
+}

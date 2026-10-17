@@ -1,0 +1,40 @@
+{
+ "steps": [
+  {
+   "choice": {
+    "number": 1,
+    "total": 1,
+    "question": "Who uses it?",
+    "options": [
+     {
+      "label": "Only me"
+     },
+     {
+      "label": "A team"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "say": "[CANARY] Planned."
+  },
+  {
+   "plan": {
+    "goal": "A click counter for one person.",
+    "tasks": [
+     {
+      "title": "Count clicks",
+      "kind": "code",
+      "files": [
+       "counter.py",
+       "tests/"
+      ],
+      "done_when": "Each click adds one.",
+      "content": "Test a click, then implement it."
+     }
+    ]
+   }
+  }
+ ]
+}
