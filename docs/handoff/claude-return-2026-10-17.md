@@ -117,3 +117,7 @@ Do not optimize generated-app scalability ahead of this. Do not run new benchmar
 ## Publication follow-up: yesterday’s retained benchmark evidence
 
 At the owner’s further request, task 252 publishes the available per-run records behind the 16 October Pong comparison, whose summary was already on main. See the [Pong evidence README](../bench/2026-10-16-pong/README.md). Two Gemma 4 26B runs on bcbce0a-dirty, both unsolved/unverified, are kept separate from the 22-run Gemma e4b/Qwen batch. No rerun was started, and no absent test output was fabricated.
+
+## Owner clarification recorded 18 October: one app, multiple packages
+
+Full stack, frontend only and mobile are intended as export/packaging targets of the same Python/HTMX application foundation. Capability selection is separate from packaging; the model should not maintain separate business-logic implementations for each target. [Plan 253](../plans/253-one-app-many-packages.md) records shared source, platform adapters, target compatibility checks and an acceptance sequence. It supersedes plan 198's historical JavaScript-only business-logic starter direction for future frontend-only work. It does not migrate existing apps or claim a Python/WASM adapter is implemented. The immediate goal remains capability and reliability, with generated-app performance/scalability later.

@@ -295,3 +295,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 
 - [x] [251-Publish the test-project review and return handoff to Claude](tasks/251-publish-review-and-claude-handoff.md)
 - [x] [252-Publish yesterday’s retained Pong benchmark records](tasks/252-publish-retained-pong-benchmarks.md)
+- [x] [253-Record one application foundation with multiple packaging targets](tasks/253-record-one-app-packaging-direction.md)
