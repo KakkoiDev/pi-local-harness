@@ -96,3 +96,9 @@ secrets, small fixes), 290 (conversation), 291 (generated media).
 
 Test runs unsandboxed (task 311); two Gate processes sharing the data folder (task 306); `plh setup browser`'s hash and
 the Red proof's audit (task 308); Pong paddles off-screen (plan 266 item 2).
+
+## Found by the user-story tests (task 264)
+
+NEW-1 (`propose_plan` put the Request line under Decisions, so G-017 blocked every first planned task): fixed on
+harness-next. NEW-2 (Planning answers never reach the plan's Decisions): task 293. US-042 (draft wiped) and US-075 (crash
+shows nothing in the chat): task 290. US-044 (two quick answers) needs a scripted race: task 290.

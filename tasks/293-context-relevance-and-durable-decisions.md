@@ -13,3 +13,6 @@ output, summaries of 19-31k characters).
 - [ ] Compaction budget and summary size measured per request; a regression test caps them for the fixture project.
 - [ ] The first turn skips the starter's root commit as "changed" (bug hunt item 16) and adds a 20-line map of the starter
   (where rules, data, page and strings go; sample versus skeleton).
+- [ ] NEW-2 (user story US-040, an expected failure in tests/browser/stories.cjs): an answer given in Planning before the
+  plan exists stays in harness data and never reaches the planned task's Decisions (the plan card says 0 decisions); carry it
+  into the plan when propose_plan lays out the task, then remove the story's expected-failure mark.
