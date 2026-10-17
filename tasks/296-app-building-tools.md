@@ -9,3 +9,5 @@ pages and assembling blocks, so a small model does less fragile shell work. Ever
   in the scratch browser, add a capability block), each with a schema and deterministic output.
 - [ ] Gate checks each like the music tool; phases apply.
 - [ ] Tests per tool, and one journey using them end to end.
+- [ ] First tool: one harness `check` (offline: CSS build, types, tests, referenced files) returning a small verdict
+  (first failure, file:line, a fix hint); on a fresh starter it is ok with no network (bug hunt proposal 1).

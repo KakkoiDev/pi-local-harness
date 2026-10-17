@@ -7,3 +7,5 @@ beginners, inspectable detail for engineers; no repeated questions. UI goes thro
 
 - [ ] A per-project status: tasks done with evidence, blocked with the reason, next step; the evidence behind each tick.
 - [ ] Recovery actions where they are needed (reopen a task, retry, resume), from the designer's boards.
+- [ ] After a failed or stopped request, a chat line with Undo This Request and Retry, and Pi is told what failed (bug
+  hunt proposal 6); a journey test: describe, build, change, fail, undo or retry, green check.

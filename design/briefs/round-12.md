@@ -110,6 +110,12 @@ before Create, and how a project later adds a capability ("Add a capability…")
 
 ## C. Screens the review's fixes need
 
+From the bug hunt, with no board yet: the default "Paper" appearance ignores the Mac's dark mode; Markdown links in Work
+(ROADMAP task lines show raw `[…](tasks/…)` and cannot be followed); the choice card repeats its question above it; the
+composer's "<project> · send to agent queue" text; stopped and failed requests have no line in the chat; the phone menu's
+button row overflows in Japanese; the status needs "Working on <project>"; shortcuts the browser keeps (⌘N, ⌘T, ⌘W,
+⌘1-9) need alternatives in a browser tab.
+
 (Added when the four fix tracks report: tasks 260-263, the conversation fixes and generated media. Expected: reopening a
 falsely certified task, a Retry on an unverified check-in, a stuck check-in recovered after a reload, a failed reply shown
 with its partial text, "stopped by a question" versus "stopped by you", the approval card showing Files and Kind, the "not

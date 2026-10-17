@@ -10,3 +10,4 @@ GPT-Sol's report: the first evaluation answered 12 of 40 cases (30% coverage, 0 
 - [ ] Better typed questions and options (state shaping) before lowering any threshold; thresholds set from the set's
   error curve; coverage and errors recorded in this file.
 - [ ] Constant code "recommendations" are not logged as decisions (with task 261).
+- [ ] Laya's cold start fits within Gate's call timeouts (first judgement after a restart; review P3).

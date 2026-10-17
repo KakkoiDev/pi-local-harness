@@ -25,7 +25,8 @@ grids, SVG path data, engine APIs or chart code from scratch: it fills a schema 
    game, platformer, puzzle, tower defence, top-down racing, arcade classics, visual novel, idle, grid tactics), each
    scaffolded by `tools/game.py init <genre>`, using the input layer, with a recipe and a browser test that plays it
    (moves, scores, wins or loses). Shared game blocks (HUD, dialogue, inventory, save slots, card hand…) as reusable
-   modules the starters share. UI from the designer's round 12 genre boards.
+   modules the starters share. UI from the designer's round 12 genre boards. Fix first: in Pong at 1000×700 both paddles sit outside the visible
+   area (on main before the input PR; listed in KakkoiDev/gaming-core#1).
 
 ### visual-core (github.com/KakkoiDev/visual-core)
 

@@ -21,3 +21,5 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
   reads); AGENTS.md's lesson-writing either works (Gate exemption for the memory file, size-guarded) or is removed.
 - [ ] Docs match behaviour: wake-ups (`wake_ups`, default 5), the shell rules and the git read form, the commit protocol,
   /guide topics built from GUIDE.md's headings, console command lists, README's /update and Laya limits.
+- [ ] The model-facing guides use paths that resolve from the project and never tell Pi to run what Gate refuses (`uv add`,
+  kit/ paths: bug hunt item 20).

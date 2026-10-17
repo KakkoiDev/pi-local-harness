@@ -19,6 +19,8 @@ Each line: the item, and where it is handled. "In progress" = a repair track is 
 | Context selection relevance still needs work | Task 263 (secrets and build output, in progress), task 293 (relevance, compaction) |
 | Seventeen saved runs have no test-run records | Task 292 (find why the live log is absent) |
 | Laya abstained on most cases (30% coverage) | Task 301 |
+| A decision row labelled Laya needs provenance reconciliation | Resolved by the log review: Laya ran for two requests on 8184f73 (abstention at 0.54); the rest were pre-Laya |
+| Approved tests run project code with the person's permissions | Task 311 (sandbox) |
 | 236's benchmark box open (accepted by the person) | Stays open; rerun after the repairs (task 244) |
 | 243: Show lessons and the 10-second worker wait deferred | Task 243 (open boxes); installer Dock/tray: plan 221 |
 
@@ -51,4 +53,46 @@ Each line: the item, and where it is handled. "In progress" = a repair track is 
 
 Every P0-P3 item of docs/reviews/2026-10-18-claude-review.md is in tasks 260 (verification, check-ins, scope), 261
 (person-only controls, model-written decisions, runners, decision log), 262 (rename, ids), 263 (isolation, Gate crash,
-secrets, small fixes), 290 (conversation), 291 (generated media). The bug hunt's findings are added when it reports.
+secrets, small fixes), 290 (conversation), 291 (generated media).
+
+## The second bug hunt (2026-10-18)
+
+| Finding (hunt item) | Handled by |
+|---|---|
+| 1 Terminal Pi exits on lines wider than the terminal (P0); 9, 10, 25 footer, tool row, console crashes | Task 302 |
+| 2, 3, 13, 14, 15, 27 starters: README commands refused, tests fail out of the box, app.css, skeleton tied to notes, failed first commit, cleanup gaps | Task 303 |
+| 4, 5, 26 Preview server: symlinks, dotfiles, listings, Host; Open on Phone without user check; terminal preview Origin; iframe sandbox | Task 304 |
+| 12, 26 clickjacking, nosniff, error text | Task 305 |
+| 6, 7, 8, 18 polling cost, Red proof under the lock, 2,000-file limit, unbounded logs | Task 306 |
+| 11, 21, 22, 23, 24 Working state, Japanese gaps, phone overflow and targets, model errors in Work, stopped/failed line | Task 307; the failed-reply line also task 290 |
+| 16 first-turn context full of starter files | Task 293 |
+| 17 task_box corruption; doc drift 7, 12-15 | Task 308 |
+| 19 browser tool opens the workbench, not the app | Task 297 |
+| 20 and doc drift 1-6, 8, 10, 11 (harness tool refused, AGENTS.md memory refused, wake-ups, shell rules, /guide topics, commit protocol, command lists, README) | Task 290 |
+| Doc drift 9: the risk notice promises push/publish/download Gate refuses | Task 309 |
+| Proposals 1-7 (check tool, first command, compact context, see the app, generic skeleton, recovery journey, stable plan view) | Tasks 296, 303, 293, 297, 303, 298, 306 |
+| Needs design (dark mode default, Markdown links in Work, repeated question, composer text, stopped requests, phone menu in Japanese, Working on <project>) | Designer round 12 part C |
+| Incident: the hunt created three test folders in the person's home; moved unchanged to the scratchpad, nothing registered | Reported to the person |
+
+## The person's requests in this session (2026-10-18)
+
+| Request | Handled by |
+|---|---|
+| Fix all review findings | Tasks 260-263 (in progress), 290, 291 |
+| Generated media outside an approved task (option A) | Task 291 |
+| More bugs and improvements; designer handoff | The bug hunt above; design/briefs/round-12.md |
+| gaming-core: controller, keyboard and mouse input | KakkoiDev/gaming-core#1 (open, for the person to merge); Pong paddles off-screen: plan 266 item 2 |
+| App features (login, side panels…), charts, other elements | Round 12 part A; plan 266 items 6-7; chart library: the person's choice (Chart.js 4 recommended) |
+| Any app: online shop, admin dashboard, portfolio, Notion, Slack, GitHub clones | Round 12 part A "Whole apps"; plan 266 item 7 |
+| Any 2D game: RPG, shooter, cozy, roguelike, card game… | Round 12 "Whole games"; plan 266 item 2 (genre starters) |
+| visual-core pixel art and SVG with deterministic tools and a content library | Plan 266 items 3-5; round 12 art direction |
+| HTMX + Python compiled to any platform | Plan 253; tasks being written (planning track); decisions: task 310 |
+| End-to-end tests for every user story | Task 264 (in progress) |
+| Gate makes every judgement, with its UX | Plan 267 (being written); task 298 |
+| Core-libraries handoff (visual, coding, gaming, music) | docs/handoff/core-libraries.md, plan 266 item 8 (adapters) |
+| Colibri | Task 294 |
+
+## Second pass (gaps found and closed)
+
+Test runs unsandboxed (task 311); two Gate processes sharing the data folder (task 306); `plh setup browser`'s hash and
+the Red proof's audit (task 308); Pong paddles off-screen (plan 266 item 2).
