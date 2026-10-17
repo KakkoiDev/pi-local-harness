@@ -481,7 +481,7 @@ for(const scenario of ['continue','change','unverified']) test(`terminal plannin
  const ctx={cwd:dir,abort(){},ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){},select:async()=>scenario==='change'?'Change…':'Accept and Continue',input:async()=> 'Use black and white'}};
  try {
   harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
-  if(scenario!=='unverified')delete process.env.PI_HARNESS_SHARED_PORT; // use native terminal dialogs with scratch mocked services
+  if(scenario!=='unverified')process.env.PI_HARNESS_SHARED_PORT=''; // use native terminal dialogs with scratch mocked services (task 261: the extension captured the port)
   await handlers.input({source:'interactive',text:'Build a game'},ctx);
   if(scenario==='change')await tools.propose_plan.execute('plan',{},null,null,ctx);
   await handlers.agent_settled({aborted:scenario==='change'});
@@ -519,4 +519,26 @@ test('template tokens are removed from finalized answers and logged (task 241)',
   assert.equal(result.message.content[0].text,'[CANARY] First, target showView(next).');
   assert.match(readFileSync(join(dir,'session.log'),'utf8'),/template-tokens/);assert.match(readFileSync(join(dir,'reports.jsonl'),'utf8'),/template-tokens/);
  }finally{if(saved===undefined)delete process.env.PI_AGENT_DATA;else process.env.PI_AGENT_DATA=saved;rmSync(dir,{recursive:true,force:true});}
+});
+
+for(const via of ['environment','file']) test(`Pi's shell never inherits Gate's token or port, given through the ${via} (task 261)`,async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-scrub-')),saved={...process.env},fetchBefore=globalThis.fetch,headers=[];
+ const tokenFile=join(dir,'gate-token');
+ if(via==='file'){writeFileSync(tokenFile,'secret-token\n',{mode:0o600});Object.assign(process.env,{PI_HARNESS_TOKEN_FILE:tokenFile});}
+ else Object.assign(process.env,{PI_HARNESS_TOKEN:'secret-token'});
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'4321',PI_HARNESS_JOB:'scrub-job'});
+ globalThis.fetch=async(url,options)=>{headers.push({port:new URL(url).port,token:options.headers['X-Gate-Token']});return {ok:true,json:async()=>({})};};
+ const handlers={},pi={on:(name,fn)=>handlers[name]=fn,appendEntry(){},registerEntryRenderer(){},sendUserMessage(){}};
+ const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){}}};
+ try {
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
+  for(const key of ['PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE','PI_HARNESS_SHARED_PORT'])assert.equal(process.env[key],undefined,key+' left the environment');
+  assert.equal(existsSync(tokenFile),false,'the token file is read once and removed');
+  // Pi's bash tool spawns commands with process.env: a test the model wrote sees neither value.
+  assert.equal(execFileSync('sh',['-c','printf "%s|%s|%s" "$PI_HARNESS_TOKEN" "$PI_HARNESS_SHARED_PORT" "$PI_HARNESS_TOKEN_FILE"'],{encoding:'utf8'}),'||');
+  await handlers.session_start({},ctx);
+  await handlers.input({source:'interactive',text:'Hello'},ctx);
+  assert.ok(headers.length,'the extension still calls Gate');
+  assert.ok(headers.every(call=>call.port==='4321'&&call.token==='secret-token'),JSON.stringify(headers));
+ } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
@@ -40,6 +40,18 @@ export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
   // measure what the harness adds. No extra tools, recovery, wake-ups, paperwork or rules summary.
   const bare = process.env.PI_HARNESS_BARE === '1';
+  // Task 261: Gate's token and port belong to this extension alone. Pi's bash passes process.env to every command it
+  // runs, so both leave the environment here, before Pi can spawn anything. The workbench hands the token over in a
+  // private file that is read once and removed. A value set explicitly later (the tests' web mode) still wins.
+  const captured = {};
+  for (const key of ['PI_HARNESS_TOKEN', 'PI_HARNESS_SHARED_PORT']) if (process.env[key] !== undefined) { captured[key] = process.env[key]; delete process.env[key]; }
+  if (process.env.PI_HARNESS_TOKEN_FILE !== undefined) {
+    const file = process.env.PI_HARNESS_TOKEN_FILE; delete process.env.PI_HARNESS_TOKEN_FILE;
+    try { captured.PI_HARNESS_TOKEN = readFileSync(file, 'utf8').trim(); } catch {}
+    try { unlinkSync(file); } catch {}
+  }
+  const sharedPortEnv = () => process.env.PI_HARNESS_SHARED_PORT ?? captured.PI_HARNESS_SHARED_PORT;
+  const gateToken = () => process.env.PI_HARNESS_TOKEN ?? captured.PI_HARNESS_TOKEN;
   const extras = bare ? { ...pi, registerTool() {} } : pi;
   try { loadTerminalLanguage(); } catch {} // terminal Pi's screens: the `language` setting (system, en, ja); /commands stay English
   installTimestamps(pi, dependencies.timestamps);
@@ -85,7 +97,7 @@ export default function harness(pi, dependencies = {}) {
   pi.registerEntryRenderer?.('harness-notice', entry => ({ render: width => renderNotice(entry.data, width), invalidate() {} }));
   const say = (kind, detail, level, ui = context?.ui) => {
     const notice = harnessNotice(kind, detail);
-    if (process.env.PI_HARNESS_SHARED_PORT || !pi.appendEntry) ui?.notify(notice.web, level); else pi.appendEntry('harness-notice', notice);
+    if (sharedPortEnv() || !pi.appendEntry) ui?.notify(notice.web, level); else pi.appendEntry('harness-notice', notice);
   };
   const stop = () => { agentLock.release(); closing = true; clearInterval(timer); watch.stop(); child?.kill('SIGTERM'); ports = undefined; };
   // G-011: a Gate check that fails for a passing reason (no answer, a server error) is tried again before giving up;
@@ -111,7 +123,7 @@ export default function harness(pi, dependencies = {}) {
   // Plan 184: how many times the harness may wake Pi in one request (recoveries and "continue"); 0 is no limit.
   const wakeUps = () => Number(process.env.PI_HARNESS_WAKE_UPS ?? 5);
   const canWake = () => !wakeUps() || retries < wakeUps();
-  const incident = (kind, detail, fields = {}) => report(dataDir, kind, detail, { source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal', cwd: context?.cwd || root, ...fields });
+  const incident = (kind, detail, fields = {}) => report(dataDir, kind, detail, { source: sharedPortEnv() ? 'web' : 'terminal', cwd: context?.cwd || root, ...fields });
   const refreshContext = async () => {
     if (bare || !ports) return;
     contextAttempted = true;
@@ -124,10 +136,10 @@ export default function harness(pi, dependencies = {}) {
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
   const askSystemChoice=installChoices(extras, {
     auto:automatic,
-    web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
+    web:()=>Boolean(sharedPortEnv()),
     pending:async (choice,ctx)=>{
       const pending=await call('/choice',{request:requestId,choice});
-      if (process.env.PI_HARNESS_SHARED_PORT) {ctx?.ui?.notify?.('Harness choice: '+JSON.stringify(pending),'info');pauseChoice(ctx);}
+      if (sharedPortEnv()) {ctx?.ui?.notify?.('Harness choice: '+JSON.stringify(pending),'info');pauseChoice(ctx);}
     },
     record:async decision=>{await call('/decision',{request:requestId,...decision});assistantText='';},
     cancel:pauseChoice,
@@ -138,7 +150,7 @@ export default function harness(pi, dependencies = {}) {
     propose:content=>call('/plan',{request:requestId,content}),
     another:plan=>call('/phase',{cwd:plan.root,phase:'discussion',action:'Plan Another Task'}),
     approve:state=>call('/plan/approve',{request:requestId,state}),
-    web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
+    web:()=>Boolean(sharedPortEnv()),
     pending:async(plan,ctx)=>{ctx?.ui?.notify?.('Harness plan: '+JSON.stringify(plan),'info');pauseChoice(ctx);},
     cancel:pauseChoice,
   });
@@ -182,9 +194,9 @@ export default function harness(pi, dependencies = {}) {
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     let stderr = '';
-    const sharedPort = process.env.PI_HARNESS_SHARED_PORT;
+    const sharedPort = sharedPortEnv();
     // A web worker knows Gate's port at once: set it before anything that could fail (bench, 2026-10-15).
-    if (sharedPort) ports = { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN };
+    if (sharedPort) ports = { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: gateToken() };
     memory();
     if (!sharedPort) {
     child = spawn(process.env.PI_PYTHON || 'python3', [`${moduleRoot}harness/services.py`], { cwd: root, env: { ...process.env, PI_WEB_CWD: process.env.PI_WEB_CWD || homedir() }, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -195,7 +207,7 @@ export default function harness(pi, dependencies = {}) {
     });
     }
     try {
-      ports = sharedPort ? { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: process.env.PI_HARNESS_TOKEN } : await new Promise((resolve, reject) => {
+      ports = sharedPort ? { gate: Number(sharedPort), web: Number(process.env.PI_WEB_PORT || 3000), token: gateToken() } : await new Promise((resolve, reject) => {
         let output = '', announced = false;
         const deadline = setTimeout(() => { child.kill(); reject(new Error('Service startup timed out')); }, 10000);
         child.once('error', error => { clearTimeout(deadline); reject(error); });
@@ -242,7 +254,7 @@ export default function harness(pi, dependencies = {}) {
     try { if (!contextAttempted && process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
     // Plan 158: a terminal session is the harness console; Pi learns its commands (web workers share the port and skip it).
     let consoleGuide = '';
-    try { if (!process.env.PI_HARNESS_SHARED_PORT) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
+    try { if (!sharedPortEnv()) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
     // Plan 179: the rules Gate enforces, from its registry (harness/gate-rules.md, generated from gate/rules.py).
     let gateRules = '';
     if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
@@ -286,7 +298,7 @@ export default function harness(pi, dependencies = {}) {
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
       const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
-      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !process.env.PI_HARNESS_SHARED_PORT, tasks, auto:await automatic(), music:musicAvailable(folder) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
+      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !sharedPortEnv(), tasks, auto:await automatic(), music:musicAvailable(folder) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
@@ -363,7 +375,7 @@ export default function harness(pi, dependencies = {}) {
     let args = event.input, piTool = event.toolName;
     if(event.toolName==='task_box')return {block:true,reason:'System 1 ticks task boxes from recorded evidence. Provide content and run the checks.'};
     try {
-      const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, assistant_text: assistantText, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
+      const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, assistant_text: assistantText, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: sharedPortEnv() ? 'web' : 'terminal' }); // task 129
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason, phase:result.phase });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
@@ -444,7 +456,7 @@ export default function harness(pi, dependencies = {}) {
         if (result?.report) {
           const report=result.report;
           notify(tr(`Run report: ${report.counts.done} tasks · ${report.counts.decisions} decisions · ${report.counts.external} external actions · ${report.counts.problems} problems. /report`),'info');
-          if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness report: '+JSON.stringify(report),'info');
+          if (sharedPortEnv()) notify('Harness report: '+JSON.stringify(report),'info');
         }
         if (result?.check_in) {
           const check=result.check_in;
@@ -456,7 +468,7 @@ export default function harness(pi, dependencies = {}) {
             notify('Harness recovery: Continue the next approved task.','info');
             pi.sendUserMessage('yes');return;}
           }
-          if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness check-in: '+JSON.stringify(check),'info');
+          if (sharedPortEnv()) notify('Harness check-in: '+JSON.stringify(check),'info');
           else if(!check.accepted) {
             if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
           }
@@ -466,7 +478,7 @@ export default function harness(pi, dependencies = {}) {
         else if (result?.outcome === 'plan incomplete') say('plan-incomplete', `Plan incomplete (G-014): ${result.reason}${result.commit ? ` · committed as ${result.commit}` : ''}`, 'warning');
         else if (result?.outcome === 'commit failed') say('commit-failed', `${result.task}: ${result.reason}`, 'warning');
       }
-      if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness settled', 'info');
+      if (sharedPortEnv()) notify('Harness settled', 'info');
     };
     // agent_end clears pending before abort cleanup settles; the re-asked turn still owns the request.
     if (pending || recovering) return;
@@ -495,7 +507,7 @@ export default function harness(pi, dependencies = {}) {
       return;
     }
     verifiedBefore = undefined; await settledNow();
-    if (!process.env.PI_HARNESS_SHARED_PORT) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
+    if (!sharedPortEnv()) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
   });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
   // and waits while Pi answers the person in chat. An unreachable workbench never blocks the model.

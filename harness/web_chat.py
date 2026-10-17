@@ -484,7 +484,7 @@ class WebChat:
         except ValueError:
             with self.lock:self.active.pop(key,None)
             raise
-        process=None;diagnostics=None;context_file=None
+        process=None;diagnostics=None;context_file=None;token_file=None
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -526,7 +526,12 @@ class WebChat:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
-            env={**os.environ,'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            # Task 261: Gate's token goes to Pi's extension in a private file it reads once and removes, never in the
+            # environment that Pi's shell passes on to every command (and that `ps` shows).
+            token_file=folder/f'.gate-token-{job or uuid.uuid4().hex}'
+            descriptor=os.open(token_file,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+            with os.fdopen(descriptor,'w') as handle:handle.write(self.gate_token or '')
+            env={**{key:value for key,value in os.environ.items() if key not in ('PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE')},'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN_FILE':str(token_file),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
@@ -643,6 +648,7 @@ class WebChat:
             if job and context_file:
                 try:context_file.unlink()
                 except OSError:pass
+            if token_file:token_file.unlink(missing_ok=True)  # Pi did not start its extension
 
 def with_checks(jobs,events,test_runs=()):
     """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""

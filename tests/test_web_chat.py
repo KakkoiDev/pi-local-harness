@@ -104,6 +104,10 @@ class RpcBridgeTest(unittest.TestCase):
             self.assertEqual(request['message'],'Continue')
             environment=json.loads((chat.store.folder(conversation['id'])/'session.environment.json').read_text())
             self.assertEqual(environment['token'],'shared-token')
+            # Task 261: the token reaches Pi through a private file, never its environment, and Pi's shell sees nothing.
+            self.assertFalse(environment['token_in_environment'])
+            self.assertEqual(environment['shell_sees'],'||')
+            self.assertEqual(list(chat.store.folder(conversation['id']).glob('.gate-token*')),[],'the token file is gone')
     def test_pi_binary_names_the_pi_to_run(self):
         import os
         from unittest.mock import patch
