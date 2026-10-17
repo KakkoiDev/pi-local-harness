@@ -20,3 +20,8 @@ Plans for larger projects (not started; each needs the person's go-ahead):
 - [plans/198-one-stack.md](plans/198-one-stack.md): an opinionated harness: one stack (HTMX 4, Basecoat, Python, SQLite, PWA) the harness knows completely (template, generators, current reference, checks, Gate rules), logic as pure tested blocks; measured on the bench.
 - [plans/236-plan-mode.md](plans/236-plan-mode.md): plan mode, always on: Pi asks about every decision with choices (the recommended first, "Something else…" last), proposes a plan, waits for a yes, builds task by task with check-ins; Auto-accept runs it alone.
 - [handoff/gpt-sol.md](handoff/gpt-sol.md): the prompt for an agent taking over tasks 227-242.
+
+Review and return handoff (2026-10-17):
+
+- [handoff/claude-return-2026-10-17.md](handoff/claude-return-2026-10-17.md): work delivered since Claude’s handoff, commit references, verification limits and remaining work.
+- [reviews/2026-10-17-test-project-log-review.md](reviews/2026-10-17-test-project-log-review.md): privacy-edited review of the two test-project sessions and the capability-first Project Start direction.

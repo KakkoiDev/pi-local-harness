@@ -292,3 +292,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [247-Three phases for every request](tasks/247-three-phases.md)
 - [x] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
 - [x] [249-Every decision logged with who took it](tasks/249-decision-log.md)
+
+- [x] [251-Publish the test-project review and return handoff to Claude](tasks/251-publish-review-and-claude-handoff.md)
