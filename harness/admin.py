@@ -656,12 +656,15 @@ def build(console, command, args, yes=False):
         if args[:1] == ['now']:
             found = updates.check(source)
             if found['state'] != 'available': return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi Workbench is up to date.'})
+            # Task 263: plh installs the updated clone at its next start only when auto_update is on; otherwise say so.
+            manual = f"auto_update is off, so plh keeps running this build. To install it, run python3 {source / 'harness/install.py'}, or turn auto_update on (/config set auto_update true) and start plh again."
+            auto = bool(console.config()['values'].get('auto_update', True))
             if not yes:
                 return changed({'confirm': True, 'title': 'Update Pi Workbench?', 'action': 'Update',
-                                'rows': [['Changes', f"{found['behind']} from GitHub"], ['Then', 'quit plh and start it again: the new version installs as it starts']]})
+                                'rows': [['Changes', f"{found['behind']} from GitHub"], ['Then', 'quit plh and start it again: the new version installs as it starts' if auto else 'the clone is updated; ' + manual]]})
             done = updates.apply(source)
             if done['state'] != 'updated': return done, view('Update', {'kind': 'prose', 'text': done.get('why', '')})
-            return changed({'detail': f"Updated to {done['commit']}. Quit plh and start it again to use it."})
+            return changed({'detail': f"Updated to {done['commit']}. " + ('Quit plh and start it again to use it.' if auto else manual)})
         found = updates.check(source)
         if found['state'] == 'available':
             return found, view('Update', {'kind': 'prose', 'text': f"A new version is on GitHub: {found['behind']} change{'s' if found['behind'] != 1 else ''}."},

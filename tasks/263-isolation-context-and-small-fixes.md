@@ -73,7 +73,7 @@ remove those lines by hand; the harness does not do it.
 - [x] Red (unit): propose_plan keeps the roadmap's task lines when ROADMAP.md has no heading after `## Goal`.
 - [x] Red (unit): the browser suites write screenshots under a per-run temporary folder, never a fixed /tmp path.
 - [x] Red (unit): the Update window shows the backend's `why` for "unknown".
-- [ ] Red (unit): `/update now` with auto_update false says plh will not install it on start, and how to.
+- [x] Red (unit): `/update now` with auto_update false says plh will not install it on start, and how to.
 - [ ] Red (unit): plh does not auto-update while a workbench answers on its port; it says why and starts the
       installed build.
 - [ ] Fix each; Japanese copy for the new refusal sentences in messages/ja.json.
