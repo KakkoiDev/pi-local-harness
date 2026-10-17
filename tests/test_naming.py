@@ -9,13 +9,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # Laya was the checker's old name (task 96); since 2026-10-17 Laya is System 1's classifier (CONSTITUTION.md, task
-# 246). So the old name is flagged only where it names the checker: "Laya gate", "Laya checks", PI_LAYA_…, laya_port.
-OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|\bPI_LAYA|\bLAYA_', re.I)
-CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/250-laya-classifier\.md$')
+# 250). So the old name is flagged only where it names the checker: "Laya gate", "Laya checks", PI_LAYA_…, laya_port.
+OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|\bPI_LAYA(?!_DATA\b)|\bLAYA_(?!DATA\b|SETUP\b|EVAL\b|MLX\b)', re.I)
+CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/250-laya-classifier\.md$|^kit/laya-lock\.json$|^tests/fixtures/laya-evaluation\.json$')
 
 
 class GateNamingTests(unittest.TestCase):
     """The checker is named Gate. Closed task records keep the old name as history; Laya now names the classifier."""
+
+    def test_classifier_names_do_not_reintroduce_the_old_checker_name(self):
+        for text in ['PI_LAYA_DATA','harness.laya_setup','harness.laya_eval','laya_mlx']:
+            self.assertIsNone(OLD.search(text),text)
+        for text in ['PI_LAYA_PORT','LAYA_TOKEN','Laya gate','laya_port']:
+            self.assertIsNotNone(OLD.search(text),text)
 
     def tracked(self):
         return subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()

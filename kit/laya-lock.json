@@ -1,0 +1,260 @@
+{
+  "wheels": [
+    {
+      "name": "anyio",
+      "version": "4.15.1",
+      "filename": "anyio-4.15.1-py3-none-any.whl",
+      "size": 132079,
+      "url": "https://files.pythonhosted.org/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl",
+      "sha256": "6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22",
+      "filename": "certifi-2026.7.22-py3-none-any.whl",
+      "size": 136983,
+      "url": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+      "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "filename": "click-8.5.0-py3-none-any.whl",
+      "size": 125251,
+      "url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+      "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
+    },
+    {
+      "name": "filelock",
+      "version": "4.2.0",
+      "filename": "filelock-4.2.0-py3-none-any.whl",
+      "size": 135032,
+      "url": "https://files.pythonhosted.org/packages/8e/a3/9bc26acff301fe1aaea1cc3d82a1d57e0a34df3e1cadbfa91ac2dbcdde5c/filelock-4.2.0-py3-none-any.whl",
+      "sha256": "2ff5690882e8cdb00ef31fb3d01a3094c29f30985426c59495afb1733f3b7238"
+    },
+    {
+      "name": "fsspec",
+      "version": "2026.9.0",
+      "filename": "fsspec-2026.9.0-py3-none-any.whl",
+      "size": 221738,
+      "url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+      "sha256": "8dd6e646e99ea382bd85f97a45e6b526a442d79423a7dc673f1e2756d05fcb5f"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "filename": "h11-0.16.0-py3-none-any.whl",
+      "size": 37515,
+      "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+      "sha256": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86"
+    },
+    {
+      "name": "hf-xet",
+      "version": "1.7.0",
+      "filename": "hf_xet-1.7.0-cp38-abi3-macosx_11_0_arm64.whl",
+      "size": 3560352,
+      "url": "https://files.pythonhosted.org/packages/c3/47/a26ebdce7056a61e931f228439bc0ab08cbec239d1690f965e5e637cba79/hf_xet-1.7.0-cp38-abi3-macosx_11_0_arm64.whl",
+      "sha256": "59fba37039233c7fcbe196817d6cdcf1b40dfb17b410f229d85b0cf0a1848da4"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "filename": "httpcore-1.0.9-py3-none-any.whl",
+      "size": 78784,
+      "url": "https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl",
+      "sha256": "2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "filename": "httpx-0.28.1-py3-none-any.whl",
+      "size": 73517,
+      "url": "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl",
+      "sha256": "d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"
+    },
+    {
+      "name": "huggingface-hub",
+      "version": "1.33.0",
+      "filename": "huggingface_hub-1.33.0-py3-none-any.whl",
+      "size": 846435,
+      "url": "https://files.pythonhosted.org/packages/fc/16/963096d224b80909432dc16561a615fd33d2d13beef3ce4c63fa25e40867/huggingface_hub-1.33.0-py3-none-any.whl",
+      "sha256": "04e434b06e100eddbce9a6e817d72693a7884b10a79bd67ab48080d5c07eb899"
+    },
+    {
+      "name": "idna",
+      "version": "3.20",
+      "filename": "idna-3.20-py3-none-any.whl",
+      "size": 69583,
+      "url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+      "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
+    },
+    {
+      "name": "laya-mlx",
+      "version": "0.4.0",
+      "filename": "laya_mlx-0.4.0-py3-none-any.whl",
+      "size": 99307,
+      "url": "https://files.pythonhosted.org/packages/2f/7a/5aeb580e44782c2d803e26edd46479705a9252c1a7fdc9b1dac9a4e39711/laya_mlx-0.4.0-py3-none-any.whl",
+      "sha256": "f8f92dd6959ce22d7dc6c334ce68740b47aee607d1fa8271c010ce3d4f5857da"
+    },
+    {
+      "name": "mlx",
+      "version": "0.32.2",
+      "filename": "mlx-0.32.2-cp312-cp312-macosx_26_0_arm64.whl",
+      "size": 619488,
+      "url": "https://files.pythonhosted.org/packages/0b/eb/af6b1a8b45f24d22e4735c52e0696c66233bd477e1b9e9dbbef225bdf88b/mlx-0.32.2-cp312-cp312-macosx_26_0_arm64.whl",
+      "sha256": "68560fd648c5bb900aa6f6765cd74c5a8abaf092d97d73584a57b7545966c227"
+    },
+    {
+      "name": "mlx-metal",
+      "version": "0.32.2",
+      "filename": "mlx_metal-0.32.2-py3-none-macosx_26_0_arm64.whl",
+      "size": 64367860,
+      "url": "https://files.pythonhosted.org/packages/dd/cd/4e50bf325100e7165e13d025f264362bf0009196269f9eaf87f2c6e738a2/mlx_metal-0.32.2-py3-none-macosx_26_0_arm64.whl",
+      "sha256": "e6abeac9ac5265830c9c1541b6f96e9be37a85c2446763a46ad466c63a3837ab"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "filename": "numpy-2.5.4-cp312-cp312-macosx_14_0_arm64.whl",
+      "size": 5451717,
+      "url": "https://files.pythonhosted.org/packages/31/2f/5ea3570fcb8ccd0882bea99436a513b2c85dad8f774a2057849130a8fb99/numpy-2.5.4-cp312-cp312-macosx_14_0_arm64.whl",
+      "sha256": "9cb18a327b49c5c337f972b03682f6a49855525faaf3c0d3e9c96cd0fd8880a8"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "filename": "packaging-26.3-py3-none-any.whl",
+      "size": 129956,
+      "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "name": "pyyaml",
+      "version": "6.0.3",
+      "filename": "pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+      "size": 173973,
+      "url": "https://files.pythonhosted.org/packages/89/a0/6cf41a19a1f2f3feab0e9c0b74134aa2ce6849093d5517a0c550fe37a648/pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+      "sha256": "fc09d0aa354569bc501d4e787133afc08552722d3ab34836a80547331bb5d4a0"
+    },
+    {
+      "name": "tokenizers",
+      "version": "0.23.3",
+      "filename": "tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
+      "size": 3101381,
+      "url": "https://files.pythonhosted.org/packages/b2/72/01e49f032bb346e5aaf06c10c74fe8aeec847173adbadd66eb7c53054bf2/tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
+      "sha256": "68649e97d5b43c44c031d8d848874a6eecae8f8fe40ea989aa777a5a83aca716"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1",
+      "filename": "tqdm-4.70.1-py3-none-any.whl",
+      "size": 80199,
+      "url": "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl",
+      "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73"
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "filename": "typing_extensions-4.16.0-py3-none-any.whl",
+      "size": 45571,
+      "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+    }
+  ],
+  "model": {
+    "repository": "aac6fef/laya-multilingual-mlx",
+    "revision": "f2b4faf51023039425946074e2cf1361d2db11d5",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 10173,
+        "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/LICENSE"
+      },
+      {
+        "path": "NOTICE",
+        "size": 698,
+        "sha256": "f23ae8ae701f5a43e186182e387aeef00b666daed18a946fc7c9ea827b00a8fa",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/NOTICE"
+      },
+      {
+        "path": "README.md",
+        "size": 3637,
+        "sha256": "72f0ae05f12cc6c13fc04853648cb2e1edf8eb4461cf0b9c09df1aa4d84882b0",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/README.md"
+      },
+      {
+        "path": "encoder/config.json",
+        "size": 1938,
+        "sha256": "83f6916d13ef0f556ac461f28308dc2bffa7ebeadee8ec9e2db5812020ea5bb4",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/encoder/config.json"
+      },
+      {
+        "path": "mlx_config.json",
+        "size": 316,
+        "sha256": "20ec723e1365a268597cc7e8cd39495c5e2eb58311b925f8e8c165ec5855cc28",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/mlx_config.json"
+      },
+      {
+        "path": "model.safetensors",
+        "size": 643835426,
+        "sha256": "7fc5834af4d8fdfb268d272a9d1a66e5819a0daac98241651c4c888cc43adff1",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/model.safetensors"
+      },
+      {
+        "path": "rl_agent_config.json",
+        "size": 473,
+        "sha256": "9a669a70961064c3c6cc76d2afb8bc5fb10dcd8349bb66e5f7b9b1afb74440d5",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/rl_agent_config.json"
+      },
+      {
+        "path": "tokenizer/tokenizer.json",
+        "size": 34363188,
+        "sha256": "609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/tokenizer/tokenizer.json"
+      },
+      {
+        "path": "tokenizer/tokenizer_config.json",
+        "size": 524,
+        "sha256": "6c6b2d8e3c84ce0e671c129cd6b374b235d6f9863042a5836358d00a89bbb5a1",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/tokenizer/tokenizer_config.json"
+      },
+      {
+        "path": "validation.json",
+        "size": 18322,
+        "sha256": "f64ef4e455afb2dc3d183f2bf0f2edfded8297e5573334caf462c2d89dab7966",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/validation.json"
+      },
+      {
+        "path": ".gitattributes",
+        "size": 1580,
+        "sha256": "caf3ca02d5e883f643e939cbed54f94237f94c171797f0dfea5e25c7e33315b3",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/.gitattributes"
+      },
+      {
+        "path": "manifest.json",
+        "size": 1773,
+        "sha256": "deb2de8ec6b1520b74866249bda632f40501440cdac29fdd90af80a3c422c778",
+        "url": "https://huggingface.co/aac6fef/laya-multilingual-mlx/resolve/f2b4faf51023039425946074e2cf1361d2db11d5/manifest.json"
+      }
+    ]
+  },
+  "macos14_wheels": [
+    {
+      "name": "mlx",
+      "version": "0.32.2",
+      "filename": "mlx-0.32.2-cp312-cp312-macosx_14_0_arm64.whl",
+      "size": 619370,
+      "url": "https://files.pythonhosted.org/packages/38/f7/5664e13821491559c953494e6705c818203d6880d713a0c22e12bead9564/mlx-0.32.2-cp312-cp312-macosx_14_0_arm64.whl",
+      "sha256": "77217798a2b036bae9f213b851d4cde4581893787c9964458b7d471f86036bd6"
+    },
+    {
+      "name": "mlx-metal",
+      "version": "0.32.2",
+      "filename": "mlx_metal-0.32.2-py3-none-macosx_14_0_arm64.whl",
+      "size": 42516623,
+      "url": "https://files.pythonhosted.org/packages/f7/ab/ba1952908c5d2a5070cf1cfbfea0161c4751ea62299e2776819810917483/mlx_metal-0.32.2-py3-none-macosx_14_0_arm64.whl",
+      "sha256": "3825fff379dbc107dd3413e564a06caeaa24819910ec49c0439e454c06a1b9b8"
+    }
+  ]
+}

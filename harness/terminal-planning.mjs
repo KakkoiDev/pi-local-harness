@@ -5,8 +5,8 @@ import {ansiStyle,columns,renderView,wrap} from './terminal-render.mjs';
 import {tr} from './language.mjs';
 
 export function choiceRows(choice,width=80) {
- const labels=choice.options.map(option=>option.label),column=Math.min(Math.max(...labels.map(columns))+4,Math.max(12,width-20));
- return [...choice.options.map((option,index)=>option.label+(index===0?' '.repeat(Math.max(2,column-columns(option.label)))+ansiStyle.dim(tr('Recommended')):'')+(option.detail?'\n'+wrap(option.detail,Math.max(16,width-4)).map(line=>'  '+ansiStyle.dim(line)).join('\n'):'')),tr('Something else…')];
+ const labels=choice.options.map(option=>choice.system_owned?tr(option.label):option.label),column=Math.min(Math.max(...labels.map(columns))+4,Math.max(12,width-20));
+ return [...choice.options.map((option,index)=>(choice.system_owned?tr(option.label):option.label)+(index===0?' '.repeat(Math.max(2,column-columns(labels[index])))+ansiStyle.dim(tr('Recommended')):'')+(option.detail?'\n'+wrap(option.detail,Math.max(16,width-4)).map(line=>'  '+ansiStyle.dim(line)).join('\n'):'')),tr('Something else…')];
 }
 
 export function planView(plan,width=80) {

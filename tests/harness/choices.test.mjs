@@ -43,3 +43,22 @@ test('the harness-owned choice words follow Japanese while Pi’s labels stay in
     assert.equal(shown.at(-1),'別の回答…');assert.match(shown[0],/Only me +\x1b\[2mおすすめ/);
   } finally {loadTerminalLanguage('en');}
 });
+
+test('System 1 can present the same choice without asking the language model to call a tool (task 250)',async()=>{
+  const recorded=[];
+  const ask=installChoices({registerTool(){}},{auto:()=>true,record:async value=>recorded.push(value)});
+  assert.equal(typeof ask,'function');
+  const result=await ask(question,{});
+  assert.equal(recorded[0].state,'auto');assert.equal(result.details.answer,'Only me');
+});
+
+test('System 1 choice copy is translated while its recorded answer stays canonical (task 250)',async()=>{
+ const {loadTerminalLanguage}=await import('../../harness/language.mjs');loadTerminalLanguage('ja');
+ try {
+  let tool,questionText,shown;const recorded=[];
+  installChoices({registerTool:value=>tool=value},{record:async value=>recorded.push(value)});
+  const choice={question:'Which guide should Pi use?',options:[{label:'Continue without a guide'},{label:'Use the planning guide'}],recommended:0,system_owned:true};
+  await tool.execute('choice',choice,null,null,{ui:{select:async(title,options)=>{questionText=title;shown=options;return options[0];}}});
+  assert.match(questionText,/ガイド/);assert.match(shown[0],/ガイド/);assert.equal(recorded[0].answer,'Continue without a guide');
+ } finally {loadTerminalLanguage('en');}
+});

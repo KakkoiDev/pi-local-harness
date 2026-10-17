@@ -64,7 +64,7 @@ class SetupTest(unittest.TestCase):
         import os, subprocess, sys
         run = subprocess.run([sys.executable, str(Path(__file__).resolve().parent.parent / 'plh.py'), 'setup', 'nothing'], capture_output=True, text=True, timeout=60,
                              env={**os.environ, 'PI_AGENT_DATA': str(self.data), 'PATH': '/usr/bin:/bin'})
-        self.assertEqual(run.returncode, 2, run.stderr); self.assertIn('Unknown setup step “nothing”. Steps: browser, music.', run.stdout)
+        self.assertEqual(run.returncode, 2, run.stderr); self.assertIn('Unknown setup step “nothing”. Steps: browser, music, laya.', run.stdout)
 
 
 if __name__ == '__main__':

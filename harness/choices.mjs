@@ -14,11 +14,11 @@ export function validateChoice(value) {
   });
   if (new Set(options.map(option=>option.label.toLowerCase())).size !== options.length || options.some(option=>option.label === 'Something else…')) throw Error('Use distinct options; the harness adds Something else….');
   if(value.number!==undefined||value.total!==undefined)if(!Number.isInteger(value.number)||!Number.isInteger(value.total)||value.number<1||value.total<value.number)throw Error('Question numbering must be within its total.');
-  return { ...(value.number?{number:value.number,total:value.total}:{}),question:value.question.replace(/\s+/g,' ').trim(), options, recommended:0, allow_other:true };
+  return { ...(value.system_owned===true?{system_owned:true}:{}),...(value.number?{number:value.number,total:value.total}:{}),question:value.question.replace(/\s+/g,' ').trim(), options, recommended:0, allow_other:true };
 }
 
 export function installChoices(pi, {auto=()=>false, web=()=>false, record=async()=>{}, pending=async()=>{}, cancel=async()=>{}} = {}) {
-  pi.registerTool?.({
+  const tool={
     name:'ask_choices',label:'Ask a choice',
     description:'Ask one decision the request, code and conventions do not answer. Offer 2–4 short options, recommended first (recommended: 0). The harness adds Something else…. Wait for the answer before using the decision.',
     parameters:{type:'object',properties:{question:{type:'string'},number:{type:'number',description:'This question’s number, only when the total is known.'},total:{type:'number',description:'Known total number of questions; omit both numbers if not known.'},options:{type:'array',items:{type:'object',properties:{label:{type:'string'},detail:{type:'string'}},required:['label']}},recommended:{type:'number',enum:[0]},allow_other:{type:'boolean'}},required:['question','options','recommended']},
@@ -32,7 +32,7 @@ export function installChoices(pi, {auto=()=>false, web=()=>false, record=async(
         } else {
           await pending(choice,ctx);
           const other=tr('Something else…'),labels=choiceRows(choice).slice(0,-1);
-          const picked=await ctx?.ui?.select?.(choice.question,[...labels,other]);
+          const picked=await ctx?.ui?.select?.(choice.system_owned?tr(choice.question):choice.question,[...labels,other]);
           if (picked === other) answer=await ctx?.ui?.input?.(tr('Something else…'),choice.question);
           else {const index=labels.indexOf(picked);if(index>=0) answer=choice.options[index].label;}
           if (typeof answer!=='string' || !answer.trim()) { await cancel(ctx); throw Error('No choice was answered. Ask again before changing code.'); }
@@ -42,5 +42,7 @@ export function installChoices(pi, {auto=()=>false, web=()=>false, record=async(
         return {content:[{type:'text',text:`Choice: ${choice.question} → ${decision.answer}`}],details:decision};
       } catch(error) {return {isError:true,content:[{type:'text',text:error.message}],details:{}};}
     },
-  });
+  };
+  pi.registerTool?.(tool);
+  return (params,ctx)=>tool.execute('system-1-choice',params,null,null,ctx);
 }

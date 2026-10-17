@@ -288,7 +288,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [244-Bench the updated harness on three models (e4b, 27b, ChatGPT Luna), keep the records, publish the table](tasks/244-bench-after-the-updates.md)
 - [ ] [245-Bench DeepSeek Flash (later, when the person has set it up)](tasks/245-bench-deepseek-flash.md)
 - [x] [246-Recover sharing when a Tailscale Serve session stops](tasks/246-tailscale-sharing-recovery.md)
-- [ ] [250-Laya: System 1's classifier](tasks/250-laya-classifier.md)
+- [x] [250-Laya: System 1's classifier](tasks/250-laya-classifier.md)
 - [x] [247-Three phases for every request](tasks/247-three-phases.md)
 - [ ] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
 - [ ] [249-Every decision logged with who took it](tasks/249-decision-log.md)

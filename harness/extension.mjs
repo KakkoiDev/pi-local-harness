@@ -121,7 +121,7 @@ export default function harness(pi, dependencies = {}) {
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
-  installChoices(extras, {
+  const askSystemChoice=installChoices(extras, {
     auto:automatic,
     web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
     pending:async (choice,ctx)=>{
@@ -276,7 +276,9 @@ export default function harness(pi, dependencies = {}) {
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
-    chosenGuides = bare ? [] : chooseGuides(event.text, guides);
+    const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
+    const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
+    chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
@@ -285,10 +287,17 @@ export default function harness(pi, dependencies = {}) {
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
-    if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(answer=>{
+    if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(async answer=>{
+      if (answer.advice?.choice) await askSystemChoice(answer.advice.choice,context);
+      if (answer.advice && !answer.advice.abstained) context?.ui?.notify?.(tr('Use the explicit phase and approval controls.'),'info');
       if (answer.root && !answer.planning?.approved) {
         const planning=guides.find(guide=>guide.name==='planning');
         if (planning && !chosenGuides.includes(planning)) chosenGuides=[planning,...chosenGuides];
+      }
+      if (answer.root && !chosenGuides.length && !waitingChoice && !guideReply) {
+        const result=await call('/judgement',{request:requestId,kind:'applicable_guide',args:[event.text || '',guides.map(item=>item.name)]});
+        if (result.choice) { const picked=await askSystemChoice(result.choice,context);const name=picked.details?.answer==='Use the planning guide'?'planning':picked.details?.answer;const guide=guides.find(item=>item.name===name);if(guide)chosenGuides=[guide]; }
+        else if (!result.abstained) { const guide=guides.find(item=>item.name===result.answer);if(guide)chosenGuides=[guide]; }
       }
     }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
@@ -355,6 +364,7 @@ export default function harness(pi, dependencies = {}) {
       if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason, phase:result.phase });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
+      if (result.judgement?.choice) await askSystemChoice(result.judgement.choice,context);
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);

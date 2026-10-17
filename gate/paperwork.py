@@ -104,14 +104,26 @@ class Paperwork:
         except (OSError,ValueError):return None
         return value if value and value.get('pending') else None
 
-    def choice_pending(self,request,choice):
+    def choice_pending(self,request,choice,*,system=False):
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this choice.')
             if not item['task'] and self.phases.get(item['root'])['phase']!='discussion':item['task'],_=self.task_for(item)
+            previous=self.waiting_choice(item['root'])
+            choice=dict(choice)
+            if not system:
+                choice.pop('judgement',None)
+                if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
+                    choice['judgement']=previous['judgement']
             value={**choice,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
-            return {key:value[key] for key in ['question','options','recommended','task','pending']}
+            return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
+
+    def confirmed_value(self,root,digest):
+        file=self.choice_file(root)
+        try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(self.project_key(root),{})
+        except (OSError,ValueError):return False
+        return bool(value and not value.get('pending') and value.get('answer')=='Continue with the stated value' and value.get('state') in ('chosen','given') and value.get('judgement')=={'kind':'assumed_value','digest':digest})
 
     def save_choice(self,root,value):
         file=self.choice_file(root)

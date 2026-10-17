@@ -81,6 +81,8 @@ class ProposalLedger:
         self.protocol = Protocol(protocol_file)
         # Plan 184: the paperwork for each request (the extension says when one starts and ends); token → request and note.
         self.paperwork = Paperwork(self.protocol, data=Path(events_file).parent if events_file else None)
+        from harness.judgements import Judgements
+        self.judgements=Judgements(self.paperwork)
         self.request_of, self.notes = {}, {}
         # Checks survive a restart of plh: one JSON line per event, the last 200 read back (the person lost them on restart).
         self.events_file = Path(events_file) if events_file else None
@@ -139,6 +141,16 @@ class ProposalLedger:
     def start_request(self, request, cwd, text):
         return None if rules.bare() else self.paperwork.start(request, cwd, text)
 
+    def request_advice(self,request):
+        item=self.paperwork.requests.get(request)
+        if not item:return None
+        text=item['text'];waiting=self.paperwork.waiting_choice(item['root'])
+        if waiting and not text.startswith('Choice: '):
+            return self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
+        if re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):
+            return self.judgements.decide(request,'phase_intent',[text])
+        return None
+
     def end_request(self, request, review=True):
         result = self.paperwork.end(request,review=review)
         if result and result.get('outcome') not in ('committed', 'nothing changed', 'continue'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
@@ -188,12 +200,23 @@ class ProposalLedger:
                     audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
                 except (ValueError,KeyError,IndexError):pass
             reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
-            if reason: return {**refuse('G-015', reason), 'phase': phase}
+            if reason:
+                judgement=None
+                if tool_name=='execute_command' and request in self.paperwork.requests:
+                    from .phase_shell import read_only,test_run
+                    if not read_only(command) and not test_run(command):
+                        judgement=self.judgements.decide(request,'shell_risk',[command,root])
+                return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
             if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             if tool_name == 'write_file' and phase == 'implementation':
                 rejected=rules.planning_refusal(task,assistant_text,required=False)
                 if rejected:return refuse(*rejected)
+                if re.search(r"will be|we(?:['’]ll| will) use|I(?:['’]ve| have) chosen|(?:have|has) been (?:chosen|selected)|decided|にします|採用|決めました",assistant_text,re.I) and request in self.paperwork.requests:
+                    judgement=self.judgements.decide(request,'assumed_value',[self.paperwork.requests[request]['text'],assistant_text])
+                    if judgement['abstained'] or judgement['answer'] is not False:
+                        return {**refuse('G-016','An unstated value could not be ruled out. Ask the person before using it.'),'judgement':judgement}
+
         expected = None
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()

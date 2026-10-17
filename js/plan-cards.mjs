@@ -30,12 +30,12 @@ export function planDecisions(plan){
 }
 export function choiceCard(choice,{state={},answer,change}={}){
  if(state.answer||choice.answer){const value=state.answer||choice.answer;return settled(`${choice.question}: ${value}${choice.options?.some(o=>o.label===value)?'':' · your words'} · ${choice.state==='auto'?'auto':`you · ${time(state.answeredAt||choice.when)}`}`,{state:choice.state,action:change});}
- const {el,head,body,foot}=card(choice.question,'question',choice.question);head.querySelector('h3').dataset.noTranslate='';body.setAttribute('role','radiogroup');body.setAttribute('aria-label',choice.question);
+ const {el,head,body,foot}=card(choice.question,'question',choice.question);if(!choice.system_owned)head.querySelector('h3').dataset.noTranslate='';body.setAttribute('role','radiogroup');body.setAttribute('aria-label',choice.question);
  if(choice.number&&choice.total)head.append(node('span','',`Question ${choice.number} of ${choice.total}`));
  let selected=0;const group='choice-'+crypto.randomUUID(),radios=[],other=node('input','pw-field');other.placeholder='Type your answer';other.setAttribute('aria-label','Your answer');other.hidden=true;
  const options=[...choice.options,{label:'Something else…'}];
  for(const [index,option] of options.entries()){
-  const row=node('label','pw-option'),radio=node('input','pw-radio'),label=(index===choice.options.length?node:prose)('span','pw-option__label',option.label);radio.type='radio';radio.name=group;radio.checked=index===0;radios.push(radio);
+  const row=node('label','pw-option'),radio=node('input','pw-radio'),label=(index===choice.options.length||choice.system_owned?node:prose)('span','pw-option__label',option.label);radio.type='radio';radio.name=group;radio.checked=index===0;radios.push(radio);
   radio.onchange=()=>{selected=index;radios.forEach((r,i)=>r.checked=i===index);other.hidden=index!==choice.options.length;if(!other.hidden)other.focus();};
   if(index===0)label.append(tag('Recommended'));row.append(radio,label);if(option.detail)row.append(prose('small','',option.detail));if(index===choice.options.length)row.append(other);body.append(row);
  }

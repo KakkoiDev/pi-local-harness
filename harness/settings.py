@@ -76,6 +76,7 @@ EXPLAIN = {key: about for key, (_, _, _, about, _) in SETTINGS.items()}
 
 # Set by the harness itself, for each start or each request; shown by /config, never changed there.
 INTERNAL = {
+    'PI_LAYA_DATA': 'Classifier toolchain root override for isolated tests; normally the harness data folder.',
     'RIPGREP_CONFIG_PATH': 'Inherited ripgrep configuration; Gate refuses rg reads when set because configuration may execute preprocessors.',
     'PYTHONPATH': 'Inherited Python module search paths; publication checks add the installed harness for its checkers.',
     'PI_BINARY': 'The Pi program the workbench runs (pi by default; tests and scratch workbenches point it elsewhere).',

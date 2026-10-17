@@ -1,6 +1,7 @@
 """plh setup: the toolchain the harness fetches once into <data>/toolchain (plan 198, kit/toolchain.json).
 
     plh setup            the browser (default)
+    plh setup laya       pinned multilingual classifier (explicit download)
     plh setup music      optional Strudel sample renderer
     plh setup browser    Chromium's headless shell, the browser Pi drives (task 215)
 
@@ -76,14 +77,23 @@ def music(data):
     return f'Installed the local music renderer in {target}. Install Chip Pops and its blips CLI, then generate its library once.'
 
 
+def laya(data):
+    from harness.laya_setup import install
+    return install(data)
+
+
 def main(argv, data):
     steps = argv or ['browser']
     for step in steps:
+        if step == 'laya':
+            try: print(laya(data))
+            except (OSError, ValueError, subprocess.CalledProcessError) as error: print(f'Not installed: {error}'); return 1
+            continue
         if step == 'music':
             try: print(music(data))
             except (OSError, subprocess.CalledProcessError) as error: print(f'Not installed: {error}'); return 1
             continue
-        if step != 'browser': print(f'Unknown setup step “{step}”. Steps: browser, music.'); return 2
+        if step != 'browser': print(f'Unknown setup step “{step}”. Steps: browser, music, laya.'); return 2
         try: print(browser(data))
         except (OSError, ValueError) as error: print(f'Not installed: {error}'); return 1
     return 0

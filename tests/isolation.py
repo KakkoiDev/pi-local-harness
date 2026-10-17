@@ -18,3 +18,5 @@ os.environ['PI_OLLAMA_URL'] = 'http://127.0.0.1:9'  # a closed port: model capab
 os.environ['PI_TAILSCALE'] = 'false'                 # never the real tailscale binary
 import tempfile  # noqa: E402
 os.environ['PI_TRASH_DIR'] = tempfile.mkdtemp(prefix='pi-test-trash-')  # Move Project to Trash never reaches the Finder
+
+os.environ['PI_LAYA_DATA'] = tempfile.mkdtemp(prefix='pi-test-laya-')  # tests never load the person's classifier

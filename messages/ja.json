@@ -1274,7 +1274,22 @@
   "Run on its own can only move Planning to Implementation.": "自律実行が変更できるのは計画から実装への移動だけです。",
   "Choose a project with ROADMAP.md and tasks/.": "ROADMAP.md と tasks/ があるプロジェクトを選んでください。",
   "The plan links outside this project.": "計画がプロジェクト外を参照しています。",
-  "No approved task is in progress. Choose Planning, then Start Building on the plan.": "承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。"
+  "No approved task is in progress. Choose Planning, then Start Building on the plan.": "承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
+  "How should Pi handle this reply?": "Pi はこの返答にどう対応しますか？",
+  "Use the explicit approval controls": "承認ボタンを使う",
+  "Revise the proposal": "提案を修正する",
+  "Which phase would you like to choose with the phase control?": "フェーズ切り替えでどのフェーズを選びますか？",
+  "Should Pi ask before using a value that was not given?": "指定されていない値を使う前に確認しますか？",
+  "Ask before using the value": "値を使う前に確認する",
+  "Continue with the stated value": "提示された値で続ける",
+  "Which guide should Pi use?": "Pi はどのガイドを使いますか？",
+  "Continue without a guide": "ガイドなしで続ける",
+  "Use the planning guide": "計画のガイドを使う",
+  "How should Pi proceed with this unclassified command?": "分類できないコマンドにどう対応しますか？",
+  "Keep the command blocked": "コマンドを引き続き止める",
+  "Use a checked read-only command": "確認済みの読み取り専用コマンドを使う",
+  "Use the explicit phase and approval controls.": "フェーズ切り替えと承認ボタンを使ってください。",
+  "An unstated value could not be ruled out. Ask the person before using it.": "未指定の値が含まれていないと確認できませんでした。使う前に確認してください。"
  },
  "patterns": [
   ["■ Not in this phase · {name}", "■ このフェーズでは実行できません · {name}"],

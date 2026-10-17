@@ -47,6 +47,16 @@ choose **New Project…**, and say hello to Pi.
 
 To stop everything, quit Pi (`/quit`, or Ctrl-C twice).
 
+## Local classifier
+
+On Apple Silicon with macOS 14 or newer, run `plh setup laya` to install the pinned multilingual Laya classifier
+into the harness data folder’s toolchain. It downloads about 678 MB of model files and at most 80 MB of dependencies;
+Python 3.12 and uv must already be installed. Requests never download a runtime or model.
+
+Code decides first, then Laya; uncertain answers go to an existing choice card. Laya cannot approve a plan, accept a
+task or change the phase. Use the explicit controls. The first 40-case synthetic evaluation answered 12 cases
+correctly and abstained on 28; it does not establish reliability on arbitrary requests.
+
 ## Music and sound effects
 
 Ask Pi for a short track or sound effects, then ask for changes in the same chat.
