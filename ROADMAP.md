@@ -299,3 +299,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [254-Add the endorsed improvement priorities to Claude’s handoff](tasks/254-add-improvement-priorities-to-handoff.md)
 - [x] [255-Refuse completion of code tasks without an implementation change](tasks/255-refuse-empty-code-task-completion.md)
 - [x] [256-Preserve replies when Pi pauses for a choice or plan](tasks/256-preserve-intentional-control-pauses.md)
+- [x] [257-Return to the end of a running chat from Activity](tasks/257-reveal-running-chat-at-the-end.md)

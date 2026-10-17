@@ -158,3 +158,9 @@ Regression evidence: unit cases for all three empty-implementation variants and 
 ## Runtime repair: task 256 · 18 October
 
 The web bridge now recognizes the observed “This operation was aborted” error as an intentional pause only with an actual pending choice/plan or active recovery. Other errors, including abort-like strings with additional failure causes, remain errors. A pause preserves preceding answer text together with its structured control instead of overwriting it with a question/summary. Unit classification tests, actual RPC subprocess/store-reload integration, real provider-shaped browser card journeys and the full workflow pass (35 focused tests). This repairs controlled waits; it does not add durable partial-message presentation for arbitrary crashes/stops. The independent bug-173 scrolling regression is tracked separately.
+
+## Runtime repair: task 257 · 18 October
+
+Returning from Activity to a running or queued chat now reveals the latest answer rather than centering its original question. Completed requests keep their original centering and highlight. The existing bug-173 browser assertion had failed repeatedly with a 10–11px gap; it passes unchanged after the fix. Four focused Node cases and both complete browser suites (design and chat), including the new completion/control regressions, pass. The full Python/Node workflow also passes. An initial missing static-module route found by the browser suite was corrected by keeping the helper in the existing served module.
+
+Tasks 255–257 repair three confirmed issues; they do not close the remaining duplicate-choice/draft race, stale session cwd after rename, question/task scope or generic-crash partial-reply findings. Those still need isolated reproductions and scoped fixes. No live model run, personal-project rewrite, package download or running-service change was used for these repairs.

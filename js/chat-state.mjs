@@ -18,3 +18,9 @@ export function applyDelta(state, event) {
   if (event.type === 'error') state.error = event.error;
   return state;
 }
+
+// Activity returns to a live answer; historical requests retain their place in the transcript.
+export function revealChatRequest(thread, article, status) {
+  if (status === 'running' || status === 'queued') thread.scrollTop = thread.scrollHeight;
+  else article?.scrollIntoView({block:'center'});
+}

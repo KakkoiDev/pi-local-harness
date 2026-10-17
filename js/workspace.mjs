@@ -385,7 +385,7 @@ export function installWorkspace(host){
  $('missing-locate').onclick=()=>locateProject();$('missing-remove').onclick=()=>removeProject();
  // Back from Activity to where the request came from (task 157): the chat message, the comment thread, or the whole-file request.
  async function openOrigin(job){
-  if(!job.document){await goToProject(job.project,'chat');host.showMessage?.(job.message);return;}
+  if(!job.document){await goToProject(job.project,'chat');host.showMessage?.(job.message,job.status);return;}
   await goToProject(job.project,'work',job.document);
   if(job.comment_id){showThread(job.comment_id);document.getElementById('comment-'+job.comment_id)?.scrollIntoView({block:'center'});return;}
   $('document-discussion').open=true;$('document-request-history').open=true;renderDocumentRequests();$('document-requests').querySelector(`[data-job="${job.id}"]`)?.scrollIntoView({block:'center'});
