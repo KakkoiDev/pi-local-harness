@@ -83,6 +83,16 @@ class ConversationStore:
             message['check_in'].update(state='stopped',when=timestamp())
             return self.save(value)
 
+    def settle_choices(self, identifier, reason):
+        """Task 290: cards still open when approval or a new plan replaced their question say so, and cannot be answered."""
+        with self.lock:
+            value=self.get(identifier);changed=False
+            for message in value['messages']:
+                choice=message.get('choice')
+                if message.get('role')=='assistant' and choice and not choice.get('answer') and not choice.get('settled'):
+                    choice.update(settled=reason,when=timestamp());changed=True
+            return self.save(value) if changed else value
+
     def create(self):
         return self.save({'id':uuid.uuid4().hex,'title':'New conversation','messages':[],'created':timestamp()})
     def list(self):
@@ -713,6 +723,7 @@ class WebChat:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
+            if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
@@ -864,7 +875,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
-                conversation=self.chat.project_chat(data['project'])
+                conversation=self.chat.store.settle_choices(self.chat.project_chat(data['project'])['id'],'Start Building')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):
                         message['plan'].update(approved=True,waiting=False);break

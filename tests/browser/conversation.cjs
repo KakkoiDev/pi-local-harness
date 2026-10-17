@@ -81,9 +81,14 @@ const readline = require('node:readline');
 
     // 3. Start Building and Continue send their own requests; the composer keeps the person's words and files.
     await page.route('**/api/phase/build', route => route.fulfill({ json: { phase: 'implementation' } }));
+    await settled((await post('/api/jobs/create', { project: created.project, message: 'One more question TEST_ERROR_CHOICE' })).id); // left unanswered
     const plan = await post('/api/jobs/create', { project: created.project, message: 'Discuss a plan TEST_ERROR_PLAN' }); await settled(plan.id);
     for (let i = 0; i < 50 && (await workspace()).jobs.some(job => ['queued', 'running'].includes(job.status)); i++) await page.waitForTimeout(200);
     await page.reload(); await page.locator('#prompt').fill('Still my draft'); await page.locator('#files').setInputFiles({ name: 'more.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
+    // The new plan settled the older open question: it says so and cannot be answered.
+    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it? · not answered: settled by a new plan' }).waitFor();
+    assert.equal(await page.locator('.pw-card[aria-label="Who uses it?"] .pw-option').count(), 0);
+    assert.equal(await page.locator('#send').textContent(), 'Send', 'the composer is no longer answering it');
     sent.length = 0;
     await page.locator('.pw-card[aria-label="Plan"]').last().getByRole('button', { name: 'Start Building', exact: true }).click();
     await page.waitForFunction(() => true); for (let i = 0; i < 20 && !sent.length; i++) await page.waitForTimeout(100);

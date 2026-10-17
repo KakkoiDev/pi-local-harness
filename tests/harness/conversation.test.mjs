@@ -41,3 +41,13 @@ test('a phase word gets an inline notice in the chat, not a card (review item 5,
     assert.equal(calls.filter(call => call.path === '/choice').length, 0, 'no card');
   });
 });
+
+test('a second question in one turn is refused: one question at a time (review P2)', async () => {
+  let tool; const pending = [];
+  installChoices({ registerTool: value => { tool = value; } }, { web: () => true, pending: async value => pending.push(value) });
+  const first = await tool.execute('one', { question: 'First?', options: [{ label: 'A' }, { label: 'B' }], recommended: 0 }, null, null, {});
+  assert.equal(first.details.pending, true);
+  const second = await tool.execute('two', { question: 'Second?', options: [{ label: 'A' }, { label: 'B' }], recommended: 0 }, null, null, {});
+  assert.equal(second.isError, true); assert.match(second.content[0].text, /One question at a time/);
+  assert.deepEqual(pending.map(value => value.question), ['First?']);
+});

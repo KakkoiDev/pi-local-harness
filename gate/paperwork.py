@@ -168,6 +168,8 @@ class Paperwork:
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
             same=bool(previous) and all(previous.get(key)==choice.get(key) for key in ('question','options'))
+            if previous and not same and previous.get('request')==request:
+                raise ValueError(f"One question at a time: wait for the person's answer to “{previous['question']}” before asking another.")  # task 290
             if not same:
                 record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None,proposal=not system)
             # Task 290: each question has an id, kept while the same question is asked again; the person's answer names it,
@@ -183,6 +185,13 @@ class Paperwork:
         try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(self.project_key(root),{})
         except (OSError,ValueError):return False
         return bool(value and not value.get('pending') and value.get('answer')=='Continue with the stated value' and value.get('state') in ('chosen','given') and value.get('judgement')=={'kind':'assumed_value','digest':digest})
+
+    def settle_waiting(self,root,reason):
+        """Task 290 (review item 18): approval or a new plan settles an older question, so it never blocks approved work."""
+        with self.lock:
+            waiting=self.waiting_choice(root)
+            if waiting:self.save_choice(root,{**waiting,'pending':False,'settled':reason,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
+            return waiting
 
     def hold(self,request,text):
         """Task 290: the person's message that a question interrupted before Pi read it, kept with the question."""
@@ -315,7 +324,8 @@ class Paperwork:
         if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
         with self.lock:
             plan=self.plan_state(root)
-            if not plan.get('pending') and not plan.get('finished'):return self.phase(root,'implementation',action='Start Building')
+            if not plan.get('pending') and not plan.get('finished'):
+                result=self.phase(root,'implementation',action='Start Building');self.settle_waiting(root,'Start Building');return result
             available=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if selected is None:selected=available
             if not isinstance(selected,list) or not selected or len(set(selected))!=len(selected) or any(path not in available for path in selected):raise ValueError('Choose at least one task from the waiting plan.')
@@ -466,6 +476,7 @@ class Paperwork:
                 first.write_text(first_text[:section.start()]+quoted+'\n\n'+first_text[section.start():] if section else first_text.rstrip()+'\n\n'+quoted+'\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
+            self.settle_waiting(root,'a new plan')
             record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')
             return {'root':str(root),'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
 
@@ -488,6 +499,7 @@ class Paperwork:
                     roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*)- \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1- [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
             plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
+            self.settle_waiting(root,'Start Building' if state=='chosen' else 'Run on its own')
             item['new_plan']=False
             self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building')
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})

@@ -223,5 +223,50 @@ class InlineNoticeTest(unittest.TestCase):
             self.assertEqual(answer['notices'], ['Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'])
 
 
+PLAN = {'goal': 'A counter', 'tasks': [{'title': 'Count clicks', 'kind': 'code', 'files': ['app.py'], 'done_when': 'A click increments the count.', 'content': 'Check a click. Implement the handler.'}]}
+
+
+class StaleQuestionTest(unittest.TestCase):
+    """Review item 18 and the P2 lines: approval or a new plan settles an older question; one question at a time."""
+    def setUp(self):
+        self.bench = Workbench(self); self.paperwork = self.bench.ledger.paperwork; self.folder = self.bench.folder
+
+    def plan(self):
+        self.paperwork.phase(self.folder, 'planning')
+        self.paperwork.start('plan', str(self.folder), 'Plan a counter')
+        return self.paperwork.propose_plan('plan', PLAN)
+
+    def test_a_new_plan_settles_an_older_question(self):
+        self.bench.ask()
+        self.plan()
+        self.assertIsNone(self.paperwork.waiting_choice(self.folder), 'the plan replaced the question')
+        self.assertEqual(json.loads(self.paperwork.choice_file(self.folder).read_text())['settled'], 'a new plan')
+
+    def test_start_building_settles_an_older_question_in_gate_and_in_the_chat(self):
+        self.plan(); self.paperwork.pause('plan')
+        identifier = self.bench.ask(request='late')
+        status, body = self.bench.call('/api/phase/build', {'project': self.bench.project})
+        self.assertEqual(status, 200, body)
+        self.assertIsNone(self.paperwork.waiting_choice(self.folder))
+        card = self.bench.messages()[-1]['choice']
+        self.assertEqual(card['settled'], 'Start Building')
+        self.assertTrue(self.bench.call('/api/choices/answer', {'project': self.bench.project, 'id': identifier, 'option': 0, 'key': 'k'})[1]['stale'])
+
+    def test_the_chat_settles_older_cards_when_a_plan_arrives(self):
+        store = self.bench.chat.store; chat = self.bench.conversation
+        store.append(chat, {'role': 'assistant', 'content': 'Q', 'choice': {'id': 'a', 'question': 'Old?', 'options': [{'label': 'A'}, {'label': 'B'}]}})
+        store.append(chat, {'role': 'assistant', 'content': 'Q', 'choice': {'id': 'b', 'question': 'Done?', 'options': [{'label': 'A'}, {'label': 'B'}], 'answer': 'A'}})
+        store.settle_choices(chat, 'a new plan')
+        cards = [message['choice'] for message in store.get(chat)['messages'] if message.get('choice')]
+        self.assertEqual([card.get('settled') for card in cards], ['a new plan', None], 'an answered card keeps its answer')
+
+    def test_a_second_question_in_one_request_is_refused(self):
+        self.paperwork.start('two', str(self.folder), 'Tidy')
+        self.paperwork.choice_pending('two', {'question': 'First?', 'options': [{'label': 'A'}, {'label': 'B'}], 'recommended': 0})
+        with self.assertRaisesRegex(ValueError, 'One question at a time'):
+            self.paperwork.choice_pending('two', {'question': 'Second?', 'options': [{'label': 'A'}, {'label': 'B'}], 'recommended': 0})
+        self.assertEqual(self.paperwork.waiting_choice(self.folder)['question'], 'First?')
+
+
 if __name__ == '__main__':
     unittest.main()

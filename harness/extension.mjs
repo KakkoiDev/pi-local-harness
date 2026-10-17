@@ -145,6 +145,7 @@ export default function harness(pi, dependencies = {}) {
     },
     record:async decision=>{await call('/decision',{request:requestId,...decision});assistantText='';},
     cancel:pauseChoice,
+    waiting:()=>waitingChoice,
   });
   installPlanning(extras, {
     auto:automatic,

@@ -30,3 +30,5 @@ Built as the smallest version with existing classes; the designer has not drawn 
 
 - The inline harness notice under an answer (`p.pw-help.message-notice` with the note icon), used for a phase word
   ("Pi cannot change the phase…"). Today it is plain help text.
+- A question settled without an answer (approval or a new plan replaced it): an old-style settled line, “Park or drop? ·
+  not answered: settled by Start Building” (`pw-card--settled pw-card--old`, no glyph).
