@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # Laya was the checker's old name (task 96); since 2026-10-17 Laya is System 1's classifier (CONSTITUTION.md, task
 # 250). So the old name is flagged only where it names the checker: "Laya gate", "Laya checks", PI_LAYA_…, laya_port.
-OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|\bPI_LAYA(?!_DATA\b)|\bLAYA_(?!DATA\b|SETUP\b|EVAL\b|MLX\b)', re.I)
+OLD = re.compile(r'\blaya[ _-]?(gate|checks?|rules?|tab|api|enforcement|audit|token|port|url|events?|log|lockdown)\b|(?-i:\bPI_LAYA(?!_DATA\b)|\bLAYA_(?!DATA\b|SETUP\b|EVAL\b|MLX\b))', re.I)  # settings names are uppercase; lowercase laya_… names the classifier
 CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/250-laya-classifier\.md$|^kit/laya-lock\.json$|^tests/fixtures/laya-evaluation\.json$')
 
 

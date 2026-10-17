@@ -325,3 +325,23 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [310-Project Start: the architecture decisions to settle](tasks/310-project-start-architecture-decisions.md)
 - [ ] [311-Test runs are sandboxed](tasks/311-sandboxed-test-runs.md)
 - [x] [260-Verification cannot be faked; check-ins never strand the plan](tasks/260-trustworthy-verification.md)
+
+Plan 267: System 1 makes every judgement ([docs/plans/267-system-1-makes-every-judgement.md](docs/plans/267-system-1-makes-every-judgement.md)).
+
+- [ ] [268-System 1 decides a task's Kind and write scope](tasks/268-kind-and-files-from-system-1.md)
+- [ ] [269-Done and verified only from evidence System 1 chose](tasks/269-completion-from-system-1-evidence.md)
+- [ ] [270-Questions: System 1 decides whether to ask and what is recommended, never asks twice](tasks/270-questions-owned-by-system-1.md)
+- [ ] [271-Stops, wake-ups and re-planning decided by System 1](tasks/271-stops-wake-ups-and-re-planning.md)
+- [ ] [272-Commit messages, file names and lessons written by System 1](tasks/272-paperwork-text-from-system-1.md)
+- [ ] [273-The decision row: see and change any judgement](tasks/273-the-decision-row.md)
+- [ ] [274-The honest judgement metric: the model's share, with coverage](tasks/274-honest-judgement-metric.md)
+
+Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs/plans/253-one-app-many-packages.md), "Implementation tasks").
+
+- [ ] [275-The shared app source layout](tasks/275-shared-app-source-layout.md)
+- [ ] [276-The platform adapter interface, the server adapter and the server package](tasks/276-platform-adapters-and-server-package.md)
+- [ ] [277-The browser adapter: the same Python app in the browser (Pyodide, after approval)](tasks/277-browser-adapter-python-in-the-browser.md)
+- [ ] [278-System 1 checks the app fits each target before packaging](tasks/278-target-compatibility-checks.md)
+- [ ] [279-The mobile package: Capacitor, installed without a store](tasks/279-mobile-package-capacitor.md)
+- [ ] [280-The acceptance app: notes with priority, offline, one source](tasks/280-acceptance-app-notes-priority-offline.md)
+- [ ] [281-End-to-end tests for each package, and the one-rule-change proof](tasks/281-e2e-per-target.md)
