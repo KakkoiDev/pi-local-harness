@@ -347,3 +347,4 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [281-End-to-end tests for each package, and the one-rule-change proof](tasks/281-e2e-per-target.md)
 - [x] [262-Renamed or moved projects keep working; project ids never collide](tasks/262-renamed-projects-keep-working.md)
 - [x] [261-Only the person's controls can approve, accept, change the phase or turn on Run on its own](tasks/261-person-only-controls.md)
+- [x] [263-Tests never touch the live data; secrets stay out of context; Gate never crashes on refusals](tasks/263-isolation-context-and-small-fixes.md)

@@ -179,8 +179,6 @@ class AdminChangeTest(unittest.TestCase):
         self.assertEqual(run('config', 'set', 'effort', 'low', '--yes').returncode, 0); self.assertEqual(self.saved()['effort'], 'low')
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class PublishAuditConsoleTest(unittest.TestCase):
@@ -195,3 +193,7 @@ class PublishAuditConsoleTest(unittest.TestCase):
                 value,shape=admin.build(console,'audit',[str(root)],yes=True)
                 self.assertFalse(value['ready']);self.assertEqual(run.call_args.args[0],root)
                 self.assertIn('Type mismatch',str(shape))
+
+
+if __name__ == '__main__':
+    unittest.main()

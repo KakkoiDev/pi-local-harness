@@ -7,7 +7,8 @@ export function updateView(value){
  if(value.state==='updated')return {title:`Updated to ${value.commit||'the new version'}. Restart plh to use it.`,detail:'Quit plh: Quit in the π menu-bar item, or Control-C in its terminal.\nStart it again: open Pi Workbench, or type plh.\nThis page reconnects by itself.'};
  if(value.state==='current')return {title:'Pi Workbench is up to date.',detail:'Checked just now. It checks again once a day.'};
  if(value.state==='blocked')return {title:/its own changes/.test(why)?'This copy is not updated automatically.':'Pi Workbench can’t update yet.',detail:why+'\nNothing was changed.',action:/its own changes/.test(why)?'Ask Pi to Update':'Ask Pi to Save Them'};
- return {title:'Can’t check for updates right now.',detail:'GitHub can’t be reached from this Mac. Check the connection, then try again.',action:'Try Again'};
+ /* task 263: the backend's reason when it gave one (not a git clone, no GitHub branch, the fetch error) */
+ return {title:'Can’t check for updates right now.',detail:why||'GitHub can’t be reached from this Mac. Check the connection, then try again.',action:'Try Again'};
 }
 const node=(tag,cls='',text)=>{const el=document.createElement(tag);el.className=cls;if(text!==undefined)el.textContent=text;return el;};
 const button=(text,action,primary=false)=>{const el=node('button','pw-btn'+(primary?' pw-btn--default':''),text);el.type='button';el.onclick=action;return el;};

@@ -24,7 +24,7 @@ TEST_COMMANDS = [
     ('npx', '--no-install', 'vitest'), ('npx', '--no-install', 'jest'), ('npx', '--no-install', 'tsc'), ('uv', 'run', '--offline', 'pytest'),
     ('npx', 'tsc'), ('python3', 'tests/browser/run.py'), ('python', 'tests/browser/run.py'),
 ]
-CHECKED = re.compile(r'- \[[xX]\]')
+CHECKED = re.compile(r'(?<![^\s+])[-*+] \[[xX]\]')  # task 263: any list bullet
 KIND = re.compile(r'^Kind:\s*(\S+)', re.MULTILINE)
 KINDS = ('code', 'chore', 'docs', 'planning')
 KIND_FIX = '`Kind: code|chore|docs|planning` line'

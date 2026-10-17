@@ -8,6 +8,8 @@ import harness from '../../harness/extension.mjs';
 // Never the developer's real Pi settings (models.json, AGENTS.md) or a running harness (task 150).
 process.env.PI_CODING_AGENT_DIR=mkdtempSync(join(tmpdir(),'pi-agent-dir-'));
 for(const key of Object.keys(process.env))if(/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))delete process.env[key];
+// Task 263: never the person's data folder; a test that sets its own restores this one.
+process.env.PI_AGENT_DATA=mkdtempSync(join(tmpdir(),'pi-test-data-'));process.env.PI_WEB_DATA=join(process.env.PI_AGENT_DATA,'chats');delete process.env.PI_WEB_PORT;delete process.env.PI_GATE_PORT;
 
 test('startup, ten-second loop check, abort/compact/reask, canary reinjection', async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-harness-'));

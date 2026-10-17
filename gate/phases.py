@@ -74,6 +74,17 @@ class Phases:
 
 DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).'
 PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
+# Task 263: a refused command did not run and a refused plan was not proposed; "Not written" only for writes.
+DISCUSSION_COMMAND_REFUSAL = 'Not run: the project is in Discussion. Pi can read, search and talk; this command could change files. To plan this change, choose Planning in the phase button (⇧⌘2).'
+PLANNING_COMMAND_REFUSAL = 'Not run: the project is in Planning. Pi can only write ROADMAP.md and tasks/; this command could change code. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
+DISCUSSION_PLAN_REFUSAL = 'Not proposed: the project is in Discussion. Plans are proposed in Planning. Choose Planning in the phase button (⇧⌘2).'
+NO_TASK_COMMAND_REFUSAL = 'Not run: No approved task is in progress. Choose Planning, then Start Building on the plan.'
+# Task 263: a folder that is neither registered nor has ROADMAP.md has no phase button to press.
+NOT_A_PROJECT_REFUSAL = '{verb}: {folder} is not a project, so Pi can read here but not change anything. Register the folder as a project in the workbench, or add a ROADMAP.md, then plan the change.'
+
+
+def not_a_project(folder, tool):
+    return NOT_A_PROJECT_REFUSAL.format(verb='Not run' if tool == 'execute_command' else 'Not written', folder=folder)
 
 
 def harness_read_only(args):
@@ -98,7 +109,8 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if pi_tool=='web_search' and phase!='discussion':return 'Search is available in Discussion. Choose Discussion to search the web.'
     if tool == 'read_file' and pi_tool != 'propose_plan': return None
     if tool == 'execute_command' and read_only(args.get('command')): return None
-    if phase == 'discussion': return DISCUSSION_REFUSAL
+    command = tool == 'execute_command'
+    if phase == 'discussion': return DISCUSSION_COMMAND_REFUSAL if command else DISCUSSION_PLAN_REFUSAL if pi_tool == 'propose_plan' else DISCUSSION_REFUSAL
     path = None
     if pi_tool in ('write', 'edit') and isinstance(args.get('path'), str):
         candidate = Path(args['path']).expanduser()
@@ -106,9 +118,9 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
         except ValueError: pass
     if phase == 'planning':
         if path == 'ROADMAP.md' or path and path.startswith('tasks/') and path.endswith('.md'): return None
-        return PLANNING_REFUSAL
+        return PLANNING_COMMAND_REFUSAL if command else PLANNING_REFUSAL
     if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
-    if not approved: return 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
+    if not approved: return NO_TASK_COMMAND_REFUSAL if command else 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
     if tool == 'execute_command' and test_run(args.get('command')): return None
     if pi_tool=='music':
         name=args.get('name','')
@@ -116,8 +128,9 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
             folder='assets/music/'+name+'/'
             if Path(cwd).resolve()==root and file_allowed(task,folder+'score.json') and file_allowed(task,folder+'0001/audio.wav'):return None
     if pi_tool == 'browser': return None  # verification runs only in an isolated scratch browser
-    if not re.search(r'^Files:\s*\S', task, re.M):return 'Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.'
-    if path and file_allowed(task, path): return None
     title = re.search(r'^#\s+(.+)', task, re.M)
     name = title[1] if title else 'in progress'
+    if command: return f'Not run: in Implementation Pi can run tests and read-only commands; other commands could change files outside task {name}. Run the tests, or change the task’s files with edit or write.'
+    if not re.search(r'^Files:\s*\S', task, re.M):return 'Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.'
+    if path and file_allowed(task, path): return None
     return f'Not written: {path or args.get("path") or pi_tool or tool} is not part of task {name}. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.'

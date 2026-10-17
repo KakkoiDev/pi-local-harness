@@ -48,6 +48,12 @@ class AutoUpdateTest(unittest.TestCase):
         subprocess.run([sys.executable, str(self.source / 'harness/install.py'), '--prefix', str(self.prefix), '--agent-dir', str(self.agent), '--data-dir', str(self.data)],
                        env=self.env, capture_output=True, text=True, check=True)
         self.package = self.prefix / 'share/pi-local-harness'
+        # Task 263: plh does not update under a running workbench; a free, closed port keeps the person's own workbench
+        # (port 3000) from changing what these tests see.
+        import socket
+        with socket.socket() as probe: probe.bind(('127.0.0.1', 0)); closed = probe.getsockname()[1]
+        config = json.loads((self.data / 'config.json').read_text()); config['web_port'] = closed
+        (self.data / 'config.json').write_text(json.dumps(config))
 
     def tearDown(self):
         self.temp.cleanup()
@@ -86,6 +92,28 @@ class AutoUpdateTest(unittest.TestCase):
         self.assertEqual(json.loads((self.package / 'install.json').read_text())['commit'], git(self.source, 'rev-parse', 'HEAD'))
         self.assertIn('PLH: updated', result.stderr)
         self.assertEqual(json.loads(result.stdout)['extension'], str(self.package / '.pi/extensions/local-harness.ts'))
+
+    def test_no_update_while_a_workbench_answers_on_its_port(self):
+        """Task 263 (review P2): the package was swapped under a running workbench, which then served new pages with an
+        old backend. plh starts the installed build instead and says why."""
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        import threading
+        class Workbench(BaseHTTPRequestHandler):
+            def do_GET(self):
+                body = b'{"language": "en"}' if self.path == '/api/settings' else b'{}'
+                self.send_response(200); self.send_header('Content-Type', 'application/json'); self.end_headers(); self.wfile.write(body)
+            def log_message(self, *args): pass
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Workbench); self.addCleanup(server.server_close)
+        threading.Thread(target=server.serve_forever, daemon=True).start(); self.addCleanup(server.shutdown)
+        config = json.loads((self.data / 'config.json').read_text()); config['web_port'] = server.server_port
+        (self.data / 'config.json').write_text(json.dumps(config))
+        self.commit('marker-while-running\n')
+        before = self.backups()
+        result = self.launch()
+        self.assertEqual(self.installed(), '# Pi Workbench', 'the running package is left as it is')
+        self.assertEqual(self.backups(), before)
+        self.assertIn('PLH: not updated', result.stderr); self.assertIn(str(server.server_port), result.stderr)
+        self.assertIn('extension', result.stdout, 'the installed build still starts')
 
     def test_uncommitted_edits_are_not_installed(self):
         self.commit('marker-committed\n')

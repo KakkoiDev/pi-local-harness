@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 
-const BOX = /^(\s*)- \[([ xX])\] (.*)$/;
+const BOX = /^(\s*[-*+]) \[([ xX])\] (.*)$/; // task 263: any list bullet, kept as it was
 const plain = text => String(text).toLowerCase().replace(/\s+/g, ' ').trim();
 
 /** {oldText, newText} for the one box whose label starts with `box`, or {error} that lists the candidates. */
@@ -18,7 +18,7 @@ export function boxEdit(content, box, done = true) {
   if (!want) return { error: 'Name the box: the start of its label, e.g. "Red".' };
   if (found.length === 1) {
     const [, indent, , label] = BOX.exec(found[0]);
-    return { oldText: found[0], newText: `${indent}- [${done ? 'x' : ' '}] ${label}` };
+    return { oldText: found[0], newText: `${indent} [${done ? 'x' : ' '}] ${label}` };
   }
   if (found.length > 1) return { error: `${found.length} ${kind}es start with “${box.trim()}”; give more of the label:\n${list(found)}` };
   return { error: `No ${kind} starts with “${box.trim()}”.${boxes.length ? ` The ${kind}es are:\n${list(boxes)}` : ` There are no ${kind}es in this file.`}` };

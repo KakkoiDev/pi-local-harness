@@ -166,11 +166,26 @@ class GateIntegrationTest(unittest.TestCase):
             ledger.judgements.decide.return_value={'answer':'read_only','confidence':1.,'abstained':False,'advisory':True,'who':'laya'}
             result=ledger.propose('execute_command',{'command':'unknown-command'},'admin',pi_tool='bash',cwd=str(root),request='r')
             self.assertNotEqual(result['outcome'],'ALLOW')
-            ledger.judgements.decide.assert_called_once_with('r','shell_risk',['unknown-command',root.resolve()])
+            ledger.judgements.decide.assert_called_once_with('r','shell_risk',['unknown-command',str(root.resolve())])  # task 263: text, never a Path (json.dumps)
             ledger.judgements.reset_mock()
             ledger.propose('execute_command',{'command':'cat README.md'},'admin',pi_tool='bash',cwd=str(root),request='r')
             ledger.propose('execute_command',{'command':'rm -rf /'},'standard',pi_tool='bash',cwd=str(root),request='r')
             ledger.judgements.decide.assert_not_called()
+
+    def test_unmocked_refused_shell_command_is_g015_with_a_judgement_not_a_gate_crash(self):
+        """Task 263 (review 14): the PosixPath reached json.dumps and every refused command became G-011."""
+        import tempfile
+        from pathlib import Path
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'tasks').mkdir();(root/'ROADMAP.md').write_text('# Scratch\n')
+            ledger=ProposalLedger(GateEngine('',str(root/'audit.log')))
+            ledger.start_request('r',str(root),'Explain the project')
+            result=ledger.propose('execute_command',{'command':'unknown-command --flag'},'admin',pi_tool='bash',cwd=str(root),request='r')
+            self.assertEqual(result['rule'],'G-015',result)
+            self.assertIn('judgement',result)
+            self.assertEqual(result['judgement']['who'],'person')
 
 class RequestInterpretationTest(unittest.TestCase):
     def test_natural_language_phase_and_waiting_replies_only_return_advice(self):

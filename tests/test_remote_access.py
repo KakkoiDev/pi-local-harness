@@ -178,8 +178,6 @@ class RemoteConfigTest(unittest.TestCase):
                 Path(directory, 'config.json').write_text(json.dumps(bad))
                 with self.assertRaisesRegex(ValueError, 'remote_'): configuration(directory)
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class TranscriptTextTest(unittest.TestCase):
@@ -203,3 +201,7 @@ class PhoneOffTest(unittest.TestCase):
         self.assertEqual(serve_link(problem), 'https://login.tailscale.com/f/serve?node=abc123')
         self.assertIsNone(serve_link('tailscale serve exited (1): not running'))
         self.assertIsNone(serve_link(None))
+
+
+if __name__ == '__main__':
+    unittest.main()

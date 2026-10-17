@@ -497,9 +497,10 @@ class WebChat:
         else:
             root=Path(data.get('cwd') or '.').resolve()
             chosen=build_project_context(root,data.get('text',''),task=task)
-        event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text'])}
+        # Task 263: what was left out on purpose (private, ignored, generated) is recorded with its reason, never silent.
+        event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text']),'excluded':chosen['excluded'][:100],'excluded_count':len(chosen['excluded'])}
         if job:self.queue.update(job,event)
-        else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars')})
+        else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars','excluded','excluded_count')})
         return {**chosen,'text':f'Active project folder: {root}\nWork only in this folder. This context is current for this turn.\n\n'+chosen['text']}
 
     def context_preview(self, project, data):

@@ -25,6 +25,7 @@ import {installPhases} from './phases.mjs';
 import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
+import { dataFolder } from './data-folder.mjs';
 import {recordGuides} from './decisions.mjs';
 import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
@@ -58,7 +59,7 @@ export default function harness(pi, dependencies = {}) {
   const showStartup = installStartupDisplay(pi);
   const root = dependencies.root || moduleRoot;
   const agentDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), '.pi/agent');
-  const dataDir = process.env.PI_AGENT_DATA || join(homedir(), 'pi-local-harness-data');
+  const dataDir = dataFolder(); // task 263: under node --test, the person's folder is refused
   // A workbench request runs while the workbench itself holds the lock for all its requests (task 164): skip it there.
   const sharedLock = new AgentLock(join(dependencies.root || dataDir, '.agent-lock'));
   const agentLock = { acquire: () => { if (process.env.PI_HARNESS_LOCK_HELD !== '1') sharedLock.acquire(); }, release: () => sharedLock.release() };
