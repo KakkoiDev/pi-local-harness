@@ -9,12 +9,12 @@ Each line: the item, and where it is handled. "In progress" = a repair track is 
 |---|---|
 | Code task marked verified with only paperwork changed (P0) | Task 255 (partial), task 260 (in progress: real Red, no `--help` Green, scope, docs/chore) |
 | Choice/plan aborts become failed requests with unsaved replies | Task 256 (fixed, confirmed); remaining abort variants and orphaned choices: task 290 |
-| Renaming a project leaves a stale Pi cwd | Task 262 (in progress) |
+| Renaming a project leaves a stale Pi cwd | Task 262 (done) |
 | Repeated choice replies merge and can overwrite drafts | Task 290 |
-| Question-to-task scope | Task 260 item 4 (in progress) |
+| Question-to-task scope | Task 260 item 4 (done) |
 | Generic crash partial replies | Task 290 |
 | Live chat navigation (bug 173) | Task 257 (fixed, confirmed) |
-| Decision-share instrumentation incomplete; component builds and a trace id needed | Task 292; honest decision log: task 261 (in progress) |
+| Decision-share instrumentation incomplete; component builds and a trace id needed | Task 292; honest decision log: task 261 (done) |
 | Gate build identity insufficiently recorded | Task 292 |
 | Context selection relevance still needs work | Task 263 (secrets and build output, in progress), task 293 (relevance, compaction) |
 | Seventeen saved runs have no test-run records | Task 292 (find why the live log is absent) |
@@ -36,7 +36,7 @@ Each line: the item, and where it is handled. "In progress" = a repair track is 
 | 3 Capability catalog with contracts | Plan 266 items 2, 7; designer round 12 part A |
 | 4 Tools that match app-building tasks | Task 296 |
 | 5 Relevant task context and durable decisions | Task 293 |
-| 6 Continuously runnable apps, journey tests | Task 297; the harness's own user-story tests: task 264 (in progress) |
+| 6 Continuously runnable apps, journey tests | Task 297; the harness's own user-story tests: task 264 (done) |
 | 7 Understandable progress and recovery | Task 298; designer round 12 part C; plan 267 (judgement UX) |
 | Further proposals: safe evolution, data through change | Task 299 |
 | Evaluate ongoing development (multi-turn) | Task 300 |
@@ -46,7 +46,7 @@ Each line: the item, and where it is handled. "In progress" = a repair track is 
 | Luna benchmark | Task 244 (waits for the person's key) |
 | DeepSeek Flash benchmark | Task 245 (waits for the person) |
 | Gate makes every judgement (the owner, 2026-10-18) | Plan 267 (being written) |
-| End-to-end tests for every user story (the owner, 2026-10-18) | Task 264 (in progress) |
+| End-to-end tests for every user story (the owner, 2026-10-18) | Task 264 (done) |
 | Order: trustworthy completion, reliable execution and recovery, one complete app journey, reusable blocks, broader app types and packaging | Followed: tasks 260-263 and 290-292 first; then 293, 295-298; then plan 266 and 253 |
 
 ## The review's own findings
@@ -78,7 +78,7 @@ secrets, small fixes), 290 (conversation), 291 (generated media).
 
 | Request | Handled by |
 |---|---|
-| Fix all review findings | Tasks 260-263 (in progress), 290, 291 |
+| Fix all review findings | Tasks 260-263 (done), 290, 291 |
 | Generated media outside an approved task (option A) | Task 291 |
 | More bugs and improvements; designer handoff | The bug hunt above; design/briefs/round-12.md |
 | gaming-core: controller, keyboard and mouse input | KakkoiDev/gaming-core#1 (open, for the person to merge); Pong paddles off-screen: plan 266 item 2 |
@@ -87,7 +87,7 @@ secrets, small fixes), 290 (conversation), 291 (generated media).
 | Any 2D game: RPG, shooter, cozy, roguelike, card game… | Round 12 "Whole games"; plan 266 item 2 (genre starters) |
 | visual-core pixel art and SVG with deterministic tools and a content library | Plan 266 items 3-5; round 12 art direction |
 | HTMX + Python compiled to any platform | Plan 253; tasks being written (planning track); decisions: task 310 |
-| End-to-end tests for every user story | Task 264 (in progress) |
+| End-to-end tests for every user story | Task 264 (done) |
 | Gate makes every judgement, with its UX | Plan 267 (being written); task 298 |
 | Core-libraries handoff (visual, coding, gaming, music) | docs/handoff/core-libraries.md, plan 266 item 8 (adapters) |
 | Colibri | Task 294 |
@@ -100,5 +100,6 @@ the Red proof's audit (task 308); Pong paddles off-screen (plan 266 item 2).
 ## Found by the user-story tests (task 264)
 
 NEW-1 (`propose_plan` put the Request line under Decisions, so G-017 blocked every first planned task): fixed on
-harness-next. NEW-2 (Planning answers never reach the plan's Decisions): task 293. US-042 (draft wiped) and US-075 (crash
-shows nothing in the chat): task 290. US-044 (two quick answers) needs a scripted race: task 290.
+harness-next. NEW-2 (Planning answers never reach the plan's Decisions): task 293. US-042 (draft wiped): fixed by task 290, the story passes. US-075
+(crash shows nothing in the chat): task 290 keeps the partial text; the story stays an expected failure until the chat
+shows the failed line with Retry (round 12 part C). US-044 (two quick answers) needs a scripted race: task 290.

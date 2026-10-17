@@ -1,4 +1,4 @@
-# Brief: round 12 (draft, being completed)
+# Brief: round 12
 
 Date: 2026-10-18. Round 12. Three parts: (A) app building blocks a small model can grab, (B) Project Start with
 capabilities, (C) the screens the 2026-10-18 review's fixes need (added when the fix tracks report).
@@ -110,13 +110,49 @@ before Create, and how a project later adds a capability ("Add a capability…")
 
 ## C. Screens the review's fixes need
 
-From the bug hunt, with no board yet: the default "Paper" appearance ignores the Mac's dark mode; Markdown links in Work
-(ROADMAP task lines show raw `[…](tasks/…)` and cannot be followed); the choice card repeats its question above it; the
-composer's "<project> · send to agent queue" text; stopped and failed requests have no line in the chat; the phone menu's
-button row overflows in Japanese; the status needs "Working on <project>"; shortcuts the browser keeps (⌘N, ⌘T, ⌘W,
-⌘1-9) need alternatives in a browser tab.
+The 2026-10-18 review's repairs (tasks 260-263, 290, 291) are built; these are the screens they had to improvise or
+could not draw. Please draw each, desk and phone, English and Japanese.
 
-(Added when the four fix tracks report: tasks 260-263, the conversation fixes and generated media. Expected: reopening a
-falsely certified task, a Retry on an unverified check-in, a stuck check-in recovered after a reload, a failed reply shown
-with its partial text, "stopped by a question" versus "stopped by you", the approval card showing Files and Kind, the "not
-a project" refusal, the page secret's failure state, a different Implementation shortcut than ⇧⌘3.)
+**Verification and check-ins (task 260)**
+- **Reopen task**: a person control on a task (in Work and in Activity) that reopens a falsely completed task (its boxes
+  and roadmap line), with a confirmation.
+- **The unverified check-in**: its default action is now **Retry Task** (the same task again), not Accept and Continue;
+  how it reads, and how "accept anyway" stays possible.
+- **A waiting check-in after a reload**: the chat message may be gone; the check-in comes back from the project's state.
+- **Changes outside the task's Files**: how the not-verified message names them.
+
+**Only you can decide (task 261)**
+- **A refused person control** ("Reload the page": the page's secret is stale after a restart): its own message and a
+  Reload button instead of the generic error line.
+- **The plan approval card shows Kind and Files** (what you grant), with their source (plan 267).
+
+**Renamed projects (task 262)**
+- **The Preview restarted in the renamed folder**: a line saying so.
+- **Rename refused while terminal Pi works**: a dedicated card instead of the generic alert.
+
+**Refusals and small fixes (task 263)**
+- **The new refusal wording** on R11_Refusals: "Not run" (a command), "Not proposed" (a plan in Discussion), "Not
+  written" (a write), and "not a project" (register the folder or add ROADMAP.md).
+- **The Implementation shortcut**: ⇧⌘3 is macOS's screenshot shortcut, so it never reaches the page; please choose
+  another, and alternatives for shortcuts the browser keeps in a tab (⌘N, ⌘T, ⌘W, ⌘1-9).
+
+**Conversation (task 290)**
+- **An inline harness notice under an answer** (used for the phase-button notice when Laya is not installed).
+- **A question settled without an answer** ("not answered: settled by Start Building").
+- **A failed or stopped line under a cut-short answer** ("Stopped by you before Pi finished." / "Failed before Pi
+  finished: <reason>"), with Retry and Undo This Request.
+- **Activity's "waiting" status** for a question or plan pause; "stopped by a question" versus "stopped by you".
+
+**Gate makes every judgement (plan 267)**
+- **The decision row** with each author (code, Laya, you, auto, model) and Change…, collapsed under answers
+  ("4 decisions · 1 automatic").
+- **The scope-widening card** (a file outside the task's Files).
+- **The check-in with its evidence**: the test run, a test-integrity warning, the "Tried it" line.
+- **Questions in a batch** ("2 of 3") with "Take all recommendations"; a "Pi asked a question" card; the re-plan card;
+  the Change… flow; Run on its own's report listing its decisions; Settings → beginner or expert detail; the terminal's
+  `/decisions` view.
+
+**Found by walking the workbench (bug hunt)**
+- The default "Paper" appearance ignores the Mac's dark mode; Markdown links in Work (ROADMAP task lines show raw
+  `[…](tasks/…)` and cannot be followed); the choice card repeats its question above it; the composer's "<project> · send
+  to agent queue" text; the phone menu's button row overflows in Japanese; the status needs "Working on <project>".
