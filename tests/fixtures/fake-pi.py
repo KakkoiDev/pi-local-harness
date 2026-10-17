@@ -57,6 +57,21 @@ if request['message'].rstrip().endswith('TEST_SPAWN'):  # a server Pi starts wit
     Path(os.environ['PI_FAKE_PIDFILE']).write_text(str(leftover.pid))
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
+if request['message'].rstrip().endswith('TEST_PHASE_PLAN'):
+    identifier=os.environ['PI_HARNESS_JOB']
+    call_gate('/request',{'request':identifier,'cwd':os.getcwd(),'text':'Plan the counter'})
+    plan=call_gate('/plan',{'request':identifier,'content':{'goal':'Count clicks.','tasks':[{'title':title,'files':['app.py'],'done_when':'Counts clicks.','content':'Check a click; implement its handler.'} for title in ['Counter','Reset']]}})
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness plan: '+json.dumps(plan)})
+    call_gate('/request/pause',{'request':identifier})
+    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_PHASE_CHECK'):
+    check={'task':request['message'].split('TASK=')[1].split()[0],'title':'Counter','verified':True,'verification':'node --test · 1 passed','next':None,'number':1,'total':1}
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness check-in: '+json.dumps(check)})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'The counter works.'}]}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_PLAN'):
     plan={'goal':'A pong game.','tasks':[{'title':'Move the ball','done_when':'The ball bounces.'}],'pending':True}
     emit({'type':'extension_ui_request','method':'notify','message':'Harness plan: '+json.dumps(plan)})

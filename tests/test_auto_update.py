@@ -68,7 +68,7 @@ class AutoUpdateTest(unittest.TestCase):
     def test_the_installed_copy_can_start_its_services(self):
         # 2026-10-15: kit/ (the project starters) and messages/ (the Japanese text) were not installed, so plh stopped at
         # "No module named 'new_project'". Import what services.py imports, from the installed copy alone.
-        for name in ('harness/music.mjs', 'harness/music/score.mjs', 'harness/music/package-lock.json', 'harness/music_artifacts.py', 'kit/new_project.py', 'messages/ja.json', 'gate/test_runs.py', 'kit/starters.json', 'harness/audit.py', 'harness/choices.mjs', 'harness/planning.mjs', 'harness/terminal-planning.mjs', 'js/plan-cards.mjs', 'js/updates-window.mjs', 'harness/web_updates.py', 'harness/terminal-preview.py', 'harness/terminal-bridge.js', 'design/app-icons/manifest.webmanifest', 'design/app-icons/pi-192.png', 'harness/autonomy.py', 'gate/planning.py', 'harness/guides/planning.md', 'kit/publish_audit.py', 'kit/publish-audit.md'):
+        for name in ('harness/music.mjs', 'harness/music/score.mjs', 'harness/music/package-lock.json', 'harness/music_artifacts.py', 'kit/new_project.py', 'messages/ja.json', 'gate/test_runs.py', 'kit/starters.json', 'harness/audit.py', 'harness/choices.mjs', 'harness/planning.mjs', 'harness/web-search.mjs', 'harness/web_search.py', 'harness/terminal-planning.mjs', 'js/plan-cards.mjs', 'js/updates-window.mjs', 'harness/web_updates.py', 'harness/terminal-preview.py', 'harness/terminal-bridge.js', 'design/app-icons/manifest.webmanifest', 'design/app-icons/pi-192.png', 'harness/autonomy.py', 'gate/planning.py', 'harness/guides/planning.md', 'kit/publish_audit.py', 'kit/publish-audit.md'):
             self.assertTrue((self.package / name).is_file(), name)
         started = subprocess.run([sys.executable, '-c', 'import harness.web_chat, harness.services'], cwd=self.package,
                                  env={**self.env, 'PYTHONPATH': str(self.package)}, capture_output=True, text=True)
@@ -114,10 +114,13 @@ class AutoUpdateTest(unittest.TestCase):
         self.assertIn('PLH: not updated', result.stderr)
 
     def test_only_the_three_newest_backups_are_kept(self):
+        trash=self.root/'Trash'
+        self.env['PI_TRASH_DIR']=str(trash)
         for index in range(5):
             self.commit(f'marker-{index}\n')
             self.launch()
         self.assertEqual(len(self.backups()), 3)
+        self.assertGreaterEqual(len(list(trash.glob('pi-local-harness.before-*'))),2)
 
 
 if __name__ == '__main__':

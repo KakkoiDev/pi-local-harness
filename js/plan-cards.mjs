@@ -15,9 +15,9 @@ export function planningState(messages,index){
  const prefix='Choice: '+item.choice?.question+' → ';
  const answer=people.find(m=>m.content?.startsWith(prefix));
  const version=messages.slice(0,index+1).filter(m=>m.plan).length;
- const nextPlan=later.find(m=>m.plan),approved=/^(?:yes|go|ok|approve|approve plan|はい|お願いします|計画を承認)[.!。！]?$/i.test(people[0]?.content?.trim()||'');
+ const nextPlan=later.find(m=>m.plan),approved=Boolean(item.plan?.approved);
  return {answer:answer?.content.slice(prefix.length),answeredAt:answer?.timestamp,version,replaced:nextPlan&&!approved?version+1:null,replacedAt:nextPlan?.timestamp,approved,
-  continued:approved,continuedAt:people[0]?.timestamp};
+  continued:Boolean(item.check_in?.accepted),continuedAt:people[0]?.timestamp};
 }
 export function planDecisions(plan){
  const result=[],seen=new Set();
@@ -41,25 +41,26 @@ export function choiceCard(choice,{state={},answer,change}={}){
  }
  foot.append(button('Answer',()=>{const value=selected===choice.options.length?other.value.trim():choice.options[selected].label;if(value)answer(value);else other.focus();},true),node('span','pw-help','or type your answer below'));return el;
 }
-export function planCard(plan,{name='',state={},approve,change,open}={}){
+export function planCard(plan,{name='',state={},approve,another,change,open}={}){
  const decisions=planDecisions(plan),count=`${plan.tasks.length} tasks · ${decisions.length} decisions`;
  if(state.replaced){const el=settled(`Plan v${state.version} · replaced by v${state.replaced} at ${time(state.replacedAt)}`,{old:true,action:()=>{el.replaceWith(planCard(plan,{name,state:{historical:true},approve,change,open}));},label:'Show'});return el;}
- if(state.approved||plan.approved)return settled(`Plan approved · ${count}${plan.state==='auto'?'':` · by you · ${time(state.continuedAt||plan.when)}`}`,{state:plan.state,action:open,label:'Open the Plan'});
+ if(state.approved||plan.approved)return settled(`Plan approved: building · ${count} · Start Building${plan.state==='auto'?'':` · you · ${time(state.continuedAt||plan.when)}`}`,{state:plan.state,action:open,label:'Open the Plan'});
  const {el,head,body,foot}=card('Plan: '+name,'file','Plan');head.append(node('span','',count));body.append(prose('p','pw-plan__goal',plan.goal),node('h4','pw-plan__h','Tasks'));
  const tasks=node('ol','pw-plan__tasks');for(const task of plan.tasks.length>7?plan.tasks.slice(0,5):plan.tasks){const item=node('li');item.append(prose('span','',task.title));item.append(node('small','',`Done when ${task.done_when}`));tasks.append(item);}
  if(plan.tasks.length>7){const item=node('li');item.append(link(`and ${plan.tasks.length-5} more tasks · Open the Plan`,open));tasks.append(item);}body.append(tasks,node('h4','pw-plan__h','Decisions'));
  const list=node('ul','pw-plan__decisions');for(const decision of decisions){const li=node('li');li.append(glyph('done'),prose('b','',decision.question),prose('span','',decision.answer),tag(decision.state));list.append(li);}body.append(list);
- if(!state.historical)foot.append(button('Approve Plan',approve,true),button('Change…',change));foot.append(link('Open the Plan',open));return el;
+ if(plan.waiting)return settled(`Plan waiting · ${plan.tasks.length} tasks, not started · Plan Another Task · you`,{action:open,label:'Open the Plan'});
+ if(!state.historical){body.append(node('p','pw-help','Start Building approves this plan and moves to Implementation. Plan Another Task keeps it waiting and goes back to Discussion.'));foot.append(button('Start Building',approve,true),button('Plan Another Task',another),button('Change…',change));}foot.append(link('Open the Plan',open));return el;
 }
 export function frameCheckIn(row,check,{data={},state={},next,review,stop,preview,undo}={}){
- if(state.continued){row.querySelector('.pw-done__head')?.append(node('span','',` · continued by you · ${time(state.continuedAt)}`));return row;}
- if(check.state==='stopped'){const line=settled(`Stopped after task ${check.number} of ${check.total} · you · ${time(check.when)}`,{action:next,label:'Continue Plan'});row.className=line.className;row.replaceChildren(...line.childNodes);return row;}
+ if(state.continued&&check.next){row.querySelector('.pw-done__head')?.append(node('span','',` · continued by you · ${time(state.continuedAt)}`));return row;}
+ if(check.accepted&&!check.next){const line=settled(`All ${check.total} planned tasks are built · still Implementation`,{action:stop,label:'Back to Discussion'});row.className=line.className;row.replaceChildren(...line.childNodes);return row;}
  row.className='pw-card';row.setAttribute('aria-label',`Task ${check.number} of ${check.total} done${check.verified?'':', not verified'}`);
- const head=node('div','pw-card__head'),body=node('div','pw-card__body'),foot=node('div','pw-card__foot');head.append(glyph(check.verified?'done':'caution'),node('h3','pw-card__title',`Task ${check.number} of ${check.total} done${check.verified?'':', not verified'}: ${check.title||data.title||check.task}`),node('span','',`${data.files?.length||0} files · ${data.time||''}`));
+ const head=node('div','pw-card__head'),body=node('div','pw-card__body'),foot=node('div','pw-card__foot');head.append(glyph(check.verified?'done':'caution'),node('h3','pw-card__title',`Task ${check.number} of ${check.total} done${check.verified?'':', not verified'}: ${check.title||data.title||check.task}`),node('span','','Waiting for you to check it'));
  for(const text of data.person||[])body.append(node('p','pw-done__text',text));
  const facts=node('dl','pw-facts');facts.append(node('dt','',check.verified?'Verified':'Not verified'),node('dd','',check.verification||check.reason||'no passing test run after the last change'),node('dt','','Next'),node('dd','',check.next||'Plan complete.'));body.append(facts);
  const links=node('div','pw-card__links');links.append(link('Show in Preview',preview));if(undo)links.append(link('Undo This Task…',undo));body.append(links);
- foot.append(button('Continue',next,check.verified),button('Review First',review,!check.verified),button('Stop Here',stop));row.replaceChildren(head,body,foot);return row;
+ foot.append(button(check.next?'Accept and Continue':'Accept Task',next,check.verified),button('Review First',review,!check.verified),button('Stop Here',stop));row.replaceChildren(head,body,foot);return row;
 }
 export function awayCard(report,{change,seen,activity}={}){
  const {el,head,body,foot}=card('Ran on its own: report','clock','Report: ran on its own');head.append(node('span','',`${time(report.started)} – ${time(report.ended)} · ${report.outcome||''}`));

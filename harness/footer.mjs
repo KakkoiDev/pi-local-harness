@@ -8,7 +8,7 @@ const WORD = { failed: 'Failed', stopped: 'Stopped', interrupted: 'Interrupted' 
 const inverse = text => `\x1b[7m ${text} \x1b[27m`, dim = text => `\x1b[2m${text}\x1b[22m`;
 
 /** The footer line from the workbench's /api/config and /api/workspace, and the problems already seen. */
-export function footerText({ online = true, config = {}, jobs = [], projects = [], gate = {}, seen = new Set() } = {}) {
+export function footerText({ online = true, config = {}, jobs = [], projects = [], gate = {}, phase, seen = new Set() } = {}) {
   if (!online) return inverse(tr('✗ Workbench not running · /doctor'));
   const model = `${config.model || '?'} · ${tr(config.thinking === false ? 'no thinking' : `${config.effort || 'high'} thinking`)}`;
   const attention = jobs.filter(job => ATTENTION.includes(job.status) && !seen.has(job.id));
@@ -24,7 +24,7 @@ export function footerText({ online = true, config = {}, jobs = [], projects = [
   } else if (waiting) state = tr(`○ ${waiting} waiting`);
   if (config.auto_accept) state+=` · ${tr('Auto')}`;
   const checks = tr(gate.today ? `Gate today ${gate.today}${gate.blocked_today ? ` · ${gate.blocked_today} blocked` : ''}` : 'Gate today 0');
-  return `${dim(model)}  │  ${state}  │  ${dim(`${checks}  │  ${tr(`Phone ${config.phoneUrl ? 'on' : 'off'}`)}`)}`;
+  return `${dim(model)}  │  ${phase?'\x1b[1m'+tr(phase)+'\x1b[22m  │  ':''}${state}  │  ${dim(`${checks}  │  ${tr(`Phone ${config.phoneUrl ? 'on' : 'off'}`)}`)}`;
 }
 
 /** Notification lines for problems not announced yet; `known` remembers them. */
@@ -36,7 +36,7 @@ export function newProblems(jobs, known, projects = []) {
 }
 
 /** Poll the workbench and keep the footer current (interactive terminal Pi only). */
-export function installFooter(pi, { ports, every = 3000, fetchJson = (url) => fetch(url, { signal: AbortSignal.timeout(2500) }).then(response => response.json()), schedule = setInterval } = {}) {
+export function installFooter(pi, { ports, every = 3000, fetchJson = (url) => fetch(url, { signal: AbortSignal.timeout(2500) }).then(response => response.json()), phase=async()=>null, schedule = setInterval } = {}) {
   const seen = new Set(), known = new Set();
   let started = false, timer;
   const refresh = async ctx => {
@@ -44,10 +44,10 @@ export function installFooter(pi, { ports, every = 3000, fetchJson = (url) => fe
     if (!web) return;
     try {
       const [config, workspace] = await Promise.all([fetchJson(`http://127.0.0.1:${web}/api/config`), fetchJson(`http://127.0.0.1:${web}/api/workspace`)]);
-      const jobs = workspace.jobs || [];
+      const jobs = workspace.jobs || [],shared=await phase(ctx);
       if (!started) { jobs.forEach(job => known.add(job.id)); started = true; } // problems from before this session were already there
       for (const line of newProblems(jobs, known, workspace.projects)) ctx.ui.notify(line, 'warning');
-      ctx.ui.setStatus('harness-footer', footerText({ config, jobs, projects: workspace.projects, gate: workspace.gate, seen }));
+      ctx.ui.setStatus('harness-footer', footerText({ config, jobs, projects: workspace.projects, gate: workspace.gate, phase:shared, seen }));
     } catch { ctx.ui.setStatus('harness-footer', footerText({ online: false })); }
   };
   return {

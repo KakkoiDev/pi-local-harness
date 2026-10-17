@@ -173,12 +173,21 @@ class ProposalLedger:
                 target=Path(args['path']).expanduser()
                 root=self.paperwork.project_root((Path(cwd or '.')/target).resolve())
             root=root or (self.paperwork.project_root(cwd) if cwd else None)
-            if root is None and (console_change or pi_tool in ('bash','powershell')):root=Path(cwd or '.').resolve()
+            if root is None and (console_change or pi_tool in ('write','edit','bash','powershell','browser','music','propose_plan')):
+                root=(Path(cwd or '.')/Path(args['path']).expanduser()).resolve().parent if pi_tool in ('write','edit') else Path(cwd or '.').resolve()
         if root:
             from .phases import refusal
             phase = self.paperwork.phases.get(root)['phase']
             task = self.paperwork.active_scope(root)
-            reason = refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            audit=False
+            if pi_tool=='harness' and args.get('command')=='audit' and task:
+                import shlex
+                try:
+                    words=shlex.split(str(args.get('args') or ''))
+                    plan=self.paperwork.plan_state(root);active=plan['tasks'][plan.get('index',0)]
+                    audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
+                except (ValueError,KeyError,IndexError):pass
+            reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
             if reason: return {**refuse('G-015', reason), 'phase': phase}
             if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
@@ -221,12 +230,15 @@ class ProposalLedger:
                                 if match not in hints:hints.append(match)
                         if hints:reason+='\nClosest current text (copy exactly):\n'+'\n---\n'.join(hints[:3])[:6000]
                     return refuse('G-004', reason)
-            root = project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
+            root = self.paperwork.project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
+            if root and not path.exists() and re.search(r'^\s*- \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
             if root and path.is_file():
                 original = path.read_text(errors='replace')
                 shrinks = rules.plan_shrinks(original, content) if pi_tool == 'write' else None
                 if shrinks:
                     return refuse('G-009', f'this write replaces {path.name} and {shrinks}')
+                if re.findall(r'^\s*- \[[ xX~]\].*$',original,re.M)!=re.findall(r'^\s*- \[[ xX~]\].*$',content,re.M):
+                    return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
                 for ticked in rules.newly_ticked(original, content):
                     word = re.match(r'(Red|Green)\b', ticked)
                     if word and word.group(1) == 'Red' and not self.protocol.failed_run(root):

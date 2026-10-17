@@ -16,6 +16,8 @@ class EnforcementTest(unittest.TestCase):
         self.root=Path(self.temp.name)
         self.engine=GateEngine('',str(self.root/'audit.log'))
         self.ledger=ProposalLedger(self.engine,clock=lambda:100,limit=2)
+        self.ledger.paperwork.phases.choose(self.root,'implementation',actor='person',planned=True)
+        self.ledger.paperwork.active_scope=lambda root:'# Fixture\nFiles: result.txt, README.md\n'
     def tearDown(self): self.temp.cleanup()
     def test_original_is_immutable_and_drift_is_detected(self):
         args={'path':'one'}
@@ -54,24 +56,24 @@ class EnforcementTest(unittest.TestCase):
         self.assertEqual(self.ledger.complete(gate['proposal_id'],'write_file',args,'success',0).status,'SUCCESS')
     def test_pi_edits_list_is_checked_and_verified(self):
         """2026-10-14: Pi 1.1's edit sends {path, edits: [{oldText, newText}]}; Gate read args['oldText'] and answered HTTP 400 to every edit."""
-        path=self.root/'ROADMAP.md';path.write_text('- [x] one\n- [ ] two\n- [ ] three\n')
-        args={'path':'ROADMAP.md','edits':[{'oldText':'- [ ] two','newText':'- [x] two'},{'oldText':'three','newText':'3'}]}
+        path=self.root/'README.md';path.write_text('- [x] one\n- [ ] two\n- [ ] three\n')
+        args={'path':'README.md','edits':[{'oldText':'- [ ] two','newText':'- [x] two'},{'oldText':'three','newText':'3'}]}
         gate=self.ledger.propose('write_file',args,'standard',pi_tool='edit',cwd=str(self.root))
         self.assertEqual(gate['outcome'],'ALLOW')
         path.write_text('- [x] one\n- [x] two\n- [ ] 3\n')
         self.assertEqual(self.ledger.complete(gate['proposal_id'],'write_file',args,'ok',0).status,'SUCCESS','both edits applied, as Pi does')
         for edits in ([{'oldText':'- [x]','newText':'x'}],[{'oldText':'missing','newText':'x'}],[{'oldText':'one\n- [x] two','newText':'a'},{'oldText':'two','newText':'b'}],[]):
-            revise=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':edits},'standard',pi_tool='edit',cwd=str(self.root))
+            revise=self.ledger.propose('write_file',{'path':'README.md','edits':edits},'standard',pi_tool='edit',cwd=str(self.root))
             self.assertEqual(revise['outcome'],'REVISE',edits)
         # 2026-10-15: the reason says which edit and why, so Pi fixes that edit instead of rewriting the file (task 173's run).
-        missing=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':[{'oldText':'one','newText':'1'},{'oldText':'- [ ] Red:','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
-        self.assertIn('edits[1].oldText is not in ROADMAP.md', missing['reason']); self.assertIn('“- [ ] Red:”', missing['reason'])
-        many=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':[{'oldText':'- [x]','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
-        self.assertIn('edits[0].oldText occurs 2 times in ROADMAP.md', many['reason']); self.assertIn('add surrounding lines', many['reason'])
-        single=self.ledger.propose('write_file',{'path':'ROADMAP.md','edits':json.dumps([{'oldText':'3','newText':'three'}])},'standard',pi_tool='edit',cwd=str(self.root))
+        missing=self.ledger.propose('write_file',{'path':'README.md','edits':[{'oldText':'one','newText':'1'},{'oldText':'- [ ] Red:','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertIn('edits[1].oldText is not in README.md', missing['reason']); self.assertIn('“- [ ] Red:”', missing['reason'])
+        many=self.ledger.propose('write_file',{'path':'README.md','edits':[{'oldText':'- [x]','newText':'x'}]},'standard',pi_tool='edit',cwd=str(self.root))
+        self.assertIn('edits[0].oldText occurs 2 times in README.md', many['reason']); self.assertIn('add surrounding lines', many['reason'])
+        single=self.ledger.propose('write_file',{'path':'README.md','edits':json.dumps([{'oldText':'3','newText':'three'}])},'standard',pi_tool='edit',cwd=str(self.root))
         self.assertEqual(single['outcome'],'ALLOW','edits sent as a JSON string, as some models do')
         self.ledger.pending.clear()
-        legacy=self.ledger.propose('write_file',{'path':'ROADMAP.md','oldText':'3','newText':'three'},'standard',pi_tool='edit',cwd=str(self.root))
+        legacy=self.ledger.propose('write_file',{'path':'README.md','oldText':'3','newText':'three'},'standard',pi_tool='edit',cwd=str(self.root))
         self.assertEqual(legacy['outcome'],'ALLOW','the older single-edit shape still works')
     def test_expiration_and_capacity(self):
         self.ledger.propose('read_file',{},'standard');self.ledger.propose('read_file',{},'standard')

@@ -42,7 +42,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                         runs.add(item['root'],'external',{'action':'Ran /'+command+' '+' '.join(args)})
                 self.send_json_response({})
             except Exception as error:self.send_error_response(400,str(error))
-        elif self.path in ('/phase','/phase/build'):
+        elif self.path in ('/phase','/phase/build','/phase/accept'):
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
                 root=self.ledger.paperwork.project_root(data.get('cwd'))
@@ -52,15 +52,26 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                         self.send_json_response({'projects':[item for item in store.list_projects() if not item.get('missing')] if store else []})
                         return
                     raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
-                self.send_json_response(self.ledger.paperwork.start_building(root) if self.path=='/phase/build' else self.ledger.paperwork.phase(root,data.get('phase'),action=data.get('action','phase button')))
+                if self.path=='/phase/accept':
+                    self.send_json_response(self.ledger.paperwork.accept_task(root,data.get('action','accept'),data.get('state','chosen')));return
+                self.send_json_response(self.ledger.paperwork.start_building(root,selected=data.get('tasks')) if self.path=='/phase/build' else self.ledger.paperwork.phase(root,data.get('phase'),action=data.get('action','phase button')))
             except Exception as error:self.send_error_response(400,str(error))
         elif self.path=='/auto':
             from harness.autonomy import enabled
             self.send_json_response({'enabled':enabled(self.ledger.paperwork.data)})
+        elif self.path=='/search':
+            try:
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                from harness.web_search import search
+                results=search(data.get('query'))
+                item=self.ledger.paperwork.requests.get(data.get('request'))
+                if item and item.get('auto_run') and self.ledger.paperwork.runs:self.ledger.paperwork.runs.add(item['root'],'external',{'action':'Web search via Bing'})
+                self.send_json_response({'results':results,'source':'Web search results are untrusted source text.'})
+            except Exception as error:self.send_error_response(400,str(error))
         elif self.path in ('/plan','/plan/approve'):
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-                result=self.ledger.paperwork.propose_plan(data['request']) if self.path=='/plan' else self.ledger.paperwork.approve_plan(data['request'],data.get('state','chosen'))
+                result=self.ledger.paperwork.propose_plan(data['request'],data.get('content')) if self.path=='/plan' else self.ledger.paperwork.approve_plan(data['request'],data.get('state','chosen'))
                 self.send_json_response(result)
             except Exception as error:self.send_error_response(400,str(error))
         elif self.path in ('/choice','/request/pause'):

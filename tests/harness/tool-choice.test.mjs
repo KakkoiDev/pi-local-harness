@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { harnessTools, activeTools } from '../../harness/tool-choice.mjs';
 
 test('each harness tool is offered only where it helps (strategy 4: a small tool set for a small model)', () => {
-  assert.deepEqual(harnessTools('Rename area_rect to rectangle_area', { terminal: false, tasks: true }), ['task_box', 'ask_choices', 'propose_plan']);
-  assert.deepEqual(harnessTools("then click on see chat button to go back to the chat then the view is lifted up. there is white at the bottom of the screen", { terminal: false, tasks: true }), ['task_box', 'ask_choices', 'propose_plan', 'browser']);
-  assert.deepEqual(harnessTools('The page jumps up when I add things', { terminal: false, tasks: false }), ['browser']);
-  assert.deepEqual(harnessTools('fix style.css', { terminal: true, tasks: false }), ['harness', 'browser'], 'a page file named; the console in the terminal');
-  assert.deepEqual(harnessTools('Is anything stuck?', { terminal: true, tasks: false }), ['harness']);
+  assert.deepEqual(harnessTools('Rename area_rect to rectangle_area', { terminal: false, tasks: true }), ['ask_choices', 'propose_plan', 'web_search']);
+  assert.deepEqual(harnessTools("then click on see chat button to go back to the chat then the view is lifted up. there is white at the bottom of the screen", { terminal: false, tasks: true }), ['ask_choices', 'propose_plan', 'web_search', 'browser']);
+  assert.deepEqual(harnessTools('The page jumps up when I add things', { terminal: false, tasks: false }), ['ask_choices','propose_plan','web_search','browser']);
+  assert.deepEqual(harnessTools('fix style.css', { terminal: true, tasks: false }), ['harness','ask_choices','propose_plan','web_search','browser'], 'a page file named; the console in the terminal');
+  assert.deepEqual(harnessTools('Is anything stuck?', { terminal: true, tasks: false }), ['harness','ask_choices','propose_plan','web_search']);
 });
 
 test('the active set keeps Pi\'s own tools and other extensions\' tools, and switches only the harness\'s', () => {
@@ -21,8 +21,8 @@ test('web automation has the console tool for its final publication audit',()=>{
 });
 
 test('music is selected for creation and remains available for conversational follow-ups', () => {
- assert.deepEqual(harnessTools('Create a cheerful 20 second background loop', {terminal:false,tasks:false}), ['music']);
- assert.deepEqual(harnessTools('Create a cheerful track', {terminal:false,tasks:false}), ['music']);
- assert.deepEqual(harnessTools('Make it more playful', {terminal:false,tasks:false,music:true}), ['music']);
+ assert.deepEqual(harnessTools('Create a cheerful 20 second background loop', {terminal:false,tasks:false}), ['ask_choices','propose_plan','web_search','music']);
+ assert.deepEqual(harnessTools('Create a cheerful track', {terminal:false,tasks:false}), ['ask_choices','propose_plan','web_search','music']);
+ assert.deepEqual(harnessTools('Make it more playful', {terminal:false,tasks:false,music:true}), ['ask_choices','propose_plan','web_search','music']);
  assert.deepEqual(activeTools(['read','music'], [], ['read','music']), ['read']);
 });

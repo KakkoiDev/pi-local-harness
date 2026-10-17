@@ -8,9 +8,9 @@ When a rule sends an action back, do what its message says; never work around it
 - G-005 Commit order: git commit needs, since the last commit: a failing test run, the change, a passing run on that code, a ticked box in the task and in ROADMAP.md (Markdown-only commits skip the tests).
 - G-006 Runs as approved: The tool that ran must be the one Gate approved, with the same arguments.
 - G-007 Written file matches: After a write or edit, the file on disk must be exactly what Gate approved.
-- G-008 Plan files change through edit or write: ROADMAP.md and tasks/*.md are changed with edit, write or task_box (ticks a box by its label), never by a shell command (redirects, sed -i, tee, scripts), so Gate checks the change.
+- G-008 Plan files change through edit or write: ROADMAP.md and tasks/*.md are changed with edit or write (System 1 owns task layouts and ticks), never by a shell command (redirects, sed -i, tee, scripts), so Gate checks the change.
 - G-009 Plan files keep their content: A write over an existing ROADMAP.md or task file may not drop ticked boxes or more than 5 lines; change it with edit.
-- G-010 Red and Green are ticked after the runs: A task's Red box is ticked only after Gate saw a test run fail, its Green box only when the last test run passed.
+- G-010 Red and Green are ticked after the runs: System 1 lays out and ticks task boxes from recorded evidence. Pi supplies content, never task checkboxes.
 - G-011 A Gate failure blocks only that call: If Gate cannot check a tool call (an error, not a decision) after retries, that call does not run and is reported; the run continues. Never work around Gate with another tool.
 - G-012 Unverified changes are marked: A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.
 - G-013 The harness commits: Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally: a verified change marked done, an unverified one marked "not verified" with its task left open.

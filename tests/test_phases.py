@@ -130,6 +130,19 @@ class PhaseGateTest(unittest.TestCase):
     def propose(self, tool, args, pi_tool=None):
         return self.ledger.propose(tool, args, 'admin', cwd=str(self.root), pi_tool=pi_tool)
 
+    def test_unregistered_folder_still_starts_in_discussion(self):
+        outside=tempfile.TemporaryDirectory();self.addCleanup(outside.cleanup);folder=Path(outside.name)
+        result=self.ledger.propose('write_file',{'path':'app.py','content':'x=1'},'admin',cwd=str(folder),pi_tool='write')
+        self.assertEqual(result.get('phase'),'discussion')
+
+    def test_publication_audit_only_runs_for_its_approved_task_and_project(self):
+        paper=self.ledger.paperwork;task='tasks/002-ready-to-publish.md'
+        (self.root/task).write_text('# 002: Ready to publish\nKind: code\nPlan approved: chosen 2026-10-17\n')
+        paper.plan_state(self.root,{'tasks':[task],'approved':True,'index':0,'digest':paper.plan_digest(self.root,[task])})
+        paper.phases.choose(self.root,'implementation',actor='person',planned=True)
+        self.assertEqual(self.propose('read_file',{'command':'audit','args':''},'harness')['outcome'],'ALLOW')
+        self.assertEqual(self.propose('read_file',{'command':'audit','args':str(self.root.parent)},'harness')['rule'],'G-015')
+
     def test_G015_is_checked_again_immediately_after_a_phase_change(self):
         first = self.propose('write_file', {'path': 'app.py', 'content': 'x=1\n'}, 'write')
         self.assertEqual(first.get('phase'), 'discussion')
@@ -292,3 +305,80 @@ class RegisteredPhaseTest(unittest.TestCase):
         result=self.ledger.propose('execute_command',{'command':'touch '+str(self.root/'app.py')},'admin',pi_tool='bash',cwd=str(self.home))
         self.assertEqual(result.get('phase'),'discussion')
         self.assertEqual(result.get('rule'),'G-015')
+
+
+class Round11LifecycleTest(unittest.TestCase):
+    def setUp(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name).resolve();(self.root/'tasks').mkdir();(self.root/'ROADMAP.md').write_text('# Plan\n## Goal\nCount.\n')
+        self.tasks=['tasks/001.md','tasks/002.md']
+        for path in self.tasks:(self.root/path).write_text('# Count\nKind: code\nFiles: app.py\n- [ ] Works\nDone when: Counts.\n')
+        self.paper=Paperwork(Protocol());self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.plan_state(self.root,{'tasks':self.tasks,'pending':True,'digest':self.paper.plan_digest(self.root,self.tasks)})
+
+    def test_text_yes_never_approves_or_accepts(self):
+        self.paper.start('yes',str(self.root),'yes')
+        self.assertTrue(self.paper.plan_state(self.root)['pending'])
+        self.assertEqual(self.paper.phases.get(self.root)['phase'],'planning')
+
+    def test_review_selection_keeps_unchecked_tasks_waiting_and_last_acceptance_is_explicit(self):
+        self.paper.start_building(self.root,selected=[self.tasks[1]])
+        plan=self.paper.plan_state(self.root)
+        self.assertEqual(plan['tasks'],[self.tasks[1]])
+        self.assertEqual(plan['waiting'],[self.tasks[0]])
+        self.assertFalse(self.paper.phase(self.root)['pending'])
+        self.assertNotIn('Plan approved:',(self.root/self.tasks[0]).read_text())
+        plan.update(check_in=True,verified=True);self.paper.plan_state(self.root,plan)
+        self.paper.accept_task(self.root,action='stop')
+        self.assertTrue(self.paper.plan_state(self.root)['check_in'])
+        self.assertFalse(self.paper.plan_state(self.root)['finished'])
+        result=self.paper.accept_task(self.root)
+        self.assertTrue(result['finished'])
+        self.assertEqual(self.paper.phases.get(self.root)['phase'],'implementation')
+        self.paper.phase(self.root,'discussion')
+        self.assertEqual([task['path'] for task in self.paper.phase(self.root)['tasks']],[self.tasks[0]])
+
+    def test_empty_or_foreign_selection_cannot_approve(self):
+        for selected in [[],['tasks/outside.md']]:
+            with self.assertRaises(ValueError):self.paper.start_building(self.root,selected=selected)
+        self.assertTrue(self.paper.plan_state(self.root)['pending'])
+
+    def test_only_the_person_can_accept_an_unverified_task_without_changing_its_evidence(self):
+        self.paper.start_building(self.root)
+        plan=self.paper.plan_state(self.root);plan.update(check_in=True,verified=False);self.paper.plan_state(self.root,plan)
+        with self.assertRaises(ValueError):self.paper.accept_task(self.root,state='auto')
+        self.paper.accept_task(self.root)
+        self.assertFalse(self.paper.plan_state(self.root)['verified'])
+
+    def test_system_one_lays_out_tasks_from_content_and_ignores_model_tick_claims(self):
+        self.paper.start('layout',str(self.root),'Plan a counter')
+        value=self.paper.propose_plan('layout',{'goal':'A counter','tasks':[{'title':'Count clicks','kind':'code','files':['app.py','tests/'],'done_when':'A click increments the count.','content':'Check a click. Implement the handler.'}]})
+        text=(self.root/value['tasks'][0]['path']).read_text()
+        self.assertIn('- [ ] Red:',text);self.assertIn('- [ ] Green:',text)
+        self.assertIn('Files: app.py, tests/',text)
+
+    def test_music_reads_and_scoped_outputs_obey_phase(self):
+        from gate.phases import refusal
+        args={'action':'create','name':'robot'}
+        self.assertIsNone(refusal('discussion',self.root,'write_file',{'action':'template'},cwd=str(self.root),pi_tool='music'))
+        self.assertIsNotNone(refusal('discussion',self.root,'write_file',args,cwd=str(self.root),pi_tool='music'))
+        self.assertIsNone(refusal('implementation',self.root,'write_file',args,cwd=str(self.root),pi_tool='music',task='Files: assets/music/robot/\n',approved=True))
+        self.assertIsNotNone(refusal('implementation',self.root,'write_file',args,cwd=str(self.root),pi_tool='music',task='Files: app.py\n',approved=True))
+
+    def test_model_cannot_tick_task_boxes_even_inside_planning(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        ledger=ProposalLedger(GateEngine('','/dev/null'))
+        ledger.paperwork=self.paper
+        path=self.root/self.tasks[0]
+        result=ledger.propose('write_file',{'path':str(path),'oldText':'- [ ] Works','newText':'- [x] Works'},'admin',pi_tool='edit',cwd=str(self.root))
+        self.assertEqual(result.get('rule'),'G-010')
+
+    def test_model_cannot_create_its_own_task_layout(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        ledger=ProposalLedger(GateEngine('','/dev/null'));ledger.paperwork=self.paper
+        result=ledger.propose('write_file',{'path':str(self.root/'tasks/003.md'),'content':'# Pretend\n- [x] I judged this done\n'},'admin',pi_tool='write',cwd=str(self.root))
+        self.assertEqual(result.get('rule'),'G-010')

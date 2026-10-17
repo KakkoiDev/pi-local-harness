@@ -325,7 +325,7 @@ class PendingChoiceBridgeTest(unittest.TestCase):
             conversation=chat.store.create();events=[]
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],{'message':'TEST_PLAN'},events.append)
             saved=chat.store.get(conversation['id'])['messages'][-1]
-            self.assertIn('Approve Plan?',saved['content']);self.assertTrue(saved['plan']['pending'])
+            self.assertIn('Start Building?',saved['content']);self.assertTrue(saved['plan']['pending'])
             self.assertTrue(any(event['type']=='plan' for event in events));self.assertEqual(events[-1]['type'],'done')
 
 

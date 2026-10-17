@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {installPlanning} from '../../harness/planning.mjs';
 
 const plan={goal:'Pong',tasks:[{title:'Ball',done_when:'Bounces'}],pending:true};
-for (const [mode,pick,expected] of [['terminal','Approve Plan','chosen'],['terminal','Change…',null],['web',null,null],['auto',null,'auto']]) {
+for (const [mode,pick,expected] of [['terminal','Start Building','chosen'],['terminal','Change…',null],['web',null,null],['auto',null,'auto']]) {
   test(`plan approval: ${mode} ${pick || ''}`,async()=>{
     let tool,approved=null,paused=false;
     installPlanning({registerTool:value=>tool=value},{propose:async()=>plan,approve:async state=>approved=state,pending:async()=>paused=true,cancel:async()=>paused=true,web:()=>mode==='web',auto:()=>mode==='auto'});
@@ -25,6 +25,6 @@ test('Open ROADMAP.md shows the actual source and returns to approval',async()=>
  const dir=mkdtempSync(join(tmpdir(),'plh-plan-open-'));writeFileSync(join(dir,'ROADMAP.md'),'# Actual Roadmap\nThe person’s text.');
  let tool,count=0,approved=false;const shown=[];
  installPlanning({registerTool:value=>tool=value},{propose:async()=>({...plan,root:dir}),approve:async()=>approved=true,cancel:async()=>{}});
- try {await tool.execute('open',{},null,null,{ui:{select:async(title)=>{shown.push(title);return ++count===1?'Open ROADMAP.md':count===2?'Back':'Approve Plan';}}});assert.match(shown[1],/The person’s text/);assert.equal(approved,true);}
+ try {await tool.execute('open',{},null,null,{ui:{select:async(title)=>{shown.push(title);return ++count===1?'Open ROADMAP.md':count===2?'Back':'Start Building';}}});assert.match(shown[1],/The person’s text/);assert.equal(approved,true);}
  finally{rmSync(dir,{recursive:true,force:true});}
 });

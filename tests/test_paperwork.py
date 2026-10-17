@@ -274,7 +274,8 @@ class PlanLifecycleTest(PaperworkTest):
         self.paper.start('changed',str(self.root),'yes but change the colour')
         self.assertFalse(self.paper.plan_status('changed')['approved'])
         self.paper.pause('changed')
-        self.paper.start('approved',str(self.root),'yes')
+        self.paper.start_building(self.root)
+        self.paper.start('approved',str(self.root),'Build the approved task.')
         status=self.paper.plan_status('approved')
         self.assertTrue(status['approved']);self.assertEqual(status['task'],'tasks/002-add-the-badge.md')
         self.assertIn('Plan approved: chosen',(self.root/status['task']).read_text())
@@ -286,7 +287,8 @@ class PlanLifecycleTest(PaperworkTest):
         (self.root/'tasks/003-next.md').write_text('# 003: Next\n\n- [ ] Next step\n\nDone when: Next works.\n')
         git(self.root,'add','.');git(self.root,'-c','user.name=t','-c','user.email=t@t','commit','-qm','More tasks')
         self.paper.start('plan',str(self.root),'Add the badge');self.paper.propose_plan('plan');self.paper.pause('plan')
-        self.paper.start('r',str(self.root),'go')
+        self.paper.start_building(self.root)
+        self.paper.start('r',str(self.root),'Build the approved task.')
         (self.root/'app.py').write_text('x=7\n');self.paper.observe('r')
         for passed in [False,True]:
             self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('r','python3 -m unittest',passed)
@@ -295,7 +297,8 @@ class PlanLifecycleTest(PaperworkTest):
         self.assertEqual(result['check_in']['next'],'tasks/003-next.md')
         self.assertIn('- [x] Show the count',(self.root/'tasks/002-add-the-badge.md').read_text())
         self.assertIn('- [x] [002-',roadmap.read_text())
-        self.paper.start('next',str(self.root),'ok')
+        self.paper.accept_task(self.root)
+        self.paper.start('next',str(self.root),'Continue the approved task.')
         self.assertEqual(self.paper.requests['next']['task'],'tasks/003-next.md')
         self.assertTrue(self.paper.plan_status('next')['approved'])
 
@@ -343,7 +346,8 @@ class PlanLifecycleTest(PaperworkTest):
             self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('plan','python3 -m unittest',passed)
         first=self.paper.end('plan');self.assertNotIn('report',first)
         self.assertTrue(first['check_in']['next'].endswith('-ready-to-publish.md'))
-        self.paper.start('audit',str(self.root),'yes');task=self.root/self.paper.requests['audit']['task']
+        self.paper.accept_task(self.root,state='auto')
+        self.paper.start('audit',str(self.root),'Continue the approved task.');task=self.root/self.paper.requests['audit']['task']
         # The audit runner, tested separately, ticks these only after its actual commands pass.
         task.write_text(task.read_text().replace('- [ ]','- [x]'))
         from unittest.mock import patch
@@ -353,6 +357,7 @@ class PlanLifecycleTest(PaperworkTest):
         self.assertEqual(report['counts']['decisions'],2)
         self.assertTrue(all(item['verified'] for item in report['done']))
         self.assertEqual(RunReports(self.data.name).latest()['id'],report['id'])
+        self.paper.accept_task(self.root,state='auto')
         self.paper.start('fix',str(self.root),'Fix the label')
         self.assertIsNone(self.paper.requests['fix']['task']);self.assertFalse(self.paper.plan_status('fix')['required'])
 

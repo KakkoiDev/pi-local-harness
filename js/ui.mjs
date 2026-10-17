@@ -1,3 +1,4 @@
+import {phaseGlyph} from './phases.mjs';
 import { icon, stateGlyph } from '../design/icons.mjs';
 export { icon, hydrateIcons, stateGlyph } from '../design/icons.mjs';
 // ToolCall (design/system/components/ToolCall): the command, then Gate's decision and audit verdicts for it.
@@ -11,6 +12,7 @@ export function toolCard(tool,{live=false,showEvent}={}){
  const last=audit||gate;if(last&&showEvent){const link=document.createElement('a');link.href='#';link.textContent='Show in Gate';link.onclick=event=>{event.preventDefault();showEvent(last.event);};checks.append(link);}
  card.append(checks);
  if(gate&&gate.outcome!=='ALLOW'){const reason=document.createElement('p');reason.className='pw-tool__reason';reason.append(icon('caution'),gate.reason||'');card.append(reason);}
+ if(gate&&/G-015/.test(gate.reason||'')){const phase=/in Discussion/.test(gate.reason)?'Discussion':/in Planning/.test(gate.reason)?'Planning':'Implementation',line=document.createElement('div'),change=document.createElement('button'),why=document.createElement('details'),summary=document.createElement('summary'),text=document.createElement('p');line.className='pw-tool__checks';const label=document.createElement('span');label.textContent='Not in this phase';line.append('■ ',label,' · ',phaseGlyph(phase.toLowerCase()),' '+phase);change.className='pw-btn';change.type='button';change.textContent='Change Phase…';change.onclick=()=>document.dispatchEvent(new CustomEvent('change-phase'));summary.textContent='Why?';text.textContent=phase==='Discussion'?'Pi reads, talks and searches the web. No file changes.':phase==='Planning'?'Pi writes the plan: ROADMAP.md and tasks/ only. Code can’t change.':'Pi changes the files of the task in progress.';why.className='pw-why';why.append(summary,text);line.append(change,why);card.append(line);}
  return card;}
 // SegmentedControl filter on phone for a desk <select>: a radio sets the select and fires change; the returned sync() shows the select's value.
 export function segmentFor(seg,select){

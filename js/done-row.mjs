@@ -42,7 +42,7 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed,
     }
     const ui = undoRow && !redoRow ? words.length : unverified && !data.plan_incomplete ? 1 : 0;  // the harness's own sentences are translated; Pi's plain words are not
     row.replaceChildren(head, ...words.map((line, index) => { const paragraph = node('p', 'pw-done__text', line); if (index >= words.length - ui || data.plan_incomplete && index === 0) paragraph.dataset.ui = ''; return paragraph; }), actions);
-    if(checkIn?.next)frameCheckIn(row,checkIn,{data,state:checkState,...checkActions,undo:()=>run(data,'undo')});
+    if(checkIn)frameCheckIn(row,checkIn,{data,state:checkState,...checkActions,undo:()=>run(data,'undo')});
   };
   const load = async () => {
     try { if (!cache.has(commit)) cache.set(commit, await api('/api/undo', { project, commit, preview: true })); fill(cache.get(commit)); }

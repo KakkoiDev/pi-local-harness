@@ -595,7 +595,7 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
-            if pending_plan and not pending_plan.get('approved'):reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nApprove Plan?'
+            if pending_plan and not pending_plan.get('approved'):reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nStart Building?'
             if pending_choice:reply=pending_choice['question']
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
@@ -739,6 +739,32 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if path=='/api/phase/build':
+                root=self.chat.documents.project_path(data['project'])
+                result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
+                conversation=self.chat.project_chat(data['project'])
+                for message in reversed(conversation['messages']):
+                    if message.get('plan'):
+                        message['plan'].update(approved=True,waiting=False);break
+                self.chat.store.save(conversation);self.reply(result);return
+            action=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/(accept|stop)',path)
+            if action:
+                conversation=self.chat.store.get(action[1]);index=data.get('index')
+                if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(conversation['messages']):raise ValueError('Check-in not found.')
+                check=conversation['messages'][index].get('check_in')
+                if not check:raise ValueError('Check-in not found.')
+                root=self.chat.documents.project_path(conversation['project'])
+                plan=self.chat.ledger.paperwork.plan_state(root)
+                if not plan.get('tasks') or check['task']!=plan['tasks'][plan.get('index',0)]:raise ValueError('This check-in is no longer current.')
+                result=self.chat.ledger.paperwork.accept_task(root,action='accept' if action[2]=='accept' else 'stop')
+                check.update(accepted=action[2]=='accept',state='accepted' if action[2]=='accept' else 'stopped',when=timestamp())
+                self.reply({'conversation':self.chat.store.save(conversation),**result});return
+            if path=='/api/plan/wait':
+                root=self.chat.documents.project_path(data['project']);self.chat.ledger.paperwork.phase(root,'discussion',action='Plan Another Task')
+                conversation=self.chat.project_chat(data['project'])
+                for message in reversed(conversation['messages']):
+                    if message.get('plan'):message['plan']['waiting']=True;break
+                self.reply(self.chat.store.save(conversation));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':
@@ -749,8 +775,6 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/auto':
                 from harness.autonomy import set_enabled
                 self.reply(set_enabled(self.chat.documents.root,data.get('enabled'),confirmed=data.get('confirmed') is True));return
-            stopped=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/stop',path)
-            if stopped:self.reply(self.chat.store.stop_check_in(stopped[1],data.get('index')));return
             if path=='/api/reports/seen':
                 from harness.autonomy import RunReports
                 self.reply(RunReports(self.chat.documents.root).mark_seen(data.get('id')));return

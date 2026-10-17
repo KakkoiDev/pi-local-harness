@@ -180,7 +180,7 @@ class Paperwork:
         if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
         with self.lock:
             plan=self.plan_state(root)
-            paths=plan.get('tasks',[]) if not plan.get('finished') else []
+            paths=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if phase=='implementation':
                 if not paths:raise ValueError('No planned task yet. Plan one first.')
                 if plan.get('pending') or not self.active_scope(root):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
@@ -191,20 +191,43 @@ class Paperwork:
                 if not file.resolve().is_relative_to(root) or file.is_symlink():raise ValueError('The plan links outside this project.')
                 text=file.read_text(encoding='utf-8');title=re.search(r'^# (?:\d+: )?(.+)',text,re.M);done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 tasks.append({'path':path,'title':title[1] if title else path,'done_when':done[1] if done else ''})
-            return {**value,'tasks':tasks,'pending':bool(plan.get('pending'))}
+            return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished'))}
 
-    def start_building(self, root):
+    def start_building(self, root, selected=None):
         """Explicit Start Building confirmation, separate from choosing a phase."""
         import uuid
         root=Path(root).resolve()
         if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
         with self.lock:
-            if not self.plan_state(root).get('pending'):return self.phase(root,'implementation',action='Start Building')
+            plan=self.plan_state(root)
+            if not plan.get('pending') and not plan.get('finished'):return self.phase(root,'implementation',action='Start Building')
+            available=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
+            if selected is None:selected=available
+            if not isinstance(selected,list) or not selected or len(set(selected))!=len(selected) or any(path not in available for path in selected):raise ValueError('Choose at least one task from the waiting plan.')
+            if plan.get('pending') and plan.get('digest')!=self.plan_digest(root,plan['tasks']):raise ValueError('The plan changed. Propose it again before approval.')
+            selected=[path for path in available if path in selected]
+            plan.update(tasks=selected,waiting=[path for path in available if path not in selected],pending=True,digest=self.plan_digest(root,selected))
+            self.plan_state(root,plan)
             request='build-'+uuid.uuid4().hex
             self.requests[request]={'root':root,'text':'Start Building','before':{},'task':None}
             try:self.approve_plan(request)
             finally:self.requests.pop(request,None)
             return self.phase(root)
+
+    def accept_task(self, root, action='accept', state='chosen'):
+        if action not in ('accept','stop') or state not in ('chosen','auto'):raise ValueError('Unknown check-in action.')
+        root=Path(root).resolve()
+        with self.lock:
+            plan=self.plan_state(root)
+            if not plan.get('check_in'):raise ValueError('No task is waiting for validation.')
+            if action=='stop':return {'finished':False,'stopped':True}
+            if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
+            if self.phases.get(root)['phase']!='implementation':raise ValueError('Choose Implementation to accept this task.')
+            index=plan.get('index',0)+1
+            finished=index>=len(plan['tasks'])
+            plan.update(check_in=False,finished=finished,accepted=state,index=plan.get('index',0) if finished else index)
+            self.plan_state(root,plan)
+            return {'finished':finished,'next':None if finished else plan['tasks'][index],'total':len(plan['tasks'])}
 
     def active_scope(self, root):
         """Only the saved, unchanged approved task grants write permission; request wording cannot pick another."""
@@ -251,12 +274,38 @@ class Paperwork:
         approved=self.plan_status_for_item(item)
         return {'required':required or bool(state.get('pending') or state.get('check_in') or task in state.get('tasks',[])), 'approved':approved,'task':task}
 
-    def propose_plan(self, request):
+    def propose_plan(self, request, content=None):
         """Preview the actual Markdown plan; the model cannot approve its own proposal."""
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this plan.')
             root=item['root']
+            if content:
+                clean=lambda value:" ".join(str(value).split())
+                if self.phases.get(root)['phase']!='planning':raise ValueError('Choose Planning to lay out tasks.')
+                goal=content.get('goal');values=content.get('tasks')
+                if not isinstance(goal,str) or not goal.strip() or not isinstance(values,list) or not values:raise ValueError('Provide a goal and task content.')
+                prepared=[]
+                for task in values:
+                    if not isinstance(task,dict) or task.get('kind','code') not in ('code','docs','chore'):raise ValueError('Choose code, docs or chore for the task kind.')
+                    if any(not isinstance(task.get(key),str) or not task[key].strip() for key in ('title','done_when','content')):raise ValueError('Each task needs a title, Done when and content.')
+                    files=task.get('files')
+                    if not isinstance(files,list) or not files or any(not isinstance(path,str) or not path or Path(path).is_absolute() or '..' in Path(path).parts or '\n' in path or ',' in path for path in files):raise ValueError('Each task needs project-relative files.')
+                    if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
+                    prepared.append(task)
+                if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
+                (root/'tasks').mkdir(exist_ok=True)
+                roadmap=root/'ROADMAP.md';text=roadmap.read_text() if roadmap.exists() else '# Roadmap\n'
+                match=re.search(r'^## Goal\s*\n.*?(?=^## |\Z)',text,re.M|re.S)
+                goal_text='## Goal\n\n'+goal.strip()+'\n\n'
+                text=text[:match.start()]+goal_text+text[match.end():] if match else text.rstrip()+'\n\n'+goal_text
+                number=max([int(m[1]) for path in (root/'tasks').glob('*.md') if (m:=re.match(r'^(\d+)',path.name))]+[0])+1
+                for task in prepared:
+                    path=f'tasks/{number:03d}-'+re.sub(r'[^a-z0-9]+','-',task['title'].lower()).strip('-')[:48]+'.md'
+                    steps='- [ ] Red: a test fails for this change.\n- [ ] Green: the test passes with this change.\n' if task.get('kind','code')=='code' else '- [ ] Verify the change.\n'
+                    (root/path).write_text(f"# {number:03d}: {clean(task['title'])}\n\nKind: {task.get('kind','code')}\nFiles: {', '.join(task['files'])}\n\nDone when: {clean(task['done_when'])}\n\n{task['content'].strip()}\n\n{steps}\n## Decisions\n\n",encoding='utf-8')
+                    text+=f"- [ ] [{number:03d}-{clean(task['title'])}]({path})\n";number+=1
+                roadmap.write_text(text,encoding='utf-8')
             from kit.publish_audit import ensure_task
             ensure_task(root,reset=True)
             gaps=rules.plan_gaps(root)
@@ -324,17 +373,9 @@ class Paperwork:
             from .planning import approval
             plan=self.plan_state(root)
             from .planning import FEATURE, PLAN
-            item['new_plan']=bool(FEATURE.search(item['text']) or PLAN.search(item['text']))
+            item['new_plan']=bool(self.phases.get(root)['phase']=='planning' and (FEATURE.search(item['text']) or PLAN.search(item['text'])))
             if plan.get('approved') and not plan.get('finished') and not plan.get('check_in') and not item['new_plan'] and not item['task']:
                 item['task']=plan['tasks'][plan.get('index',0)]
-            if plan.get('pending') and approval(item['text']):
-                item['before']={path:value for path,value in before.items() if not plan_path(path)}
-                item['before'].update({path:value for path,value in plan.get('before',{}).items() if plan_path(path)})
-                self.approve_plan(request)
-            elif plan.get('approved') and plan.get('check_in') and approval(item['text']):
-                index=plan.get('index',0)+1
-                if index<len(plan['tasks']):
-                    item['task']=plan['tasks'][index];plan.update(index=index,check_in=False);self.plan_state(root,plan)
             waiting=self.waiting_choice(root)
             prefix=f"Choice: {waiting['question']} → " if waiting else ''
             if waiting and item['text'].startswith(prefix) and item['text'][len(prefix):].strip():
@@ -393,6 +434,7 @@ class Paperwork:
             if item and result and result.get('outcome')=='not verified':
                 plan=self.plan_state(item['root'])
                 if item.get('task') in plan.get('tasks',[]):
+                    plan.update(check_in=True,verified=False);self.plan_state(item['root'],plan)
                     result['check_in']={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks'])}
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
                 from harness.autonomy import enabled
@@ -463,8 +505,8 @@ class Paperwork:
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
-                plan.update(index=index,check_in=bool(next_task),finished=not bool(next_task));self.plan_state(root,plan)
-                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Continue?' if next_task else 'Plan complete.'}
+                plan.update(index=index,check_in=True,finished=False,verified=True);self.plan_state(root,plan)
+                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task'}
             return result
 
     def sample_cleanup(self, item):

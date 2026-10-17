@@ -19,6 +19,7 @@ const cut = (text, width) => (text.length <= width ? text : `${text.slice(0, Mat
 function glyph(check, tool) {
   if (!check) return '▶';
   if (tool !== 'bash' && check.gate === 'allowed' && check.ok === true && !check.drift) return '✓'; // T_Gate (round 7): a finished read or edit
+  if(check.phase)return [`  ■ ${tr('Not in this phase')} · ${tr(check.phase[0].toUpperCase()+check.phase.slice(1))}`,`  ${check.reason}`,`  ${dim(check.phase==='discussion'?'/plan':check.phase==='planning'?'/build':'/plan · /build')}`];
   if (check.gate === 'revise') return '!';
   if (check.gate !== 'allowed' || check.drift || check.ok === false) return '✗';
   return '▶';

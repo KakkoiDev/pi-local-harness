@@ -70,17 +70,29 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.match(row[0],/^  ✓ Gate allowed · ✗ exit 2 · 0:0\d$/,'round 6: the tool row reads what Gate and the command said');
   assert.doesNotMatch(JSON.stringify(exited),/EXECUTION_FAILED|Gate audit failed/);assert.equal(notices.length,noticesBefore,'no alarm for an ordinary failure');
   // 2026-10-14: Gate's own error reaches Pi (it read only "Gate HTTP 400" and worked around Gate), and Pi 1.1's edits list passes.
-  const missing=await handlers.tool_call({toolCallId:'edit-missing',toolName:'edit',input:{path:join(dir,'nowhere.md'),edits:[{oldText:'a',newText:'b'}]}});
+  const editDir=join(dir,'edit-checks');mkdirSync(editDir);
+  mkdirSync(join(editDir,'tasks'),{recursive:true});writeFileSync(join(editDir,'ROADMAP.md'),'# Checks\n\n## Goal\nVerify file edits.\n\n- [ ] [Checks](tasks/001-checks.md)\n');
+  writeFileSync(join(editDir,'tasks/001-checks.md'),'# 001: Checks\nKind: code\nFiles: nowhere.md, plan.md\nDone when: File edits are checked.\n- [ ] Check edits\n');
+  await commands.plan.handler('',{...ctx,cwd:editDir});
+  execFileSync('python3',['-c',`from pathlib import Path
+from gate.paperwork import Paperwork
+from gate.protocol import Protocol
+import sys
+root=Path(sys.argv[1]);paper=Paperwork(Protocol(),data=Path(sys.argv[2]));tasks=['tasks/001-checks.md']
+paper.plan_state(root,{'tasks':tasks,'pending':True,'digest':paper.plan_digest(root,tasks)})
+`,editDir,join(dir,'workspace')]);
+  await commands.build.handler('',{...ctx,cwd:editDir});
+  const missing=await handlers.tool_call({toolCallId:'edit-missing',toolName:'edit',input:{path:join(editDir,'nowhere.md'),edits:[{oldText:'a',newText:'b'}]}});
   assert.equal(missing.block,true);assert.match(missing.reason,/G-004 .*use write to create it/,'a missing file is a decision, not a Gate failure');
   // G-011 (plan 184): when Gate itself fails, that call is blocked and reported; the run continues (no babysitting).
-  const broken=await handlers.tool_call({toolCallId:'edit-broken',toolName:'edit',input:{edits:[{oldText:'a',newText:'b'}]}});
+  const broken=await handlers.tool_call({toolCallId:'edit-broken',toolName:'edit',input:null});
   assert.equal(broken.block,true);assert.match(broken.reason,/^G-011 .*Gate HTTP 400.*continue/);assert.notEqual(order.at(-1),'abort','the turn goes on');
   assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Gate could not check a tool call.');
   assert.match(readFileSync(join(dir,'workspace','reports.jsonl'),'utf8'),/"kind":"gate-failed"/,'reported for the analysis');
-  writeFileSync(join(dir,'plan.md'),'- [ ] two\n');
-  assert.equal(await handlers.tool_call({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]}}),undefined,'the edit is allowed');
-  writeFileSync(join(dir,'plan.md'),'- [x] two\n');
-  assert.equal(await handlers.tool_result({toolCallId:'edit-list',toolName:'edit',input:{path:join(dir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]},content:[],isError:false}),undefined,'and verified');
+  writeFileSync(join(editDir,'plan.md'),'- [ ] two\n');
+  assert.equal(await handlers.tool_call({toolCallId:'edit-list',toolName:'edit',input:{path:join(editDir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]}}),undefined,'the edit is allowed');
+  writeFileSync(join(editDir,'plan.md'),'- [x] two\n');
+  assert.equal(await handlers.tool_result({toolCallId:'edit-list',toolName:'edit',input:{path:join(editDir,'plan.md'),edits:[{oldText:'- [ ] two',newText:'- [x] two'}]},content:[],isError:false}),undefined,'and verified');
   const drift={toolCallId:'bash-drift',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(drift),undefined);
   const rejected=await handlers.tool_result({...drift,input:{command:'env'},content:[],isError:false});
@@ -126,20 +138,15 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped a hang.','round 6: the harness says it in a sentence');assert.equal(notices.some(text=>/Harness recovery/.test(text)),false);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: hang/);
   // Protocol gate: a commit without red/green/task/roadmap evidence is revised, not treated as destructive.
-  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# App\n## Goal\nShow a greeting.\n- [ ] [01](tasks/01.md)\n');writeFileSync(join(dir,'tasks','01.md'),'# 01: Greeting\nFiles: hello.py, broken.py, app.py\n- [ ] Do\n- [ ] Verify\nDone when: The greeting works.\n');
+  mkdirSync(join(dir,'tasks'),{recursive:true});writeFileSync(join(dir,'ROADMAP.md'),'# App\n## Goal\nShow a greeting.\n- [ ] [01](tasks/01.md)\n');writeFileSync(join(dir,'tasks','01.md'),'# 01: Greeting\nFiles: hello.py, broken.py, app.py\n- [ ] Do\n- [ ] Verify\nDone when: The greeting works.\n');
   ctx.cwd=dir;await commands.plan.handler('',ctx);
   execFileSync('git',['init','-q',dir]);writeFileSync(join(dir,'app.py'),'x = 1\n');
   const commit=await handlers.tool_call({toolCallId:'commit',toolName:'bash',input:{command:'git commit -qam work'}});
   assert.equal(commit.block,true);
   assert.match(commit.reason,/Gate pre-execution REVISE/);assert.match(commit.reason,/Missing: a failing \(red\) test/);
   assert.match(commit.reason,/then retry/);assert.doesNotMatch(commit.reason,/destructive/);
-  // task_box (task 183, L-003): a box is ticked by the start of its label; Gate checks it as the exact edit it becomes.
-  const box={toolCallId:'box-1',toolName:'task_box',input:{path:'tasks/01.md',box:'do'}};
-  assert.equal(await handlers.tool_call(box),undefined,'allowed as an edit of that one line');
-  writeFileSync(join(dir,'tasks','01.md'),readFileSync(join(dir,'tasks','01.md'),'utf8').replace('- [ ] Do','- [x] Do'));
-  assert.equal(await handlers.tool_result({...box,content:[{type:'text',text:'Ticked'}],isError:false}),undefined,'and verified: the file is what Gate approved');
-  const vague=await handlers.tool_call({toolCallId:'box-2',toolName:'task_box',input:{path:'tasks/01.md',box:'Nothing'}});
-  assert.equal(vague.block,true);assert.match(vague.reason,/No open box starts with “Nothing”/);
+  const box=await handlers.tool_call({toolCallId:'box-1',toolName:'task_box',input:{path:'tasks/01.md',box:'do'}});
+  assert.equal(box.block,true);assert.match(box.reason,/System 1 ticks task boxes/);
   // Plan 184: the first change gives the request its task, made by the harness; Pi reads where it is.
   await handlers.input({source:'interactive',text:'Fix a greeting'},ctx);
   await tools.propose_plan.execute('fixture-plan',{},null,null,ctx);
@@ -308,7 +315,7 @@ test('the same failing call again and again stops the turn and Pi is asked to ch
 test('each request gets only the harness tools it needs (strategy 4)', async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-tools-'));const saved={...process.env};
  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_WEB_PORT:'3999'});
- mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# R\n');
+ mkdirSync(join(dir,'tasks'),{recursive:true});writeFileSync(join(dir,'ROADMAP.md'),'# R\n');
  const handlers={};let active=['read','bash','edit','write','harness','task_box','browser'];
  const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},registerTool(){},registerCommand(){},sendUserMessage(){},
   getActiveTools:()=>active,setActiveTools:names=>{active=names;},getAllTools:()=>['read','bash','edit','write','harness','task_box','browser'].map(name=>({name}))};
@@ -317,9 +324,9 @@ test('each request gets only the harness tools it needs (strategy 4)', async () 
   const ctx={ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir};
   await handlers.session_start({},ctx);
   await handlers.input({source:'rpc',text:'Rename area_rect to rectangle_area'},ctx);
-  assert.deepEqual(active,['read','bash','edit','write','task_box'],'a web request about code: no console, no browser');
+  assert.deepEqual(active,['read','bash','edit','write'],'a web request about code: no console, no browser');
   await handlers.input({source:'rpc',text:'the page lifts and leaves white at the bottom'},ctx);
-  assert.deepEqual(active,['read','bash','edit','write','task_box','browser']);
+  assert.deepEqual(active,['read','bash','edit','write','browser']);
   // Strategy 5: the request's guide joins the prompt for this request only, and is reported.
   assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Guides for this request:[\s\S]*observe it before reading code/);
   await handlers.input({source:'rpc',text:'Write a README'},ctx);
@@ -409,7 +416,7 @@ test('ask_choices records a terminal answer and clears the assumption Gate quote
   const dir=mkdtempSync(join(tmpdir(),'pi-choices-')),handlers={},tools={},commands={};
   const keys=['PI_AGENT_DATA','PI_GATE_PORT','PI_WEB_PORT','PI_TAILSCALE','PI_OLLAMA_URL'];const before=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
   Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_GATE_PORT:'0',PI_WEB_PORT:'0',PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9'});
-  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# App\n## Goal\nBuild an app.\n- [ ] [App](tasks/001-app.md)\n');writeFileSync(join(dir,'tasks/001-app.md'),'# App\nFiles: app.py\n- [ ] Build\nDone when: It works.\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+  mkdirSync(join(dir,'tasks'),{recursive:true});writeFileSync(join(dir,'ROADMAP.md'),'# App\n## Goal\nBuild an app.\n- [ ] [App](tasks/001-app.md)\n');writeFileSync(join(dir,'tasks/001-app.md'),'# App\nFiles: app.py\n- [ ] Build\nDone when: It works.\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
   const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){},select:async(_question,options)=>options[0]},abort(){},isIdle:()=>true};
   harness({on:(name,fn)=>{handlers[name]=fn;},registerCommand:(name,value)=>{commands[name]=value;},registerTool:tool=>{tools[tool.name]=tool;}},{root:dir+'/'});
   t.after(async()=>{handlers.session_shutdown?.();await new Promise(resolve=>setTimeout(resolve,300));for(const key of keys){if(before[key]===undefined)delete process.env[key];else process.env[key]=before[key];}rmSync(dir,{recursive:true,force:true});});
@@ -427,12 +434,12 @@ test('a project-defining request always gets planning guidance and code waits fo
   const dir=mkdtempSync(join(tmpdir(),'pi-plan-')),handlers={},tools={},commands={};
   const keys=['PI_AGENT_DATA','PI_GATE_PORT','PI_WEB_PORT','PI_TAILSCALE','PI_OLLAMA_URL'];const before=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
   Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_GATE_PORT:'0',PI_WEB_PORT:'0',PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9'});
-  mkdirSync(join(dir,'tasks'));writeFileSync(join(dir,'ROADMAP.md'),'# Game\n## Goal\nA pong game.\n## Tasks\n- [ ] [Ball](tasks/001-ball.md)\n');writeFileSync(join(dir,'tasks/001-ball.md'),'# 001: Ball\n- [ ] Bounce\nDone when: The ball bounces.\nFiles: game.py\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
+  mkdirSync(join(dir,'tasks'),{recursive:true});writeFileSync(join(dir,'ROADMAP.md'),'# Game\n## Goal\nA pong game.\n## Tasks\n- [ ] [Ball](tasks/001-ball.md)\n');writeFileSync(join(dir,'tasks/001-ball.md'),'# 001: Ball\n- [ ] Bounce\nDone when: The ball bounces.\nFiles: game.py\n');writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
   const ctx={cwd:dir,ui:{notify(){},setWidget(){},setStatus(){},select:async(_question,options)=>options[0]},abort(){},isIdle:()=>true};
   harness({on:(name,fn)=>{handlers[name]=fn;},registerCommand:(name,value)=>{commands[name]=value;},registerTool:tool=>{tools[tool.name]=tool;}},{root:dir+'/'});
   t.after(async()=>{handlers.session_shutdown?.();await new Promise(resolve=>setTimeout(resolve,300));for(const key of keys){if(before[key]===undefined)delete process.env[key];else process.env[key]=before[key];}rmSync(dir,{recursive:true,force:true});});
   await handlers.session_start({},ctx);await commands.plan.handler('',ctx);await handlers.input({source:'interactive',text:'Build a pong game'},ctx);
-  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/who uses this; screens and controls/);
+  assert.match(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/Every request follows the shared phase/);
   const write={toolCallId:'early',toolName:'write',input:{path:join(dir,'game.py'),content:'speed=5\n'}};
   assert.match((await handlers.tool_call(write)).reason,/G-015/);
   const result=await tools.propose_plan.execute('plan',{},null,null,ctx);assert.equal(result.isError,undefined);
@@ -471,7 +478,7 @@ for(const scenario of ['continue','change','unverified']) test(`terminal plannin
   return {ok:true,json:async()=>path==='/auto'?{enabled:scenario==='unverified'}:path==='/plan'?{goal:'Pong',tasks:[{title:'Ball',done_when:'Bounces'}]}:path==='/request/end'?{result:++ends===1?{outcome:scenario==='unverified'?'not verified':'committed',message:'Ball',commit:'abc',check_in:{verified:scenario!=='unverified',task:'tasks/001-ball.md',verification:'node --test',next:'tasks/002-score.md'}}:{outcome:'committed',message:'Score',commit:'def',check_in:{verified:true,next:null}}}:{}};
  };
  const pi={on:(name,fn)=>handlers[name]=fn,registerTool:tool=>tools[tool.name]=tool,appendEntry(){},registerEntryRenderer(){},sendUserMessage:text=>sent.push(text)};
- const ctx={cwd:dir,abort(){},ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){},select:async()=>scenario==='change'?'Change…':'Continue',input:async()=> 'Use black and white'}};
+ const ctx={cwd:dir,abort(){},ui:{notify:text=>notices.push(text),setWidget(){},setStatus(){},select:async()=>scenario==='change'?'Change…':'Accept and Continue',input:async()=> 'Use black and white'}};
  try {
   harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
   if(scenario!=='unverified')delete process.env.PI_HARNESS_SHARED_PORT; // use native terminal dialogs with scratch mocked services
@@ -479,7 +486,7 @@ for(const scenario of ['continue','change','unverified']) test(`terminal plannin
   if(scenario==='change')await tools.propose_plan.execute('plan',{},null,null,ctx);
   await handlers.agent_settled({aborted:scenario==='change'});
   if(scenario==='unverified') {assert.deepEqual(sent,[]);assert.ok(notices.some(text=>text.startsWith('Harness check-in: ')));return;}
-  assert.deepEqual(sent,[scenario==='change'?'Use black and white':'yes']);
+  assert.deepEqual(sent,[scenario==='change'?'Use black and white':'Continue the approved task.']);
   await handlers.input({source:'extension',text:sent[0]},ctx);handlers.agent_start({},ctx);
   const requests=calls.filter(call=>call.path==='/request');assert.equal(requests.length,2);assert.notEqual(requests[0].body.request,requests[1].body.request);
   if(scenario==='change') {assert.equal(calls.filter(call=>call.path==='/request/end').length,0);assert.equal(calls.filter(call=>call.path==='/request/pause').length,1);}

@@ -20,6 +20,7 @@ import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installChoices } from './choices.mjs';
 import { installPlanning } from './planning.mjs';
+import {installSearch} from './web-search.mjs';
 import {installPhases} from './phases.mjs';
 import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
@@ -32,7 +33,7 @@ import { installMusic, musicAvailable } from './music.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', web_search:'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
@@ -133,7 +134,8 @@ export default function harness(pi, dependencies = {}) {
   installPlanning(extras, {
     auto:automatic,
     change:async text=>{pendingPlanReply=text;},
-    propose:()=>call('/plan',{request:requestId}),
+    propose:content=>call('/plan',{request:requestId,content}),
+    another:plan=>call('/phase',{cwd:plan.root,phase:'discussion',action:'Plan Another Task'}),
     approve:state=>call('/plan/approve',{request:requestId,state}),
     web:()=>Boolean(process.env.PI_HARNESS_SHARED_PORT),
     pending:async(plan,ctx)=>{ctx?.ui?.notify?.('Harness plan: '+JSON.stringify(plan),'info');pauseChoice(ctx);},
@@ -151,10 +153,11 @@ export default function harness(pi, dependencies = {}) {
     context.abort();
     watch.stop();
   };
-  const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
-  installConsole(extras, { auto:automatic, recordAuto:action=>call('/auto/action',{request:requestId,...action}), ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
+  const footer = installFooter(pi, { ports: () => ports,phase:async ctx=>{const value=await call('/phase',{cwd:ctx?.cwd||root});return value.phase?value.phase[0].toUpperCase()+value.phase.slice(1):null;} }); // round 6: the workbench state under the input
+  installConsole(extras, {phase:ctx=>call('/phase',{cwd:ctx?.cwd||root}), auto:automatic, recordAuto:action=>call('/auto/action',{request:requestId,...action}), ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installMusic(extras);
   installPhases(pi,{call});
+  installSearch(extras,{call:(path,data)=>call(path,{...data,request:requestId})});
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
   // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.
@@ -346,14 +349,10 @@ export default function harness(pi, dependencies = {}) {
   pi.on('tool_call', async event => {
     // task_box: Gate checks the exact edit it becomes (G-004, G-009, G-010); a vague label is answered with the list.
     let args = event.input, piTool = event.toolName;
-    if (event.toolName === 'task_box') {
-      const proposal = boxProposal(event.input || {}, context?.cwd || root);
-      if (proposal.error) return { block: true, reason: proposal.error };
-      args = proposal; piTool = 'edit'; boxes.set(event.toolCallId, proposal);
-    }
+    if(event.toolName==='task_box')return {block:true,reason:'System 1 ticks task boxes from recorded evidence. Provide content and run the checks.'};
     try {
       const result = await gateCall('/gatekeep', { request: requestId, tool_name: names[event.toolName] || event.toolName, args, pi_tool: piTool, tool_call_id: event.toolCallId, assistant_text: assistantText, cwd: context.cwd || root, auth_level: process.env.PI_GATE_AUTH || 'admin', source: process.env.PI_HARNESS_SHARED_PORT ? 'web' : 'terminal' }); // task 129
-      if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason });
+      if (result.outcome === 'REVISE') check(event.toolCallId, { gate: 'revise', reason: result.reason, phase:result.phase });
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
@@ -436,16 +435,18 @@ export default function harness(pi, dependencies = {}) {
         }
         if (result?.check_in) {
           const check=result.check_in;
-          if (check.verified && check.next && await automatic()) {
-            say('committed',`${result.message} · committed as ${result.commit}`,'info');
+          if (check.verified && await automatic()) {
+            await call('/phase/accept',{cwd:check.root,state:'auto'});
+            if(!check.next){check.accepted=true;notify(tr('Plan complete.'),'info');}
+            else {say('committed',`${result.message} · committed as ${result.commit}`,'info');
             nextPlanInput=true;recovering=true;
             notify('Harness recovery: Continue the next approved task.','info');
-            pi.sendUserMessage('yes');return;
+            pi.sendUserMessage('yes');return;}
           }
           if (process.env.PI_HARNESS_SHARED_PORT) notify('Harness check-in: '+JSON.stringify(check),'info');
-          else if(check.next) {
-            if(await checkIn(context,check)==='continue'){nextPlanInput=true;recovering=true;pi.sendUserMessage('yes');return;}
-          } else notify(tr('Plan complete.'),'info');
+          else if(!check.accepted) {
+            if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
+          }
         }
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
         else if (result?.outcome === 'not verified' && result.commit) say('saved-unverified', `${result.message} · committed as ${result.commit}`, 'warning');  // committed too, marked (2026-10-15)

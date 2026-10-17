@@ -33,3 +33,7 @@ test('one notification per new problem, never for routine work (T_Workbench)', (
   assert.deepEqual(newProblems([failed], known, projects), [], 'once');
   assert.deepEqual(newProblems([job('completed')], known, projects), []);
 });
+
+test('round 11 phase is bold in the second footer segment',()=>{
+ assert.match(footerText({config,phase:'Planning'}),/│  \x1b\[1mPlanning\x1b\[22m  │/);
+});

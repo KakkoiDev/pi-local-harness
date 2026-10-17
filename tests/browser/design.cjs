@@ -1038,8 +1038,57 @@ paper.start_building(root)
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),checkJob.id);
   await page.reload();const checkCard=page.locator('.pw-card').filter({hasText:'Task 1 of 2 done, not verified:'}).last();await checkCard.waitFor();
   assert.equal(await checkCard.locator('.pw-btn--default').textContent(),'Review First');
-  await checkCard.getByRole('button',{name:'Stop Here',exact:true}).click();await page.getByText(/Stopped after task 1 of 2/).waitFor();
-  await page.reload();await page.getByText(/Stopped after task 1 of 2/).waitFor();
+  await page.reload();await page.locator('.pw-card').filter({hasText:'Waiting for you to check it'}).last().waitFor();
+  // Round 11: the actual approval route, waiting review, durable subset and final validation.
+  const phaseProject=await post('/api/projects/create',{name:'Phase lifecycle',parent:directory,kind:'empty'});
+  await post('/api/phase',{project:phaseProject.project,phase:'planning'});
+  const planned=await post('/api/jobs/create',{project:phaseProject.project,message:'TEST_PHASE_PLAN'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),planned.id);
+  await page.goto(`${base}/p/${phaseProject.project}/chat`);
+  const ready=page.locator('.pw-card[aria-label="Plan"]');await ready.waitFor();
+  assert.equal(await ready.getByRole('button',{name:'Approve Plan',exact:true}).count(),0);
+  await ready.getByRole('button',{name:'Plan Another Task',exact:true}).click();
+  await page.locator('.pw-waiting').waitFor();await page.reload();await page.locator('.pw-waiting').waitFor();
+  for(const width of [1440,390]){
+   await page.setViewportSize({width,height:900});await page.getByRole('button',{name:'Build the Planned Tasks…',exact:true}).click();
+   const phaseReview=page.getByRole('dialog',{name:'Build the planned tasks?',exact:true});await phaseReview.waitFor();
+   const boxes=phaseReview.locator('input[type=checkbox]');for(const box of await boxes.all())await box.uncheck();
+   assert.equal(await phaseReview.getByRole('button',{name:'Start Building',exact:true}).isDisabled(),true,JSON.stringify(await boxes.evaluateAll(list=>list.map(b=>({value:b.value,checked:b.checked})))));
+   await page.screenshot({path:`/tmp/plh-247-waiting-review-${width}.png`});await phaseReview.getByRole('button',{name:'Cancel',exact:true}).click();
+  }
+  await page.getByRole('button',{name:'Build the Planned Tasks…',exact:true}).click();
+  const phaseReview=page.getByRole('dialog',{name:'Build the planned tasks?',exact:true});for(const box of await phaseReview.locator('input[type=checkbox]').all())await box.uncheck();await phaseReview.locator('input[type=checkbox]').first().check();
+  await phaseReview.getByRole('button',{name:'Start Building',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(()=>document.querySelector('#send').textContent==='Send');
+  const state=await page.evaluate(project=>fetch('/api/phase?project='+project).then(r=>r.json()),phaseProject.project),task=state.tasks[0].path;
+  execFileSync('python3',['-c',`from pathlib import Path
+from gate.paperwork import Paperwork
+from gate.protocol import Protocol
+from harness.documents import DocumentStore
+import sys
+root=Path(sys.argv[1]);data=Path(sys.argv[2]);paper=Paperwork(Protocol(),data=data);paper.projects=DocumentStore(data)
+plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_state(root,plan)
+`,join(directory,'Phase lifecycle'),join(directory,'workspace')]);
+  const checked=await post('/api/jobs/create',{project:phaseProject.project,message:'TASK='+task+' TEST_PHASE_CHECK'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),checked.id);
+  await page.reload();const phaseLast=page.locator('.pw-card').filter({hasText:'Waiting for you to check it'}).last();await phaseLast.waitFor();
+  await phaseLast.getByRole('button',{name:'Stop Here',exact:true}).click();await page.reload();
+  await page.locator('.pw-card').filter({hasText:'Waiting for you to check it'}).last().getByRole('button',{name:'Accept Task',exact:true}).click();
+  await page.getByText('All 1 planned tasks are built · still Implementation',{exact:true}).waitFor();
+  await page.getByRole('link',{name:'Back to Discussion',exact:true}).click();await page.locator('.pw-waiting').waitFor();
+  assert.match(await page.locator('.pw-waiting').textContent(),/Reset/);
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(async()=>{
+   const {toolCard}=await import('/js/ui.mjs');const stage=document.createElement('div');stage.id='phase-refusal';document.querySelector('#messages').after(stage);
+   stage.append(toolCard({name:'write',detail:'app.py',checks:[{phase:'gate',outcome:'REVISE',reason:'G-015 Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files.'}]}));
+  });
+  for(const width of [1440,390]){
+   await page.setViewportSize({width,height:900});const refusal=page.locator('#phase-refusal');await refusal.scrollIntoViewIfNeeded();
+   await refusal.locator('summary').click();assert.match(await refusal.locator('details').textContent(),/No file changes/);await refusal.locator('summary').click();
+   await refusal.getByRole('button',{name:'Change Phase…',exact:true}).click();await page.locator('#phase-menu').waitFor();await page.keyboard.press('Escape');
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  }
+  await page.locator('#phase-refusal').evaluate(el=>el.remove());await page.setViewportSize({width:1440,height:900});
   // All four card families use the drawn phone dimensions and long-plan/auto states.
   await page.evaluate(async()=>{
    const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');
@@ -1057,7 +1106,7 @@ paper.start_building(root)
    const {choiceCard,planCard,awayCard}=await import('/js/plan-cards.mjs');const stage=document.createElement('div');stage.id='round10-ja';document.querySelector('#messages').after(stage);const noop=()=>{};
    stage.append(choiceCard({question:'Tasks',options:[{label:'Tasks'},{label:'Decisions'}],number:1,total:3},{answer:noop}),planCard({goal:'Tasks',tasks:[{title:'Tasks',done_when:'it works',decisions:'- Tasks: Decisions (given)'}]},{name:'Notes',approve:noop,change:noop,open:noop}),awayCard({id:'ja',done:[],decisions:[],external:[],problems:[]},{seen:noop,change:noop,activity:noop}));
   });
-  await page.locator('#round10-ja button').filter({hasText:'計画を承認'}).waitFor();
+  await page.locator('#round10-ja button').filter({hasText:'実装開始'}).waitFor();
   assert.equal(await page.locator('#round10-ja .pw-option__label').first().evaluate(el=>el.firstChild.textContent),'Tasks','person options keep their original words');
   assert.equal(await page.locator('#round10-ja .pw-plan__goal').textContent(),'Tasks');
   assert.match(await page.locator('#round10-ja .pw-plan__tasks small').textContent(),/完了条件/);
@@ -1085,7 +1134,7 @@ paper.start_building(root)
   await page.route('**/api/preview?*',route=>route.fulfill({json:terminalStatus}));let terminalRestarts=0;
   await page.route('**/api/preview/{start,stop}',route=>{terminalRestarts++;return route.fulfill({json:terminalStatus});});
   await page.route('**/round9-terminal*',route=>route.fulfill({contentType:'text/html',body:'<textarea aria-label="Terminal"></textarea><script>addEventListener("message",event=>{document.body.dataset.key=event.data.key||"";});</script>'}));
-  await page.evaluate(id=>localStorage.setItem('plh.preview.'+id,JSON.stringify({open:true,seen:true,size:'phone',path:'/round9-terminal',language:'en'})),created.project);
+  await page.evaluate(id=>localStorage.setItem('plh.preview.'+id,JSON.stringify({open:true,seen:true,size:'phone',path:'/round9-terminal',language:'en'})),phaseProject.project);
   await page.setViewportSize({width:1440,height:900});await page.reload();await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).waitFor();assert.equal(await page.locator('#preview-body input[aria-label="Page"]').inputValue(),'python -m app.tui');
   await page.locator('#preview-body').getByRole('radio',{name:'120 × 40',exact:true}).click();assert.match(await page.locator('#preview-body .pw-preview__caption').textContent(),/120 × 40/);const restarted=page.waitForResponse(response=>response.url().endsWith('/api/preview/start'));await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).click();await restarted;assert.equal(terminalRestarts,2);
   await page.setViewportSize({width:390,height:844});await page.locator('.pw-terminal-keys').waitFor();await page.frameLocator('#preview-body iframe').getByRole('textbox',{name:'Terminal'}).waitFor();await page.locator('.pw-terminal-keys').getByRole('button',{name:'Return',exact:true}).click();await page.frameLocator('#preview-body iframe').locator('body[data-key="Enter"]').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'/tmp/plh-243-terminal-phone.png'});

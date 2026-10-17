@@ -157,15 +157,17 @@ When a project decision is missing from your request, its code and its conventio
 
 Every project starts in Discussion. Use the composer’s phase button (⇧⌘1–3), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
 
-Plans start in Planning. Pi fills the Goal and real tasks, asks about unanswered decisions, then uses `propose_plan` to show what it will build. Approve Plan (or a plain “yes” reply) authorizes that scope; changing it requires another approval. Each planned task gets its own verified commit and check-in; reply “yes” to start the next task as a fresh request. Each task needs a `Files:` line listing the files or folders Pi may change.
+Plans start in Planning. Pi provides the Goal and task content through `propose_plan`; System 1 creates the task layout. Start Building is the only approval. Plan Another Task leaves the plan waiting in Discussion. Build the Planned Tasks… reviews the waiting scope with checkboxes. Each task gets its own verified commit and waits for Accept and Continue, or Accept Task on the last task. Stop Here pauses without accepting. A plain “yes” does not approve or accept a task. Each task needs a `Files:` line listing the files or folders Pi may change.
 
 ## How do I let Pi work on its own?
 
 `/auto on` turns on Run on its own for every project, immediately and until `/auto off`. Every enable shows the risks and defaults to Cancel: Pi chooses recommended answers, approves plans, continues tasks, publishes, pushes, downloads, sends and uses the Trash without another question. What leaves the Mac cannot be taken back by Undo. `/auto status` shows the shared setting; `/report` shows the last run’s tasks, decisions, external actions and problems. An unverified task stops the run for review. The terminal prints the report counts at the end.
 
 
-In terminal Pi, plan previews offer Approve Plan, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Continue starts the next request, Review First shows the task text and Stop Here leaves the plan ready to resume with “yes”. An unverified task defaults to Review First.
+In terminal Pi, plan previews offer Start Building, Plan Another Task, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Accept and Continue starts the next request, Accept Task validates the last task, Review First shows the task text and Stop Here keeps the acceptance pending. An unverified task defaults to Review First.
 
 Phase commands opened outside a project offer the registered-project picker; the selection applies to that command. Project phase and approved-plan state follow the project ID when it moves or is renamed. A pending plan needs explicit Start Building approval; selecting Implementation alone cannot approve it.
 
 Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
+
+Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating or revising a composition requires Implementation and an approved `Files: assets/music/<name>/` scope.

@@ -54,7 +54,7 @@ export function completeAdmin(command, { webPort } = {}) {
 const COMPLETES = ['queue', 'job', 'gate', 'models', 'ollama', 'config', 'guide', 'reports'];
 
 /** Register the slash commands, and the harness tool Pi calls (task 167). `ports()` returns the running services' ports. */
-export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin, auto = async()=>false, recordAuto=async()=>{} } = {}) {
+export function installConsole(pi, { ports = () => undefined, run = runAdmin, seen = () => {}, complete = completeAdmin, auto = async()=>false, recordAuto=async()=>{}, phase=async()=>null } = {}) {
   // The harness tool: the same commands for Pi, run from the harness's own folder (Pi once tried `python3 -m harness.admin`
   // from the home folder, where it is not found). Reads only: a change returns its preview and asks Pi to have the person
   // type the command, which then asks for their yes (plan 158, C1).
@@ -139,6 +139,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
           ({ ok, code, text } = await run(name, [...target, '--yes', '--view'], options));
         }
         const view = ok ? parse(text) : null;
+        if(name==='status'&&view){const shared=await phase(ctx);if(shared?.phase)view.parts.unshift({kind:'kv',rows:[['Phase',shared.phase[0].toUpperCase()+shared.phase.slice(1)],['Planned tasks',String(shared.tasks.length)]]});}
         show(name, words, view || failed(text || '(no output)'));
         if (name === 'queue' && ok) await seen(); // the footer stops asking once the person looked
       },

@@ -21,7 +21,7 @@ export async function checkIn(ctx,value,{read=path=>readFileSync(join(value.root
  const title=renderView({title:(verified?(value.number?tr(`Task ${value.number} of ${value.total} done`):tr('Task done')):tr('Not verified'))+(value.title?' · '+value.title:''),summary:value.number?`${value.number} / ${value.total}`:'',parts:[
   {kind:'lines',lines:[value.task || '',value.reason || '']},
   {kind:'kv',rows:[[tr('Verified'),value.verification || value.reason || '—'],[tr('Next'),next || tr('Plan complete.')]]}]},width,{style:ansiStyle}).join('\n');
- const keep=tr('Continue'),review=tr('Review First'),stop=tr('Stop Here'),back=tr('Back');
+ const keep=tr(next?'Accept and Continue':'Accept Task'),review=tr('Review First'),stop=tr('Stop Here'),back=tr('Back');
  for (;;) {
   const options=verified?[keep,review,stop]:[review,keep,stop];
   const picked=await ctx?.ui?.select?.(title,options);
@@ -31,6 +31,6 @@ export async function checkIn(ctx,value,{read=path=>readFileSync(join(value.root
    catch(error){ctx?.ui?.notify?.(error.message,'warning');}
    continue;
   }
-  ctx?.ui?.notify?.(tr('Stopped here. Reply yes to continue the plan.'),'info');return 'stop';
+  ctx?.ui?.notify?.(tr('Stopped here. The task still waits for your acceptance.'),'info');return 'stop';
  }
 }

@@ -55,3 +55,5 @@ change these files or Ollama's settings with shell commands.
 `/auto on|off|status` controls Run on its own for all projects immediately; on shows the risks every time, with Cancel first. `/config set auto true` uses the same confirmation. `/report` shows the last run’s four report sections.
 
 The phase button in the web chat and these terminal commands share the same saved project phase. Pi cannot choose it with a tool. Gate checks the next tool call against that phase, including checked read-only shell commands in Discussion and Planning.
+
+The footer shows the phase as its second segment. `/status` includes Phase and Planned tasks. Plan previews offer Start Building, Plan Another Task, Change… and Open ROADMAP.md. `/build` lets you toggle waiting tasks before Start Building. After each task choose Accept and Continue, or Accept Task on the last; Stop Here keeps it waiting for acceptance. A typed “yes” grants neither approval nor acceptance.

@@ -4,21 +4,22 @@ import {planView} from './terminal-planning.mjs';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
-export function installPlanning(pi, { propose, approve, pending, cancel, change=async()=>{}, web=()=>false, auto=()=>false } = {}) {
+export function installPlanning(pi, { propose, approve, pending, cancel, another=async()=>{}, change=async()=>{}, web=()=>false, auto=()=>false } = {}) {
   pi.registerTool?.({
     name:'propose_plan',label:'Propose the plan',
-    description:'After filling ROADMAP.md Goal and real tasks (checkboxes, Done when, Decisions, optional Files:), show the actual plan and wait for approval before code. Each task will be verified and committed separately.',
-    parameters:{type:'object',properties:{}},
-    async execute(_id,_params,_signal,_update,ctx) {
+    description:'Provide goal and task content (title, kind, files, done_when, content without checkboxes); System 1 lays out ROADMAP.md and task files. Show the actual plan and wait for Start Building before code. Each task will be verified and committed separately.',
+    parameters:{type:'object',properties:{goal:{type:'string'},tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},kind:{type:'string',enum:['code','docs','chore']},files:{type:'array',items:{type:'string'}},done_when:{type:'string'},content:{type:'string'}},required:['title','files','done_when','content']}}}},
+    async execute(_id,params,_signal,_update,ctx) {
       try {
-        const plan=await propose();
+        const plan=await propose(params);
         if (await auto()) await approve('auto');
         else if (web()) {await pending(plan,ctx);return {content:[{type:'text',text:tr('Waiting for plan approval. Stop here.')}],details:plan};}
         else {
-          const preview=planView(plan),approveLabel=tr('Approve Plan'),changeLabel=tr('Change…'),openLabel=tr('Open ROADMAP.md');
+          const preview=planView(plan),approveLabel=tr('Start Building'),changeLabel=tr('Change…'),openLabel=tr('Open ROADMAP.md');
           for (;;) {
-            const picked=await ctx?.ui?.select?.(preview,[approveLabel,changeLabel,openLabel]);
+            const picked=await ctx?.ui?.select?.(preview,[approveLabel,tr('Plan Another Task'),changeLabel,openLabel]);
             if (picked===approveLabel) {await approve('chosen');break;}
+            if(picked===tr('Plan Another Task')){await another(plan);await cancel(ctx);return {content:[{type:'text',text:tr('Plan waiting. Back to Discussion.')}],details:{...plan,waiting:true}};}
             if (picked===openLabel) {
               try {await ctx?.ui?.select?.(readFileSync(join(plan.root || ctx?.cwd || process.cwd(),'ROADMAP.md'),'utf8'),[tr('Back')]);}
               catch(error){ctx?.ui?.notify?.(error.message,'warning');}

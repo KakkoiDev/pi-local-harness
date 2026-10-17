@@ -49,6 +49,8 @@ class DecisionsNameTheirRuleTest(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.engine = GateEngine('', str(self.root / 'audit.log'))
         self.ledger = ProposalLedger(self.engine)
+        self.ledger.paperwork.phases.choose(self.root,'implementation',actor='person',planned=True)
+        self.ledger.paperwork.active_scope=lambda root:'# Fixture\nFiles: a.md, nowhere.md, b.txt, app.py, edit.txt\n'
 
     def propose(self, tool, args, pi_tool=None):
         return self.ledger.propose(tool, args, 'admin', pi_tool=pi_tool, cwd=str(self.root))
@@ -126,20 +128,24 @@ class PlanFilesTest(unittest.TestCase):
         new = self.ledger.propose('write_file', {'path': str(self.root / 'tasks/002-b.md'), 'content': '# 002\n'}, 'admin', pi_tool='write', cwd=str(self.root))
         self.assertEqual(new['outcome'], 'ALLOW', 'a new file')
 
+    def test_system_one_owns_the_roadmap_task_boxes_too(self):
+        result=self.ledger.propose('write_file',{'path':'ROADMAP.md','oldText':'- [ ]','newText':'- [x]'},'admin',pi_tool='edit',cwd=str(self.root))
+        self.assertEqual(result.get('rule'),'G-010')
+
     def test_red_and_green_are_ticked_only_after_gate_saw_the_runs(self):
         tick = lambda word: {'edits': [{'oldText': f'- [ ] {word}', 'newText': f'- [x] {word}'}]}
         refused = self.propose('edit', tick('Red'))
-        self.assertEqual((refused['outcome'], refused['rule']), ('REVISE', 'G-010')); self.assertIn('failing test run', refused['reason'])
+        self.assertEqual((refused['outcome'], refused['rule']), ('REVISE', 'G-010')); self.assertIn('System 1', refused['reason'])
         (self.root / 'app.py').write_text('x = 1\n')
         self.ledger.protocol.record(str(self.root), 'python3 -m unittest', False)
-        self.assertEqual(self.propose('edit', tick('Red'))['outcome'], 'ALLOW', 'Gate saw it fail')
+        self.assertEqual(self.propose('edit', tick('Red'))['rule'], 'G-010', 'only System 1 ticks even with evidence')
         self.ledger.pending.clear()
         self.assertEqual(self.propose('edit', tick('Green'))['rule'], 'G-010', 'no passing run yet')
         self.ledger.protocol.record(str(self.root), 'python3 -m unittest', True)
-        self.assertEqual(self.propose('edit', tick('Green'))['outcome'], 'ALLOW')
+        self.assertEqual(self.propose('edit', tick('Green'))['rule'], 'G-010')
         self.ledger.pending.clear()
         planned = self.propose('edit', {'edits': [{'oldText': 'Notes one', 'newText': '- [x] Notes one'}]})
-        self.assertEqual(planned['outcome'], 'ALLOW', 'other boxes are not about tests')
+        self.assertEqual(planned['rule'], 'G-010', 'System 1 lays out all task boxes')
 
 
 class UnverifiedTest(unittest.TestCase):
@@ -203,6 +209,8 @@ class SyntaxAfterEditTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             ledger = ProposalLedger(GateEngine('', '/dev/null'), events_file=root / 'events.jsonl')
+            ledger.paperwork.phases.choose(root,'implementation',actor='person',planned=True)
+            ledger.paperwork.active_scope=lambda root:'# Fixture\nFiles: app.py, ok.py, data.json, page.mjs, notes.md\n'
             def write(name, content):
                 args = {'path': name, 'content': content}
                 gate = ledger.propose('write_file', args, 'admin', pi_tool='write', cwd=folder)

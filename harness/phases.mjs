@@ -15,13 +15,15 @@ export function installPhases(pi,{call}={}){
      if(index<0)return;
      cwd=status.projects[index].path;status=await call('/phase',{cwd});
     }
+    let selected;
     if(phase==='implementation'){
      if(!status.tasks.length){ctx?.ui?.notify?.(tr('■ Not changed: nothing is planned yet. /plan first, then /build.'),'warning');return;}
      const start=tr('Start Building'),cancel=tr('Not now');
      const detail=status.tasks.map((task,index)=>`${index+1} · ${task.title}\n${tr('Done when')}: ${task.done_when}`).join('\n');
-     if(await ctx?.ui?.select?.(tr('Build the planned tasks')+'\n\n'+detail,[start,cancel])!==start)return;
+     selected=status.tasks.map(task=>task.path);
+     for(;;){const rows=status.tasks.map(task=>(selected.includes(task.path)?'☑ ':'☐ ')+task.title),picked=await ctx?.ui?.select?.(tr('Build the planned tasks')+'\n\n'+detail,[start,...rows,cancel]);if(picked===start){if(selected.length)break;ctx?.ui?.notify?.(tr('Choose at least one task'),'warning');continue;}const index=rows.indexOf(picked);if(index<0)return;const path=status.tasks[index].path;selected=selected.includes(path)?selected.filter(value=>value!==path):[...selected,path];}
     }
-    await call(phase==='implementation'?'/phase/build':'/phase',{cwd,phase,action:'/'+command});
+    await call(phase==='implementation'?'/phase/build':'/phase',{cwd,phase,action:'/'+command,...(selected?{tasks:selected}:{})});
     ctx?.ui?.notify?.(tr('✓ Phase: '+names[phase]+'. '+meanings[phase]),'info');
    }catch(error){ctx?.ui?.notify?.(error.message,'warning');}
   }

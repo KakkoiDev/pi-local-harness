@@ -82,6 +82,16 @@ class LauncherTest(unittest.TestCase):
             self.assertEqual(json.loads((data/'config.json').read_text())['effort'],'medium')
             self.assertFalse((home/'pi-local-agent-data').exists())
 
+    def test_phase_update_replaces_the_installed_paperwork_instructions(self):
+        from harness.install import install, PAPERWORK_247_BEFORE
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);data=root/'data';data.mkdir()
+            (data/'AGENTS.md').write_text(PAPERWORK_247_BEFORE+'\n\nUser preference: keep this.\n')
+            install(root/'prefix',root/'agent',data)
+            memory=(data/'AGENTS.md').read_text()
+            self.assertIn('System 1 creates the task layouts',memory)
+            self.assertIn('User preference: keep this.',memory)
+
     def test_the_paperwork_paragraph_upgrades_without_erasing_memory(self):
         """Plan 184: Pi no longer keeps tasks or commits; an installed memory with the old paragraph gets the new one."""
         from harness.install import install, PAPERWORK_BEFORE
