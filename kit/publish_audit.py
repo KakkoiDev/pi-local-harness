@@ -11,7 +11,7 @@ def ensure_task(root,reset=False):
     if not roadmap.is_file():return None
     text=roadmap.read_text(encoding='utf-8');lines=text.splitlines()
     existing=next((re.search(r'\((tasks/\d+-ready-to-publish\.md)\)',line) for line in lines if re.search(r'\((tasks/\d+-ready-to-publish\.md)\)',line)),None)
-    if not any(re.match(r'\s*- \[ \]',line) and '-ready-to-publish.md)' not in line for line in lines):return existing[1] if existing else None
+    if not any(re.match(r'\s*[-*+] \[ \]',line) and '-ready-to-publish.md)' not in line for line in lines):return existing[1] if existing else None
     files=sorted((root/'tasks').glob('[0-9]*-ready-to-publish.md'))
     if existing:path=existing[1]
     elif files:path=files[0].relative_to(root).as_posix()

@@ -7,26 +7,32 @@ import time
 if '--session' in sys.argv:session=counter=Path(sys.argv[sys.argv.index('--session')+1])
 else:  # --no-session (task 115): record beside the context file, count replies on their own
     session=Path(os.environ['PI_HARNESS_CONTEXT']).parent/'session.jsonl';counter=session.with_name('oneoff')
+session_cwd=None
+if '--session' in sys.argv and session.is_file() and session.read_text().startswith('{'):
+    # Like Pi 1.1.0: a real session file's header names the working folder; Pi stops when that folder is gone.
+    session_cwd=json.loads(session.read_text().splitlines()[0]).get('cwd');counter=session.with_name(session.name+'.count')
+    if session_cwd and not Path(session_cwd).is_dir():print(f'Stored session working directory does not exist: {session_cwd}',file=sys.stderr);sys.exit(1)
 request=json.loads(sys.stdin.readline())
-if os.environ.get('PI_FAKE_SESSION_CWD')=='1' and '--session' in sys.argv:
-    # Task 264, review P0-3: like Pi 1.1, the session's header keeps the folder it was created in, and later turns work
-    # there, whatever folder the process starts in.
-    stored=session.with_suffix('.cwd')
-    if not stored.exists():stored.write_text(os.getcwd())
-    elif not Path(stored.read_text()).is_dir():
-        sys.stderr.write(f'Stored session working directory does not exist: {stored.read_text()}\n');sys.exit(1)
-    else:os.chdir(stored.read_text())
-assert int(os.environ['PI_HARNESS_SHARED_PORT'])>0
+# Like harness/extension.mjs (task 261): take Gate's token and port out of the environment before any command runs.
+TOKEN_IN_ENVIRONMENT='PI_HARNESS_TOKEN' in os.environ
+TOKEN=os.environ.pop('PI_HARNESS_TOKEN',None)
+if os.environ.get('PI_HARNESS_TOKEN_FILE'):
+    token_file=Path(os.environ.pop('PI_HARNESS_TOKEN_FILE'));TOKEN=token_file.read_text().strip();token_file.unlink()
+PORT=os.environ.pop('PI_HARNESS_SHARED_PORT')
+assert int(PORT)>0
+import subprocess
+# What Pi's bash tool gives a command: this process's environment.
+SHELL_SEES=subprocess.run(['sh','-c','printf "%s|%s|%s" "$PI_HARNESS_TOKEN" "$PI_HARNESS_SHARED_PORT" "$PI_HARNESS_TOKEN_FILE"'],capture_output=True,text=True).stdout
 session.with_suffix('.request.json').write_text(json.dumps(request))
-session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':os.environ.get('PI_HARNESS_TOKEN'),'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv}))
+session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':TOKEN,'token_in_environment':TOKEN_IN_ENVIRONMENT,'shell_sees':SHELL_SEES,'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv,'session_cwd':session_cwd}))
 count=int(counter.read_text())+1 if counter.exists() else 1
 counter.write_text(str(count))
 def emit(value):print(json.dumps(value),flush=True)
 emit({'type':'agent_start'})
 def call_gate(path,body):
     import urllib.request
-    call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':os.environ['PI_HARNESS_TOKEN']})
-    with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
+    call=urllib.request.Request(f"http://127.0.0.1:{PORT}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':TOKEN})
+    with urllib.request.urlopen(call,timeout=1200 if path=='/request/end' else 5) as response:return json.load(response)  # like the extension (task 260)
 def scripted_story():
     """Task 264: `TEST_SCRIPT=<name>` plays $PI_FAKE_SCRIPTS/<name>.json (tests/browser/stories/) the way the harness
     extension drives a real Pi turn: /request, each tool call through /gatekeep and /audit (a refused call does not run),

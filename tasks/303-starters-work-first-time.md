@@ -1,0 +1,15 @@
+# 303: A new project works on the first command
+
+Kind: code
+
+Source: the second bug hunt (2026-10-18) and its documentation-drift part; numbers are the hunt report's items. Items 2, 3, 13, 14, 15, 27; proposals 2 and 5.
+
+- [ ] Each starter README's commands are in Gate's allowed forms (or run through the harness check tool, task 296); a
+  test parses each README code block and asserts every line passes test_run().
+- [ ] `static/app.css` is built or shipped at creation and gitignored, so a new project's own tests pass with no network
+  (static: node --test; web: tests.test_files) and a Preview rebuild never counts as implementation.
+- [ ] The skeleton is generic: no notes types in js/store.mjs or app/db.py, no type-only import that breaks the
+  referenced-files test when the sample goes; entry points are a "rewrite" class, not "remove"; sample cleanup covers
+  `<title>`, ja.json and the README text; starter READMEs describe their own kind.
+- [ ] Project creation commits with signing and hooks off and cleans up on failure, so a retry works.
+- [ ] Emoji in project names are kept or refused with a message, never silently dropped.

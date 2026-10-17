@@ -27,9 +27,12 @@ class DecisionLogTest(unittest.TestCase):
         allowed=ledger.propose('execute_command',{'command':'cat confidential.txt'},'admin',pi_tool='bash',cwd=str(self.project),request='r')
         ledger.complete(allowed['proposal_id'],'execute_command',{'command':'cat confidential.txt'},'private file content',0)
         ledger.propose('execute_command',{'command':'rm -rf /'},'standard',pi_tool='bash',cwd=str(self.project),request='r')
-        rows=self.rows();self.assertEqual([x['answer'] for x in rows],['ALLOW','SUCCESS','BLOCK'])
+        # Task 261: an allowed call and its successful audit are not decisions (they stay in gate-events.jsonl); a refusal is.
+        rows=self.rows();self.assertEqual([x['answer'] for x in rows],['BLOCK'])
         self.assertTrue(all(x['who']=='code' and x['request']=='r' and x['rule'] for x in rows))
         self.assertEqual(rows[-1]['rule'],'G-003')
+        events=[json.loads(x) for x in (self.data/'gate-events.jsonl').read_text().splitlines()]
+        self.assertEqual([x['outcome'] for x in events],['ALLOW','SUCCESS','BLOCK'])
         self.assertNotIn('confidential',str(rows));self.assertNotIn('private',str(rows))
 
     def test_phase_changes_record_person_and_automatic_code_separately(self):
@@ -66,6 +69,26 @@ class DecisionLogTest(unittest.TestCase):
         self.assertEqual([(x['who'],x['answer']) for x in rows],[('code','dangerous'),('code',False)])
         self.assertTrue(all(x['rule'] for x in rows));self.assertNotIn('private',str(rows))
         classifier.ask.assert_not_called()
+
+    def test_a_laya_abstention_is_logged_as_abstained_and_not_counted(self):
+        from harness.judgements import Judgements
+        from unittest.mock import Mock, patch
+        paper=Mock();paper.data=self.data;paper.requests={'r':{'root':str(self.project)}};paper.waiting_choice.return_value=None
+        with patch('harness.laya.shell_risk',return_value={'answer':None,'confidence':0.54,'abstained':True}):
+            result=Judgements(paper,Mock()).decide('r','shell_risk',['private command','private path'])
+        self.assertEqual(result['who'],'person','the person is asked instead')
+        rows=self.rows();self.assertEqual(len(rows),1);self.assertTrue(rows[0]['abstained']);self.assertEqual(rows[0]['answer'],'abstained')
+        self.assertEqual(runner.decision_counts(self.data/'decisions.jsonl'),{'code':0,'laya':0,'person':0,'model':0})
+
+    def test_the_models_plan_layout_choices_are_logged_as_model_proposals(self):
+        paper=self.ledger().paperwork;paper.phases.choose(self.project,'planning',actor='person');paper.start('r',str(self.project),'Plan it')
+        paper.propose_plan('r',{'goal':'Count.','tasks':[{'title':'Counter','kind':'code','files':['app.py','tests/test_app.py'],'done_when':'Counts.','content':'Count.'},
+                                                         {'title':'Notes','kind':'docs','files':['README.md'],'done_when':'Explained.','content':'Explain.'}]})
+        proposals=[(x['kind'],x['answer']) for x in self.rows() if x['who']=='model']
+        self.assertEqual(proposals,[('task_kind','code'),('task_files',2),('task_kind','docs'),('task_files',1)])
+        self.assertTrue(all(x.get('proposal') for x in self.rows() if x['who']=='model'))
+        self.assertNotIn('app.py',str(self.rows()),'file names stay out of the log')
+        self.assertEqual(runner.decision_counts(self.data/'decisions.jsonl')['model'],4)
 
     def test_bench_counts_and_table_do_not_turn_missing_provenance_into_zero(self):
         self.assertIsNone(runner.decision_counts(self.data/'missing.jsonl'))

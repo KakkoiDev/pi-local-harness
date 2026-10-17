@@ -15,12 +15,14 @@ inventory.
 - [x] Scratch workbench helper: tests/browser/workbench.cjs (scratch data, web data, Trash, log; Tailscale off; Ollama
       a closed port; PI_HARNESS_*/PI_WEB_REMOTE_* stripped; a guard refuses project folders outside the scratch folder).
 - [x] Fake Pi: `TEST_SCRIPT=<name>` plays tests/browser/stories/<name>.json through Gate as the extension does (tool
-      calls, writes, real test runs, choices, plans, check-ins, crashes, Run on its own); `PI_FAKE_SESSION_CWD=1`
-      behaves like Pi 1.1's stored session folder (review P0-3). Existing triggers unchanged.
+      calls, writes, real test runs, choices, plans, check-ins, crashes, Run on its own). Existing triggers unchanged.
 - [x] Browser journeys: tests/browser/stories.cjs, the `stories` suite of tests/browser/run.py; expected failures carry
       their review item and turn into XPASS when the fix merges.
 - [x] Terminal journeys: tests/harness/stories.test.mjs (phase commands and the project picker, /auto, /config and /undo, /status, /projects, /doctor, /harness, /guide, /queue, /job, /gate, Pi’s proposals, the Japanese terminal).
-- [x] Coverage table: 81 journeys, 14 expected failures, 6 partial, 6 not coverable yet, 1 without a test.
-- [ ] NEW-1 (found here, not in the review): propose_plan puts the first task's “Request …” line under `## Decisions`,
-      so G-017 refuses every write of the first planned task; US-030 and US-045 stay expected failures until it is fixed.
+- [x] Coverage table: 92 journeys, 3 expected failures, 6 partial, 6 not coverable yet, 1 without a test.
+- [x] Merged harness-next (tasks 260-263): the stories their fixes cover pass without their markers; web POSTs send the
+      page's person secret. NEW-1 (the first planned task's “Request …” line under `## Decisions` made G-017 refuse
+      every write) is fixed there too.
+- [ ] NEW-2 (found here, not in the review): an answer given in Planning before the plan exists never reaches the
+      planned task's Decisions (US-040). Items still open: 9 (US-042, task 290) and the P2 crash-mid-answer (US-075).
 - [ ] Journeys for the 6 partial stories, and US-044 (two quick answers, item 8).

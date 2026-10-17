@@ -161,7 +161,7 @@ class WorkQueue:
             kind=event.get('type')
             if kind=='status':job['progress']=event['text']
             if kind=='context':
-                job['context']={'included':event['included'],'omitted':event['omitted'],'reasons':event.get('reasons',{}),'chars':event['chars']}
+                job['context']={'included':event['included'],'omitted':event['omitted'],'reasons':event.get('reasons',{}),'chars':event['chars'],'excluded':event.get('excluded',[]),'excluded_count':event.get('excluded_count',0)}
                 job.setdefault('context_turns',[]).append({'time':now(),**copy.deepcopy(job['context'])})
             elif kind in ('choice','plan','check_in','report','decision'):job[kind]={key:value for key,value in event.items() if key!='type'}
             elif kind=='also_read':job['also_read']=list(event.get('files',[]))[:20]  # task 136

@@ -6,7 +6,7 @@ import re
 import subprocess
 
 AUTHOR = 'Pi Workbench'
-IDENTITY = ('-c', f'user.name={AUTHOR}', '-c', 'user.email=pi-workbench@localhost')
+IDENTITY = ('-c', f'user.name={AUTHOR}', '-c', 'user.email=pi-workbench@localhost', '-c', 'core.hooksPath=/dev/null')  # no hooks (task 261)
 
 
 def git(root, *args, check=True):
@@ -89,7 +89,7 @@ def save_edits(root, paths):
     who = git(root, 'config', 'user.name', check=False).stdout.strip() or 'You'
     mail = git(root, 'config', 'user.email', check=False).stdout.strip() or 'you@localhost'
     git(root, 'add', '--', *paths)
-    git(root, '-c', f'user.name={who}', '-c', f'user.email={mail}', 'commit', '-q', '-m', f"Your edits · {datetime.now().strftime('%H:%M')}", '--', *paths)
+    git(root, '-c', f'user.name={who}', '-c', f'user.email={mail}', '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', f"Your edits · {datetime.now().strftime('%H:%M')}", '--', *paths)
 
 
 def undo(root, commit, save_first=False):

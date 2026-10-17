@@ -61,10 +61,10 @@ class WebRobustnessTest(unittest.TestCase):
         self.assertEqual(len(images), 1)
 
     def test_concurrent_polls_create_one_chat_per_project(self):
-        self.chat.documents.create_project('Race')
+        race = self.chat.documents.create_project('Race')
         stale = self.chat.store.list()
-        first = self.chat.project_chat('Race', stale)
-        second = self.chat.project_chat('Race', stale)
+        first = self.chat.project_chat(race, stale)
+        second = self.chat.project_chat(race, stale)
         self.assertEqual(first['id'], second['id'])
         self.assertEqual(len(self.chat.store.list()), 1)
 

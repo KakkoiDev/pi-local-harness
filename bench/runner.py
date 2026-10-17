@@ -158,7 +158,7 @@ def decision_counts(path):
     if not Path(path).is_file():return None
     result={who:0 for who in ('code','laya','person','model')}
     for line in read_jsonl(path):
-        if line.get('who') in result:result[line['who']]+=1
+        if line.get('who') in result and not line.get('abstained'):result[line['who']]+=1  # an abstention decides nothing (task 261)
     return result
 
 

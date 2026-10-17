@@ -7,6 +7,9 @@ const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const assert = require('node:assert/strict');
 const readline = require('node:readline');
+// Task 263: screenshots go to a folder of this run, never fixed /tmp paths another run may be writing.
+const SHOTS=fs.mkdtempSync(join(tmpdir(),'plh-shots-')),shot=name=>join(SHOTS,name);
+process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 (async()=>{
  const directory=fs.realpathSync(fs.mkdtempSync(join(tmpdir(),'pi-design-')));
  const python=execFileSync('which',['python3'],{encoding:'utf8'}).trim();
@@ -26,7 +29,7 @@ const readline = require('node:readline');
   process.on('exit',code=>{if(code)console.log('Page errors:',JSON.stringify(errors),'\nLast console lines:\n'+consoleLines.slice(-15).join('\n'),'\nServer log (not 200/304):\n'+serverLog.join('\n'));});
   const consoleLines=[];page.on('console',message=>consoleLines.push(message.type()+': '+message.text()));
   await page.goto(base);
-  const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]);
+  const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Pi-Person':document.querySelector('meta[name="pi-person"]')?.content||''},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]); /* task 261: as the person, with the page's secret */
   const created=await post('/api/projects/create',{name:'Design check',parent:directory});
   const root=join(directory,'Design check');
   await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/ROADMAP.md`));
@@ -40,7 +43,7 @@ const readline = require('node:readline');
   const incompleteRow=page.locator('#plan-regression-row');await incompleteRow.locator('button').first().waitFor();
   assert.match(await incompleteRow.textContent(),/Plan incomplete \(G-014\)/);
   assert.doesNotMatch(await incompleteRow.textContent(),/Pi did not try it after the last change/);
-  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});await incompleteRow.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-233-plan-${width}.png`});}
+  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});await incompleteRow.scrollIntoViewIfNeeded();await page.screenshot({path:shot(`plh-233-plan-${width}.png`)});}
   await page.evaluate(async()=>{const {applyLanguage}=await import('/js/i18n.mjs');await applyLanguage('ja',{root:document.querySelector('#plan-regression-row')});});
   assert.match(await incompleteRow.textContent(),/計画が未完成です/);
   await incompleteRow.evaluate(row=>row.remove());await page.setViewportSize({width:1440,height:900});
@@ -268,7 +271,7 @@ const readline = require('node:readline');
   await page.route('**/api/phase',route=>route.fulfill({status:503,json:{error:'fixture save failure'}}));
   await page.locator('#phase-button').focus();await page.keyboard.press('ArrowDown');
   const phases=page.locator('#phase-menu [role=menuitemradio]');
-  await page.screenshot({path:'/tmp/plh-247-phase-desktop.png'});
+  await page.screenshot({path:shot('plh-247-phase-desktop.png')});
   assert.equal(await phases.count(),3);assert.equal(await phases.nth(2).getAttribute('aria-disabled'),'true');
   await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
   await page.locator('#phase-error').waitFor();
@@ -282,11 +285,11 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
   await page.keyboard.press('Shift+Meta+Digit2');await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor({timeout:2000});
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
-  await page.setViewportSize({width:1024,height:900});await page.locator('#phase-button').click();await page.locator('#phase-menu').waitFor();await page.screenshot({path:'/tmp/plh-247-phase-tablet.png'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.keyboard.press('Escape');
+  await page.setViewportSize({width:1024,height:900});await page.locator('#phase-button').click();await page.locator('#phase-menu').waitFor();await page.screenshot({path:shot('plh-247-phase-tablet.png')});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.keyboard.press('Escape');
   await page.setViewportSize({width:390,height:844});await page.locator('#phase-button').click();
   const sheet=page.getByRole('dialog',{name:'Phase',exact:true});await sheet.waitFor();
   assert.ok((await sheet.locator('.pw-option').first().boundingBox()).height>=64);
-  await page.screenshot({path:'/tmp/plh-247-phase-phone.png'});
+  await page.screenshot({path:shot('plh-247-phase-phone.png')});
   await sheet.getByLabel('Discussion',{exact:true}).click();
   await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor();
   assert.equal(await sheet.count(),0);await page.setViewportSize({width:1440,height:900});
@@ -799,10 +802,10 @@ const readline = require('node:readline');
   assert.ok(await reasons.locator('.pw-reasons__why').count()>0);
   assert.equal(await reasons.locator('li').first().locator('.pw-reasons__why').textContent(),'Always: the plan');
   assert.match(await reasons.locator('.pw-reasons__path').first().textContent(),/\/ROADMAP\.md$/,'the complete selected path');
-  await page.screenshot({path:'/tmp/plh-234-context-desktop.png'});
+  await page.screenshot({path:shot('plh-234-context-desktop.png')});
   await page.setViewportSize({width:1024,height:900});await why.click();await why.click();
   assert.ok(await page.locator('#ctx-why').evaluate(panel=>panel.getBoundingClientRect().right<=innerWidth),'fits the tablet width');
-  await page.screenshot({path:'/tmp/plh-234-context-tablet.png'});
+  await page.screenshot({path:shot('plh-234-context-tablet.png')});
   await page.keyboard.press('Escape');await reasons.waitFor({state:'detached'});assert.equal(await why.evaluate(button=>document.activeElement===button),true);
   await page.setViewportSize({width:390,height:844});await why.click();
   const reasonSheet=page.locator('.pw-sheet',{has:page.locator('#ctx-why')});await reasonSheet.waitFor();
@@ -811,7 +814,7 @@ const readline = require('node:readline');
   const refreshed=page.waitForResponse(response=>response.url().includes('/api/context-preview?')&&response.status()===200);
   await page.evaluate(async project=>{const {showContext}=await import('/js/context-line.mjs');showContext(document.querySelector('#chat-context'),{project,text:document.querySelector('#prompt').value},{force:true,delay:0});},id);await refreshed;
   assert.ok(await reasonSheet.isVisible(),'an unchanged context refresh keeps the explanation open');
-  await page.screenshot({path:'/tmp/plh-234-context-phone.png'});
+  await page.screenshot({path:shot('plh-234-context-phone.png')});
   await reasonSheet.getByRole('button',{name:'Done',exact:true}).click();assert.equal(await why.getAttribute('aria-expanded'),'false');
   await page.setViewportSize({width:1440,height:900});
 
@@ -1005,7 +1008,7 @@ paper.start_building(root)
   const testList=page.locator('#activity-detail section[aria-label="Tests"]');await testList.waitFor();
   assert.match(await testList.textContent(),/node --test tests\/app.test.mjs/);
   assert.match(await testList.textContent(),/Exit code: 1/);assert.match(await testList.textContent(),/3 passed/);assert.match(await testList.textContent(),/1 failed/);
-  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});if(width===390)await page.locator('#job-'+tested.id+' .activity-request').click();await testList.waitFor();await testList.scrollIntoViewIfNeeded();await page.screenshot({path:`/tmp/plh-228-activity-${width}.png`});}
+  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:900});if(width===390)await page.locator('#job-'+tested.id+' .activity-request').click();await testList.waitFor();await testList.scrollIntoViewIfNeeded();await page.screenshot({path:shot(`plh-228-activity-${width}.png`)});}
   await page.setViewportSize({width:1440,height:900});await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.getByRole('heading',{name:'テスト',exact:true}).waitFor();assert.equal(await page.getByText('3 件成功',{exact:true}).count(),1);
   // Round 10: the card answers through the real composer and keeps its settled state after reload.
   await page.setViewportSize({width:1440,height:900});
@@ -1056,7 +1059,7 @@ paper.start_building(root)
    const phaseReview=page.getByRole('dialog',{name:'Build the planned tasks?',exact:true});await phaseReview.waitFor();
    const boxes=phaseReview.locator('input[type=checkbox]');for(const box of await boxes.all())await box.uncheck();
    assert.equal(await phaseReview.getByRole('button',{name:'Start Building',exact:true}).isDisabled(),true,JSON.stringify(await boxes.evaluateAll(list=>list.map(b=>({value:b.value,checked:b.checked})))));
-   await page.screenshot({path:`/tmp/plh-247-waiting-review-${width}.png`});await phaseReview.getByRole('button',{name:'Cancel',exact:true}).click();
+   await page.screenshot({path:shot(`plh-247-waiting-review-${width}.png`)});await phaseReview.getByRole('button',{name:'Cancel',exact:true}).click();
   }
   await page.getByRole('button',{name:'Build the Planned Tasks…',exact:true}).click();
   const phaseReview=page.getByRole('dialog',{name:'Build the planned tasks?',exact:true});for(const box of await phaseReview.locator('input[type=checkbox]').all())await box.uncheck();await phaseReview.locator('input[type=checkbox]').first().check();
@@ -1108,7 +1111,7 @@ plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_
   assert.equal(await page.locator('#round10-cards .pw-card--auto').count(),1);
   assert.equal(await page.locator('#round10-cards .pw-plan__tasks>li').count(),6);
   assert.equal(await page.locator('#round10-cards .pw-plan__decisions .pw-tag').count(),3);
-  for(const width of [1440,390]){await page.setViewportSize({width,height:900});await page.locator('#round10-cards').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width===390){const sizes=await page.locator('#round10-cards .pw-card__foot button').evaluateAll(items=>items.map(e=>e.getBoundingClientRect().height));assert.ok(sizes.every(h=>h>=44));}await page.screenshot({path:`/tmp/plh-239-cards-${width}.png`});}
+  for(const width of [1440,390]){await page.setViewportSize({width,height:900});await page.locator('#round10-cards').scrollIntoViewIfNeeded();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(width===390){const sizes=await page.locator('#round10-cards .pw-card__foot button').evaluateAll(items=>items.map(e=>e.getBoundingClientRect().height));assert.ok(sizes.every(h=>h>=44));}await page.screenshot({path:shot(`plh-239-cards-${width}.png`)});}
   await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();
   await page.locator('#send').filter({hasText:'送信'}).waitFor();
   await page.evaluate(async()=>{
@@ -1146,7 +1149,7 @@ plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_
   await page.evaluate(id=>localStorage.setItem('plh.preview.'+id,JSON.stringify({open:true,seen:true,size:'phone',path:'/round9-terminal',language:'en'})),phaseProject.project);
   await page.setViewportSize({width:1440,height:900});await page.reload();await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).waitFor();assert.equal(await page.locator('#preview-body input[aria-label="Page"]').inputValue(),'python -m app.tui');
   await page.locator('#preview-body').getByRole('radio',{name:'120 × 40',exact:true}).click();assert.match(await page.locator('#preview-body .pw-preview__caption').textContent(),/120 × 40/);const restarted=page.waitForResponse(response=>response.url().endsWith('/api/preview/start'));await page.locator('#preview-body').getByRole('button',{name:'Restart',exact:true}).click();await restarted;assert.equal(terminalRestarts,2);
-  await page.setViewportSize({width:390,height:844});await page.locator('.pw-terminal-keys').waitFor();await page.frameLocator('#preview-body iframe').getByRole('textbox',{name:'Terminal'}).waitFor();await page.locator('.pw-terminal-keys').getByRole('button',{name:'Return',exact:true}).click();await page.frameLocator('#preview-body iframe').locator('body[data-key="Enter"]').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'/tmp/plh-243-terminal-phone.png'});
+  await page.setViewportSize({width:390,height:844});await page.locator('.pw-terminal-keys').waitFor();await page.frameLocator('#preview-body iframe').getByRole('textbox',{name:'Terminal'}).waitFor();await page.locator('.pw-terminal-keys').getByRole('button',{name:'Return',exact:true}).click();await page.frameLocator('#preview-body iframe').locator('body[data-key="Enter"]').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:shot('plh-243-terminal-phone.png')});
   await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.locator('#preview-body').getByRole('button',{name:'再起動',exact:true}).waitFor();
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');

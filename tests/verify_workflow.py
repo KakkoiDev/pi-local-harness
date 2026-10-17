@@ -18,7 +18,7 @@ def verify_workflow():
         todo_content = f.read()
     
     # Find all tasks in todo.md: - [ ] [Name](path) or - [x] [Name](path)
-    task_pattern = re.compile(r'- \[(.)\] \[(.*?)\]\((.*?)\)')
+    task_pattern = re.compile(r'[-*+] \[(.)\] \[(.*?)\]\((.*?)\)')
     todos = task_pattern.findall(todo_content)
     
     for status, name, path in todos:
@@ -35,7 +35,7 @@ def verify_workflow():
             with open(path, "r") as tf:
                 task_content = tf.read()
                 # Find all checkboxes in the task file
-                checkboxes = re.findall(r'- \[(.)\]', task_content)
+                checkboxes = re.findall(r'^\s*[-*+] \[(.)\]', task_content, re.M)  # task 263: any list bullet
                 for cb_status in checkboxes:
                     if cb_status != 'x':
                         errors.append(f"Task {path} marked completed in todo.md but has unchecked boxes")
@@ -43,7 +43,7 @@ def verify_workflow():
         # The reverse: an open task whose every box is checked is finished work left open (task 150).
         elif status == ' ':
             with open(path, "r") as tf:
-                checkboxes = re.findall(r'- \[(.)\]', tf.read())
+                checkboxes = re.findall(r'^\s*[-*+] \[(.)\]', tf.read(), re.M)
             if checkboxes and all(cb_status == 'x' for cb_status in checkboxes):
                 errors.append(f"Task {path} has every box checked but is still open in ROADMAP.md; mark it done or add the open item")
     

@@ -3,6 +3,7 @@ try:
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
 import json
+import re
 import os
 from pathlib import Path
 import subprocess
@@ -62,9 +63,11 @@ class ServicesTest(unittest.TestCase):
             # The Gate audit log defaults to PI_AGENT_DATA/gate-audit.log.
             self.assertIn('DRIFT_DETECTED',(Path(temporary.name)/'workspace'/'gate-audit.log').read_text())
             web_base=f"http://127.0.0.1:{ports['web']}"
-            def web_post(path,body,origin=None):
+            def web_post(path,body,origin=None,person=False):
                 headers={'Content-Type':'application/json'}
                 if origin:headers['Origin']=origin
+                if person:  # task 261: the person's controls carry the served page's secret
+                    with urllib.request.urlopen(web_base+'/',timeout=3) as response:headers['X-Pi-Person']=re.search(r'<meta name="pi-person" content="([^"]+)">',response.read().decode())[1]
                 request=urllib.request.Request(web_base+path,data=json.dumps(body).encode(),headers=headers)
                 with urllib.request.urlopen(request,timeout=3) as response:return json.load(response)
             with urllib.request.urlopen(web_base+'/api/gate') as response:
@@ -91,7 +94,7 @@ class ServicesTest(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as hidden:
                 urllib.request.urlopen(web_base+'/session.log')
             self.assertEqual(hidden.exception.code,404);hidden.exception.close()
-            with urllib.request.urlopen(web_base+'/api/project-files?project=HTTP%20project') as response:
+            with urllib.request.urlopen(web_base+'/api/project-files?project='+created['project']) as response:
                 self.assertTrue(any(item['name']=='ROADMAP.md' for item in json.load(response)))
             plain=Path(temporary.name)/'plain';plain.mkdir()
             registered=web_post('/api/projects/register',{'path':str(plain)})
@@ -100,8 +103,24 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'discussion')
             blocked=post('/gatekeep',{'tool_name':'write_file','pi_tool':'write','args':{'path':str(plain/'app.py'),'content':'x=1'},'cwd':temporary.name,'auth_level':'admin'})
             self.assertEqual(blocked.get('phase'),'discussion')
-            self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'})['phase'],'planning')
+            self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'},person=True)['phase'],'planning')
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'planning')
+            # Task 260: the person's recovery for a falsely completed task (the UI control still needs design).
+            (plain/'tasks').mkdir();(plain/'ROADMAP.md').write_text('# Roadmap\n\n## Goal\nA clock.\n\n## Tasks\n- [x] [001-Clock](tasks/001-clock.md)\n')
+            (plain/'tasks/001-clock.md').write_text('# 001: Clock\n\nKind: code\nFiles: app.py\n\nDone when: it ticks.\n\n- [x] Red: a test fails for this change.\n')
+            for args in (['init','-q'],['add','-A'],['-c','user.name=t','-c','user.email=t@t','commit','-qm','false completion']):subprocess.run(['git','-C',str(plain),*args],check=True,capture_output=True)
+            with self.assertRaises(urllib.error.HTTPError) as anyone:web_post('/api/tasks/reopen',{'project':registered['project'],'task':'tasks/001-clock.md'})
+            self.assertEqual(anyone.exception.code,403);anyone.exception.close()  # task 261: only the person's page may reopen
+            with self.assertRaises(urllib.error.HTTPError) as refused:web_post('/api/tasks/reopen',{'project':registered['project'],'task':'../outside.md'},person=True)
+            self.assertEqual(refused.exception.code,400);refused.exception.close()
+            reopened=web_post('/api/tasks/reopen',{'project':registered['project'],'task':'tasks/001-clock.md'},person=True)
+            self.assertEqual(reopened['task'],'tasks/001-clock.md');self.assertTrue(reopened['commit'])
+            self.assertIn('- [ ] [001-Clock]',(plain/'ROADMAP.md').read_text());self.assertIn('- [ ] Red:',(plain/'tasks/001-clock.md').read_text())
+            # Task 261: Gate's token alone cannot act as the person; the ready line's person secret (terminal Pi) can.
+            with self.assertRaises(urllib.error.HTTPError) as denied:post('/phase',{'cwd':str(plain),'phase':'discussion'})
+            self.assertEqual(denied.exception.code,403);denied.exception.close()
+            self.assertEqual(post('/phase',{'cwd':str(plain),'phase':'discussion'},**{'X-Pi-Person':ports['person']})['phase'],'discussion')
+            with urllib.request.urlopen(web_base+'/',timeout=3) as response:self.assertIn(f'content="{ports["person"]}"',response.read().decode())
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)
         finally:

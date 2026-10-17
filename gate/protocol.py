@@ -24,7 +24,7 @@ TEST_COMMANDS = [
     ('npx', '--no-install', 'vitest'), ('npx', '--no-install', 'jest'), ('npx', '--no-install', 'tsc'), ('uv', 'run', '--offline', 'pytest'),
     ('npx', 'tsc'), ('python3', 'tests/browser/run.py'), ('python', 'tests/browser/run.py'),
 ]
-CHECKED = re.compile(r'- \[[xX]\]')
+CHECKED = re.compile(r'(?<![^\s+])[-*+] \[[xX]\]')  # task 263: any list bullet
 KIND = re.compile(r'^Kind:\s*(\S+)', re.MULTILINE)
 KINDS = ('code', 'chore', 'docs', 'planning')
 KIND_FIX = '`Kind: code|chore|docs|planning` line'
@@ -95,6 +95,30 @@ def test_folder(command, cwd):
             cwd = move(cwd, words[1])
     words = parts[-1][0]
     return cwd if any(tuple(words[:len(prefix)]) == prefix for prefix in TEST_COMMANDS) else None
+
+# Task 260: a help, version or listing call of a runner runs no test, so it is neither Red nor Green.
+NOT_A_RUN = {'--help', '-h', '-help', '--version', '-V', '-version', '--collect-only', '--co', '--list', '-list',
+             '--listTests', '--list-tests', '--showOnly'}
+NO_TESTS = re.compile(r'\bno tests ran\b|\bNO TESTS RAN\b|^Ran 0 tests\b|\bNo tests? files? found\b|\bno test files\b', re.I | re.M)
+
+
+def test_invocation(command, output=None):
+    """Task 260: True when the command really ran tests. False for `--help`/`--version`-style calls, and, when its output
+    is known, for runs whose summary shows that no test ran."""
+    parts = segments(command) or []
+    words = parts[-1][0] if parts else []
+    if any(word.split('=', 1)[0] in NOT_A_RUN for word in words[1:]):
+        return False
+    if output is None:
+        return True
+    if isinstance(output, list):
+        output = '\n'.join(block.get('text', '') for block in output if isinstance(block, dict))
+    from .test_runs import counts
+    text = str(output)
+    found = counts(text)
+    if found and not found.get('pass') and not found.get('fail'):
+        return False
+    return not NO_TESTS.search(text)
 
 def project_root(cwd):
     path = Path(cwd or '.').expanduser().resolve()
@@ -224,7 +248,7 @@ class Protocol:
             return
         folder = test_folder(command, cwd)
         root = project_root(folder) if folder else None
-        if not root:
+        if not root or not test_invocation(command, output):
             return
         try:
             paths = changed_paths(root)
@@ -236,6 +260,15 @@ class Protocol:
         except CheckFailed:
             return
 
+    def move(self, old, new):
+        """Task 262: a project's folder was renamed or moved; its runs (keyed by folder) follow it, and so do those of
+        projects nested inside it."""
+        old, new = Path(old).resolve(), Path(new).resolve()
+        with self.lock:
+            moved = {root: new / root.relative_to(old) for root in self.runs if root == old or root.is_relative_to(old)}
+            for root, target in moved.items(): self.runs.setdefault(target, []).extend(self.runs.pop(root))
+            if moved: self.save()
+
     def verification(self, root):
         """G-012: (code state, changed code paths, whether a passing run was seen on exactly this code), or None."""
         try:
@@ -245,6 +278,12 @@ class Protocol:
         except CheckFailed:
             return None
         with self.lock: return state, code, (state, True) in self.runs.get(Path(root), [])
+
+    def clear(self, root):
+        """Task 260: after a harness commit, earlier runs describe code that is gone; they never count as Red or Green."""
+        with self.lock:
+            if self.runs.pop(Path(root), None) is not None:
+                self.save()
 
     def failed_run(self, root):
         """G-010: Gate saw a test run fail in this project since its last commit."""

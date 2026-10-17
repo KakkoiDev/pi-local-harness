@@ -7,7 +7,12 @@ import { validate, revise } from '../../harness/music/score.mjs';
 import { musicAction } from '../../harness/music.mjs';
 import { encodeWav, decodeWav } from '../../harness/music/wav.mjs';
 
-test('create, read, revise named layer, preserve bank and old audible revision; failed render is atomic', {skip: !existsSync(new URL('../../harness/music/node_modules/@strudel/core', import.meta.url)) && !process.env.PI_TEST_MUSIC}, async () => {
+// Task 263: without the renderer the render tests say "Not run" and why; with CI set they run and fail instead of
+// counting a skip as a pass.
+const rendererMissing = !existsSync(new URL('../../harness/music/node_modules/@strudel/core', import.meta.url)) && !process.env.PI_TEST_MUSIC;
+const notRun = rendererMissing && !process.env.CI && 'Not run: the music renderer is not installed in harness/music/node_modules (run npm ci there; it downloads). With CI set this test fails instead.';
+
+test('create, read, revise named layer, preserve bank and old audible revision; failed render is atomic', {skip: notRun}, async () => {
  const root=mkdtempSync(join(tmpdir(),'plh-music-'));
  try {
   const pcm=Float32Array.from({length:4410},(_,i)=>Math.sin(i*0.06)*0.3*(1-i/4410));
@@ -45,7 +50,7 @@ test('score bounds, exact loop length, supported syntax and patches are validate
  assert.equal(score.layers[0].gain,0.3);
 });
 
-test('pitched Blips instruments, multi-bar phrases, chord stacks and section revisions render together', {skip: !existsSync(new URL('../../harness/music/node_modules/@strudel/core', import.meta.url)) && !process.env.PI_TEST_MUSIC}, async () => {
+test('pitched Blips instruments, multi-bar phrases, chord stacks and section revisions render together', {skip: notRun}, async () => {
  const root=mkdtempSync(join(tmpdir(),'plh-song-'));
  try {
   const params={wave_type:0,p_base_freq:Math.sqrt(261.625565/3528-0.001),p_freq_ramp:0,p_freq_dramp:0,p_arp_mod:0,p_repeat_speed:0,p_vib_strength:0,p_duty_ramp:0,p_lpf_ramp:0,p_hpf_ramp:0};
@@ -100,4 +105,17 @@ test('uplifting composition scaffold is usable without planning timing or instal
  assert.equal(template.score.seconds,32);
  const again=await musicAction({action:'template'});template.score.layers[0].gain=0;
  assert.equal(again.score.layers[0].gain,0.3);
+});
+
+test('a revision folder that already exists is never overwritten, even an empty one (task 291)', async () => {
+ const root=mkdtempSync(join(tmpdir(),'plh-music-'));
+ try{
+  const folder=join(root,'assets/music/robot'),first=join(folder,'0001');mkdirSync(first,{recursive:true});
+  const score=(await musicAction({action:'template'}));
+  writeFileSync(join(folder,'current.json'),JSON.stringify({revision:1}));writeFileSync(join(folder,'bank.json'),'{}');
+  writeFileSync(join(first,'score.json'),JSON.stringify(score));writeFileSync(join(first,'pattern.strudel'),'');
+  mkdirSync(join(folder,'0002'));
+  await assert.rejects(musicAction({action:'render',name:'robot',base:1},{cwd:root}),/0002 already exists/);
+  assert.deepEqual(JSON.parse(readFileSync(join(folder,'current.json'),'utf8')),{revision:1});
+ } finally {rmSync(root,{recursive:true,force:true});}
 });

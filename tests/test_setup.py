@@ -67,8 +67,6 @@ class SetupTest(unittest.TestCase):
         self.assertEqual(run.returncode, 2, run.stderr); self.assertIn('Unknown setup step “nothing”. Steps: browser, music, laya.', run.stdout)
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 class MusicSetupTest(unittest.TestCase):
     def test_music_installs_locked_runtime_into_toolchain_without_copying_dependencies(self):
@@ -83,3 +81,7 @@ class MusicSetupTest(unittest.TestCase):
             self.assertEqual(run.call_args.args[0],['npm','ci','--ignore-scripts','--no-audit','--no-fund'])
             self.assertEqual(run.call_args.kwargs['cwd'],target)
             self.assertIn('blips',said)
+
+
+if __name__ == '__main__':
+    unittest.main()

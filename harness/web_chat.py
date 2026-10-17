@@ -1,6 +1,9 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
 from harness import autonomy
 import base64
+import hmac
+import html
+import secrets
 from datetime import datetime
 from harness.context import build_context, build_project_context
 from harness.music_artifacts import music_attachments
@@ -170,6 +173,28 @@ def pi_command(session, choice=None):
         '--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
+def migrate_session(session, folder):
+    """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names ({"type":"session",…,"cwd":…}),
+    not in the process cwd; a renamed or moved project would fail ("Stored session working directory does not exist")
+    or work in its old place. When the header names another folder, it is rewritten to `folder`; every other line stays
+    byte for byte, and a copy of the file before the change stays beside it (session.jsonl.before-move-<time>).
+    Returns the backup's path, or None when nothing changed (no session yet, not a Pi session, already right)."""
+    session=Path(session);folder=Path(folder).resolve()
+    try:lines=session.read_bytes().split(b'\n')
+    except FileNotFoundError:return None
+    for index,line in enumerate(lines[:20]):  # the header is the first entry; a legacy prefix is short
+        try:header=json.loads(line)
+        except ValueError:continue
+        if not isinstance(header,dict) or header.get('type')!='session':continue
+        cwd=header.get('cwd')
+        if isinstance(cwd,str) and cwd and Path(cwd).expanduser().resolve()==folder:return None
+        backup=session.with_name(f"{session.name}.before-move-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}")
+        import shutil;shutil.copy2(session,backup)
+        lines[index]=json.dumps({**header,'cwd':str(folder)},ensure_ascii=False).encode()
+        temporary=session.with_name(f'.{session.name}.{uuid.uuid4().hex}.tmp');temporary.write_bytes(b'\n'.join(lines));temporary.replace(session)
+        return backup
+    return None
+
 def stop_group(group):
     """Stop what is left in a finished request's process group: SIGTERM, then SIGKILL for what ignores it."""
     import signal
@@ -309,22 +334,36 @@ class WebChat:
         self.lock_token=None
     def project_command(self, command, project, data):
         """Rename, move, locate, remove from the list or trash a project (task 154). Rename, move and trash wait while Pi
-        works in the project: moving the folder would pull it out from under Pi."""
+        works in the project, and while terminal Pi works at all (task 262): moving the folder would pull it out from under Pi."""
         store=self.documents
         if command in ('rename','move','trash'):
             busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
             if busy:raise ProjectBusy(busy[0]['id'])
-        if command=='rename':
-            result=store.rename_project(project,data.get('name',''))
-            for summary in self.store.list():
-                if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
-            return result
-        if command=='move':return store.move_project(project,data.get('parent',''))
-        if command=='locate':return store.locate_project(project,data.get('path',''))
-        if command=='remove':return store.forget(project)
-        if command=='trash':return store.trash_project(project)
+            if self.agent_running():raise ValueError('Pi is working in the terminal, maybe in this folder. Rename, move or trash the project when it has finished.')  # task 262
+        if command in ('rename','move'):
+            # Task 262: the Preview's app runs in the folder; the harness stops it (its own process) and starts it again there.
+            restart=self.previews.active(project);self.previews.stop(project)
+            try:
+                if command=='rename':
+                    result=store.rename_project(project,data.get('name',''))
+                    for summary in self.store.list():
+                        if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
+                else:result=store.move_project(project,data.get('parent',''))
+            except Exception:
+                if restart:self.previews.start(project,store.project_path(project))
+                raise
+            if restart:self.previews.start(project,Path(result['path']))
+            return self.moved(project,result)
+        if command=='locate':return self.moved(project,store.locate_project(project,data.get('path','')))
+        if command=='remove':self.previews.stop(project);return store.forget(project)
+        if command=='trash':self.previews.stop(project);return store.trash_project(project)
         if command=='summary':return store.project_summary(project)
         raise ValueError('Unknown project command')
+    def moved(self, project, result):
+        """After Rename, Move or Locate (task 262): the project's chat sessions name the new folder."""
+        for summary in self.store.list():
+            if summary.get('project')==project:migrate_session(self.store.folder(summary['id'])/'session.jsonl',result['path'])
+        return result
     def ensure_idle_path(self, path):
         """A file or folder Pi is answering a comment in, or will, stays where it is until that request ends."""
         busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('document') and (job['document']==path or job['document'].startswith(path.rstrip('/')+'/'))]
@@ -458,9 +497,10 @@ class WebChat:
         else:
             root=Path(data.get('cwd') or '.').resolve()
             chosen=build_project_context(root,data.get('text',''),task=task)
-        event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text'])}
+        # Task 263: what was left out on purpose (private, ignored, generated) is recorded with its reason, never silent.
+        event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text']),'excluded':chosen['excluded'][:100],'excluded_count':len(chosen['excluded'])}
         if job:self.queue.update(job,event)
-        else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars')})
+        else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars','excluded','excluded_count')})
         return {**chosen,'text':f'Active project folder: {root}\nWork only in this folder. This context is current for this turn.\n\n'+chosen['text']}
 
     def context_preview(self, project, data):
@@ -484,7 +524,7 @@ class WebChat:
         except ValueError:
             with self.lock:self.active.pop(key,None)
             raise
-        process=None;diagnostics=None;context_file=None
+        process=None;diagnostics=None;context_file=None;token_file=None
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -525,8 +565,14 @@ class WebChat:
             if not detached:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
+            if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
-            env={**os.environ,'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            # Task 261: Gate's token goes to Pi's extension in a private file it reads once and removes, never in the
+            # environment that Pi's shell passes on to every command (and that `ps` shows).
+            token_file=folder/f'.gate-token-{job or uuid.uuid4().hex}'
+            descriptor=os.open(token_file,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+            with os.fdopen(descriptor,'w') as handle:handle.write(self.gate_token or '')
+            env={**{key:value for key,value in os.environ.items() if key not in ('PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE')},'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN_FILE':str(token_file),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
@@ -643,6 +689,7 @@ class WebChat:
             if job and context_file:
                 try:context_file.unlink()
                 except OSError:pass
+            if token_file:token_file.unlink(missing_ok=True)  # Pi did not start its extension
 
 def with_checks(jobs,events,test_runs=()):
     """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""
@@ -667,6 +714,17 @@ class WebHandler(BaseHTTPRequestHandler):
     phone_url=None
     phone_error=None  # why `tailscale serve` did not start (task 141): Open on Phone shows the off state
     speech=staticmethod(transcribe)
+    # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
+    # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
+    person_secret=secrets.token_urlsafe(32)
+    PERSON_ROUTES=frozenset({'/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
+    def person_only(self, path, data):
+        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
+        # A message answering a waiting choice is recorded as the person's decision.
+        return (path=='/api/jobs/create' or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/send',path) is not None) and str(data.get('message','')).lstrip().startswith('Choice: ')
+    def person(self):
+        supplied=self.headers.get('X-Pi-Person','')
+        return bool(self.person_secret) and hmac.compare_digest(supplied.encode(),self.person_secret.encode())
     def trusted(self):
         host=self.headers.get('Host','');origin=self.headers.get('Origin')
         allowed={f'localhost:{self.server.server_port}',f'127.0.0.1:{self.server.server_port}'}
@@ -738,7 +796,10 @@ class WebHandler(BaseHTTPRequestHandler):
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
                 file=ROOT/allowed[path];mime=mimetypes.guess_type(str(file))[0] or 'text/plain';disposition=None
-            body=file.read_bytes();self.send_response(200);self.send_header('Content-Type',mime)
+            body=file.read_bytes()
+            if disposition is None and file.name=='index.html' and file.parent==ROOT:
+                body=body.replace(b'<meta charset="utf-8">',b'<meta charset="utf-8"><meta name="pi-person" content="'+html.escape(self.person_secret).encode()+b'">',1)
+            self.send_response(200);self.send_header('Content-Type',mime)
             self.send_header('Content-Length',str(len(body)));self.send_header('X-Content-Type-Options','nosniff')
             self.send_header('Cache-Control','no-store')
             if disposition:self.send_header('Content-Disposition',disposition)
@@ -756,6 +817,8 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if self.person_only(path,data) and not self.person():
+                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.'},403);return
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
@@ -783,6 +846,7 @@ class WebHandler(BaseHTTPRequestHandler):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
+            if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task')));return  # task 260: the person's recovery from a false completion
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':
                 action=data.get('action','check')

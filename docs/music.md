@@ -80,6 +80,14 @@ a different bank. To edit manually, make changes through `music revise`, or edit
 current revision's `score.json` and call `music render` with its current base. Manual
 edits to `pattern.strudel` are not imported. Preserve old revisions if history matters.
 
+**Phases.** The `music` tool's create, revise and render are allowed in every phase (Discussion, Planning and
+Implementation), with no task needed, because Gate (`gate/media.py`) lets them write only a new numbered revision folder
+under `assets/music/<name>/` inside the project: create needs a name that does not exist yet; revise and render need the
+current revision as `base` and a next revision folder that does not exist. A stale base, an existing revision folder, a
+symlink on the way, an unsafe name or a call from outside the project folder is refused. A manual edit of `score.json`,
+or any `write`, `edit` or shell write into `assets/music/`, is not the music tool and follows the phase rules. The same
+rule, one row of `gate/media.py`'s table, will serve the visual tool under `assets/visual/<name>/`.
+
 ## Longer compositions
 
 Ask for a key, a chord progression, a four-bar melody, a variation, and sections:

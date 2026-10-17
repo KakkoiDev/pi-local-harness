@@ -45,12 +45,27 @@ def update():
         subprocess.run([sys.executable,str(build/'harness/install.py'),'--prefix',record['prefix'],'--agent-dir',record['agent'],'--data-dir',record['data'],'--source',str(source),'--commit',commit],capture_output=True,text=True,check=True)
     return commit
 
+def workbench_running(port):
+    """Task 263: does a Pi Workbench answer on this port? Updating then would swap the package under it (new pages, old
+    backend). Only a workbench's /api/settings answer counts, so another app on the port never blocks updates."""
+    try:port=int(port)
+    except (TypeError,ValueError):return False
+    if not port:return False
+    import urllib.request
+    try:
+        with urllib.request.urlopen(f'http://127.0.0.1:{port}/api/settings',timeout=1) as response:
+            return response.status==200 and isinstance(json.loads(response.read(65536)),dict)
+    except (OSError,ValueError):return False
+
 def main():
     directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))).expanduser().resolve()
     settings=configuration(directory)
     if sys.argv[1:2]==['setup']:  # plh setup [browser]: the toolchain, fetched once (harness/setup.py)
         sys.path.insert(0,str(ROOT));from harness import setup;sys.exit(setup.main(sys.argv[2:],directory))
-    if settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED'):
+    port=os.getenv('PI_WEB_PORT') or settings['web_port']
+    if settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED') and workbench_running(port):
+        print(f'PLH: not updated while Pi Workbench runs on port {port}; quit it and start plh again to update',file=sys.stderr)
+    elif settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED'):
         try:commit=update()
         except (OSError,ValueError,KeyError,tarfile.TarError,subprocess.CalledProcessError) as error:
             detail=getattr(error,'stderr',None) or error

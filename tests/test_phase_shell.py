@@ -50,3 +50,21 @@ class ReviewShellTest(unittest.TestCase):
             self.assertFalse(test_run(command),command)
         for command in ['npx --no-install vitest','npx --no-install jest','npx --no-install tsc --noEmit','cargo test --offline','uv run --offline pytest','node --test tests/app.mjs','npm test']:
             self.assertTrue(test_run(command),command)
+
+    def test_test_runners_cannot_delete_upload_or_load_code_from_elsewhere(self):
+        # Task 261: options that delete a folder, upload output, load a plugin or script, or run from another folder.
+        from gate.phase_shell import test_run
+        for command in ['pytest --basetemp=/Users/me', 'pytest --basetemp ..', 'python3 -m pytest --basetemp=build',
+                        'pytest --pastebin=all', 'pytest -p evil', 'pytest -pevil', 'python3 -m pytest -p no:cacheprovider',
+                        'pytest -o addopts=-pevil', 'pytest --override-ini=cache_dir=/tmp', 'pytest --rootdir=/', 'pytest --confcutdir=..',
+                        'npm test --prefix=..', 'npm test --prefix ..', 'npm run test --cwd=/tmp', 'pnpm test --dir ../other', 'yarn test --cwd ..',
+                        'make test SHELL=/bin/sh', 'make test CC=evil', 'make -f Other.mk test', 'make test -f ../Makefile', 'make test --file=x', 'make -C .. test', 'make test --directory=..',
+                        'node --test --experimental-loader ./x.mjs', 'node --test --experimental-loader=./x.mjs', 'node --test --import ./x.mjs', 'node --test --test-reporter-destination=/tmp/x',
+                        'bun test --preload ./x.ts', 'bun test --preload=./x.ts', 'bun test --cwd ..',
+                        'npm test --x=/etc/passwd', 'python3 -m unittest discover -s ..']:
+            self.assertFalse(test_run(command), command)
+        for command in ['pytest', 'pytest -q tests/test_app.py', 'pytest -x -vv -k counter', 'python3 -m pytest tests', 'uv run --offline pytest -q',
+                        'python3 -m unittest discover -s tests -p "test_*.py"', 'python3 -m unittest -v', 'npm test', 'npm test -- --watch=false',
+                        'npm run test', 'yarn test', 'pnpm test', 'make test', 'make test -j4', 'node --test tests/app.test.mjs',
+                        'node --test --test-name-pattern=counter tests/', 'bun test', 'bun test tests/app.test.ts']:
+            self.assertTrue(test_run(command), command)

@@ -37,6 +37,15 @@ Open it, then the **Project** menu: Rename Project…, Move Project…, Remove f
 Trash… (the Finder's Put Back brings it back). On a phone, the ⋯ on the project's row. Chat, comments and Activity stay
 with the project.
 
+Pi's chat session follows the folder: Pi remembers the folder it works in inside the chat's session, so after a rename or
+move the workbench points that session at the new folder (a copy of the session before the change stays beside it, as
+`session.jsonl.before-move-<time>` in the chat's folder). Terminal Pi (`plh`) keeps its own sessions per folder, outside
+the workbench: after a rename or move, `pi -c` in the new folder starts a new session, and resuming an old one asks which
+folder to continue in.
+
+A running Preview stops and starts again in the new folder (Open on Phone has to be turned on again). Rename, Move and
+Move to Trash wait while Pi works in that project or in the terminal.
+
 ## Chat or Work?
 
 **Chat** (⌘1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌘2) shows the files: edit
@@ -52,8 +61,10 @@ its state: not sent, waiting, Pi working, answered.
 
 Under each place you send something, "Pi sees:" lists the files Pi gets with that request (the plan, the current file,
 files you mention, related ones). Web and terminal Pi choose again for each message and recovery. Project rules,
-the plan and the active task take priority; generated files, dependencies, licences, binaries and files over 40 KB
-are excluded. Activity records each selection and why each file was chosen. After an answer, "Also read:" lists
+the plan and the active task take priority; private files (`.env*`, keys such as `*.pem` or `id_rsa`), files your
+`.gitignore` ignores, build, cache and environment folders (`target/`, `dist/`, `venv/`, `node_modules/`, `*_cache/`…),
+generated files, licences and notices, binaries and files over 40 KB are left out, not even listed by name. Activity
+records each selection, why each file was chosen, and each file left out with its reason. After an answer, "Also read:" lists
 the files Pi opened itself. The word beside each selected file explains its role: rules, plan, task, named, changed or related. **Why?** opens the recorded reason and full path for every selected file, in a popover on the desktop or a sheet with Done on the phone. Escape closes it and returns to Why?.
 
 ## Where do I see what Pi is doing?
@@ -152,12 +163,12 @@ Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confi
 
 ## Why does Pi ask me to choose?
 
-When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, answers are kept in the task’s Decisions section with their source and time.
+When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, the harness records each answer and shows it in the task’s Decisions section with its source and time. Pi cannot write a decision itself: a “(chosen …)” line it wrote is refused, and a line the harness did not record asks again before code changes.
 
 
 Every project starts in Discussion. Use the composer’s phase button (⇧⌘1–3), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
 
-Plans start in Planning. Pi provides the Goal and task content through `propose_plan`; System 1 creates the task layout. Start Building is the only approval. Plan Another Task leaves the plan waiting in Discussion. Build the Planned Tasks… reviews the waiting scope with checkboxes. Each task gets its own verified commit and waits for Accept and Continue, or Accept Task on the last task. Stop Here pauses without accepting. A plain “yes” does not approve or accept a task. Each task needs a `Files:` line listing the files or folders Pi may change.
+Plans start in Planning. Pi provides the Goal and task content through `propose_plan`; System 1 creates the task layout. Start Building is the only approval. Plan Another Task leaves the plan waiting in Discussion. Build the Planned Tasks… reviews the waiting scope with checkboxes. Each task gets its own verified commit and waits for Accept and Continue, or Accept Task on the last task. Stop Here pauses without accepting. A plain “yes” does not approve or accept a task. Each task needs a `Files:` line listing the files or folders Pi may change; `.git/` can never be one of them, and the harness commits with Git hooks off. A task is verified only from evidence: a test run that passed on the final code, and the harness's own proof that the same test fails in a temporary copy of the project without the change (your files are never touched); a `--help` run or a run where no test ran does not count. A docs or chore task needs a change to one of its files. Changes outside the task's `Files:` leave it not verified and stay out of its commit. Questions asked during Implementation do not end the task in progress. Accepting an unverified task retries the same task; it is never skipped. A pending check-in can be accepted from any phase.
 
 ## How do I let Pi work on its own?
 
@@ -170,4 +181,4 @@ Phase commands opened outside a project offer the registered-project picker; the
 
 Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
 
-Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating or revising a composition requires Implementation and an approved `Files: assets/music/<name>/` scope.
+Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating, revising and rendering a composition are allowed in every phase, but only as a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting (`gate/media.py`, task 291). Other writes into `assets/music/` follow the phase rules.

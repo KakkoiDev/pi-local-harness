@@ -105,8 +105,8 @@ class AuditBackendTest(unittest.TestCase):
 
     def test_create_with_an_unslugged_name_leaves_no_stray_project(self):
         store = DocumentStore(self.root / 'plain'); page = store.create('foo!', 'Plan')
-        self.assertTrue(page['path'].startswith('projects/foo/'))
-        self.assertEqual([item['id'] for item in store.list_projects()], ['foo'])
+        self.assertTrue(page['path'].startswith(f"projects/{page['project']}/"))
+        self.assertEqual([(item['id'], item['name']) for item in store.list_projects()], [(page['project'], 'foo')])
 
 
 if __name__ == '__main__':

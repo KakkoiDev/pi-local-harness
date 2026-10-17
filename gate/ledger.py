@@ -11,7 +11,7 @@ import threading
 import time
 import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
-from .protocol import Protocol, project_root, commit_folder, test_folder, is_documentation
+from .protocol import Protocol, project_root, commit_folder, test_folder, is_documentation, test_invocation
 from .paperwork import Paperwork
 from . import rules, test_runs
 from harness import reports
@@ -117,7 +117,8 @@ class ProposalLedger:
                 command=proposal.args.get('command','')
                 if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
                     self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
-        record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
+        # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
+        if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:
@@ -187,8 +188,10 @@ class ProposalLedger:
                 target=Path(args['path']).expanduser()
                 root=self.paperwork.project_root((Path(cwd or '.')/target).resolve())
             root=root or (self.paperwork.project_root(cwd) if cwd else None)
+            outside=False
             if root is None and (console_change or pi_tool in ('write','edit','bash','powershell','browser','music','propose_plan')):
                 root=(Path(cwd or '.')/Path(args['path']).expanduser()).resolve().parent if pi_tool in ('write','edit') else Path(cwd or '.').resolve()
+                outside=True  # task 263: not a project (neither registered nor with ROADMAP.md)
         if root:
             from .phases import refusal
             phase = self.paperwork.phases.get(root)['phase']
@@ -202,17 +205,20 @@ class ProposalLedger:
                     audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
                 except (ValueError,KeyError,IndexError):pass
             reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            if reason and outside and phase=='discussion' and not self.paperwork.phases.get(root)['history']:
+                from .phases import not_a_project
+                reason=not_a_project(root,tool_name)
             if reason:
                 judgement=None
                 if tool_name=='execute_command' and request in self.paperwork.requests:
                     from .phase_shell import read_only,test_run
                     if not read_only(command) and not test_run(command):
-                        judgement=self.judgements.decide(request,'shell_risk',[command,root])
+                        judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
                 return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
             if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             if tool_name == 'write_file' and phase == 'implementation':
-                rejected=rules.planning_refusal(task,assistant_text,required=False)
+                rejected=rules.planning_refusal(task,assistant_text,required=False,recorded=self.paperwork.active_decisions(root))
                 if rejected:return refuse(*rejected)
                 if re.search(r"will be|we(?:['’]ll| will) use|I(?:['’]ve| have) chosen|(?:have|has) been (?:chosen|selected)|decided|にします|採用|決めました",assistant_text,re.I) and request in self.paperwork.requests:
                     judgement=self.judgements.decide(request,'assumed_value',[self.paperwork.requests[request]['text'],assistant_text])
@@ -256,13 +262,16 @@ class ProposalLedger:
                         if hints:reason+='\nClosest current text (copy exactly):\n'+'\n---\n'.join(hints[:3])[:6000]
                     return refuse('G-004', reason)
             root = self.paperwork.project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
-            if root and not path.exists() and re.search(r'^\s*- \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
+            if root:
+                written = rules.model_decisions(path.read_text(errors='replace') if path.is_file() else '', content)
+                if written: return refuse('G-017', written)
+            if root and not path.exists() and re.search(r'^\s*[-*+] \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
             if root and path.is_file():
                 original = path.read_text(errors='replace')
                 shrinks = rules.plan_shrinks(original, content) if pi_tool == 'write' else None
                 if shrinks:
                     return refuse('G-009', f'this write replaces {path.name} and {shrinks}')
-                if re.findall(r'^\s*- \[[ xX~]\].*$',original,re.M)!=re.findall(r'^\s*- \[[ xX~]\].*$',content,re.M):
+                if re.findall(r'^\s*[-*+] \[[ xX~]\].*$',original,re.M)!=re.findall(r'^\s*[-*+] \[[ xX~]\].*$',content,re.M):
                     return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
                 for ticked in rules.newly_ticked(original, content):
                     word = re.match(r'(Red|Green)\b', ticked)
@@ -319,7 +328,8 @@ class ProposalLedger:
                                  command=command, exit_code=exit_code, duration=self.clock() - created, output=output)
             except OSError as error: self.report('test-log', str(error), request=request, cwd=cwd)
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
-            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+            # Task 260: a `--help` call or a run where no test ran is neither Red nor Green in the task's progress.
+            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and test_invocation(command, output):
                 self.paperwork.ran(request, command, exit_code == 0)
             note = self.paperwork.observe(request)
             if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))

@@ -16,9 +16,10 @@ async function workbench(t) {
   const bench = scratch('pi-terminal-stories-'); await bench.start();
   const saved = process.env.PI_AGENT_DATA; process.env.PI_AGENT_DATA = bench.data;  // the console's admin backend reads the same data folder
   t.after(async () => { if (saved === undefined) delete process.env.PI_AGENT_DATA; else process.env.PI_AGENT_DATA = saved; await bench.stop(); bench.remove(); });
-  // The extension's `call`: Gate on loopback with the run's token (harness/extension.mjs).
+  // Terminal Pi's `call` (harness/extension.mjs): Gate on loopback with the run's token and, as the person's own
+  // terminal, the person secret from services.py's ready line (task 261).
   bench.gate = async (path, body) => {
-    const response = await fetch(`http://127.0.0.1:${bench.ports.gate}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': bench.ports.token }, body: JSON.stringify(body) });
+    const response = await fetch(`http://127.0.0.1:${bench.ports.gate}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': bench.ports.token, ...(bench.ports.person ? { 'X-Pi-Person': bench.ports.person } : {}) }, body: JSON.stringify(body) });
     const data = await response.json(); if (!response.ok) throw new Error(data.error); return data;
   };
   return bench;

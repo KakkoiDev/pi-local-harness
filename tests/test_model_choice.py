@@ -96,8 +96,6 @@ class ModelChoiceTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.chat.choose_effort('extreme')
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class FourLevelsTest(unittest.TestCase):
@@ -109,3 +107,7 @@ class FourLevelsTest(unittest.TestCase):
                 Path(data, 'model.json').write_text(json.dumps({'model': 'gemma4:26b-mlx', 'effort': saved}))
                 self.assertEqual(models.current(data)['effort'], shown, saved)
         self.assertEqual(models.LEVELS, ('off', 'low', 'medium', 'high'))
+
+
+if __name__ == '__main__':
+    unittest.main()

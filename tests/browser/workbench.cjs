@@ -45,9 +45,15 @@ function scratch(prefix = 'pi-stories-') {
   };
   bench.restart = async (extra) => { await bench.stop(); return bench.start(extra); };
   bench.remove = () => fs.rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
-  /** The web API from Node, as the page would call it (same Host and no Origin: trusted()). */
+  /** The web API from Node, as the page calls it: same Host, no Origin, and the page's person secret (task 261, the
+   * pi-person meta the page reads in js/ui.mjs personHeaders) so a story can act as the person on person-only routes. */
+  bench.person = async () => {
+    const page = await (await fetch(bench.base + '/')).text();
+    return page.match(/<meta name="pi-person" content="([^"]*)">/)?.[1] || '';
+  };
   bench.api = async (path, body) => {
-    const response = await fetch(bench.base + path, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const headers = { 'Content-Type': 'application/json', 'X-Pi-Person': await bench.person() };
+    const response = await fetch(bench.base + path, body === undefined ? {} : { method: 'POST', headers, body: JSON.stringify(body) });
     const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || response.status), { status: response.status, data }); return data;
   };
   bench.job = async (id, states = ['completed', 'failed', 'stopped', 'interrupted'], timeout = 30000) => {

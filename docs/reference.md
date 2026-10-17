@@ -31,7 +31,9 @@ if necessary. The installed runtime survives moving or deleting the checkout.
 checkout's committed `HEAD` with the installed build; if they differ it installs that
 commit (`git archive`, so uncommitted edits never ship) and prints `PLH: updated to
 <commit>`. If the checkout is gone or the update fails it prints `PLH: not updated` and
-starts the installed build. Set `"auto_update": false` in `config.json` to stop this.
+starts the installed build. While a Pi Workbench already answers on its web port, `plh` does
+not update (the package would change under it) and says so; quit the workbench and start `plh` again.
+Set `"auto_update": false` in `config.json` to stop this.
 A running session keeps its build until you restart `plh`. Re-run the installer by hand
 only to install from a different checkout. Each install backs up the previous one and
 keeps the three newest backups, and detaches the recognized old global harness extension and its model defaults,
@@ -72,7 +74,8 @@ The **Project** menu acts on the open project: **Rename Project…** (renames it
 **Move Project to Trash…** (the Mac Trash, so the Finder's Put Back works). The project keeps its id,
 so its address, chat, comments and Activity stay with it; adding a removed or trashed folder again
 with **Add Existing Folder…** brings the same project back. A project whose folder went missing
-opens its chat with **Locate Folder…**. These wait while Pi works in that project. On a phone, the
+opens its chat with **Locate Folder…**. These wait while Pi works in that project, and while Pi works in
+the terminal. On a phone, the
 ⋯ on each project row in the π sheet holds the same commands.
 
 **Ask Pi about this whole file**, at the bottom of Review, sends a request about the whole page.
@@ -251,8 +254,10 @@ Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB e
 Question, assistant, tool, and completion events receive local timestamps in Pi.
 Web messages and queue jobs also record timestamps. Services bind to loopback and
 reject foreign browser origins. Gate also requires a per-run `X-Gate-Token` that
-`services.py` hands only to the Pi extension and web-started Pi processes; it sends
-no CORS headers, so web pages cannot query it. The layout supports mobile sizes; physical-phone
+`services.py` hands only to the Pi extension and web-started Pi processes (in a private file the
+extension reads once; it removes the token and Gate's port from its environment, so the commands Pi runs
+never inherit them); it sends no CORS headers, so web pages cannot query it. The person's controls (phase,
+Start Building, check-ins, Run on its own, choice answers) also need the page's per-run secret. The layout supports mobile sizes; physical-phone
 access needs a separate connection setup.
 
 For local music and sound creation, see [music setup and limits](music.md). The optional

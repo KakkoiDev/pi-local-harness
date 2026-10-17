@@ -40,6 +40,24 @@ class UpdatesTest(unittest.TestCase):
         self.assertEqual(done['state'], 'updated'); self.assertEqual(git(self.source, 'rev-parse', 'HEAD'), git(self.dev, 'rev-parse', 'HEAD'))
         self.assertEqual(updates.check(self.source)['state'], 'current')
 
+    def test_update_now_says_plh_will_not_install_it_when_auto_update_is_off(self):
+        """Task 263 (review P2): /update now promised "the new version installs as it starts" with auto_update false."""
+        import json
+        from unittest.mock import patch
+        from harness import admin
+        self.release('fix: a typo')
+        data = Path(self.temp.name) / 'data'; data.mkdir(); console = admin.Console(data, web_port=None)
+        for auto, expected in ((False, 'auto_update is off'), (True, 'installs as it starts')):
+            (data / 'config.json').write_text(json.dumps({'auto_update': auto}))
+            with patch.object(admin, 'update_source', return_value=self.source):
+                preview, _ = admin.build(console, 'update', ['now'])
+            self.assertIn(expected, dict(preview['rows'])['Then'], auto)
+        (data / 'config.json').write_text(json.dumps({'auto_update': False}))
+        with patch.object(admin, 'update_source', return_value=self.source):
+            done, _ = admin.build(console, 'update', ['now'], yes=True)
+        self.assertIn('auto_update is off', done['detail']); self.assertIn('install.py', done['detail'])
+        self.assertNotIn('start it again to use it', done['detail'])
+
     def test_local_changes_or_own_commits_are_never_overwritten(self):
         self.release('fix: a typo')
         (self.source / 'a.txt').write_text('mine\n')

@@ -159,8 +159,7 @@ story('US-006', 'add an existing folder: it is used in place, its files show and
 });
 
 story('US-010', 'rename a project, then keep talking with Pi in it', async t => {
-  await t.bench.restart({ PI_FAKE_SESSION_CWD: '1' }); await t.reopen();
-  const { page } = t;
+  const { page } = t;  // the fake Pi stops like Pi 1.1.0 when its session header names a folder that is gone
   const made = await newProject(t, 'Old name');
   const first = await say(t, 'Hello'); await answered(t, first);
   await page.locator('#messages').getByText('reply 1',{exact:true}).waitFor();
@@ -172,7 +171,7 @@ story('US-010', 'rename a project, then keep talking with Pi in it', async t => 
   const job = await answered(t, second);
   assert.equal(job.status, 'completed', `the request after the rename ${job.status}: ${job.progress || ''}`);
   await page.locator('#messages').getByText('reply 2',{exact:true}).waitFor();
-}, { xfail: 'review P0-3: a renamed project keeps Pi’s old session folder' });
+});
 
 story('US-011', 'create a new project with the old name of a renamed one: it gets its own, empty chat', async t => {
   const { page } = t;
@@ -198,7 +197,7 @@ story('US-017', 'rename a project while Pi works in it: it waits, says why, and 
 });
 
 // -- The three phases, plans, check-ins ---------------------------------------------------------------------------
-story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first: a verified commit waits for Accept Task', async t => {
+story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first: a verified commit waits for Accept and Continue', async t => {
   const { page } = t;
   const { root, job } = await planAndBuild(t);
   assert.equal(job.status, 'completed');
@@ -210,12 +209,14 @@ story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first
   assert.match(text, /- \[x\] Red:/); assert.match(text, /- \[x\] Green:/);
   assert.match(t.bench.read(root, 'ROADMAP.md'), new RegExp(`- \\[x\\] .*\\(tasks/${task}\\)`));
   assert.match(commits(t, root)[0], /^Pi Workbench\|Count clicks \(task \d+\)$/, 'the harness committed the task');
-  await check.getByRole('button', { name: 'Accept Task', exact: true }).click();
-  await page.getByText(/All 1 planned tasks are built/).waitFor();
+  assert.match(await check.textContent(), /Next.*ready-to-publish/s, 'the plan ends with its publication audit task');
+  const next = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await check.getByRole('button', { name: 'Accept and Continue', exact: true }).click();
+  await answered(t, (await (await next).json()).id);
   const kinds = decisions(t).map(row => `${row.kind}:${row.who}`);
   for (const expected of ['plan_layout:code', 'plan_approval:person', 'box_ticked:code', 'step_done:code', 'task_acceptance:person'])
     assert.ok(kinds.includes(expected), `decision log has ${expected}: ${kinds.join(', ')}`);
-}, { xfail: 'NEW-1 (not in the review): propose_plan appends the “Request …” line inside the first task’s ## Decisions, so G-017 refuses every write of the first planned task' });
+});
 
 story('US-031', 'Discussion refuses a file write; the person sees why, in the chat and in Gate, and nothing is written', async t => {
   const { page } = t;
@@ -274,7 +275,7 @@ story('US-034', 'a comment-only edit and a --help run do not make a task verifie
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-fake-green'); await answered(t, id);
   const check = checkIn(t); await check.waitFor();
   assert.match(await check.textContent(), /not verified/, 'the check-in claims verification: ' + await check.textContent());
-}, { xfail: 'review P0-1: a trivial edit plus any earlier failing run still gets a code task verified' });
+});
 
 story('US-035', 'a plain question while a task is being built does not end that task', async t => {
   const { page } = t;
@@ -285,7 +286,7 @@ story('US-035', 'a plain question while a task is being built does not end that 
   assert.equal(await page.locator('.pw-card').filter({ hasText: 'Waiting for you to check it' }).count(), 0, 'no check-in for a question');
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.doesNotMatch(t.bench.read(root, 'tasks', task), /Not verified/, 'the task is still in progress');
-}, { xfail: 'review item 6: a plain question in Implementation attaches to the active task and ends it “not verified”' });
+});
 
 story('US-036', 'Plan Another Task keeps the plan waiting in Discussion; Build the Planned Tasks… builds the checked ones', async t => {
   const { page } = t;
@@ -327,7 +328,7 @@ story('US-040', 'a choice in Planning: the recommended option first, the answer 
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.match(t.bench.read(root, 'tasks', task), /- Who uses it\?: A team \(chosen /, 'the answer is in the planned task’s Decisions');
   assert.ok(decisions(t).some(row => row.kind === 'question_answer' && row.who === 'person'));
-}, { xfail: 'review item 6: a question with a choice in Planning creates its own task file and roadmap line, so the plan’s Goal check fails (G-014) and the plan never shows' });
+}, { xfail: 'NEW-2 (not in the review; nearest open task 293): an answer given in Planning before the plan exists stays in harness data and never reaches the planned task’s Decisions (the plan card says 0 decisions)' });
 
 story('US-041', 'a choice in Discussion: the answer stays in harness data and the project is untouched', async t => {
   const { page } = t;
@@ -366,7 +367,7 @@ story('US-087', 'step back to Discussion during a check-in, then come back and a
   await choosePhase(t, 'Implementation');
   await checkIn(t).getByRole('button', { name: 'Accept Task', exact: true }).click();
   await page.getByText(/All 1 planned tasks are built/).waitFor({ timeout: 5000 });
-}, { xfail: 'review item 11: leaving Implementation during a check-in strands the plan (Implementation is refused while the check-in waits)' });
+});
 
 story('US-088', 'answer a question Pi asks in the middle of building: the code written before it is part of the verified task', async t => {
   const { page } = t;
@@ -382,15 +383,18 @@ story('US-088', 'answer a question Pi asks in the middle of building: the code w
   assert.equal(t.bench.git(root, 'status', '--porcelain', '--', 'counter.py').trim(), '', 'counter.py is committed with the task');
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.match(t.bench.read(root, 'tasks', task), /- Start the count at\?: Zero \(chosen /);
-}, { xfail: 'review item 10: code written before a choice pause counts as the person’s edit, the task ends “no implementation” and the files stay uncommitted' });
+});
 
 story('US-089', 'an approved docs task with no change at all is not verified', async t => {
   const { root } = await newProject(t, 'Docs');
   await givenApprovedTasks(t, root, [{ title: 'Explain the app', kind: 'docs', files: ['README.md'], done_when: 'The README explains the app.' }]);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=docs-nothing'); await answered(t, id);
-  const check = checkIn(t); await check.waitFor();
-  assert.match(await check.textContent(), /not verified/, 'nothing changed, yet: ' + await check.textContent());
-}, { xfail: 'review item 7: approved docs or chore tasks with no change at all complete “verified”' });
+  await t.page.locator('#messages').getByText('The docs are fine as they are.').waitFor();
+  assert.equal(await t.page.locator('.pw-card').filter({ hasText: /Task 1 of 1 done: / }).count(), 0, 'no “done” check-in');
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /explain-the-app/.test(name));
+  assert.match(t.bench.read(root, 'tasks', task), /- \[ \] Verify the change\./, 'its box stays open');
+  assert.equal(commits(t, root).filter(line => /\(task \d+/.test(line)).length, 0, 'nothing committed as done');
+});
 
 // -- Run on its own -----------------------------------------------------------------------------------------------
 async function turnOnRunOnItsOwn(t) {
@@ -431,7 +435,7 @@ story('US-054', 'Run on its own stops at an unverified task for my review, and s
   assert.deepEqual(commits(t, root).filter(line => /\(task \d+/.test(line)), ['Pi Workbench|Count clicks (task 002, not verified)'], 'one task commit, marked');
 });
 
-story('US-045', 'Run on its own: the risks first, then Pi chooses, plans, builds two tasks and leaves a report', async t => {
+story('US-045', 'Run on its own: the risks first, then Pi chooses, plans and builds two tasks, accepting each verified one', async t => {
   const { page } = t;
   const { root } = await newProject(t, 'Alone');
   await turnOnRunOnItsOwn(t);
@@ -439,12 +443,13 @@ story('US-045', 'Run on its own: the risks first, then Pi chooses, plans, builds
   const id = await say(t, 'Make a counter with a reset TEST_SCRIPT=auto-two-tasks'); await answered(t, id);
   const events = (await t.bench.api('/api/gate')).events.filter(event => event.outcome === 'REVISE').map(event => event.reason);
   assert.deepEqual(events, [], 'Gate refused Pi’s work while it ran on its own');
-  const report = page.locator('.pw-card').filter({ hasText: 'Ran on its own' }).last(); await report.waitFor();
-  assert.match(await report.textContent(), /Done · 2 tasks/); assert.match(await report.textContent(), /Decided on its own · [1-9]/);
+  await page.locator('#messages').getByText(/Phase: Implementation · Run on its own/).first().waitFor();
+  await page.locator('.pw-card--auto, .pw-card').filter({ hasText: 'Who uses it?: Only me' }).first().waitFor();
   assert.equal(commits(t, root).filter(line => /^Pi Workbench\|.*\(task \d+\)$/.test(line)).length, 2, 'two verified task commits');
   const automatic = decisions(t).filter(row => row.automatic);
-  assert.ok(automatic.some(row => row.kind === 'plan_approval') && automatic.some(row => row.kind === 'task_acceptance'));
-}, { xfail: 'review item 6 (the automatic choice in Planning creates its own task, so the plan fails G-014) and NEW-1 (the first planned task cannot be written)' });
+  assert.ok(automatic.some(row => row.kind === 'plan_approval') && automatic.some(row => row.kind === 'task_acceptance'), JSON.stringify(automatic));
+  // The run goes on to the plan's publication audit task, so its report comes at the end of that one (US-086 checks a report).
+});
 
 // -- Undo ---------------------------------------------------------------------------------------------------------
 story('US-050', 'undo a request, then redo it: each is a new commit and the files follow', async t => {
@@ -575,7 +580,7 @@ story('US-074', 'Gate refuses an unknown command during a request and logs why, 
   await row.waitFor({ timeout: 5000 });
   assert.match(await row.textContent(), /Blocked|Revise|Not/i);
   assert.doesNotMatch(await page.locator('#messages, #gate-events').first().textContent(), /G-011/);
-}, { xfail: 'review item 14: every refused shell command crashes Gate with an active request (G-011, never logged)' });
+});
 
 story('US-084', 'long work that keeps reporting is never cut off; only silence stops a request', async t => {
   await t.bench.restart({ PI_HARNESS_SILENCE_SECONDS: '2' }); const page = await t.reopen();  // two seconds instead of an hour, for this scratch workbench only
@@ -599,7 +604,7 @@ story('US-080', 'secrets in the project never go into what Pi sees', async t => 
   const preview = await t.bench.api('/api/context-preview?project=' + project + '&text=' + encodeURIComponent('Check the .env and secrets/id_rsa settings'));
   const files = JSON.stringify(preview);
   assert.doesNotMatch(files, /\.env|id_rsa/, 'Pi sees: ' + files.slice(0, 400));
-}, { xfail: 'review item 13: .env values and secrets/ go into Pi’s context; .gitignore is ignored' });
+});
 
 story('US-081', 'only the person can change the phase: a local process without the page cannot', async t => {
   const { page } = t;
@@ -607,7 +612,7 @@ story('US-081', 'only the person can change the phase: a local process without t
   const project = await page.evaluate(() => location.pathname.split('/')[2]);
   const response = await fetch(t.base + '/api/phase', { method: 'POST', headers: { 'Content-Type': 'application/json', Host: new URL(t.base).host }, body: JSON.stringify({ project, phase: 'planning' }) });
   assert.equal(response.status, 403, 'a script on this Mac changed the phase as “the person”');
-}, { xfail: 'review P0-2: any local process can change the phase, approve a plan, turn on Run on its own or accept a task' });
+});
 
 // -- Language and phone -------------------------------------------------------------------------------------------
 story('US-090', 'the workbench in Japanese: Settings › Language, then the phase button and the plan card are in Japanese', async t => {

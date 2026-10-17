@@ -139,5 +139,31 @@ class ContextTest(unittest.TestCase):
         self.assertEqual(build_context(empty, empty.register(str(bare), 'Bare'), 'hi')['items'], [], 'nothing from this project')
 
 
+    def test_secrets_licences_build_output_and_ignored_files_never_reach_the_context(self):
+        """Task 263 (review 13): .env values, keys, licences, build and cache folders were sent as relevant contents."""
+        import subprocess
+        key = 'sk-live-FAKEKEY-263-do-not-send'
+        secrets = {'.env': f'API_KEY={key}\n', '.env.local': f'API_KEY={key}\n', 'config/.env.production': f'API_KEY={key}\n',
+                   'secrets/id_rsa': f'-----BEGIN KEY----- {key}\n', 'certs/server.pem': key, 'certs/server.key': key, 'COPYING': key,
+                   'LICENCE.txt': key, 'NOTICE': key, 'THIRD_PARTY_NOTICES.md': key, 'target/debug/api.rs': key, 'out/api.js': key,
+                   'venv/lib/api.py': key, 'env/lib/api.py': key, '.tox/py/api.py': key, '.mypy_cache/api.json': key,
+                   'pytest_cache/api.txt': key, 'third_party/api/api.py': key, 'private/notes.md': key}
+        for name, text in secrets.items(): self.write(name, text)
+        self.write('.gitignore', 'private/\n')
+        self.write('api.py', 'def api_key():\n    return load("API_KEY")\n')
+        subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
+        result = self.build('Why does the api key not load? Check .env and secrets/id_rsa')
+        self.assertNotIn(key, result['text'])
+        self.assertIn('api.py', result['included'])
+        excluded = {item['name']: item['reason'] for item in result['excluded']}
+        self.assertTrue(set(secrets) <= set(excluded), set(secrets) - set(excluded))
+        self.assertEqual(excluded['.env'], 'Private (environment file)')
+        self.assertEqual(excluded['secrets/id_rsa'], 'Private (key)')
+        self.assertEqual(excluded['COPYING'], 'Licence or notice')
+        self.assertEqual(excluded['target/debug/api.rs'], 'Build, cache or environment folder')
+        self.assertEqual(excluded['private/notes.md'], 'Ignored by .gitignore')
+        for name in ['.env', 'secrets/id_rsa', 'COPYING', 'private/notes.md']:
+            self.assertNotIn(name + '\n', result['text'], 'not even listed by name')
+
 if __name__ == '__main__':
     unittest.main()
