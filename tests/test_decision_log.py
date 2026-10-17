@@ -54,6 +54,19 @@ class DecisionLogTest(unittest.TestCase):
         paper.accept_task(self.project)
         rows=self.rows();self.assertEqual(rows[-1]['kind'],'task_acceptance');self.assertEqual(rows[-1]['who'],'person')
 
+    def test_typed_code_answers_and_confirmed_values_keep_provenance(self):
+        from harness.judgements import Judgements
+        from unittest.mock import Mock
+        paper=Mock();paper.data=self.data;paper.requests={'r':{'root':str(self.project)}}
+        paper.confirmed_value.return_value=True
+        classifier=Mock();judge=Judgements(paper,classifier)
+        judge.decide('r','shell_risk',['private command','private path'],code_answer='dangerous')
+        judge.decide('r','assumed_value',['private context','private statement'])
+        rows=self.rows()
+        self.assertEqual([(x['who'],x['answer']) for x in rows],[('code','dangerous'),('code',False)])
+        self.assertTrue(all(x['rule'] for x in rows));self.assertNotIn('private',str(rows))
+        classifier.ask.assert_not_called()
+
     def test_bench_counts_and_table_do_not_turn_missing_provenance_into_zero(self):
         self.assertIsNone(runner.decision_counts(self.data/'missing.jsonl'))
         for who in ['code','code','laya','person','model']:record(self.data,'r','example',who,'selected')

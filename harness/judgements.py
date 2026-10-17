@@ -21,10 +21,13 @@ class Judgements:
     def decide(self,request,kind,args,*,code_answer=_UNDECIDED):
         if kind not in QUESTIONS:raise ValueError('Unknown typed judgement.')
         advisory=kind in ('phase_intent','waiting_reply','shell_risk')
-        if code_answer is not _UNDECIDED:return {'answer':code_answer,'confidence':1.,'abstained':False,'who':'code','advisory':advisory}
+        if code_answer is not _UNDECIDED:
+            if isinstance(self.paperwork.data,(str,Path)):record(self.paperwork.data,request,kind,'code',code_answer,rule='judgement.code')
+            return {'answer':code_answer,'confidence':1.,'abstained':False,'who':'code','advisory':advisory}
         item=self.paperwork.requests.get(request)
         digest=hashlib.sha256(json.dumps(args[-1] if kind=='assumed_value' else args,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
         if kind=='assumed_value' and isinstance(item,dict) and self.paperwork.confirmed_value(item['root'],digest) is True:
+            if isinstance(self.paperwork.data,(str,Path)):record(self.paperwork.data,request,kind,'code',False,rule='judgement.confirmed_value')
             return {'answer':False,'confidence':1.,'abstained':False,'who':'code','advisory':False}
         result=getattr(laya,kind)(*args,classifier=self.classifier)
         if isinstance(self.paperwork.data,(str,Path)):

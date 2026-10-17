@@ -34,3 +34,6 @@ choice inside generated prose; the metric is not a proof that a model made no un
 
 Red tests failed for each missing writer and benchmark count/column. Focused writer, classifier, phase and guide tests
 pass; the chained workflow gate reruns the full Python and Node suites before committing. No real benchmark was run.
+
+Follow-up coverage: immediate code answers and reuse of an exact person-confirmed value are recorded too. The new
+regression failed because no log existed, then passed with both code rules recorded and private inputs excluded.
