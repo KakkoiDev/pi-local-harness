@@ -43,6 +43,9 @@ move the workbench points that session at the new folder (a copy of the session 
 the workbench: after a rename or move, `pi -c` in the new folder starts a new session, and resuming an old one asks which
 folder to continue in.
 
+A running Preview stops and starts again in the new folder (Open on Phone has to be turned on again). Rename, Move and
+Move to Trash wait while Pi works in that project or in the terminal.
+
 ## Chat or Work?
 
 **Chat** (⌘1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌘2) shows the files: edit

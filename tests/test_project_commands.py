@@ -117,6 +117,43 @@ class ProjectCommandsTest(unittest.TestCase):
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
 
 
+class PreviewFollowsTest(unittest.TestCase):
+    """Task 262 (review P0-3): the Preview kept serving the old folder after a rename (88 404s in the live log). The
+    harness stops the app it started (by its process handle) and starts it again in the new folder."""
+    def setUp(self):
+        import sys
+        from harness.preview import Previews
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.chat = WebChat(self.root / 'chats', 1, 2, data_root=self.root / 'data'); self.addCleanup(self.chat.close)
+        self.chat.previews.close()
+        # An app that only sleeps; its arguments name the folder it was started in.
+        self.chat.previews = Previews(self.root / 'data' / '.previews', command=lambda folder, port: [sys.executable, '-c', 'import time; time.sleep(60)', str(folder)] if folder else None)
+        self.code = self.root / 'code'; self.code.mkdir()
+        self.project = self.chat.documents.create_project('Shop', str(self.code))
+        trash = patch.object(documents, 'to_trash', lambda path: shutil.move(str(path), str(self.root / Path(path).name))); trash.start(); self.addCleanup(trash.stop)
+
+    def app(self):
+        return self.chat.previews.apps.get(self.project)
+
+    def test_rename_and_move_restart_the_app_in_the_new_folder(self):
+        self.chat.preview(self.project, 'start'); old = self.app().process
+        renamed = self.chat.project_command('rename', self.project, {'name': 'Store'})
+        self.assertIsNotNone(old.poll(), 'the old app was stopped')
+        self.assertEqual(self.app().process.args[-1], renamed['path'], 'started again in the renamed folder')
+        self.assertIn(self.chat.preview(self.project, 'status')['state'], ('starting', 'running'))
+        before = self.app().process; learning = self.code / 'learning'; learning.mkdir()
+        moved = self.chat.project_command('move', self.project, {'parent': str(learning)})
+        self.assertIsNotNone(before.poll()); self.assertEqual(self.app().process.args[-1], moved['path'])
+
+    def test_a_stopped_preview_stays_stopped_and_trash_stops_the_app(self):
+        self.chat.project_command('rename', self.project, {'name': 'Store'})
+        self.assertIsNone(self.app(), 'nothing was running: nothing starts')
+        self.chat.preview(self.project, 'start'); running = self.app().process
+        self.chat.project_command('trash', self.project, {})
+        self.assertIsNotNone(running.poll(), 'the app of a trashed project stops'); self.assertIsNone(self.app())
+
+
 class RenamedSessionsTest(unittest.TestCase):
     """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names, not in the process cwd. A renamed or
     moved project's chat session is migrated: the header names the new folder, a backup copy stays beside it."""

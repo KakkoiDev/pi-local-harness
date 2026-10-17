@@ -191,6 +191,11 @@ class Previews:
             except (ProcessLookupError, PermissionError): pass
             app.process.wait(timeout=5)
 
+    def active(self, project):
+        """The harness started this project's app and it is starting or running (task 262: Rename and Move restart it)."""
+        with self.lock: app = self.apps.get(project)
+        return bool(app and app.state in ('starting', 'running') and app.process.poll() is None)
+
     def stop(self, project):
         with self.lock: app = self.apps.pop(project, None)
         if app: app.state = 'none'; self.end_phone(app); self.end(app)

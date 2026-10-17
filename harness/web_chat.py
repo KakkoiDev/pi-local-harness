@@ -337,15 +337,23 @@ class WebChat:
             busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
             if busy:raise ProjectBusy(busy[0]['id'])
             if self.agent_running():raise ValueError('Pi is working in the terminal, maybe in this folder. Rename, move or trash the project when it has finished.')  # task 262
-        if command=='rename':
-            result=store.rename_project(project,data.get('name',''))
-            for summary in self.store.list():
-                if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
+        if command in ('rename','move'):
+            # Task 262: the Preview's app runs in the folder; the harness stops it (its own process) and starts it again there.
+            restart=self.previews.active(project);self.previews.stop(project)
+            try:
+                if command=='rename':
+                    result=store.rename_project(project,data.get('name',''))
+                    for summary in self.store.list():
+                        if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
+                else:result=store.move_project(project,data.get('parent',''))
+            except Exception:
+                if restart:self.previews.start(project,store.project_path(project))
+                raise
+            if restart:self.previews.start(project,Path(result['path']))
             return self.moved(project,result)
-        if command=='move':return self.moved(project,store.move_project(project,data.get('parent','')))
         if command=='locate':return self.moved(project,store.locate_project(project,data.get('path','')))
-        if command=='remove':return store.forget(project)
-        if command=='trash':return store.trash_project(project)
+        if command=='remove':self.previews.stop(project);return store.forget(project)
+        if command=='trash':self.previews.stop(project);return store.trash_project(project)
         if command=='summary':return store.project_summary(project)
         raise ValueError('Unknown project command')
     def moved(self, project, result):
