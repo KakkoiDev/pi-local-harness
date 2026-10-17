@@ -22,13 +22,27 @@ phases.
   from Discussion with planned tasks waiting: "Build the planned tasks".
 - [ ] Discussion: the web-search tool allowed (the person: "online searches are OK"); find what Pi offers or add one.
 - [x] Prepare design/briefs/round-11.md: the phase control, all three states and transitions, terminal commands, phone, Run on its own and task check-ins.
-- [ ] The person sends the brief to the designer; build the web phase control after the design re-sync.
+- [x] The designer answered and round 11 is synced in the repository.
+- [ ] Build the designed web phase control, transitions, waiting review and refusal rows.
 - [x] Update docs/plans/236-plan-mode.md and tasks 55-57 (mark them "taken over by task 247").
 
 
-## Needs design
+## Progress (2026-10-17)
 
-The current design has no phase control or phase-transition offers. The reviewable brief is design/briefs/round-11.md. It also asks for task 234’s per-file selection reasons. No phase UI has been invented or implemented; the phase persistence, Gate policy, terminal commands and search integration remain open above. The round 10 runtime stays in place until task 247 adapts it.
+The design is present; the round 10 runtime remains in place while the shared phase policy is built.
+
+- [x] Red: five phase-store tests fail because no shared phase module exists.
+- [x] Green: the phase store defaults to Discussion, uses canonical project identity, persists across restarts,
+  rejects model changes and invalid automatic transitions, requires planned tasks before Implementation, and preserves
+  the previous phase and history when saving fails. Five isolated tests pass.
+- [ ] Connect the store to Gate, trusted person controls, phase history, terminal commands and web polling. The store
+  alone does not enforce phases; the first task box remains open until these clients share it.
+
+### Policy clarification requested
+
+The design specifies the allowed file writes but not what happens to shell commands and tools that can also create
+files (browser screenshots and music). Asked the person whether Discussion and Planning should block those tools
+entirely, or allow deterministically checked read-only shell commands. No new shell exception has been implemented.
 
 ## The design (round 11, in the repo since 2026-10-17)
 
