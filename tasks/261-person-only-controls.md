@@ -31,7 +31,7 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 - [x] Red/Green 6, test runners: refuse `pytest --basetemp`, `--pastebin`, `-p`, `-o`; npm/yarn/pnpm/bun `--prefix`,
   `--cwd`, `--dir`; `make` with `VAR=` assignments or `-f`/`-C`; `node --test --experimental-loader`/`--import`;
   `bun --preload`; any `--option=<path>` outside the project. Normal runs still pass.
-- [ ] Red/Green 7, decision log: Gate's allow and success events are no longer decisions (they stay in
+- [x] Red/Green 7, decision log: Gate's allow and success events are no longer decisions (they stay in
   gate-events.jsonl); a Laya abstention is logged as abstained and not counted; the model's plan layout choices (each
   task's Kind and Files) are logged as `who=model` proposals.
 - [ ] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`, browser suites.

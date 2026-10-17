@@ -9,12 +9,15 @@ import threading
 _lock=threading.Lock()
 
 
-def record(data,request,kind,who,answer,*,confidence=None,rule=None,automatic=False):
+def record(data,request,kind,who,answer,*,confidence=None,rule=None,automatic=False,abstained=False,proposal=False):
+    """abstained: Laya did not answer (kept for provenance, not counted). proposal: the model proposed it (task 261)."""
     if data is None:return
     if who not in ('code','laya','person','model'):raise ValueError('Unknown decision author.')
     value={'time':datetime.now(timezone.utc).isoformat(timespec='milliseconds'),'request':request,'kind':kind,'who':who,'answer':answer}
     if rule:value['rule']=rule
     if automatic:value['automatic']=True
+    if abstained:value['abstained']=True
+    if proposal:value['proposal']=True
     if confidence is not None:
         if isinstance(confidence,bool) or not isinstance(confidence,(int,float)) or not math.isfinite(confidence) or not 0<=confidence<=1:raise ValueError('Invalid decision confidence.')
         value['confidence']=confidence

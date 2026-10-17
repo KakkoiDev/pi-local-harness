@@ -55,7 +55,7 @@ Python 3.12 and uv must already be installed. Requests never download a runtime 
 
 Code decides first, then Laya; uncertain answers go to an existing choice card. Laya cannot approve a plan, accept a
 task or change the phase. Use the explicit controls. Decisions record their author in `<data>/decisions.jsonl`;
-model-proposed option ordering remains visible as a model recommendation. New benchmark records count each author,
+model-proposed option ordering remains visible as a model recommendation, and each task's Kind and Files in a plan as a model proposal. Gate's allowed calls and successful audits are not decisions (they stay in `gate-events.jsonl`), and a Laya abstention is logged as abstained and not counted. New benchmark records count each author,
 while old records without provenance stay “Not recorded”. The first 40-case synthetic evaluation answered 12 cases
 correctly and abstained on 28; it does not establish reliability on arbitrary requests.
 

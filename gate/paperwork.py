@@ -133,7 +133,7 @@ class Paperwork:
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
             if not previous or any(previous.get(key)!=choice.get(key) for key in ('question','options')):
-                record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None)
+                record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None,proposal=not system)
             value={**choice,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
@@ -365,6 +365,9 @@ class Paperwork:
                     if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
                     if any(rules.written_decision(task[key]) for key in ('title','done_when','content')):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                     prepared.append(task)
+                for task in prepared:  # the model's layout choices, measured as its proposals (task 261); no file names
+                    record_decision(self.data,request,'task_kind','model',task.get('kind','code'),proposal=True)
+                    record_decision(self.data,request,'task_files','model',len(task['files']),proposal=True)
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
                 (root/'tasks').mkdir(exist_ok=True)
                 roadmap=root/'ROADMAP.md';text=roadmap.read_text() if roadmap.exists() else '# Roadmap\n'

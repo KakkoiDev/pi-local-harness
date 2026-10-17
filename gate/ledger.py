@@ -117,7 +117,8 @@ class ProposalLedger:
                 command=proposal.args.get('command','')
                 if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
                     self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
-        record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
+        # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
+        if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:
