@@ -80,10 +80,11 @@ if request['message'].rstrip().endswith('TEST_PHASE_CHECK'):
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'The counter works.'}]}})
     emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)
-if request['message'].rstrip().endswith('TEST_PLAN'):
+if request['message'].rstrip().endswith(('TEST_PLAN','TEST_ERROR_PLAN')):
     plan={'goal':'A pong game.','tasks':[{'title':'Move the ball','done_when':'The ball bounces.'}],'pending':True}
     emit({'type':'extension_ui_request','method':'notify','message':'Harness plan: '+json.dumps(plan)})
-    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
+    error=request['message'].rstrip().endswith('TEST_ERROR_PLAN')
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Context before your plan.'}] if error else [],'stopReason':'error' if error else 'aborted','errorMessage':'This operation was aborted'}})
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)
@@ -93,10 +94,11 @@ if request['message'].rstrip().endswith('TEST_CHECK_IN'):
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'The ball moves.'}]}})
     emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)
-if request['message'].rstrip().endswith('TEST_CHOICE'):
+if request['message'].rstrip().endswith(('TEST_CHOICE','TEST_ERROR_CHOICE','TEST_BROKEN_CHOICE')):
     choice={'number':1,'total':3,'question':'Who uses it?','options':[{'label':'Only me'},{'label':'A team'}],'recommended':0,'pending':True}
     emit({'type':'extension_ui_request','method':'notify','message':'Harness choice: '+json.dumps(choice)})
-    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
+    error=request['message'].rstrip().endswith(('TEST_ERROR_CHOICE','TEST_BROKEN_CHOICE'))
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Context before your choice.'}] if error else [],'stopReason':'error' if error else 'aborted','errorMessage':'Model crashed' if request['message'].rstrip().endswith('TEST_BROKEN_CHOICE') else 'This operation was aborted'}})
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)

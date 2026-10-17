@@ -143,6 +143,20 @@ def prepare_prompt(text, attachments, directory, speech=transcribe):
         files.append({'name':name,'mime':mime,'size':len(data),'path':str(path)})
     return '\n\n'.join(parts),images,files
 
+def intentional_pause(message, *, recovering=False, choice=None, plan=None):
+    """Only an actual pending control/recovery explains Pi's known intentional abort shapes.
+
+    Pi may encode ctx.abort() as stopReason=error. Never hide arbitrary provider errors.
+    """
+    waiting = recovering or bool(choice and choice.get('pending')) or bool(plan and plan.get('pending'))
+    if not waiting:
+        return False
+    return message.get('stopReason') == 'aborted' or (
+        message.get('stopReason') == 'error' and
+        str(message.get('errorMessage', '')).strip().rstrip('.').casefold() in
+        {'this operation was aborted', 'the operation was aborted', 'operation aborted'})
+
+
 def readable_error(text):
     """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
     missing=re.search(r"model '([^']+)' not found",str(text))
@@ -571,7 +585,10 @@ class WebChat:
                 if event.get('type')=='message_end':
                     message=event.get('message',{})
                     if message.get('role')=='assistant':
-                        if message.get('stopReason')=='aborted' and (phase=='recovering' or pending_choice or pending_plan):continue  # stopped to recover; wait for the re-ask
+                        if intentional_pause(message,recovering=phase=='recovering',choice=pending_choice,plan=pending_plan):
+                            text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
+                            if text:reply=text
+                            continue  # persist the control and preceding answer when settled
                         if message.get('stopReason') in ('error','aborted'):raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
@@ -595,8 +612,8 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
-            if pending_plan and not pending_plan.get('approved'):reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nStart Building?'
-            if pending_choice:reply=pending_choice['question']
+            if pending_plan and not pending_plan.get('approved') and not reply:reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nStart Building?'
+            if pending_choice and not reply:reply=pending_choice['question']
             if not reply:raise ValueError('Pi completed without an assistant answer')
             note=None if os.environ.get('PI_HARNESS_BARE')=='1' else verification_note(before,checked())  # the bench baseline marks nothing
             if note and not committed:  # with a commit, the DoneRow says "! Not verified" (round 7): the answer stays Pi's words

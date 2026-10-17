@@ -298,3 +298,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [253-Record one application foundation with multiple packaging targets](tasks/253-record-one-app-packaging-direction.md)
 - [x] [254-Add the endorsed improvement priorities to Claude’s handoff](tasks/254-add-improvement-priorities-to-handoff.md)
 - [x] [255-Refuse completion of code tasks without an implementation change](tasks/255-refuse-empty-code-task-completion.md)
+- [x] [256-Preserve replies when Pi pauses for a choice or plan](tasks/256-preserve-intentional-control-pauses.md)

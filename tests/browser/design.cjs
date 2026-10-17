@@ -1010,10 +1010,11 @@ paper.start_building(root)
   // Round 10: the card answers through the real composer and keeps its settled state after reload.
   await page.setViewportSize({width:1440,height:900});
   await post('/api/settings',{language:'en'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));
-  const choiceJob=await post('/api/jobs/create',{project:created.project,message:'Discuss the app TEST_CHOICE'});
+  const choiceJob=await post('/api/jobs/create',{project:created.project,message:'Discuss the app TEST_ERROR_CHOICE'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),choiceJob.id);
   await page.goto(`${base}/p/${created.project}/chat`);
   const choiceCard=page.locator('.pw-card[aria-label="Who uses it?"]');await choiceCard.waitFor();
+  await page.locator('#messages').getByText('Context before your choice.',{exact:true}).waitFor();
   assert.equal(await choiceCard.locator('input[type="radio"]').first().isChecked(),true);
   await choiceCard.getByText('Something else…',{exact:true}).click();
   await choiceCard.getByRole('textbox',{name:'Your answer'}).fill('A study group');
@@ -1029,9 +1030,10 @@ paper.start_building(root)
    if(attempt===0){await page.locator('#alert-default').click();await page.waitForFunction(()=>!document.querySelector('#auto-composer').checked);}
    else {await page.locator('#alert-danger').click();await page.waitForFunction(()=>fetch('/api/auto').then(r=>r.json()).then(d=>d.enabled));await page.locator('#auto-composer').uncheck();await page.waitForFunction(()=>fetch('/api/auto').then(r=>r.json()).then(d=>!d.enabled));}
   }
-  const planJob=await post('/api/jobs/create',{project:created.project,message:'Discuss a plan TEST_PLAN'});
+  const planJob=await post('/api/jobs/create',{project:created.project,message:'Discuss a plan TEST_ERROR_PLAN'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),planJob.id);
   await page.reload();const planCard=page.locator('.pw-card[aria-label="Plan"]').last();await planCard.waitFor();
+  await page.locator('#messages').getByText('Context before your plan.',{exact:true}).waitFor();
   assert.match(await planCard.textContent(),/Move the ball/);await planCard.getByRole('button',{name:'Change…',exact:true}).click();
   assert.equal(await page.locator('#send').textContent(),'Send Change');assert.equal(await page.locator('#prompt').inputValue(),'');
   const checkJob=await post('/api/jobs/create',{project:created.project,message:'Check in TEST_CHECK_IN'});
