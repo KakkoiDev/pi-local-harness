@@ -97,6 +97,20 @@ class PhasePermissionTest(unittest.TestCase):
         self.assertIn('No approved task', refusal('implementation', self.root, 'write_file', {'path': 'app.py'}, cwd=self.root))
         self.assertIn('Add a Files: line in Planning, then Start Building', refusal('implementation', self.root, 'write_file', {'path': 'app.py'}, cwd=self.root, task='# 001: No Files', approved=True))
 
+    def test_refusals_say_what_did_not_happen(self):
+        """Task 263: a refused command did not run and a refused plan was not proposed; neither was "Not written"."""
+        for phase in ('discussion', 'planning'):
+            said = self.check(phase, 'execute_command', {'command': 'touch app.py'}, pi_tool='bash')
+            self.assertTrue(said.startswith('Not run:'), said)
+        said = self.check('implementation', 'execute_command', {'command': 'touch app.py'}, pi_tool='bash')
+        self.assertTrue(said.startswith('Not run:'), said); self.assertIn('001: Count', said)
+        from gate.phases import refusal
+        said = refusal('implementation', self.root, 'execute_command', {'command': 'touch app.py'}, cwd=self.root, pi_tool='bash')
+        self.assertTrue(said.startswith('Not run:'), said)
+        said = self.check('discussion', 'read_file', {}, pi_tool='propose_plan')
+        self.assertTrue(said.startswith('Not proposed:'), said)
+        self.assertTrue(self.check('discussion', 'write_file', {'path': 'app.py'}, pi_tool='write').startswith('Not written:'))
+
     def test_plan_proposal_is_not_a_read_only_tool(self):
         self.assertIn('Discussion', self.check('discussion', 'read_file', {}, pi_tool='propose_plan'))
         self.assertIsNone(self.check('planning', 'read_file', {}, pi_tool='propose_plan'))
@@ -134,6 +148,12 @@ class PhaseGateTest(unittest.TestCase):
         outside=tempfile.TemporaryDirectory();self.addCleanup(outside.cleanup);folder=Path(outside.name)
         result=self.ledger.propose('write_file',{'path':'app.py','content':'x=1'},'admin',cwd=str(folder),pi_tool='write')
         self.assertEqual(result.get('phase'),'discussion')
+        # Task 263: the refusal says the folder is not a project and how to make it one, not "press ⇧⌘2" (no phase button there).
+        self.assertIn('is not a project',result['reason']);self.assertIn('ROADMAP.md',result['reason']);self.assertNotIn('⇧⌘2',result['reason'])
+        shell=self.ledger.propose('execute_command',{'command':'touch app.py'},'admin',cwd=str(folder),pi_tool='bash')
+        self.assertIn('is not a project',shell['reason']);self.assertIn('Not run',shell['reason'])
+        inside=self.propose('write_file',{'path':'app.py','content':'x=1'},pi_tool='write')
+        self.assertNotIn('is not a project',inside['reason'],'a project in Discussion keeps the phase refusal')
 
     def test_publication_audit_only_runs_for_its_approved_task_and_project(self):
         paper=self.ledger.paperwork;task='tasks/002-ready-to-publish.md'

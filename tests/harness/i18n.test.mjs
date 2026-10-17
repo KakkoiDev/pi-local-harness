@@ -42,4 +42,8 @@ test('round 11 phase refusals have Japanese copy and preserve the task and file'
  for(const text of ['Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).','Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'])assert.ok(translate(text),text);
  const outside=translate('Not written: app.py is not part of task 001: Count. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.');
  assert.ok(outside);assert.match(outside,/app.py/);assert.match(outside,/001: Count/);
+ // Task 263: every refusal sentence Gate's phases can say, read from gate/phases.py itself, has Japanese copy.
+ const source=readFileSync(new URL('../../gate/phases.py',import.meta.url),'utf8');
+ for(const [,text] of source.matchAll(/^[A-Z_]+_REFUSAL = '([^']+)'$/gm))assert.ok(translate(text.replace('{verb}','Not run').replace('{folder}','/tmp/x')),text);
+ assert.match(translate('Not run: in Implementation Pi can run tests and read-only commands; other commands could change files outside task 001: Count. Run the tests, or change the task’s files with edit or write.'),/001: Count/);
 });

@@ -66,8 +66,8 @@ remove those lines by hand; the harness does not do it.
 
 ## 5. Small fixes (P2/P3)
 
-- [ ] Red (unit): a refused command says "Not run", a refused plan proposal "Not proposed", not "Not written".
-- [ ] Red (unit): writing in a folder that is not a project says so (register it or add ROADMAP.md), not ⇧⌘2.
+- [x] Red (unit): a refused command says "Not run", a refused plan proposal "Not proposed", not "Not written".
+- [x] Red (unit): writing in a folder that is not a project says so (register it or add ROADMAP.md), not ⇧⌘2.
 - [ ] Red (unit): G-010 and box counting treat `-`, `*` and `+` bullets the same (a `* [x] Red` tick is refused like
       `- [x] Red`; `+ [ ]` counts as open).
 - [ ] Red (unit): propose_plan keeps the roadmap's task lines when ROADMAP.md has no heading after `## Goal`.
