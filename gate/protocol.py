@@ -236,6 +236,15 @@ class Protocol:
         except CheckFailed:
             return
 
+    def move(self, old, new):
+        """Task 262: a project's folder was renamed or moved; its runs (keyed by folder) follow it, and so do those of
+        projects nested inside it."""
+        old, new = Path(old).resolve(), Path(new).resolve()
+        with self.lock:
+            moved = {root: new / root.relative_to(old) for root in self.runs if root == old or root.is_relative_to(old)}
+            for root, target in moved.items(): self.runs.setdefault(target, []).extend(self.runs.pop(root))
+            if moved: self.save()
+
     def verification(self, root):
         """G-012: (code state, changed code paths, whether a passing run was seen on exactly this code), or None."""
         try:

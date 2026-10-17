@@ -43,6 +43,7 @@ class DocumentStore:
         self.projects=self.root/'projects';self.projects.mkdir(exist_ok=True)
         self.lock=threading.RLock()
         self.before_project_move=lambda root:None
+        self.after_project_move=lambda old,new:None  # task 262: Gate's history keyed by folder follows the project
         self.registry_file=self.root/'.projects.json'
         self.registry=json.loads(self.registry_file.read_text()) if self.registry_file.exists() else {}
         self.discover(legacy=True)
@@ -362,7 +363,7 @@ class DocumentStore:
             if target.exists() and target.resolve()!=path:raise ValueError(f'A folder named “{name}” already exists in {path.parent}.')
             self.before_project_move(path)
             previous=path.name;path.rename(target)
-            entry.update(name=name,path=str(target));self.save_registry()
+            entry.update(name=name,path=str(target));self.save_registry();self.after_project_move(path,target)
             return {'project':project,'name':name,'path':str(target),'previous':previous}
     def move_project(self, project, parent):
         """Move Project…: the folder moves into another folder, across drives too. The id stays."""
@@ -377,7 +378,7 @@ class DocumentStore:
             if target.exists():raise ValueError(f'{parent} already has a folder named “{path.name}”.')
             self.before_project_move(path)
             previous=str(path.parent);shutil.move(str(path),str(target))
-            entry['path']=str(target);self.save_registry()
+            entry['path']=str(target);self.save_registry();self.after_project_move(path,target)
             return {'project':project,'name':entry['name'],'path':str(target),'previous':previous}
     def locate_project(self, project, directory):
         """Locate Folder…: a project whose folder went missing points at where it is now. Nothing on disk changes."""
@@ -389,8 +390,8 @@ class DocumentStore:
             entry=self.entry(project)
             if Path(entry['path']).is_dir():raise ValueError('The project folder is not missing. Use Move Project… instead.')
             if any(key!=project and not value.get('removed') and Path(value['path']).resolve()==path for key,value in self.registry.items()):raise ValueError('That folder is already a project.')
-            self.before_project_move(Path(entry['path']))
-            entry.update(name=slug(path.name),path=str(path));self.save_registry()
+            self.before_project_move(Path(entry['path']));old=Path(entry['path'])
+            entry.update(name=slug(path.name),path=str(path));self.save_registry();self.after_project_move(old,path)
             return {'project':project,'name':entry['name'],'path':str(path)}
     def project_summary(self, project):
         """What Move to Trash will move: counts of files and folders (the alert names them), the path and its parent."""

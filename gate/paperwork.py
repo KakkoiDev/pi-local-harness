@@ -78,7 +78,7 @@ class Paperwork:
     @projects.setter
     def projects(self, store):
         self._projects=store
-        if store:store.before_project_move=self.prepare_project_move
+        if store:store.before_project_move=self.prepare_project_move;store.after_project_move=lambda old,new:self.protocol.move(old,new) if self.protocol else None
 
     def prepare_project_move(self, root):
         # Migrate old path records while registration still points at their original path.

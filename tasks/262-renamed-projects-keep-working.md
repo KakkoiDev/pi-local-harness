@@ -22,19 +22,25 @@ folder and keeps every message (`messageCount` unchanged). So the harness migrat
 - [x] Red (unit): Rename, Move and Move to Trash are refused while terminal Pi holds `.agent-lock`.
 - [x] Red (unit): a running Preview follows Rename and Move: the old server is stopped by the harness's handle and
       started again in the new folder; a stopped Preview stays stopped; Move to Trash and Remove from List stop it.
-- [ ] Red (unit): Gate's test-run history (`gate-protocol.json`, keyed by folder) follows Rename and Move.
+- [x] Red (unit): Gate's test-run history (`gate-protocol.json`, keyed by folder) follows Rename and Move.
 - [x] Migrate the session header before launch (`harness/web_chat.py`) and in Rename/Move (`WebChat.project_command`).
 - [x] uuid ids on create/register; start-up migration of unregistered data-folder projects (`harness/documents.py`).
 - [x] Refuse project commands while any agent works (`agent_running()`), with a clear message.
 - [x] Restart the Preview in the new folder on Rename/Move (`Previews.active`, `WebChat.project_command`).
-- [ ] Move Gate's runs to the new folder (`after_project_move`).
+- [x] Move Gate's runs to the new folder (`after_project_move`).
 - [x] Document terminal Pi's sessions (harness/GUIDE.md).
-- [ ] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`.
+- [x] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`.
 
 Terminal Pi (plh) keeps its own sessions in `~/.pi/agent/sessions/<encoded folder>/`, keyed by the folder, outside
 the workbench's data. After a rename or move, `pi -c` in the new folder starts a new session; resuming an old one
 (`pi -r`) asks which folder to continue in. The harness does not rewrite those files (they are Pi's, not the
 workbench's); the guide says so.
+
+Browser suites (design, chat) pass with the scratch Playwright setup (project ids are uuids in them now).
+
+Not verified: the real Pi was run only through RPC
+`get_state` and `bash`, never a model turn; Open on Phone is not turned on again after a restart; other path-keyed
+records (test-runs.jsonl rows, audit log cwd) keep the old folder as history.
 
 ## Needs design
 

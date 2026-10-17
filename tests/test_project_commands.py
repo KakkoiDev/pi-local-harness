@@ -154,6 +154,27 @@ class PreviewFollowsTest(unittest.TestCase):
         self.assertIsNotNone(running.poll(), 'the app of a trashed project stops'); self.assertIsNone(self.app())
 
 
+class GateHistoryFollowsTest(unittest.TestCase):
+    """Task 262: Gate's test-run history (gate-protocol.json) is keyed by the project's folder; it follows Rename and Move."""
+    def test_runs_follow_rename_and_move(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root = Path(temp.name)
+        store = documents.DocumentStore(root / 'data'); code = root / 'code'; code.mkdir()
+        protocol = Protocol(root / 'data' / 'gate-protocol.json'); paperwork = Paperwork(protocol, data=root / 'data'); paperwork.projects = store
+        project = store.create_project('Shop', str(code)); folder = store.project_path(project)
+        (folder / 'app.py').write_text('print(1)\n')
+        protocol.record(str(folder), 'python3 -m unittest', False)
+        self.assertTrue(protocol.failed_run(folder))
+        renamed = Path(store.rename_project(project, 'Store')['path'])
+        self.assertTrue(protocol.failed_run(renamed), 'the failing run is still known after the rename')
+        self.assertNotIn(folder, protocol.runs, 'no record left under the old folder')
+        learning = code / 'learning'; learning.mkdir()
+        moved = Path(store.move_project(project, str(learning))['path'])
+        self.assertTrue(protocol.failed_run(moved))
+        self.assertTrue(Protocol(root / 'data' / 'gate-protocol.json').failed_run(moved), 'saved: Gate finds it after a restart')
+
+
 class RenamedSessionsTest(unittest.TestCase):
     """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names, not in the process cwd. A renamed or
     moved project's chat session is migrated: the header names the new folder, a backup copy stays beside it."""
