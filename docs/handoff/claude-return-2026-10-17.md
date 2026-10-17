@@ -121,3 +121,30 @@ At the owner’s further request, task 252 publishes the available per-run recor
 ## Owner clarification recorded 18 October: one app, multiple packages
 
 Full stack, frontend only and mobile are intended as export/packaging targets of the same Python/HTMX application foundation. Capability selection is separate from packaging; the model should not maintain separate business-logic implementations for each target. [Plan 253](../plans/253-one-app-many-packages.md) records shared source, platform adapters, target compatibility checks and an acceptance sequence. It supersedes plan 198's historical JavaScript-only business-logic starter direction for future frontend-only work. It does not migrate existing apps or claim a Python/WASM adapter is implemented. The immediate goal remains capability and reliability, with generated-app performance/scalability later.
+
+## Seven improvement areas endorsed by the owner · 18 October
+
+The owner asked that the following assessment be added to this handoff. These are priorities for future scoped planning, not implemented features or approval to bypass phases. Generated-app performance and scalability still come later.
+
+1. **Reliable build-and-repair loop.** Recover from failed commands, interrupted requests and broken tests while retaining the goal and settled decisions. Fix false completion and lost replies before expanding the workflow.
+2. **Executable success criteria.** Translate requirements into observable examples, such as “after reloading, the note retains its priority.” System 1 requires task-relevant evidence before completion; a successful export or unrelated passing test is insufficient.
+3. **Capability catalog with contracts.** Each reusable block includes implementation, tests, examples, dependencies and supported targets. System 1 checks compatibility, rather than leaving integration assumptions to the model.
+4. **Tools that match app-building tasks.** Provide checked operations for adding routes, creating migrations, running particular tests, inspecting pages and assembling blocks. Reduce fragile shell usage and model-owned paperwork while preserving generation for novel behavior. These operations still pass through Gate.
+5. **Relevant task context and durable decisions.** Supply the approved requirement, relevant code/interfaces and latest failure evidence. Preserve settled decisions through compaction so they do not become repeated questions.
+6. **Continuously runnable apps.** Maintain a working preview and test complete journeys—create, edit, reload, recover—alongside unit tests. Reuse the behavior cases across packaging targets.
+7. **Understandable progress and recovery.** Show what works, what is blocked, which evidence is missing and what happens next. Provide useful explanations for beginners and inspectable detail for experienced engineers without repeated questioning. UI changes still need local design specifications.
+
+Suggested order: **trustworthy completion → reliable execution/recovery → one complete app journey → reusable blocks → broader app types and packaging**.
+
+A practical success measure: can someone describe a useful app, obtain a working version, request several changes and recover from a failure without manually repairing the project? Record actual app behavior and intervention needs rather than relying on generated text or green job status.
+
+## Further improvement proposals for discussion
+
+These additions are recommendations from the agent, distinct from the seven areas the owner explicitly endorsed. They require scoped plans and evidence before implementation.
+
+- **Safe evolution of existing apps.** A second or tenth change must preserve earlier behavior and the person's custom work. Version blocks, define update boundaries, test upgrades, and make recovery understandable. Replacing a starter is easier than safely maintaining a useful application.
+- **Data remains usable through change.** Test migrations, backup/restore and import/export against realistic sample data. Separate rolling back code from restoring data: one does not automatically reverse the other. Use scratch fixtures and recoverable operations, never personal data as a test bed.
+- **Evaluate ongoing development, not only first generation.** Include multi-turn scenarios: build an app, change a requirement, add a block, encounter a failure, resume, export and reopen it. Score preserved behavior, completed journeys and required human repairs. This is future evaluation design, not permission to start more model runs.
+- **Accessibility and language support in the foundation.** Reusable controls should have labels, keyboard operation, clear validation and localizable text. Prove these behaviors in the block tests so each app does not have to rediscover them. Concrete controls and visible copy remain subject to the designer's specification.
+
+Keep these subordinate to the immediate repair order. A longer feature list must not delay establishing a truthful, recoverable end-to-end building loop.
