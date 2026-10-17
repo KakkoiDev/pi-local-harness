@@ -24,10 +24,16 @@ def requires_plan(text, task='', *, first=False, small_fix=False):
     return first
 
 
+def git_internal(path):
+    """A path inside a repository's .git folder (the project's or a nested one's)."""
+    return '.git' in PurePosixPath(str(path).replace('\\', '/')).parts
+
+
 def file_allowed(task, path):
     """Files lists exact files and directory prefixes; no outside-project paths."""
     path = str(path).replace('\\', '/')
     if PurePosixPath(path).is_absolute() or '..' in PurePosixPath(path).parts: return False
+    if git_internal(path): return False  # task 261: a hook there would run with the harness's own commit
     match = re.search(r'^Files:\s*(.+)$', task, re.M)
     if not match: return True
     entries = [entry.strip().strip('`') for entry in match[1].split(',')]

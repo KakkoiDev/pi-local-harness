@@ -329,6 +329,8 @@ class Paperwork:
                     if any(not isinstance(task.get(key),str) or not task[key].strip() for key in ('title','done_when','content')):raise ValueError('Each task needs a title, Done when and content.')
                     files=task.get('files')
                     if not isinstance(files,list) or not files or any(not isinstance(path,str) or not path or Path(path).is_absolute() or '..' in Path(path).parts or '\n' in path or ',' in path for path in files):raise ValueError('Each task needs project-relative files.')
+                    from .planning import git_internal
+                    if any(git_internal(path) for path in files):raise ValueError('Files cannot include .git/: the harness keeps the repository itself.')
                     if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
                     prepared.append(task)
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
@@ -606,7 +608,8 @@ class Paperwork:
         """One commit for the request's files, by the harness: {'message', 'commit'} (the handle for Undo This Request),
         or {'outcome': 'commit failed', 'reason'}."""
         name, email = self.identity
-        done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', 'commit', '-q', '-m', message,
+        # Hooks off (task 261): a hook in .git/hooks would run the model's code with the harness's commit.
+        done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', message,
                                *(['-m', body] if body else []), '--', *paths], capture_output=True, text=True, timeout=60) if self.add(root, paths) else None
         if not done or done.returncode:
             return {'outcome': 'commit failed', 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}

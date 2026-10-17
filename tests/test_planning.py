@@ -33,3 +33,11 @@ class PlanningPolicyTest(unittest.TestCase):
             self.assertTrue(file_allowed(task,path),path)
         for path in ['src-other/game.py','tests/test_other.py','../src/game.py','/src/game.py']:
             self.assertFalse(file_allowed(task,path),path)
+
+    def test_git_internals_are_never_in_a_tasks_files(self):
+        # Task 261: a hook in .git/ would run with the harness's own commit.
+        for task in ['# Task\nFiles: .git/hooks/pre-commit\n', '# Task\nFiles: .git/\n', '# Task\nFiles: vendor/\n', '# Task\n']:
+            for path in ['.git/hooks/pre-commit', '.git/config', 'vendor/lib/.git/hooks/post-commit', '.git']:
+                self.assertFalse(file_allowed(task, path), (task, path))
+        self.assertTrue(file_allowed('# Task\nFiles: .github/workflows/test.yml, .gitignore\n', '.gitignore'))
+        self.assertTrue(file_allowed('# Task\nFiles: .github/workflows/test.yml\n', '.github/workflows/test.yml'))

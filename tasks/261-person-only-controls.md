@@ -25,7 +25,7 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 - [ ] Red/Green 4, model-written decisions: Gate refuses writes to ROADMAP.md and tasks/ that add “(chosen …)”,
   “(given …)” or “(auto …)” lines or a `## Decisions` section, and propose_plan refuses such content. Decisions are kept
   by the harness when `paperwork.decision` records them; G-017 and the plan card read those records.
-- [ ] Red/Green 5, Files: a path in `.git/` is never in a task's Files (propose_plan refuses it, Gate refuses the write);
+- [x] Red/Green 5, Files: a path in `.git/` is never in a task's Files (propose_plan refuses it, Gate refuses the write);
   the harness commits with hooks disabled (`core.hooksPath=/dev/null`), also for Undo's commits.
 - [ ] Red/Green 6, test runners: refuse `pytest --basetemp`, `--pastebin`, `-p`, `-o`; npm/yarn/pnpm/bun `--prefix`,
   `--cwd`, `--dir`; `make` with `VAR=` assignments or `-f`/`-C`; `node --test --experimental-loader`/`--import`;

@@ -171,6 +171,46 @@ class GateRoutesTest(unittest.TestCase):
         self.assertEqual((status, value['phase']), (200, 'discussion'))
 
 
+class GitHooksTest(unittest.TestCase):
+    """A hook planted in .git/hooks never runs with the harness's commits (task 261)."""
+    def setUp(self):
+        import subprocess
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name).resolve(); self.marker = self.root.parent / (self.root.name + '-hook-ran')
+        self.addCleanup(lambda: self.marker.unlink(missing_ok=True))
+        git = lambda *args: subprocess.run(['git', '-C', str(self.root), *args], check=True, capture_output=True)
+        git('init', '-q'); git('config', 'user.name', 'Person'); git('config', 'user.email', 'person@localhost')
+        (self.root / 'app.py').write_text('x = 1\n' + ''.join(f'# line {n}\n' for n in range(10)) + 'y = 1\n'); git('add', '.'); git('-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', 'start')
+        for name in ('pre-commit', 'commit-msg', 'post-commit', 'prepare-commit-msg'):
+            hook = self.root / '.git/hooks' / name; hook.write_text(f'#!/bin/sh\necho {name} >> "{self.marker}"\n'); hook.chmod(0o755)
+
+    def test_paperwork_commits_without_running_hooks(self):
+        from gate.paperwork import Paperwork
+        (self.root / 'app.py').write_text('x = 2\n')
+        saved = Paperwork(None).commit(self.root, ['app.py'], 'Change x (task 001)')
+        self.assertIn('commit', saved, saved)
+        self.assertFalse(self.marker.exists(), self.marker.read_text() if self.marker.exists() else '')
+
+    def test_a_plan_cannot_grant_git_internals(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        (self.root / 'tasks').mkdir(); (self.root / 'ROADMAP.md').write_text('# Roadmap\n\n## Goal\nCount.\n')
+        paper = ProposalLedger(GateEngine('', str(self.root.parent / (self.root.name + '-audit.log')))).paperwork
+        paper.phases.choose(self.root, 'planning', actor='person'); paper.start('r', str(self.root), 'Plan it')
+        for files in (['.git/hooks/pre-commit'], ['app.py', '.git/'], ['lib/.git/config']):
+            with self.subTest(files=files), self.assertRaisesRegex(ValueError, r'\.git/'):
+                paper.propose_plan('r', {'goal': 'Count.', 'tasks': [{'title': 'Hook', 'files': files, 'done_when': 'Runs.', 'content': 'Add it.'}]})
+
+    def test_undo_and_saved_edits_commit_without_running_hooks(self):
+        from gate.paperwork import Paperwork
+        from harness import undo
+        (self.root / 'app.py').write_text((self.root / 'app.py').read_text().replace('x = 1', 'x = 2'))
+        saved = Paperwork(None).commit(self.root, ['app.py'], 'Change x (task 001)')
+        (self.root / 'app.py').write_text((self.root / 'app.py').read_text().replace('y = 1', 'y = 5'))  # the person's unsaved edit
+        result = undo.undo(self.root, saved['commit'], save_first=True)
+        self.assertEqual(result['outcome'], 'undone', result)
+        self.assertFalse(self.marker.exists(), self.marker.read_text() if self.marker.exists() else '')
+
 
 if __name__ == '__main__':
     unittest.main()
