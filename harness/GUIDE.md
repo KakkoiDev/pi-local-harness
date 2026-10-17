@@ -54,7 +54,7 @@ Under each place you send something, "Pi sees:" lists the files Pi gets with tha
 files you mention, related ones). Web and terminal Pi choose again for each message and recovery. Project rules,
 the plan and the active task take priority; generated files, dependencies, licences, binaries and files over 40 KB
 are excluded. Activity records each selection and why each file was chosen. After an answer, "Also read:" lists
-the files Pi opened itself.
+the files Pi opened itself. The word beside each selected file explains its role: rules, plan, task, named, changed or related. **Why?** opens the recorded reason and full path for every selected file, in a popover on the desktop or a sheet with Done on the phone. Escape closes it and returns to Why?.
 
 ## Where do I see what Pi is doing?
 

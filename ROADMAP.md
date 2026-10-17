@@ -275,7 +275,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [231-"Ready to publish": an audit task at the end of every roadmap](tasks/231-ready-to-publish-audit.md)
 - [x] [232-Tasks get a short title](tasks/232-short-task-titles.md)
 - [x] [233-Gate checks that the plan is filled in](tasks/233-plan-files-filled.md)
-- [ ] [234-Each turn, only the needed files are in context](tasks/234-context-only-what-is-needed.md)
+- [x] [234-Each turn, only the needed files are in context](tasks/234-context-only-what-is-needed.md)
 - [x] [235-Bench scenario: a pong game from the starter](tasks/235-bench-pong-from-starter.md)
 - [ ] [236-Plan mode: decisions become choices, Gate catches guesses](tasks/236-plan-mode-choices.md)
 - [x] [237-Plan mode: plan before code, approval, check-ins](tasks/237-plan-mode-plan-and-check-ins.md)

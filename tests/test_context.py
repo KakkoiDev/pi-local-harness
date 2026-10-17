@@ -47,6 +47,8 @@ class ContextTest(unittest.TestCase):
         self.assertFalse(any(name in result['text'] for name in ['vendor/','LICENSE','uv.lock','large-ball.txt','ball.bin','dist/ball.js','static/app.css']))
         self.assertEqual(set(result['reasons']),set(result['included']))
         self.assertEqual(result['reasons']['README.md'],'Project rules')
+        item=next(item for item in result['items'] if item.get('path')=='README.md')
+        self.assertEqual(item['full_path'],str((self.root/'README.md').resolve()))
         self.write('js/app.mjs','export const clock = 3;\n');self.write('js/ball.mjs','export const ballSpeed = 4;\n')
         again=self.build('make the ball faster')
         self.assertIn('js/ball.mjs',again['included']);self.assertNotIn('js/app.mjs',again['included'])

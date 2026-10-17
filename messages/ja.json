@@ -1174,7 +1174,33 @@
   "Return": "Return",
   "Quit plh: Quit in the π menu-bar item, or Control-C in its terminal.\nStart it again: open Pi Workbench, or type plh.\nThis page reconnects by itself.": "plh を終了：メニューバーの π から終了するか、ターミナルで Control-C を押します。\n再起動：Pi Workbench を開くか、plh と入力します。\nこのページは自動で再接続します。",
   "Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.": "Pi Workbench のファイルに未コミットの編集があります。更新すると上書きされるため、更新できません。",
-  "This copy has its own changes (1 commit not on GitHub), so it is not updated automatically.": "このコピーには GitHub にないコミットが1件あるため、自動更新されません。"
+  "This copy has its own changes (1 commit not on GitHub), so it is not updated automatically.": "このコピーには GitHub にないコミットが1件あるため、自動更新されません。",
+  "(rules)": "（ルール）",
+  "(task)": "（作業中のタスク）",
+  "(named)": "（指定）",
+  "(changed)": "（変更）",
+  "(related)": "（関連）",
+  "(Pi opened it)": "（Pi が開いたファイル）",
+  "rules": "ルール",
+  "plan": "計画",
+  "task": "作業中のタスク",
+  "named": "指定",
+  "changed": "変更",
+  "related": "関連",
+  "this file": "このファイル",
+  "Why Pi sees these files": "Pi がこれらのファイルを見る理由",
+  "Always: the project’s rules": "常に含む：プロジェクトのルール",
+  "Always: the plan": "常に含む：計画",
+  "Always: the task in progress": "常に含む：作業中のタスク",
+  "Last harness commit": "直近のハーネスによるコミットで変更",
+  "Relevant file name": "ファイル名が依頼に関連",
+  "Relevant contents": "内容が依頼に関連",
+  "Listed by the current task": "作業中のタスクで指定",
+  "Linked from the current document": "現在の文書からリンク",
+  "Current document": "現在の文書",
+  "Related": "関連",
+  "Pi opened it": "Pi が開いたファイル",
+  "Chosen again for every message. Never vendor/, licences, build output or files over 40 KB.": "メッセージごとに選び直します。vendor/、ライセンス、ビルド出力、40 KB を超えるファイルは含めません。"
  },
  "patterns": [
   [
@@ -2732,6 +2758,18 @@
   [
    "This copy has its own changes ({n} commits not on GitHub), so it is not updated automatically.",
    "このコピーには GitHub にないコミットが {n} 件あるため、自動更新されません。"
+  ],
+  [
+   "Why Pi sees these {n} files",
+   "Pi がこの {n} 個のファイルを見る理由"
+  ],
+  [
+   "Pi sees these {n} files",
+   "Pi が見る {n} 個のファイル"
+  ],
+  [
+   "You named it: “{name}” in your message",
+   "メッセージで「{name}」を指定"
   ]
  ]
 }

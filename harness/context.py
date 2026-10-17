@@ -134,7 +134,7 @@ def build_context(store, project, request, current=None, passage='', thread='', 
         if required and used + len(block) > available: block = block[:max(0, available - used)]
         sections.append(block); used += len(block)
         if name and name not in included:
-            included.append(name); items.append({'label': name.rsplit('/', 1)[-1], 'path': name, 'kind': kind, 'reason':selection['reasons'].get(name,'Plan')})
+            included.append(name); items.append({'label': name.rsplit('/', 1)[-1], 'path': name, 'full_path':str(root/name), 'kind': kind, 'reason':selection['reasons'].get(name,'Plan')})
         return True
 
     # 1. Plan

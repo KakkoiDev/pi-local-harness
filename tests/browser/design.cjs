@@ -761,6 +761,30 @@ const readline = require('node:readline');
   assert.equal(await seen.locator('.pw-context__item').first().textContent(),'ROADMAP.md(plan)','the plan first in Chat');
   assert.equal(await seen.locator('a').first().getAttribute('href'),`/p/${id}/work/ROADMAP.md`);
   assert.match(await seen.innerText(),/\d+ open tasks?/);
+  await page.waitForFunction(()=>new URLSearchParams(document.querySelector('#chat-context').dataset.query).get('text')==='Read ROADMAP.md please');
+  const why=seen.locator('.pw-context__why');assert.equal(await why.count(),1,'task 234: selected files have a Why? control');
+  await why.click();const reasons=page.locator('#ctx-why');await reasons.waitFor();
+  assert.equal(await why.getAttribute('aria-expanded'),'true');
+  assert.match(await reasons.locator('h3').textContent(),/^Why Pi sees these \d+ files$/);
+  assert.ok(await reasons.locator('.pw-reasons__why').count()>0);
+  assert.equal(await reasons.locator('li').first().locator('.pw-reasons__why').textContent(),'Always: the plan');
+  assert.match(await reasons.locator('.pw-reasons__path').first().textContent(),/\/ROADMAP\.md$/,'the complete selected path');
+  await page.screenshot({path:'/tmp/plh-234-context-desktop.png'});
+  await page.setViewportSize({width:1024,height:900});await why.click();await why.click();
+  assert.ok(await page.locator('#ctx-why').evaluate(panel=>panel.getBoundingClientRect().right<=innerWidth),'fits the tablet width');
+  await page.screenshot({path:'/tmp/plh-234-context-tablet.png'});
+  await page.keyboard.press('Escape');await reasons.waitFor({state:'detached'});assert.equal(await why.evaluate(button=>document.activeElement===button),true);
+  await page.setViewportSize({width:390,height:844});await why.click();
+  const reasonSheet=page.locator('.pw-sheet',{has:page.locator('#ctx-why')});await reasonSheet.waitFor();
+  assert.match(await reasonSheet.locator('h2').textContent(),/^Pi sees these \d+ files$/);
+  assert.ok(await why.evaluate(button=>button.getBoundingClientRect().height)>=44);
+  const refreshed=page.waitForResponse(response=>response.url().includes('/api/context-preview?')&&response.status()===200);
+  await page.evaluate(async project=>{const {showContext}=await import('/js/context-line.mjs');showContext(document.querySelector('#chat-context'),{project,text:document.querySelector('#prompt').value},{force:true,delay:0});},id);await refreshed;
+  assert.ok(await reasonSheet.isVisible(),'an unchanged context refresh keeps the explanation open');
+  await page.screenshot({path:'/tmp/plh-234-context-phone.png'});
+  await reasonSheet.getByRole('button',{name:'Done',exact:true}).click();assert.equal(await why.getAttribute('aria-expanded'),'false');
+  await page.setViewportSize({width:1440,height:900});
+
   await seen.evaluate(line=>{line.parentElement.style.width='200px';});/* less room: the counter appears */await page.waitForFunction(()=>!document.querySelector('#chat-context .pw-context__more').hidden);
   const more=seen.locator('.pw-context__more');assert.match(await more.textContent(),/^\+\d+$/);assert.match(await more.getAttribute('aria-label'),/^Show \d+ more$/);
   await more.click();assert.equal(await more.textContent(),'Less');assert.equal(await seen.getAttribute('data-expanded'),'');assert.equal(await more.getAttribute('aria-expanded'),'true');
@@ -843,13 +867,13 @@ const readline = require('node:readline');
   const old=new Date(Date.now()-7200e3);for(const file of ['ROADMAP.md','tasks/001-first-task.md'])fs.utimesSync(join(directory,'Reads',file),old,old);/* not "changed in the last hour" */
   await page.goto(`${base}/p/${reads.project}/chat`);await page.locator('#prompt').fill('Look around TEST_READ');await page.locator('#send').click();
   const after=page.locator('#thread .pw-msg .pw-context--after').last();await after.waitFor({timeout:20000});
-  assert.equal(await after.textContent(),'Also read:unrelated.txt');assert.equal(await after.locator('a').getAttribute('title'),'unrelated.txt');
+  assert.equal(await after.textContent(),'Also read:unrelated.txt(Pi opened it)');assert.equal(await after.locator('a').getAttribute('title'),'unrelated.txt');
   const count=await page.locator('#thread .pw-msg').count();await page.locator('#prompt').fill('Just answer');await page.locator('#send').click();
   await page.waitForFunction(n=>document.querySelectorAll('#thread .pw-msg').length>=n+2&&!document.querySelector('#thread .pw-msg:last-child')?.classList.contains('pw-msg--user'),count,{timeout:20000});
   assert.equal(await page.locator('#thread .pw-msg').last().locator('.pw-context--after').count(),0,'nothing when Pi read nothing more');
   await page.goto(`${base}/p/${reads.project}/work/ROADMAP.md`);await page.locator('#document-discussion>summary').click();await page.locator('#document-prompt').fill('Whole file TEST_READ');await page.getByRole('button',{name:'Send Request'}).click();
   await page.locator('#document-requests .document-request .pw-context--after').first().waitFor({state:'attached',timeout:20000});
-  assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:unrelated.txt');
+  assert.equal(await page.locator('#document-requests .document-request .pw-context--after').first().textContent(),'Also read:unrelated.txt(Pi opened it)');
   }
   { // Round 5 (task 163): the model menu says what each model runs at once, and lists a chosen model that is gone.
   await page.route('**/api/models',route=>route.fulfill({json:{models:[{id:'gemma4:26b-mlx',tools:true,thinking:true,vision:true,at_once:'parallel'},{id:'qwen3:8b',tools:true,thinking:false,vision:false,at_once:'checking'},{id:'mistral:7b',tools:true,thinking:false,vision:false,at_once:'unknown'}],current:{model:'gemma4:26b-mlx',effort:'high',chosenEffort:'high',thinking:true,missing:'gone:7b'}}}));

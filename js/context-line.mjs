@@ -1,7 +1,20 @@
 // "Pi sees:" (ContextLine card, task 134): which files Pi gets with a request, before it is sent. The items come from
 // GET /api/context-preview, the same selection the request itself uses (harness/context.py), so the line never
 // promises a file Pi will not get. One line: items that do not fit are hidden from the end and counted in "+N".
-const KIND = { plan: 'plan', 'this file': 'this file' }; // mentioned and related files need no word
+const REASONS = {
+ 'Project rules':['rules','Always: the project’s rules'], Plan:['plan','Always: the plan'],
+ 'Task in progress':['task','Always: the task in progress'], 'Named in the request':['named',null],
+ 'Last harness commit':['changed','Last harness commit'], 'Relevant file name':['related','Relevant file name'],
+ 'Relevant contents':['related','Relevant contents'], 'Listed by the current task':['related','Listed by the current task'],
+ 'Linked from the current document':['related','Linked from the current document'], 'Current document':['this file','Current document'],
+};
+let closeReasons;
+export function contextReason(item) {
+ if(item.kind==='this file')return ['this file','Current document'];
+ if(item.reason==='Pi opened it')return [item.reason,item.reason];
+ const value=REASONS[item.reason] || [item.kind==='plan'?'plan':'related',item.reason || 'Related'];
+ return [value[0],value[1] || `You named it: “${item.label}” in your message`];
+}
 const cache = new Map(); // query → {at, items}; threads re-render on every poll, the preview need not
 const fresh = 3000;
 // Refit when the room changes: the container is watched, not the line, and only a new width counts, so hiding items
@@ -35,7 +48,7 @@ export function contextLine(id) {
 export function showContext(line, query, { delay = 300, rendered, force = false } = {}) {
   clearTimeout(line.contextTimer);
   if (rendered) line.contextRendered = rendered;
-  if (!query.project) { line.hidden = true; delete line.dataset.query; line.contextRendered?.(); return; }
+  if (!query.project) { line.contextClose?.(); line.hidden = true; delete line.dataset.query; line.contextRendered?.(); return; }
   const key = new URLSearchParams(Object.entries(query).filter(([, value]) => value)).toString();
   const hit = cache.get(key);
   if (hit && !force && Date.now() - hit.at < fresh) { if (line.dataset.query !== key || line.hidden) render(line, query.project, hit.items, key); return; }
@@ -67,7 +80,7 @@ export function alsoReadLine(project, files) {
   line.setAttribute('data-expanded', '');
   const list = span('pw-context__list');
   list.setAttribute('role', 'list');
-  for (const path of files) list.append(fileItem(project, { path, label: path.split('/').pop() }));
+  for (const path of files) list.append(fileItem(project, { path, label: path.split('/').pop(), reason:'Pi opened it' }));
   line.append(span('pw-context__label', 'Also read:'), list);
   return line;
 }
@@ -78,16 +91,21 @@ function fileItem(project, item) {
   if (item.path) {
     const link = document.createElement('a');
     link.href = `/p/${encodeURIComponent(project)}/work/` + item.path.split('/').map(encodeURIComponent).join('/');
-    link.title = item.path;
-    link.textContent = item.label;
+    link.title = item.full_path || item.path;
+    link.textContent = item.label;link.dataset.noTranslate='';
     link.onclick = open;
     entry.append(link);
   } else entry.append(item.label); // "11 open tasks" is text
-  if (KIND[item.kind]) entry.append(span('pw-context__kind', `(${KIND[item.kind]})`));
+  const word=item.path?contextReason(item)[0]:'';
+  if (word) entry.append(span('pw-context__kind', `(${word})`));
   return entry;
 }
 
 function render(line, project, items, key) {
+  const signature=JSON.stringify(items);
+  if(line.contextItems===signature && !line.hidden){line.dataset.query=key;return;}
+  line.contextItems=signature;
+  if(line.contextClose)line.contextClose();
   line.dataset.query = key;
   if (!items.length) { line.replaceChildren(span('pw-context__label', 'Pi sees: nothing from this project')); line.hidden = false; line.contextRendered?.(); return; }
   const list = span('pw-context__list');
@@ -97,7 +115,9 @@ function render(line, project, items, key) {
   more.type = 'button';
   more.className = 'pw-context__more';
   more.onclick = () => { line.toggleAttribute('data-expanded'); fit(line); };
-  line.replaceChildren(span('pw-context__label', 'Pi sees:'), list, more);
+  const why=document.createElement('button');why.type='button';why.className='pw-context__why';why.textContent='Why?';why.setAttribute('aria-expanded','false');why.setAttribute('aria-controls','ctx-why');
+  why.onclick=()=>{if(why.getAttribute('aria-expanded')==='true')line.contextClose?.();else showReasons(line,why,project,items.filter(item=>item.path));};
+  line.replaceChildren(span('pw-context__label', 'Pi sees:'), list, more, why);
   line.hidden = false;
   if (line.parentElement) sized.observe(line.parentElement);
   fit(line);
@@ -120,4 +140,35 @@ function fit(line) {
   more.hidden = hidden === 0;
   more.textContent = '+' + hidden; more.setAttribute('aria-expanded', 'false'); more.setAttribute('aria-label', `Show ${hidden} more`);
   line.contextRendered?.(); // its height may have changed (the phone "+N" is taller than the line)
+}
+
+
+// Round 11: the compact labels and this explanation use the same recorded selection, never a second selection.
+function showReasons(line,button,project,items) {
+ closeReasons?.();
+ const phone=matchMedia('(max-width: 760px)').matches;
+ const panel=document.createElement('section');panel.id='ctx-why';panel.className='pw-reasons';panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Why Pi sees these files');panel.tabIndex=-1;
+ const title=document.createElement('h3');title.textContent=`Why Pi sees these ${items.length} files`;
+ const list=document.createElement('ol');
+ for(const item of items){
+  const row=document.createElement('li'),link=fileItem(project,item).querySelector('a');link.className='pw-link';
+  const [word,sentence]=contextReason(item);row.append(link,span('pw-context__kind',word),span('pw-reasons__why',sentence),span('pw-reasons__path',item.full_path || item.path));list.append(row);
+ }
+ const note=document.createElement('p');note.className='pw-help';note.textContent='Chosen again for every message. Never vendor/, licences, build output or files over 40 KB.';
+ panel.append(...(phone?[]:[title]),list,note);
+ let host=panel;
+ if(phone){
+  host=document.createElement('dialog');host.className='pw-sheet';host.setAttribute('aria-label',`Pi sees these ${items.length} files`);host.style.margin='0';host.style.width='100%';host.style.maxWidth='none';host.style.boxSizing='border-box';host.style.top='auto';
+  const head=document.createElement('div');head.className='pw-sheet__head';const heading=document.createElement('h2');heading.className='pw-dialog__title';heading.textContent=`Pi sees these ${items.length} files`;
+  const done=document.createElement('button');done.type='button';done.className='pw-btn pw-btn--plain pw-btn--touch';done.textContent='Done';done.onclick=()=>close();head.append(heading,done);host.append(head,panel);
+ }else{panel.setAttribute('popover','manual');panel.style.position='fixed';panel.style.margin='0';panel.style.maxWidth='calc(100vw - 24px)';}
+ const events=new AbortController();
+ const close=()=>{if(!host.isConnected)return;events.abort();host.remove();button.setAttribute('aria-expanded','false');line.contextClose=null;if(closeReasons===close)closeReasons=null;if(button.isConnected)button.focus();};
+ closeReasons=close;line.contextClose=close;document.body.append(host);button.setAttribute('aria-expanded','true');
+ if(phone){host.addEventListener('cancel',event=>{event.preventDefault();close();});host.addEventListener('close',close);host.showModal();}
+ else{panel.addEventListener('toggle',event=>{if(event.newState==='closed')close();});panel.showPopover();const box=button.getBoundingClientRect();panel.style.left=Math.max(12,Math.min(box.right-panel.offsetWidth,innerWidth-panel.offsetWidth-12))+'px';panel.style.top=Math.max(12,box.top-panel.offsetHeight-8)+'px';}
+ panel.querySelectorAll('.pw-reasons__path').forEach(path=>path.dataset.noTranslate='');
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();}},{signal:events.signal});
+ if(!phone)document.addEventListener('pointerdown',event=>{if(!panel.contains(event.target)&&!button.contains(event.target))close();},{signal:events.signal});
+ panel.focus();
 }
