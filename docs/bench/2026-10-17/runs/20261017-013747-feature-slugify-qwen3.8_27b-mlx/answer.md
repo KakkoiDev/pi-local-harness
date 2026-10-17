@@ -1,0 +1,1 @@
+The test suite passes (8/8); check 1 is clean. My AST snippet had a bug (bool/iterable), so let me re-run a clean dead-code check that also reports `slugify`:

@@ -1,0 +1,4 @@
+{"time": "2026-10-17T01:41:23+09:00", "kind": "rule", "detail": "G-016 Ask instead of assuming: You wrote: “Probably not project-defining in dramatic terms.” Turn this assumption into one ask_choices question and wait for the person’s answer.", "rule": "G-016", "tool": "write_file", "source": "web", "cwd": "/tmp/pi-bench-xwoette8/feature-slugify"}
+{"time":"2026-10-16T16:45:31.574Z","kind":"recovery","detail":"Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.","source":"web","cwd":"/tmp/pi-bench-xwoette8/feature-slugify","trigger":"canary"}
+{"time":"2026-10-16T16:48:53.808Z","kind":"wake-up","detail":"plan incomplete","source":"web","cwd":"/tmp/pi-bench-xwoette8/feature-slugify"}
+{"time":"2026-10-16T16:55:01.723Z","kind":"wake-up","detail":"You said: 'Let me know if you'd like me to continue onward.'. Do it now with a tool call.","source":"web","cwd":"/tmp/pi-bench-xwoette8/feature-slugify","trigger":"no-action","round":3}

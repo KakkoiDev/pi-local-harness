@@ -1,0 +1,65 @@
+{
+  "first_try": false,
+  "time": "2026-10-17T00:45:29+09:00",
+  "scenario": "bug-pagination",
+  "kind": "bug",
+  "prompt_level": "everyday",
+  "prompt": "When I look at the second page of results, the first thing on it is something I already saw at the end of page one.",
+  "model": "gemma4:e4b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5a08735df03c",
+  "status": "completed",
+  "timed_out": false,
+  "stopped_because": "",
+  "mode": "harness",
+  "solved": true,
+  "check": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK",
+  "regressions": true,
+  "regressions_said": "",
+  "resolved": true,
+  "user_turns": 0,
+  "verified": true,
+  "committed": [
+    "When I look at the second page of results, the… (task 002, plan incomplete)"
+  ],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-start.md",
+    "002-when-i-look-at-the.md",
+    "003-ready-to-publish.md"
+  ],
+  "plan": {
+    "tasks": 2,
+    "done_when": 2,
+    "decisions_asked": 0
+  },
+  "seconds": 103,
+  "tool_calls": 16,
+  "tools_failed": 5,
+  "test_runs": [
+    {
+      "id": "d2da23fd0c04467d807f6f772a218d3f",
+      "time": "2026-10-17T00:44:24+09:00",
+      "request": "251cf5bf53ff417b8c34a8cdbade7bd2",
+      "project": "/tmp/pi-bench-jvaaa2l7/bug-pagination",
+      "cwd": "/tmp/pi-bench-jvaaa2l7/bug-pagination",
+      "command": "python3 -m unittest tests/test_pager.py",
+      "exit_code": 0,
+      "duration": 0.08,
+      "counts": {},
+      "output_file": "test-runs/d2da23fd0c04467d807f6f772a218d3f.txt"
+    }
+  ],
+  "reports": {
+    "template-tokens": 2,
+    "recovery": 4,
+    "wake-up": 1,
+    "paperwork": 1
+  },
+  "rules": {},
+  "gate_checks": 11,
+  "folder": "runs/20261017-004346-bug-pagination-gemma4_e4b-mlx"
+}

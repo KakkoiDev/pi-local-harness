@@ -1,0 +1,16 @@
+{
+ "harness": "3847bc1",
+ "models": [
+  "gemma4:e4b-mlx",
+  "qwen3.8:27b-mlx"
+ ],
+ "effort": "high",
+ "prompt_level": "everyday",
+ "scenarios": 9,
+ "modes": [
+  "harness",
+  "bare"
+ ],
+ "planned_runs": 36,
+ "luna": "pending by person"
+}

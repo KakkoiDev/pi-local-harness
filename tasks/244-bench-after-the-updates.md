@@ -37,17 +37,17 @@ DeepSeek Flash comes later, in its own task (245), once the person has set it up
   `python3 -m bench run --prompt everyday --model <model>` then the same with `--bare`. Auto-accept on (the bench does
   it, task 238). Run from the person's checkout only if they ask; otherwise from the worktree, with the results in the
   default data folder (~/pi-local-harness-data/bench), as before.
-- [ ] Keep the records in the repo, as the person asked: `docs/bench/<date>/` with, per run, `result.json`,
+- [x] Keep the records in the repo, as the person asked: `docs/bench/<date>/` with, per run, `result.json`,
   `answer.md`, `request-*.md`, `git-log.txt` and the test-run log (task 228); plus `results.jsonl` (the lines of these
   runs) and `compare-<model>.txt` (`python3 -m bench compare --model <model>`). **Not** the project copies (`project/`)
   or `services.log` (size, and they may hold paths). Check nothing personal is in them (the person's name, home paths
   outside scratch folders, keys) before committing.
-- [ ] A results table in README.md, between `<!-- bench:start -->` and `<!-- bench:end -->` under a "How well it works"
+- [x] A results table in README.md, between `<!-- bench:start -->` and `<!-- bench:end -->` under a "How well it works"
   heading: one row per model, columns: model, where it runs, solved with the harness (n/N), solved bare (n/N),
   verified and committed by the harness, median minutes, harness build, date. Under the table, one paragraph in plain
   words on what the harness adds at each size, and a link to `docs/bench/<date>/`. Generate it with a new
   `python3 -m bench readme` (bench/__main__.py) so it can be redone, with a test in tests/test_bench*.py.
-- [ ] Update task 225 and plan 189 (docs/plans/189-bench.md) with the new numbers and what changed since 2026-10-15.
+- [x] Update task 225 and plan 189 (docs/plans/189-bench.md) with the new numbers and what changed since 2026-10-15.
 
 
 ## Person’s decision · 2026-10-16
@@ -66,3 +66,17 @@ The local batch uses ignored `.bench-local/` in this worktree so its scratch art
 ## Person’s decision · 2026-10-17
 
 Use the 22 completed records in `.bench-local/244-scored-2026-10-17/` for now. Do not start the remaining 14 runs. The saved batch records build `3847bc1`, high effort, everyday prompts: Gemma has all nine harness and nine bare runs; Qwen has four harness runs and no bare runs. This is a partial historical batch, before the music merge and tasks 247/250/249/248, not a measurement of those later changes. Luna remains pending. Preserve and sanitize these records when publishing task 244 after the roadmap work; label the missing runs explicitly and do not imply a paired Qwen comparison.
+
+## Publication result
+
+The approved 22 historical runs are published under docs/bench/2026-10-17, with sanitized paths, answers, request
+records, git logs, checks, reports and available test evidence. Seventeen runs have no saved test-run log; none was
+fabricated. Project copies and services.log are excluded. Privacy checks found no personal names/home paths,
+credential patterns, email or tailnet addresses. The reproducibility regression failed before publication and passes
+afterward, checking counts, per-run records, privacy and the generated README table.
+
+The first two scope boxes stay open: Luna has no configured API key, and the person asked to use only the 22 saved
+runs rather than finish the 36 local runs. This historical build is not a measurement of the finished harness.
+
+The naming guard exempts dated benchmark snapshots like closed task records: original tool/file names in evidence
+are preserved rather than rewritten. Current runtime files remain covered.

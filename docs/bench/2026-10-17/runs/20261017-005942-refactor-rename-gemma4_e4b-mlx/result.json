@@ -1,0 +1,56 @@
+{
+  "first_try": true,
+  "time": "2026-10-17T01:00:11+09:00",
+  "scenario": "refactor-rename",
+  "kind": "refactor",
+  "prompt_level": "everyday",
+  "prompt": "area_rect is a confusing name. Call it rectangle_area instead.",
+  "model": "gemma4:e4b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5a08735df03c",
+  "status": "completed",
+  "timed_out": false,
+  "stopped_because": "",
+  "mode": "bare",
+  "solved": true,
+  "check": "ok",
+  "regressions": true,
+  "regressions_said": "",
+  "resolved": true,
+  "user_turns": 0,
+  "verified": false,
+  "committed": [],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-start.md"
+  ],
+  "plan": {
+    "tasks": 1,
+    "done_when": 0,
+    "decisions_asked": 0
+  },
+  "seconds": 28,
+  "tool_calls": 8,
+  "tools_failed": 1,
+  "test_runs": [
+    {
+      "id": "426842484b214a35832fffd2a332eaee",
+      "time": "2026-10-17T01:00:01+09:00",
+      "request": null,
+      "project": "/tmp/pi-bench-g89d5yb6/refactor-rename",
+      "cwd": "/tmp/pi-bench-g89d5yb6/refactor-rename",
+      "command": "python3 -m unittest tests.test_geometry",
+      "exit_code": 0,
+      "duration": 0.073,
+      "counts": {},
+      "output_file": "test-runs/426842484b214a35832fffd2a332eaee.txt"
+    }
+  ],
+  "reports": {},
+  "rules": {},
+  "gate_checks": 8,
+  "folder": "runs/20261017-005942-refactor-rename-gemma4_e4b-mlx"
+}

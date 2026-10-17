@@ -1,0 +1,1 @@
+[{'type': 'text', 'text': 'usage: python3 -m unittest [-h] [-v] [-q] [--locals] [--durations N] [-f] [-c]\n                           [-b] [-k TESTNAMEPATTERNS]\n                           [tests ...]\npython3 -m unittest: error: unrecognized arguments: -s tests -p test_slugify.py\n\n\nCommand exited with code 2'}]

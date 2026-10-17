@@ -1,0 +1,112 @@
+{
+  "first_try": false,
+  "time": "2026-10-17T02:08:04+09:00",
+  "scenario": "feature-slugify",
+  "kind": "feature",
+  "prompt_level": "everyday",
+  "prompt": "Do task 2.",
+  "model": "qwen3.8:27b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5642e97495e1",
+  "status": "stopped",
+  "timed_out": true,
+  "stopped_because": "Stopped",
+  "mode": "harness",
+  "solved": true,
+  "check": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK",
+  "regressions": null,
+  "regressions_said": "",
+  "resolved": true,
+  "user_turns": 0,
+  "verified": false,
+  "committed": [],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-start.md",
+    "002-slugify-titles.md",
+    "003-ready-to-publish.md"
+  ],
+  "plan": {
+    "tasks": 2,
+    "done_when": 2,
+    "decisions_asked": 2
+  },
+  "seconds": 1817,
+  "tool_calls": 33,
+  "tools_failed": 4,
+  "test_runs": [
+    {
+      "id": "e7fa47448be9428b96b5b1b871879094",
+      "time": "2026-10-17T01:42:09+09:00",
+      "request": "88422e2458b64d2f8573abe73f67b999",
+      "project": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "cwd": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "command": "cd /tmp/pi-bench-xwoette8/feature-slugify && python3 -m unittest -v tests.test_slugify",
+      "exit_code": 1,
+      "duration": 0.093,
+      "counts": {},
+      "output_file": "test-runs/e7fa47448be9428b96b5b1b871879094.txt"
+    },
+    {
+      "id": "8c998e3c134d4797a37eea39ed2a14bc",
+      "time": "2026-10-17T01:44:32+09:00",
+      "request": "88422e2458b64d2f8573abe73f67b999",
+      "project": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "cwd": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "command": "cd /tmp/pi-bench-xwoette8/feature-slugify && python3 -m unittest -v discover -s tests -p \"test_slugify.py\"",
+      "exit_code": 1,
+      "duration": 0.069,
+      "counts": {},
+      "output_file": "test-runs/8c998e3c134d4797a37eea39ed2a14bc.txt"
+    },
+    {
+      "id": "b8e54162ea024b8b818727dd11db10c7",
+      "time": "2026-10-17T01:44:42+09:00",
+      "request": "88422e2458b64d2f8573abe73f67b999",
+      "project": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "cwd": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "command": "cd /tmp/pi-bench-xwoette8/feature-slugify && python3 -m unittest -v tests.test_slugify",
+      "exit_code": 0,
+      "duration": 0.078,
+      "counts": {},
+      "output_file": "test-runs/b8e54162ea024b8b818727dd11db10c7.txt"
+    },
+    {
+      "id": "2cd24bc2cf4941d1a6f8b1d93d94a239",
+      "time": "2026-10-17T01:47:05+09:00",
+      "request": "88422e2458b64d2f8573abe73f67b999",
+      "project": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "cwd": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "command": "cd /tmp/pi-bench-xwoette8/feature-slugify && python3 -m unittest -v tests.test_slugify",
+      "exit_code": 0,
+      "duration": 0.073,
+      "counts": {},
+      "output_file": "test-runs/2cd24bc2cf4941d1a6f8b1d93d94a239.txt"
+    },
+    {
+      "id": "d64a45f2115544c6b132e214a09d4de0",
+      "time": "2026-10-17T01:54:49+09:00",
+      "request": "88422e2458b64d2f8573abe73f67b999",
+      "project": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "cwd": "/tmp/pi-bench-xwoette8/feature-slugify",
+      "command": "cd /tmp/pi-bench-xwoette8/feature-slugify && python3 -m unittest tests.test_slugify",
+      "exit_code": 0,
+      "duration": 0.107,
+      "counts": {},
+      "output_file": "test-runs/d64a45f2115544c6b132e214a09d4de0.txt"
+    }
+  ],
+  "reports": {
+    "rule": 1,
+    "recovery": 1,
+    "wake-up": 2
+  },
+  "rules": {
+    "G-016": 1
+  },
+  "gate_checks": 33,
+  "folder": "runs/20261017-013747-feature-slugify-qwen3.8_27b-mlx"
+}

@@ -1,0 +1,103 @@
+FAIL: game pixels and controls: node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: one canvas
+
+0 !== 1
+
+    at file://<harness>/bench/scenarios/feature-pong-starter/check/game.mjs:17:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+FAIL: sample removed: sample logic remains
+FAIL: referenced files: ✖ every local page, manifest, cache and module reference exists (2.477875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.170333
+
+✖ failing tests:
+
+test at tests/files.test.mjs:10:1
+✖ every local page, manifest, cache and module reference exists (2.477875ms)
+  AssertionError [ERR_ASSERTION]: Missing referenced files (build static/app.css before testing):
+  sw.js: static/app.css (static/app.css)
+  index.html: static/app.css (static/app.css)
+  + actual - expected
+  
+  + [
+  +   'sw.js: static/app.css (static/app.css)',
+  +   'index.html: static/app.css (static/app.css)'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///tmp/pi-bench-04vcf55p/feature-pong-starter/tests/files.test.mjs:25:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'sw.js: static/app.css (static/app.css)', 'index.html: static/app.css (static/app.css)' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+FAIL: complete plan: ROADMAP.md: write the Goal in one or two sentences.
+FAIL: own project tests: ✖ every local page, manifest, cache and module reference exists (1.8985ms)
+✔ the person's choice wins, then the browser, then English (0.293041ms)
+✔ every language has every key, and every key the page uses exists (0.703958ms)
+✔ a title is trimmed and must say something (0.512042ms)
+✔ notes are listed newest first (8.735792ms)
+✔ a backup brings back only well-formed notes (0.078958ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.419458
+
+✖ failing tests:
+
+test at tests/files.test.mjs:10:1
+✖ every local page, manifest, cache and module reference exists (1.8985ms)
+  AssertionError [ERR_ASSERTION]: Missing referenced files (build static/app.css before testing):
+  sw.js: static/app.css (static/app.css)
+  index.html: static/app.css (static/app.css)
+  + actual - expected
+  
+  + [
+  +   'sw.js: static/app.css (static/app.css)',
+  +   'index.html: static/app.css (static/app.css)'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///tmp/pi-bench-04vcf55p/feature-pong-starter/tests/files.test.mjs:25:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'sw.js: static/app.css (static/app.css)', 'index.html: static/app.css (static/app.css)' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+Request verification and commits: runner result (separate from app correctness)

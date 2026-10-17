@@ -1,0 +1,17 @@
+585b580 Pi Workbench When I look at the second page of results, the… (task 002, plan incomplete)
+
+ ROADMAP.md                      |  5 ++++-
+ pager.py                        |  2 +-
+ tasks/001-start.md              |  2 ++
+ tasks/002-when-i-look-at-the.md | 18 ++++++++++++++++++
+ tasks/003-ready-to-publish.md   | 14 ++++++++++++++
+ tests/test_pager.py             |  4 ++++
+ 6 files changed, 43 insertions(+), 2 deletions(-)
+2721d0a Bench Scenario start
+
+ ROADMAP.md          |  3 +++
+ pager.py            |  4 ++++
+ tasks/001-start.md  |  5 +++++
+ tests/__init__.py   |  0
+ tests/test_pager.py | 11 +++++++++++
+ 5 files changed, 23 insertions(+)

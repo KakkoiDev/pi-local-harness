@@ -1,0 +1,1 @@
+{"offers":false,"closes":false,"steps":["1. click \".activity-request\": done","2. click \"Show Task Record\": done","3. wait 800: done","4. click \"Hide Task Record\": failed, No element matches \"Hide Task Record\""]}

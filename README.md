@@ -95,3 +95,21 @@ python3 tests/verify_workflow.py
 The screenshots above come from a scratch workbench with sample data. Re-make them with
 `node docs/screenshots/make.cjs` (desktop and phone; it needs Playwright) or `python3 docs/screenshots/make_phone.py`
 (the phone one, with the headless shell from `plh setup browser`).
+
+## How well it works
+
+<!-- bench:start -->
+| Model | Where it runs | Solved with harness | Solved bare | Verified and committed by harness | Median minutes (harness) | Harness build | Date | Model’s share of decisions |
+|---|---|---|---|---|---|---|---|---|
+| Gemma 4 e4b (4B) | This Mac (Ollama) | 2/9 | 2/9 | 3/9 | 1.0 | 3847bc1 | 2026-10-17 | Not recorded |
+| Qwen 3.8 27B | This Mac (Ollama) | 3/4 | Pending | 2/4 | 17.0 | 3847bc1 | 2026-10-17 | Not recorded |
+| ChatGPT Luna | OpenAI API | Pending | Pending | Pending | — | — | — | Not recorded |
+<!-- bench:end -->
+
+This partial historical batch (build `3847bc1`) predates the music merge, phases, Laya and decision logging. Gemma
+resolved 2/9 scenarios both with and without the harness: no solve-rate gain in this batch. Qwen resolved 3/4 saved
+harness runs, with no bare baseline, so no paired improvement can be claimed. Fourteen local runs and Luna remain
+pending. “Verified and committed” is the harness's own outcome, separate from the independent scenario check.
+Decision provenance was not recorded in this build. [The 22 saved runs and their limits](docs/bench/2026-10-17/README.md)
+include the answers and available test evidence. Regenerate the table with
+`python3 -m bench readme --out docs/bench/2026-10-17`.

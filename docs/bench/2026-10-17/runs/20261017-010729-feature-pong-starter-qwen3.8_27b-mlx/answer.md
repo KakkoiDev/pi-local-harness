@@ -1,0 +1,1 @@
+Now I understand the constraints. The i18n test requires identical key sets and that every `data-t`/`t('...')` key exists; `tsconfig` strict-checks `js/`. For task 1 I'll keep `app.mjs` minimal (i18n + service worker only, no `pong` import yet) so the referenced-files test still passes. First, let me find every remaining notes/store reference so cleanup is complete.

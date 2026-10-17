@@ -1,0 +1,2 @@
+{"time":"2026-10-16T15:49:35.797Z","kind":"template-tokens","detail":"Removed 1 leaked template tokens.","source":"web","cwd":"/tmp/pi-bench-qj2p5h8e/history-hide-record","count":1}
+{"time":"2026-10-16T15:49:39.720Z","kind":"recovery","detail":"Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.","source":"web","cwd":"/tmp/pi-bench-qj2p5h8e/history-hide-record","trigger":"canary"}

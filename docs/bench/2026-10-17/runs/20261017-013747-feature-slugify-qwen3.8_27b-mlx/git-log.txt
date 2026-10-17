@@ -1,0 +1,8 @@
+74f34fd Bench Scenario start
+
+ ROADMAP.md                  |  4 ++++
+ tasks/001-start.md          |  5 +++++
+ tasks/002-slugify-titles.md | 10 ++++++++++
+ tests/__init__.py           |  0
+ text.py                     |  1 +
+ 5 files changed, 20 insertions(+)

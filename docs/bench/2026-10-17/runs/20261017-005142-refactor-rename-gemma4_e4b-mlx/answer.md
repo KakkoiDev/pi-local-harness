@@ -1,0 +1,1 @@
+[CANARY] The tests cannot be run because the Python runtime is unable to locate the `geometry` module, despite the file being present in the working directory. The refactor is complete.

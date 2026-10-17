@@ -1,0 +1,1 @@
+[CANARY] I will start by reading `index.html` and `style.css` to understand the existing layout before reproducing the bug at 1024px width. Then, I will use the `browser` tool targeted at the application to reproduce the "lifting" effect and identify the cause.

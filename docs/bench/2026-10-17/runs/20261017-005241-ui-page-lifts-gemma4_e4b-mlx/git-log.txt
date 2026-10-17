@@ -1,0 +1,8 @@
+62875e0 Bench Scenario start
+
+ ROADMAP.md         |  3 +++
+ app.js             | 11 +++++++++++
+ index.html         | 19 +++++++++++++++++++
+ style.css          | 11 +++++++++++
+ tasks/001-start.md |  5 +++++
+ 5 files changed, 49 insertions(+)

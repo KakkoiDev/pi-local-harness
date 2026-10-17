@@ -1,0 +1,16 @@
+✔ exact triple repeats, including across chunks (0.562584ms)
+✔ similar lines and overlapping triples do not trigger (0.051917ms)
+✔ only last 100 lines count (0.077ms)
+✔ hang is deterministic and active only (0.051875ms)
+✔ canary checks completed text, not tools or aborted output (0.061458ms)
+✔ memory reloads edits and incident lessons are deduplicated (0.665208ms)
+✔ MLX aliases advertise vision and preserve other configured models (0.108375ms)
+✔ accessible quoted image paths attach bytes; audio paths attach transcripts (0.614583ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.497709

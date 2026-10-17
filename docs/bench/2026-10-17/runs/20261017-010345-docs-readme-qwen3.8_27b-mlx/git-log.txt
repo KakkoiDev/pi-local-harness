@@ -1,0 +1,15 @@
+5d74efa Pi Workbench Write a README for this (task 002)
+
+ README.md                            | 43 ++++++++++++++++++++++++++++++++++++
+ ROADMAP.md                           |  2 ++
+ tasks/002-write-a-readme-for-this.md | 16 ++++++++++++++
+ tasks/003-ready-to-publish.md        | 14 ++++++++++++
+ 4 files changed, 75 insertions(+)
+ca8eb5e Bench Scenario start
+
+ ROADMAP.md          | 3 +++
+ pager.py            | 4 ++++
+ tasks/001-start.md  | 5 +++++
+ tests/__init__.py   | 0
+ tests/test_pager.py | 7 +++++++
+ 5 files changed, 19 insertions(+)

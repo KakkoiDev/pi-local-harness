@@ -1,0 +1,43 @@
+{
+  "first_try": false,
+  "time": "2026-10-17T01:00:51+09:00",
+  "scenario": "ui-page-lifts",
+  "kind": "bug",
+  "prompt_level": "everyday",
+  "prompt": "In index.html, at a window 1024 px wide, once the list is long, clicking Add lifts the whole page and leaves an empty band at the bottom. At 1440 px it is fine. Find the cause and fix it.",
+  "model": "gemma4:e4b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5a08735df03c",
+  "status": "completed",
+  "timed_out": false,
+  "stopped_because": "",
+  "mode": "bare",
+  "solved": false,
+  "check": "[{\"element\": \"div#desk\", \"extra\": 336, \"scrollTop\": 0, \"overflowY\": \"auto\"}]\n127.0.0.1 - - [17/Oct/2026 01:00:49] \"GET /index.html HTTP/1.1\" 200 -\n127.0.0.1 - - [17/Oct/2026 01:00:49] \"GET /style.css HTTP/1.1\" 200 -\n127.0.0.1 - - [17/Oct/2026 01:00:49] \"GET /app.js HTTP/1.1\" 200 -",
+  "regressions": null,
+  "regressions_said": "",
+  "resolved": false,
+  "user_turns": 0,
+  "verified": false,
+  "committed": [],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-start.md"
+  ],
+  "plan": {
+    "tasks": 1,
+    "done_when": 0,
+    "decisions_asked": 0
+  },
+  "seconds": 38,
+  "tool_calls": 2,
+  "tools_failed": 0,
+  "test_runs": [],
+  "reports": {},
+  "rules": {},
+  "gate_checks": 2,
+  "folder": "runs/20261017-010011-ui-page-lifts-gemma4_e4b-mlx"
+}

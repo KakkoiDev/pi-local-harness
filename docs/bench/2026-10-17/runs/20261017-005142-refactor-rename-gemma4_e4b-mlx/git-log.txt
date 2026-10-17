@@ -1,0 +1,18 @@
+8d25119 Pi Workbench Area_rect is a confusing name (task 002, plan incomplete)
+
+ ROADMAP.md                            |  2 ++
+ geometry.py                           |  4 ++--
+ shapes.py                             |  4 ++--
+ tasks/002-area-rect-is-a-confusing.md | 12 ++++++++++++
+ tasks/003-ready-to-publish.md         | 14 ++++++++++++++
+ tests/test_geometry.py                |  4 ++--
+ 6 files changed, 34 insertions(+), 6 deletions(-)
+77b8028 Bench Scenario start
+
+ ROADMAP.md             |  3 +++
+ geometry.py            |  6 ++++++
+ shapes.py              |  5 +++++
+ tasks/001-start.md     |  5 +++++
+ tests/__init__.py      |  0
+ tests/test_geometry.py | 10 ++++++++++
+ 6 files changed, 29 insertions(+)

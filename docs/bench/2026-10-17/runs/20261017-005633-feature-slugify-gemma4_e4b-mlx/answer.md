@@ -1,0 +1,1 @@
+[CANARY]I will start by inspecting `text.py` to understand its current content and determine the best place to add the `slugify` function.<channel|>

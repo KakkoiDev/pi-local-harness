@@ -1,0 +1,11 @@
+SCENARIO              bare 3847bc1           harness 3847bc1
+bug-pagination        ✗ 2 min                ✓ 2 min
+docs-readme           ✓ 0 min (1 first try)  ✗ 0 min
+feature-pong-starter  ✗ 0 min                ✗ 2 min
+feature-slugify       ✗ 0 min                ✗ 2 min
+history-hide-record   ✗ 0 min                ✗ 1 min
+history-page-lifts    ✗ 2 min                ✗ 0 min
+history-thinking-off  ✗ 0 min                ✗ 1 min
+refactor-rename       ✓ 0 min (1 first try)  ✓ 1 min
+ui-page-lifts         ✗ 1 min                ✗ 1 min
+resolved              2/9                    2/9

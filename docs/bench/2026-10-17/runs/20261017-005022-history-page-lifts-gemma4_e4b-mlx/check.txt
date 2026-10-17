@@ -1,0 +1,1 @@
+{"deskExtra":608,"outside":[],"steps":["1. type {\"into\":\"#prompt\",\"text\":\"One more\"}: done","2. press \"Enter\": done","3. wait 3000: done"]}

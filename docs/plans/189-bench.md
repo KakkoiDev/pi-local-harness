@@ -72,3 +72,14 @@ the services log, for the analysis.
 - Run every scenario with each installed model; repeat to see the variance (`--repeat 3`).
 - Read the runs and turn what goes wrong into lessons and rules; re-run to see the change.
 - More scenarios as weaknesses show up (one per lesson).
+
+## Saved follow-up batch · 2026-10-17 (task 244)
+
+[Published records](../bench/2026-10-17/README.md) use build `3847bc1`, high effort and everyday prompts, nine scenarios including Pong.
+Gemma e4b resolves 2/9 with the harness and 2/9 bare (3/9 versus 0/9 harness-verified commits). The earlier batch
+had eight scenarios: 2/8 with the harness, 3/8 bare; these different suites are not a controlled improvement estimate.
+Qwen 27B resolves 3/4 saved harness runs (2/4 verified commits), without a saved bare baseline. Fourteen local runs
+were deferred by the person; Luna is pending private API setup. These records predate the music merge and tasks
+247/250/249/248. They cannot validate those later changes or show a Qwen improvement. The harness now wakes small
+models that stop early and gives edit-match feedback, but this batch does not demonstrate a solve-rate gain.
+Missing historical decision provenance stays unrecorded. No additional real model runs were started.

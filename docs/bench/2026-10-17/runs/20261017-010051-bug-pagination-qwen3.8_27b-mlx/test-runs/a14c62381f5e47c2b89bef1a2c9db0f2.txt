@@ -1,0 +1,1 @@
+[{'type': 'text', 'text': 'test_first_page (tests.test_pager.PageTest.test_first_page) ... ok\ntest_second_page_does_not_repeat_first (tests.test_pager.PageTest.test_second_page_does_not_repeat_first) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n'}]

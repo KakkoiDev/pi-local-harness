@@ -1,0 +1,49 @@
+{
+  "first_try": false,
+  "time": "2026-10-17T01:07:29+09:00",
+  "scenario": "docs-readme",
+  "kind": "docs",
+  "prompt_level": "everyday",
+  "prompt": "Can you write a README for this? Say what it does, show an example, and how to run the tests.",
+  "model": "qwen3.8:27b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5642e97495e1",
+  "status": "completed",
+  "timed_out": false,
+  "stopped_because": "",
+  "mode": "harness",
+  "solved": true,
+  "check": "ok",
+  "regressions": true,
+  "regressions_said": "",
+  "resolved": true,
+  "user_turns": 0,
+  "verified": true,
+  "committed": [
+    "Write a README for this (task 002)"
+  ],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-start.md",
+    "002-write-a-readme-for-this.md",
+    "003-ready-to-publish.md"
+  ],
+  "plan": {
+    "tasks": 2,
+    "done_when": 1,
+    "decisions_asked": 0
+  },
+  "seconds": 224,
+  "tool_calls": 12,
+  "tools_failed": 1,
+  "test_runs": [],
+  "reports": {
+    "recovery": 3
+  },
+  "rules": {},
+  "gate_checks": 12,
+  "folder": "runs/20261017-010345-docs-readme-qwen3.8_27b-mlx"
+}

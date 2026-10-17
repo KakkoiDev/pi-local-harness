@@ -1,0 +1,48 @@
+{
+  "first_try": false,
+  "time": "2026-10-17T01:37:47+09:00",
+  "scenario": "feature-pong-starter",
+  "kind": "feature",
+  "prompt_level": "everyday",
+  "prompt": "I want to make a very basic and minimal pong game. white pales and white ball and black background. arrows control the right pale and w/s the left one.",
+  "model": "qwen3.8:27b-mlx",
+  "effort": "high",
+  "harness": "3847bc1",
+  "pi": "1.1.0",
+  "ollama": "0.40.5",
+  "model_digest": "5642e97495e1",
+  "status": "stopped",
+  "timed_out": true,
+  "stopped_because": "Stopped",
+  "mode": "harness",
+  "solved": false,
+  "check": "yfileobj\n    fdst_write(buf)\n    ~~~~~~~~~~^^^^^\n  File \"/nix/store/0kcws5blwbdyxqxjd1w8hjipz61xny3k-python3-3.14.7/lib/python3.14/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\n    ~~~~~~~~~~~~~~~~~~^^^\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------",
+  "regressions": null,
+  "regressions_said": "",
+  "resolved": false,
+  "user_turns": 0,
+  "verified": false,
+  "committed": [],
+  "not_verified_mark": false,
+  "tasks_after": [
+    "001-first-task.md",
+    "002-ready-to-publish.md",
+    "003-very-basic-and-minimal-pong.md"
+  ],
+  "plan": {
+    "tasks": 1,
+    "done_when": 1,
+    "decisions_asked": 3
+  },
+  "seconds": 1817,
+  "tool_calls": 21,
+  "tools_failed": 0,
+  "test_runs": [],
+  "reports": {
+    "guide": 1,
+    "recovery": 1
+  },
+  "rules": {},
+  "gate_checks": 21,
+  "folder": "runs/20261017-010729-feature-pong-starter-qwen3.8_27b-mlx"
+}

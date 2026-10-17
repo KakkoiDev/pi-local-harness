@@ -1,0 +1,9 @@
+715ca2c Bench Scenario start
+
+ ROADMAP.md             |  3 +++
+ geometry.py            |  6 ++++++
+ shapes.py              |  5 +++++
+ tasks/001-start.md     |  5 +++++
+ tests/__init__.py      |  0
+ tests/test_geometry.py | 10 ++++++++++
+ 6 files changed, 29 insertions(+)

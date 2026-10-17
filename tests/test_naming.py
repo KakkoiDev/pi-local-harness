@@ -15,7 +15,7 @@ CLASSIFIER_FILES = re.compile(r'(^|/)(test_)?laya[^/]*\.py$|^tasks/250-laya-clas
 
 
 class GateNamingTests(unittest.TestCase):
-    """The checker is named Gate. Closed task records keep the old name as history; Laya now names the classifier."""
+    """The checker is named Gate. Closed tasks and dated benchmark snapshots keep historical names; Laya now names the classifier."""
 
     def test_classifier_names_do_not_reintroduce_the_old_checker_name(self):
         for text in ['PI_LAYA_DATA','harness.laya_setup','harness.laya_eval','laya_mlx']:
@@ -34,7 +34,7 @@ class GateNamingTests(unittest.TestCase):
         lines, open_files = self.open_tasks()
         found = [line for line in lines if OLD.search(line)]
         for name in self.tracked():
-            if name == 'tests/test_naming.py' or name == 'ROADMAP.md' or name.startswith('kit/vendor/') or (name.startswith('tasks/') and name not in open_files):  # third-party code is not ours to rename
+            if name == 'tests/test_naming.py' or name == 'ROADMAP.md' or name.startswith('kit/vendor/') or re.match(r'^docs/bench/\d{4}-\d{2}-\d{2}/',name) or (name.startswith('tasks/') and name not in open_files):  # Third-party code and historical evidence are not current runtime names.
                 continue
             path = ROOT / name
             if OLD.search(name) or ('laya' in name.lower() and not CLASSIFIER_FILES.search(name)):

@@ -1,0 +1,6 @@
+SCENARIO              harness 3847bc1
+bug-pagination        ✓ 3 min
+docs-readme           ✓ 4 min
+feature-pong-starter  ✗ 30 min
+feature-slugify       ✓ 30 min
+resolved              3/4

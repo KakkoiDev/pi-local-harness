@@ -1,0 +1,2 @@
+{"time":"2026-10-16T15:50:22.999Z","kind":"guide","detail":"page-layout, bug","source":"web","cwd":"/tmp/pi-bench-mbu71t7d/history-page-lifts"}
+{"time":"2026-10-16T15:50:36.904Z","kind":"template-tokens","detail":"Removed 14 leaked template tokens.","source":"web","cwd":"/tmp/pi-bench-mbu71t7d/history-page-lifts","count":14}

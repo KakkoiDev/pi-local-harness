@@ -1,0 +1,8 @@
+af9b358 Bench Scenario start
+
+ ROADMAP.md          |  3 +++
+ pager.py            |  4 ++++
+ tasks/001-start.md  |  5 +++++
+ tests/__init__.py   |  0
+ tests/test_pager.py | 11 +++++++++++
+ 5 files changed, 23 insertions(+)
