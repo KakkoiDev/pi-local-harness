@@ -106,3 +106,16 @@ test('uplifting composition scaffold is usable without planning timing or instal
  const again=await musicAction({action:'template'});template.score.layers[0].gain=0;
  assert.equal(again.score.layers[0].gain,0.3);
 });
+
+test('a revision folder that already exists is never overwritten, even an empty one (task 291)', async () => {
+ const root=mkdtempSync(join(tmpdir(),'plh-music-'));
+ try{
+  const folder=join(root,'assets/music/robot'),first=join(folder,'0001');mkdirSync(first,{recursive:true});
+  const score=(await musicAction({action:'template'}));
+  writeFileSync(join(folder,'current.json'),JSON.stringify({revision:1}));writeFileSync(join(folder,'bank.json'),'{}');
+  writeFileSync(join(first,'score.json'),JSON.stringify(score));writeFileSync(join(first,'pattern.strudel'),'');
+  mkdirSync(join(folder,'0002'));
+  await assert.rejects(musicAction({action:'render',name:'robot',base:1},{cwd:root}),/0002 already exists/);
+  assert.deepEqual(JSON.parse(readFileSync(join(folder,'current.json'),'utf8')),{revision:1});
+ } finally {rmSync(root,{recursive:true,force:true});}
+});

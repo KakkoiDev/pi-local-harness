@@ -40,6 +40,8 @@ export async function musicAction(input,{cwd=process.cwd(),cli=blips,exportSound
  if(!creating&&!existsSync(pointer))throw Error('Music not found; create it first');
  const old=creating?null:await musicAction({action:'read',name:input.name},{cwd});
  if(!creating&&input.base!==old.revision)throw Error(`Read the current revision first; expected base ${old.revision}`);
+ // Task 291: a revision is never overwritten, not even an empty or planted folder (renameSync would replace an empty one).
+ if(!creating){const next=String(old.revision+1).padStart(4,'0');try{lstatSync(join(folder,next));throw Error(`Revision ${next} already exists; a revision is never overwritten`);}catch(error){if(error.code!=='ENOENT')throw error;}}
  let bank=old?.bank;
  if(creating){
   if(!input.bank||typeof input.bank!=='object'||Array.isArray(input.bank)||Object.keys(input.bank).length<1||Object.keys(input.bank).length>8)throw Error('Select 1–8 Blips IDs as a bank: {chime:"success-003",click:"click-001"}');

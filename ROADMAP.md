@@ -303,7 +303,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [258-Record Colibri model support for Claude](tasks/258-record-colibri-model-support.md)
 - [x] [259-Request Claude’s independent review of all work and logs](tasks/259-request-independent-claude-review.md)
 - [ ] [290-Conversation repairs: answers, drafts, lost messages, stale questions](tasks/290-conversation-repairs.md)
-- [ ] [291-Generated media can be written outside an approved task (option A)](tasks/291-generated-media-writes.md)
+- [x] [291-Generated media can be written outside an approved task (option A)](tasks/291-generated-media-writes.md)
 - [ ] [292-Every component records its build; one trace id per request](tasks/292-build-identity-and-trace-ids.md)
 - [ ] [293-Relevant task context and decisions that survive compaction](tasks/293-context-relevance-and-durable-decisions.md)
 - [ ] [294-Models served by Colibri](tasks/294-colibri-models.md)

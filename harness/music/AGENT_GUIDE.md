@@ -5,6 +5,12 @@ injects a short music guide for matching requests and keeps it available in proj
 that already have `assets/music/`. This document is the detailed operating guide;
 it is also copied into `<data>/toolchain/music/` by `plh setup music`.
 
+The music tool works in every phase (Discussion, Planning, Implementation) without a task, because Gate lets it write
+only a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting: `create` needs a
+name that does not exist yet, `revise` and `render` need the current revision as `base`. A stale base, an existing
+revision folder, a symlink or running outside the project folder is refused; read again and retry. Writing in
+`assets/music/` with `write`, `edit` or the shell is not the music tool and follows the phase rules.
+
 User-facing setup and application integration: [project guide](../../docs/music-projects.md)
 in the repository. That relative link is for the repository copy of this document.
 
@@ -100,7 +106,7 @@ replace or regenerate the user's library automatically.
 
 Files live in `assets/music/<name>/`: `bank.json`, `samples/`, `current.json` and
 numbered revisions containing WAV, JSON score, Strudel export and render metadata.
-When the user requests application integration, use ordinary file/code tools to
+When the user requests application integration (Implementation, within an approved task), use ordinary file/code tools to
 copy an approved WAV into the app's asset folder and wire up playback. The music
 tool does not publish assets. Preserve the authoring folder and earlier revisions;
 a copied release WAV changes only when explicitly refreshed. Runtime playback of
