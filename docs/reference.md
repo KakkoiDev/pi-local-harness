@@ -72,7 +72,8 @@ The **Project** menu acts on the open project: **Rename Project…** (renames it
 **Move Project to Trash…** (the Mac Trash, so the Finder's Put Back works). The project keeps its id,
 so its address, chat, comments and Activity stay with it; adding a removed or trashed folder again
 with **Add Existing Folder…** brings the same project back. A project whose folder went missing
-opens its chat with **Locate Folder…**. These wait while Pi works in that project. On a phone, the
+opens its chat with **Locate Folder…**. These wait while Pi works in that project, and while Pi works in
+the terminal. On a phone, the
 ⋯ on each project row in the π sheet holds the same commands.
 
 **Ask Pi about this whole file**, at the bottom of Review, sends a request about the whole page.

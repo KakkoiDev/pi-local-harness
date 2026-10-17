@@ -37,6 +37,15 @@ Open it, then the **Project** menu: Rename Project…, Move Project…, Remove f
 Trash… (the Finder's Put Back brings it back). On a phone, the ⋯ on the project's row. Chat, comments and Activity stay
 with the project.
 
+Pi's chat session follows the folder: Pi remembers the folder it works in inside the chat's session, so after a rename or
+move the workbench points that session at the new folder (a copy of the session before the change stays beside it, as
+`session.jsonl.before-move-<time>` in the chat's folder). Terminal Pi (`plh`) keeps its own sessions per folder, outside
+the workbench: after a rename or move, `pi -c` in the new folder starts a new session, and resuming an old one asks which
+folder to continue in.
+
+A running Preview stops and starts again in the new folder (Open on Phone has to be turned on again). Rename, Move and
+Move to Trash wait while Pi works in that project or in the terminal.
+
 ## Chat or Work?
 
 **Chat** (⌘1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌘2) shows the files: edit

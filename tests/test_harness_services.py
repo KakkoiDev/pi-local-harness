@@ -91,7 +91,7 @@ class ServicesTest(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as hidden:
                 urllib.request.urlopen(web_base+'/session.log')
             self.assertEqual(hidden.exception.code,404);hidden.exception.close()
-            with urllib.request.urlopen(web_base+'/api/project-files?project=HTTP%20project') as response:
+            with urllib.request.urlopen(web_base+'/api/project-files?project='+created['project']) as response:
                 self.assertTrue(any(item['name']=='ROADMAP.md' for item in json.load(response)))
             plain=Path(temporary.name)/'plain';plain.mkdir()
             registered=web_post('/api/projects/register',{'path':str(plain)})
