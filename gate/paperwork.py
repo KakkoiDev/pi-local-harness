@@ -26,6 +26,16 @@ from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 PROGRESS = '## Progress (kept by the harness)'
 
 
+class NotAllowed(ValueError):
+    """Refused because the caller may not do it (task 261): Gate and the web answer 403."""
+
+
+def require_auto(data, what):
+    """An automatic answer stands for the person only while Run on its own is on, checked here, never taken from the caller."""
+    from harness.autonomy import enabled
+    if not enabled(data): raise NotAllowed(f'Run on its own is off: only the person can {what}.')
+
+
 def short_title(text):
     """A short first sentence without request filler; the full request stays in the task."""
     title = str(text or '').strip().splitlines()[0] if str(text or '').strip() else ''
@@ -100,6 +110,7 @@ class Paperwork:
         self.lock = threading.RLock()
         self.choices = {}
         self.plans = {}
+        self.recorded = {}
         self.projects = None
         from .phases import Phases
         self.phases = Phases(data, identity=self.project_key)
@@ -156,7 +167,7 @@ class Paperwork:
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
             if not previous or any(previous.get(key)!=choice.get(key) for key in ('question','options')):
-                record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None)
+                record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None,proposal=not system)
             value={**choice,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
@@ -182,6 +193,7 @@ class Paperwork:
     def decision(self,request,question,answer,state='chosen'):
         """An answered choice is evidence, kept in the task rather than inferred from Pi's prose."""
         if state not in {'chosen','auto','given'}:raise ValueError('A decision must be chosen, auto or given.')
+        if state=='auto':require_auto(self.data,'answer this question')
         clean=lambda value:' '.join(str(value).split())
         if not clean(question) or not clean(answer):raise ValueError('A decision needs a question and an answer.')
         with self.lock:
@@ -210,12 +222,41 @@ class Paperwork:
                 position=section.end()+end.start() if end else len(text)
                 text=text[:position].rstrip()+'\n'+line+'\n'+text[position:]
             path.write_text(text,encoding='utf-8')
+            self.keep_decision(item['root'],item['task'],{'question':clean(question),'answer':clean(answer),'state':state,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
             if was_approved:
                 plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
             waiting=self.waiting_choice(item['root'])
             if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
             if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',{'task':item['task'],'question':clean(question),'answer':clean(answer)})
             return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
+
+    # -- decisions the harness recorded (task 261): G-017 and the plan card read these, never lines Pi wrote -----------------
+    def decisions_file(self, root):
+        return Path(self.data)/'decisions-recorded'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json') if self.data else None
+
+    def all_recorded(self, root):
+        file=self.decisions_file(root)
+        if not file:return self.recorded.setdefault(self.project_key(root),{})
+        try:value=json.loads(file.read_text(encoding='utf-8'))
+        except (OSError,ValueError):return {}
+        return value if isinstance(value,dict) else {}
+
+    def keep_decision(self, root, task, value):
+        with self.lock:
+            values=self.all_recorded(root);values.setdefault(task,[]).append(value)
+            file=self.decisions_file(root)
+            if file:
+                file.parent.mkdir(parents=True,exist_ok=True)
+                temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(values,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
+
+    def recorded_decisions(self, root, task):
+        return [value for value in self.all_recorded(root).get(task,[]) if isinstance(value,dict)]
+
+    def active_decisions(self, root):
+        """The (line, state) keys recorded for the task in progress, as G-017 compares them."""
+        plan=self.plan_state(root);tasks=plan.get('tasks',[]);index=plan.get('index',0)
+        task=tasks[index] if isinstance(index,int) and 0<=index<len(tasks) else None
+        return {rules.decision_key(value['question'],value['answer'],value['state']) for value in self.recorded_decisions(root,task)} if task else set()
 
     def plan_state(self, root, value=None):
         file = Path(self.data)/'plans'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json') if self.data else None
@@ -284,6 +325,7 @@ class Paperwork:
                 record_decision(self.data,None,'task_acceptance','person','stop',rule='G-015')
                 return {'finished':False,'stopped':True}
             if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
+            if state=='auto':require_auto(self.data,'accept this task')
             # Task 260: accepted from any phase, so leaving Implementation during a check-in never strands the plan.
             if not plan.get('verified'):
                 # An unverified task is not skipped: accepting retries the same task (the card names it).
@@ -354,14 +396,21 @@ class Paperwork:
                 if self.phases.get(root)['phase']!='planning':raise ValueError('Choose Planning to lay out tasks.')
                 goal=content.get('goal');values=content.get('tasks')
                 if not isinstance(goal,str) or not goal.strip() or not isinstance(values,list) or not values:raise ValueError('Provide a goal and task content.')
+                if rules.written_decision(goal):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                 prepared=[]
                 for task in values:
                     if not isinstance(task,dict) or task.get('kind','code') not in ('code','docs','chore'):raise ValueError('Choose code, docs or chore for the task kind.')
                     if any(not isinstance(task.get(key),str) or not task[key].strip() for key in ('title','done_when','content')):raise ValueError('Each task needs a title, Done when and content.')
                     files=task.get('files')
                     if not isinstance(files,list) or not files or any(not isinstance(path,str) or not path or Path(path).is_absolute() or '..' in Path(path).parts or '\n' in path or ',' in path for path in files):raise ValueError('Each task needs project-relative files.')
+                    from .planning import git_internal
+                    if any(git_internal(path) for path in files):raise ValueError('Files cannot include .git/: the harness keeps the repository itself.')
                     if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
+                    if any(rules.written_decision(task[key]) for key in ('title','done_when','content')):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                     prepared.append(task)
+                for task in prepared:  # the model's layout choices, measured as its proposals (task 261); no file names
+                    record_decision(self.data,request,'task_kind','model',task.get('kind','code'),proposal=True)
+                    record_decision(self.data,request,'task_files','model',len(task['files']),proposal=True)
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
                 (root/'tasks').mkdir(exist_ok=True)
                 roadmap=root/'ROADMAP.md';text=roadmap.read_text() if roadmap.exists() else '# Roadmap\n'
@@ -389,14 +438,18 @@ class Paperwork:
                 title=re.search(r'^# (?:\d+: )?(.+)',text,re.M)
                 done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 if not title or not done:raise ValueError('Each task needs a title and Done when.')
-                decisions=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
-                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions[1].strip() if decisions else ''})
+                # Task 261: the card shows the decisions the harness recorded, never lines written into the file.
+                decisions='\n'.join(f"- {value['question']}: {value['answer']} ({value['state']})" for value in self.recorded_decisions(root,path))
+                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions})
             if not tasks:raise ValueError('The plan needs at least one open task.')
             goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',roadmap,re.M|re.S)
             first=root/tasks[0]['path']
             first_text=first.read_text(encoding='utf-8')
             if not re.search(r'^Request ',first_text,re.M):
-                first.write_text(first_text.rstrip()+'\n\nRequest '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”\n',encoding='utf-8')
+                quoted='Request '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”'
+                section=re.search(r'^## Decisions\s*$',first_text,re.M)
+                # Before the Decisions section, never inside it: G-017 reads every line there as a decision (task 261).
+                first.write_text(first_text[:section.start()]+quoted+'\n\n'+first_text[section.start():] if section else first_text.rstrip()+'\n\n'+quoted+'\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
             record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')
@@ -404,6 +457,7 @@ class Paperwork:
 
     def approve_plan(self, request, state='chosen'):
         if state not in {'chosen','auto'}:raise ValueError('Approval must come from the person or auto-accept.')
+        if state=='auto':require_auto(self.data,'approve this plan')
         with self.lock:
             item=self.requests[request];root=item['root'];plan=self.plan_state(root)
             if not plan.get('pending'):raise ValueError('No plan is waiting for approval.')
@@ -675,12 +729,13 @@ class Paperwork:
         """One commit for the request's files, by the harness: {'message', 'commit'} (the handle for Undo This Request),
         or {'outcome': 'commit failed', 'reason'}."""
         name, email = self.identity
-        done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', 'commit', '-q', '-m', message,
+        # Hooks off (task 261): a hook in .git/hooks would run the model's code with the harness's commit.
+        done = subprocess.run(['git', '-C', str(root), '-c', f'user.name={name}', '-c', f'user.email={email}', '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', message,
                                *(['-m', body] if body else []), '--', *paths], capture_output=True, text=True, timeout=60) if self.add(root, paths) else None
         if not done or done.returncode:
             return {'outcome': 'commit failed', 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
         head = subprocess.run(['git', '-C', str(root), 'rev-parse', '--short=12', 'HEAD'], capture_output=True, text=True, timeout=30).stdout.strip()
-        self.protocol.clear(root)  # task 260: runs before this commit can never be Red or Green for later work
+        if self.protocol: self.protocol.clear(root)  # task 260: runs before this commit can never be Red or Green for later work
         return {'message': message, 'commit': head}
 
     def prove_red(self, item, code):

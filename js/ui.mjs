@@ -22,6 +22,8 @@ export function segmentFor(seg,select){
  seg.onclick=event=>{const radio=event.target.closest('[role="radio"]');if(radio)choose(radio);};
  seg.onkeydown=event=>{const step={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[event.key];if(!step)return;event.preventDefault();const index=radios.findIndex(radio=>radio.dataset.value===select.value);choose(radios[(index+step+radios.length)%radios.length]);};
  sync();return sync;}
+// Task 261: the person's controls carry this run's secret from the served page; the server refuses them without it.
+export function personHeaders(root=globalThis.document){const value=root?.querySelector?.('meta[name="pi-person"]')?.content;return value?{'X-Pi-Person':value}:{};}
 export function readState(key,fallback=null){try{return JSON.parse(localStorage.getItem('plh.'+key))??fallback;}catch{return fallback;}}
 export function writeState(key,value){try{if(value===null)localStorage.removeItem('plh.'+key);else localStorage.setItem('plh.'+key,JSON.stringify(value));return true;}catch{return false;}}
 

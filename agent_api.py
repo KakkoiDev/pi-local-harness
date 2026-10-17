@@ -1,9 +1,24 @@
 import hmac
 import json
 import http.server
+from gate.paperwork import NotAllowed
+
+PERSON_ONLY = 'Only the person can do this: use the workbench page or the terminal\u2019s own controls.'
+
 
 class AgentHandler(http.server.BaseHTTPRequestHandler):
     token = None
+    # Task 261: the person's actions (a chosen answer, Start Building, a phase change, a check-in) also need this run's
+    # person secret. The workbench page and the terminal's own Pi (services.py's private ready line) hold it; the Pi
+    # workers the workbench starts do not, so a leaked Gate token cannot act as the person.
+    person_secret = None
+
+    def person(self):
+        supplied = self.headers.get('X-Pi-Person', '')
+        return bool(self.person_secret) and hmac.compare_digest(supplied.encode(), self.person_secret.encode())
+
+    def refuse_person(self):
+        self.send_error_response(403, PERSON_ONLY)
 
     def trusted(self, require_token=True):
         """Loopback Host, no browser Origin, and the per-run token from services.py."""
@@ -58,9 +73,12 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                         self.send_json_response({'projects':[item for item in store.list_projects() if not item.get('missing')] if store else []})
                         return
                     raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
+                person_action=self.path=='/phase/build' or self.path=='/phase' and data.get('phase') or self.path=='/phase/accept' and (data.get('action','accept')=='stop' or data.get('state','chosen')!='auto')
+                if person_action and not self.person():self.refuse_person();return
                 if self.path=='/phase/accept':
                     self.send_json_response(self.ledger.paperwork.accept_task(root,data.get('action','accept'),data.get('state','chosen')));return
                 self.send_json_response(self.ledger.paperwork.start_building(root,selected=data.get('tasks')) if self.path=='/phase/build' else self.ledger.paperwork.phase(root,data.get('phase'),action=data.get('action','phase button')))
+            except NotAllowed as error:self.send_error_response(403,str(error))
             except Exception as error:self.send_error_response(400,str(error))
         elif self.path=='/auto':
             from harness.autonomy import enabled
@@ -77,8 +95,10 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
         elif self.path in ('/plan','/plan/approve'):
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                if self.path=='/plan/approve' and data.get('state','chosen')!='auto' and not self.person():self.refuse_person();return
                 result=self.ledger.paperwork.propose_plan(data['request'],data.get('content')) if self.path=='/plan' else self.ledger.paperwork.approve_plan(data['request'],data.get('state','chosen'))
                 self.send_json_response(result)
+            except NotAllowed as error:self.send_error_response(403,str(error))
             except Exception as error:self.send_error_response(400,str(error))
         elif self.path in ('/choice','/request/pause'):
             try:
@@ -90,7 +110,9 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
         elif self.path == '/decision':
             try:
                 data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                if data.get('state','chosen')!='auto' and not self.person():self.refuse_person();return
                 self.send_json_response(self.ledger.paperwork.decision(data['request'],data['question'],data['answer'],data.get('state','chosen')))
+            except NotAllowed as error:self.send_error_response(403,str(error))
             except Exception as error:self.send_error_response(400,str(error))
         elif self.path == '/context':
             try:

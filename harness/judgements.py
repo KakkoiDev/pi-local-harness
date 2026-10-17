@@ -31,7 +31,7 @@ class Judgements:
             return {'answer':False,'confidence':1.,'abstained':False,'who':'code','advisory':False}
         result=getattr(laya,kind)(*args,classifier=self.classifier)
         if isinstance(self.paperwork.data,(str,Path)):
-            record(self.paperwork.data,request,kind,'laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'])
+            record(self.paperwork.data,request,kind,'laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'],abstained=bool(result['abstained']))
         if not result['abstained'] and not (kind=='assumed_value' and result['answer'] is True):return {**result,'who':'laya','advisory':advisory}
         item=self.paperwork.requests.get(request)
         waiting=self.paperwork.waiting_choice(item['root']) if isinstance(item,dict) else None

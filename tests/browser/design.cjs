@@ -26,7 +26,7 @@ const readline = require('node:readline');
   process.on('exit',code=>{if(code)console.log('Page errors:',JSON.stringify(errors),'\nLast console lines:\n'+consoleLines.slice(-15).join('\n'),'\nServer log (not 200/304):\n'+serverLog.join('\n'));});
   const consoleLines=[];page.on('console',message=>consoleLines.push(message.type()+': '+message.text()));
   await page.goto(base);
-  const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]);
+  const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Pi-Person':document.querySelector('meta[name="pi-person"]')?.content||''},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]); /* task 261: as the person, with the page's secret */
   const created=await post('/api/projects/create',{name:'Design check',parent:directory});
   const root=join(directory,'Design check');
   await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/ROADMAP.md`));

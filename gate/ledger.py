@@ -117,7 +117,8 @@ class ProposalLedger:
                 command=proposal.args.get('command','')
                 if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
                     self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
-        record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
+        # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
+        if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:
@@ -212,7 +213,7 @@ class ProposalLedger:
             if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             if tool_name == 'write_file' and phase == 'implementation':
-                rejected=rules.planning_refusal(task,assistant_text,required=False)
+                rejected=rules.planning_refusal(task,assistant_text,required=False,recorded=self.paperwork.active_decisions(root))
                 if rejected:return refuse(*rejected)
                 if re.search(r"will be|we(?:['’]ll| will) use|I(?:['’]ve| have) chosen|(?:have|has) been (?:chosen|selected)|decided|にします|採用|決めました",assistant_text,re.I) and request in self.paperwork.requests:
                     judgement=self.judgements.decide(request,'assumed_value',[self.paperwork.requests[request]['text'],assistant_text])
@@ -256,6 +257,9 @@ class ProposalLedger:
                         if hints:reason+='\nClosest current text (copy exactly):\n'+'\n---\n'.join(hints[:3])[:6000]
                     return refuse('G-004', reason)
             root = self.paperwork.project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
+            if root:
+                written = rules.model_decisions(path.read_text(errors='replace') if path.is_file() else '', content)
+                if written: return refuse('G-017', written)
             if root and not path.exists() and re.search(r'^\s*- \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
             if root and path.is_file():
                 original = path.read_text(errors='replace')

@@ -346,3 +346,4 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [280-The acceptance app: notes with priority, offline, one source](tasks/280-acceptance-app-notes-priority-offline.md)
 - [ ] [281-End-to-end tests for each package, and the one-rule-change proof](tasks/281-e2e-per-target.md)
 - [x] [262-Renamed or moved projects keep working; project ids never collide](tasks/262-renamed-projects-keep-working.md)
+- [x] [261-Only the person's controls can approve, accept, change the phase or turn on Run on its own](tasks/261-person-only-controls.md)

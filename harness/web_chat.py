@@ -1,6 +1,9 @@
 """Persistent web conversations backed by isolated Pi RPC sessions, sharing Gate."""
 from harness import autonomy
 import base64
+import hmac
+import html
+import secrets
 from datetime import datetime
 from harness.context import build_context, build_project_context
 from harness.music_artifacts import music_attachments
@@ -520,7 +523,7 @@ class WebChat:
         except ValueError:
             with self.lock:self.active.pop(key,None)
             raise
-        process=None;diagnostics=None;context_file=None
+        process=None;diagnostics=None;context_file=None;token_file=None
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -563,7 +566,12 @@ class WebChat:
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
-            env={**os.environ,'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
+            # Task 261: Gate's token goes to Pi's extension in a private file it reads once and removes, never in the
+            # environment that Pi's shell passes on to every command (and that `ps` shows).
+            token_file=folder/f'.gate-token-{job or uuid.uuid4().hex}'
+            descriptor=os.open(token_file,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+            with os.fdopen(descriptor,'w') as handle:handle.write(self.gate_token or '')
+            env={**{key:value for key,value in os.environ.items() if key not in ('PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE')},'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN_FILE':str(token_file),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
@@ -680,6 +688,7 @@ class WebChat:
             if job and context_file:
                 try:context_file.unlink()
                 except OSError:pass
+            if token_file:token_file.unlink(missing_ok=True)  # Pi did not start its extension
 
 def with_checks(jobs,events,test_runs=()):
     """Copies of the jobs where each tool call lists the Gate events recorded for it (gate, then audit)."""
@@ -704,6 +713,17 @@ class WebHandler(BaseHTTPRequestHandler):
     phone_url=None
     phone_error=None  # why `tailscale serve` did not start (task 141): Open on Phone shows the off state
     speech=staticmethod(transcribe)
+    # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
+    # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
+    person_secret=secrets.token_urlsafe(32)
+    PERSON_ROUTES=frozenset({'/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
+    def person_only(self, path, data):
+        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
+        # A message answering a waiting choice is recorded as the person's decision.
+        return (path=='/api/jobs/create' or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/send',path) is not None) and str(data.get('message','')).lstrip().startswith('Choice: ')
+    def person(self):
+        supplied=self.headers.get('X-Pi-Person','')
+        return bool(self.person_secret) and hmac.compare_digest(supplied.encode(),self.person_secret.encode())
     def trusted(self):
         host=self.headers.get('Host','');origin=self.headers.get('Origin')
         allowed={f'localhost:{self.server.server_port}',f'127.0.0.1:{self.server.server_port}'}
@@ -775,7 +795,10 @@ class WebHandler(BaseHTTPRequestHandler):
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
                 file=ROOT/allowed[path];mime=mimetypes.guess_type(str(file))[0] or 'text/plain';disposition=None
-            body=file.read_bytes();self.send_response(200);self.send_header('Content-Type',mime)
+            body=file.read_bytes()
+            if disposition is None and file.name=='index.html' and file.parent==ROOT:
+                body=body.replace(b'<meta charset="utf-8">',b'<meta charset="utf-8"><meta name="pi-person" content="'+html.escape(self.person_secret).encode()+b'">',1)
+            self.send_response(200);self.send_header('Content-Type',mime)
             self.send_header('Content-Length',str(len(body)));self.send_header('X-Content-Type-Options','nosniff')
             self.send_header('Cache-Control','no-store')
             if disposition:self.send_header('Content-Disposition',disposition)
@@ -793,6 +816,8 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if self.person_only(path,data) and not self.person():
+                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.'},403);return
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))

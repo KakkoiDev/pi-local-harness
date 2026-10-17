@@ -260,5 +260,7 @@ class ConfirmationEvidenceTest(unittest.TestCase):
             self.assertTrue(paper.confirmed_value(root,'exact'))
             self.assertFalse(paper.confirmed_value(root,'changed'))
             paper.choice_pending('r',choice,system=True)
-            paper.decision('r',choice['question'],'Continue with the stated value',state='auto')
+            from unittest.mock import patch
+            with patch('harness.autonomy.enabled',return_value=True):  # task 261: auto answers need Run on its own on
+                paper.decision('r',choice['question'],'Continue with the stated value',state='auto')
             self.assertFalse(paper.confirmed_value(root,'exact'))

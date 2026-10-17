@@ -43,7 +43,7 @@ RULES = [
     Rule('G-014', 'Plans are complete', 'end', PROJECT, 'MARK', 'A code request needs a real Goal, no starter placeholder task, and a checkbox and Done when: line in every linked task. Ask once to fill the gaps; otherwise mark Plan incomplete.', 'tests/test_gate_rules.py', 'L-007-empty-pong-plan.md'),
     Rule('G-015', 'Project phase permissions', 'before', PROJECT, 'REVISE', 'Discussion reads; Planning writes ROADMAP.md and tasks/; Implementation writes approved task files. Only you or auto changes phase.', 'tests/test_phases.py', 'L-008-guessed-project-decisions.md'),
     Rule('G-016', 'Ask instead of assuming', 'before', PROJECT, 'REVISE', 'An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
-    Rule('G-017', 'Decisions are settled', 'before', PROJECT, 'REVISE', 'Every Decisions line in the active task must be chosen, auto or given before code changes.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
+    Rule('G-017', 'Decisions are settled', 'before', PROJECT, 'REVISE', 'Decisions lines must be answers the harness recorded, before code changes.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
 ]
 BY_ID = {rule.id: rule for rule in RULES}
 
@@ -91,6 +91,32 @@ def shell_writes_plan(command):
     if re.search(rf"\btee\b[^|;&\n]*{PLAN}", command): return True
     if re.search(rf"\b(?:sed|perl)\b[^|;&\n]*\s-[a-zA-Z]*i\b[^|;&\n]*{PLAN}", command): return True
     return bool(re.search(PLAN, command) and re.search(r"write_text|writeFileSync|appendFileSync|open\([^)]*['\"][wa]\+?['\"]|\.write\(", command))
+
+
+# Task 261: a decision's state marker, as the harness writes it when it records an answer: "(chosen 2026-…)".
+DECISION_MARK = re.compile(r'\((?:chosen|given|auto)(?:[\s:][^)]*)?\)')
+DECISIONS_HEADING = re.compile(r'^#{1,6}\s*Decisions\b', re.M)
+MODEL_DECISION = 'the harness records decisions when the person answers (ask_choices, or Run on its own); leave “(chosen …)”, “(given …)”, “(auto …)” and a Decisions section out of what you write.'
+
+
+def written_decision(text):
+    """The first decision marker or Decisions heading in text Pi wrote, or None."""
+    found = DECISION_MARK.search(text) or DECISIONS_HEADING.search(text)
+    return found.group(0) if found else None
+
+
+def model_decisions(original, content):
+    """G-017: the reason a write to a plan file adds a decision or a Decisions section, or None. Lines already there stay."""
+    before = {line.strip() for line in original.splitlines()}
+    for line in content.splitlines():
+        if line.strip() not in before and DECISION_MARK.search(line): return f'“{line.strip()[:80]}”: ' + MODEL_DECISION
+    if len(DECISIONS_HEADING.findall(content)) > len(DECISIONS_HEADING.findall(original)): return 'a new Decisions section: ' + MODEL_DECISION
+    return None
+
+
+def decision_key(question, answer, state):
+    clean = lambda value: ' '.join(str(value).split())
+    return f'- {clean(question)}: {clean(answer)}', state
 
 
 def plan_shrinks(original, content):
@@ -146,7 +172,9 @@ if __name__ == '__main__':
 ASSUMPTIONS=re.compile(r"I[’']ll assume|I assume|let[’']s say|probably|I guess|for now I[’']ll|default to|arbitrarily|not specified|unclear|I[’']m not sure|仮に|とりあえず|たぶん|不明",re.I)
 
 
-def planning_refusal(task,assistant_text,required=False):
+def planning_refusal(task,assistant_text,required=False,recorded=None):
+    """recorded: the (line, state) keys the harness recorded for this task (task 261); a marked line not among them is not
+    settled. None keeps the older check of the marker alone."""
     for sentence in re.split(r'(?<=[.!?。！？])\s*|\n',assistant_text):
         if ASSUMPTIONS.search(sentence):return 'G-016',f'You wrote: “{sentence.strip()}” Turn this assumption into one ask_choices question and wait for the person’s answer.'
     if required and not re.search(r'^Plan approved:\s*\S',task,re.M):
@@ -156,4 +184,9 @@ def planning_refusal(task,assistant_text,required=False):
         for line in section[1].splitlines():
             if line.strip() and not re.search(r'\((?:chosen|auto|given)(?:\s|:|\))',line):
                 return 'G-017',f'This decision is not settled: “{line.strip()}” Ask with ask_choices; record chosen, auto or given.'
+            mark=DECISION_MARK.search(line)
+            if mark and recorded is not None:
+                key=(' '.join(line[:mark.start()].split()),re.match(r'\((\w+)',mark.group(0))[1])
+                if key not in recorded:
+                    return 'G-017',f'This decision was not recorded by the harness: “{line.strip()}” Ask with ask_choices; the harness records the person’s answer.'
     return None

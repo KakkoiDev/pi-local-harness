@@ -115,6 +115,11 @@ How a request is trusted (`WebHandler.trusted` in `harness/web_chat.py`):
 | `Host: localhost:PORT` or `127.0.0.1:PORT` | Allowed; an `Origin`, if sent, must be `http://` that same host |
 | Any other Host | Host minus `:443` in `remote_hosts`, `Tailscale-User-Login` in `remote_users`, and `Origin`, if sent, exactly `https://<host>` |
 
+The person's controls need more (task 261): `/api/phase`, `/api/phase/build`, check-in accept and stop,
+`/api/plan/wait`, `/api/auto` and a message that answers a waiting choice must carry `X-Pi-Person`, this run's secret,
+which the server writes into the served page (`<meta name="pi-person">`) and `js/ui.mjs` `personHeaders()` sends.
+Without it they answer 403 “Reload the page”. The phone gets the secret with the page.
+
 Tailscale serve sets `Tailscale-User-Login` from the tailnet identity and removes
 any copy the client sent. Funnel (public internet) requests carry no login, so they
 are refused. A refused remote request returns 403 with the received Host, login and
