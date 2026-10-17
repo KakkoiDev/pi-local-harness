@@ -25,3 +25,4 @@ Review and return handoff (2026-10-17):
 
 - [handoff/claude-return-2026-10-17.md](handoff/claude-return-2026-10-17.md): work delivered since Claude’s handoff, commit references, verification limits and remaining work.
 - [reviews/2026-10-17-test-project-log-review.md](reviews/2026-10-17-test-project-log-review.md): privacy-edited review of the two test-project sessions and the capability-first Project Start direction.
+- [bench/2026-10-16-pong/README.md](bench/2026-10-16-pong/README.md): yesterday’s Pong comparison, retained per-run evidence and development-build caveats.

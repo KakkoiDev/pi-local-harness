@@ -113,3 +113,7 @@ Design and architecture questions are documented, not decided: catalog compositi
 Review the P0 reproduction and gate/paperwork.py completion logic first. Then design the minimal task-bound verification and durable interaction repairs, with failing replay tests based on the observed provider events and queue races. Preserve the person's explicit approval authority. Only after a complete feature can reliably proceed through test, implementation, check-in and recovery should the Project Start blocks expand that capability.
 
 Do not optimize generated-app scalability ahead of this. Do not run new benchmarks, download anything, change personal project data or restart services as an implicit consequence of reading the report. Any such work needs its own applicable authorization.
+
+## Publication follow-up: yesterday’s retained benchmark evidence
+
+At the owner’s further request, task 252 publishes the available per-run records behind the 16 October Pong comparison, whose summary was already on main. See the [Pong evidence README](../bench/2026-10-16-pong/README.md). Two Gemma 4 26B runs on bcbce0a-dirty, both unsolved/unverified, are kept separate from the 22-run Gemma e4b/Qwen batch. No rerun was started, and no absent test output was fabricated.

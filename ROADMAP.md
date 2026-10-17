@@ -294,3 +294,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [249-Every decision logged with who took it](tasks/249-decision-log.md)
 
 - [x] [251-Publish the test-project review and return handoff to Claude](tasks/251-publish-review-and-claude-handoff.md)
+- [x] [252-Publish yesterday’s retained Pong benchmark records](tasks/252-publish-retained-pong-benchmarks.md)
