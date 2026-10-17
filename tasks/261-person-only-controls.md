@@ -34,7 +34,8 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 - [x] Red/Green 7, decision log: Gate's allow and success events are no longer decisions (they stay in
   gate-events.jsonl); a Laya abstention is logged as abstained and not counted; the model's plan layout choices (each
   task's Kind and Files) are logged as `who=model` proposals.
-- [ ] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`, browser suites.
+- [x] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs` (166 passed) before every commit;
+  browser suites (design and chat) passed after parts 2 and 4, the parts that change what the page sends or shows.
 
 ## Not covered (open)
 
