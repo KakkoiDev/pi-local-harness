@@ -1,4 +1,4 @@
-# 88: Pi Workbench System 1, file tree rows
+# 88: Pi Workbench 1-bit, file tree rows
 
 Kind: code
 

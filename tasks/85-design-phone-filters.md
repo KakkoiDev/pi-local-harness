@@ -1,4 +1,4 @@
-# 85: Pi Workbench System 1, phone segmented filters
+# 85: Pi Workbench 1-bit, phone segmented filters
 
 Kind: code
 

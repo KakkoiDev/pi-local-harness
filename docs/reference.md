@@ -288,6 +288,6 @@ they do not claim to measure model intelligence.
 
 This workbench uses [Impeccable](https://github.com/pbakaus/impeccable) polish and
 hardening guidance. [PRODUCT.md](../PRODUCT.md) records product constraints;
-[DESIGN.md](../DESIGN.md) records the visual rules (Pi Workbench System 1); [design/](../design/README.md) holds the design system, the canvas, the served CSS and icons, and the build guide. Text-selected comments
+[DESIGN.md](../DESIGN.md) records the visual rules (Pi Workbench 1-bit); [design/](../design/README.md) holds the design system, the canvas, the served CSS and icons, and the build guide. Text-selected comments
 were informed by [Jikko's comment implementation](https://github.com/KakkoiDev/jikko/blob/main/comments.go); PLH stores threads in adjacent data-directory Markdown records
 to keep project document bodies directly editable.

@@ -1,4 +1,4 @@
-# 72: Pi Workbench System 1, dialogs
+# 72: Pi Workbench 1-bit, dialogs
 
 Kind: code
 

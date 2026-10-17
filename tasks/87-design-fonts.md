@@ -1,4 +1,4 @@
-# 87: Pi Workbench System 1, design fonts
+# 87: Pi Workbench 1-bit, design fonts
 
 Kind: code
 

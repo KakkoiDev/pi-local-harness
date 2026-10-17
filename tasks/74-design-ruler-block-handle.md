@@ -1,4 +1,4 @@
-# 74: Pi Workbench System 1, ruler and block handle
+# 74: Pi Workbench 1-bit, ruler and block handle
 
 Kind: code
 

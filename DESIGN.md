@@ -1,6 +1,6 @@
 # Workbench design
 
-Pi Workbench follows *Human Interface Guidelines: The Apple Desktop Interface* (1987) in principle, drawn one bit deep: black ink on white paper, one menu bar, windows that tile on a dotted desktop, select-then-command. The full system is the “Pi Workbench System 1” design system; this file is the short version every change must respect. How to build it: [design/IMPLEMENTATION.md](design/IMPLEMENTATION.md). Where everything lives: [design/README.md](design/README.md).
+Pi Workbench follows *Human Interface Guidelines: The Apple Desktop Interface* (1987) in principle, drawn one bit deep: black ink on white paper, one menu bar, windows that tile on a dotted desktop, select-then-command. The full system is the “Pi Workbench 1-bit” design system; this file is the short version every change must respect. How to build it: [design/IMPLEMENTATION.md](design/IMPLEMENTATION.md). Where everything lives: [design/README.md](design/README.md).
 
 ## Rules
 

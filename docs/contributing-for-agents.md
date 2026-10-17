@@ -4,7 +4,7 @@ Written for any model working on this repository, including small local ones. Fo
 
 ## 1. What this project is (one paragraph)
 
-Pi Workbench is a local web app for **one person, one local AI agent (Pi), one chat per project, and real Markdown files**. `plh` starts Pi in a terminal, Gate (a command checker) on port 8000 and the web workbench on port 3000. The web server is standard-library Python. The page is plain HTML, CSS and ES modules, designed as a 1-bit "System 1" Macintosh-style interface by a separate designer.
+Pi Workbench is a local web app for **one person, one local AI agent (Pi), one chat per project, and real Markdown files**. `plh` starts Pi in a terminal, Gate (a command checker) on port 8000 and the web workbench on port 3000. The web server is standard-library Python. The page is plain HTML, CSS and ES modules, designed as a Pi Workbench 1-bit Macintosh-style interface by a separate designer.
 
 ## 2. Where things live
 

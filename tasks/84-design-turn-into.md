@@ -1,4 +1,4 @@
-# 84: Pi Workbench System 1, Turn Into submenu
+# 84: Pi Workbench 1-bit, Turn Into submenu
 
 Kind: code
 

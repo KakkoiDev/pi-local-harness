@@ -1,4 +1,4 @@
-# 71: Pi Workbench System 1, menu bar
+# 71: Pi Workbench 1-bit, menu bar
 
 Kind: code
 

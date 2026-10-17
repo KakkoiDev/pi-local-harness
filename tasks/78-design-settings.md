@@ -1,4 +1,4 @@
-# 78: Pi Workbench System 1, Settings
+# 78: Pi Workbench 1-bit, Settings
 
 Kind: code
 

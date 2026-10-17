@@ -1,5 +1,5 @@
-/* Pi Workbench System 1 — components. Same file as the design system's components/bundle.css, minus the Google Fonts @import (fonts load locally from tokens.css). */
-/* Pi Workbench System 1 — components.
+/* Pi Workbench 1-bit — components. Same file as the design system's components/bundle.css, minus the Google Fonts @import (fonts load locally from tokens.css). */
+/* Pi Workbench 1-bit — components.
    Every colour, shadow, length and family comes from tokens.css (var(--…)).
    Class prefix: pw-. State is carried by ARIA attributes wherever one exists
    (aria-pressed, aria-checked, aria-current, aria-expanded, aria-disabled, :disabled). */

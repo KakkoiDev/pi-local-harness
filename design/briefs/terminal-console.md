@@ -6,7 +6,7 @@ The person: "The web UI is the Human interface wysiwyg where we point and click 
 
 ## The idea
 
-Two doors to one harness. The **web workbench** is the place to point and click. **Terminal Pi** (what `plh` opens) is the place to type: you ask in words ("is anything stuck?", "switch to qwen", "how do I open this on my phone?") and Pi answers from live data with its `harness` tool, or you type a command (`/status`, `/doctor`, `/gate blocked`) and it runs at once without the model. Settings, models and Ollama are changed here, always after your yes. The terminal should feel like the same System 1 family: plain words, state as glyph plus word, one clear default, nothing that only colour can say.
+Two doors to one harness. The **web workbench** is the place to point and click. **Terminal Pi** (what `plh` opens) is the place to type: you ask in words ("is anything stuck?", "switch to qwen", "how do I open this on my phone?") and Pi answers from live data with its `harness` tool, or you type a command (`/status`, `/doctor`, `/gate blocked`) and it runs at once without the model. Settings, models and Ollama are changed here, always after your yes. The terminal should feel like the same Pi Workbench 1-bit family: plain words, state as glyph plus word, one clear default, nothing that only colour can say.
 
 ## What it looks like today (real text)
 
@@ -74,7 +74,7 @@ Limits: a monospace grid from about 60 to 200 columns; light or dark terminal th
 
 ## What to draw (boards wanted)
 
-1. **Principles** for the terminal member of the System 1 family: how inversion, frames, the double rule, glyph + word, Title Case commands and the default button translate to a character grid. One page.
+1. **Principles** for the terminal member of the Pi Workbench 1-bit family: how inversion, frames, the double rule, glyph + word, Title Case commands and the default button translate to a character grid. One page.
 2. **Startup header**: Gate, Web, Phone (or why it is off, and the QR), the console hint. First start versus every start (compact?). At 60 and 120 columns.
 3. **Footer / status**: what is always visible: model · thinking, the workbench state (Ready, Working · 1 waiting, Failed · 1 needs attention), Gate today, phone on/off. How it changes when something needs attention.
 4. **Console outputs** as designed components: the status card, tables (queue, gate, models: column choices at 80 columns), the doctor checklist (ok / NO with what to do), the config list (long: 14 settings plus the harness's own variables), guide answers, errors.

@@ -1,4 +1,4 @@
-# 69: Pi Workbench System 1, tokens, components, icons
+# 69: Pi Workbench 1-bit, tokens, components, icons
 
 Kind: code
 

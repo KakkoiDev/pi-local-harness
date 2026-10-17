@@ -1,4 +1,4 @@
-# 90: Pi Workbench System 1, tablet layout (761-1100px)
+# 90: Pi Workbench 1-bit, tablet layout (761-1100px)
 
 Kind: code
 

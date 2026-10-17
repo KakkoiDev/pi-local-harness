@@ -103,7 +103,7 @@ and harness/README.md for the installed pi workflow.
 - [ ] [66-Phone access over Tailscale and voice input](tasks/66-tailscale-voice-input.md)
 - [x] [67-Parallel inference experiment (check MLX fix first)](tasks/67-parallel-inference-experiment.md)
 
-## Pi Workbench System 1
+## Pi Workbench 1-bit
 
 Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build order in [design/IMPLEMENTATION.md](design/IMPLEMENTATION.md) § 12.
 
@@ -290,5 +290,5 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [246-Recover sharing when a Tailscale Serve session stops](tasks/246-tailscale-sharing-recovery.md)
 - [x] [250-Laya: System 1's classifier](tasks/250-laya-classifier.md)
 - [x] [247-Three phases for every request](tasks/247-three-phases.md)
-- [ ] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
+- [x] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
 - [x] [249-Every decision logged with who took it](tasks/249-decision-log.md)

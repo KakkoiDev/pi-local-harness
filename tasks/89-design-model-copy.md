@@ -1,4 +1,4 @@
-# 89: Pi Workbench System 1, model location copy
+# 89: Pi Workbench 1-bit, model location copy
 
 Kind: code
 

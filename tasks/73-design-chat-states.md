@@ -1,4 +1,4 @@
-# 73: Pi Workbench System 1, chat states
+# 73: Pi Workbench 1-bit, chat states
 
 Kind: code
 

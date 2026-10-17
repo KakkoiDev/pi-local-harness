@@ -1,4 +1,4 @@
-# 77: Pi Workbench System 1, Laya
+# 77: Pi Workbench 1-bit, Laya
 
 Kind: code
 

@@ -1,4 +1,4 @@
-# 82: Pi Workbench System 1, Apply Change
+# 82: Pi Workbench 1-bit, Apply Change
 
 Kind: code
 

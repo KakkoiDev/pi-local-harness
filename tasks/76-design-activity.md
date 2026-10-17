@@ -1,4 +1,4 @@
-# 76: Pi Workbench System 1, Activity
+# 76: Pi Workbench 1-bit, Activity
 
 Kind: code
 

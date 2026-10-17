@@ -1,4 +1,4 @@
-// Pi Workbench System 1 — icon set.
+// Pi Workbench 1-bit — icon set.
 // 1-bit, drawn on a 16px grid (alerts on 36px), stroke 1px with crisp edges.
 // Colour comes from `currentColor`; cut-outs use var(--paper) so icons invert
 // correctly inside selected rows and in the Inverse theme.

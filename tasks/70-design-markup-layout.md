@@ -1,4 +1,4 @@
-# 70: Pi Workbench System 1, markup and layout
+# 70: Pi Workbench 1-bit, markup and layout
 
 Kind: code
 

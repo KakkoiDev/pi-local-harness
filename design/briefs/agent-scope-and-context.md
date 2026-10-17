@@ -1,8 +1,8 @@
 # Brief: Agent scope, what Pi sees, and catching the canvas up
 
-Date: 2026-10-13. For: the designer AI that made the Pi Workbench System 1 handoff.
+Date: 2026-10-13. For: the designer AI that made the Pi Workbench 1-bit handoff.
 Canvas: https://claude.ai/artifact/Re2trGpSgYLrd2anCHTRyK. Design system: https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1.
-The person asked for "a clean and clear design". Keep System 1: 1-bit ink on paper, existing tokens and components first, no new colours.
+The person asked for "a clean and clear design". Keep Pi Workbench 1-bit: 1-bit ink on paper, existing tokens and components first, no new colours.
 
 There are three parts. Part A and Part B are new design. Part C asks you to draw what was built since your last handoff, so the canvas stays the source of truth.
 

@@ -292,7 +292,7 @@ With uv packaged in the kit, dependencies are no longer a cost to the person, so
 - **Front end:** htmx 4 and Basecoat replace the single-page modules in `js/`, view by view (plans 151 and 152), with
   server-sent events for live progress. The browser suites stay the safety net: each view moves only when its suite
   passes on the new one.
-- **The look:** the 1-bit System 1 design becomes a Basecoat theme (a style pack: tokens, square corners, inversion for
+- **The look:** the Pi Workbench 1-bit design becomes a Basecoat theme (a style pack: tokens, square corners, inversion for
   selection). That is a design change: it goes to the designer first, as a brief (the person's rule: design changes go
   through the designer).
 - **Order:** after the kit and the starter project exist and the bench shows the stack pack helps, so the refactor

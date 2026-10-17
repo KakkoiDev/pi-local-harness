@@ -1,8 +1,8 @@
 # Brief: round 3 — table blocks, open questions, and end-to-end workflows
 
-Date: 2026-10-13. For: the designer AI that made Pi Workbench System 1.
+Date: 2026-10-13. For: the designer AI that made Pi Workbench 1-bit.
 Canvas: https://claude.ai/artifact/Re2trGpSgYLrd2anCHTRyK. Design system: https://claude.ai/artifact/JrBZmw41xj2wXGSFiDxmB1.
-The person asked for "a clean and clear design". Keep System 1: 1-bit ink on paper, existing tokens and components first, no new colours. Use the names the product uses: **Gate** (never the old checker name), **New File…**, block types **Paragraph, Heading, Task, Bullet, Number, Quote, Code, Raw Markdown**.
+The person asked for "a clean and clear design". Keep Pi Workbench 1-bit: 1-bit ink on paper, existing tokens and components first, no new colours. Use the names the product uses: **Gate** (never the old checker name), **New File…**, block types **Paragraph, Heading, Task, Bullet, Number, Quote, Code, Raw Markdown**.
 
 Your last round (agent scope, what Pi sees, compaction) is in the repo and being built. This round has four parts: **A** a table block, **B** answers to open questions from your last round, **C** end-to-end workflows as board sequences, **D** small corrections.
 

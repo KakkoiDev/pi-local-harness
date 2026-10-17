@@ -1,4 +1,4 @@
-# 80: Pi Workbench System 1, Open on Phone
+# 80: Pi Workbench 1-bit, Open on Phone
 
 Kind: code
 

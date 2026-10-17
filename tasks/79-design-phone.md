@@ -1,4 +1,4 @@
-# 79: Pi Workbench System 1, Phone
+# 79: Pi Workbench 1-bit, Phone
 
 Kind: code
 

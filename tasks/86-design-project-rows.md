@@ -1,4 +1,4 @@
-# 86: Pi Workbench System 1, sidebar project rows
+# 86: Pi Workbench 1-bit, sidebar project rows
 
 Kind: code
 

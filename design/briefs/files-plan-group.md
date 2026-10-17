@@ -1,6 +1,6 @@
 # Brief: Files window, "Plan" group above "Files"
 
-Date: 2026-10-13. For: the designer AI that made the Pi Workbench System 1 handoff.
+Date: 2026-10-13. For: the designer AI that made the Pi Workbench 1-bit handoff.
 
 ## Problem
 

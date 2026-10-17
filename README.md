@@ -80,7 +80,7 @@ Type `/update` in terminal Pi. It shows what is new, in plain words, and updates
   the answer.
 - [How it works](docs/reference.md): install details, data and settings, the architecture, recovery.
 - [Operations](harness/README.md): services, ports, the data folder, phone access.
-- [The design](design/README.md): the 1-bit "System 1" design the interface follows, with every screen drawn.
+- [The design](design/README.md): the Pi Workbench 1-bit design the interface follows, with every screen drawn.
 - [Lessons](docs/lessons/README.md): mistakes the local model made, and what the workbench now does about each one.
 
 ## Contributing
