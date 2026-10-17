@@ -58,11 +58,11 @@ remove those lines by hand; the harness does not do it.
 
 ## 4. No test hides after unittest.main(); skipped music renders say "Not run" (P2)
 
-- [ ] Red (unit): a lint test fails when a test file has code after its `if __name__ == '__main__'` block
+- [x] Red (unit): a lint test fails when a test file has code after its `if __name__ == '__main__'` block
       (six files did: test_admin, test_gate_rules, test_model_choice, test_paperwork, test_remote_access, test_setup).
-- [ ] Move each `__main__` block to the end of its file.
-- [ ] The two music render tests skip with "Not run: …" and how to set them up, and fail when CI is set.
-- [ ] Green: python3 -m unittest discover -s tests; node --test tests/harness/music.test.mjs.
+- [x] Move each `__main__` block to the end of its file.
+- [x] The two music render tests skip with "Not run: …" and how to set them up, and fail when CI is set.
+- [x] Green: python3 -m unittest discover -s tests; node --test tests/harness/music.test.mjs.
 
 ## 5. Small fixes (P2/P3)
 

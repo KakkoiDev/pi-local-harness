@@ -186,8 +186,6 @@ class ShortTitleTest(unittest.TestCase):
         self.assertEqual(short_title('x'*60),'…')
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class StarterSampleTest(unittest.TestCase):
@@ -390,3 +388,7 @@ class PlanLifecycleTest(PaperworkTest):
         ledger.complete(proposed['proposal_id'],'execute_command',args,'ok',0)
         report=RunReports(self.data.name).latest()
         self.assertEqual(report['counts']['external'],1);self.assertEqual(report['counts']['problems'],1)
+
+
+if __name__ == '__main__':
+    unittest.main()

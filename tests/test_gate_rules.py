@@ -187,8 +187,6 @@ class ConsoleTest(unittest.TestCase):
         self.assertIn('── Gate rules', text); self.assertIn('G-008', text)
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class BareTest(unittest.TestCase):
@@ -307,3 +305,7 @@ class PlanningCatchesTest(unittest.TestCase):
                 result=ledger.propose('write_file',{'path':path,'content':'New text'},'admin',pi_tool='write',cwd=str(root),assistant_text="I'll assume blue.")
                 self.assertEqual(result['outcome'],'ALLOW' if plan else 'REVISE')
                 if result['outcome']=='REVISE':self.assertEqual(result['rule'],'G-016')
+
+
+if __name__ == '__main__':
+    unittest.main()
