@@ -132,6 +132,25 @@ class PlanFilesTest(unittest.TestCase):
         result=self.ledger.propose('write_file',{'path':'ROADMAP.md','oldText':'- [ ]','newText':'- [x]'},'admin',pi_tool='edit',cwd=str(self.root))
         self.assertEqual(result.get('rule'),'G-010')
 
+    def test_star_and_plus_bullets_are_task_boxes_too(self):
+        """Task 263 (review P3): a `*` or `+` bullet box bypassed G-010 and the open-box counts."""
+        self.task.write_text('# 001\n\nKind: code\n\n* [x] Planned\n* [ ] Red: the test fails\n+ [ ] Green: it passes\n')
+        for bullet, word in (('*', 'Red'), ('+', 'Green')):
+            result = self.propose('edit', {'edits': [{'oldText': f'{bullet} [ ] {word}', 'newText': f'{bullet} [x] {word}'}]})
+            self.assertEqual(result.get('rule'), 'G-010', bullet)
+            self.ledger.pending.clear()
+        added = self.propose('edit', {'edits': [{'oldText': '* [x] Planned', 'newText': '* [x] Planned\n+ [ ] Sneaked in'}]})
+        self.assertEqual(added.get('rule'), 'G-010', 'System 1 lays out every box, whatever the bullet')
+        fresh = self.ledger.propose('write_file', {'path': str(self.root / 'tasks/002-b.md'), 'content': '# 002\n\n* [ ] Red\n'}, 'admin', pi_tool='write', cwd=str(self.root))
+        self.assertEqual(fresh.get('rule'), 'G-010')
+        from gate import rules
+        self.assertEqual(rules.newly_ticked('* [ ] Red: a\n+ [ ] Green\n', '* [x] Red: a\n+ [X] Green\n'), ['Red: a', 'Green'])
+        self.assertIsNotNone(rules.plan_shrinks('* [x] a\n+ [x] b\n', '* [ ] a\n+ [ ] b\n'))
+        from harness.documents import DocumentStore
+        self.assertEqual(DocumentStore.progress(self.task), {'done': 1, 'total': 3, 'blocked': False})
+        from gate.paperwork import open_boxes
+        self.assertTrue(open_boxes('- [x] a\n+ [ ] b\n')); self.assertTrue(open_boxes('* [ ] a\n')); self.assertFalse(open_boxes('- [x] a\n* [X] b\n'))
+
     def test_red_and_green_are_ticked_only_after_gate_saw_the_runs(self):
         tick = lambda word: {'edits': [{'oldText': f'- [ ] {word}', 'newText': f'- [x] {word}'}]}
         refused = self.propose('edit', tick('Red'))

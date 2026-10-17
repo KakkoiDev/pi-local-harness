@@ -68,8 +68,8 @@ remove those lines by hand; the harness does not do it.
 
 - [x] Red (unit): a refused command says "Not run", a refused plan proposal "Not proposed", not "Not written".
 - [x] Red (unit): writing in a folder that is not a project says so (register it or add ROADMAP.md), not ⇧⌘2.
-- [ ] Red (unit): G-010 and box counting treat `-`, `*` and `+` bullets the same (a `* [x] Red` tick is refused like
-      `- [x] Red`; `+ [ ]` counts as open).
+- [x] Red (unit): G-010 and box counting treat `-`, `*` and `+` bullets the same (ticking Red under a star bullet is
+      refused like under a dash; an open box under a plus bullet counts as open).
 - [ ] Red (unit): propose_plan keeps the roadmap's task lines when ROADMAP.md has no heading after `## Goal`.
 - [ ] Red (unit): the browser suites write screenshots under a per-run temporary folder, never a fixed /tmp path.
 - [ ] Red (unit): the Update window shows the backend's `why` for "unknown".

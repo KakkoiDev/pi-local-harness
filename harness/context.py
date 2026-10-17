@@ -26,8 +26,8 @@ def compress_plan(text):
     kept, done = [], 0
     for line in text.splitlines():
         stripped = line.strip()
-        if re.match(r'[-*] \[[xX]\]', stripped): done += 1
-        elif stripped.startswith('#') or re.match(r'[-*] \[[ ~]\]', stripped): kept.append(line)
+        if re.match(r'[-*+] \[[xX]\]', stripped): done += 1
+        elif stripped.startswith('#') or re.match(r'[-*+] \[[ ~]\]', stripped): kept.append(line)
     if done: kept.append(f'({done} done)')
     return '\n'.join(kept)
 

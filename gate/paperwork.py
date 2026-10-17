@@ -25,6 +25,11 @@ from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 PROGRESS = '## Progress (kept by the harness)'
 
 
+def open_boxes(text):
+    """Task 263: an open box under any list bullet (`-`, `*`, `+`)."""
+    return bool(re.search(r'^\s*[-*+] \[ \]', text, re.M))
+
+
 def short_title(text):
     """A short first sentence without request filler; the full request stays in the task."""
     title = str(text or '').strip().splitlines()[0] if str(text or '').strip() else ''
@@ -296,7 +301,7 @@ class Paperwork:
         if not item:return {'required':False,'approved':False}
         root=item['root'];state=self.plan_state(root);task=item.get('task');text=''
         if task and (root/task).is_file():text=(root/task).read_text(encoding='utf-8')
-        required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8') if (root/'ROADMAP.md').is_file() else '',re.M)))
+        required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*[-*+] \[[xX]\]',(root/'ROADMAP.md').read_text(encoding='utf-8') if (root/'ROADMAP.md').is_file() else '',re.M)))
         approved=self.plan_status_for_item(item)
         return {'required':required or bool(state.get('pending') or state.get('check_in') or task in state.get('tasks',[])), 'approved':approved,'task':task}
 
@@ -317,7 +322,7 @@ class Paperwork:
                     if any(not isinstance(task.get(key),str) or not task[key].strip() for key in ('title','done_when','content')):raise ValueError('Each task needs a title, Done when and content.')
                     files=task.get('files')
                     if not isinstance(files,list) or not files or any(not isinstance(path,str) or not path or Path(path).is_absolute() or '..' in Path(path).parts or '\n' in path or ',' in path for path in files):raise ValueError('Each task needs project-relative files.')
-                    if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
+                    if re.search(r'^\s*[-*+] \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
                     prepared.append(task)
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
                 (root/'tasks').mkdir(exist_ok=True)
@@ -337,7 +342,7 @@ class Paperwork:
             gaps=rules.plan_gaps(root)
             if gaps:raise ValueError('; '.join(gaps))
             roadmap=(root/'ROADMAP.md').read_text(encoding='utf-8')
-            paths=re.findall(r'^\s*- \[ \].*?\((tasks/[^)]+\.md)\)',roadmap,re.M)
+            paths=re.findall(r'^\s*[-*+] \[ \].*?\((tasks/[^)]+\.md)\)',roadmap,re.M)
             tasks=[]
             for path in paths:
                 if not (root/path).resolve().is_relative_to(root):raise ValueError('Task must stay inside the project.')
@@ -374,7 +379,7 @@ class Paperwork:
                 text=file.read_text(encoding='utf-8')
                 if 'Kind: planning' in text:
                     file.write_text(text.replace('- [ ]','- [x]'),encoding='utf-8')
-                    roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*)- \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1- [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
+                    roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*[-*+]) \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1 [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
             plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
             item['new_plan']=False
@@ -500,7 +505,7 @@ class Paperwork:
                 saved = self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
                 return {'outcome':'plan incomplete','task':task,'reason':reason,**saved}
             from harness.audit import verified as audit_verified
-            if task.endswith('-ready-to-publish.md') and (re.search(r'^- \[ \]',text,re.M) or not audit_verified(root,self.data,task)):
+            if task.endswith('-ready-to-publish.md') and (open_boxes(text) or not audit_verified(root,self.data,task)):
                 reason='publication checks are still open; run /audit and fix every failed check'
                 saved=self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
                 return {'outcome':'not verified','task':task,'reason':reason,**saved}
@@ -528,13 +533,13 @@ class Paperwork:
                     return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
             planned=self.plan_status_for_item(item)
             if planned:
-                self.write(item,re.sub(r'- \[ \]', '- [x]', (root/task).read_text(encoding='utf-8')))
+                self.write(item,re.sub(r'^(\s*[-*+]) \[ \]', r'\1 [x]', (root/task).read_text(encoding='utf-8'),flags=re.M))
             self.progress(item, f'Done at {clock()}: verified and committed')
             text = (root / task).read_text(encoding='utf-8')
             roadmap = (root / 'ROADMAP.md').read_text(encoding='utf-8')
-            if not re.search(r'- \[ \]', text):
+            if not open_boxes(text):
                 before_roadmap=roadmap
-                roadmap = re.sub(rf'^(\s*)- \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [x]\2', roadmap, count=1, flags=re.MULTILINE)
+                roadmap = re.sub(rf'^(\s*[-*+]) \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1 [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
                 if roadmap!=before_roadmap:record_decision(self.data,request,'box_ticked','code',1,rule='G-010')
             saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
@@ -654,7 +659,7 @@ class Paperwork:
     def write(self, item, text):
         path=item['root']/item['task'];before=path.read_text(encoding='utf-8') if path.exists() else ''
         path.write_text(text,encoding='utf-8')
-        ticks=len(re.findall(r'^\s*- \[x\]',text,re.M))-len(re.findall(r'^\s*- \[x\]',before,re.M))
+        ticks=len(re.findall(r'^\s*[-*+] \[[xX]\]',text,re.M))-len(re.findall(r'^\s*[-*+] \[[xX]\]',before,re.M))
         if ticks>0:record_decision(self.data,next((key for key,value in self.requests.items() if value is item),None),'box_ticked','code',ticks,rule='G-010')
 
     @staticmethod

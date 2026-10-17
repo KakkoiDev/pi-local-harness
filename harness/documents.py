@@ -451,8 +451,8 @@ class DocumentStore:
         """Plan group meta: checkbox progress (done/total over - [ ], - [x], - [~]) and a - [~] Blocked: line."""
         try:text=file.read_text(encoding='utf-8',errors='ignore') if file.stat().st_size<=512000 else ''
         except OSError:text=''
-        boxes=re.findall(r'^\s*[-*] \[([ xX~])\]',text,re.M)
-        return {'done':sum(box in 'xX' for box in boxes),'total':len(boxes),'blocked':bool(re.search(r'^\s*[-*] \[~\] Blocked:',text,re.M))}
+        boxes=re.findall(r'^\s*[-*+] \[([ xX~])\]',text,re.M)
+        return {'done':sum(box in 'xX' for box in boxes),'total':len(boxes),'blocked':bool(re.search(r'^\s*[-*+] \[~\] Blocked:',text,re.M))}
     def create_roadmap(self, project):
         """Create Roadmap (empty Plan): ROADMAP.md and tasks/001-first-task.md, nothing else."""
         root=self.project_path(project)

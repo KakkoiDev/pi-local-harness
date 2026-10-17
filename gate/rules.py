@@ -76,7 +76,9 @@ def decided(rule_id, reason):
 
 # -- the checks of the new rules ---------------------------------------------------------------------------------------
 PLAN = r"(?:ROADMAP\.md|tasks/[^\s'\"|;&]*\.md)"
-CHECKED = re.compile(r'- \[[xX]\]')
+# Task 263: a box is a `-`, `*` or `+` list bullet with [ ], [x] or [~]; every check treats the three the same.
+BULLET = r'[-*+]'
+CHECKED = re.compile(r'(?<![^\s+])[-*+] \[[xX]\]')
 
 
 def plan_file(path):
@@ -107,7 +109,7 @@ def newly_ticked(original, content):
     before = {line.strip() for line in original.splitlines()}
     ticked = []
     for line in content.splitlines():
-        match = re.match(r'\s*- \[[xX]\]\s*(.*)', line)
+        match = re.match(r'\s*[-*+] \[[xX]\]\s*(.*)', line)
         if match and line.strip() not in before and re.sub(r'\[[xX]\]', '[ ]', line.strip(), count=1) in before:
             ticked.append(match.group(1))
     return ticked

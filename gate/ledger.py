@@ -261,13 +261,13 @@ class ProposalLedger:
                         if hints:reason+='\nClosest current text (copy exactly):\n'+'\n---\n'.join(hints[:3])[:6000]
                     return refuse('G-004', reason)
             root = self.paperwork.project_root(path.parent) if rules.plan_file(path) and not rules.bare() else None
-            if root and not path.exists() and re.search(r'^\s*- \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
+            if root and not path.exists() and re.search(r'^\s*[-*+] \[[ xX~]\]',content,re.M):return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
             if root and path.is_file():
                 original = path.read_text(errors='replace')
                 shrinks = rules.plan_shrinks(original, content) if pi_tool == 'write' else None
                 if shrinks:
                     return refuse('G-009', f'this write replaces {path.name} and {shrinks}')
-                if re.findall(r'^\s*- \[[ xX~]\].*$',original,re.M)!=re.findall(r'^\s*- \[[ xX~]\].*$',content,re.M):
+                if re.findall(r'^\s*[-*+] \[[ xX~]\].*$',original,re.M)!=re.findall(r'^\s*[-*+] \[[ xX~]\].*$',content,re.M):
                     return refuse('G-010','System 1 lays out and ticks task boxes. Use propose_plan for task content and run the checks.')
                 for ticked in rules.newly_ticked(original, content):
                     word = re.match(r'(Red|Green)\b', ticked)

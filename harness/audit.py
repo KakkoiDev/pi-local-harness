@@ -141,7 +141,7 @@ def run(root,data,request=None,project=None):
     (root/task).write_text(text,encoding='utf-8')
     passed=all(row['passed'] for row in rows);roadmap=root/'ROADMAP.md'
     plan=roadmap.read_text(encoding='utf-8');plan=re.sub(r'^(\s*- )\[[ xX]\](.*\('+re.escape(task)+r'\))',lambda match:match[1]+'['+('x' if passed else ' ')+']'+match[2],plan,flags=re.M);roadmap.write_text(plan,encoding='utf-8')
-    ready=passed and not re.search(r'^\s*- \[ \]',plan,re.M)
+    ready=passed and not re.search(r'^\s*[-*+] \[ \]',plan,re.M)
     result={'time':when,'project':str(root),'state':project_state(root),'task':task,'checks':rows,'ready':ready}
     (data/'audits').mkdir(parents=True,exist_ok=True);(data/'audits'/f'{time.time_ns()}.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     return result

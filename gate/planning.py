@@ -20,7 +20,7 @@ def requires_plan(text, task='', *, first=False, small_fix=False):
     if SMALL.search(text) or small_fix: return False
     if FEATURE.search(text): return True
     if READ_ONLY.search(text): return False
-    if 'Plan approved:' in task or re.search(r'- \[x\] Started', task): return False
+    if 'Plan approved:' in task or re.search(r'[-*+] \[x\] Started', task): return False
     return first
 
 
