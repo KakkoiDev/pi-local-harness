@@ -42,5 +42,14 @@ class TestLayoutTest(unittest.TestCase):
         self.assertNotRegex(text, r"skip:\s*!existsSync")
 
 
+    def test_browser_suites_write_screenshots_under_a_per_run_folder(self):
+        """Fixed /tmp paths were shared by parallel runs (a flake source): every screenshot goes through shot()."""
+        for path in sorted((ROOT / 'tests/browser').glob('*.cjs')):
+            text = path.read_text(encoding='utf-8')
+            self.assertNotRegex(text, r"path:\s*['`\"]/(private/)?tmp/", path.name)
+            if 'screenshot(' in text:
+                self.assertIn("mkdtempSync(join(tmpdir(),'plh-shots-'))", text, path.name)
+                self.assertNotRegex(text, r"screenshot\(\{path:(?!shot\()", path.name)
+
 if __name__ == '__main__':
     unittest.main()
