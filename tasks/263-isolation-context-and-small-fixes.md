@@ -70,7 +70,7 @@ remove those lines by hand; the harness does not do it.
 - [x] Red (unit): writing in a folder that is not a project says so (register it or add ROADMAP.md), not ⇧⌘2.
 - [x] Red (unit): G-010 and box counting treat `-`, `*` and `+` bullets the same (ticking Red under a star bullet is
       refused like under a dash; an open box under a plus bullet counts as open).
-- [ ] Red (unit): propose_plan keeps the roadmap's task lines when ROADMAP.md has no heading after `## Goal`.
+- [x] Red (unit): propose_plan keeps the roadmap's task lines when ROADMAP.md has no heading after `## Goal`.
 - [ ] Red (unit): the browser suites write screenshots under a per-run temporary folder, never a fixed /tmp path.
 - [ ] Red (unit): the Update window shows the backend's `why` for "unknown".
 - [ ] Red (unit): `/update now` with auto_update false says plh will not install it on start, and how to.

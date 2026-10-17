@@ -379,6 +379,18 @@ class Round11LifecycleTest(unittest.TestCase):
         self.assertIn('- [ ] Red:',text);self.assertIn('- [ ] Green:',text)
         self.assertIn('Files: app.py, tests/',text)
 
+    def test_propose_plan_keeps_roadmap_lines_when_no_heading_follows_the_goal(self):
+        """Task 263 (review P2): the Goal section ran to the end of the file and its task lines were erased."""
+        (self.root/'ROADMAP.md').write_text('# Counter\n\n## Goal\nOld goal.\n\n- [x] [001-Old work](tasks/001-old.md)\n* [ ] [002-Still open](tasks/002-open.md)\n')
+        (self.root/'tasks/001-old.md').write_text('# 001: Old work\n\nKind: docs\nFiles: README.md\n\nDone when: It was done.\n\n- [x] Done\n')
+        (self.root/'tasks/002-open.md').write_text('# 002: Still open\n\nKind: code\nFiles: app.py\n\nDone when: It is open.\n\n- [ ] Red: a test fails for this change.\n- [ ] Green: the test passes with this change.\n')
+        self.paper.start('keep',str(self.root),'Plan a counter')
+        self.paper.propose_plan('keep',{'goal':'A better counter','tasks':[{'title':'Count clicks','kind':'code','files':['app.py'],'done_when':'A click counts.','content':'Check a click.'}]})
+        roadmap=(self.root/'ROADMAP.md').read_text()
+        self.assertIn('- [x] [001-Old work](tasks/001-old.md)',roadmap)
+        self.assertIn('* [ ] [002-Still open](tasks/002-open.md)',roadmap)
+        self.assertIn('A better counter',roadmap);self.assertNotIn('Old goal.',roadmap)
+
     def test_music_reads_and_scoped_outputs_obey_phase(self):
         from gate.phases import refusal
         args={'action':'create','name':'robot'}

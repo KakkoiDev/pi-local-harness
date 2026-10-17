@@ -23,6 +23,9 @@ from . import rules
 from .protocol import CheckFailed, changed_paths, is_documentation, project_root, task_kind
 
 PROGRESS = '## Progress (kept by the harness)'
+# Task 263: the Goal section ends at the next heading or at the first task box; with no heading after it, the old
+# pattern ran to the end of the file and propose_plan erased the roadmap's task lines.
+GOAL = r'^## Goal\s*\n(.*?)(?=^## |^\s*[-*+] \[[ xX~]\]|\Z)'
 
 
 def open_boxes(text):
@@ -280,7 +283,7 @@ class Paperwork:
             try:text=(root/path).read_text(encoding='utf-8')
             except OSError:return None
             if path=='ROADMAP.md':
-                goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
+                goal=re.search(GOAL,text,re.M|re.S)
                 text=goal[1] if goal else text
             text=re.sub(r'^## (?:Progress \(kept by the harness\)|For the person)\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
             if path.endswith('-ready-to-publish.md'):
@@ -327,7 +330,7 @@ class Paperwork:
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
                 (root/'tasks').mkdir(exist_ok=True)
                 roadmap=root/'ROADMAP.md';text=roadmap.read_text() if roadmap.exists() else '# Roadmap\n'
-                match=re.search(r'^## Goal\s*\n.*?(?=^## |\Z)',text,re.M|re.S)
+                match=re.search(GOAL,text,re.M|re.S)
                 goal_text='## Goal\n\n'+goal.strip()+'\n\n'
                 text=text[:match.start()]+goal_text+text[match.end():] if match else text.rstrip()+'\n\n'+goal_text
                 number=max([int(m[1]) for path in (root/'tasks').glob('*.md') if (m:=re.match(r'^(\d+)',path.name))]+[0])+1
@@ -354,7 +357,7 @@ class Paperwork:
                 decisions=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
                 tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions[1].strip() if decisions else ''})
             if not tasks:raise ValueError('The plan needs at least one open task.')
-            goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',roadmap,re.M|re.S)
+            goal=re.search(GOAL,roadmap,re.M|re.S)
             first=root/tasks[0]['path']
             first_text=first.read_text(encoding='utf-8')
             if not re.search(r'^Request ',first_text,re.M):
