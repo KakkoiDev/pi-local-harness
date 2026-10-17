@@ -8,7 +8,7 @@ Act on the user's request, inspect relevant files before changing them, and veri
 
 ## Persistent self-improvement
 
-Maintain this AGENTS.md as persistent memory. After a confirmed failure, add a concise lesson with its observed cause and prevention. After useful user feedback, record the applicable preference. Deduplicate entries. Preserve existing instructions and preferences; do not copy secrets or entire transcripts here.
+Maintain this AGENTS.md as persistent memory (its path is named above it in your instructions; write or edit it in any phase, one short lesson at a time, at most 32 KiB in all). After a confirmed failure, add a concise lesson with its observed cause and prevention. After useful user feedback, record the applicable preference. Deduplicate entries. Preserve existing instructions and preferences; do not copy secrets or entire transcripts here.
 
 The harness records loop, hang, and missing-canary incidents automatically and reloads this file before every turn. It compacts and reinjects the file after instruction drift. Follow the most recent user instruction if it conflicts with older memory.
 

@@ -51,3 +51,10 @@ test('a second question in one turn is refused: one question at a time (review P
   assert.equal(second.isError, true); assert.match(second.content[0].text, /One question at a time/);
   assert.deepEqual(pending.map(value => value.question), ['First?']);
 });
+
+test('the system prompt names the memory file, so Pi can add a lesson to it (task 290)', async () => {
+  await web({}, async ({ handlers, ctx }) => {
+    const prompt = handlers.before_agent_start({ systemPrompt: 'Base' }).systemPrompt;
+    assert.match(prompt, new RegExp(`Current persistent memory \\(${ctx.cwd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/AGENT\\.md`));
+  });
+});

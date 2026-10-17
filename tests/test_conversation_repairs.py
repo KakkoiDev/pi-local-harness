@@ -368,5 +368,46 @@ class ActivityPauseTest(unittest.TestCase):
         self.assertEqual((record['status'], record['progress']), ('completed', 'Answered: Park'))
 
 
+class HarnessToolAndMemoryTest(unittest.TestCase):
+    """Pi's harness tool proposes changes again (a preview changes nothing), and AGENTS.md's lessons can be written."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name).resolve() / 'project'; (self.root / 'tasks').mkdir(parents=True)
+        (self.root / 'ROADMAP.md').write_text('# Counter\n\n## Goal\nCount clicks.\n')
+        self.data = Path(self.temp.name).resolve() / 'data'; self.data.mkdir()
+        self.ledger = ProposalLedger(GateEngine('', str(self.data / 'audit.log')), events_file=self.data / 'gate-events.jsonl')
+        self.memory = self.data / 'AGENTS.md'; self.memory.write_text('# Local AI operating instructions\n\nStart every answer with [CANARY].\n')
+
+    def propose(self, tool, args, pi_tool=None):
+        return self.ledger.propose(tool, args, 'admin', cwd=str(self.root), pi_tool=pi_tool)
+
+    def test_a_previewed_change_is_allowed_in_discussion(self):
+        for args in [{'command': 'config', 'args': 'set language ja'}, {'command': 'models', 'args': 'use qwen3:8b'}, {'command': 'ollama', 'args': 'set keep_alive 10m'}, {'command': 'update', 'args': 'now'}]:
+            with self.subTest(args=args):
+                self.assertEqual(self.propose('read_file', args, 'harness')['outcome'], 'ALLOW', 'a preview changes nothing: the person runs it')
+
+    def test_update_and_models_check_are_reads_even_when_changes_run_on_their_own(self):
+        from harness.autonomy import set_enabled
+        set_enabled(self.data, True, confirmed=True)
+        for args in [{'command': 'update', 'args': ''}, {'command': 'models', 'args': 'check'}, {'command': 'models', 'args': 'check qwen3:8b'}]:
+            with self.subTest(args=args):
+                self.assertEqual(self.propose('read_file', args, 'harness')['outcome'], 'ALLOW')
+        self.assertEqual(self.propose('read_file', {'command': 'update', 'args': 'now'}, 'harness')['rule'], 'G-015', 'applied on its own, it is a change')
+
+    def test_a_lesson_can_be_added_to_the_memory_file_in_any_phase(self):
+        lesson = self.memory.read_text() + '\n### Lesson\n- Run the tests without pipes.\n'
+        self.assertEqual(self.propose('write_file', {'path': str(self.memory), 'content': lesson}, 'write')['outcome'], 'ALLOW')
+        edit = {'path': str(self.memory), 'edits': [{'oldText': 'Start every answer with [CANARY].', 'newText': 'Start every answer with [CANARY].\n- Keep answers short.'}]}
+        self.assertEqual(self.propose('write_file', edit, 'edit')['outcome'], 'ALLOW')
+        self.assertEqual(self.propose('write_file', {'path': str(self.root / 'app.py'), 'content': 'x=1'}, 'write')['rule'], 'G-015', 'other files still follow the phase')
+
+    def test_the_memory_file_stays_small(self):
+        refused = self.propose('write_file', {'path': str(self.memory), 'content': self.memory.read_text() + 'x' * 5000}, 'write')
+        self.assertNotEqual(refused['outcome'], 'ALLOW'); self.assertIn('at most', refused['reason'])
+        self.memory.write_text('y' * 32000)
+        self.assertNotEqual(self.propose('write_file', {'path': str(self.memory), 'content': 'y' * 33000}, 'write')['outcome'], 'ALLOW')
+        self.assertNotEqual(self.propose('write_file', {'path': str(self.memory), 'content': 'gone'}, 'write')['outcome'], 'ALLOW', 'never emptied')
+
+
 if __name__ == '__main__':
     unittest.main()

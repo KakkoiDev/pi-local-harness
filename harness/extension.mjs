@@ -266,7 +266,7 @@ export default function harness(pi, dependencies = {}) {
     if (!bare && requestId && guideDecision!==lastGuideDecision) {recordGuides(dataDir,requestId,chosenGuides);lastGuideDecision=guideDecision;}
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
-    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;

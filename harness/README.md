@@ -16,7 +16,9 @@ if you intentionally added your own harness references.
 Configuration lives in `~/pi-local-harness-data/config.json`. Shared instructions
 are `~/pi-local-harness-data/AGENTS.md`, following Pi's plural instruction filename.
 PLH explicitly injects this file before turns and after recovery; it need not live
-in Pi's global directory. Project-local Pi instructions can also apply.
+in Pi's global directory. Project-local Pi instructions can also apply. Pi may add a short lesson to it with write
+or edit in any phase (task 290): Gate exempts this one file (`$PI_HARNESS_MEMORY`, else `<data>/AGENTS.md`) from
+the project phases, size-guarded (at most 32 KiB, 4 KiB more at a time, never cut below half).
 
 Every setting is a key in `config.json` and an environment variable plh passes on; `harness/settings.py` lists them all
 with their defaults and meaning, and the console shows and changes them (`/config`, `/config set <key> <value>`; each

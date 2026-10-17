@@ -76,11 +76,19 @@ DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, se
 PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
 
 
-def harness_read_only(args):
-    """Console mutation is not made read-only by the transport's historical tool label."""
+def harness_read_only(args, applies=False):
+    """Console mutation is not made read-only by the transport's historical tool label.
+
+    Task 290: the harness tool only previews a change (it puts the command on the person's input line, or in the web
+    returns the preview); it applies one itself only while Run on its own is on (`applies`), or with --yes. A preview
+    changes nothing, so it is a read. `update` (what is new) and `models check` are reads either way."""
     command=args.get('command');words=str(args.get('args') or '').split()
+    if '--yes' in words:applies=True;words=[word for word in words if word!='--yes']
     if any(word.startswith('--') for word in words):return False
     if command in {'harness','status','queue','job','gate','projects','paths','doctor','bench','reports','guide','report'}:return True
+    if command=='update' and not words or command=='models' and words[:1]==['check']:return True
+    if command in {'audit','undo'}:return False  # their own checks (the publication audit's task) decide
+    if not applies:return True
     if command in {'models','ollama'}:return not words
     if command=='config':return len(words)<=1 and words!=['set']
     if command=='auto':return words in ([],['status'])

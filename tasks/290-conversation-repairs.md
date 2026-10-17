@@ -17,7 +17,7 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
   the request's end.
 - [x] Activity shows a choice or plan pause as waiting, not Completed; "stopped by a question" differs from "stopped by
   you".
-- [ ] Pi's harness tool can propose changes again (Gate allows previews without --yes; `update` and `models check` are
+- [x] Pi's harness tool can propose changes again (Gate allows previews without --yes; `update` and `models check` are
   reads); AGENTS.md's lesson-writing either works (Gate exemption for the memory file, size-guarded) or is removed.
 - [ ] Docs match behaviour: wake-ups (`wake_ups`, default 5), the shell rules and the git read form, the commit protocol,
   /guide topics built from GUIDE.md's headings, console command lists, README's /update and Laya limits.
