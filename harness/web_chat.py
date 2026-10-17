@@ -331,11 +331,12 @@ class WebChat:
         self.lock_token=None
     def project_command(self, command, project, data):
         """Rename, move, locate, remove from the list or trash a project (task 154). Rename, move and trash wait while Pi
-        works in the project: moving the folder would pull it out from under Pi."""
+        works in the project, and while terminal Pi works at all (task 262): moving the folder would pull it out from under Pi."""
         store=self.documents
         if command in ('rename','move','trash'):
             busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
             if busy:raise ProjectBusy(busy[0]['id'])
+            if self.agent_running():raise ValueError('Pi is working in the terminal, maybe in this folder. Rename, move or trash the project when it has finished.')  # task 262
         if command=='rename':
             result=store.rename_project(project,data.get('name',''))
             for summary in self.store.list():

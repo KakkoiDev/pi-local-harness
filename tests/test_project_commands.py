@@ -104,6 +104,18 @@ class ProjectCommandsTest(unittest.TestCase):
         self.chat.switching = None
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
 
+    def test_commands_wait_while_terminal_pi_works(self):
+        """Task 262 (review P2): terminal Pi holds <data>/.agent-lock while it works; it may be working in this folder."""
+        import json, os
+        lock = self.store.root / '.agent-lock'; lock.write_text(json.dumps({'pid': os.getppid(), 'token': 'terminal'}))
+        for command, data in [('rename', {'name': 'Other'}), ('move', {'parent': str(self.root)}), ('trash', {})]:
+            with self.assertRaisesRegex(ValueError, 'Pi is working in the terminal') as refused: self.chat.project_command(command, self.project, data)
+            self.assertNotIsInstance(refused.exception, ProjectBusy, 'no workbench request to show')
+        self.assertTrue((self.code / 'Japanese study app').is_dir())
+        self.assertEqual(self.chat.project_command('summary', self.project, {})['project'], self.project, 'reading is fine')
+        lock.unlink()
+        self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
+
 
 class RenamedSessionsTest(unittest.TestCase):
     """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names, not in the process cwd. A renamed or

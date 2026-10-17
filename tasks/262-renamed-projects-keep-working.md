@@ -19,13 +19,13 @@ folder and keeps every message (`messageCount` unchanged). So the harness migrat
 - [x] Red (unit): every created or registered project gets a uuid id; a project created with a renamed project's old
       name, or with another project's id as its name, gets its own id and chat; existing folder-name ids keep working
       (migration registers them under their folder name at start).
-- [ ] Red (unit): Rename, Move and Move to Trash are refused while terminal Pi holds `.agent-lock`.
+- [x] Red (unit): Rename, Move and Move to Trash are refused while terminal Pi holds `.agent-lock`.
 - [ ] Red (unit): a running Preview follows Rename and Move: the old server is stopped by the harness's handle and the
       Preview says why (it starts again on the new folder with Start).
 - [ ] Red (unit): Gate's test-run history (`gate-protocol.json`, keyed by folder) follows Rename and Move.
 - [x] Migrate the session header before launch (`harness/web_chat.py`) and in Rename/Move (`WebChat.project_command`).
 - [x] uuid ids on create/register; start-up migration of unregistered data-folder projects (`harness/documents.py`).
-- [ ] Refuse project commands while any agent works (`agent_running()`), with a clear message.
+- [x] Refuse project commands while any agent works (`agent_running()`), with a clear message.
 - [ ] Stop the Preview on Rename/Move with a note; move Gate's runs to the new folder (`after_project_move`).
 - [x] Document terminal Pi's sessions (harness/GUIDE.md).
 - [ ] Green: `python3 tests/verify_workflow.py`, `node --test tests/harness/*.test.mjs`.
