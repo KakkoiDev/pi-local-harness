@@ -164,3 +164,20 @@ The web bridge now recognizes the observed “This operation was aborted” erro
 Returning from Activity to a running or queued chat now reveals the latest answer rather than centering its original question. Completed requests keep their original centering and highlight. The existing bug-173 browser assertion had failed repeatedly with a 10–11px gap; it passes unchanged after the fix. Four focused Node cases and both complete browser suites (design and chat), including the new completion/control regressions, pass. The full Python/Node workflow also passes. An initial missing static-module route found by the browser suite was corrected by keeping the helper in the existing served module.
 
 Tasks 255–257 repair three confirmed issues; they do not close the remaining duplicate-choice/draft race, stale session cwd after rename, question/task scope or generic-crash partial-reply findings. Those still need isolated reproductions and scoped fixes. No live model run, personal-project rewrite, package download or running-service change was used for these repairs.
+
+## Colibri model support · owner request, 18 October
+
+The owner explicitly wants support for models served by [Colibri](https://github.com/JustVugg/colibri), alongside the existing providers. This is a requested integration for Claude to plan; no Colibri adapter, installation or model run has been delivered in this handoff update.
+
+Colibri is an inference runtime, rather than a model family. Its upstream README advertises OpenAI and Anthropic API base URLs. Start by checking whether Pi's existing provider adapter can connect to an explicitly configured local Colibri endpoint, and add only the compatibility work actually needed. Recheck upstream and pin the tested revision before implementation; API compatibility and model capabilities have not been tested here.
+
+Acceptance scope for the eventual task:
+
+- Let the person select the Colibri endpoint and a supported installed model without silently changing their current provider. Keep Ollama and online providers available.
+- Verify model discovery/configuration, streamed text, tool schemas and arguments, tool-result round trips, finish/error handling, cancellation, connection loss and recovery. Report unsupported vision, thinking/context or other capabilities accurately rather than assuming all engines support them.
+- Add adapter unit tests, local stub-server integration tests and a browser journey for selection and a tool-using request. A real-model smoke test needs separate authorization and recorded runtime/model versions; do not infer compatibility from a stub pass.
+- Preserve the constitution: generated text and tools still pass through Gate; phase and approval controls remain authoritative. Selecting a language-model backend does not replace the configured Laya classifier.
+- Avoid port collisions: the README's example uses port 8000, which Workbench also uses. Configure a free port and an explicit endpoint; never stop an unrelated service.
+- Ask before any download, including runtime binaries, build dependencies and model weights, with versions and sizes. Do not run the upstream quickstart implicitly: it can build/download engines and fetch weights. Keep model files, credentials and personal data outside Git.
+
+Open questions for implementation: which Colibri engine/model the owner wants first; whether Colibri is already installed and serving; which Pi API adapter fully supports the chosen engine; and its actual hardware/disk requirements. Inspect the available local installation read-only before asking questions that it can answer. This request authorizes recording support, not downloads, benchmarks or changing a running service. Capability and reliable app building remain ahead of generated-app performance/scalability work.

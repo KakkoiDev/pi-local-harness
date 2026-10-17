@@ -300,3 +300,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [255-Refuse completion of code tasks without an implementation change](tasks/255-refuse-empty-code-task-completion.md)
 - [x] [256-Preserve replies when Pi pauses for a choice or plan](tasks/256-preserve-intentional-control-pauses.md)
 - [x] [257-Return to the end of a running chat from Activity](tasks/257-reveal-running-chat-at-the-end.md)
+- [x] [258-Record Colibri model support for Claude](tasks/258-record-colibri-model-support.md)
