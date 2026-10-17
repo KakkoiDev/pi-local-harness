@@ -65,7 +65,9 @@ Ask Pi for a short track or sound effects, then ask for changes in the same chat
 It uses a curated Blips bank and Strudel patterns, and returns WAV audio
 with editable source. Run `plh setup music` and install the Chip Pops `blips` CLI
 and library first. Start with the uplifting composition pattern for melodies, chords,
-bass and song sections. See [setup and limits](docs/music.md),
+bass and song sections. Music works in every phase, Discussion and Planning included: the `music` tool writes only a
+new numbered revision under `assets/music/<name>/` in the project and never overwrites one; any other write there
+(`write`, `edit`, the shell) follows the phase rules. See [setup and limits](docs/music.md),
 [using audio in your projects](docs/music-projects.md), and the
 [LLM operating guide](harness/music/AGENT_GUIDE.md).
 

@@ -92,8 +92,11 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     import re
     from .phase_shell import read_only, test_run
     from .planning import file_allowed
+    from . import media
     root = Path(root).resolve()
     if pi_tool=='music' and args.get('action') in ('template','catalog','read'):return None
+    # Task 291: a media tool's revision write is decided by gate/media.py alone, in every phase (a new revision folder only).
+    if media.handles(pi_tool, args): return media.media_refusal(pi_tool, args, root, cwd)
     if pi_tool == 'propose_plan' and phase == 'planning': return None
     if pi_tool=='web_search' and phase!='discussion':return 'Search is available in Discussion. Choose Discussion to search the web.'
     if tool == 'read_file' and pi_tool != 'propose_plan': return None
@@ -110,11 +113,6 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
     if not approved: return 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
     if tool == 'execute_command' and test_run(args.get('command')): return None
-    if pi_tool=='music':
-        name=args.get('name','')
-        if re.fullmatch(r'[a-z0-9][a-z0-9_-]{0,63}',name):
-            folder='assets/music/'+name+'/'
-            if Path(cwd).resolve()==root and file_allowed(task,folder+'score.json') and file_allowed(task,folder+'0001/audio.wav'):return None
     if pi_tool == 'browser': return None  # verification runs only in an isolated scratch browser
     if not re.search(r'^Files:\s*\S', task, re.M):return 'Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.'
     if path and file_allowed(task, path): return None

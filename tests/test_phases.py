@@ -363,9 +363,12 @@ class Round11LifecycleTest(unittest.TestCase):
         from gate.phases import refusal
         args={'action':'create','name':'robot'}
         self.assertIsNone(refusal('discussion',self.root,'write_file',{'action':'template'},cwd=str(self.root),pi_tool='music'))
-        self.assertIsNotNone(refusal('discussion',self.root,'write_file',args,cwd=str(self.root),pi_tool='music'))
+        # Task 291: a new composition is a new revision folder under assets/music/, allowed in every phase.
+        self.assertIsNone(refusal('discussion',self.root,'write_file',args,cwd=str(self.root),pi_tool='music'))
         self.assertIsNone(refusal('implementation',self.root,'write_file',args,cwd=str(self.root),pi_tool='music',task='Files: assets/music/robot/\n',approved=True))
-        self.assertIsNotNone(refusal('implementation',self.root,'write_file',args,cwd=str(self.root),pi_tool='music',task='Files: app.py\n',approved=True))
+        self.assertIsNone(refusal('implementation',self.root,'write_file',args,cwd=str(self.root),pi_tool='music',task='Files: app.py\n',approved=True))
+        (self.root/'assets/music/robot').mkdir(parents=True)
+        self.assertIsNotNone(refusal('discussion',self.root,'write_file',args,cwd=str(self.root),pi_tool='music'))
 
     def test_model_cannot_tick_task_boxes_even_inside_planning(self):
         from gate.engine import GateEngine

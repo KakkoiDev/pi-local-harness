@@ -64,7 +64,11 @@ kit are included. Preserve the host's pipeline when adapting a recipe.
    structured action pattern; expose catalog/template/check/create/read/revise
    with validated bounded data. Map all writes into approved project paths such
    as `assets/visual/<safe-name>/`. The standalone CLI accepts output paths;
-   **Pi must enforce the project boundary itself** using its existing helpers.
+   **Pi must enforce the project boundary itself** using its existing helpers:
+   add the visual tool's row to `gate/media.py`'s `KINDS` table (already reserved:
+   `assets/visual`), keep the same layout (`current.json` plus new numbered
+   revision folders, never overwritten), and its writes are then allowed in every
+   phase exactly like music's (task 291).
 3. Connect visual artifacts to existing chat replies. Reuse the music artifact
    pattern, project path validation and immutable revision URLs. Display the PNG
    preview and offer editable recipe/manifest/source files. Do not serve arbitrary
