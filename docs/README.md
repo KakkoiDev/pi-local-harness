@@ -27,3 +27,8 @@ Review and return handoff (2026-10-17):
 - [reviews/2026-10-17-test-project-log-review.md](reviews/2026-10-17-test-project-log-review.md): privacy-edited review of the two test-project sessions and the capability-first Project Start direction.
 - [bench/2026-10-16-pong/README.md](bench/2026-10-16-pong/README.md): yesterday’s Pong comparison, retained per-run evidence and development-build caveats.
 - [plans/253-one-app-many-packages.md](plans/253-one-app-many-packages.md): one Python/HTMX application foundation, exported through full-stack, browser-only and mobile adapters; proposal and proof sequence.
+
+## Core libraries
+
+- [Claude Code handoff and exact dependency pins](handoff/core-libraries.md)
+- [gaming-core inventory and future Pi integration](handoff/gaming-core.md)

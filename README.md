@@ -113,3 +113,7 @@ pending. “Verified and committed” is the harness's own outcome, separate fro
 Decision provenance was not recorded in this build. [The 22 saved runs and their limits](docs/bench/2026-10-17/README.md)
 include the answers and available test evidence. Regenerate the table with
 `python3 -m bench readme --out docs/bench/2026-10-17`.
+
+Core-library integration for Claude Code: [handoff and exact pins](docs/handoff/core-libraries.md)
+and [gaming-core inventory/report](docs/handoff/gaming-core.md). These describe future
+visual/coding/game adapters; the existing music workflow remains available.
