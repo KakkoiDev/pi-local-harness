@@ -52,8 +52,10 @@ its state: not sent, waiting, Pi working, answered.
 
 Under each place you send something, "Pi sees:" lists the files Pi gets with that request (the plan, the current file,
 files you mention, related ones). Web and terminal Pi choose again for each message and recovery. Project rules,
-the plan and the active task take priority; generated files, dependencies, licences, binaries and files over 40 KB
-are excluded. Activity records each selection and why each file was chosen. After an answer, "Also read:" lists
+the plan and the active task take priority; private files (`.env*`, keys such as `*.pem` or `id_rsa`), files your
+`.gitignore` ignores, build, cache and environment folders (`target/`, `dist/`, `venv/`, `node_modules/`, `*_cache/`…),
+generated files, licences and notices, binaries and files over 40 KB are left out, not even listed by name. Activity
+records each selection, why each file was chosen, and each file left out with its reason. After an answer, "Also read:" lists
 the files Pi opened itself. The word beside each selected file explains its role: rules, plan, task, named, changed or related. **Why?** opens the recorded reason and full path for every selected file, in a popover on the desktop or a sheet with Done on the phone. Escape closes it and returns to Why?.
 
 ## Where do I see what Pi is doing?

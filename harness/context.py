@@ -63,22 +63,55 @@ def mentioned(text, names):
 
 
 
+# Task 263 (review 13): what never goes into Pi's context, whatever the request says. Pi can still read a file with its
+# tools when the person asks; the harness never volunteers secrets, licences or build output.
+FOLDERS = {'.git', '__pycache__', 'coverage', '.next', 'target', 'out', 'dist', 'build', 'venv', 'env', '.venv', '.tox',
+           'node_modules', 'vendor', 'third_party'}
+LOCKS = {'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'uv.lock', 'poetry.lock', 'cargo.lock', 'composer.lock'}
+KEY = re.compile(r'.*\.(pem|key|p12|pfx|keystore|jks)$|id_[a-z0-9]+(\.pub)?$')
+NOTICE = re.compile(r'copying(\..*)?|(licen[cs]e|notice|third_party).*', re.I)
+
+
+def exclusion(name):
+    """Why a project file stays out of the context, or None. Names only: contents are never read for this."""
+    parts = Path(name).parts; base = parts[-1].lower()
+    if base.startswith('.env') or base.endswith('.env'): return 'Private (environment file)'
+    if KEY.fullmatch(base): return 'Private (key)'
+    if NOTICE.fullmatch(base): return 'Licence or notice'
+    if any(part in FOLDERS or part.endswith('_cache') for part in parts[:-1]): return 'Build, cache or environment folder'
+    if base in LOCKS or base.endswith('.lock'): return 'Lock file'
+    if base.endswith(('.pyc', '.map', '.min.js', '.min.css')) or name in {'static/app.css', 'static/app.js'}: return 'Generated'
+    return None
+
+
+def ignored(root, names):
+    """The names git ignores in this project (.gitignore, .git/info/exclude, the global excludes); none outside git."""
+    if not names: return set()
+    try:
+        done = subprocess.run(['git', '-C', str(root), 'check-ignore', '--stdin', '-z'], input='\0'.join(names) + '\0',
+                              capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError): return set()
+    return set(filter(None, done.stdout.split('\0'))) if done.returncode in (0, 1) else set()
+
+
 def select_files(root, files, request, current=None, task=None, changed=None):
-    """One selection for web and terminal: exclude generated, vendored, binary and >40 KB files; keep project rules,
+    """One selection for web and terminal: exclude private, ignored, generated, vendored, binary and >40 KB files (each
+    recorded with its reason, task 263); keep project rules,
     plan and active task, then named/task/last-request files and request relevance (names before contents).
     With no current-request commit, use the latest Pi Workbench commit, never a person's later commit.
     """
-    root = Path(root).resolve(); safe, bodies = [], {}
-    excluded = {'vendor','node_modules','.venv','.git','__pycache__','dist','build','coverage','.next'}
-    locks = {'package-lock.json','pnpm-lock.yaml','yarn.lock','uv.lock','poetry.lock','cargo.lock','composer.lock'}
+    root = Path(root).resolve(); safe, bodies, excluded = [], {}, []
+    skipped = {item['name']: exclusion(item['name']) for item in files}
+    for name in ignored(root, [name for name, reason in skipped.items() if not reason]): skipped[name] = 'Ignored by .gitignore'
     for item in files:
-        name=item['name']; path=root/name; parts=Path(name).parts; base=Path(name).name.lower()
-        if set(parts) & excluded or base.startswith('license') or base in locks or base.endswith(('.lock','.pyc','.map','.min.js','.min.css')) or name in {'static/app.css','static/app.js'}: continue
+        name=item['name']; path=root/name
+        if skipped.get(name): excluded.append({'name':name,'reason':skipped[name]}); continue
         try:
-            if not path.resolve().is_relative_to(root) or path.is_symlink() or path.stat().st_size > 40*1024: continue
+            if not path.resolve().is_relative_to(root) or path.is_symlink(): excluded.append({'name':name,'reason':'Outside the project'}); continue
+            if path.stat().st_size > 40*1024: excluded.append({'name':name,'reason':'Larger than 40 KB'}); continue
             text=path.read_text(encoding='utf-8')
-        except (OSError,UnicodeError): continue
-        if '\0' in text: continue
+        except (OSError,UnicodeError): excluded.append({'name':name,'reason':'Not text'}); continue
+        if '\0' in text: excluded.append({'name':name,'reason':'Not text'}); continue
         safe.append(item);bodies[name]=text
     names=[item['name'] for item in safe];meta={item['name']:item for item in safe};reasons={};ordered=[]
     def add(name, reason):
@@ -108,7 +141,7 @@ def select_files(root, files, request, current=None, task=None, changed=None):
         if score(name): add(name,'Relevant file name')
     for name in sorted(names,key=lambda name:(-score(bodies[name]),name)):
         if not TASK.match(name) and score(bodies[name]): add(name,'Relevant contents')
-    return {'files':safe,'names':ordered,'reasons':reasons,'task':active,'bodies':bodies}
+    return {'files':safe,'names':ordered,'reasons':reasons,'task':active,'bodies':bodies,'excluded':excluded}
 
 
 def build_context(store, project, request, current=None, passage='', thread='', budget=BUDGET, now=None, task=None, changed=None):
@@ -178,10 +211,12 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     sections.append('## Files in the project (names only)\n' + '\n'.join(lines) + '\n')
 
     footer = 'Read other files with your tools when you need them.'
+    left = len(selection['excluded'])
+    if left: footer = f"Left out on purpose: {left} private, generated, ignored or non-text file{'' if left == 1 else 's'}. " + footer
     if omitted: footer = f"Not included (over the context budget): {', '.join(omitted)}. " + footer
     sections.append(footer + '\n')
     # items: what the "Pi sees:" line shows (task 133), files in the order Pi gets them plus the open-task count.
-    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted, 'items': items, 'reasons': {name:selection['reasons'].get(name,'Plan') for name in included}, 'open_tasks': len(open_tasks)}
+    return {'text': '\n'.join(sections), 'included': included, 'omitted': omitted, 'items': items, 'reasons': {name:selection['reasons'].get(name,'Plan') for name in included}, 'open_tasks': len(open_tasks), 'excluded': selection['excluded']}
 
 
 def _compress_names(names):

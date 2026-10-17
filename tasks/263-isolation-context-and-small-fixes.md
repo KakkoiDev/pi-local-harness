@@ -49,12 +49,12 @@ remove those lines by hand; the harness does not do it.
 
 ## 3. Secrets and build output stay out of Pi's context (review 13)
 
-- [ ] Red (unit): a project with `.env` holding a fake key, `secrets/id_rsa`, `server.pem`, `COPYING`, `NOTICE`,
+- [x] Red (unit): a project with `.env` holding a fake key, `secrets/id_rsa`, `server.pem`, `COPYING`, `NOTICE`,
       `target/`, `venv/`, `.tox/`, `.mypy_cache/`, `third_party/` and a `.gitignore`d file: none of their contents or
       names reach the context text; each is in the record's `excluded` list with its reason.
-- [ ] harness/context.py: one deny list (dotenv, keys, licences and notices, build/cache/venv folders) plus
+- [x] harness/context.py: one deny list (dotenv, keys, licences and notices, build/cache/venv folders) plus
       `git check-ignore`; excluded files are recorded with their reason (context record, turn report).
-- [ ] Green: python3 -m unittest tests.test_context.
+- [x] Green: python3 -m unittest tests.test_context.
 
 ## 4. No test hides after unittest.main(); skipped music renders say "Not run" (P2)
 
