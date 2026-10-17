@@ -3,6 +3,7 @@ try:
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
 import json
+import re
 import os
 from pathlib import Path
 import subprocess
@@ -62,9 +63,11 @@ class ServicesTest(unittest.TestCase):
             # The Gate audit log defaults to PI_AGENT_DATA/gate-audit.log.
             self.assertIn('DRIFT_DETECTED',(Path(temporary.name)/'workspace'/'gate-audit.log').read_text())
             web_base=f"http://127.0.0.1:{ports['web']}"
-            def web_post(path,body,origin=None):
+            def web_post(path,body,origin=None,person=False):
                 headers={'Content-Type':'application/json'}
                 if origin:headers['Origin']=origin
+                if person:  # task 261: the person's controls carry the served page's secret
+                    with urllib.request.urlopen(web_base+'/',timeout=3) as response:headers['X-Pi-Person']=re.search(r'<meta name="pi-person" content="([^"]+)">',response.read().decode())[1]
                 request=urllib.request.Request(web_base+path,data=json.dumps(body).encode(),headers=headers)
                 with urllib.request.urlopen(request,timeout=3) as response:return json.load(response)
             with urllib.request.urlopen(web_base+'/api/gate') as response:
@@ -100,7 +103,7 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'discussion')
             blocked=post('/gatekeep',{'tool_name':'write_file','pi_tool':'write','args':{'path':str(plain/'app.py'),'content':'x=1'},'cwd':temporary.name,'auth_level':'admin'})
             self.assertEqual(blocked.get('phase'),'discussion')
-            self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'})['phase'],'planning')
+            self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'},person=True)['phase'],'planning')
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'planning')
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)

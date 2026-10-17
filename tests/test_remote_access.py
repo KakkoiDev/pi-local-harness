@@ -48,7 +48,7 @@ class RemoteAccessTest(unittest.TestCase):
         return {'Host': HOST, 'Tailscale-User-Login': USER, **extra}
 
     def test_auto_api_requires_risks_on_every_enable_and_updates_the_live_global_setting(self):
-        headers={'Host':f'127.0.0.1:{self.server.server_port}'}
+        headers={'Host':f'127.0.0.1:{self.server.server_port}','X-Pi-Person':self.handler.person_secret}  # task 261: from the served page
         for _ in range(2):
             status,preview=self.call('/api/auto',headers,{'enabled':True})
             self.assertEqual(status,200);self.assertTrue(preview['confirm']);self.assertTrue(preview['destructive'])

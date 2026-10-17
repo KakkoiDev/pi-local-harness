@@ -2,7 +2,7 @@ import {revealChatRequest} from './chat-state.mjs';
 import {installPhases} from './phases.mjs';
 import {installUpdates} from './updates-window.mjs';
 import {choiceCard,planCard,awayCard,frameCheckIn,planningState} from './plan-cards.mjs';
-import { hydrateIcons,icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';
+import { hydrateIcons,icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter,personHeaders } from './ui.mjs';
 import { installWorkspace } from './workspace.mjs';
 import { installMenubar,installPopup } from './menubar.mjs';
 import { ask } from './dialogs.mjs';
@@ -22,7 +22,7 @@ let selected=null,current=null,sending=false,workspace,phoneUrl='',phoneError=''
 const drafts=new Map();let messageSignature='',contextTurn='';
 function draft(){if(!drafts.has(selected))drafts.set(selected,{text:readState('chat-draft.'+selected,'')||'',files:[]});return drafts.get(selected);}
 function error(message){$('error').replaceChildren(...(message?[icon('caution'),message]:[]));$('error').hidden=!message;}
-async function api(path,body,{timeout}={}){const signal=timeout?AbortSignal.timeout(timeout):undefined;const response=await fetch(path,body===undefined?{signal}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal});const data=await response.json();if(!response.ok)throw Object.assign(new Error(data.error||'Request failed'),{data});/* e.g. data.busy and data.job (task 154) */return data;}
+async function api(path,body,{timeout}={}){const signal=timeout?AbortSignal.timeout(timeout):undefined;const response=await fetch(path,body===undefined?{signal}:{method:'POST',headers:{'Content-Type':'application/json',...personHeaders()},body:JSON.stringify(body),signal});const data=await response.json();if(!response.ok)throw Object.assign(new Error(data.error||'Request failed'),{data});/* e.g. data.busy and data.job (task 154) */return data;}
 const phases=installPhases({api,build:buildPlan,openPlan:()=>openPlanFile(),project:()=>current?.project,auto:()=>autoEnabled,changed:()=>{messageSignature='';renderMessages();}});
 function menu(open){const drawer=open&&matchMedia('(max-width:760px)').matches;closeCommentsSheet();/* also resets its button */document.body.classList.toggle('menu-open',drawer);$('backdrop').hidden=!drawer;$('open-menu').setAttribute('aria-expanded',String(drawer));$('sidebar').inert=matchMedia('(max-width:760px)').matches&&!drawer;$('sidebar').setAttribute('aria-hidden',String($('sidebar').inert));if(!drawer)window.scrollTo(0,0);}menu(false);const mobileQuery=matchMedia('(max-width:760px)');mobileQuery.addEventListener('change',()=>{menu(false);if(mobileQuery.matches&&$('sidebar').contains(document.activeElement))$('open-menu').focus();});
 // Task 121: a confirming IME Enter in a one-line field (reply, dialog names) must not submit its form.

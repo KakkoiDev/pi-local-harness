@@ -15,7 +15,7 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 - [x] Red/Green 1, secrets: a command run through Pi's shell does not see `PI_HARNESS_TOKEN` or `PI_HARNESS_SHARED_PORT`;
   the extension captures them and deletes them from its environment before Pi spawns anything; the workbench hands the
   token to its Pi through a private file the extension reads and removes, not through the environment.
-- [ ] Red/Green 2, person routes: `/api/phase`, `/api/phase/build`, check-in accept and stop, `/api/plan/wait`, `/api/auto`
+- [x] Red/Green 2, person routes: `/api/phase`, `/api/phase/build`, check-in accept and stop, `/api/plan/wait`, `/api/auto`
   and a chat message that answers a waiting choice need the page's per-run secret (`X-Pi-Person`, from a meta tag in the
   served page); without it the answer is 403. The page sends it with every request; the phone gets it with the page.
 - [ ] Red/Green 3, Gate routes: `/plan/approve`, `/phase/accept` and `/decision` refuse `state=auto` unless Run on its own

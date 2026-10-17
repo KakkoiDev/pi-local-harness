@@ -251,8 +251,10 @@ Uploads support images, common audio, and UTF-8 text/code: eight files, 12 MiB e
 Question, assistant, tool, and completion events receive local timestamps in Pi.
 Web messages and queue jobs also record timestamps. Services bind to loopback and
 reject foreign browser origins. Gate also requires a per-run `X-Gate-Token` that
-`services.py` hands only to the Pi extension and web-started Pi processes; it sends
-no CORS headers, so web pages cannot query it. The layout supports mobile sizes; physical-phone
+`services.py` hands only to the Pi extension and web-started Pi processes (in a private file the
+extension reads once; it removes the token and Gate's port from its environment, so the commands Pi runs
+never inherit them); it sends no CORS headers, so web pages cannot query it. The person's controls (phase,
+Start Building, check-ins, Run on its own, choice answers) also need the page's per-run secret. The layout supports mobile sizes; physical-phone
 access needs a separate connection setup.
 
 For local music and sound creation, see [music setup and limits](music.md). The optional
