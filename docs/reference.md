@@ -31,7 +31,9 @@ if necessary. The installed runtime survives moving or deleting the checkout.
 checkout's committed `HEAD` with the installed build; if they differ it installs that
 commit (`git archive`, so uncommitted edits never ship) and prints `PLH: updated to
 <commit>`. If the checkout is gone or the update fails it prints `PLH: not updated` and
-starts the installed build. Set `"auto_update": false` in `config.json` to stop this.
+starts the installed build. While a Pi Workbench already answers on its web port, `plh` does
+not update (the package would change under it) and says so; quit the workbench and start `plh` again.
+Set `"auto_update": false` in `config.json` to stop this.
 A running session keeps its build until you restart `plh`. Re-run the installer by hand
 only to install from a different checkout. Each install backs up the previous one and
 keeps the three newest backups, and detaches the recognized old global harness extension and its model defaults,

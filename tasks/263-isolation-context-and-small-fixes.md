@@ -74,9 +74,9 @@ remove those lines by hand; the harness does not do it.
 - [x] Red (unit): the browser suites write screenshots under a per-run temporary folder, never a fixed /tmp path.
 - [x] Red (unit): the Update window shows the backend's `why` for "unknown".
 - [x] Red (unit): `/update now` with auto_update false says plh will not install it on start, and how to.
-- [ ] Red (unit): plh does not auto-update while a workbench answers on its port; it says why and starts the
+- [x] Red (unit): plh does not auto-update while a workbench answers on its port; it says why and starts the
       installed build.
-- [ ] Fix each; Japanese copy for the new refusal sentences in messages/ja.json.
+- [x] Fix each; Japanese copy for the new refusal sentences in messages/ja.json.
 - [ ] Green: python3 tests/verify_workflow.py; node --test tests/harness/*.test.mjs; browser suites.
 
 ## Needs design
