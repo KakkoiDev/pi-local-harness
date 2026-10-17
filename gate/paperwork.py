@@ -5,8 +5,8 @@ In a project with ROADMAP.md and tasks/, for each request (the extension tells G
   else a new `tasks/NNN-<words>.md` with the request quoted and a "Progress (kept by the harness)" section, and its line
   in ROADMAP.md;
 - test runs Gate saw are written into the progress: "Red: `cmd` failed at 14:02", "Green: `cmd` passed at 14:10";
-- at the end, when the change is verified (a failing run first, then a passing run on exactly the final code; a
-  Markdown-only change needs none), the task gets "Done", its roadmap line is ticked when no box of the task is left
+- at the end, when the change is verified (a passing run on exactly the final code, and the harness's own Red proof:
+  the same command fails in a temporary copy without the change; a Markdown-only change needs none), the task gets "Done", its roadmap line is ticked when no box of the task is left
   open, and the files this request changed are committed locally (never pushed; the person's own edits stay out).
   Otherwise the task stays open with "Not verified at …".
 """
@@ -20,7 +20,8 @@ import threading
 from harness.decision_log import record as record_decision
 
 from . import rules
-from .protocol import CheckFailed, changed_paths, is_documentation, project_root, task_kind
+from .planning import approval, file_allowed
+from .protocol import CheckFailed, changed_paths, is_documentation, project_root, task_kind, test_invocation
 
 PROGRESS = '## Progress (kept by the harness)'
 
@@ -45,9 +46,42 @@ def plan_path(path):
     return path == 'ROADMAP.md' or (path.startswith('tasks/') and path.endswith('.md'))
 
 
+# Task 260: the common names of tests and test helpers in Python, JavaScript/TypeScript, Go, Ruby and Rust projects.
+TEST_PATH = re.compile(r'(^|/)(?:tests?|specs?|__tests__|__mocks__|__snapshots__)/'
+                       r'|(^|/)(?:tests?|conftest|spec_helper)\.[^/]+$'
+                       r'|(^|/)test[_-][^/]*$'
+                       r'|[._-](?:test|spec)s?\.[^/]+$')
+
+
 def implementation_paths(paths):
     """Non-test artifacts: test-only edits do not implement an approved feature."""
-    return [path for path in paths if not re.search(r'(^|/)tests?/|(^|/)test_[^/]*$|_test\.py$|\.test\.[mc]?js$', path)]
+    return [path for path in paths if not TEST_PATH.search(path)]
+
+
+def copy_project(root, target):
+    """Task 260: a copy of the project for the Red proof: tracked and untracked files git does not ignore, and links to
+    the ignored top-level folders the tests may need (node_modules, a virtualenv). None, or why it could not be made."""
+    import os, shutil
+    def listed(*args):
+        done = subprocess.run(['git', '-C', str(root), 'ls-files', '-z', *args], capture_output=True, timeout=60)
+        return None if done.returncode else [name for name in done.stdout.decode(errors='surrogateescape').split('\0') if name]
+    files = listed('-c', '-o', '--exclude-standard')
+    if files is None: return 'the project could not be copied for the Red proof'
+    target.mkdir(parents=True, exist_ok=True)
+    for name in files:
+        source, destination = root / name, target / name
+        if not source.resolve().is_relative_to(root) and not source.is_symlink(): continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source.is_symlink(): os.symlink(os.readlink(source), destination)
+        elif source.is_file(): shutil.copy2(source, destination)
+    for name in listed('-o', '-i', '--exclude-standard', '--directory') or []:
+        name = name.rstrip('/')
+        if not name or '/' in name or name in {'__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache', '.git'}: continue
+        if (root / name).exists() and not (target / name).exists(): (target / name).symlink_to(root / name)
+    return None
+
+
+BUILD = re.compile(r'^(?:(?:build|continue)(?: with)? the (?:approved|next approved|next) task|start building|continue)[.!]?$', re.I)
 
 
 def fingerprint(root, path):
@@ -114,7 +148,7 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this choice.')
-            if not item['task'] and self.phases.get(item['root'])['phase']!='discussion':item['task'],_=self.task_for(item)
+            # Task 260: a question never creates a task; the choice keeps the request's task, if it has one.
             previous=self.waiting_choice(item['root'])
             choice=dict(choice)
             if not system:
@@ -156,15 +190,16 @@ class Paperwork:
             waiting=self.waiting_choice(item['root']) or {}
             labels=[option['label'] for option in waiting.get('options',[])]
             record_decision(self.data,request,'question_answer','code' if state=='auto' else 'person',{'option':labels.index(clean(answer))} if clean(answer) in labels else 'other',rule='auto.recommendation' if state=='auto' else None,automatic=state=='auto')
-            if self.phases.get(item['root'])['phase']=='discussion':
-                # Discussion choices live in harness data, never in the project's plan files.
+            if not item['task'] and item.get('candidate'):item['task']=item['candidate']
+            if self.phases.get(item['root'])['phase']=='discussion' or not item['task']:
+                # Discussion choices, and choices of a request without a task (task 260: a question never creates one),
+                # live in harness data, never in the project's plan files.
                 waiting=self.waiting_choice(item['root']) or {}
                 value={**waiting,'task':None,'question':clean(question),'answer':clean(answer),'state':state,'pending':False,
                        'at':datetime.now().astimezone().isoformat(timespec='seconds')}
                 self.save_choice(item['root'],value)
                 if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',value)
                 return {key:value[key] for key in ['task','question','answer','state']}
-            if not item['task']:item['task'],_=self.task_for(item)
             was_approved=self.plan_status_for_item(item)
             path=item['root']/item['task'];text=path.read_text(encoding='utf-8')
             line=f"- {clean(question)}: {clean(answer)} ({state} {datetime.now().astimezone().isoformat(timespec='seconds')})\n"
@@ -206,7 +241,8 @@ class Paperwork:
             paths=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if phase=='implementation':
                 if not paths:raise ValueError('No planned task yet. Plan one first.')
-                if plan.get('pending') or not self.active_scope(root):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
+                waiting=plan.get('approved') and plan.get('check_in') and not plan.get('finished')  # task 260: a check-in never strands the plan
+                if plan.get('pending') or not (self.active_scope(root) or waiting):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
             if phase:self.phases.choose(root,phase,actor='person',planned=bool(paths),action=action)
             value=self.phases.get(root);tasks=[]
             for path in paths:
@@ -214,7 +250,8 @@ class Paperwork:
                 if not file.resolve().is_relative_to(root) or file.is_symlink():raise ValueError('The plan links outside this project.')
                 text=file.read_text(encoding='utf-8');title=re.search(r'^# (?:\d+: )?(.+)',text,re.M);done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 tasks.append({'path':path,'title':title[1] if title else path,'done_when':done[1] if done else ''})
-            return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished'))}
+            card={'check_in':plan['card']} if plan.get('check_in') and plan.get('card') else {}  # task 260: a reload can show the waiting check-in
+            return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished')),**card}
 
     def start_building(self, root, selected=None):
         """Explicit Start Building confirmation, separate from choosing a phase."""
@@ -247,10 +284,15 @@ class Paperwork:
                 record_decision(self.data,None,'task_acceptance','person','stop',rule='G-015')
                 return {'finished':False,'stopped':True}
             if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
-            if self.phases.get(root)['phase']!='implementation':raise ValueError('Choose Implementation to accept this task.')
+            # Task 260: accepted from any phase, so leaving Implementation during a check-in never strands the plan.
+            if not plan.get('verified'):
+                # An unverified task is not skipped: accepting retries the same task (the card names it).
+                plan.update(check_in=False,accepted=state);plan.pop('card',None);self.plan_state(root,plan)
+                record_decision(self.data,None,'task_acceptance','person','retry',rule='G-015')
+                return {'finished':False,'next':plan['tasks'][plan.get('index',0)],'total':len(plan['tasks']),'retry':True}
             index=plan.get('index',0)+1
             finished=index>=len(plan['tasks'])
-            plan.update(check_in=False,finished=finished,accepted=state,index=plan.get('index',0) if finished else index)
+            plan.update(check_in=False,finished=finished,accepted=state,index=plan.get('index',0) if finished else index);plan.pop('card',None)
             self.plan_state(root,plan)
             record_decision(self.data,None,'task_acceptance','code' if state=='auto' else 'person','accept',rule='G-015',automatic=state=='auto')
             return {'finished':finished,'next':None if finished else plan['tasks'][index],'total':len(plan['tasks'])}
@@ -294,6 +336,7 @@ class Paperwork:
         from .planning import requires_plan
         item=self.requests.get(request)
         if not item:return {'required':False,'approved':False}
+        item={**item,'task':item.get('task') or item.get('candidate')}  # task 260: a question still sees the approved task in progress
         root=item['root'];state=self.plan_state(root);task=item.get('task');text=''
         if task and (root/task).is_file():text=(root/task).read_text(encoding='utf-8')
         required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8') if (root/'ROADMAP.md').is_file() else '',re.M)))
@@ -395,6 +438,10 @@ class Paperwork:
             from harness.context import mentioned
             named=mentioned(item['text'],[path.relative_to(root).as_posix() for path in (root/'tasks').glob('*.md')])
             item['task']=next(iter(named),None)
+            plan=self.plan_state(root)
+            active=plan['tasks'][plan.get('index',0)] if plan.get('approved') and not plan.get('finished') and not plan.get('check_in') and 0<=plan.get('index',0)<len(plan.get('tasks',[])) else None
+            if item['task'] in plan.get('tasks',[])+plan.get('waiting',[]) and item['task']!=active:
+                item['task']=None;item['other_task']=True  # task 260: naming a planned task that is not in progress does not make it this request's
             from harness.autonomy import enabled
             if self.runs and enabled(self.data):item['auto_run']=self.runs.begin(root)
             self.requests[request]=item
@@ -402,14 +449,17 @@ class Paperwork:
             plan=self.plan_state(root)
             from .planning import FEATURE, PLAN
             item['new_plan']=bool(self.phases.get(root)['phase']=='planning' and (FEATURE.search(item['text']) or PLAN.search(item['text'])))
-            if plan.get('approved') and not plan.get('finished') and not plan.get('check_in') and not item['new_plan'] and not item['task']:
-                item['task']=plan['tasks'][plan.get('index',0)]
+            if active and not item['new_plan'] and not item['task'] and not item.get('other_task'):
+                # Task 260: Build/Continue works on the task in progress; any other message (a question) attaches to it
+                # only at its first write, so a question never ends the task or raises a check-in.
+                if BUILD.match(item['text']) or approval(item['text']):item['task']=active
+                else:item['candidate']=active
             waiting=self.waiting_choice(root)
             prefix=f"Choice: {waiting['question']} → " if waiting else ''
             if waiting and item['text'].startswith(prefix) and item['text'][len(prefix):].strip():
-                item['task']=waiting.get('task')
-                item['before']={path:value for path,value in before.items() if not plan_path(path)}
-                item['before'].update({path:value for path,value in waiting.get('before',{}).items() if plan_path(path)})
+                item['task']=waiting.get('task') or item['task']
+                # Task 260: the paused request's own changes, code included, stay the resumed request's.
+                item['before']=dict(waiting['before']) if isinstance(waiting.get('before'),dict) else item['before']
                 item['new_plan']=False
                 self.decision(request,waiting['question'],item['text'][len(prefix):],'chosen')
         return str(root)
@@ -429,8 +479,9 @@ class Paperwork:
             content = [path for path in self.changes(item) if not plan_path(path)]
             if not content: return None
             made=False
+            if not item['task'] and item.get('candidate'):item['task']=item['candidate']
             if not item['task']:item['task'],made=self.task_for(item)
-            item['observed']=True
+            item['made']=made;item['observed']=True
             from kit.publish_audit import ensure_task
             ensure_task(item['root'],reset=True)
             self.progress(item, f'Started at {clock()}: {", ".join(content[:6])}{" …" if len(content) > 6 else ""}')
@@ -443,7 +494,7 @@ class Paperwork:
         """A test run Gate saw: written into the task's progress."""
         with self.lock:
             item = self.requests.get(request)
-            if not item or not item['task']: return
+            if not item or not item['task'] or not test_invocation(command): return
             text = (item['root'] / item['task']).read_text(encoding='utf-8')
             if not passed and '- [x] Red:' not in text:
                 self.progress(item, f'Red: `{command}` failed at {clock()}')
@@ -459,11 +510,12 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             result=self._end(request,review)
-            if item and result and result.get('outcome')=='not verified':
+            if item and result and result.get('outcome')=='not verified' and item.get('planned'):
+                # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
-                if item.get('task') in plan.get('tasks',[]):
-                    plan.update(check_in=True,verified=False);self.plan_state(item['root'],plan)
-                    result['check_in']={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks'])}
+                card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks'])}
+                plan.update(check_in=True,verified=False,card=card);self.plan_state(item['root'],plan)
+                result['check_in']=card
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
                 from harness.autonomy import enabled
                 outcome=result['outcome']
@@ -492,39 +544,69 @@ class Paperwork:
             if not item['task']: return {'outcome': 'nothing changed'}
             root, task = item['root'], item['task']
             changed = self.changes(item)
-            code = [path for path in changed if not plan_path(path) and not is_documentation(path)]
             text = (root / task).read_text(encoding='utf-8')
+            planned = item['planned'] = self.plan_status_for_item(item)
+            plan = self.plan_state(root)
+            in_plan = task in plan.get('tasks', []) + plan.get('waiting', [])
+            content = [path for path in changed if not plan_path(path)]
+            if not planned and not item.get('made') and (in_plan or not content):
+                # Task 260: a request that is not building the task in progress never relabels or completes a task: a
+                # question changes nothing; edits of the plan files (Planning) are kept in a plain commit.
+                paperwork = [path for path in changed if plan_path(path)]
+                if content:
+                    reason = 'this task is in the plan but is not the task in progress; it completes only when it is built'
+                    saved = self.commit(root, changed, self.subject(item, ', not verified'), f'Not verified: {reason}.')
+                    return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
+                if not paperwork: return {'outcome': 'nothing changed'}
+                saved = self.commit(root, paperwork, self.subject(item, ', plan'))
+                return {'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+            # Task 260: only the task's Files are its work; anything else stays out of its commit and is named.
+            outside = [path for path in content if not file_allowed(text, path)]
+            inside = [path for path in changed if path not in outside]
+            code = [path for path in inside if not plan_path(path) and not is_documentation(path)]
             if gaps:
                 reason = '; '.join(gaps)
                 self.write(item,text.rstrip('\n')+f'\n\nPlan incomplete (G-014): {reason} The task stays open.\n')
-                saved = self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
+                saved = self.commit(root,sorted(set(inside)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
                 return {'outcome':'plan incomplete','task':task,'reason':reason,**saved}
             from harness.audit import verified as audit_verified
-            if task.endswith('-ready-to-publish.md') and (re.search(r'^- \[ \]',text,re.M) or not audit_verified(root,self.data,task)):
+            publish = task.endswith('-ready-to-publish.md')
+            if publish and (re.search(r'^- \[ \]',text,re.M) or not audit_verified(root,self.data,task)):
                 reason='publication checks are still open; run /audit and fix every failed check'
-                saved=self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
+                saved=self.commit(root,sorted(set(inside)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
                 return {'outcome':'not verified','task':task,'reason':reason,**saved}
-            planned = self.plan_status_for_item(item)
-            if planned and not task.endswith('-ready-to-publish.md') and task_kind(root, task) == 'code' and not implementation_paths(code):
+            if outside:
+                reason = (f"changes outside the task's Files: {', '.join(outside[:8])}{' …' if len(outside) > 8 else ''} "
+                          "(left out of the commit; add them to Files: in Planning, or to .gitignore when a tool makes them)")
+                self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
+                saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
+                return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
+            kind = task_kind(root, task)
+            if planned and not publish and kind == 'code' and not implementation_paths(code):
                 # An empty implementation is not documentation work. Keep existing task/roadmap
                 # evidence and HEAD intact; end() persists the truthful unverified check-in.
                 return {'outcome': 'not verified', 'task': task,
                         'reason': 'no implementation change for the approved code task; paperwork or tests alone do not complete it'}
-            if not code and not self.plan_status_for_item(item):
+            if planned and not publish and kind in ('docs', 'chore') and not [path for path in inside if not plan_path(path)]:
+                # Task 260: a docs or chore task is done only when one of its files changed.
+                return {'outcome': 'not verified', 'task': task,
+                        'reason': f'no change to the files of this {kind} task; paperwork alone does not complete it'}
+            if not code and not planned and item.get('made'):
                 text = re.sub(r'^Kind:\s*\S+', 'Kind: docs', text, count=1, flags=re.MULTILINE); self.write(item, text)
             if code:
                 answer = self.protocol.verification(root)
                 reason = None
                 if not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
-                elif not self.protocol.failed_run(root):
-                    # Strategy 1 (bench, 2026-10-15): Pi need not work test-first; the harness proves Red itself.
+                else:
+                    # Task 260: Red is always proved by the harness (a copy of the project without the change must fail
+                    # the same test command); a failed run Pi showed earlier is never enough on its own.
                     proof = self.prove_red(item, code)
                     if proof is True: self.progress(item, f"Red (proved by the harness): without the change, `{item['test_command']}` fails")
                     else: reason = proof
                 if reason:
                     # Committed too, marked (2026-10-15): every change can be undone the same way; the task stays open.
                     self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
-                    saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
+                    saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
                     return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
             planned=self.plan_status_for_item(item)
             if planned:
@@ -537,13 +619,13 @@ class Paperwork:
                 roadmap = re.sub(rf'^(\s*)- \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
                 if roadmap!=before_roadmap:record_decision(self.data,request,'box_ticked','code',1,rule='G-010')
-            saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
+            saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item))
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
             if result['outcome']=='committed':record_decision(self.data,request,'step_done','code','verified_and_committed',rule='G-013')
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
-                plan.update(index=index,check_in=True,finished=False,verified=True);self.plan_state(root,plan)
                 result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task'}
+                plan.update(index=index,check_in=True,finished=False,verified=True,card=result['check_in']);self.plan_state(root,plan)
             return result
 
     def sample_cleanup(self, item):
@@ -598,31 +680,63 @@ class Paperwork:
         if not done or done.returncode:
             return {'outcome': 'commit failed', 'reason': (done.stderr if done else 'git add failed').strip()[-500:]}
         head = subprocess.run(['git', '-C', str(root), 'rev-parse', '--short=12', 'HEAD'], capture_output=True, text=True, timeout=30).stdout.strip()
+        self.protocol.clear(root)  # task 260: runs before this commit can never be Red or Green for later work
         return {'message': message, 'commit': head}
 
     def prove_red(self, item, code):
-        """Set the request's code changes aside (tests stay), run its last passing test command: it must fail; put the
-        changes back: it must pass. True, or the reason it is not proved."""
+        """Task 260: in a temporary copy of the project (never the person's files), run the request's last passing test
+        command: with the change it must pass; with the request's code changes set back to HEAD (tests stay) it must
+        fail. True, or the reason it is not proved."""
+        import os, tempfile
         root, command = item['root'], item.get('test_command')
         if not command: return 'no test passed on the final code (Green)'
         changes = implementation_paths(code)
         if not changes: return 'only tests changed: nothing to prove'
         if any(path in item['before'] for path in changes): return 'a changed file had other edits before the request, so Red cannot be proved'
-        saved = {path: (root / path).read_bytes() if (root / path).exists() else None for path in changes}
-        run = lambda: subprocess.run(command, shell=True, cwd=root, capture_output=True, timeout=600).returncode == 0
-        try:
+        environment = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}
+        with tempfile.TemporaryDirectory(prefix='pi-red-proof-') as temporary:
+            copy = Path(temporary).resolve() / root.name
+            problem = copy_project(root, copy)
+            if problem: return problem
+            run = lambda: subprocess.run(command, shell=True, cwd=copy, capture_output=True, timeout=600, env=environment).returncode == 0
+            if not run(): return f'the tests fail with the change (`{command}`)'
             for path in changes:
-                original = subprocess.run(['git', '-C', str(root), 'show', f'HEAD:{path}'], capture_output=True)
-                if original.returncode == 0: (root / path).write_bytes(original.stdout)
-                elif (root / path).exists(): (root / path).unlink()
-            without = run()
-        finally:
-            for path, content in saved.items():
-                if content is None: (root / path).unlink(missing_ok=True)
-                else: (root / path).parent.mkdir(parents=True, exist_ok=True); (root / path).write_bytes(content)
-        if without: return f'the tests pass without the change too (`{command}`): they do not test it'
-        if not run(): return f'the tests fail with the change (`{command}`)'
+                original = subprocess.run(['git', '-C', str(root), 'show', f'HEAD:./{path}'], capture_output=True)
+                target = copy / path
+                if original.returncode == 0: target.parent.mkdir(parents=True, exist_ok=True); target.unlink(missing_ok=True); target.write_bytes(original.stdout)
+                else: target.unlink(missing_ok=True)
+            if run(): return f'the tests pass without the change too (`{command}`): they do not test it'
         return True
+
+    def reopen(self, root, task):
+        """Task 260, person only (never a Pi tool): reopen a task the harness marked done without real evidence. Its boxes
+        and roadmap line open again, the approved plan points at it, and a harness commit records it (Undo works)."""
+        root = Path(root).resolve()
+        if self.project_root(root) != root: raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
+        if not isinstance(task, str) or not re.fullmatch(r'tasks/[^/]+\.md', task): raise ValueError('Choose a task file under tasks/.')
+        path = root / task
+        if path.is_symlink() or not path.resolve().is_relative_to(root) or not path.is_file(): raise ValueError('This task does not exist in the project.')
+        with self.lock:
+            if any(item['root'] == root for item in self.requests.values()): raise ValueError('Pi is working in this project. Reopen the task when it is done.')
+            text = path.read_text(encoding='utf-8')
+            head, progress, rest = text.partition(PROGRESS)
+            text = re.sub(r'^(\s*)- \[x\]', r'\1- [ ]', head, flags=re.M | re.I) + progress + rest
+            path.write_text(text, encoding='utf-8')
+            item = {'root': root, 'task': task, 'text': 'Reopen', 'before': {}}
+            self.progress(item, f'Reopened at {clock()} by the person: the earlier completion is not accepted; the task is open again')
+            roadmap = root / 'ROADMAP.md'
+            roadmap.write_text(re.sub(rf'^(\s*)- \[[xX]\](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [ ]\2', roadmap.read_text(encoding='utf-8'), flags=re.M), encoding='utf-8')
+            plan = self.plan_state(root)
+            tasks = plan.get('tasks', []) if not plan.get('finished') else []
+            if task not in tasks: tasks = [task] + [path for path in tasks if path != task]
+            if not re.search(r'^Plan approved: (?:chosen|auto) ', path.read_text(encoding='utf-8'), re.M):
+                plan.update(tasks=tasks, pending=True, approved=False, index=0, check_in=False, finished=False, digest=self.plan_digest(root, tasks))
+            else:
+                plan.update(tasks=tasks, index=tasks.index(task), approved=True, pending=False, check_in=False, finished=False, digest=self.plan_digest(root, tasks))
+            plan.pop('card', None); self.plan_state(root, plan)
+            record_decision(self.data, None, 'task_reopen', 'person', 'reopen', rule='G-015')
+            saved = self.commit(root, [task, 'ROADMAP.md'], self.subject(item, ', reopened'), 'Reopened by the person: the earlier completion was not verified.')
+            return {'task': task, 'index': plan['index'], 'approved': plan['approved'], **saved}
 
     # -- the files ------------------------------------------------------------------------------------------------
     def task_for(self, item):

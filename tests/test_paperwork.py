@@ -18,6 +18,9 @@ def git(root, *args):
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, check=True).stdout
 
 
+TEST = 'python3 -m unittest discover -s tests -t .'
+
+
 class PaperworkTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
@@ -32,8 +35,15 @@ class PaperworkTest(unittest.TestCase):
         self.protocol = Protocol(Path(self.data.name) / 'runs.json')
         self.paper = Paperwork(self.protocol, data=self.data.name, identity=('Pi Workbench', 'harness@localhost'))
 
+    def real_test(self, value):
+        """Task 260: the harness proves Red itself in a copy of the project, so verified work needs a real test of it.
+        Written before the request starts, so it is not part of the request's own changes."""
+        (self.root / 'tests').mkdir(exist_ok=True); (self.root / 'tests/__init__.py').write_text('')
+        (self.root / 'tests/test_app.py').write_text(f'import unittest\nimport app\n\n\nclass A(unittest.TestCase):\n    def test_x(self):\n        self.assertEqual(app.x, {value})\n')
+
     def test_a_new_request_gets_its_task_at_the_first_change_and_is_committed_when_verified(self):
         (self.root / 'notes.txt').write_text('mine, changed before the request\n')  # the person's own edit: never committed by the harness
+        self.real_test(2)
         self.paper.start('r1', str(self.root), 'Fix the stuck detection so a hang is reported.\nMore detail here.')
         self.assertIsNone(self.paper.observe('r1'), 'nothing changed yet: no task')
         (self.root / 'app.py').write_text('x = 2\n')
@@ -45,10 +55,10 @@ class PaperworkTest(unittest.TestCase):
         self.assertIn('## Progress (kept by the harness)', task)
         self.assertIn('- [ ] [003-Fix the stuck detection so a hang is reported](tasks/003-fix-the-stuck-detection-so.md)', (self.root / 'ROADMAP.md').read_text())
         self.assertIsNone(self.paper.observe('r1'), 'told once')
-        self.protocol.record(str(self.root), 'python3 -m unittest', False); self.paper.ran('r1', 'python3 -m unittest', False)
-        self.protocol.record(str(self.root), 'python3 -m unittest', True); self.paper.ran('r1', 'python3 -m unittest', True)
+        self.protocol.record(str(self.root), TEST, False); self.paper.ran('r1', TEST, False)
+        self.protocol.record(str(self.root), TEST, True); self.paper.ran('r1', TEST, True)
         task = (self.root / 'tasks/003-fix-the-stuck-detection-so.md').read_text()
-        self.assertRegex(task, r'- \[x\] Red: `python3 -m unittest` failed at \d\d:\d\d'); self.assertRegex(task, r'- \[x\] Green: `python3 -m unittest` passed at \d\d:\d\d')
+        self.assertRegex(task, r'- \[x\] Red: `python3 -m unittest discover -s tests -t \.` failed at \d\d:\d\d'); self.assertRegex(task, r'- \[x\] Green: `python3 -m unittest discover -s tests -t \.` passed at \d\d:\d\d')
         result = self.paper.end('r1')
         self.assertEqual(result['outcome'], 'committed')
         self.assertEqual(result['commit'], git(self.root, 'rev-parse', '--short=12', 'HEAD').strip(), 'the commit, so the request can be undone')
@@ -60,12 +70,13 @@ class PaperworkTest(unittest.TestCase):
         self.assertIn('notes.txt', git(self.root, 'status', '--porcelain'), "the person's own edit stays uncommitted")
 
     def test_a_request_that_names_a_task_uses_it(self):
+        self.real_test(3)
         self.paper.start('r2', str(self.root), 'Yes, do tasks 2 right now.')
         (self.root / 'app.py').write_text('x = 3\n')
         self.assertIn('tasks/002-add-the-badge.md', self.paper.observe('r2'))
         self.assertFalse((self.root / 'tasks/003-yes-do-tasks-2-right.md').exists())
-        self.protocol.record(str(self.root), 'python3 -m unittest', False); self.paper.ran('r2', 'python3 -m unittest', False)
-        self.protocol.record(str(self.root), 'python3 -m unittest', True); self.paper.ran('r2', 'python3 -m unittest', True)
+        self.protocol.record(str(self.root), TEST, False); self.paper.ran('r2', TEST, False)
+        self.protocol.record(str(self.root), TEST, True); self.paper.ran('r2', TEST, True)
         self.assertEqual(self.paper.end('r2')['outcome'], 'committed')
         self.assertIn('- [ ] [002-Add the badge]', (self.root / 'ROADMAP.md').read_text(), 'its own boxes are still open: the roadmap line stays open')
 
@@ -149,14 +160,15 @@ class LedgerTest(PaperworkTest):
         paper=ledger.paperwork
         paper.plan_state(self.root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(self.root,[task])})
         paper.start_building(self.root)
+        self.real_test(9)
         ledger.start_request('r9', str(self.root), 'Do task 3: Speed up the app')
         write = ledger.propose('write_file', {'path': 'app.py', 'content': 'x = 9\n'}, 'admin', pi_tool='write', cwd=str(self.root), request='r9')
         (self.root / 'app.py').write_text('x = 9\n')
         audit = ledger.complete(write['proposal_id'], 'write_file', {'path': 'app.py', 'content': 'x = 9\n'}, 'ok', 0)
         self.assertIn("This request's task is tasks/003-speed-up-the-app.md", ledger.last_note(write['proposal_id']))
         for passed in (False, True):
-            run = ledger.propose('execute_command', {'command': 'python3 -m unittest'}, 'admin', cwd=str(self.root), request='r9')
-            ledger.complete(run['proposal_id'], 'execute_command', {'command': 'python3 -m unittest'}, 'ok' if passed else 'FAILED', 0 if passed else 1)
+            run = ledger.propose('execute_command', {'command': TEST}, 'admin', cwd=str(self.root), request='r9')
+            ledger.complete(run['proposal_id'], 'execute_command', {'command': TEST}, 'ok' if passed else 'FAILED', 0 if passed else 1)
         commit = ledger.propose('execute_command', {'command': 'git commit -m x'}, 'admin', cwd=str(self.root), request='r9')
         self.assertEqual((commit['outcome'], commit['rule']), ('REVISE', 'G-013'), 'Pi does not commit: the harness does')
         self.assertEqual(ledger.end_request('r9')['outcome'], 'committed')
@@ -288,10 +300,11 @@ class PlanLifecycleTest(PaperworkTest):
         git(self.root,'add','.');git(self.root,'-c','user.name=t','-c','user.email=t@t','commit','-qm','More tasks')
         self.paper.start('plan',str(self.root),'Add the badge');self.paper.propose_plan('plan');self.paper.pause('plan')
         self.paper.start_building(self.root)
+        self.real_test(7)
         self.paper.start('r',str(self.root),'Build the approved task.')
         (self.root/'app.py').write_text('x=7\n');self.paper.observe('r')
         for passed in [False,True]:
-            self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('r','python3 -m unittest',passed)
+            self.protocol.record(str(self.root),TEST,passed);self.paper.ran('r',TEST,passed)
         result=self.paper.end('r')
         self.assertEqual(result['outcome'],'committed');self.assertTrue(result['check_in']['verified'])
         self.assertEqual(result['check_in']['next'],'tasks/003-next.md')
@@ -341,9 +354,10 @@ class PlanLifecycleTest(PaperworkTest):
         set_enabled(self.data.name,True,confirmed=True)
         self.paper.phases.choose(self.root,'planning',actor='person');self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
         self.paper.decision('plan','Colour','Blue','auto')
+        self.real_test(8)
         (self.root/'app.py').write_text('x=8\n');self.paper.observe('plan')
         for passed in [False,True]:
-            self.protocol.record(str(self.root),'python3 -m unittest',passed);self.paper.ran('plan','python3 -m unittest',passed)
+            self.protocol.record(str(self.root),TEST,passed);self.paper.ran('plan',TEST,passed)
         first=self.paper.end('plan');self.assertNotIn('report',first)
         self.assertTrue(first['check_in']['next'].endswith('-ready-to-publish.md'))
         self.paper.accept_task(self.root,state='auto')

@@ -102,6 +102,15 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(blocked.get('phase'),'discussion')
             self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'})['phase'],'planning')
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'planning')
+            # Task 260: the person's recovery for a falsely completed task (the UI control still needs design).
+            (plain/'tasks').mkdir();(plain/'ROADMAP.md').write_text('# Roadmap\n\n## Goal\nA clock.\n\n## Tasks\n- [x] [001-Clock](tasks/001-clock.md)\n')
+            (plain/'tasks/001-clock.md').write_text('# 001: Clock\n\nKind: code\nFiles: app.py\n\nDone when: it ticks.\n\n- [x] Red: a test fails for this change.\n')
+            for args in (['init','-q'],['add','-A'],['-c','user.name=t','-c','user.email=t@t','commit','-qm','false completion']):subprocess.run(['git','-C',str(plain),*args],check=True,capture_output=True)
+            with self.assertRaises(urllib.error.HTTPError) as refused:web_post('/api/tasks/reopen',{'project':registered['project'],'task':'../outside.md'})
+            self.assertEqual(refused.exception.code,400);refused.exception.close()
+            reopened=web_post('/api/tasks/reopen',{'project':registered['project'],'task':'tasks/001-clock.md'})
+            self.assertEqual(reopened['task'],'tasks/001-clock.md');self.assertTrue(reopened['commit'])
+            self.assertIn('- [ ] [001-Clock]',(plain/'ROADMAP.md').read_text());self.assertIn('- [ ] Red:',(plain/'tasks/001-clock.md').read_text())
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)
         finally:

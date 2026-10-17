@@ -783,6 +783,7 @@ class WebHandler(BaseHTTPRequestHandler):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
+            if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task')));return  # task 260: the person's recovery from a false completion
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':
                 action=data.get('action','check')
