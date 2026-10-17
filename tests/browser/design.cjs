@@ -1061,6 +1061,13 @@ paper.start_building(root)
   await phaseReview.getByRole('button',{name:'Start Building',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#phase-button').textContent.includes('Implementation'));
   await page.waitForFunction(()=>document.querySelector('#send').textContent==='Send');
   const state=await page.evaluate(project=>fetch('/api/phase?project='+project).then(r=>r.json()),phaseProject.project),task=state.tasks[0].path;
+  // Real Gate settlement, not a synthetic check-in: an empty code task must stay unverified.
+  const emptyCode=await post('/api/jobs/create',{project:phaseProject.project,message:'TEST_PHASE_NO_CODE'});
+  await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),emptyCode.id);
+  await page.reload();const emptyCheck=page.locator('.pw-card').filter({hasText:'no implementation change'}).last();await emptyCheck.waitFor();
+  assert.match(await emptyCheck.textContent(),/not verified/);
+  assert.match(require('node:fs').readFileSync(join(directory,'Phase lifecycle',task),'utf8'),/- \[ \] Red:/);
+  await page.reload();await page.locator('.pw-card').filter({hasText:'no implementation change'}).last().waitFor();
   execFileSync('python3',['-c',`from pathlib import Path
 from gate.paperwork import Paperwork
 from gate.protocol import Protocol

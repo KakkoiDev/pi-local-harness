@@ -20,7 +20,7 @@ import threading
 from harness.decision_log import record as record_decision
 
 from . import rules
-from .protocol import CheckFailed, changed_paths, is_documentation, project_root
+from .protocol import CheckFailed, changed_paths, is_documentation, project_root, task_kind
 
 PROGRESS = '## Progress (kept by the harness)'
 
@@ -43,6 +43,11 @@ def short_title(text):
 
 def plan_path(path):
     return path == 'ROADMAP.md' or (path.startswith('tasks/') and path.endswith('.md'))
+
+
+def implementation_paths(paths):
+    """Non-test artifacts: test-only edits do not implement an approved feature."""
+    return [path for path in paths if not re.search(r'(^|/)tests?/|(^|/)test_[^/]*$|_test\.py$|\.test\.[mc]?js$', path)]
 
 
 def fingerprint(root, path):
@@ -499,6 +504,12 @@ class Paperwork:
                 reason='publication checks are still open; run /audit and fix every failed check'
                 saved=self.commit(root,sorted(set(changed)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
                 return {'outcome':'not verified','task':task,'reason':reason,**saved}
+            planned = self.plan_status_for_item(item)
+            if planned and not task.endswith('-ready-to-publish.md') and task_kind(root, task) == 'code' and not implementation_paths(code):
+                # An empty implementation is not documentation work. Keep existing task/roadmap
+                # evidence and HEAD intact; end() persists the truthful unverified check-in.
+                return {'outcome': 'not verified', 'task': task,
+                        'reason': 'no implementation change for the approved code task; paperwork or tests alone do not complete it'}
             if not code and not self.plan_status_for_item(item):
                 text = re.sub(r'^Kind:\s*\S+', 'Kind: docs', text, count=1, flags=re.MULTILINE); self.write(item, text)
             if code:
@@ -594,7 +605,7 @@ class Paperwork:
         changes back: it must pass. True, or the reason it is not proved."""
         root, command = item['root'], item.get('test_command')
         if not command: return 'no test passed on the final code (Green)'
-        changes = [path for path in code if not re.search(r'(^|/)tests?/|(^|/)test_[^/]*$|_test\.py$|\.test\.[mc]?js$', path)]
+        changes = implementation_paths(code)
         if not changes: return 'only tests changed: nothing to prove'
         if any(path in item['before'] for path in changes): return 'a changed file had other edits before the request, so Red cannot be proved'
         saved = {path: (root / path).read_bytes() if (root / path).exists() else None for path in changes}

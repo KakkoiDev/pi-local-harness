@@ -66,6 +66,14 @@ if request['message'].rstrip().endswith('TEST_PHASE_PLAN'):
     emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'aborted'}})
     emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
     sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_PHASE_NO_CODE'):
+    identifier=os.environ['PI_HARNESS_JOB']
+    call_gate('/request',{'request':identifier,'cwd':os.getcwd(),'text':'Build the approved task.'})
+    result=call_gate('/request/end',{'request':identifier})['result']
+    if result.get('check_in'):emit({'type':'extension_ui_request','method':'notify','message':'Harness check-in: '+json.dumps(result['check_in'])})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'No implementation was produced.'}]}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_PHASE_CHECK'):
     check={'task':request['message'].split('TASK=')[1].split()[0],'title':'Counter','verified':True,'verification':'node --test · 1 passed','next':None,'number':1,'total':1}
     emit({'type':'extension_ui_request','method':'notify','message':'Harness check-in: '+json.dumps(check)})

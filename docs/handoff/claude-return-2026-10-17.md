@@ -148,3 +148,9 @@ These additions are recommendations from the agent, distinct from the seven area
 - **Accessibility and language support in the foundation.** Reusable controls should have labels, keyboard operation, clear validation and localizable text. Prove these behaviors in the block tests so each app does not have to rediscover them. Concrete controls and visible copy remain subject to the designer's specification.
 
 Keep these subordinate to the immediate repair order. A longer feature list must not delay establishing a truthful, recoverable end-to-end building loop.
+
+## Runtime repair: task 255 · 18 October
+
+Approved code tasks with no non-test implementation change now remain open and return an unverified check-in. No feature commit or blanket task completion is produced for empty, paperwork-only or tests-only attempts, even when passing test evidence exists. Actual publication audits retain their separate required evidence path; documentation tasks still work. This addresses the reproduced zero-implementation defect, not semantic completeness of arbitrary requirements.
+
+Regression evidence: unit cases for all three empty-implementation variants and stale/passing evidence; real Gate lifecycle/restart integration; browser submission through Gate end-request and an unverified card surviving reload. Focused suite: 56 passing tests; the design browser suite and full workflow passed. The chat browser suite failed its existing bug-173 scroll assertion twice and remains a separate repair; no full-browser pass or scroll fix is claimed. No personal project or historical task was rewritten. Choice-pause, rename and duplicate-answer findings are separate outstanding repairs.
