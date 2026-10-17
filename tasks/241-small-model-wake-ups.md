@@ -20,7 +20,8 @@ starting if it is unclear.
 - [x] Red: extension tests for 1 and 3 (fake pi events with the replies from the bench: bug-pagination and
   history-page-lifts in task 225); Gate test for 2.
 - [x] Implement; each wake counts toward `canWake()`'s limit.
-- [ ] Run the e4b bench again (task 225's commands) and the 27b one; record both in this file.
+- [x] Record the approved 22 saved runs: the complete e4b comparison and four 27b harness runs.
+  The person accepted this partial batch on 2026-10-17; do not start the remaining 14 runs.
 
 ## Result
 
@@ -35,3 +36,22 @@ Build 5d7f250's e4b run solved pagination (58 seconds, verified), but the README
 ## Activity finalized-answer bridge found during local runs
 
 Pi's supported message_end replacement cleans the stored conversation, but Activity formerly kept only streamed deltas. A completed slugify run therefore retained a leaked template token in its request record despite the extension counting its removal. Fake-Pi and queue tests reproduce the mismatch and split tokens. The worker now sends its finalized answer to the queue; Activity hides complete and incomplete template markers while streaming, then saves the final answer for reloads. Bare mode keeps the unmodified baseline. The 31 queue/web tests pass. The earlier local runs remain pre-fix evidence under ignored `.bench-local/244-final-2026-10-17/`, excluded from the final comparison.
+
+
+## Saved benchmark result (2026-10-17)
+
+The person said to use the 22 saved runs for now. Source: ignored
+`.bench-local/244-scored-2026-10-17/results.jsonl`, frozen build `3847bc1` (before the music merge and phases).
+No new runs were started. Task 244 will publish the shareable records last in the roadmap.
+
+| Model | Mode | Runs | Hidden scenarios solved | Harness marked verified | Wake-ups | Template-token incidents |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Gemma 4 e4b | Harness | 9 | 2 | 3 | 7 | 10 |
+| Gemma 4 e4b | Bare Pi | 9 | 2 | 0 | 0 | 0 |
+| Qwen 3.8 27B | Harness | 4 | 3 | 2 | 3 | 0 |
+
+This demonstrates that the new wake-ups ran; it does not demonstrate that all scenarios pass. Verification counts
+include planning/paperwork changes and are not a substitute for the hidden scenario result. The 27B comparison is
+partial (five harness scenarios and all nine bare scenarios are absent). Bare Pi does not report template-token
+incidents: its zero is not evidence of clean answers. All saved harness answers are free of retained template markers;
+two bare answers retain them. This one-run-per-scenario batch cannot establish a reliable performance improvement.
