@@ -147,12 +147,19 @@ class ProposalLedger:
     def request_advice(self,request):
         item=self.paperwork.requests.get(request)
         if not item:return None
-        text=item['text'];waiting=self.paperwork.waiting_choice(item['root'])
-        if waiting and not text.startswith('Choice: '):
-            return self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
-        if re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):
-            return self.judgements.decide(request,'phase_intent',[text])
-        return None
+        text=item['text']
+        if text.startswith('Choice: '):return None  # task 290 (review item 5): an answer is never read as a new request
+        waiting=self.paperwork.waiting_choice(item['root'])
+        if waiting:advice=self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
+        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):advice=self.judgements.decide(request,'phase_intent',[text])
+        else:return None
+        # Task 290 (review item 4): a card raised before Pi read the message keeps it; Pi gets it after the answer.
+        if advice.get('choice'):self.paperwork.hold(request,text)
+        return advice
+
+    def held(self, request):
+        """The person's messages a question interrupted, for the request that answers it (once)."""
+        return list((self.paperwork.requests.get(request) or {}).get('held') or [])
 
     def end_request(self, request, review=True):
         result = self.paperwork.end(request,review=review)

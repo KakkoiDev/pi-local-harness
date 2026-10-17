@@ -103,6 +103,11 @@ const readline = require('node:readline');
     assert.equal(await page.locator('#prompt').inputValue(), 'Still my draft');
     assert.equal(await page.locator('#attachments .attachment-chip').count(), 1);
 
+    // 4. A phase word gets an inline notice under the answer, not a card.
+    await settled((await post('/api/jobs/create', { project: created.project, message: 'Explain the planning module TEST_NOTICE' })).id);
+    await page.reload();
+    const notice = page.locator('#messages .message-notice').filter({ hasText: 'use the phase button' }); await notice.waitFor();
+
     assert.deepEqual(errors, []);
     console.log('Conversation checks passed: one answer per card through its own route, drafts and attachments kept, controls send their own requests.');
   } finally {

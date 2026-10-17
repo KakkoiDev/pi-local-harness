@@ -23,6 +23,9 @@ class Worker:
                 except subprocess.TimeoutExpired:process.kill();process.wait()
             for stream in (process.stdin,process.stdout):
                 if stream:stream.close()
+    def installed(self):
+        """Whether the classifier's runtime and model are here (it is never downloaded on a request)."""
+        return (self.folder/'runtime/bin/python').is_file() and (self.folder/'model/model.safetensors').is_file()
     def receive(self):
         if not select.select([self.process.stdout],[],[],60)[0]:self.close();raise TimeoutError('Classifier unavailable.')
         line=self.process.stdout.readline()
@@ -46,6 +49,12 @@ class Classifier:
     def __init__(self,loader=None,data=None):
         self.loader=loader or (lambda:Worker(data or os.getenv('PI_LAYA_DATA') or os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))))
         self.agent=None;self.lock=threading.RLock()
+    def available(self):
+        """Task 290: False when Laya is not installed, so a keyword alone never raises a blocking card."""
+        with self.lock:
+            if self.agent is None:self.agent=self.loader()
+        installed=getattr(self.agent,'installed',None)
+        return bool(installed()) if callable(installed) else True
     def ask(self,kind,state,question,options=None,min_confidence=.95):
         if kind not in ('choice','score','noul') or not isinstance(question,str) or not question.strip():raise ValueError('Use a typed question: choice, score or noul.')
         if isinstance(min_confidence,bool) or not isinstance(min_confidence,(int,float)) or not math.isfinite(min_confidence) or not 0<=min_confidence<=1:raise ValueError('Confidence must be between zero and one.')

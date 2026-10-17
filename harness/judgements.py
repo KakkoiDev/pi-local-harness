@@ -14,6 +14,8 @@ QUESTIONS={
  'shell_risk':('How should Pi proceed with this unclassified command?',['Keep the command blocked','Use a checked read-only command']),
 }
 
+PHASE_NOTICE='Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'
+
 
 class Judgements:
     def __init__(self,paperwork,classifier=None):
@@ -32,6 +34,10 @@ class Judgements:
         result=getattr(laya,kind)(*args,classifier=self.classifier)
         if isinstance(self.paperwork.data,(str,Path)):
             record(self.paperwork.data,request,kind,'laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'],abstained=bool(result['abstained']))
+        if kind=='phase_intent' and (not result['abstained'] or not getattr(self.classifier,'available',lambda:True)()):
+            # Task 290 (review P2): the phase is the person's button; a phase word, read by Laya or by a keyword alone
+            # (no Laya), gets an inline notice that says where the button is, never a blocking card.
+            return {**result,'who':'laya' if not result['abstained'] else 'code','advisory':True,'notice':PHASE_NOTICE}
         if not result['abstained'] and not (kind=='assumed_value' and result['answer'] is True):return {**result,'who':'laya','advisory':advisory}
         item=self.paperwork.requests.get(request)
         waiting=self.paperwork.waiting_choice(item['root']) if isinstance(item,dict) else None

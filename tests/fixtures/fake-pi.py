@@ -69,6 +69,8 @@ if request['message'].rstrip().endswith('TEST_SPAWN'):  # a server Pi starts wit
     import subprocess as sp
     leftover=sp.Popen(['sleep','300'],stdin=sp.DEVNULL,stdout=sp.DEVNULL,stderr=sp.DEVNULL);  # Pi's bash tool gives commands their own pipes
     Path(os.environ['PI_FAKE_PIDFILE']).write_text(str(leftover.pid))
+if request['message'].rstrip().endswith('TEST_NOTICE'):  # task 290: the extension's inline notice (a phase word)
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness notice: Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'})
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_PHASE_PLAN'):

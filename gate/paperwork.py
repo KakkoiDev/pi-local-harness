@@ -173,7 +173,8 @@ class Paperwork:
             # Task 290: each question has an id, kept while the same question is asked again; the person's answer names it,
             # so an answer to a question that was replaced is a no-op.
             identifier=previous.get('id') if same and previous.get('id') else uuid.uuid4().hex[:16]
-            value={**choice,'id':identifier,'request':request,'task':item['task'],'before':item['before'],'pending':True}
+            held=list(previous.get('held') or []) if same else []
+            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['id','question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
 
@@ -182,6 +183,14 @@ class Paperwork:
         try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(self.project_key(root),{})
         except (OSError,ValueError):return False
         return bool(value and not value.get('pending') and value.get('answer')=='Continue with the stated value' and value.get('state') in ('chosen','given') and value.get('judgement')=={'kind':'assumed_value','digest':digest})
+
+    def hold(self,request,text):
+        """Task 290: the person's message that a question interrupted before Pi read it, kept with the question."""
+        with self.lock:
+            item=self.requests.get(request);text=str(text or '').strip()
+            if not item or not text:return
+            waiting=self.waiting_choice(item['root'])
+            if waiting and text not in waiting.get('held',[]):self.save_choice(item['root'],{**waiting,'held':[*waiting.get('held',[]),text][-5:]})
 
     def save_choice(self,root,value):
         file=self.choice_file(root)
@@ -520,6 +529,7 @@ class Paperwork:
                 # Task 260: the paused request's own changes, code included, stay the resumed request's.
                 item['before']=dict(waiting['before']) if isinstance(waiting.get('before'),dict) else item['before']
                 item['new_plan']=False
+                item['held']=list(waiting.get('held') or [])  # task 290: the words the question interrupted reach Pi now
                 self.decision(request,waiting['question'],item['text'][len(prefix):],'chosen')
         return str(root)
 

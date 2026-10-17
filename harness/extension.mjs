@@ -304,9 +304,13 @@ export default function harness(pi, dependencies = {}) {
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
     requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
+    let held = [];
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(async answer=>{
+      held = Array.isArray(answer.held) ? answer.held.filter(text => typeof text === 'string' && text.trim()) : []; // task 290: words a question interrupted
       if (answer.advice?.choice) await askSystemChoice(answer.advice.choice,context);
-      if (answer.advice && !answer.advice.abstained) context?.ui?.notify?.(tr('Use the explicit phase and approval controls.'),'info');
+      // Task 290: a phase word gets an inline notice (the web chat shows "Harness notice:" lines under the answer), never a card.
+      if (answer.advice?.notice) context?.ui?.notify?.(sharedPortEnv() ? `Harness notice: ${answer.advice.notice}` : tr(answer.advice.notice),'info');
+      else if (answer.advice && !answer.advice.abstained) context?.ui?.notify?.(tr('Use the explicit phase and approval controls.'),'info');
       if (answer.root && !answer.planning?.approved) {
         const planning=guides.find(guide=>guide.name==='planning');
         if (planning && !chosenGuides.includes(planning)) chosenGuides=[planning,...chosenGuides];
@@ -319,7 +323,9 @@ export default function harness(pi, dependencies = {}) {
     }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
     try {
-      const attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
+      let attached = await attachMedia(event, ctx?.cwd || root, ctx?.model, transcribe);
+      // Task 290 (review item 4): the person's message that a question interrupted before Pi read it comes with the answer.
+      if (held.length) attached = { action: 'transform', text: `${attached.action === 'transform' ? attached.text : event.text || ''}\n\nThe person's message from before the question (not answered yet):\n${held.join('\n\n')}`, images: attached.action === 'transform' ? attached.images : event.images || [] };
       if (attached.action === 'transform') {
         lastQuestion = attached.text;
         lastImages = attached.images;

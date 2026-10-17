@@ -156,5 +156,72 @@ class ChoiceRouteTest(unittest.TestCase):
         self.assertEqual(again['id'], first['id'])
 
 
+class SystemQuestionTest(unittest.TestCase):
+    """Review items 4 and 5: a system question never swallows the person's message, and never asks again on its answer."""
+    def setUp(self):
+        self.bench = Workbench(self); self.ledger = self.bench.ledger; self.folder = str(self.bench.folder)
+
+    def test_the_phase_question_never_asks_again_on_its_own_answer(self):
+        self.ledger.start_request('answer', self.folder, 'Choice: Which phase would you like to choose with the phase control? → Planning')
+        self.assertIsNone(self.ledger.request_advice('answer'))
+        self.assertIsNone(self.ledger.paperwork.waiting_choice(self.bench.folder))
+
+    def test_without_laya_a_phase_word_is_a_notice_not_a_blocking_card(self):
+        self.ledger.start_request('explain', self.folder, 'Explain the planning module')
+        advice = self.ledger.request_advice('explain')
+        self.assertNotIn('choice', advice)
+        self.assertRegex(advice['notice'], r'phase button')
+        self.assertIsNone(self.ledger.paperwork.waiting_choice(self.bench.folder), 'nothing waits for the person')
+
+    def test_a_message_sent_while_a_question_waits_reaches_pi_after_the_answer(self):
+        self.bench.ask()
+        self.ledger.start_request('plain', self.folder, 'Also add a footer')
+        advice = self.ledger.request_advice('plain')
+        self.assertEqual(advice['choice']['question'], QUESTION, 'the waiting question is asked again')
+        self.ledger.paperwork.pause('plain')
+        self.ledger.start_request('answer', self.folder, f'Choice: {QUESTION} → Park')
+        self.assertIsNone(self.ledger.request_advice('answer'))
+        self.assertEqual(self.ledger.held('answer'), ['Also add a footer'])
+        self.assertIsNone(self.ledger.paperwork.waiting_choice(self.bench.folder))
+        self.ledger.start_request('later', self.folder, 'Thanks')
+        self.assertEqual(self.ledger.held('later'), [], 'held words are delivered once')
+
+    def test_a_system_card_raised_at_the_start_keeps_the_message_it_interrupted(self):
+        from harness.judgements import Judgements
+        class Unsure:  # an installed Laya that abstains: the card is the person's to answer
+            def ask(self, *args, **kwargs): return {'answer': None, 'confidence': .4, 'abstained': True}
+            def available(self): return True
+        self.ledger.judgements = Judgements(self.ledger.paperwork, classifier=Unsure())
+        self.ledger.start_request('first', self.folder, 'Move to implementation and add a footer')
+        advice = self.ledger.request_advice('first')
+        self.assertIn('choice', advice)
+        identifier = self.ledger.paperwork.choice_pending('first', advice['choice'])['id']  # the extension shows it
+        self.ledger.paperwork.pause('first')
+        self.ledger.start_request('answer', self.folder, f"Choice: {advice['choice']['question']} → Implementation")
+        self.assertEqual(self.ledger.held('answer'), ['Move to implementation and add a footer'])
+        del identifier
+
+
+def fake_pi(case, root):
+    import sys
+    executable = root / 'pi'
+    executable.write_text('#!' + sys.executable + '\n' + (ROOT / 'tests/fixtures/fake-pi.py').read_text()); executable.chmod(0o755)
+    return executable
+
+
+class InlineNoticeTest(unittest.TestCase):
+    def test_a_harness_notice_stays_under_the_answer_in_the_chat(self):
+        import os
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); executable = fake_pi(self, root)
+            chat = WebChat(root / 'data', 12345, 3000, gate_token='scratch'); self.addCleanup(chat.close)
+            conversation = chat.store.create()
+            with patch.dict(os.environ, {'PI_BINARY': str(executable)}):
+                chat.send(conversation['id'], {'message': 'Explain the planning module TEST_NOTICE'}, lambda event: None)
+            answer = chat.store.get(conversation['id'])['messages'][-1]
+            self.assertEqual(answer['notices'], ['Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'])
+
+
 if __name__ == '__main__':
     unittest.main()
