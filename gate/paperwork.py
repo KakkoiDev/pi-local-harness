@@ -76,6 +76,7 @@ class Paperwork:
         self.lock = threading.RLock()
         self.choices = {}
         self.plans = {}
+        self.recorded = {}
         self.projects = None
         from .phases import Phases
         self.phases = Phases(data, identity=self.project_key)
@@ -186,12 +187,41 @@ class Paperwork:
                 position=section.end()+end.start() if end else len(text)
                 text=text[:position].rstrip()+'\n'+line+'\n'+text[position:]
             path.write_text(text,encoding='utf-8')
+            self.keep_decision(item['root'],item['task'],{'question':clean(question),'answer':clean(answer),'state':state,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
             if was_approved:
                 plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
             waiting=self.waiting_choice(item['root'])
             if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
             if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',{'task':item['task'],'question':clean(question),'answer':clean(answer)})
             return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
+
+    # -- decisions the harness recorded (task 261): G-017 and the plan card read these, never lines Pi wrote -----------------
+    def decisions_file(self, root):
+        return Path(self.data)/'decisions-recorded'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json') if self.data else None
+
+    def all_recorded(self, root):
+        file=self.decisions_file(root)
+        if not file:return self.recorded.setdefault(self.project_key(root),{})
+        try:value=json.loads(file.read_text(encoding='utf-8'))
+        except (OSError,ValueError):return {}
+        return value if isinstance(value,dict) else {}
+
+    def keep_decision(self, root, task, value):
+        with self.lock:
+            values=self.all_recorded(root);values.setdefault(task,[]).append(value)
+            file=self.decisions_file(root)
+            if file:
+                file.parent.mkdir(parents=True,exist_ok=True)
+                temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(values,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
+
+    def recorded_decisions(self, root, task):
+        return [value for value in self.all_recorded(root).get(task,[]) if isinstance(value,dict)]
+
+    def active_decisions(self, root):
+        """The (line, state) keys recorded for the task in progress, as G-017 compares them."""
+        plan=self.plan_state(root);tasks=plan.get('tasks',[]);index=plan.get('index',0)
+        task=tasks[index] if isinstance(index,int) and 0<=index<len(tasks) else None
+        return {rules.decision_key(value['question'],value['answer'],value['state']) for value in self.recorded_decisions(root,task)} if task else set()
 
     def plan_state(self, root, value=None):
         file = Path(self.data)/'plans'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json') if self.data else None
@@ -323,6 +353,7 @@ class Paperwork:
                 if self.phases.get(root)['phase']!='planning':raise ValueError('Choose Planning to lay out tasks.')
                 goal=content.get('goal');values=content.get('tasks')
                 if not isinstance(goal,str) or not goal.strip() or not isinstance(values,list) or not values:raise ValueError('Provide a goal and task content.')
+                if rules.written_decision(goal):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                 prepared=[]
                 for task in values:
                     if not isinstance(task,dict) or task.get('kind','code') not in ('code','docs','chore'):raise ValueError('Choose code, docs or chore for the task kind.')
@@ -332,6 +363,7 @@ class Paperwork:
                     from .planning import git_internal
                     if any(git_internal(path) for path in files):raise ValueError('Files cannot include .git/: the harness keeps the repository itself.')
                     if re.search(r'^\s*- \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
+                    if any(rules.written_decision(task[key]) for key in ('title','done_when','content')):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                     prepared.append(task)
                 if (root/'tasks').is_symlink() or not (root/'tasks').resolve().is_relative_to(root):raise ValueError('Task files must stay inside the project.')
                 (root/'tasks').mkdir(exist_ok=True)
@@ -360,14 +392,18 @@ class Paperwork:
                 title=re.search(r'^# (?:\d+: )?(.+)',text,re.M)
                 done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 if not title or not done:raise ValueError('Each task needs a title and Done when.')
-                decisions=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,re.M|re.S)
-                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions[1].strip() if decisions else ''})
+                # Task 261: the card shows the decisions the harness recorded, never lines written into the file.
+                decisions='\n'.join(f"- {value['question']}: {value['answer']} ({value['state']})" for value in self.recorded_decisions(root,path))
+                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions})
             if not tasks:raise ValueError('The plan needs at least one open task.')
             goal=re.search(r'^## Goal\s*\n(.*?)(?=^## |\Z)',roadmap,re.M|re.S)
             first=root/tasks[0]['path']
             first_text=first.read_text(encoding='utf-8')
             if not re.search(r'^Request ',first_text,re.M):
-                first.write_text(first_text.rstrip()+'\n\nRequest '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”\n',encoding='utf-8')
+                quoted='Request '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”'
+                section=re.search(r'^## Decisions\s*$',first_text,re.M)
+                # Before the Decisions section, never inside it: G-017 reads every line there as a decision (task 261).
+                first.write_text(first_text[:section.start()]+quoted+'\n\n'+first_text[section.start():] if section else first_text.rstrip()+'\n\n'+quoted+'\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
             record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')

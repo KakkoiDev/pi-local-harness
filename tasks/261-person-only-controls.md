@@ -22,9 +22,10 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
   is on; person actions (`chosen`, `given`, stop, a phase change, Start Building) need the person secret, which only the
   workbench page and the terminal's own Pi (through the services' private ready line) hold. Workbench Pi workers never
   get it.
-- [ ] Red/Green 4, model-written decisions: Gate refuses writes to ROADMAP.md and tasks/ that add “(chosen …)”,
+- [x] Red/Green 4, model-written decisions: Gate refuses writes to ROADMAP.md and tasks/ that add “(chosen …)”,
   “(given …)” or “(auto …)” lines or a `## Decisions` section, and propose_plan refuses such content. Decisions are kept
-  by the harness when `paperwork.decision` records them; G-017 and the plan card read those records.
+  by the harness when `paperwork.decision` records them; G-017 and the plan card read those records. Also fixed: the
+  request quote propose_plan adds went inside an empty Decisions section, where G-017 read it as an unsettled decision.
 - [x] Red/Green 5, Files: a path in `.git/` is never in a task's Files (propose_plan refuses it, Gate refuses the write);
   the harness commits with hooks disabled (`core.hooksPath=/dev/null`), also for Undo's commits.
 - [x] Red/Green 6, test runners: refuse `pytest --basetemp`, `--pastebin`, `-p`, `-o`; npm/yarn/pnpm/bun `--prefix`,

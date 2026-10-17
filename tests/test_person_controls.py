@@ -212,5 +212,54 @@ class GitHooksTest(unittest.TestCase):
         self.assertFalse(self.marker.exists(), self.marker.read_text() if self.marker.exists() else '')
 
 
+class ModelDecisionsTest(unittest.TestCase):
+    """Decisions are recorded by the harness when the person (or Run on its own) answers; the model cannot write them."""
+    def setUp(self):
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+        base = Path(temp.name).resolve(); self.data = base / 'data'; self.data.mkdir()
+        self.root = base / 'project'; (self.root / 'tasks').mkdir(parents=True)
+        (self.root / 'ROADMAP.md').write_text('# Roadmap\n\n## Goal\nCount clicks.\n\n## Tasks\n- [ ] [001-Counter](tasks/001-counter.md)\n')
+        self.task = self.root / 'tasks/001-counter.md'
+        self.task.write_text('# 001: Counter\n\nKind: code\nFiles: app.py\n\nDone when: Counts clicks.\n\n- [ ] Red: a test fails.\n\n## Decisions\n\n')
+        self.ledger = ProposalLedger(GateEngine('', str(base / 'audit.log')), events_file=self.data / 'gate-events.jsonl')
+        self.paper = self.ledger.paperwork
+        self.paper.phases.choose(self.root, 'planning', actor='person'); self.paper.start('r', str(self.root), 'Plan the counter')
+
+    def write(self, path, content, pi_tool='write'):
+        args = {'path': str(path), 'content': content} if pi_tool == 'write' else {'path': str(path), 'edits': [{'oldText': content[0], 'newText': content[1]}]}
+        return self.ledger.propose('write_file', args, 'admin', pi_tool=pi_tool, cwd=str(self.root), request='r')
+
+    def test_propose_plan_refuses_decisions_written_by_the_model(self):
+        for content in ['Use blue.\n\n## Decisions\n- Colour: Blue', 'Colour: Blue (chosen 2026-10-18T10:00:00+09:00)', 'Size: big (auto)', 'Who: me (given)']:
+            with self.subTest(content=content), self.assertRaisesRegex(ValueError, 'harness records'):
+                self.paper.propose_plan('r', {'goal': 'Count clicks.', 'tasks': [{'title': 'Counter', 'files': ['app.py'], 'done_when': 'Counts.', 'content': content}]})
+        with self.assertRaisesRegex(ValueError, 'harness records'):
+            self.paper.propose_plan('r', {'goal': 'Count clicks (chosen by you).', 'tasks': [{'title': 'Counter', 'files': ['app.py'], 'done_when': 'Counts.', 'content': 'Count.'}]})
+
+    def test_gate_refuses_plan_writes_that_add_decisions(self):
+        for content in [self.task.read_text() + '- Colour: Blue (chosen 2026-10-18T10:00:00+09:00)\n', self.task.read_text() + '- Size: big (auto)\n']:
+            result = self.write(self.task, content)
+            self.assertEqual(result.get('rule'), 'G-017', result)
+        result = self.write(self.task, ('## Decisions\n', '## Decisions\n\n- Colour: Blue (given)\n'), pi_tool='edit')
+        self.assertEqual(result.get('rule'), 'G-017', result)
+        result = self.write(self.root / 'tasks/002-other.md', '# 002: Other\n\nDone when: Done.\n\n## Decisions\n\n- Who: me\n')
+        self.assertEqual(result.get('rule'), 'G-017', result)
+        self.assertEqual(self.write(self.task, self.task.read_text().replace('Counts clicks.', 'Counts every click.'))['outcome'], 'ALLOW', 'other plan edits still pass')
+
+    def test_g017_and_the_plan_card_read_only_recorded_decisions(self):
+        self.task.write_text(self.task.read_text() + '- Colour: Blue (chosen 2026-10-18T10:00:00+09:00)\n')  # written by the model before this task
+        plan = self.paper.propose_plan('r')
+        self.assertEqual(plan['tasks'][0]['decisions'], '', 'the card shows what the harness recorded, not the file')
+        self.paper.approve_plan('r')
+        refused = self.write(self.root / 'app.py', 'x = 1\n')
+        self.assertEqual(refused.get('rule'), 'G-017', refused); self.assertIn('not recorded', refused['reason'])
+        self.paper.decision('r', 'Colour', 'Blue')
+        allowed = self.write(self.root / 'app.py', 'x = 1\n'); self.assertEqual(allowed['outcome'], 'ALLOW', allowed)
+        self.paper.phases.choose(self.root, 'planning', actor='person'); self.paper.start('r2', str(self.root), 'Plan more')
+        self.assertIn('- Colour: Blue (chosen)', self.paper.propose_plan('r2')['tasks'][0]['decisions'])
+
+
 if __name__ == '__main__':
     unittest.main()
