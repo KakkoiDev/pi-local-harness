@@ -29,3 +29,24 @@ class ReadOnlyShellTest(unittest.TestCase):
                         'git --no-pager --no-optional-locks -c core.fsmonitor=false diff --ext-diff',
                         'ls |', '"unterminated', '', 'cat $FILE', 'cat a &']:
             self.assertFalse(read_only(command), command)
+
+
+class ReviewShellTest(unittest.TestCase):
+    def test_unquoted_globs_cannot_expand_into_options(self):
+        for command in ['find * -name x','rg foo *','rg foo ?','find [ab] -name x','rg foo {a,b}']:
+            self.assertFalse(read_only(command),command)
+        self.assertTrue(read_only('rg -g "*.py" foo .'))
+
+    def test_ripgrep_config_is_not_a_read_only_exception(self):
+        from unittest.mock import patch
+        with patch.dict('os.environ',{'RIPGREP_CONFIG_PATH':'/scratch/config'}):
+            self.assertFalse(read_only('rg foo .'))
+            self.assertFalse(read_only('cat a | rg foo'))
+            self.assertTrue(read_only('cat a'))
+
+    def test_fetching_test_runners_need_offline_forms(self):
+        from gate.phase_shell import test_run
+        for command in ['npx vitest','npx jest','npx tsc','go test ./...','cargo test','uv run pytest']:
+            self.assertFalse(test_run(command),command)
+        for command in ['npx --no-install vitest','npx --no-install jest','npx --no-install tsc --noEmit','cargo test --offline','uv run --offline pytest','node --test tests/app.mjs','npm test']:
+            self.assertTrue(test_run(command),command)

@@ -60,18 +60,47 @@ class Paperwork:
         self.lock = threading.RLock()
         self.choices = {}
         self.plans = {}
+        self.projects = None
         from .phases import Phases
-        self.phases = Phases(data)
+        self.phases = Phases(data, identity=self.project_key)
         from harness.autonomy import RunReports
         self.runs=RunReports(data) if data else None
 
+    @property
+    def projects(self): return self._projects
+
+    @projects.setter
+    def projects(self, store):
+        self._projects=store
+        if store:store.before_project_move=self.prepare_project_move
+
+    def prepare_project_move(self, root):
+        # Migrate old path records while registration still points at their original path.
+        self.phases.get(root)
+        self.plan_state(root)
+        self.waiting_choice(root)
+
+    def project_key(self, root):
+        identifier=self.projects.project_identity(root) if self.projects else None
+        return 'project:'+identifier if identifier else str(Path(root).resolve())
+
+    def project_root(self, path):
+        """Registration defines the boundary; plan-file discovery supports standalone terminal projects."""
+        return (self.projects.containing_project(path) if self.projects else None) or project_root(path)
+
     def choice_file(self,root):
         if not self.data:return None
-        return Path(self.data)/'planning'/(hashlib.sha256(str(root).encode()).hexdigest()+'.json')
+        return Path(self.data)/'planning'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json')
 
     def waiting_choice(self,root):
         file=self.choice_file(root)
-        try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(str(root))
+        try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(self.project_key(root))
+        except FileNotFoundError:
+            legacy=Path(self.data)/'planning'/(hashlib.sha256(str(Path(root).resolve()).encode()).hexdigest()+'.json')
+            if legacy==file:return None
+            try:value=json.loads(legacy.read_text(encoding='utf-8'))
+            except (OSError,ValueError):return None
+            self.save_choice(root,value)
         except (OSError,ValueError):return None
         return value if value and value.get('pending') else None
 
@@ -89,7 +118,7 @@ class Paperwork:
         if file:
             file.parent.mkdir(parents=True,exist_ok=True)
             temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
-        else:self.choices[str(root)]=value
+        else:self.choices[self.project_key(root)]=value
 
     def pause(self,request):
         with self.lock:
@@ -131,32 +160,30 @@ class Paperwork:
             return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
 
     def plan_state(self, root, value=None):
-        file = Path(self.data)/'plans'/(hashlib.sha256(str(root).encode()).hexdigest()+'.json') if self.data else None
+        file = Path(self.data)/'plans'/(hashlib.sha256(self.project_key(root).encode()).hexdigest()+'.json') if self.data else None
         if value is not None:
             if file:
                 file.parent.mkdir(parents=True, exist_ok=True)
                 temporary=file.with_suffix('.tmp'); temporary.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8'); temporary.replace(file)
-            else:self.plans[str(root)]=value
+            else:self.plans[self.project_key(root)]=value
             return value
-        try:return json.loads(file.read_text(encoding='utf-8')) if file else self.plans.get(str(root),{})
+        try:return json.loads(file.read_text(encoding='utf-8')) if file else self.plans.get(self.project_key(root),{})
+        except FileNotFoundError:
+            legacy=Path(self.data)/'plans'/(hashlib.sha256(str(Path(root).resolve()).encode()).hexdigest()+'.json')
+            if legacy==file or not legacy.exists():return {}
+            value=json.loads(legacy.read_text(encoding='utf-8'));return self.plan_state(root,value)
         except (OSError,ValueError):return {}
 
     def phase(self, root, phase=None, *, action='phase button'):
         """Trusted person controls only. No Pi tool exposes phase selection."""
-        import uuid
         root=Path(root).resolve()
-        if project_root(root)!=root:raise ValueError('Choose a project with ROADMAP.md and tasks/.')
+        if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
         with self.lock:
             plan=self.plan_state(root)
             paths=plan.get('tasks',[]) if not plan.get('finished') else []
             if phase=='implementation':
                 if not paths:raise ValueError('No planned task yet. Plan one first.')
-                if plan.get('pending'):
-                    request='phase-'+uuid.uuid4().hex
-                    self.requests[request]={'root':root,'text':'Start Building','before':{},'task':None}
-                    try:self.approve_plan(request)
-                    finally:self.requests.pop(request,None)
-                elif not self.active_scope(root):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
+                if plan.get('pending') or not self.active_scope(root):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
             if phase:self.phases.choose(root,phase,actor='person',planned=bool(paths),action=action)
             value=self.phases.get(root);tasks=[]
             for path in paths:
@@ -164,7 +191,20 @@ class Paperwork:
                 if not file.resolve().is_relative_to(root) or file.is_symlink():raise ValueError('The plan links outside this project.')
                 text=file.read_text(encoding='utf-8');title=re.search(r'^# (?:\d+: )?(.+)',text,re.M);done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 tasks.append({'path':path,'title':title[1] if title else path,'done_when':done[1] if done else ''})
-            return {**value,'tasks':tasks}
+            return {**value,'tasks':tasks,'pending':bool(plan.get('pending'))}
+
+    def start_building(self, root):
+        """Explicit Start Building confirmation, separate from choosing a phase."""
+        import uuid
+        root=Path(root).resolve()
+        if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
+        with self.lock:
+            if not self.plan_state(root).get('pending'):return self.phase(root,'implementation',action='Start Building')
+            request='build-'+uuid.uuid4().hex
+            self.requests[request]={'root':root,'text':'Start Building','before':{},'task':None}
+            try:self.approve_plan(request)
+            finally:self.requests.pop(request,None)
+            return self.phase(root)
 
     def active_scope(self, root):
         """Only the saved, unchanged approved task grants write permission; request wording cannot pick another."""
@@ -207,7 +247,7 @@ class Paperwork:
         if not item:return {'required':False,'approved':False}
         root=item['root'];state=self.plan_state(root);task=item.get('task');text=''
         if task and (root/task).is_file():text=(root/task).read_text(encoding='utf-8')
-        required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8'),re.M)))
+        required=requires_plan(item['text'],text,small_fix=small_fix,first=not bool(re.search(r'^\s*- \[x\]',(root/'ROADMAP.md').read_text(encoding='utf-8') if (root/'ROADMAP.md').is_file() else '',re.M)))
         approved=self.plan_status_for_item(item)
         return {'required':required or bool(state.get('pending') or state.get('check_in') or task in state.get('tasks',[])), 'approved':approved,'task':task}
 
@@ -269,7 +309,7 @@ class Paperwork:
     # -- a request's life -------------------------------------------------------------------------------------------
     def start(self, request, cwd, text):
         """Remember what was already changed, so only this request's changes are its own."""
-        root = project_root(cwd) if cwd else None
+        root = self.project_root(cwd) if cwd else None
         if not root: return None
         try: before = {path: fingerprint(root, path) for path in (changed_paths(root) or {})}
         except CheckFailed: before = {}

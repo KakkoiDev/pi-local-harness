@@ -42,6 +42,7 @@ class DocumentStore:
         self.root=Path(root).resolve();self.root.mkdir(parents=True,exist_ok=True)
         self.projects=self.root/'projects';self.projects.mkdir(exist_ok=True)
         self.lock=threading.RLock()
+        self.before_project_move=lambda root:None
         self.registry_file=self.root/'.projects.json'
         self.registry=json.loads(self.registry_file.read_text()) if self.registry_file.exists() else {}
     def path(self, relative):
@@ -295,6 +296,14 @@ class DocumentStore:
                 if path.is_dir() and not path.is_symlink() and path.name not in self.registry and path.resolve() not in known:
                     result.append({'id':path.name,'name':path.name,'path':str(path.resolve())})
             return result
+    def project_identity(self, root):
+        root=Path(root).expanduser().resolve()
+        return next((item['id'] for item in self.list_projects() if Path(item['path']).resolve()==root),None)
+    def containing_project(self, path):
+        """Resolve registered project boundaries even when its plan is absent or broken."""
+        path=Path(path).expanduser().resolve()
+        matches=[Path(item['path']).resolve() for item in self.list_projects() if path.is_relative_to(Path(item['path']).resolve())]
+        return max(matches,key=lambda value:len(value.parts)) if matches else None
     def register(self, directory, name=None):
         supplied=Path(directory).expanduser()
         if not supplied.is_absolute():raise ValueError('Choose an absolute folder path')
@@ -337,6 +346,7 @@ class DocumentStore:
             entry,path=self.present(project);name=slug(name);target=path.parent/name
             if target==path:return {'project':project,'name':name,'path':str(path),'previous':name}
             if target.exists() and target.resolve()!=path:raise ValueError(f'A folder named “{name}” already exists in {path.parent}.')
+            self.before_project_move(path)
             previous=path.name;path.rename(target)
             entry.update(name=name,path=str(target));self.save_registry()
             return {'project':project,'name':name,'path':str(target),'previous':previous}
@@ -351,6 +361,7 @@ class DocumentStore:
             if parent==path or parent.is_relative_to(path):raise ValueError('A project cannot move inside itself')
             target=parent/path.name
             if target.exists():raise ValueError(f'{parent} already has a folder named “{path.name}”.')
+            self.before_project_move(path)
             previous=str(path.parent);shutil.move(str(path),str(target))
             entry['path']=str(target);self.save_registry()
             return {'project':project,'name':entry['name'],'path':str(target),'previous':previous}
@@ -364,6 +375,7 @@ class DocumentStore:
             entry=self.entry(project)
             if Path(entry['path']).is_dir():raise ValueError('The project folder is not missing. Use Move Project… instead.')
             if any(key!=project and not value.get('removed') and Path(value['path']).resolve()==path for key,value in self.registry.items()):raise ValueError('That folder is already a project.')
+            self.before_project_move(Path(entry['path']))
             entry.update(name=slug(path.name),path=str(path));self.save_registry()
             return {'project':project,'name':entry['name'],'path':str(path)}
     def project_summary(self, project):

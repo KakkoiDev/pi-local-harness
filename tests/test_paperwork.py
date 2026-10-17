@@ -148,7 +148,7 @@ class LedgerTest(PaperworkTest):
         (self.root/task).write_text('# 003: Speed up the app\nKind: code\nFiles: app.py\n- [ ] Speed up\nDone when: The app responds.\n')
         paper=ledger.paperwork
         paper.plan_state(self.root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(self.root,[task])})
-        paper.phase(self.root,'implementation',action='Start Building')
+        paper.start_building(self.root)
         ledger.start_request('r9', str(self.root), 'Do task 3: Speed up the app')
         write = ledger.propose('write_file', {'path': 'app.py', 'content': 'x = 9\n'}, 'admin', pi_tool='write', cwd=str(self.root), request='r9')
         (self.root / 'app.py').write_text('x = 9\n')
@@ -160,6 +160,7 @@ class LedgerTest(PaperworkTest):
         commit = ledger.propose('execute_command', {'command': 'git commit -m x'}, 'admin', cwd=str(self.root), request='r9')
         self.assertEqual((commit['outcome'], commit['rule']), ('REVISE', 'G-013'), 'Pi does not commit: the harness does')
         self.assertEqual(ledger.end_request('r9')['outcome'], 'committed')
+        self.assertNotIn('- [ ]',(self.root/task).read_text(),'System 1 ticks the approved task from recorded verification; Pi need not edit its task file')
         self.assertIn('Speed up the app (task 003)', git(self.root, 'log', '--format=%s', '-1'))
 
 

@@ -137,6 +137,7 @@ def main():
         web = Server(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
         chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, gate_token=token)
         chat.ledger = ledger
+        ledger.paperwork.projects = chat.documents
         Handler.context_provider = staticmethod(chat.turn_context)
         WebHandler.chat = chat
         WebHandler.remote_hosts = frozenset(filter(None, os.getenv('PI_WEB_REMOTE_HOSTS', '').split(',')))

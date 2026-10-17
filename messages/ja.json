@@ -1,5 +1,7 @@
 {
  "exact": {
+  "Choose a registered project or a folder with ROADMAP.md and tasks/.": "登録済みのプロジェクト、または ROADMAP.md と tasks/ があるフォルダを選んでください。",
+  "Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.": "書き込みませんでした：タスクに Files: 行がありません。Planning で Files: 行を追加してから Start Building を選んでください。",
   "About Pi Workbench": "Pi Workbench について",
   "Settings…": "設定…",
   "Settings": "設定",

@@ -56,13 +56,13 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.match(blocked.reason,/Recursive deletion/);
   assert.match(blocked.reason,/narrowly scoped/);
   assert.doesNotMatch(blocked.reason,/same blocked tool class/);
-  const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'whoami'}};
+  const bash={toolCallId:'bash-regression',toolName:'bash',input:{command:'pwd'}};
   assert.equal(await handlers.tool_call(bash),undefined);
   assert.equal(await handlers.tool_result({...bash,content:[{type:'text',text:'developer'}],isError:false}),undefined);
   const web=lines[1].match(/http:\/\/127\.0\.0\.1:\d+/)[0],checked=(await (await fetch(web+'/api/gate')).json()).events.filter(event=>event.tool_call==='bash-regression');
   assert.deepEqual(checked.map(event=>event.phase+' '+event.outcome),['gate ALLOW','audit SUCCESS']);
   // Round 6 (T_Gate): a command that fails on its own is not Gate's doing: Gate's verdict and the exit are separate words.
-  const failing={toolCallId:'bash-exit',toolName:'bash',input:{command:'false'}};const noticesBefore=notices.length;
+  const failing={toolCallId:'bash-exit',toolName:'bash',input:{command:'cat missing-fixture-file'}};const noticesBefore=notices.length;
   assert.equal(await handlers.tool_call(failing),undefined);
   const exited=await handlers.tool_result({...failing,content:[{type:'text',text:'Command exited with code 2'}],isError:true});
   assert.match(exited.content.at(-1).text,/^✓ Gate allowed · ✗ exit 2: the command failed on its own; Gate did not block it\.$/);

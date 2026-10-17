@@ -10,22 +10,31 @@ PHASES = ('discussion', 'planning', 'implementation')
 
 
 class Phases:
-    def __init__(self, data=None):
+    def __init__(self, data=None, identity=None):
         self.data = Path(data) if data else None
+        self.identity = identity
         self.values = {}
         self.lock = threading.RLock()
 
+    def key(self, root):
+        return self.identity(root) if self.identity else str(Path(root).resolve())
+
     def file(self, root):
-        key = hashlib.sha256(str(Path(root).resolve()).encode()).hexdigest()
+        key = hashlib.sha256(self.key(root).encode()).hexdigest()
         return self.data / 'phases' / (key + '.json') if self.data else None
 
     def get(self, root):
         with self.lock:
             file = self.file(root)
             try:
-                value = json.loads(file.read_text(encoding='utf-8')) if file else self.values.get(str(Path(root).resolve()))
+                value = json.loads(file.read_text(encoding='utf-8')) if file else self.values.get(self.key(root))
             except FileNotFoundError:
-                value = None
+                legacy = self.data / 'phases' / (hashlib.sha256(str(Path(root).resolve()).encode()).hexdigest()+'.json')
+                if legacy != file and legacy.exists():
+                    value = json.loads(legacy.read_text(encoding='utf-8'))
+                    file.parent.mkdir(parents=True,exist_ok=True)
+                    temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
+                else: value = None
             # A corrupt existing record must not silently replace an enforced phase.
             if value is None:
                 return {'phase': 'discussion', 'history': []}
@@ -57,12 +66,23 @@ class Phases:
                 temporary.write_text(json.dumps(value, ensure_ascii=False), encoding='utf-8')
                 temporary.replace(file)
             else:
-                self.values[str(Path(root).resolve())] = value
+                self.values[self.key(root)] = value
             return deepcopy(value)
 
 
 DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).'
 PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
+
+
+def harness_read_only(args):
+    """Console mutation is not made read-only by the transport's historical tool label."""
+    command=args.get('command');words=str(args.get('args') or '').split()
+    if any(word.startswith('--') for word in words):return False
+    if command in {'harness','status','queue','job','gate','projects','paths','doctor','bench','reports','guide','report'}:return True
+    if command in {'models','ollama'}:return not words
+    if command=='config':return len(words)<=1 and words!=['set']
+    if command=='auto':return words in ([],['status'])
+    return False
 
 
 def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=False):
@@ -87,7 +107,8 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if not approved: return 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
     if tool == 'execute_command' and test_run(args.get('command')): return None
     if pi_tool == 'browser': return None  # verification runs only in an isolated scratch browser
-    if path and re.search(r'^Files:\s*\S', task, re.M) and file_allowed(task, path): return None
+    if not re.search(r'^Files:\s*\S', task, re.M):return 'Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.'
+    if path and file_allowed(task, path): return None
     title = re.search(r'^#\s+(.+)', task, re.M)
     name = title[1] if title else 'in progress'
     return f'Not written: {path or args.get("path") or pi_tool or tool} is not part of task {name}. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.'

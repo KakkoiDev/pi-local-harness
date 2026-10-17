@@ -7,15 +7,21 @@ export function installPhases(pi,{call}={}){
   description:tr('Phase: '+names[phase]),
   async handler(_args,ctx){
    try{
-    const cwd=ctx?.cwd||process.cwd();
+    let cwd=ctx?.cwd||process.cwd(),status=await call('/phase',{cwd});
+    if(status.projects){
+     if(!status.projects.length){ctx?.ui?.notify?.(tr('No projects yet: New Project… in the workbench.'),'warning');return;}
+     const choices=status.projects.map(item=>`${item.name} · ${item.path}`);
+     const picked=await ctx?.ui?.select?.(tr('Choose a project'),choices),index=choices.indexOf(picked);
+     if(index<0)return;
+     cwd=status.projects[index].path;status=await call('/phase',{cwd});
+    }
     if(phase==='implementation'){
-     const status=await call('/phase',{cwd});
      if(!status.tasks.length){ctx?.ui?.notify?.(tr('■ Not changed: nothing is planned yet. /plan first, then /build.'),'warning');return;}
      const start=tr('Start Building'),cancel=tr('Not now');
      const detail=status.tasks.map((task,index)=>`${index+1} · ${task.title}\n${tr('Done when')}: ${task.done_when}`).join('\n');
      if(await ctx?.ui?.select?.(tr('Build the planned tasks')+'\n\n'+detail,[start,cancel])!==start)return;
     }
-    await call('/phase',{cwd,phase,action:'/'+command});
+    await call(phase==='implementation'?'/phase/build':'/phase',{cwd,phase,action:'/'+command});
     ctx?.ui?.notify?.(tr('✓ Phase: '+names[phase]+'. '+meanings[phase]),'info');
    }catch(error){ctx?.ui?.notify?.(error.message,'warning');}
   }

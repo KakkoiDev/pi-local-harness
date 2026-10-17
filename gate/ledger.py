@@ -148,6 +148,9 @@ class ProposalLedger:
         return self.notes.pop(token, None)
 
     def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None, request=None, assistant_text=""):
+        from .phases import harness_read_only
+        console_change=pi_tool=='harness' and not harness_read_only(args)
+        if console_change:tool_name='write_file'
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
             outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
@@ -164,7 +167,13 @@ class ProposalLedger:
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
             return refuse('G-005', reason)
-        root=project_root(cwd) if cwd and not rules.bare() else None
+        root=None
+        if not rules.bare():
+            if pi_tool in ('write','edit') and isinstance(args.get('path'),str):
+                target=Path(args['path']).expanduser()
+                root=self.paperwork.project_root((Path(cwd or '.')/target).resolve())
+            root=root or (self.paperwork.project_root(cwd) if cwd else None)
+            if root is None and (console_change or pi_tool in ('bash','powershell')):root=Path(cwd or '.').resolve()
         if root:
             from .phases import refusal
             phase = self.paperwork.phases.get(root)['phase']

@@ -67,3 +67,16 @@ Read docs/handoff/gpt-sol.md "Reading the design" first. Then:
   bullet). CSS: the round 11 block at the end of design/components.css (`.pw-phase`, `.pw-phase-menu`,
   `.pw-phase-line`, `.pw-waiting`, `.pw-tool__reason`, `.pw-why`, `.pw-context__why`, `.pw-reasons`).
 - The round 11 brief step above is done: the designer answered.
+
+## Review corrections (2026-10-17)
+
+- [x] Red then Green: registered boundaries work without plan files; absolute write/edit targets use their own project's phase; shell writes from outside a project default to Discussion.
+- [x] Red then Green: pending plans cannot be approved by phase selection or a forged action label; terminal Start Building is explicit and can resume an already approved task.
+- [x] Red then Green: harness mutations are writes even with Run on its own; checked reads reject expanding globs and ripgrep configuration; package-launching tests need offline/no-install forms.
+- [x] Red then Green: real shifted shortcut keystrokes work; terminal commands outside a project offer the registered-project picker and cancellation changes nothing.
+- [x] Red then Green: phase, approved-plan and pending-choice records migrate from path keys and follow stable registration IDs on rename. Missing Files scope gives a Planning recovery instruction. System 1 can tick verified task boxes outside model file scope.
+- [ ] Complete the remaining round 11 flow listed above, including replacing the legacy plain-text approval path.
+
+The person chose the registered-project picker and preservation by stable project ID. The picker selects the target of the phase command; it does not change the terminal process's working directory.
+
+Threat model: this is a tool-call policy, not an operating-system sandbox. Approved project tests execute project code with the account's permissions. Trusted child processes inherit the Gate token and can call trusted endpoints; hostile subprocess code is outside this boundary (as recorded in task 56). No claim of isolation from malicious project code is made.

@@ -165,3 +165,7 @@ Plans start in Planning. Pi fills the Goal and real tasks, asks about unanswered
 
 
 In terminal Pi, plan previews offer Approve Plan, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Continue starts the next request, Review First shows the task text and Stop Here leaves the plan ready to resume with “yes”. An unverified task defaults to Review First.
+
+Phase commands opened outside a project offer the registered-project picker; the selection applies to that command. Project phase and approved-plan state follow the project ID when it moves or is renamed. A pending plan needs explicit Start Building approval; selecting Implementation alone cannot approve it.
+
+Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.

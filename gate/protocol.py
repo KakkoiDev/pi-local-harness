@@ -21,6 +21,7 @@ TEST_COMMANDS = [
     ('pytest',), ('py.test',), ('uv', 'run', 'pytest'), ('node', '--test'), ('npm', 'test'), ('npm', 'run', 'test'),
     ('npm', 't'), ('yarn', 'test'), ('pnpm', 'test'), ('bun', 'test'), ('npx', 'vitest'), ('npx', 'jest'), ('vitest',),
     ('jest',), ('go', 'test'), ('cargo', 'test'), ('make', 'test'), ('python3', 'tests/verify_workflow.py'),
+    ('npx', '--no-install', 'vitest'), ('npx', '--no-install', 'jest'), ('npx', '--no-install', 'tsc'), ('uv', 'run', '--offline', 'pytest'),
     ('npx', 'tsc'), ('python3', 'tests/browser/run.py'), ('python', 'tests/browser/run.py'),
 ]
 CHECKED = re.compile(r'- \[[xX]\]')

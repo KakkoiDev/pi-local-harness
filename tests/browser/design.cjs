@@ -278,6 +278,10 @@ const readline = require('node:readline');
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
   assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'Describe the task to plan, or answer Pi');
   await page.reload();await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor();
+  await page.keyboard.press('Shift+Meta+Digit1');await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor({timeout:2000});
+  await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
+  await page.keyboard.press('Shift+Meta+Digit2');await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor({timeout:2000});
+  await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
   await page.setViewportSize({width:1024,height:900});await page.locator('#phase-button').click();await page.locator('#phase-menu').waitFor();await page.screenshot({path:'/tmp/plh-247-phase-tablet.png'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.keyboard.press('Escape');
   await page.setViewportSize({width:390,height:844});await page.locator('#phase-button').click();
   const sheet=page.getByRole('dialog',{name:'Phase',exact:true});await sheet.waitFor();
@@ -988,11 +992,12 @@ import sys
 from pathlib import Path
 from gate.paperwork import Paperwork
 from gate.protocol import Protocol
+from harness.documents import DocumentStore
 root=Path(sys.argv[1]).resolve();task='tasks/999-test-log-fixture.md'
 (root/task).write_text('# 999: Test log fixture\\nFiles: tests/\\nDone when: Runs are recorded.\\n')
-paper=Paperwork(Protocol(),data=Path(sys.argv[2]))
+paper=Paperwork(Protocol(),data=Path(sys.argv[2]));paper.projects=DocumentStore(Path(sys.argv[2]))
 paper.plan_state(root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(root,[task])})
-paper.phase(root,'implementation',action='Start Building')
+paper.start_building(root)
 `,root,join(directory,'workspace')]);
   const tested=await post('/api/jobs/create',{project:id,message:'Check the tests TEST_RUN_LOG'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(data=>data.jobs.some(job=>job.id===id&&job.status==='completed')),tested.id);

@@ -14,7 +14,7 @@ export function installPhases({api,project,changed=()=>{},auto=()=>false}={}){
  function placement(){if(phone.matches)form.insertBefore(control,form.querySelector('label[for=prompt]'));else row.prepend(control);meaning.hidden=!phone.matches;closeMenu();}
  phone.addEventListener('change',placement);placement();
  function draw(){button.replaceChildren(glyph(state.phase),node('span','pw-phase__label',NAMES[state.phase]));if(auto())button.append(node('span','pw-tag pw-tag--dotted','auto'));button.disabled=!project();button.setAttribute('aria-expanded',String(Boolean(host)));button.setAttribute('aria-label',`Phase: ${NAMES[state.phase]}. Change phase`);meaning.textContent=MEANINGS[state.phase];prompt.placeholder=PLACEHOLDERS[state.phase];}
- async function choose(phase){if(busy||!project()||phase==='implementation'&&!state.tasks.length)return;const id=project(),before=state;closeMenu();busy=true;button.setAttribute('aria-busy','true');button.querySelector('.pw-phase__label').textContent=NAMES[phase]+'…';alert.hidden=true;
+ async function choose(phase){if(busy||!project()||phase==='implementation'&&(!state.tasks.length||state.pending))return;const id=project(),before=state;closeMenu();busy=true;button.setAttribute('aria-busy','true');button.querySelector('.pw-phase__label').textContent=NAMES[phase]+'…';alert.hidden=true;
   try{const saved=await api('/api/phase',{project:id,phase});if(project()!==id)return;state=saved;changed();}
   catch(error){if(project()!==id)return;state=before;const retry=node('button','pw-btn','Try Again');retry.type='button';retry.onclick=()=>choose(phase);alert.replaceChildren(node('span','',`Couldn’t change the phase to ${NAMES[phase]}: the project file couldn’t be saved. The project stays in ${NAMES[before.phase]}.`),retry);alert.hidden=false;}
   finally{busy=false;button.removeAttribute('aria-busy');draw();}
@@ -22,8 +22,8 @@ export function installPhases({api,project,changed=()=>{},auto=()=>false}={}){
  function open(){if(busy||!project())return;if(host){closeMenu();return;}const mobile=phone.matches,menu=node('div','pw-menu pw-phase-menu');menu.id='phase-menu';menu.setAttribute('role',mobile?'radiogroup':'menu');menu.setAttribute('aria-label','Phase');const abort=new AbortController();
   closeMenu=()=>{abort.abort();host?.remove();host=null;button.setAttribute('aria-expanded','false');};
   const items=[];for(const [index,phase] of Object.keys(NAMES).entries()){
-   const disabled=phase==='implementation'&&!state.tasks.length;
-   const item=node(mobile?'label':'button',mobile?'pw-option':'pw-menu__item'),name=node('span',mobile?'pw-option__label':''),small=node('small','',disabled?'No planned task yet. Plan one first.':MEANINGS[phase]);name.append(glyph(phase),NAMES[phase]);
+   const disabled=phase==='implementation'&&(!state.tasks.length||state.pending);
+   const item=node(mobile?'label':'button',mobile?'pw-option':'pw-menu__item'),name=node('span',mobile?'pw-option__label':''),small=node('small','',disabled?(state.pending?'Build the planned tasks':'No planned task yet. Plan one first.'):MEANINGS[phase]);name.append(glyph(phase),NAMES[phase]);
    if(mobile){const radio=node('input','pw-radio');radio.type='radio';radio.name='phase';radio.value=phase;radio.checked=phase===state.phase;radio.disabled=disabled;radio.setAttribute('aria-label',NAMES[phase]);radio.onclick=()=>choose(phase);item.append(radio,name,small);}
    else{item.type='button';item.setAttribute('role','menuitemradio');item.setAttribute('aria-checked',String(phase===state.phase));item.setAttribute('aria-disabled',String(disabled));item.tabIndex=-1;const head=node('span');head.append(name,node('span','pw-menu__key',`⇧⌘${index+1}`));item.append(head,small);item.onclick=()=>{if(!disabled)choose(phase);};}
    menu.append(item);items.push(item);
@@ -37,7 +37,7 @@ export function installPhases({api,project,changed=()=>{},auto=()=>false}={}){
   document.addEventListener('pointerdown',event=>{if(!host?.contains(event.target)&&!button.contains(event.target))closeMenu();},{signal:abort.signal});
  }
  button.onclick=open;button.onkeydown=event=>{if(event.key==='ArrowDown'){event.preventDefault();open();}};
- document.addEventListener('keydown',event=>{if(event.metaKey&&event.shiftKey&&['1','2','3'].includes(event.key)){event.preventDefault();choose(Object.keys(NAMES)[Number(event.key)-1]);}});
+ document.addEventListener('keydown',event=>{if(event.metaKey&&event.shiftKey&&['Digit1','Digit2','Digit3'].includes(event.code)){event.preventDefault();choose(Object.keys(NAMES)[Number(event.code.slice(-1))-1]);}});
  return {
   open,choose,get state(){return state;},
   async refresh(){const id=project(),request=++serial;if(owner!==id){owner=id;state={phase:'discussion',tasks:[],history:[]};closeMenu();alert.hidden=true;}draw();if(!id||busy)return;try{const saved=await api('/api/phase?project='+encodeURIComponent(id));if(request!==serial||project()!==id||busy)return;if(JSON.stringify(saved)!==JSON.stringify(state)){state=saved;draw();changed();}}catch{}},

@@ -93,6 +93,15 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(hidden.exception.code,404);hidden.exception.close()
             with urllib.request.urlopen(web_base+'/api/project-files?project=HTTP%20project') as response:
                 self.assertTrue(any(item['name']=='ROADMAP.md' for item in json.load(response)))
+            plain=Path(temporary.name)/'plain';plain.mkdir()
+            registered=web_post('/api/projects/register',{'path':str(plain)})
+            selection=post('/phase',{'cwd':temporary.name})
+            self.assertTrue(any(Path(item['path'])==plain.resolve() for item in selection['projects']))
+            self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'discussion')
+            blocked=post('/gatekeep',{'tool_name':'write_file','pi_tool':'write','args':{'path':str(plain/'app.py'),'content':'x=1'},'cwd':temporary.name,'auth_level':'admin'})
+            self.assertEqual(blocked.get('phase'),'discussion')
+            self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'})['phase'],'planning')
+            self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'planning')
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)
         finally:

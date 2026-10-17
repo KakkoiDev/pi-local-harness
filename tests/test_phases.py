@@ -95,7 +95,7 @@ class PhasePermissionTest(unittest.TestCase):
         for path in ['admin.py', '../app.py', str(self.root.parent / 'app.py')]:
             self.assertIn('not part of task', self.check('implementation', 'write_file', {'path': path}, pi_tool='write'))
         self.assertIn('No approved task', refusal('implementation', self.root, 'write_file', {'path': 'app.py'}, cwd=self.root))
-        self.assertIn('not part of task', refusal('implementation', self.root, 'write_file', {'path': 'app.py'}, cwd=self.root, task='# 001: No Files', approved=True))
+        self.assertIn('Add a Files: line in Planning, then Start Building', refusal('implementation', self.root, 'write_file', {'path': 'app.py'}, cwd=self.root, task='# 001: No Files', approved=True))
 
     def test_plan_proposal_is_not_a_read_only_tool(self):
         self.assertIn('Discussion', self.check('discussion', 'read_file', {}, pi_tool='propose_plan'))
@@ -108,7 +108,7 @@ class PhasePermissionTest(unittest.TestCase):
         self.assertIn('Planning', self.check('planning', 'write_file', {'path': 'tasks/outside.md'}, pi_tool='write'))
 
     def test_implementation_can_run_tests_but_cannot_hide_a_write_in_the_command(self):
-        for command in ['python3 -m unittest', 'uv run pytest', 'node --test tests/test_count.mjs']:
+        for command in ['python3 -m unittest', 'uv run --offline pytest', 'node --test tests/test_count.mjs']:
             self.assertIsNone(self.check('implementation', 'execute_command', {'command': command}))
         for command in ['pytest; touch admin.py', 'node --test --import ./admin.mjs', 'pytest > admin.py']:
             self.assertIsNotNone(self.check('implementation', 'execute_command', {'command': command}))
@@ -140,6 +140,15 @@ class PhaseGateTest(unittest.TestCase):
         self.assertEqual(self.propose('execute_command', {'command': 'cat app.py'})['outcome'], 'ALLOW')
         self.assertEqual(self.propose('execute_command', {'command': 'python3 -c "print(1)"'})['phase'], 'planning')
 
+    def test_harness_changes_are_writes_even_with_auto_on(self):
+        from harness.autonomy import set_enabled
+        set_enabled(self.data,True,confirmed=True)
+        for args in [{'command':'config','args':'set effort low'}, {'command':'models','args':'pull x'}, {'command':'ollama','args':'restart'}, {'command':'audit','args':''}]:
+            result=self.propose('read_file',args,'harness')
+            self.assertEqual(result.get('phase'),'discussion',result)
+            self.assertEqual(result.get('rule'),'G-015')
+        self.assertEqual(self.propose('read_file',{'command':'config','args':''},'harness')['outcome'],'ALLOW')
+
     def test_G015_uses_only_the_recorded_approved_task_scope(self):
         paper = self.ledger.paperwork
         paper.plan_state(self.root, {'tasks': [self.task], 'approved': True, 'index': 0,
@@ -168,10 +177,27 @@ class PhaseControlTest(unittest.TestCase):
             self.assertEqual(paper.phase(root,'planning',action='/plan')['phase'],'planning')
             paper.plan_state(root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(root,[task])})
             self.assertEqual(paper.phase(root)['tasks'][0]['path'],task)
-            self.assertEqual(paper.phase(root,'implementation',action='Start Building')['phase'],'implementation')
+            self.assertEqual(paper.start_building(root)['phase'],'implementation')
             self.assertTrue(paper.active_scope(root))
             self.assertIn('Plan approved: chosen',(root/task).read_text())
             self.assertEqual(paper.phase(root,'discussion',action='/discuss')['history'][-1]['action'],'/discuss')
+            self.assertEqual(paper.start_building(root)['phase'],'implementation')
+
+
+class PhaseApprovalReviewTest(unittest.TestCase):
+    def test_phase_endpoint_cannot_approve_a_pending_plan_even_with_start_building_label(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder).resolve();(root/'tasks').mkdir();(root/'ROADMAP.md').write_text('# Plan')
+            task='tasks/001.md';file=root/task;file.write_text('# Count\nFiles: app.py\nDone when: Clicks count.\n')
+            paper=Paperwork(Protocol());paper.phases.choose(root,'planning',actor='person')
+            paper.plan_state(root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(root,[task])})
+            for action in ['phase button','Start Building','/build']:
+                with self.assertRaises(ValueError):paper.phase(root,'implementation',action=action)
+                self.assertNotIn('Plan approved:',file.read_text())
+                self.assertTrue(paper.plan_state(root)['pending'])
+                self.assertEqual(paper.phases.get(root)['phase'],'planning')
 
 
 class DiscussionPaperworkTest(unittest.TestCase):
@@ -192,3 +218,77 @@ class DiscussionPaperworkTest(unittest.TestCase):
             self.assertEqual(before,{str(p.relative_to(root)):p.read_bytes() for p in root.rglob('*') if p.is_file()})
             saved=__import__('json').loads(paper.choice_file(root).read_text())
             self.assertEqual(saved['answer'],'Me')
+
+
+class RegisteredPhaseTest(unittest.TestCase):
+    def setUp(self):
+        from harness.documents import DocumentStore
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.home=Path(self.temp.name).resolve();self.root=self.home/'app';self.root.mkdir()
+        self.store=DocumentStore(self.home/'data');self.project=self.store.register(str(self.root))
+        self.ledger=ProposalLedger(GateEngine('','/dev/null'),events_file=self.store.root/'events.jsonl')
+        self.ledger.paperwork.projects=self.store
+
+    def test_absolute_target_from_outside_project_obeys_target_phase_without_plan_files(self):
+        for phase in ['discussion','planning']:
+            if phase=='planning':self.ledger.paperwork.phases.choose(self.root,phase,actor='person')
+            for tool in ['write','edit']:
+                result=self.ledger.propose('write_file',{'path':str(self.root/'app.py'),'content':'x=1'},'admin',pi_tool=tool,cwd=str(self.home))
+                self.assertEqual(result.get('phase'),phase,result)
+                self.assertEqual(result.get('rule'),'G-015')
+        result=self.ledger.propose('write_file',{'path':str(self.root/'ROADMAP.md'),'content':'# Plan'},'admin',pi_tool='write',cwd=str(self.home))
+        self.assertEqual(result['outcome'],'ALLOW')
+
+    def test_registered_folder_has_controls_before_plan_exists_and_after_plan_is_broken(self):
+        paper=self.ledger.paperwork
+        self.assertEqual(paper.phase(self.root)['phase'],'discussion')
+        self.assertEqual(paper.phase(self.root,'planning')['phase'],'planning')
+        (self.root/'ROADMAP.md').write_text('# Plan')
+        self.assertEqual(paper.phase(self.root)['phase'],'planning')
+        result=self.ledger.propose('execute_command',{'command':'touch app.py'},'admin',cwd=str(self.root))
+        self.assertEqual(result.get('phase'),'planning')
+
+    def test_absolute_target_in_another_project_does_not_use_cwd_permission(self):
+        other=self.home/'other';other.mkdir();self.store.register(str(other))
+        self.ledger.paperwork.phases.choose(self.root,'planning',actor='person')
+        result=self.ledger.propose('write_file',{'path':str(other/'ROADMAP.md'),'content':'# Plan'},'admin',pi_tool='write',cwd=str(self.root))
+        self.assertEqual(result.get('phase'),'discussion')
+
+    def test_phase_and_approved_plan_follow_stable_registration_after_rename(self):
+        paper=self.ledger.paperwork
+        (self.root/'tasks').mkdir();(self.root/'ROADMAP.md').write_text('# Plan')
+        task='tasks/001.md';(self.root/task).write_text('# Count\nPlan approved: chosen fixture\nFiles: app.py\n')
+        paper.plan_state(self.root,{'tasks':[task],'approved':True,'index':0,'digest':paper.plan_digest(self.root,[task])})
+        paper.phases.choose(self.root,'implementation',actor='person',planned=True)
+        saved=paper.phases.get(self.root)
+        self.store.rename_project(self.project,'renamed')
+        moved=self.store.project_path(self.project)
+        self.assertEqual(paper.phases.get(moved),saved)
+        self.assertTrue(paper.active_scope(moved))
+        self.assertEqual(paper.project_root(moved/'app.py'),moved)
+
+    def test_old_path_based_records_migrate_before_a_move(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        legacy=Paperwork(Protocol(),data=self.store.root)
+        legacy.phases.choose(self.root,'planning',actor='person')
+        legacy.plan_state(self.root,{'pending':True,'tasks':[]})
+        legacy.save_choice(self.root,{'pending':True,'question':'Which?'})
+        paper=self.ledger.paperwork
+        self.store.rename_project(self.project,'renamed')
+        moved=self.store.project_path(self.project)
+        self.assertEqual(paper.phases.get(moved)['phase'],'planning')
+        self.assertTrue(paper.plan_state(moved)['pending'])
+        self.assertEqual(paper.waiting_choice(moved)['question'],'Which?')
+
+    def test_unregistered_legacy_project_is_found_from_absolute_target(self):
+        other=self.home/'legacy';other.mkdir();(other/'tasks').mkdir();(other/'ROADMAP.md').write_text('# Plan')
+        result=self.ledger.propose('write_file',{'path':str(other/'app.py'),'content':'x=1'},'admin',pi_tool='write',cwd=str(self.home))
+        self.assertEqual(result.get('phase'),'discussion')
+
+    def test_shell_from_home_cannot_write_into_a_registered_project(self):
+        result=self.ledger.propose('execute_command',{'command':'touch '+str(self.root/'app.py')},'admin',pi_tool='bash',cwd=str(self.home))
+        self.assertEqual(result.get('phase'),'discussion')
+        self.assertEqual(result.get('rule'),'G-015')

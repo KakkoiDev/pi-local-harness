@@ -3,6 +3,7 @@
 Discussion and Planning use this code rung. Unknown commands do not become reads because Pi says so.
 Git reads must disable optional index writes, fsmonitor hooks, external diff and text conversion.
 """
+import os
 import re
 import shlex
 
@@ -58,10 +59,22 @@ def segment(tokens):
     return True
 
 
+def expands_glob(command):
+    quote=None;escaped=False
+    for char in command:
+        if escaped:escaped=False;continue
+        if char=='\\' and quote!="'":escaped=True;continue
+        if char in "\"'":
+            if quote==char:quote=None
+            elif quote is None:quote=char
+        elif quote is None and char in '*?[{':return True
+    return False
+
+
 def read_only(command):
     if not isinstance(command, str) or not command.strip(): return False
     # Reject shell expansion, redirection, control flow and assignments even inside quotes: the exception is small.
-    if any(c in command for c in '\n\r$`<>;&()'): return False
+    if any(c in command for c in '\n\r$`<>;&()') or expands_glob(command): return False
     try:
         lexer = shlex.shlex(command, posix=True, punctuation_chars='|'); lexer.whitespace_split = True
         lexer.commenters = ''; tokens = list(lexer)
@@ -70,7 +83,7 @@ def read_only(command):
     current = []
     for token in tokens + ['|']:
         if token == '|':
-            if not current or not segment(current): return False
+            if not current or current[0]=='rg' and os.environ.get('RIPGREP_CONFIG_PATH') or not segment(current): return False
             current = []
         else: current.append(token)
     return True
@@ -79,9 +92,13 @@ def read_only(command):
 def test_run(command):
     """Known project test runners in Implementation; no shell composition, injected scripts or output redirection."""
     from .protocol import TEST_COMMANDS
-    if not isinstance(command, str) or any(c in command for c in '\n\r$`<>;&()|'): return False
+    if not isinstance(command, str) or any(c in command for c in '\n\r$`<>;&()|') or expands_glob(command): return False
     try: words = shlex.split(command)
     except ValueError: return False
     if not any(tuple(words[:len(prefix)]) == prefix for prefix in TEST_COMMANDS): return False
+    if words[:1]==['npx'] and words[1:2]!=['--no-install']:return False
+    if words[:1]==['go']:return False
+    if words[:2]==['cargo','test'] and '--offline' not in words:return False
+    if words[:2]==['uv','run'] and words[2:3]!=['--offline']:return False
     if any(word.startswith(('--import', '--require', '--eval', '--loader', '--config', '--rootdir', '--directory', '--output', '--junit', '--report', '--html')) or word in ('-e', '-c', '-r', '-C') for word in words): return False
     return not any(word.startswith(('/', '../', '~')) or '/..' in word for word in words)
