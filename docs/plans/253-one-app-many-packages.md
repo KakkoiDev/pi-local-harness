@@ -59,3 +59,108 @@ Plan 198's historical “Apps with no server at all” section specifies a secon
 Plan 198's benchmark-improvement condition is historical. Immediate success here means working capability across representative apps and packages, honest verification and recoverable building workflows. A performance comparison is not the entry gate for proving this architecture.
 
 The false-completion and interaction defects in the [test-project review](../reviews/2026-10-17-test-project-log-review.md) remain unresolved. Publishing this architecture does not fix them or constitute approval of an implementation task.
+
+## Implementation tasks (2026-10-18)
+
+Turned into tasks 275-281 (listed at the end of ROADMAP.md). This section fixes the layout, the adapter interface, the
+runtime recommendation and the checks those tasks build. Nothing here is downloaded or implemented yet.
+
+### The shared app source (task 275)
+
+One project, one source tree. Packaging never copies or rewrites it; it adds a maintained adapter around it.
+
+```
+app/
+  logic/        pure rules: no I/O, no framework, no platform (notes.py: check_title, priority rules)
+  data/         typed queries over a sqlite3.Connection given by the Storage adapter (db.py), never a path
+  web/          routes: create_app(platform) -> ASGI app; templates/pages, templates/fragments
+  platform.py   the four interfaces (below), as typing.Protocol; the app imports only these
+migrations/     numbered SQL, the same on every target
+messages/       en.json, ja.json
+static/         icons, manifest, styles (shared); the service worker comes from the web adapter
+tests/
+  logic/        pure tests (pytest)
+  contract/     behaviour through the Routing interface, run once per adapter
+  e2e/          the packaged artifact in a browser, per target (task 281)
+packaging.json  the targets the person chose and the capabilities (System 1 reads it; Pi does not write it)
+platform/       copied, pinned adapters from kit/adapters/ (server, browser, mobile); never edited per app
+dist/<target>/  build output, ignored by git
+```
+
+### The platform adapter interface (tasks 276, 277)
+
+| Interface | The app asks | Server adapter (in-process) | Browser adapter |
+|---|---|---|---|
+| Storage | `connect() -> sqlite3.Connection`, `persisted()` after a commit | a file next to the app (`data.sqlite3`) | Python's `sqlite3` in the runtime, its file on a persistent browser filesystem, flushed after each commit |
+| Routing | nothing: the adapter delivers HTTP-shaped requests to the ASGI app | uvicorn on a local port | htmx 4's `htmx:config:request` event sets `ctx.fetch` (vendored htmx.js:510, 576) to a function that posts the request to a Web Worker, which calls the same ASGI app and returns a `Response`; the fragment is swapped as usual |
+| Auth | `current_user(request) -> User | None`, `trusted: bool` | signed cookie session; trusted when the server holds the secret | one local device identity, `trusted=False`; a capability that needs trusted auth requires a backend (task 278 refuses it otherwise) |
+| Network | `async get_json(url)`, `async post_json(url, body)` | httpx | the runtime's fetch, same-origin or CORS-allowed only |
+
+The app sees only `platform.py`. The adapters are maintained in the kit with their own contract tests, never invented
+per app by the model (plan 253: "Browser/native bridges … belong to maintained adapters").
+
+### The browser runtime: candidates (from documentation only, nothing downloaded)
+
+Figures are the projects' documented orders of magnitude, to be measured on this Mac after an approved download.
+
+| Candidate | What it is | First-load size | Licence | Fit with Jinja2 + Starlette/FastAPI + sqlite3 + htmx 4 | Offline | Startup |
+|---|---|---|---|---|---|---|
+| **Pyodide** | CPython compiled to WebAssembly (Emscripten), with a JS bridge, a package lock and prebuilt C-extension packages | several MB compressed for the core and standard library, plus the app's packages | MPL-2.0 (packages keep their own licences) | Full CPython: Jinja2, Starlette, FastAPI as pure wheels; pydantic-core and sqlite3 are in its package set; the ASGI app is called in-process, no sockets | Yes: self-hosted files, cached by the service worker or bundled in the mobile shell | about one to a few seconds cold on a desktop, longer on a phone; faster from cache; runs in a Web Worker so the page stays responsive |
+| MicroPython (WebAssembly port, PyScript's "mpy") | a small Python 3 implementation | a few hundred KB | MIT | Not CPython: no Jinja2, FastAPI, pydantic or sqlite3, so the routes and templates would need a second implementation, which plan 253 forbids | Yes | tens of ms |
+| PyScript | a page framework on top of Pyodide or MicroPython | the runtime's size plus its loader | Apache-2.0 | the same as the runtime it wraps; its HTML-tag configuration adds a layer the adapter does not need | Yes | the runtime's |
+| Brython | Python transpiled to JavaScript in the page | about 1 MB plus its standard library | BSD-3-Clause | no C extensions (no pydantic-core, no sqlite3); Jinja2 and FastAPI are not supported targets | Yes | fast for small code, slow for heavy code |
+| RustPython (WebAssembly) | a Python interpreter in Rust | a few MB | MIT | incomplete standard library and no CPython C extensions; experimental | Yes | moderate |
+| CPython's own Emscripten/WASI builds | upstream build targets | a few MB | PSF | no package set or JS bridge; a platform target, not an app runtime | Yes | moderate |
+
+**Recommendation: Pyodide**, pinned and vendored like htmx (kit/vendor/pyodide-<version>/, licences and SHA-256 in
+kit/libraries.json, no CDN), only the core and the packages the apps need, never the full distribution. It is the only
+candidate that runs the same Python source unchanged. The risks to prove in task 277: the pinned FastAPI/pydantic
+versions must match Pyodide's pydantic-core build (otherwise the shared web layer uses Starlette only: a decision
+below), cold start on a phone, and memory in a phone's WebView.
+
+**The download the person must approve** (one card, before task 277 starts): the Pyodide core archive for one pinned
+release, the Pyodide-built packages the acceptance app needs (sqlite3, pydantic-core, markupsafe and their
+dependencies), and pure-Python wheels from PyPI matching the starter's uv.lock (fastapi, starlette, pydantic, jinja2,
+python-multipart, anyio and their dependencies). The card names each file, its source, size, licence and checksum;
+the expected total is tens of MB on disk, and no file is fetched before the yes.
+
+### The mobile package (task 279)
+
+Plan 198 decided: PWA first, Capacitor as the one native way, installs without a store. The mobile package is the
+browser package (Python on the device, offline) inside a Capacitor shell; a "connected" variant points the shell at the
+person's full-stack server over the tailnet. Android: the harness builds and signs the APK and serves it by QR
+(`plh phone android`); iPhone: the harness makes the Xcode project and opens it, the person signs in with their Apple ID
+in Xcode. Offline in the shell comes from the bundled files (a service worker is not relied on inside the native
+WebView). Downloads after a yes: the Capacitor npm packages (MIT) through the toolchain's Node, a JDK and Android's
+command-line tools (several GB, once), Xcode by the person from Apple.
+
+### What System 1 checks before packaging (task 278)
+
+Code, not the model: imports of app/ against the target's package set (the Pyodide lock for the browser and mobile);
+app/logic purity (no I/O, framework or platform imports: an `ast` rule); no secret or environment read in a browser
+bundle; capability × target compatibility from kit/capabilities.json (trusted auth, payments, shared state across
+devices need a backend); every file the app refers to is in the bundle and the offline cache list (task 230's test);
+every hx- URL in templates matches a route; first-load size budget; for mobile, the app id, icons and built webDir. A
+problem stops the package and becomes one ChoiceCard per conflict with the recommended resolution first and "Something
+else…" last; the model never removes a feature or changes the target.
+
+### Decisions for the person
+
+1. **The browser runtime:** Pyodide (recommended: the same CPython source runs unchanged) · MicroPython (tiny, but the
+   web layer would need a second implementation) · Something else…
+2. **The Pyodide download** described above (files, sizes, licences and checksums shown on the card).
+3. **The shared web layer:** FastAPI as today, if task 277's spike runs it in Pyodide (recommended) · Starlette only
+   (fewer dependencies in the browser, small change to the starter's routes) · Something else…
+4. **Browser storage:** sqlite3 on a persistent browser filesystem, the same SQL and migrations (recommended) · the
+   Origin Private File System (faster, browser support varies) · an IndexedDB key-value store (a second data layer) ·
+   Something else…
+5. **The mobile default:** bundled and offline, Python on the device (recommended for personal apps) · connected to the
+   person's server over the tailnet · Something else…
+6. **Android signing key:** kept by the harness per project in the data folder, never in the repository, with a backup
+   reminder (recommended) · the person's own keystore · Something else…
+7. **iPhone:** a free Apple ID (re-sign every 7 days, 3 devices) · the paid Apple Developer Program · the PWA when it is
+   enough (recommended) · Something else…
+8. **The Android toolchain download** (a JDK and Android's command-line tools, several GB), asked when the first mobile
+   package is requested.
+9. **Existing no-server apps (kit/starter-static):** stay as they are (recommended, as plan 253 says) · a migration
+   task later · Something else…
