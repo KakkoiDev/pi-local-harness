@@ -268,5 +268,65 @@ class StaleQuestionTest(unittest.TestCase):
         self.assertEqual(self.paperwork.waiting_choice(self.folder)['question'], 'First?')
 
 
+class EndedAnswerTest(unittest.TestCase):
+    """Review P2: a crash or a stop mid-answer keeps the partial text in the chat, marked, exactly once; Gate gets the
+    request's end; a failed request shows the question it left waiting."""
+    def setUp(self):
+        import os
+        from unittest.mock import patch
+        directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
+        root = Path(directory.name); executable = fake_pi(self, root)
+        binary = patch.dict(os.environ, {'PI_BINARY': str(executable)}); binary.start(); self.addCleanup(binary.stop)
+        self.chat = WebChat(root / 'chats', 12345, 3000, data_root=root / 'data', gate_token='scratch'); self.addCleanup(self.chat.close)
+        engine = GateEngine(str(ROOT / 'specs/judges.md'), str(root / 'gate-audit.log'))
+        self.ledger = ProposalLedger(engine, protocol_file=root / 'data' / 'gate-protocol.json', events_file=root / 'data' / 'gate-events.jsonl')
+        self.chat.ledger = self.ledger; self.ledger.paperwork.projects = self.chat.documents
+        self.project = self.chat.documents.create_project('Ended', None, 'empty')
+        self.conversation = self.chat.project_chat(self.project)['id']
+
+    def run_request(self, message):
+        import uuid
+        job = uuid.uuid4().hex
+        self.ledger.paperwork.start(job, str(self.chat.documents.project_path(self.project)), message)  # as the extension does
+        try: self.chat.send(self.conversation, {'message': message, 'project': self.project}, lambda event: None, job=job); error = None
+        except ValueError as raised: error = str(raised)
+        return job, error, self.chat.store.get(self.conversation)['messages']
+
+    def test_a_crash_mid_answer_keeps_the_partial_text_marked_failed_once(self):
+        job, error, messages = self.run_request('Explain TEST_CRASH')
+        self.assertIn('Pi exited unexpectedly', error)
+        answers = [message for message in messages if message['role'] == 'assistant']
+        self.assertEqual(len(answers), 1, 'exactly once')
+        self.assertEqual(answers[0]['content'], 'PARTIAL: the first half of a long answer')
+        self.assertEqual(answers[0]['ended']['state'], 'failed'); self.assertIn('segfault', answers[0]['ended']['reason'])
+        self.assertNotIn(job, self.ledger.paperwork.requests, 'Gate got the request’s end')
+
+    def test_a_crash_after_the_answer_keeps_the_whole_answer(self):
+        _, error, messages = self.run_request('Explain TEST_CRASH_AFTER_END')
+        self.assertIn('crash after message_end', error)
+        self.assertEqual([message['content'] for message in messages if message['role'] == 'assistant'], ['COMPLETE ANSWER before crash'])
+        self.assertEqual(messages[-1]['ended']['state'], 'failed')
+
+    def test_a_stop_mid_answer_keeps_the_partial_text_marked_stopped(self):
+        import time
+        def stop():
+            for _ in range(100):
+                time.sleep(0.1)
+                if any(entry.get('process') for entry in self.chat.active.values()):time.sleep(0.5);self.chat.stop(self.conversation);return
+        threading.Thread(target=stop, daemon=True).start()
+        job, error, messages = self.run_request('Explain TEST_STREAM_WAIT')
+        self.assertEqual(error, 'Stopped')
+        self.assertEqual(messages[-1]['content'], 'PARTIAL before the stop')
+        self.assertEqual(messages[-1]['ended'], {'state': 'stopped'})
+        self.assertNotIn(job, self.ledger.paperwork.requests)
+
+    def test_a_failed_request_shows_the_question_it_left_waiting(self):
+        _, error, messages = self.run_request('Tidy TEST_ABORTED_CHOICE')
+        self.assertIn('Provider connection lost', error)
+        self.assertEqual(messages[-1]['choice']['question'], 'Park or drop?')
+        self.assertEqual(messages[-1]['content'], 'Answer text before the question.')
+        self.assertEqual(messages[-1]['ended']['state'], 'failed')
+
+
 if __name__ == '__main__':
     unittest.main()

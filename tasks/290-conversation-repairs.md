@@ -11,9 +11,9 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
 - [x] A system question never swallows the person's message: the original text reaches Pi after the answer.
 - [x] The phase question never re-triggers on its own answer (request_advice skips "Choice: …" answers); keyword-only
   phase cards without Laya become an inline notice, not a blocking card.
-- [ ] Approval or a new plan settles or clearly shows an older pending question; a failed request clears or shows its
+- [x] Approval or a new plan settles or clearly shows an older pending question; a failed request clears or shows its
   pending choice; two ask_choices in one batch: the second is refused ("one question at a time").
-- [ ] A crash or stop mid-answer keeps the partial text in the chat, marked failed or stopped, exactly once; Gate gets
+- [x] A crash or stop mid-answer keeps the partial text in the chat, marked failed or stopped, exactly once; Gate gets
   the request's end.
 - [ ] Activity shows a choice or plan pause as waiting, not Completed; "stopped by a question" differs from "stopped by
   you".
@@ -32,3 +32,5 @@ Built as the smallest version with existing classes; the designer has not drawn 
   ("Pi cannot change the phase…"). Today it is plain help text.
 - A question settled without an answer (approval or a new plan replaced it): an old-style settled line, “Park or drop? ·
   not answered: settled by Start Building” (`pw-card--settled pw-card--old`, no glyph).
+- The line under an answer a crash or a stop cut short (`p.pw-help.message-ended`): “Stopped by you before Pi
+  finished.” with the stopped icon, or “Failed before Pi finished: <reason>” with the caution icon.

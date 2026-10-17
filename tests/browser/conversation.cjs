@@ -113,6 +113,21 @@ const readline = require('node:readline');
     await page.reload();
     const notice = page.locator('#messages .message-notice').filter({ hasText: 'use the phase button' }); await notice.waitFor();
 
+    // 5. A crash or a stop mid-answer keeps the partial text in the chat, marked, once.
+    await settled((await post('/api/jobs/create', { project: created.project, message: 'Explain TEST_CRASH' })).id);
+    await page.reload();
+    const crashed = page.locator('#messages .pw-msg').filter({ hasText: 'PARTIAL: the first half of a long answer' });
+    await crashed.locator('.message-ended').filter({ hasText: 'Failed before Pi finished' }).waitFor();
+    assert.equal(await crashed.count(), 1, 'exactly once');
+    const streaming = await post('/api/jobs/create', { project: created.project, message: 'Explain TEST_STREAM_WAIT' });
+    await page.locator('#stop').waitFor(); for (let i = 0; i < 50 && !(await workspace()).jobs.some(job => job.id === streaming.id && job.text); i++) await page.waitForTimeout(100);
+    await page.locator('#stop').click(); const stopped = await settled(streaming.id);
+    assert.equal(stopped.status, 'stopped');
+    const kept = page.locator('#messages .pw-msg').filter({ hasText: 'PARTIAL before the stop' });
+    await kept.locator('.message-ended').filter({ hasText: 'Stopped by you' }).waitFor();
+    await page.reload(); await kept.locator('.message-ended').filter({ hasText: 'Stopped by you' }).waitFor();
+    assert.equal(await kept.count(), 1);
+
     assert.deepEqual(errors, []);
     console.log('Conversation checks passed: one answer per card through its own route, drafts and attachments kept, controls send their own requests.');
   } finally {

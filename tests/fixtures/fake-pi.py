@@ -69,6 +69,21 @@ if request['message'].rstrip().endswith('TEST_SPAWN'):  # a server Pi starts wit
     import subprocess as sp
     leftover=sp.Popen(['sleep','300'],stdin=sp.DEVNULL,stdout=sp.DEVNULL,stderr=sp.DEVNULL);  # Pi's bash tool gives commands their own pipes
     Path(os.environ['PI_FAKE_PIDFILE']).write_text(str(leftover.pid))
+if request['message'].rstrip().endswith('TEST_CRASH'):  # task 290: the runner dies mid-answer
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_start'}})
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'PARTIAL: the first half of a long answer'}})
+    time.sleep(0.3);sys.stderr.write('segfault in model runner\n');sys.exit(9)
+if request['message'].rstrip().endswith('TEST_CRASH_AFTER_END'):
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'COMPLETE ANSWER before crash'}],'stopReason':'stop'}})
+    time.sleep(0.3);sys.stderr.write('crash after message_end\n');sys.exit(9)
+if request['message'].rstrip().endswith('TEST_STREAM_WAIT'):  # task 290: part of an answer, then a long wait (the person stops it)
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'PARTIAL before the stop'}})
+    time.sleep(60)
+if request['message'].rstrip().endswith('TEST_ABORTED_CHOICE'):  # an abort text the pause does not know, with a question waiting
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness choice: '+json.dumps({'question':'Park or drop?','options':[{'label':'Park'},{'label':'Drop'}],'recommended':0,'pending':True})})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Answer text before the question.'}],'stopReason':'error','errorMessage':'Provider connection lost'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_NOTICE'):  # task 290: the extension's inline notice (a phase word)
     emit({'type':'extension_ui_request','method':'notify','message':'Harness notice: Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'})
 if request['message'].rstrip().endswith('TEST_FAIL'):

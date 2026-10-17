@@ -11,7 +11,7 @@ from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
-from harness.work_queue import WorkQueue
+from harness.work_queue import WorkQueue, display_text
 from harness.preview import Previews
 from harness import undo as undoing
 import json
@@ -452,6 +452,14 @@ class WebChat:
             for item in mine:item.update(answer=answer,state='chosen',when=timestamp(),key=key,job=job['id'])
             conversation=self.store.save(conversation)
         return {'answer':answer,'job':job['id'],'conversation':conversation}
+    def abandon(self, request):
+        """Task 290: end Gate's paperwork for a request whose Pi crashed or was stopped before it could (no review, no
+        wake-ups). Returns Gate's result, or None when the request had already ended or paused."""
+        ledger=getattr(self,'ledger',None)
+        if not ledger or request not in ledger.paperwork.requests:return None
+        try:return ledger.end_request(request,review=False)
+        except Exception as error:
+            print(f'Could not end the request {request}: {error!r}',flush=True);ledger.paperwork.requests.pop(request,None);return None
     def execute_job(self, job, emit):
         data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit,job=job['id'])
     def gate_events(self):
@@ -574,6 +582,8 @@ class WebChat:
             with self.lock:self.active.pop(key,None)
             raise
         process=None;diagnostics=None;context_file=None;token_file=None
+        # Task 290: what a crash or a stop leaves in the chat (the partial answer, the control it raised), saved once.
+        reply='';partial='';pending_choice=None;pending_plan=None;check_in=None;notices=[];started=False;answered=False;detached=True
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -613,6 +623,7 @@ class WebChat:
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             if not detached:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
+                started=True
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
@@ -637,7 +648,7 @@ class WebChat:
             threading.Thread(target=read,daemon=True).start()
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
-            heard=time.monotonic();settled=False;reply='';thought=''
+            heard=time.monotonic();settled=False;thought=''
             # Task 136: files Pi opened with its read tool beyond the chosen context ("Also read:" after the answer).
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
@@ -687,12 +698,16 @@ class WebChat:
                             text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                             if text:reply=text
                             continue  # persist the control and preceding answer when settled
-                        if message.get('stopReason') in ('error','aborted'):raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
+                        if message.get('stopReason') in ('error','aborted'):
+                            reply=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text') or reply  # kept with the failure (task 290)
+                            raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
                 if event.get('type')=='message_update':
                     delta=event.get('assistantMessageEvent',{})
                     if delta.get('type')=='thinking_delta':thought+=delta.get('delta','')
+                    if delta.get('type')=='text_start':partial=''
+                    if delta.get('type')=='text_delta':partial=(partial+delta.get('delta',''))[-50000:]
                 if event.get('type')=='tool_execution_end' and not event.get('isError'):
                     details=(event.get('result') or {}).get('details') or {}
                     if event.get('toolName')=='ask_choices' and details.get('answer'):
@@ -724,9 +739,24 @@ class WebChat:
                 if project and folder_root:self.changed(project,folder_root,committed)
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
             if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
+            answered=True
             if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
+        except Exception as error:
+            # Task 290 (review P2): a crash or a stop mid-answer. Gate gets the request's end (the extension can no longer
+            # send it); the chat keeps what Pi had written and the control it raised, marked failed or stopped, once.
+            ended=self.abandon(key)
+            if started and not answered:
+                answered=True;stopped=str(error)=='Stopped'
+                text=reply or display_text(partial).strip();check_in=check_in or (ended or {}).get('check_in')
+                if text or pending_choice or pending_plan or check_in:
+                    try:
+                        self.store.append(identifier,{'role':'assistant','content':text,'ended':{'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]},
+                            **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
+                        emit({'type':'conversation','conversation':self.store.get(identifier)})
+                    except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
+            raise
         finally:
             if process:
                 process.terminate()
