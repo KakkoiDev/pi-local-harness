@@ -45,6 +45,20 @@ class DocumentStore:
         self.before_project_move=lambda root:None
         self.registry_file=self.root/'.projects.json'
         self.registry=json.loads(self.registry_file.read_text()) if self.registry_file.exists() else {}
+        self.discover(legacy=True)
+    def discover(self, legacy=False):
+        """Task 262: every project has a registry entry, so its id is stable and never another project's. A folder that
+        appears in <data>/projects gets a uuid. legacy (at start): folders from before ids were registered keep their
+        folder name as id (their chat, comments and Activity hang off it) unless another project already holds it."""
+        with self.lock:
+            known={Path(value['path']).resolve() for value in self.registry.values()};changed=False
+            for path in sorted(self.projects.iterdir()):
+                if not path.is_dir() or path.is_symlink() or path.name.startswith('.') or path.resolve() in known:continue
+                # From the folder's path, so another process reading the data folder (the console) finds the same id.
+                key=path.name if legacy and path.name not in self.registry else uuid.uuid5(uuid.NAMESPACE_URL,'pi-workbench:'+str(path.resolve())).hex
+                if key in self.registry:key=uuid.uuid4().hex
+                self.registry[key]={'name':path.name,'path':str(path.resolve())};changed=True
+            if changed:self.save_registry()
     def path(self, relative):
         path=Path(relative)
         if path.is_absolute() or path.suffix.lower()!='.md' or '..' in path.parts:raise ValueError('Invalid Markdown page path')
@@ -94,9 +108,12 @@ class DocumentStore:
         return values
     def create(self, project, title, parent=None):
         with self.lock:
-            if not (project in self.registry or (self.projects/project).exists()):project=slug(project)  # one id for the folder and the page path
-            directory=self.project_path(project) if (project in self.registry or (self.projects/project).exists()) else self.projects/project
-            directory.mkdir(parents=True,exist_ok=True)
+            self.discover()
+            if project in self.registry and not self.registry[project].get('removed'):directory=self.project_path(project)
+            else:  # a page in a project that does not exist yet: a new folder in the data folder, with its own id (task 262)
+                directory=self.projects/slug(project)
+                if directory.exists():raise ValueError(f'A folder named “{directory.name}” already exists; open its project instead.')
+                directory.mkdir(parents=True);project=self.register(str(directory),directory.name,fresh=True)
             if parent:
                 parent_path=self.path(parent)
                 directory=parent_path.parent/parent_path.stem
@@ -281,21 +298,17 @@ class DocumentStore:
                 f"{{\"anchor\": <the selected text exactly>, \"replacement\": <the new text>}}, and say so in agent_reply. The person applies it with Apply Change.")
     def project_path(self, project):
         if not isinstance(project,str) or Path(project).name!=project or project in {'.','..'}:raise ValueError('Invalid project')
-        if self.registry.get(project,{}).get('removed'):raise ValueError('Project not found')
-        path=Path(self.registry[project]['path']).resolve() if project in self.registry else (self.projects/project).resolve()
-        if project not in self.registry and not path.is_relative_to(self.projects):raise ValueError('Project is outside the workspace')
+        if project not in self.registry:self.discover()
+        if project not in self.registry or self.registry[project].get('removed'):raise ValueError('Project not found')
+        path=Path(self.registry[project]['path']).resolve()
         if not path.is_dir():raise ValueError('Project not found')
         return path
     def list_projects(self):
         with self.lock:
             # A registered folder that is gone (unplugged drive, renamed) is listed as missing instead of failing the whole workspace.
             # Removed entries stay in the registry (Remove from List, Move to Trash) so adding the folder again brings its id back.
-            result=[{'id':key,'name':value['name'],'path':value['path'],**({} if Path(value['path']).is_dir() else {'missing':True})} for key,value in self.registry.items() if not value.get('removed')]
-            known={Path(value['path']).resolve() for value in self.registry.values()}
-            for path in sorted(self.projects.iterdir()):
-                if path.is_dir() and not path.is_symlink() and path.name not in self.registry and path.resolve() not in known:
-                    result.append({'id':path.name,'name':path.name,'path':str(path.resolve())})
-            return result
+            self.discover()
+            return [{'id':key,'name':value['name'],'path':value['path'],**({} if Path(value['path']).is_dir() else {'missing':True})} for key,value in self.registry.items() if not value.get('removed')]
     def project_identity(self, root):
         root=Path(root).expanduser().resolve()
         return next((item['id'] for item in self.list_projects() if Path(item['path']).resolve()==root),None)
@@ -304,7 +317,9 @@ class DocumentStore:
         path=Path(path).expanduser().resolve()
         matches=[Path(item['path']).resolve() for item in self.list_projects() if path.is_relative_to(Path(item['path']).resolve())]
         return max(matches,key=lambda value:len(value.parts)) if matches else None
-    def register(self, directory, name=None):
+    def register(self, directory, name=None, fresh=False):
+        """Add Existing Folder…: the folder's project id (a uuid). fresh (New Project…): a new folder, never a removed
+        project brought back, even at the same path."""
         supplied=Path(directory).expanduser()
         if not supplied.is_absolute():raise ValueError('Choose an absolute folder path')
         path=supplied.resolve()
@@ -312,7 +327,7 @@ class DocumentStore:
         with self.lock:
             for project in self.list_projects():
                 if Path(project['path']).resolve()==path:return project['id']
-            for key,value in self.registry.items():
+            for key,value in ([] if fresh else self.registry.items()):
                 if value.get('removed') and Path(value['path']).resolve()==path:
                     # Added again after Remove from List or Put Back: the same id, so its chat and comments come back.
                     value.pop('removed');value['name']=slug(name or path.name);self.save_registry();return key
@@ -323,9 +338,8 @@ class DocumentStore:
     def save_registry(self):
         temporary=self.registry_file.with_suffix('.tmp');temporary.write_text(json.dumps(self.registry,ensure_ascii=False,indent=2));temporary.replace(self.registry_file)
     def entry(self, project):
-        """The registry entry of a project, made on first need for one in the data folder (its folder name stays its id)."""
-        if project not in self.registry:
-            path=self.project_path(project);self.registry[project]={'name':path.name,'path':str(path)}
+        """The registry entry of a project (every project has one, task 262)."""
+        if project not in self.registry:self.project_path(project)  # discovers a new folder, or refuses
         if self.registry[project].get('removed'):raise ValueError('Project not found')
         return self.registry[project]
     def present(self, project):
@@ -412,7 +426,7 @@ class DocumentStore:
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
                 starter.start_history(path,'Start the project')
             else:starter.new_project(path,static=kind=='static',tui=kind=='tui',files=plan)
-            return self.register(str(path),name) if parent else name
+            return self.register(str(path),name,fresh=True)  # task 262: its own uuid, never the folder name
     def directories(self, directory=None):
         path=Path(directory or Path.home()).expanduser().resolve()
         if not path.is_dir():raise ValueError('Folder not found')

@@ -47,7 +47,7 @@ class ProjectCommandsTest(unittest.TestCase):
 
     def test_a_project_in_the_data_folder_keeps_its_id_too(self):
         inside = self.store.create_project('Notes')
-        self.assertEqual(inside, 'Notes')
+        self.assertRegex(inside, r'^[0-9a-f]{32}$', 'task 262: a stable unique id, never the folder name')
         self.store.rename_project(inside, 'Journal')
         listed = self.listed()
         self.assertEqual(listed[inside]['name'], 'Journal'); self.assertNotIn('Journal', listed, 'not listed twice')
@@ -155,6 +155,56 @@ class RenamedSessionsTest(unittest.TestCase):
         moved = self.chat.project_command('move', self.project, {'parent': str(learning)})
         self.assertEqual(self.header()['cwd'], moved['path'])
         self.assertEqual(len(self.backups()), 2, 'each migration keeps its own backup')
+
+
+class ProjectIdsTest(unittest.TestCase):
+    """Task 262 (review item 16): every project gets its own uuid; a new project never takes another one's id or chat."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.chat = WebChat(self.root / 'chats', 1, 2, data_root=self.root / 'data'); self.addCleanup(self.chat.close)
+        self.store = self.chat.documents
+
+    def test_a_new_project_with_a_renamed_projects_old_name_gets_its_own_id_and_chat(self):
+        first = self.store.create_project('Notes'); chat = self.chat.project_chat(first)['id']
+        self.chat.project_command('rename', first, {'name': 'Journal'})
+        second = self.store.create_project('Notes')
+        self.assertNotEqual(second, first)
+        self.assertNotEqual(self.chat.project_chat(second)['id'], chat, 'not the renamed project\'s chat')
+        self.assertEqual(self.store.project_path(first).name, 'Journal'); self.assertEqual(self.store.project_path(second).name, 'Notes')
+        self.assertEqual(self.chat.project_chat(first)['id'], chat)
+
+    def test_a_name_equal_to_another_projects_id_never_reuses_it(self):
+        first = self.store.create_project('Notes')
+        for parent in (None, str(self.root)):
+            other = self.store.create_project(first, parent)
+            self.assertNotEqual(other, first); self.assertNotEqual(self.store.project_path(other), self.store.project_path(first))
+
+    def test_a_trashed_projects_folder_name_starts_a_new_project(self):
+        first = self.store.create_project('Notes'); chat = self.chat.project_chat(first)['id']
+        self.store.trash_project(first)
+        again = self.store.create_project('Notes')
+        self.assertNotEqual(again, first, 'New Project… is a new project, not Put Back')
+        self.assertNotEqual(self.chat.project_chat(again)['id'], chat)
+
+    def test_existing_folder_name_ids_keep_working_and_new_folders_get_uuids(self):
+        import json
+        from harness.documents import DocumentStore
+        data = self.root / 'legacy'; (data / 'projects' / 'Legacy').mkdir(parents=True)
+        (data / 'projects' / 'Renamed').mkdir()
+        (data / '.projects.json').write_text(json.dumps({'Old': {'name': 'Renamed', 'path': str((data / 'projects' / 'Renamed').resolve())}}))
+        store = DocumentStore(data)
+        self.assertEqual(store.registry['Legacy']['path'], str((data / 'projects' / 'Legacy').resolve()), 'migrated under its folder name')
+        self.assertTrue((store.project_path('Legacy')).is_dir()); self.assertTrue(store.project_path('Old').name == 'Renamed')
+        ids = {item['id'] for item in store.list_projects()}
+        self.assertEqual(ids, {'Legacy', 'Old'}, 'no project listed twice')
+        (data / 'projects' / 'Old').mkdir()  # a new folder named like a registry key (Finder, or a later create)
+        (data / 'projects' / 'Fresh').mkdir()
+        listed = {item['name']: item['id'] for item in store.list_projects()}
+        self.assertEqual(listed['Renamed'], 'Old')
+        self.assertRegex(listed['Old'], r'^[0-9a-f]{32}$', 'the new folder named Old is its own project')
+        self.assertRegex(listed['Fresh'], r'^[0-9a-f]{32}$')
+        self.assertEqual({item['id'] for item in DocumentStore(data).list_projects()}, set(listed.values()), 'ids are stable across restarts')
 
 
 if __name__ == '__main__':

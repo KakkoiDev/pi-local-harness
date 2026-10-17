@@ -13,10 +13,11 @@ class DocumentTest(unittest.TestCase):
             store=DocumentStore(Path(directory))
             page=store.create('Demo project','Plan')
             saved=store.save(page['path'],'# Plan\n\n- [ ] Build it\n',page['revision'])
-            self.assertEqual((Path(directory)/page['path']).read_text(),saved['markdown'])
+            self.assertEqual(store.path(page['path']).read_text(),saved['markdown'])
+            self.assertEqual(store.path(page['path']).parent.name,'Demo project','the folder has the name; the id is a uuid (task 262)')
             with self.assertRaises(DocumentConflict):store.save(page['path'],'stale edit',page['revision'])
             self.assertEqual(store.get(page['path'])['markdown'],saved['markdown'])
-            self.assertEqual(store.list()[0]['project'],'Demo project')
+            self.assertEqual(store.list()[0]['project'],page['project'])
     def test_containment_and_external_agent_edits(self):
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
             root=Path(directory);store=DocumentStore(root);page=store.create('Project','Notes')
@@ -24,7 +25,7 @@ class DocumentTest(unittest.TestCase):
                 with self.assertRaises(ValueError):store.get(path)
             (root/'projects'/'escape').symlink_to(outside,target_is_directory=True)
             with self.assertRaises(ValueError):store.get('projects/escape/secret.md')
-            (root/page['path']).write_text('# Edited by agent\n')
+            store.path(page['path']).write_text('# Edited by agent\n')
             with self.assertRaises(DocumentConflict):store.save(page['path'],'overwrite',page['revision'])
             self.assertEqual(store.get(page['path'])['title'],'Edited by agent')
     def test_comments_are_explicit_context_and_can_be_resolved(self):
@@ -35,7 +36,7 @@ class DocumentTest(unittest.TestCase):
             self.assertFalse(comment['resolved'])
             prompt=store.comment_prompt(page['path'],comment['id'])
             self.assertIn('Add the Japanese audio task',prompt)
-            self.assertIn(str(Path(directory)/page['path']),prompt)
+            self.assertIn(str(store.path(page['path'])),prompt)
             self.assertIn('Build it',prompt)
             store.resolve(page['path'],comment['id'],True)
             with self.assertRaisesRegex(ValueError,'resolved'):store.comment_prompt(page['path'],comment['id'])
@@ -88,8 +89,8 @@ class DocumentTest(unittest.TestCase):
     def test_project_scoped_snapshot_and_live_code(self):
         with tempfile.TemporaryDirectory() as directory:
             store=DocumentStore(Path(directory));first=store.create_project('First');store.create_project('Second')
-            code=Path(directory)/'projects'/first/'main.py';code.write_text('print("hello")\n')
-            read=store.read_file('projects/First/main.py')
+            code=store.project_path(first)/'main.py';code.write_text('print("hello")\n')
+            read=store.read_file(f'projects/{first}/main.py')
             store.save_file(read['path'],'print("updated")\n',read['revision'])
             self.assertIn('updated',store.read_file(read['path'])['text'])
             snapshot=store.snapshot(first)
