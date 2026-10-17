@@ -63,7 +63,9 @@ that measurement is not a startup-delay guarantee.
 
 The terminal session `plh` opens is the harness console (plan 158). Type `/harness` to choose from the list (“Ask in words” first; a choice goes on the input line; `/harness list`
 prints it; Tab completes model names, settings, guide topics and request ids): `/status`, `/queue`,
-`/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`.
+`/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`,
+`/auto`, `/report`, `/audit`, `/undo`, `/reports`, `/bench`, `/guide [words]` (topics built from GUIDE.md's
+questions), `/update`; `/harness` itself lists them.
 They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
 commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.
 `/config set <key> <value>`, `/models use <name> [effort]` and `/undo` ask before changing anything, back up the

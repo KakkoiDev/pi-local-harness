@@ -8,4 +8,4 @@ for pitched layers. Four-bar phrases: <[C4 E4 G4 E4] [B3 D4 G4 D4]
 and sections [{id:"theme",cycles:4,layers:["lead","bass","beat"]}].
 Total cycles*240/bpm=seconds. Loop true. Revisions: read then revise with base
 and changes.layers patches by id; keep bank. Render, fix errors twice at most.
-WAV/source attach to chat. Never claim hearing. Setup: plh setup music; blips CLI/library.
+WAV/source attach to chat. Never claim hearing. Setup (the person's): plh setup music; blips CLI/library.

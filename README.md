@@ -53,8 +53,10 @@ On Apple Silicon with macOS 14 or newer, run `plh setup laya` to install the pin
 into the harness data folder’s toolchain. It downloads about 678 MB of model files and at most 80 MB of dependencies;
 Python 3.12 and uv must already be installed. Requests never download a runtime or model.
 
-Code decides first, then Laya; uncertain answers go to an existing choice card. Laya cannot approve a plan, accept a
-task or change the phase. Use the explicit controls. Decisions record their author in `<data>/decisions.jsonl`;
+Code decides first, then Laya; uncertain answers go to the person on a choice card. Without Laya (not installed, the
+default), the same questions go to the person, except a phase word in a message, which gets a notice that
+points to the phase button instead of a card. Laya cannot approve a plan, accept a task or change the phase. Use the
+explicit controls. Decisions record their author in `<data>/decisions.jsonl`;
 model-proposed option ordering remains visible as a model recommendation, and each task's Kind and Files in a plan as a model proposal. Gate's allowed calls and successful audits are not decisions (they stay in `gate-events.jsonl`), and a Laya abstention is logged as abstained and not counted. New benchmark records count each author,
 while old records without provenance stay “Not recorded”. The first 40-case synthetic evaluation answered 12 cases
 correctly and abstained on 28; it does not establish reliability on arbitrary requests.
@@ -71,8 +73,10 @@ bass and song sections. See [setup and limits](docs/music.md),
 
 ## Updating
 
-Type `/update` in terminal Pi. It shows what is new, in plain words, and updates when you say yes. The next time
-`plh` starts, it uses the new version. Then reload the page in your browser.
+Type `/update` in terminal Pi (or π › Check for Updates… in the browser). It shows what is new, in plain words, and
+updates Pi Workbench's copy when you say yes. The next time `plh` starts, it installs and uses the new version, as long
+as `auto_update` is on (the default; `/config set auto_update true` turns it back on). Then reload the page in your
+browser. An update never overwrites changes you made to Pi Workbench's own files.
 
 ## Learn more
 

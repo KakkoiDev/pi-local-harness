@@ -409,5 +409,89 @@ class HarnessToolAndMemoryTest(unittest.TestCase):
         self.assertNotEqual(self.propose('write_file', {'path': str(self.memory), 'content': 'gone'}, 'write')['outcome'], 'ALLOW', 'never emptied')
 
 
+class DocsMatchBehaviourTest(unittest.TestCase):
+    """The second bug hunt's documentation drift (task 290's part): the docs say what the code does."""
+    def read(self, path): return (ROOT / path).read_text(encoding='utf-8')
+
+    def test_wake_ups_are_documented_as_the_setting_with_its_default(self):
+        from harness.settings import SETTINGS
+        default = SETTINGS['wake_ups'][1]
+        for path in ('docs/reference.md', 'harness/AGENTS.md', 'harness/GUIDE.md'):
+            with self.subTest(path=path):
+                text = self.read(path)
+                self.assertNotRegex(text, r'(?i)one (automatic )?retry')
+                self.assertIn('wake_ups', text); self.assertRegex(text, rf'default {default}\b')
+
+    def test_every_console_command_is_in_each_list(self):
+        from harness.admin import COMMANDS
+        for path in ('harness/CONSOLE.md', 'harness/GUIDE.md', 'harness/README.md'):
+            text = self.read(path)
+            for name in COMMANDS:
+                with self.subTest(path=path, command=name): self.assertRegex(text, rf'`/{name}\b')
+
+    def test_guide_topics_are_built_from_the_guides_headings(self):
+        from harness import admin
+        headings = re.findall(r'^## (.+)$', self.read('harness/GUIDE.md'), re.M)
+        topics = admin.guide_topics()
+        self.assertEqual([heading for _, heading in topics], headings, 'one topic per question, in order')
+        self.assertEqual(len({topic for topic, _ in topics}), len(headings), 'each topic names one question')
+        for topic, heading in topics:
+            with self.subTest(topic=topic):
+                self.assertEqual(admin.guide([topic])[0]['sections'][0].splitlines()[0], '## ' + heading)
+        self.assertEqual([row[0] for row in admin.completions(None, 'guide')], [topic for topic, _ in topics])
+
+    def test_the_git_read_form_in_the_docs_is_the_one_gate_allows(self):
+        from gate.phase_shell import read_only
+        for path in ('docs/reference.md', 'harness/GUIDE.md'):
+            commands = re.findall(r'`(git --no-pager[^`]*)`', self.read(path))
+            with self.subTest(path=path):
+                self.assertTrue(commands, 'the git read form is written out')
+                for command in commands: self.assertTrue(read_only(command), command)
+
+    def test_a_refused_command_says_what_pi_may_run(self):
+        from gate.phases import refusal
+        from gate.phase_shell import read_only
+        with tempfile.TemporaryDirectory() as directory:
+            for phase in ('discussion', 'planning'):
+                reason = refusal(phase, directory, 'execute_command', {'command': 'git status'}, cwd=directory)
+                self.assertIn('git --no-pager --no-optional-locks -c core.fsmonitor=false status', reason)
+                self.assertTrue(read_only(re.search(r'`(git --no-pager[^`]*status)`', reason)[1]))
+            reason = refusal('implementation', directory, 'execute_command', {'command': 'make build'}, cwd=directory, task='# 001: Count\nFiles: app.py\n', approved=True)
+            self.assertIn('test runners', reason); self.assertNotIn('bash is not part', reason)
+            self.assertNotIn('Not written', reason)
+
+    def test_refusals_for_commands_have_japanese_copy(self):
+        from gate import phases
+        messages = json.loads(self.read('messages/ja.json'))
+        for text in phases.COMMAND_REFUSALS.values():
+            with self.subTest(text=text[:40]): self.assertIn(text, messages['exact'])
+
+    def test_the_commit_protocol_says_the_harness_commits(self):
+        section = self.read('docs/reference.md').split('### Commit protocol', 1)[1].split('\n## ', 1)[0]
+        self.assertIn('G-013', section); self.assertIn('the harness commits', section.lower())
+        self.assertIn('G-005', section)
+
+    def test_readme_says_when_an_update_installs_and_what_laya_cannot_do(self):
+        text = self.read('README.md')
+        updating = text.split('## Updating', 1)[1].split('\n## ', 1)[0]
+        self.assertIn('auto_update', updating)
+        laya = text.split('## Local classifier', 1)[1].split('\n## ', 1)[0]
+        self.assertIn('phase button', laya); self.assertIn('Without Laya', laya)
+
+    def test_model_facing_guides_use_paths_that_resolve_and_never_ask_for_refused_commands(self):
+        import subprocess
+        script = "import {loadGuides} from './harness/guides.mjs';console.log(JSON.stringify(loadGuides()))"
+        guides = json.loads(subprocess.run(['node', '--input-type=module', '-e', script], cwd=ROOT, capture_output=True, text=True, check=True).stdout)
+        texts = {guide['name']: guide['text'] for guide in guides}
+        texts['AGENTS.md'] = self.read('harness/AGENTS.md')
+        for name, text in texts.items():
+            with self.subTest(guide=name):
+                self.assertNotIn('{harness}', text, 'placeholders are filled in')
+                self.assertNotRegex(text, r'(?<![/\w])kit/', 'a kit/ path does not resolve from the project')
+                for path in re.findall(r'(/[^\s`,;)]+/kit/[^\s`,;)]+)', text): self.assertTrue(Path(path.rstrip('.')).exists(), path)
+                for line in text.splitlines():
+                    if re.search(r'\b(uv add|pip install|npm install|plh setup)\b', line): self.assertIn('person', line, line)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -76,6 +76,16 @@ DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, se
 PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
 
 
+# Task 290: what Pi may run in each phase, said when a command is refused (the docs say the same).
+GIT_READ = '`git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`)'
+READS = 'ls, cat, head, tail, wc, grep, rg, find, diff, sed -n <lines>p and pwd, joined by | if needed (no globs, $, ; or redirection), and git in the read form ' + GIT_READ
+COMMAND_REFUSALS = {
+    'discussion': 'Not run: the project is in Discussion. Pi runs only checked reads: ' + READS + '. To build or run anything else, plan a task (Planning) and choose Start Building.',
+    'planning': 'Not run: the project is in Planning. Pi runs only checked reads: ' + READS + '. To build or run anything else, choose Start Building on the plan.',
+    'implementation': 'Not run: in Implementation Pi runs checked reads (' + READS + ') and the project\u2019s checked test runners (unittest, pytest, node --test, npm test …). Other commands are refused; the person can run them in a terminal.',
+}
+
+
 def harness_read_only(args, applies=False):
     """Console mutation is not made read-only by the transport's historical tool label.
 
@@ -106,6 +116,7 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if pi_tool=='web_search' and phase!='discussion':return 'Search is available in Discussion. Choose Discussion to search the web.'
     if tool == 'read_file' and pi_tool != 'propose_plan': return None
     if tool == 'execute_command' and read_only(args.get('command')): return None
+    if tool == 'execute_command' and phase in ('discussion', 'planning'): return COMMAND_REFUSALS[phase]
     if phase == 'discussion': return DISCUSSION_REFUSAL
     path = None
     if pi_tool in ('write', 'edit') and isinstance(args.get('path'), str):
@@ -118,6 +129,7 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
     if not approved: return 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
     if tool == 'execute_command' and test_run(args.get('command')): return None
+    if tool == 'execute_command': return COMMAND_REFUSALS['implementation']
     if pi_tool=='music':
         name=args.get('name','')
         if re.fullmatch(r'[a-z0-9][a-z0-9_-]{0,63}',name):

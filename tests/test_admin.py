@@ -97,7 +97,7 @@ class AdminTest(unittest.TestCase):
         """Task 171, T_Wayfinding: Tab completes model names, settings, guide topics and request ids."""
         words = lambda command: [value for value, _ in admin.completions(self.console, command)]
         self.assertIn('set silence_seconds', words('config')); self.assertIn('set effort', words('config'))
-        self.assertIn('phone', words('guide')); self.assertEqual(len(words('guide')), len(admin.GUIDE_TOPICS))
+        self.assertIn('phone', words('guide')); self.assertEqual(len(words('guide')), len(admin.guide_topics()))
         self.assertIn('a' * 8, words('job')); self.assertIn('failed', words('queue'))
         self.assertIn('blocked', words('gate')); self.assertIn('set num_parallel', words('ollama'))
         self.assertTrue({'use', 'check', 'pull', 'remove'} <= {word.strip() for word in words('models')}, 'without Ollama, the subcommands')

@@ -19,9 +19,9 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
   you".
 - [x] Pi's harness tool can propose changes again (Gate allows previews without --yes; `update` and `models check` are
   reads); AGENTS.md's lesson-writing either works (Gate exemption for the memory file, size-guarded) or is removed.
-- [ ] Docs match behaviour: wake-ups (`wake_ups`, default 5), the shell rules and the git read form, the commit protocol,
+- [x] Docs match behaviour: wake-ups (`wake_ups`, default 5), the shell rules and the git read form, the commit protocol,
   /guide topics built from GUIDE.md's headings, console command lists, README's /update and Laya limits.
-- [ ] The model-facing guides use paths that resolve from the project and never tell Pi to run what Gate refuses (`uv add`,
+- [x] The model-facing guides use paths that resolve from the project and never tell Pi to run what Gate refuses (`uv add`,
   kit/ paths: bug hunt item 20).
 
 ## Needs design
@@ -34,3 +34,15 @@ Built as the smallest version with existing classes; the designer has not drawn 
   not answered: settled by Start Building” (`pw-card--settled pw-card--old`, no glyph).
 - The line under an answer a crash or a stop cut short (`p.pw-help.message-ended`): “Stopped by you before Pi
   finished.” with the stopped icon, or “Failed before Pi finished: <reason>” with the caution icon.
+
+## Verified, and not verified
+
+Tests: `tests/test_conversation_repairs.py` (Gate, queue and routes, with the review's repros adapted),
+`tests/harness/conversation.test.mjs` (the extension: held words, the phase notice, one question at a time, the memory
+path in the prompt), the new browser suite `tests/browser/conversation.cjs` (one answer per card, drafts and
+attachments kept, Start Building and Continue, a settled card, the notice, failed and stopped lines, Activity's
+Waiting), and the existing suites.
+
+Not verified: the real Pi 1.1.0 binary (the fake Pi stands in, as in every suite), so the held message reaching the
+model is checked at the extension boundary only; an installed Laya (none in tests): with Laya installed and abstaining,
+a phase word still raises the card, by design (Article 2), only a keyword without Laya became a notice.
