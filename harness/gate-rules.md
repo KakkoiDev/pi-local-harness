@@ -15,6 +15,6 @@ When a rule sends an action back, do what its message says; never work around it
 - G-012 Unverified changes are marked: A request that changed code and ran no passing test after the last change ends marked "Not verified", whatever the answer says.
 - G-013 The harness commits: Within a request, Pi does not run git commit: the harness makes the task, ticks its progress and commits locally: a verified change marked done, an unverified one marked "not verified" with its task left open.
 - G-014 Plans are complete: A code request needs a real Goal, no starter placeholder task, and a checkbox and Done when: line in every linked task. Ask once to fill the gaps; otherwise mark Plan incomplete.
-- G-015 Plan approval before code: Project-defining code changes need Plan approved: in the active task; small fixes skip approval.
+- G-015 Project phase permissions: Discussion reads; Planning writes ROADMAP.md and tasks/; Implementation writes approved task files. Only you or auto changes phase.
 - G-016 Ask instead of assuming: An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.
 - G-017 Decisions are settled: Every Decisions line in the active task must be chosen, auto or given before code changes.

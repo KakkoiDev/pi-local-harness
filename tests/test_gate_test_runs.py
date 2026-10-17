@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from gate.engine import GateEngine
 from gate.ledger import ProposalLedger
 
@@ -25,7 +26,8 @@ class TestRunLogTest(unittest.TestCase):
         for output, expected in cases:
             with self.subTest(output=output): self.assertEqual(counts(output), expected)
 
-    def test_audited_tests_are_logged_once_with_bounded_output(self):
+    @patch('gate.phases.refusal', return_value=None)  # test the audit recorder; phase permission has its own integration tests
+    def test_audited_tests_are_logged_once_with_bounded_output(self, _permission):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder); (root/'tasks').mkdir(); (root/'ROADMAP.md').write_text('# Roadmap\n')
             data=root/'data'; data.mkdir(); clock=[10]

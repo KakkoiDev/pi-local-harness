@@ -29,20 +29,25 @@ phases.
 
 ## Progress (2026-10-17)
 
-The design is present; the round 10 runtime remains in place while the shared phase policy is built.
+The shared phase policy and first phase controls are connected. The remaining round 11 approval and check-in work below keeps this task open.
 
 - [x] Red: five phase-store tests fail because no shared phase module exists.
 - [x] Green: the phase store defaults to Discussion, uses canonical project identity, persists across restarts,
   rejects model changes and invalid automatic transitions, requires planned tasks before Implementation, and preserves
   the previous phase and history when saving fails. Five isolated tests pass.
-- [ ] Connect the store to Gate, trusted person controls, phase history, terminal commands and web polling. The store
-  alone does not enforce phases; the first task box remains open until these clients share it.
+- [x] Connect the store to Gate, trusted person controls, phase history, terminal commands and web polling.
+- [x] Red then Green: phase permissions, scoped approved tasks, checked shell reads and test runners, trusted terminal commands, and Discussion choice side effects.
+- [x] Verify this checkpoint: Python/Node workflow gate, both browser suites, desktop/tablet/phone phase-control screenshots, save failure and retry, and Japanese refusal copy.
+- [ ] Finish round 11 PlanCard labels and Start Building-only approval, waiting task selection, acceptance of the last task, and Stop Here without accepting.
+- [ ] Finish terminal footer/status, phase-specific refusal rows, web search, and System 1 plan layout.
+- [ ] Verify the complete round 11 flow after these remaining changes.
 
-### Policy clarification requested
+### Policy clarification answered
 
 The design specifies the allowed file writes but not what happens to shell commands and tools that can also create
-files (browser screenshots and music). Asked the person whether Discussion and Planning should block those tools
-entirely, or allow deterministically checked read-only shell commands. No new shell exception has been implemented.
+files (browser screenshots and music). The person answered: “Allow checked read-only shell commands too”. A narrow deterministic shell grammar now allows known reads and pipelines; unknown or writing commands stay blocked. Implementation additionally permits known test runners within an approved task. Browser verification is limited to Implementation; music writes remain blocked pending scoped artifact handling.
+
+Discussion choices are recorded in harness data without writing a task or roadmap. `propose_plan` is checked as a planning operation even though its existing tool transport labels it a read. The old plan approval/check-in labels and plain-text approval path remain to be replaced by the round 11 flow; this checkpoint is not completion of task 247.
 
 ## The design (round 11, in the repo since 2026-10-17)
 

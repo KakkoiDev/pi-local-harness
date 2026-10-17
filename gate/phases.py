@@ -59,3 +59,35 @@ class Phases:
             else:
                 self.values[str(Path(root).resolve())] = value
             return deepcopy(value)
+
+
+DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).'
+PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
+
+
+def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=False):
+    """Phase permission after core safety checks; task and approval come from recorded plan state, never Pi's prose."""
+    import re
+    from .phase_shell import read_only, test_run
+    from .planning import file_allowed
+    root = Path(root).resolve()
+    if pi_tool == 'propose_plan' and phase == 'planning': return None
+    if tool == 'read_file' and pi_tool != 'propose_plan': return None
+    if tool == 'execute_command' and read_only(args.get('command')): return None
+    if phase == 'discussion': return DISCUSSION_REFUSAL
+    path = None
+    if pi_tool in ('write', 'edit') and isinstance(args.get('path'), str):
+        candidate = Path(args['path']).expanduser()
+        try: path = (Path(cwd) / candidate).resolve().relative_to(root).as_posix()
+        except ValueError: pass
+    if phase == 'planning':
+        if path == 'ROADMAP.md' or path and path.startswith('tasks/') and path.endswith('.md'): return None
+        return PLANNING_REFUSAL
+    if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
+    if not approved: return 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
+    if tool == 'execute_command' and test_run(args.get('command')): return None
+    if pi_tool == 'browser': return None  # verification runs only in an isolated scratch browser
+    if path and re.search(r'^Files:\s*\S', task, re.M) and file_allowed(task, path): return None
+    title = re.search(r'^#\s+(.+)', task, re.M)
+    name = title[1] if title else 'in progress'
+    return f'Not written: {path or args.get("path") or pi_tool or tool} is not part of task {name}. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.'

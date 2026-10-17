@@ -425,7 +425,7 @@
   "One agent, one queue, first in first out. Interrupted work is never repeated automatically.": "エージェントはひとつ、キューもひとつ。先に入ったものから順に処理します。中断した作業が自動でやり直されることはありません。",
   "Task details": "タスクの詳細",
   "Task record": "タスクの記録",
-  "Phase": "段階",
+  "Phase": "フェーズ",
   "Last command": "最後のコマンド",
   "Started": "開始",
   "Commands": "コマンド",
@@ -1200,7 +1200,43 @@
   "Current document": "現在の文書",
   "Related": "関連",
   "Pi opened it": "Pi が開いたファイル",
-  "Chosen again for every message. Never vendor/, licences, build output or files over 40 KB.": "メッセージごとに選び直します。vendor/、ライセンス、ビルド出力、40 KB を超えるファイルは含めません。"
+  "Chosen again for every message. Never vendor/, licences, build output or files over 40 KB.": "メッセージごとに選び直します。vendor/、ライセンス、ビルド出力、40 KB を超えるファイルは含めません。",
+  "Discussion": "相談",
+  "Planning": "計画",
+  "Implementation": "実装",
+  "Ask, discuss, or describe what you want": "質問や相談、作りたいものを入力",
+  "Describe the task to plan, or answer Pi": "計画するタスクや Pi への回答を入力",
+  "Ask about the task in progress": "進行中のタスクについて質問",
+  "Pi reads, talks and searches the web. No file changes.": "Pi は読み取り、相談、ウェブ検索を行います。ファイルは変更しません。",
+  "Pi writes the plan: ROADMAP.md and tasks/ only. Code can’t change.": "Pi が計画を書きます。変更できるのは ROADMAP.md と tasks/ だけです。コードは変更しません。",
+  "Pi changes the files of the task in progress.": "Pi が進行中のタスクのファイルを変更します。",
+  "No planned task yet. Plan one first.": "計画済みのタスクがありません。先に計画してください。",
+  "Only you change the phase. Pi can’t. Saved with the project; terminal Pi shares it.": "フェーズを変更できるのはあなただけです。Pi は変更できません。プロジェクトに保存され、ターミナルの Pi と共有します。",
+  "Only you change the phase. Pi can’t. The terminal shares it.": "フェーズを変更できるのはあなただけです。Pi は変更できません。ターミナルと共有します。",
+  "Build the planned tasks": "計画済みのタスクを実装",
+  "■ Not changed: nothing is planned yet. /plan first, then /build.": "■ 変更なし：計画済みのタスクがありません。先に /plan、その後 /build を使ってください。",
+  "✓ Phase: Discussion. Pi can read, search and talk, but can’t write files.": "✓ フェーズ：相談。Pi は読み取り、検索、相談を行えますが、ファイルは変更できません。",
+  "✓ Phase: Planning. Pi may write ROADMAP.md and tasks/ only.": "✓ フェーズ：計画。Pi が変更できるのは ROADMAP.md と tasks/ だけです。",
+  "✓ Phase: Implementation. Pi changes only the files of the task in progress.": "✓ フェーズ：実装。Pi は進行中のタスクのファイルだけを変更します。",
+  "Phase: Discussion": "フェーズ：相談",
+  "Phase: Planning": "フェーズ：計画",
+  "Phase: Implementation": "フェーズ：実装",
+  "Phase: Discussion. Change phase": "フェーズ：相談。フェーズを変更",
+  "Phase: Planning. Change phase": "フェーズ：計画。フェーズを変更",
+  "Phase: Implementation. Change phase": "フェーズ：実装。フェーズを変更",
+  "Discussion…": "相談…",
+  "Planning…": "計画…",
+  "Implementation…": "実装…",
+  "Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).": "書き込みませんでした：プロジェクトは相談中です。Pi は読み取り、検索、相談を行えますが、ファイルは変更できません。この変更を計画するには、フェーズボタンで計画（⇧⌘2）を選んでください。",
+  "Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).": "書き込みませんでした：プロジェクトは計画中です。Pi が変更できるのは ROADMAP.md と tasks/ だけです。コードを変更するには、計画の実装開始、または実装（⇧⌘3）を選んでください。",
+  "Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.": "書き込みませんでした：承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
+  "The saved project phase could not be read.": "保存されたプロジェクトのフェーズを読み取れませんでした。",
+  "Choose Discussion, Planning or Implementation.": "相談、計画、実装のいずれかを選んでください。",
+  "Only the person can choose the project phase.": "プロジェクトのフェーズを選べるのはあなただけです。",
+  "Run on its own can only move Planning to Implementation.": "自律実行が変更できるのは計画から実装への移動だけです。",
+  "Choose a project with ROADMAP.md and tasks/.": "ROADMAP.md と tasks/ があるプロジェクトを選んでください。",
+  "The plan links outside this project.": "計画がプロジェクト外を参照しています。",
+  "No approved task is in progress. Choose Planning, then Start Building on the plan.": "承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。"
  },
  "patterns": [
   [
@@ -2770,6 +2806,30 @@
   [
    "You named it: “{name}” in your message",
    "メッセージで「{name}」を指定"
+  ],
+  [
+   "Couldn’t change the phase to {name}: the project file couldn’t be saved. The project stays in {state}.",
+   "フェーズを {name} に変更できませんでした。プロジェクトのファイルを保存できませんでした。フェーズは {state} のままです。"
+  ],
+  [
+   "Phase: {name} · chosen by you · {time}",
+   "フェーズ：{name} · あなたが選択 · {time}"
+  ],
+  [
+   "Phase: {name} · Start Building · you · {time}",
+   "フェーズ：{name} · 実装開始 · あなた · {time}"
+  ],
+  [
+   "Phase: {name} · Run on its own · {time}",
+   "フェーズ：{name} · 自律実行 · {time}"
+  ],
+  [
+   "Phase: {name} · from the terminal ({command}) · {time}",
+   "フェーズ：{name} · ターミナルから（{command}） · {time}"
+  ],
+  [
+   "Not written: {path} is not part of task {name}. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.",
+   "書き込みませんでした：{path} はタスク {name} に含まれていません。Pi はタスクのファイルだけを変更できます。含めるには、計画中にタスクへ追加するか、新しいタスクを計画してください。"
   ]
  ]
 }

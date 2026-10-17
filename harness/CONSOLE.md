@@ -7,6 +7,7 @@ by hand: they read live data.
 | Command | What it shows |
 |---|---|
 | `/harness` | A list to choose from (the choice goes on the input line); `/harness list` prints what the harness is and this list. Tab completes each command's words. |
+| `/discuss` · `/plan` · `/build` | Choose the project’s shared phase. `/build` reviews the planned tasks and asks before starting; with none planned, use `/plan` first. |
 | `/status` | Services, model, queue and Gate counts, data folder, build. |
 | `/queue [all\|running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
 | `/job <id>` | The Markdown record of one request (the first 8 characters of its id are enough). |
@@ -52,3 +53,5 @@ is deleted (a removed model goes to the Trash). With Run on its own off, you may
 change these files or Ollama's settings with shell commands.
 
 `/auto on|off|status` controls Run on its own for all projects immediately; on shows the risks every time, with Cancel first. `/config set auto true` uses the same confirmation. `/report` shows the last run’s four report sections.
+
+The phase button in the web chat and these terminal commands share the same saved project phase. Pi cannot choose it with a tool. Gate checks the next tool call against that phase, including checked read-only shell commands in Discussion and Planning.

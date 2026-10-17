@@ -42,6 +42,14 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                         runs.add(item['root'],'external',{'action':'Ran /'+command+' '+' '.join(args)})
                 self.send_json_response({})
             except Exception as error:self.send_error_response(400,str(error))
+        elif self.path=='/phase':
+            try:
+                from gate.protocol import project_root
+                data=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                root=project_root(data.get('cwd'))
+                if not root:raise ValueError('Choose a project with ROADMAP.md and tasks/.')
+                self.send_json_response(self.ledger.paperwork.phase(root,data.get('phase'),action=data.get('action','phase button')))
+            except Exception as error:self.send_error_response(400,str(error))
         elif self.path=='/auto':
             from harness.autonomy import enabled
             self.send_json_response({'enabled':enabled(self.ledger.paperwork.data)})

@@ -686,6 +686,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/settings':self.reply(self.chat.updates.settings());return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
+            if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -715,7 +716,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -738,6 +739,7 @@ class WebHandler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
+            if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':
                 action=data.get('action','check')

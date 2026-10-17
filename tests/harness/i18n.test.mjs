@@ -35,3 +35,11 @@ test('messages/ja.json is well formed: every pattern keeps its parts', () => {
   }
   for (const [english, japanese] of Object.entries(messages.exact)) assert.ok(japanese.trim(), english);
 });
+
+
+test('round 11 phase refusals have Japanese copy and preserve the task and file',()=>{
+ const translate=translator(JSON.parse(readFileSync(new URL('../../messages/ja.json',import.meta.url),'utf8')));
+ for(const text of ['Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).','Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'])assert.ok(translate(text),text);
+ const outside=translate('Not written: app.py is not part of task 001: Count. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.');
+ assert.ok(outside);assert.match(outside,/app.py/);assert.match(outside,/001: Count/);
+});

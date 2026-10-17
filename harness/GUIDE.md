@@ -152,10 +152,12 @@ Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confi
 
 ## Why does Pi ask me to choose?
 
-When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. Answers are kept in the task’s Decisions section with their source and time.
+When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, answers are kept in the task’s Decisions section with their source and time.
 
 
-New apps and features start with a plan. Pi fills the Goal and real tasks, asks about unanswered decisions, then uses `propose_plan` to show what it will build. Approve Plan (or a plain “yes” reply) authorizes that scope; changing it requires another approval. Small fixes skip approval. Each planned task gets its own verified commit and check-in; reply “yes” to start the next task as a fresh request. Optional `Files:` lines limit each task to its listed files or folders.
+Every project starts in Discussion. Use the composer’s phase button (⇧⌘1–3), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
+
+Plans start in Planning. Pi fills the Goal and real tasks, asks about unanswered decisions, then uses `propose_plan` to show what it will build. Approve Plan (or a plain “yes” reply) authorizes that scope; changing it requires another approval. Each planned task gets its own verified commit and check-in; reply “yes” to start the next task as a fresh request. Each task needs a `Files:` line listing the files or folders Pi may change.
 
 ## How do I let Pi work on its own?
 

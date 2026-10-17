@@ -49,7 +49,17 @@ class BenchTest(unittest.TestCase):
             (bin / 'pi').write_text(f'#!{sys.executable}\n' + (ROOT / 'tests/fixtures/fake-pi.py').read_text()); (bin / 'pi').chmod(0o755)
             scenario = runner.scenarios(['bug-pagination'])[0] | {'prompts': {'vague': 'Paging is broken. TEST_RUN_LOG'}}
             order=[];versions,start=runner.versions,runner.start_workbench
-            with patch.object(runner,'versions',side_effect=lambda *args:(order.append('versions'),versions(*args))[1]),patch.object(runner,'start_workbench',side_effect=lambda *args:(order.append('start'),start(*args))[1]):
+            def started(*args):
+                # The audit fixture replays a person-approved test task; no model chooses the phase.
+                from gate.paperwork import Paperwork
+                from gate.protocol import Protocol
+                data,work,*_=args;project=(work/'bug-pagination').resolve();task='tasks/999-test-audit.md'
+                (project/task).write_text('# Audit\nPlan approved: chosen fixture\nFiles: tests/\n')
+                paper=Paperwork(Protocol(),data=data)
+                paper.plan_state(project,{'tasks':[task],'approved':True,'digest':paper.plan_digest(project,[task])})
+                paper.phases.choose(project,'implementation',actor='person',planned=True,action='test fixture')
+                order.append('start');return start(*args)
+            with patch.object(runner,'versions',side_effect=lambda *args:(order.append('versions'),versions(*args))[1]),patch.object(runner,'start_workbench',side_effect=started):
                 result = runner.run_one(scenario, 'fake:1b', 'low', Path(folder) / 'out', extra_env={'PATH': f"{bin}:{os.environ['PATH']}", 'PI_OLLAMA_URL': 'http://127.0.0.1:9'}, poll=0.5, log=lambda text: None, level='vague')
             self.assertEqual(order,['versions','start'],'record the build before the request runs')
             self.assertEqual((result['prompt_level'], result['prompt']), ('vague', 'Paging is broken. TEST_RUN_LOG'))

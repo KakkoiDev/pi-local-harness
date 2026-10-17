@@ -60,6 +60,8 @@ class Paperwork:
         self.lock = threading.RLock()
         self.choices = {}
         self.plans = {}
+        from .phases import Phases
+        self.phases = Phases(data)
         from harness.autonomy import RunReports
         self.runs=RunReports(data) if data else None
 
@@ -77,7 +79,7 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this choice.')
-            if not item['task']:item['task'],_=self.task_for(item)
+            if not item['task'] and self.phases.get(item['root'])['phase']!='discussion':item['task'],_=self.task_for(item)
             value={**choice,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['question','options','recommended','task','pending']}
@@ -102,6 +104,14 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this decision.')
+            if self.phases.get(item['root'])['phase']=='discussion':
+                # Discussion choices live in harness data, never in the project's plan files.
+                waiting=self.waiting_choice(item['root']) or {}
+                value={**waiting,'task':None,'question':clean(question),'answer':clean(answer),'state':state,'pending':False,
+                       'at':datetime.now().astimezone().isoformat(timespec='seconds')}
+                self.save_choice(item['root'],value)
+                if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',value)
+                return {key:value[key] for key in ['task','question','answer','state']}
             if not item['task']:item['task'],_=self.task_for(item)
             was_approved=self.plan_status_for_item(item)
             path=item['root']/item['task'];text=path.read_text(encoding='utf-8')
@@ -130,6 +140,44 @@ class Paperwork:
             return value
         try:return json.loads(file.read_text(encoding='utf-8')) if file else self.plans.get(str(root),{})
         except (OSError,ValueError):return {}
+
+    def phase(self, root, phase=None, *, action='phase button'):
+        """Trusted person controls only. No Pi tool exposes phase selection."""
+        import uuid
+        root=Path(root).resolve()
+        if project_root(root)!=root:raise ValueError('Choose a project with ROADMAP.md and tasks/.')
+        with self.lock:
+            plan=self.plan_state(root)
+            paths=plan.get('tasks',[]) if not plan.get('finished') else []
+            if phase=='implementation':
+                if not paths:raise ValueError('No planned task yet. Plan one first.')
+                if plan.get('pending'):
+                    request='phase-'+uuid.uuid4().hex
+                    self.requests[request]={'root':root,'text':'Start Building','before':{},'task':None}
+                    try:self.approve_plan(request)
+                    finally:self.requests.pop(request,None)
+                elif not self.active_scope(root):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
+            if phase:self.phases.choose(root,phase,actor='person',planned=bool(paths),action=action)
+            value=self.phases.get(root);tasks=[]
+            for path in paths:
+                file=root/path
+                if not file.resolve().is_relative_to(root) or file.is_symlink():raise ValueError('The plan links outside this project.')
+                text=file.read_text(encoding='utf-8');title=re.search(r'^# (?:\d+: )?(.+)',text,re.M);done=re.search(r'^Done when:\s*(.+)',text,re.M)
+                tasks.append({'path':path,'title':title[1] if title else path,'done_when':done[1] if done else ''})
+            return {**value,'tasks':tasks}
+
+    def active_scope(self, root):
+        """Only the saved, unchanged approved task grants write permission; request wording cannot pick another."""
+        plan = self.plan_state(root)
+        if not plan.get('approved') or plan.get('finished') or plan.get('check_in'): return ''
+        tasks = plan.get('tasks', []); index = plan.get('index', 0)
+        if not isinstance(index, int) or not 0 <= index < len(tasks): return ''
+        path = root / tasks[index]
+        if not path.resolve().is_relative_to(root.resolve()) or path.is_symlink(): return ''
+        try: text = path.read_text(encoding='utf-8')
+        except OSError: return ''
+        if not re.search(r'^Plan approved: (?:chosen|auto) ', text, re.M): return ''
+        return text if plan.get('digest') == self.plan_digest(root, tasks) else ''
 
     def plan_digest(self, root, tasks):
         # Progress, approval stamps and the harness's roadmap ticks do not change the approved scope.
@@ -200,6 +248,7 @@ class Paperwork:
         with self.lock:
             item=self.requests[request];root=item['root'];plan=self.plan_state(root)
             if not plan.get('pending'):raise ValueError('No plan is waiting for approval.')
+            if state=='auto' and self.phases.get(root)['phase']!='planning':raise ValueError('Run on its own can only move Planning to Implementation.')
             if plan['digest']!=self.plan_digest(root,plan['tasks']):raise ValueError('The plan changed. Propose it again before approval.')
             for path in plan['tasks']:
                 file=root/path;text=re.sub(r'^Plan approved:.*\n?', '',file.read_text(encoding='utf-8'),flags=re.M)
@@ -213,6 +262,7 @@ class Paperwork:
             plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
             item['new_plan']=False
+            self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building')
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
             return self.plan_status(request)
 
@@ -248,7 +298,7 @@ class Paperwork:
             waiting=self.waiting_choice(root)
             prefix=f"Choice: {waiting['question']} → " if waiting else ''
             if waiting and item['text'].startswith(prefix) and item['text'][len(prefix):].strip():
-                item['task']=waiting['task']
+                item['task']=waiting.get('task')
                 item['before']={path:value for path,value in before.items() if not plan_path(path)}
                 item['before'].update({path:value for path,value in waiting.get('before',{}).items() if plan_path(path)})
                 item['new_plan']=False

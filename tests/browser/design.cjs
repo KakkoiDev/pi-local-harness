@@ -252,15 +252,41 @@ const readline = require('node:readline');
   assert.equal(await reply.locator('table td strong').textContent(),'Looking');
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.querySelector('#thread').scrollWidth<=document.querySelector('#thread').clientWidth+1),true,'a wide table does not widen the page');
-  // 144: the phone composer stays within a quarter of the screen while typing.
+  // Round 11 adds a 44 px phase row to task 144’s quarter-screen phone composer.
   await page.locator('#prompt').fill('one\ntwo\nthree\nfour\nfive\nsix');await page.locator('#prompt').dispatchEvent('input');
-  assert.ok((await page.locator('#composer').boundingBox()).height<=844/4,'composer height '+(await page.locator('#composer').boundingBox()).height);
+  assert.ok((await page.locator('#composer').boundingBox()).height<=844/4+44,'composer height '+(await page.locator('#composer').boundingBox()).height);
   await page.locator('#prompt').fill('');await page.setViewportSize({width:1440,height:900});
 
   // 97: Files window = Plan above Files (ListGroup), titled with the project, as the Work board.
   fs.writeFileSync(join(root,'tasks/003-finished.md'),'# Finished\n\n- [x] a\n- [x] b\n');
   fs.writeFileSync(join(root,'tasks/004-stuck.md'),'# Stuck\n\n- [ ] a\n- [~] Blocked: waiting\n');
   const id=created.project;
+  { // Round 11: the shared phase control, keyboard, saved state and phone sheet.
+  await page.goto(`${base}/p/${id}/chat`);
+  assert.equal(await page.locator('#phase-button').count(),1,'the phase control exists');
+  await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor();
+  await page.route('**/api/phase',route=>route.fulfill({status:503,json:{error:'fixture save failure'}}));
+  await page.locator('#phase-button').focus();await page.keyboard.press('ArrowDown');
+  const phases=page.locator('#phase-menu [role=menuitemradio]');
+  await page.screenshot({path:'/tmp/plh-247-phase-desktop.png'});
+  assert.equal(await phases.count(),3);assert.equal(await phases.nth(2).getAttribute('aria-disabled'),'true');
+  await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+  await page.locator('#phase-error').waitFor();
+  assert.match(await page.locator('#phase-error').textContent(),/project stays in Discussion/);
+  await page.unroute('**/api/phase');await page.locator('#phase-error').getByRole('button',{name:'Try Again'}).click();
+  await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor();
+  await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
+  assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'Describe the task to plan, or answer Pi');
+  await page.reload();await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor();
+  await page.setViewportSize({width:1024,height:900});await page.locator('#phase-button').click();await page.locator('#phase-menu').waitFor();await page.screenshot({path:'/tmp/plh-247-phase-tablet.png'});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.keyboard.press('Escape');
+  await page.setViewportSize({width:390,height:844});await page.locator('#phase-button').click();
+  const sheet=page.getByRole('dialog',{name:'Phase',exact:true});await sheet.waitFor();
+  assert.ok((await sheet.locator('.pw-option').first().boundingBox()).height>=64);
+  await page.screenshot({path:'/tmp/plh-247-phase-phone.png'});
+  await sheet.getByLabel('Discussion',{exact:true}).click();
+  await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor();
+  assert.equal(await sheet.count(),0);await page.setViewportSize({width:1440,height:900});
+  }
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);
   await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
   assert.equal(await page.locator('#files-title').textContent(),'Design check','Files window title is the project');
@@ -343,7 +369,7 @@ const readline = require('node:readline');
   await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('ja'));});await page.goto(`${base}/p/${id}/chat`);
   await page.waitForFunction(()=>document.querySelector('#menubar [aria-controls="menu-file"]')?.textContent==='ファイル');
   assert.equal(await page.locator('#chat-tab').evaluate(tab=>tab.childNodes[0].nodeValue),'チャット');
-  assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'何でも聞いてください。ファイルをここにドロップすることもできます');
+  assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'質問や相談、作りたいものを入力');
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'ja');
   await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('en'));});await page.goto(`${base}/p/${id}/chat`);
   await page.waitForFunction(()=>document.querySelector('#menubar [aria-controls="menu-file"]')?.textContent==='File');
@@ -956,6 +982,18 @@ const readline = require('node:readline');
   await page.setViewportSize({width:1440,height:900});
   }
   // Task 228: Activity uses Gate's saved evidence, including counts and a failed exit.
+  // Replay an approved test task: Discussion deliberately cannot launch a test runner.
+  execFileSync(python,['-c',`
+import sys
+from pathlib import Path
+from gate.paperwork import Paperwork
+from gate.protocol import Protocol
+root=Path(sys.argv[1]).resolve();task='tasks/999-test-log-fixture.md'
+(root/task).write_text('# 999: Test log fixture\\nFiles: tests/\\nDone when: Runs are recorded.\\n')
+paper=Paperwork(Protocol(),data=Path(sys.argv[2]))
+paper.plan_state(root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(root,[task])})
+paper.phase(root,'implementation',action='Start Building')
+`,root,join(directory,'workspace')]);
   const tested=await post('/api/jobs/create',{project:id,message:'Check the tests TEST_RUN_LOG'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(data=>data.jobs.some(job=>job.id===id&&job.status==='completed')),tested.id);
   await page.goto(`${base}/activity`);await page.locator('#job-'+tested.id+' .activity-request').click();

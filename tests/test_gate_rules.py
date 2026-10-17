@@ -113,6 +113,7 @@ class PlanFilesTest(unittest.TestCase):
         self.task.write_text('# 001\n\nKind: code\n\n- [x] Planned\n- [ ] Red: the test fails\n- [ ] Green: it passes\n\nNotes one\ntwo\nthree\nfour\nfive\nsix\n')
         subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
         self.ledger = ProposalLedger(GateEngine('', str(self.root / 'audit.log')))
+        self.ledger.paperwork.phases.choose(self.root, 'planning', actor='person')
 
     def propose(self, pi_tool, args):
         return self.ledger.propose('write_file', {'path': str(self.task), **args}, 'admin', pi_tool=pi_tool, cwd=str(self.root))
@@ -288,9 +289,13 @@ class PlanningCatchesTest(unittest.TestCase):
 
     def test_G016_write_is_revised_but_plan_edits_are_allowed(self):
         with tempfile.TemporaryDirectory() as directory:
-            root=Path(directory);(root/'tasks').mkdir();(root/'ROADMAP.md').write_text('# Plan\n')
-            ledger=ProposalLedger(GateEngine('',str(root/'log')))
+            root=Path(directory).resolve();(root/'tasks').mkdir();(root/'ROADMAP.md').write_text('# Plan\n')
+            task='tasks/active.md';(root/task).write_text('# Active\nPlan approved: chosen 2026-10-17\nFiles: app.py, README.md\n')
+            ledger=ProposalLedger(GateEngine('',str(root/'log')));paper=ledger.paperwork
+            paper.plan_state(root,{'tasks':[task],'approved':True,'index':0,'digest':paper.plan_digest(root,[task])})
             for path in ['app.py','README.md','ROADMAP.md','tasks/001.md']:
+                plan=path in ['ROADMAP.md','tasks/001.md']
+                paper.phases.choose(root,'planning' if plan else 'implementation',actor='person',planned=True)
                 result=ledger.propose('write_file',{'path':path,'content':'New text'},'admin',pi_tool='write',cwd=str(root),assistant_text="I'll assume blue.")
-                self.assertEqual(result['outcome'],'ALLOW' if path in ['ROADMAP.md','tasks/001.md'] else 'REVISE')
+                self.assertEqual(result['outcome'],'ALLOW' if plan else 'REVISE')
                 if result['outcome']=='REVISE':self.assertEqual(result['rule'],'G-016')

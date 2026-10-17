@@ -479,3 +479,15 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
 .pw-terminal-keys{display:flex;gap:4px;padding:4px;flex-wrap:wrap;border-top:1px solid var(--ink)}
 .pw-terminal-keys .pw-btn{min-width:44px;min-height:44px;flex:1}
 .pw-terminal-keys [aria-pressed=true]{background:var(--ink);color:var(--paper)}
+
+/* Round 11: first in the desktop row, a separate row above the phone field. */
+.phase-controls{display:contents}
+#phase-menu{max-width:calc(100vw - 16px)}
+@media(max-width:760px){
+ .phase-controls{display:flex;align-items:center;gap:10px}
+ .phase-controls>.pw-help{flex:1;margin:0;font-size:13px}
+ .pw-sheet:has(#phase-menu){margin:0;top:auto;width:100%;max-width:none;box-sizing:border-box}
+ .pw-sheet #phase-menu{position:static;border:0;box-shadow:none;max-width:none;width:100%;min-width:0}
+ #phase-menu .pw-option{min-height:64px;grid-template-columns:22px 1fr}
+ #phase-menu .pw-radio{width:22px;height:22px}
+}

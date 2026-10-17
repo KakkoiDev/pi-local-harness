@@ -165,27 +165,17 @@ class ProposalLedger:
         if reason:
             return refuse('G-005', reason)
         root=project_root(cwd) if cwd and not rules.bare() else None
-        if root and pi_tool in ('write','edit') and not rules.plan_file(Path(args.get('path',''))):
-            item=self.paperwork.requests.get(request);task=''
-            if item:
-                from harness.context import mentioned
-                paths=[path.relative_to(root).as_posix() for path in (root/'tasks').glob('*.md')]
-                active=item.get('task') or next(iter(mentioned(item['text'],paths)),None)
-                if active:task=(root/active).read_text(encoding='utf-8')
-            if self.paperwork.waiting_choice(root):return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
-            rejected=rules.planning_refusal(task,assistant_text,required=False)
-            if rejected:return refuse(*rejected)
-            if item and not is_documentation(args.get('path','')):
-                status=self.paperwork.plan_status(request,small_fix=bool(re.search(r'^This is a small fix[.!]?\s*$',assistant_text,re.M|re.I)))
-                if status['required'] and not status['approved']:
-                    return refuse('G-015','Plan first: write the plan and ask the person to approve it with propose_plan before changing code.')
-                if status['approved']:
-                    from .planning import file_allowed
-                    path=Path(args.get('path',''))
-                    if path.is_absolute():
-                        try:path=path.resolve().relative_to(root)
-                        except ValueError:return refuse('G-015','Code must stay inside the active task’s project.')
-                    if not file_allowed(task,path.as_posix()):return refuse('G-015','This file is outside the active task’s Files: line. Change the plan and ask for approval first.')
+        if root:
+            from .phases import refusal
+            phase = self.paperwork.phases.get(root)['phase']
+            task = self.paperwork.active_scope(root)
+            reason = refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            if reason: return {**refuse('G-015', reason), 'phase': phase}
+            if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
+                return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
+            if tool_name == 'write_file' and phase == 'implementation':
+                rejected=rules.planning_refusal(task,assistant_text,required=False)
+                if rejected:return refuse(*rejected)
         expected = None
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()

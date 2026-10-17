@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 from gate.engine import GateEngine
 from gate.ledger import ProposalLedger
 
@@ -16,6 +17,8 @@ def git(root, *args):
 
 class ProtocolTest(unittest.TestCase):
     def setUp(self):
+        # These exercise G-005's independent commit protocol, not Pi's phase permission (tests/test_phases.py).
+        permission = patch('gate.phases.refusal', return_value=None); permission.start(); self.addCleanup(permission.stop)
         directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
         self.root = Path(directory.name).resolve()
         (self.root / 'tasks').mkdir()

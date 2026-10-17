@@ -20,6 +20,7 @@ import { harnessNotice, renderNotice } from './notices.mjs';
 import { installToolRenderer } from './tool-render.mjs';
 import { installChoices } from './choices.mjs';
 import { installPlanning } from './planning.mjs';
+import {installPhases} from './phases.mjs';
 import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
@@ -153,6 +154,7 @@ export default function harness(pi, dependencies = {}) {
   const footer = installFooter(pi, { ports: () => ports }); // round 6: the workbench state under the input
   installConsole(extras, { auto:automatic, recordAuto:action=>call('/auto/action',{request:requestId,...action}), ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installMusic(extras);
+  installPhases(pi,{call});
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
   // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.

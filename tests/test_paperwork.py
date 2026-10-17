@@ -144,7 +144,12 @@ class LedgerTest(PaperworkTest):
         from gate.ledger import ProposalLedger
         ledger = ProposalLedger(GateEngine('', '/dev/null'), protocol_file=Path(self.data.name) / 'runs.json', events_file=Path(self.data.name) / 'events.jsonl')
         ledger.paperwork.identity = ('Pi Workbench', 'harness@localhost')
-        ledger.start_request('r9', str(self.root), 'Speed up the app')
+        task='tasks/003-speed-up-the-app.md'
+        (self.root/task).write_text('# 003: Speed up the app\nKind: code\nFiles: app.py\n- [ ] Speed up\nDone when: The app responds.\n')
+        paper=ledger.paperwork
+        paper.plan_state(self.root,{'tasks':[task],'pending':True,'digest':paper.plan_digest(self.root,[task])})
+        paper.phase(self.root,'implementation',action='Start Building')
+        ledger.start_request('r9', str(self.root), 'Do task 3: Speed up the app')
         write = ledger.propose('write_file', {'path': 'app.py', 'content': 'x = 9\n'}, 'admin', pi_tool='write', cwd=str(self.root), request='r9')
         (self.root / 'app.py').write_text('x = 9\n')
         audit = ledger.complete(write['proposal_id'], 'write_file', {'path': 'app.py', 'content': 'x = 9\n'}, 'ok', 0)
@@ -236,6 +241,7 @@ class StarterSampleTest(unittest.TestCase):
 
 class ChoicePaperworkTest(PaperworkTest):
     def test_an_answered_choice_is_a_timed_decision_and_keeps_existing_sections(self):
+        self.paper.phases.choose(self.root,'planning',actor='person')
         self.paper.start('choice',str(self.root),'Do task 2')
         for state in ['chosen','auto','given']:
             self.paper.decision('choice','Who uses it?','My household',state)
@@ -246,6 +252,7 @@ class ChoicePaperworkTest(PaperworkTest):
         with self.assertRaises(ValueError):self.paper.decision('choice','Speed?','Fast','assumed')
 
     def test_a_web_choice_survives_the_worker_and_its_answer_uses_the_same_task(self):
+        self.paper.phases.choose(self.root,'planning',actor='person')
         self.paper.start('waiting',str(self.root),'Do task 2')
         self.paper.choice_pending('waiting',{'question':'Who uses it?','options':[{'label':'Me'},{'label':'Team'}],'recommended':0})
         self.paper.pause('waiting')
@@ -298,8 +305,9 @@ class PlanLifecycleTest(PaperworkTest):
         ledger.start_request('p',str(self.root),'Add a new scoreboard')
         def write(path):return ledger.propose('write_file',{'path':path,'content':(self.root/path).read_text()+'\n' if path=='ROADMAP.md' else 'x=3\n'},'admin',pi_tool='write',cwd=str(self.root),request='p')
         self.assertEqual(write('app.py')['rule'],'G-015')
+        ledger.paperwork.phases.choose(self.root,'planning',actor='person')
         self.assertEqual(write('ROADMAP.md')['outcome'],'ALLOW')
-        self.assertEqual(write('HELP.md')['outcome'],'ALLOW')
+        self.assertEqual(write('HELP.md')['rule'],'G-015')
         task=self.root/'tasks/002-add-the-badge.md';task.write_text(task.read_text()+'\nFiles: app.py\n')
         ledger.paperwork.propose_plan('p');ledger.paperwork.approve_plan('p')
         self.assertEqual(write('app.py')['outcome'],'ALLOW')
@@ -327,7 +335,7 @@ class PlanLifecycleTest(PaperworkTest):
     def test_automatic_run_reports_tasks_decisions_and_final_audit_then_allows_a_new_fix(self):
         from harness.autonomy import set_enabled,RunReports
         set_enabled(self.data.name,True,confirmed=True)
-        self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
+        self.paper.phases.choose(self.root,'planning',actor='person');self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
         self.paper.decision('plan','Colour','Blue','auto')
         (self.root/'app.py').write_text('x=8\n');self.paper.observe('plan')
         for passed in [False,True]:
@@ -350,7 +358,7 @@ class PlanLifecycleTest(PaperworkTest):
     def test_automatic_audit_is_not_marked_verified_without_its_real_checks(self):
         from harness.autonomy import set_enabled
         set_enabled(self.data.name,True,confirmed=True)
-        self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
+        self.paper.phases.choose(self.root,'planning',actor='person');self.paper.start('plan',str(self.root),'Add a badge');self.paper.propose_plan('plan');self.paper.approve_plan('plan','auto')
         state=self.paper.plan_state(self.root);state.update(index=1,check_in=False);self.paper.plan_state(self.root,state)
         self.paper.start('audit',str(self.root),'Do task 3')
         task=self.root/self.paper.requests['audit']['task'];task.write_text(task.read_text().replace('- [ ]','- [x]'))
@@ -359,6 +367,7 @@ class PlanLifecycleTest(PaperworkTest):
         self.assertFalse(result['report']['done'][0]['verified'])
 
     def test_auto_report_includes_gate_blocks_and_completed_network_commands(self):
+        from unittest.mock import patch
         from gate.engine import GateEngine
         from gate.ledger import ProposalLedger
         from harness.autonomy import set_enabled,RunReports
@@ -368,7 +377,9 @@ class PlanLifecycleTest(PaperworkTest):
         blocked=ledger.propose('execute_command',{'command':'rm -rf /'},'admin',cwd=str(self.root),request='auto')
         self.assertEqual(blocked['outcome'],'BLOCK')
         args={'command':'curl https://example.invalid'}
-        proposed=ledger.propose('execute_command',args,'admin',cwd=str(self.root),request='auto')
+        # Isolate the external-action audit from phase permission; no command is actually executed.
+        with patch('gate.phases.refusal',return_value=None):
+            proposed=ledger.propose('execute_command',args,'admin',cwd=str(self.root),request='auto')
         # Audit a simulated successful command; this test never opens a network connection.
         ledger.complete(proposed['proposal_id'],'execute_command',args,'ok',0)
         report=RunReports(self.data.name).latest()
