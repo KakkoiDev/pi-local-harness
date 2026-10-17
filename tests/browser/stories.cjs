@@ -319,9 +319,9 @@ story('US-040', 'a choice in Planning: the recommended option first, the answer 
   assert.equal(await card.locator('input[type="radio"]').first().isChecked(), true, 'recommended preselected');
   assert.equal(await card.getByText('Something else…', { exact: true }).count(), 1, 'Something else… last');
   await card.getByText('A team', { exact: true }).click();
-  const resumed = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));  // task 290: a card's answer has its own route
   await card.getByRole('button', { name: 'Answer', exact: true }).click();
-  await answered(t, (await (await resumed).json()).id);
+  await answered(t, (await (await resumed).json()).job);
   await page.locator('.pw-card--settled').filter({ hasText: 'A team' }).waitFor();
   assert.doesNotMatch(await page.locator('#messages').innerText(), /I could not show it/, 'the plan was refused');
   const plan = page.locator('.pw-card[aria-label="Plan"]').last(); await plan.waitFor();
@@ -336,9 +336,9 @@ story('US-041', 'a choice in Discussion: the answer stays in harness data and th
   const before = t.bench.git(root, 'rev-parse', 'HEAD');
   const id = await say(t, 'Which colours? TEST_SCRIPT=discuss-choice'); await answered(t, id);
   const card = page.locator('.pw-card[aria-label="Which colours?"]'); await card.waitFor();
-  const resumed = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));  // task 290: a card's answer has its own route
   await card.getByRole('button', { name: 'Answer', exact: true }).click();
-  await answered(t, (await (await resumed).json()).id);
+  await answered(t, (await (await resumed).json()).job);
   await page.locator('.pw-card--settled').filter({ hasText: 'Black on white' }).waitFor();
   await page.reload(); await page.locator('.pw-card--settled').filter({ hasText: 'Black on white' }).waitFor();
   assert.equal(t.bench.git(root, 'rev-parse', 'HEAD'), before, 'no commit');
@@ -355,7 +355,7 @@ story('US-042', 'answering a choice keeps what I was typing in the composer', as
   await card.getByRole('button', { name: 'Answer', exact: true }).click();
   await page.locator('.pw-card--settled').filter({ hasText: 'Black on white' }).waitFor();
   assert.equal(await page.locator('#prompt').inputValue(), 'A long note I am still writing');
-}, { xfail: 'review item 9: a choice click destroys the composer’s draft' });
+});  // fixed by task 290 (review item 9)
 
 story('US-087', 'step back to Discussion during a check-in, then come back and accept the task', async t => {
   const { page } = t;
@@ -375,9 +375,9 @@ story('US-088', 'answer a question Pi asks in the middle of building: the code w
   await givenApprovedTasks(t, root, [COUNT]);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-with-question'); await answered(t, id);
   const card = page.locator('.pw-card[aria-label="Start the count at?"]'); await card.waitFor();
-  const resumed = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));  // task 290: a card's answer has its own route
   await card.getByRole('button', { name: 'Answer', exact: true }).click();
-  await answered(t, (await (await resumed).json()).id);
+  await answered(t, (await (await resumed).json()).job);
   const check = checkIn(t); await check.waitFor();
   assert.doesNotMatch(await check.textContent(), /not verified/, 'the check-in: ' + await check.textContent());
   assert.equal(t.bench.git(root, 'status', '--porcelain', '--', 'counter.py').trim(), '', 'counter.py is committed with the task');

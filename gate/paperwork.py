@@ -17,6 +17,7 @@ from pathlib import Path
 import re
 import subprocess
 import threading
+import uuid
 from harness.decision_log import record as record_decision
 
 from . import rules
@@ -174,17 +175,39 @@ class Paperwork:
                 choice.pop('judgement',None)
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
-            if not previous or any(previous.get(key)!=choice.get(key) for key in ('question','options')):
+            same=bool(previous) and all(previous.get(key)==choice.get(key) for key in ('question','options'))
+            if previous and not same and previous.get('request')==request:
+                raise ValueError(f"One question at a time: wait for the person's answer to “{previous['question']}” before asking another.")  # task 290
+            if not same:
                 record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None,proposal=not system)
-            value={**choice,'task':item['task'],'before':item['before'],'pending':True}
+            # Task 290: each question has an id, kept while the same question is asked again; the person's answer names it,
+            # so an answer to a question that was replaced is a no-op.
+            identifier=previous.get('id') if same and previous.get('id') else uuid.uuid4().hex[:16]
+            held=list(previous.get('held') or []) if same else []
+            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
-            return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
+            return {key:value[key] for key in ['id','question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
 
     def confirmed_value(self,root,digest):
         file=self.choice_file(root)
         try:value=json.loads(file.read_text(encoding='utf-8')) if file else self.choices.get(self.project_key(root),{})
         except (OSError,ValueError):return False
         return bool(value and not value.get('pending') and value.get('answer')=='Continue with the stated value' and value.get('state') in ('chosen','given') and value.get('judgement')=={'kind':'assumed_value','digest':digest})
+
+    def settle_waiting(self,root,reason):
+        """Task 290 (review item 18): approval or a new plan settles an older question, so it never blocks approved work."""
+        with self.lock:
+            waiting=self.waiting_choice(root)
+            if waiting:self.save_choice(root,{**waiting,'pending':False,'settled':reason,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
+            return waiting
+
+    def hold(self,request,text):
+        """Task 290: the person's message that a question interrupted before Pi read it, kept with the question."""
+        with self.lock:
+            item=self.requests.get(request);text=str(text or '').strip()
+            if not item or not text:return
+            waiting=self.waiting_choice(item['root'])
+            if waiting and text not in waiting.get('held',[]):self.save_choice(item['root'],{**waiting,'held':[*waiting.get('held',[]),text][-5:]})
 
     def save_choice(self,root,value):
         file=self.choice_file(root)
@@ -309,7 +332,8 @@ class Paperwork:
         if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
         with self.lock:
             plan=self.plan_state(root)
-            if not plan.get('pending') and not plan.get('finished'):return self.phase(root,'implementation',action='Start Building')
+            if not plan.get('pending') and not plan.get('finished'):
+                result=self.phase(root,'implementation',action='Start Building');self.settle_waiting(root,'Start Building');return result
             available=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if selected is None:selected=available
             if not isinstance(selected,list) or not selected or len(set(selected))!=len(selected) or any(path not in available for path in selected):raise ValueError('Choose at least one task from the waiting plan.')
@@ -460,6 +484,7 @@ class Paperwork:
                 first.write_text(first_text[:section.start()]+quoted+'\n\n'+first_text[section.start():] if section else first_text.rstrip()+'\n\n'+quoted+'\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
+            self.settle_waiting(root,'a new plan')
             record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')
             return {'root':str(root),'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
 
@@ -482,6 +507,7 @@ class Paperwork:
                     roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*[-*+]) \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1 [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
             plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
+            self.settle_waiting(root,'Start Building' if state=='chosen' else 'Run on its own')
             item['new_plan']=False
             self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building')
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
@@ -523,6 +549,7 @@ class Paperwork:
                 # Task 260: the paused request's own changes, code included, stay the resumed request's.
                 item['before']=dict(waiting['before']) if isinstance(waiting.get('before'),dict) else item['before']
                 item['new_plan']=False
+                item['held']=list(waiting.get('held') or [])  # task 290: the words the question interrupted reach Pi now
                 self.decision(request,waiting['question'],item['text'][len(prefix):],'chosen')
         return str(root)
 

@@ -16,7 +16,9 @@ if you intentionally added your own harness references.
 Configuration lives in `~/pi-local-harness-data/config.json`. Shared instructions
 are `~/pi-local-harness-data/AGENTS.md`, following Pi's plural instruction filename.
 PLH explicitly injects this file before turns and after recovery; it need not live
-in Pi's global directory. Project-local Pi instructions can also apply.
+in Pi's global directory. Project-local Pi instructions can also apply. Pi may add a short lesson to it with write
+or edit in any phase (task 290): Gate exempts this one file (`$PI_HARNESS_MEMORY`, else `<data>/AGENTS.md`) from
+the project phases, size-guarded (at most 32 KiB, 4 KiB more at a time, never cut below half).
 
 Every setting is a key in `config.json` and an environment variable plh passes on; `harness/settings.py` lists them all
 with their defaults and meaning, and the console shows and changes them (`/config`, `/config set <key> <value>`; each
@@ -61,7 +63,9 @@ that measurement is not a startup-delay guarantee.
 
 The terminal session `plh` opens is the harness console (plan 158). Type `/harness` to choose from the list (“Ask in words” first; a choice goes on the input line; `/harness list`
 prints it; Tab completes model names, settings, guide topics and request ids): `/status`, `/queue`,
-`/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`.
+`/job <id>`, `/gate [n] [blocked]`, `/gate why <id>`, `/models`, `/ollama`, `/projects`, `/config`, `/paths`, `/doctor`,
+`/auto`, `/report`, `/audit`, `/undo`, `/reports`, `/bench`, `/guide [words]` (topics built from GUIDE.md's
+questions), `/update`; `/harness` itself lists them.
 They run at once, without the model; the output appears in the session, so you can ask Pi to explain it. The same
 commands run from any shell: `python3 -m harness.admin <command> [--json]`. Pi's own `/settings` and `/model` are Pi's.
 `/config set <key> <value>`, `/models use <name> [effort]` and `/undo` ask before changing anything, back up the
@@ -119,6 +123,14 @@ The person's controls need more (task 261): `/api/phase`, `/api/phase/build`, ch
 `/api/plan/wait`, `/api/auto` and a message that answers a waiting choice must carry `X-Pi-Person`, this run's secret,
 which the server writes into the served page (`<meta name="pi-person">`) and `js/ui.mjs` `personHeaders()` sends.
 Without it they answer 403 “Reload the page”. The phone gets the secret with the page.
+
+A card's answer has its own route (task 290): `POST /api/choices/answer` with `project`, the question's `id` (Gate gives
+each question one), `option` (the chosen option's index) or `text` (the person's words), and `key` (one per card, so a
+repeated click is the same answer). The answer is resolved atomically: the card is locked, the answer becomes a request
+of its own that runs before the chat's other waiting messages and is never joined with them, a second answer gets the
+first (`answered`), and an answer to a question that is no longer the one waiting is a no-op (`stale`). A
+`Choice: <question> → <answer>` message sent to `/api/jobs/create` takes the same path. Start Building and Continue
+send their own requests (`control`), never the composer's draft or attachments.
 
 Tailscale serve sets `Tailscale-User-Login` from the tailnet identity and removes
 any copy the client sent. Funnel (public internet) requests carry no login, so they

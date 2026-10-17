@@ -165,7 +165,7 @@ class Console:
         rows = [{'id': job.get('id'), 'status': job.get('status'), 'project': job.get('project'),
                  'message': job.get('message', (job.get('data') or {}).get('message', '')), 'created': job.get('created'),
                  'progress': job.get('progress', '')} for job in jobs]
-        return [row for row in rows if state in (None, 'all') or row['status'] == {'waiting': 'queued'}.get(state, state)]
+        return [row for row in rows if state in (None, 'all') or row['status'] in ({'queued', 'waiting'} if state == 'waiting' else {state})]
 
     def job(self, identifier):
         identifier = str(identifier).lower()
@@ -685,14 +685,39 @@ def run(console, command, args, yes=False, width=80):
     value, shape = build(console, command, args, yes)
     return value, terminal.plain(shape, width)
 
-# One word per guide question, in GUIDE.md's order (/guide completion, the /guide list).
-GUIDE_TOPICS = ['what', 'start', 'browser', 'project', 'rename', 'chat', 'comments', 'sees', 'activity', 'long', 'model', 'pull', 'phone', 'voice', 'setting', 'console', 'wrong', 'data']
+# Task 290: the /guide topics are built from GUIDE.md's headings, one per question in its order. A heading gets its word
+# here; a new heading without one gets its first word not taken yet, so the list can never drift from the guide.
+GUIDE_WORDS = {'What is this?': 'what', 'How do I start it?': 'start', 'How do I open the workbench in the browser?': 'browser',
+               'How do I start a project?': 'project', 'How do I rename, move or delete a project?': 'rename', 'Chat or Work?': 'chat',
+               'How do comments work?': 'comments', 'What does Pi see?': 'sees', 'Where do I see what Pi is doing?': 'activity',
+               'Can Pi work on a long task?': 'long', 'How do I choose a model or thinking level?': 'model',
+               'How do I get a new model, or remove one?': 'pull', 'How do I use it from my phone or another device?': 'phone',
+               'Can I talk instead of typing?': 'voice', 'How do I change a setting?': 'setting', 'What can the terminal console do?': 'console',
+               'How do I change the language?': 'language', "How do I add it to my phone's Home Screen?": 'home',
+               'How do I update Pi Workbench?': 'update', 'Something is wrong. What do I do?': 'wrong', 'Where is my data?': 'data',
+               'How do I check whether my app is ready to publish?': 'publish', 'Why does Pi ask me to choose?': 'choose',
+               'How do I let Pi work on its own?': 'auto'}
+
+
+def guide_sections():
+    text = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8')
+    return text, ['## ' + part for part in text.split('\n## ')[1:]]
+
+
+def guide_topics():
+    """[(topic word, question)] for every ## question of GUIDE.md, in order."""
+    topics = []
+    for section in guide_sections()[1]:
+        heading = section.splitlines()[0][3:].strip(); taken = {topic for topic, _ in topics}
+        words = [word for word in re.findall(r'[a-z]+', heading.lower()) if word not in taken]
+        chosen = GUIDE_WORDS.get(heading) if GUIDE_WORDS.get(heading) not in taken else None
+        topics.append((chosen or (words[0] if words else f'q{len(topics) + 1}'), heading))
+    return topics
 
 def completions(console, command):
     """[argument, what it is] for Tab after /<command> (task 171, T_Wayfinding): terminal Pi filters them by what is typed."""
     if command == 'guide':
-        sections = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8').split('\n## ')[1:]
-        return [[topic, section.splitlines()[0]] for topic, section in zip(GUIDE_TOPICS, sections)]
+        return [[topic, heading] for topic, heading in guide_topics()]
     if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
     if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
     if command == 'reports': return [[kind, ''] for kind in ('rule', 'gate-failed', 'recovery', 'wake-up', 'unverified', 'stopped')]
@@ -714,13 +739,14 @@ def completions(console, command):
 
 def guide(words):
     """harness/GUIDE.md, or its sections (## questions) that mention every word; else the list of questions (task 167)."""
-    text = (ROOT / 'harness/GUIDE.md').read_text(encoding='utf-8')
-    sections = ['## ' + part for part in text.split('\n## ')[1:]]
+    text, sections = guide_sections()
+    topics = guide_topics()
     if not words:
-        rows = [[f'/guide {topic}', section.splitlines()[0][3:]] for topic, section in zip(GUIDE_TOPICS, sections)]
+        rows = [[f'/guide {topic}', heading] for topic, heading in topics]
         return {'guide': text}, view('Guide', kv(*rows), hint='/guide <words> for an answer · or ask in words')
     matches = lambda part: all(word.lower() in part.lower() for word in words)
-    found = [section for section in sections if matches(section.splitlines()[0])] or [section for section in sections if matches(section)]  # questions first
+    named = [section for (topic, _), section in zip(topics, sections) if len(words) == 1 and topic == words[0].lower()]
+    found = named or [section for section in sections if matches(section.splitlines()[0])] or [section for section in sections if matches(section)]  # a topic, then questions
     if found:
         parts = [{'kind': 'prose', 'heading': section.splitlines()[0][3:] if len(found) > 1 else '', 'text': '\n'.join(section.splitlines()[1:]).strip()} for section in found]
         return {'sections': found}, view('Guide · ' + (found[0].splitlines()[0][3:].rstrip('?') if len(found) == 1 else ' '.join(words)), *parts, hint='Ask in words for more, or /guide for every topic')

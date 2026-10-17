@@ -18,6 +18,8 @@ by hand: they read live data.
 | `/models` · `/models use <name> [effort]` · `/models check [name] [--all] [--force]` · `/models pull <name>` · `/models remove <name>` | Installed Ollama models: tools, thinking, vision, whether it answers two requests at once, size; the chosen one. `use` switches the model (asks first); `check` measures "at once" (about half a minute per model); `pull` downloads, `remove` moves it to the Trash (both ask first). |
 | `/ollama` · `/ollama set <key> <value>` · `/ollama restart` | Ollama: version, models folder, parallel slots, loaded models. `set` changes `num_parallel`, `keep_alive`, `context_length` or `models_folder` and restarts Ollama (asks first). |
 | `/projects` | Projects and their folders (missing folders marked). |
+| `/auto on\|off\|status` | Run on its own for every project; `on` shows the risks every time, with Cancel first. |
+| `/report` | The last automatic run’s report: tasks done, decisions, what left the Mac or used the Trash, problems. |
 | `/config` · `/config set <key> <value>` | `config.json` with each key explained; `set` changes one (asks first). (`/settings` and `/model` are Pi's own.) |
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
@@ -29,7 +31,9 @@ by hand: they read live data.
 
 With Run on its own off, when you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
 on the person's input line and they press Return to run it and confirm. Say that in one line; never repeat the command
-list in prose (point to `/harness`).
+list in prose (point to `/harness`). Gate lets you propose such a change in any phase, since a preview changes nothing;
+`update` and `models check` only read. With Run on its own on, the tool applies the change itself, so Gate checks it as
+a write.
 
 You run the same commands with your **`harness` tool** (`command`, `args`). Use it instead of bash or searching the
 disk: it runs from the harness's own folder. For "how do I…?" questions about the workbench, call it with `guide` and

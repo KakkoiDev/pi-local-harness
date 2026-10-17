@@ -75,7 +75,9 @@ command check, allowed or blocked, and why.
 
 ## Can Pi work on a long task?
 
-Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). Stop
+Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). When
+Pi stops with work open (code changed and no test passed on it, a loop, a hang), the harness wakes it to continue, at
+most `wake_ups` times per request (default 5; `/config set wake_ups …`, 0 for no limit). Stop
 ends a request at any time: in Chat, in Activity, or ⌘. .
 
 ## How do I choose a model or thinking level?
@@ -115,7 +117,8 @@ In terminal Pi: `/config` lists every setting with what it does and its variable
 
 Type `/harness` and choose from the list (the command goes on the input line; Tab completes model names, settings and
 topics), or `/harness list` to print it: `/status`, `/doctor`, `/queue`, `/job <id>`, `/gate`, `/models`, `/ollama`, `/projects`,
-`/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`, `/update`. They run at once, without the model, and Pi can explain their output. Pi's own
+`/config`, `/paths`, `/guide`, `/undo`, `/reports`, `/bench`, `/update`, `/auto`, `/report`, `/audit`; and `/discuss`,
+`/plan`, `/build` for the phase. They run at once, without the model, and Pi can explain their output. Pi's own
 commands (`/settings`, `/model`, `/new`, `/compact`…) still work.
 
 ## How do I change the language?
@@ -137,7 +140,8 @@ quiet daily check off. If the copy has edited files or its own commits, the wind
 prepare a request asking Pi to help.
 
 In terminal Pi, `/update` says whether a new version is on GitHub and what changed; `/update now` updates (it asks
-first), then quit `plh` and start it again: the new version installs as it starts. Your projects and data are not
+first), then quit `plh` and start it again: the new version installs as it starts, while `auto_update` is on (the
+default; with it off, `/config set auto_update true` first). Your projects and data are not
 touched. An update never overwrites changes you made to Pi Workbench's own files: it says so instead.
 
 ## Something is wrong. What do I do?
@@ -179,6 +183,6 @@ In terminal Pi, plan previews offer Start Building, Plan Another Task, Change…
 
 Phase commands opened outside a project offer the registered-project picker; the selection applies to that command. Project phase and approved-plan state follow the project ID when it moves or is renamed. A pending plan needs explicit Start Building approval; selecting Implementation alone cannot approve it.
 
-Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
+Checked shell reads are `ls`, `cat`, `head`, `tail`, `wc`, `grep`, `rg`, `find`, `diff`, `sed -n <lines>p` and `pwd`; Git only reads in this form: `git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`). A refused command says what may run. Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
 
 Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating, revising and rendering a composition are allowed in every phase, but only as a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting (`gate/media.py`, task 291). Other writes into `assets/music/` follow the phase rules.

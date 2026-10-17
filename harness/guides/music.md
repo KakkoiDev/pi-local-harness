@@ -7,4 +7,4 @@ Use music. Tunes: template=tested score. catalog category=fanfare tone=true; cre
 and sections [{id:"theme",cycles:4,layers:["lead","bass","beat"]}].
 Total cycles*240/bpm=seconds. Loop true. Revisions: read then revise with base
 and changes.layers patches by id; keep bank. Render, fix errors twice at most.
-Any phase: only new revisions in assets/music/<name>/. WAV/source attach to chat. Never claim hearing. Setup: plh setup music; blips CLI/library.
+Any phase: new revisions only, assets/music/<name>/. WAV/source attach to chat. Never claim hearing. The person sets up: plh setup music; blips.

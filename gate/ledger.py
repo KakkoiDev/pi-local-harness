@@ -5,6 +5,7 @@ from datetime import datetime
 import copy
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 import threading
@@ -147,12 +148,19 @@ class ProposalLedger:
     def request_advice(self,request):
         item=self.paperwork.requests.get(request)
         if not item:return None
-        text=item['text'];waiting=self.paperwork.waiting_choice(item['root'])
-        if waiting and not text.startswith('Choice: '):
-            return self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
-        if re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):
-            return self.judgements.decide(request,'phase_intent',[text])
-        return None
+        text=item['text']
+        if text.startswith('Choice: '):return None  # task 290 (review item 5): an answer is never read as a new request
+        waiting=self.paperwork.waiting_choice(item['root'])
+        if waiting:advice=self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
+        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):advice=self.judgements.decide(request,'phase_intent',[text])
+        else:return None
+        # Task 290 (review item 4): a card raised before Pi read the message keeps it; Pi gets it after the answer.
+        if advice.get('choice'):self.paperwork.hold(request,text)
+        return advice
+
+    def held(self, request):
+        """The person's messages a question interrupted, for the request that answers it (once)."""
+        return list((self.paperwork.requests.get(request) or {}).get('held') or [])
 
     def end_request(self, request, review=True):
         result = self.paperwork.end(request,review=review)
@@ -162,9 +170,32 @@ class ProposalLedger:
     def last_note(self, token):
         return self.notes.pop(token, None)
 
+    MEMORY_LIMIT, MEMORY_GROWTH = 32 * 1024, 4 * 1024
+
+    def memory_change(self, pi_tool, args, cwd):
+        """Task 290: AGENTS.md (the shared memory, $PI_HARNESS_MEMORY or <data>/AGENTS.md) takes a short lesson in any
+        phase, outside every project's plan. None: not the memory file; '': allowed; else why not (size-guarded: at most
+        32 KiB, 4 KiB more at a time, never cut to less than half)."""
+        if pi_tool not in ('write','edit') or not isinstance(args.get('path'),str):return None
+        try:target=(Path(cwd or '.')/Path(args['path']).expanduser()).resolve()
+        except (OSError,ValueError):return None
+        files={Path(path).expanduser().resolve() for path in (os.environ.get('PI_HARNESS_MEMORY'),Path(self.paperwork.data)/'AGENTS.md' if self.paperwork.data else None) if path}
+        if target not in files:return None
+        try:before=target.read_text(encoding='utf-8') if target.is_file() else ''
+        except (OSError,UnicodeDecodeError):return None
+        if pi_tool=='write':after=args.get('content')
+        else:after,_=apply_edits(before,args,target.name)
+        if not isinstance(after,str):return None  # the usual checks say what is wrong with the call
+        size=len(after.encode());grown=size-len(before.encode())
+        if size>self.MEMORY_LIMIT:return f'Not written: {target.name} would be {size:,} bytes; it stays at most {self.MEMORY_LIMIT//1024} KiB because it joins every request. Shorten or merge lessons instead.'
+        if grown>self.MEMORY_GROWTH:return f'Not written: add at most {self.MEMORY_GROWTH//1024} KiB to {target.name} at a time: one short lesson with its cause and prevention.'
+        if before.strip() and len(after.strip())<len(before.strip())//2:return f'Not written: keep {target.name}’s instructions; remove at most half of it at a time.'
+        return ''
+
     def propose(self, tool_name, args, auth_level, pi_tool=None, cwd=None, tool_call_id=None, source=None, request=None, assistant_text=""):
         from .phases import harness_read_only
-        console_change=pi_tool=='harness' and not harness_read_only(args)
+        from harness.autonomy import enabled as automatic
+        console_change=pi_tool=='harness' and not harness_read_only(args,applies=automatic(self.paperwork.data))
         if console_change:tool_name='write_file'
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
@@ -182,8 +213,10 @@ class ProposalLedger:
         reason = self.protocol.commit_reason(cwd, command) if isinstance(command, str) else None
         if reason:
             return refuse('G-005', reason)
+        memory=None if rules.bare() else self.memory_change(pi_tool,args,cwd)
+        if memory:return refuse('G-015',memory)
         root=None
-        if not rules.bare():
+        if not rules.bare() and memory is None:
             if pi_tool in ('write','edit') and isinstance(args.get('path'),str):
                 target=Path(args['path']).expanduser()
                 root=self.paperwork.project_root((Path(cwd or '.')/target).resolve())

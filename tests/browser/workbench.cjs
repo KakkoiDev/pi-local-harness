@@ -56,7 +56,7 @@ function scratch(prefix = 'pi-stories-') {
     const response = await fetch(bench.base + path, body === undefined ? {} : { method: 'POST', headers, body: JSON.stringify(body) });
     const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || response.status), { status: response.status, data }); return data;
   };
-  bench.job = async (id, states = ['completed', 'failed', 'stopped', 'interrupted'], timeout = 30000) => {
+  bench.job = async (id, states = ['completed', 'failed', 'stopped', 'interrupted', 'waiting'] /* task 290: a question or plan pause is 'waiting' */, timeout = 30000) => {
     const end = Date.now() + timeout;
     while (Date.now() < end) {
       const job = (await bench.api('/api/workspace')).jobs.find(item => item.id === id);

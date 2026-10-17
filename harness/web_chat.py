@@ -11,7 +11,7 @@ from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
-from harness.work_queue import WorkQueue
+from harness.work_queue import WorkQueue, display_text
 from harness.preview import Previews
 from harness import undo as undoing
 import json
@@ -82,6 +82,16 @@ class ConversationStore:
             if message.get('role')!='assistant' or not message.get('check_in'):raise ValueError('Check-in not found.')
             message['check_in'].update(state='stopped',when=timestamp())
             return self.save(value)
+
+    def settle_choices(self, identifier, reason):
+        """Task 290: cards still open when approval or a new plan replaced their question say so, and cannot be answered."""
+        with self.lock:
+            value=self.get(identifier);changed=False
+            for message in value['messages']:
+                choice=message.get('choice')
+                if message.get('role')=='assistant' and choice and not choice.get('answer') and not choice.get('settled'):
+                    choice.update(settled=reason,when=timestamp());changed=True
+            return self.save(value) if changed else value
 
     def create(self):
         return self.save({'id':uuid.uuid4().hex,'title':'New conversation','messages':[],'created':timestamp()})
@@ -396,12 +406,61 @@ class WebChat:
         if comment is not None and not (isinstance(comment,dict) and isinstance(comment.get('path'),str) and isinstance(comment.get('id'),str)):raise ValueError('Choose a comment')
         if data.get('document') is not None and not isinstance(data.get('document'),str):raise ValueError('Choose a document')
         project=data['project'];chat=self.project_chat(project)
+        answered=re.fullmatch(r'Choice: (.+?) → (.+)',data.get('message','').strip(),re.S) if not data.get('choice_answer') else None
+        if answered:  # task 290: a "Choice: …" message answers the question waiting under that name, through the same path
+            with self.store.lock:
+                chat=self.store.get(chat['id'])
+                card=next((message['choice'] for message in reversed(chat['messages']) if message.get('role')=='assistant' and message.get('choice')),None)
+                if not card or card.get('question')!=answered[1].strip():return {'stale':True}
+                if not card.get('id'):card['id']=uuid.uuid4().hex[:16];self.store.save(chat)  # a card saved before task 290
+            labels=[option.get('label') for option in card.get('options',[])];text=answered[2].strip()
+            return self.answer_choice(project,{'id':card.get('id',''),'key':'message:'+text,**({'option':labels.index(text)} if text in labels else {'text':text})})
         if not data.get('message','').strip() and not data.get('attachments') and not data.get('document_comment'):raise ValueError('Write a prompt or choose a comment')
         if data.get('document_comment'):
             comment=data['document_comment']
             if len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
             self.documents.comment_prompt(comment['path'],comment['id'])
         return self.queue.add(project,chat['id'],data)
+    def answer_choice(self, project, data):
+        """Task 290 (review items 8 and 18): the person's answer to the question on a card, resolved atomically. The card
+        names its question (`id`) and the option chosen (`option`, its index) or the person's words (`text`); `key` makes a
+        repeated click the same answer. The card is locked once answered; an answer to a question that is no longer the
+        one waiting is a no-op ({'stale': True}); a second answer gets the first ({'answered': True}). The answer is a
+        request of its own, never joined with the chat's other messages, and runs before them."""
+        identifier=data.get('id');key=str(data.get('key') or '')[:100]
+        if not isinstance(identifier,str) or not identifier:raise ValueError('Name the question you answer.')
+        chat=self.project_chat(project)['id']
+        with self.store.lock:
+            conversation=self.store.get(chat)
+            cards=[message for message in conversation['messages'] if message.get('role')=='assistant' and message.get('choice')]
+            mine=[message['choice'] for message in cards if message['choice'].get('id')==identifier]
+            if not mine:return {'stale':True,'conversation':conversation}
+            choice=mine[-1]
+            if choice.get('answer'):
+                return {'answered':True,'answer':choice['answer'],'job':choice.get('job'),'duplicate':bool(key) and choice.get('key')==key,'conversation':conversation}
+            if choice.get('settled') or cards[-1]['choice'].get('id')!=identifier:return {'stale':True,'conversation':conversation}
+            ledger=getattr(self,'ledger',None)
+            waiting=ledger.paperwork.waiting_choice(self.documents.project_path(project)) if ledger else None
+            if waiting and (waiting.get('id')!=identifier if waiting.get('id') else waiting.get('question')!=choice.get('question')):return {'stale':True,'conversation':conversation}
+            labels=[option.get('label','') for option in choice.get('options',[])];option=data.get('option')
+            if isinstance(option,int) and not isinstance(option,bool) and 0<=option<len(labels):answer=labels[option]
+            else:
+                answer=' '.join(str(data.get('text') or '').split())
+                if not answer:raise ValueError('Choose an option or write your answer.')
+                if len(answer)>2000:raise ValueError('Keep the answer under 2,000 characters.')
+            job=self.queue.add(project,chat,{'message':f"Choice: {choice['question']} → {answer}",'choice_answer':{'id':identifier}})
+            for item in mine:item.update(answer=answer,state='chosen',when=timestamp(),key=key,job=job['id'])
+            conversation=self.store.save(conversation)
+        self.queue.resume_waiting(chat,f'Answered: {answer}')
+        return {'answer':answer,'job':job['id'],'conversation':conversation}
+    def abandon(self, request):
+        """Task 290: end Gate's paperwork for a request whose Pi crashed or was stopped before it could (no review, no
+        wake-ups). Returns Gate's result, or None when the request had already ended or paused."""
+        ledger=getattr(self,'ledger',None)
+        if not ledger or request not in ledger.paperwork.requests:return None
+        try:return ledger.end_request(request,review=False)
+        except Exception as error:
+            print(f'Could not end the request {request}: {error!r}',flush=True);ledger.paperwork.requests.pop(request,None);return None
     def execute_job(self, job, emit):
         data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit,job=job['id'])
     def gate_events(self):
@@ -525,6 +584,8 @@ class WebChat:
             with self.lock:self.active.pop(key,None)
             raise
         process=None;diagnostics=None;context_file=None;token_file=None
+        # Task 290: what a crash or a stop leaves in the chat (the partial answer, the control it raised), saved once.
+        reply='';partial='';pending_choice=None;pending_plan=None;check_in=None;notices=[];started=False;answered=False;detached=True
         try:
             emit({'type':'status','text':'Preparing attachments…'})
             folder=self.store.folder(identifier)
@@ -564,6 +625,7 @@ class WebChat:
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             if not detached:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
+                started=True
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
@@ -588,13 +650,13 @@ class WebChat:
             threading.Thread(target=read,daemon=True).start()
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
-            heard=time.monotonic();settled=False;reply='';thought=''
+            heard=time.monotonic();settled=False;thought=''
             # Task 136: files Pi opened with its read tool beyond the chosen context ("Also read:" after the answer).
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
             # phase: 'answering' → 'recovering' (aborted turn, ignore its abort and settle) → 'reasking' (its new turn) → done on settle.
             artifact_sets={}
-            decisions=[];run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
+            notices=[];decisions=[];run_report=None;pending_plan=None;check_in=None;pending_choice=None;phase='answering';harness_done=False;committed=None  # plan 184: the extension says when it will not wake Pi again
             while True:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
@@ -620,7 +682,10 @@ class WebChat:
                     if notice.startswith('Harness check-in: '):
                         check_in=json.loads(notice.removeprefix('Harness check-in: '));emit({'type':'check_in',**check_in})
                     if notice.startswith('Harness choice: '):
-                        pending_choice=json.loads(notice.removeprefix('Harness choice: '));emit({'type':'choice',**pending_choice})
+                        pending_choice=json.loads(notice.removeprefix('Harness choice: '))
+                        pending_choice.setdefault('id',uuid.uuid4().hex[:16])  # task 290: the card's answer names its question
+                        emit({'type':'choice',**pending_choice})
+                    if notice.startswith('Harness notice: ') and len(notices)<5:notices.append(notice.removeprefix('Harness notice: ')[:500])  # task 290: shown under the answer
                     if notice=='Harness settled':harness_done=True
                     committed=committed_commit(notice) or committed
                 if event.get('type')=='agent_start':
@@ -635,12 +700,16 @@ class WebChat:
                             text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                             if text:reply=text
                             continue  # persist the control and preceding answer when settled
-                        if message.get('stopReason') in ('error','aborted'):raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
+                        if message.get('stopReason') in ('error','aborted'):
+                            reply=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text') or reply  # kept with the failure (task 290)
+                            raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
                 if event.get('type')=='message_update':
                     delta=event.get('assistantMessageEvent',{})
                     if delta.get('type')=='thinking_delta':thought+=delta.get('delta','')
+                    if delta.get('type')=='text_start':partial=''
+                    if delta.get('type')=='text_delta':partial=(partial+delta.get('delta',''))[-50000:]
                 if event.get('type')=='tool_execution_end' and not event.get('isError'):
                     details=(event.get('result') or {}).get('details') or {}
                     if event.get('toolName')=='ask_choices' and details.get('answer'):
@@ -671,9 +740,25 @@ class WebChat:
                 emit({'type':'committed','commit':committed,'project':project})
                 if project and folder_root:self.changed(project,folder_root,committed)
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {})})
+            if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
+            answered=True
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
+        except Exception as error:
+            # Task 290 (review P2): a crash or a stop mid-answer. Gate gets the request's end (the extension can no longer
+            # send it); the chat keeps what Pi had written and the control it raised, marked failed or stopped, once.
+            ended=self.abandon(key)
+            if started and not answered:
+                answered=True;stopped=str(error)=='Stopped'
+                text=reply or display_text(partial).strip();check_in=check_in or (ended or {}).get('check_in')
+                if text or pending_choice or pending_plan or check_in:
+                    try:
+                        self.store.append(identifier,{'role':'assistant','content':text,'ended':{'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]},
+                            **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
+                        emit({'type':'conversation','conversation':self.store.get(identifier)})
+                    except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
+            raise
         finally:
             if process:
                 process.terminate()
@@ -717,7 +802,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -822,7 +907,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
-                conversation=self.chat.project_chat(data['project'])
+                conversation=self.chat.store.settle_choices(self.chat.project_chat(data['project'])['id'],'Start Building')
+                self.chat.queue.resume_waiting(conversation['id'],'Start Building')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):
                         message['plan'].update(approved=True,waiting=False);break
@@ -842,6 +928,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/plan/wait':
                 root=self.chat.documents.project_path(data['project']);self.chat.ledger.paperwork.phase(root,'discussion',action='Plan Another Task')
                 conversation=self.chat.project_chat(data['project'])
+                self.chat.queue.resume_waiting(conversation['id'],'Plan Another Task: the plan waits')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
@@ -875,6 +962,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
             if path=='/api/directories/create':self.reply(self.chat.documents.create_directory(data.get('parent'),data.get('name')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
+            if path=='/api/choices/answer':self.reply(self.chat.answer_choice(data['project'],data));return  # task 290
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return

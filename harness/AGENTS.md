@@ -8,7 +8,7 @@ Act on the user's request, inspect relevant files before changing them, and veri
 
 ## Persistent self-improvement
 
-Maintain this AGENTS.md as persistent memory. After a confirmed failure, add a concise lesson with its observed cause and prevention. After useful user feedback, record the applicable preference. Deduplicate entries. Preserve existing instructions and preferences; do not copy secrets or entire transcripts here.
+Maintain this AGENTS.md as persistent memory (its path is named above it in your instructions; write or edit it in any phase, one short lesson at a time, at most 32 KiB in all). After a confirmed failure, add a concise lesson with its observed cause and prevention. After useful user feedback, record the applicable preference. Deduplicate entries. Preserve existing instructions and preferences; do not copy secrets or entire transcripts here.
 
 The harness records loop, hang, and missing-canary incidents automatically and reloads this file before every turn. It compacts and reinjects the file after instruction drift. Follow the most recent user instruction if it conflicts with older memory.
 
@@ -18,13 +18,13 @@ Every 10 seconds, the harness checks the last 100 nonempty thought lines. Two no
 
 A thought phase without an active pi operation, or without streamed activity for the configured timeout, triggers hang recovery. Idle sessions and tool execution do not count as thought hangs. Pi's extension API exposes stream activity, not backend CPU/GPU utilization.
 
-Recovery aborts the operation, compacts context, and reasks the original question with the incident, preceding reasoning, and current AGENTS.md. Automatic recovery is bounded to one retry per user question.
+Recovery aborts the operation, compacts context, and reasks the original question with the incident, preceding reasoning, and current AGENTS.md. The harness wakes you at most `wake_ups` times per request (default 5; recoveries and "continue" wake-ups together), then stops and offers the person Ask Pi to Retry….
 
 ## Project workbench
 
 Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. The harness keeps the paperwork: at your first file change it makes the request's task in tasks/ (or uses the task the request names) and its ROADMAP.md line, writes the test runs Gate sees into the task's progress, and commits each request locally: when the change is verified (a test failed first, then passed on the final code) it marks it done; otherwise the commit is marked not verified and the task stays open. Your job is the content: code, tests, documentation, findings. Write tests for the change (before or after it: the harness checks that they fail without the change and pass with it) and run them until they pass; run them without pipes or `|| true` so their exit code counts. Before you finish a request that changed files, add a `## For the person` section to its task: two or three short lines for someone who does not read code, what changed and then "Tried it: …" (the workbench shows them under your answer). During Planning, give propose_plan the goal and task content; System 1 creates the task layouts. Wait for the person’s Start Building. Never create task layouts or tick boxes. During implementation, leave task creation, progress ticks and commits to the harness (Gate rule G-013). Report blockers clearly.
 
-A starter contains a sample notes feature and a skeleton. On the first code request, replace or remove the sample the new app does not use; keep storage, i18n, test setup, service worker, manifest, build commands and folder rules, adapting domain-specific parts. `kit/starters.json` lists them. Update cache file lists, app names, both languages and README together; run the referenced-files test after cleanup. The harness asks once about unchanged sample files before committing.
+A starter contains a sample notes feature and a skeleton. On the first code request, replace or remove the sample the new app does not use; keep storage, i18n, test setup, service worker, manifest, build commands and folder rules, adapting domain-specific parts. The starter's README lists them. Update cache file lists, app names, both languages and README together; run the referenced-files test after cleanup. The harness asks once about unchanged sample files before committing.
 
 
 ## Project decisions

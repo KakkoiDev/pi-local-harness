@@ -80,7 +80,8 @@ class WorkQueue:
             if self.closed:raise ValueError('Queue is shutting down')
             if sum(job['status']=='queued' for job in self.jobs)>=100:raise ValueError('Queue is full')
             # Chat messages sent while the chat's earlier message still waits join it: one request, not many (the person, 2026-10-13).
-            plain=lambda value:self.role(value)=='chat'
+            # Task 290: an answer to a question, Start Building and Continue are requests of their own, never joined.
+            plain=lambda value:self.role(value)=='chat' and not value.get('choice_answer') and not value.get('control')
             waiting=next((item for item in reversed(self.jobs) if item['status']=='queued' and item['chat']==chat and plain(item['data'])),None) if plain(data) else None
             incoming=copy.deepcopy(data.get('attachments',[]))
             if waiting and len(waiting['data'].get('attachment_names',[]))+len(incoming)<=8:
@@ -90,8 +91,13 @@ class WorkQueue:
                 self.save(waiting);return {**self.public(waiting),'merged':True}
             job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':{key:copy.deepcopy(value) for key,value in data.items() if key!='attachments'},'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':''}
             if incoming:self.store_attachments(job,incoming)
+            # Task 290: Pi waits for the answer, so it goes before the chat's other waiting messages (FIFO otherwise).
+            ahead=next((index for index,item in enumerate(self.jobs) if item['status']=='queued' and item['chat']==chat and self.role(item['data'])=='chat'),None) if data.get('choice_answer') else None
+            if ahead is not None:job.update(created=self.jobs[ahead]['created'],order=self.jobs[ahead].get('order',0)-.5)
             self.save(job)  # written before it joins the list: a record that cannot be saved never enters the queue
-            self.jobs.append(job);self.condition.notify_all();return self.public(job)
+            if ahead is None:self.jobs.append(job)
+            else:self.jobs.insert(ahead,job)
+            self.condition.notify_all();return self.public(job)
     @staticmethod
     def role(data):
         return 'worker' if data.get('worker') else 'comment' if data.get('document_comment') else 'document' if data.get('document') else 'chat'
@@ -117,9 +123,15 @@ class WorkQueue:
         """Run a claimed request to its end; the record says how it ended."""
         try:
             self.execute(self.hydrate(job),lambda event:self.update(job,event))
-            with self.condition:job.update(status='completed',finished=now(),progress='Completed')
+            with self.condition:
+                # Task 290: a request that paused for a question or a plan waits for the person; it is not Completed.
+                plan=job.get('plan') or {}
+                if (job.get('choice') or {}).get('pending'):job.update(status='waiting',finished=now(),progress='Stopped by a question: waiting for your answer')
+                elif plan.get('pending') and not plan.get('approved'):job.update(status='waiting',finished=now(),progress='Stopped for the plan: waiting for Start Building')
+                else:job.update(status='completed',finished=now(),progress='Completed')
         except Exception as error:
-            with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
+            stopped=str(error)=='Stopped'  # task 290: the person's Stop, never a question's pause
+            with self.condition:job.update(status='stopped' if stopped else 'failed',finished=now(),progress='Stopped by you' if stopped else str(error))
         finally:
             with self.condition:
                 job['text']=display_text(job.get('text',''));self.drop_attachments(job);self.save(job);self.condition.notify_all()
@@ -150,6 +162,11 @@ class WorkQueue:
             if note:data['message']=f"{data.get('message','').rstrip()}\n\nNote from the person: {note}"
             data['retry_of']=identifier
         return self.add(job['project'],job['chat'],data)
+    def resume_waiting(self, chat, progress):
+        """Task 290: the person answered the question or acted on the plan a request paused for; it is complete."""
+        with self.condition:
+            for job in self.jobs:
+                if job['chat']==chat and job['status']=='waiting':job.update(status='completed',progress=progress[:300]);self.save(job)
     def cancel(self, identifier):
         with self.condition:
             job=next((job for job in self.jobs if job['id']==identifier),None)

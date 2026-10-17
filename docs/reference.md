@@ -90,7 +90,10 @@ quote rather than silently moving.
 
 **Activity · All Projects** (Window menu ⌘3, the Agent section of the Projects window, or the
 status in the menu bar) shows running, waiting, completed, stopped, failed, and interrupted
-tasks of every project. Messages you send while Pi works join your waiting message. Filter by project or state, open the source chat/document,
+tasks of every project. A request that paused for a question or a plan is waiting for you (“Stopped by a question:
+waiting for your answer”, or for Start Building), not completed; it completes when you answer or act on the plan. A
+request you stopped says “Stopped by you”. Messages you send while Pi works join your waiting message; an answer to a
+question, Start Building and Continue are requests of their own and never join it (an answer goes first). Filter by project or state, open the source chat/document,
 inspect the Markdown record, cancel waiting work, or stop active work. Requests
 enter one durable FIFO queue. You can browse another project while it runs.
 Interrupted work is never automatically repeated.
@@ -197,11 +200,17 @@ the model's next reasoning step. After `tool_result`, an audit checks the origin
 proposal, execution status, and write/edit postconditions. Gate failures fail
 closed; failed/unavailable audits become failed tool results.
 
-Ordinary shell commands work in both profiles: `env`, `ls /`, `whoami`, builds,
-tests, and scoped cleanup such as `rm -rf ./build`. Broad deletion (`rm -fr *`),
-root/home deletion, disk erasure, raw disk writes, and recursive system permission
-changes are blocked. Common shell wrappers are checked. This is an accident guard,
-not a sandbox for arbitrary scripts. [Rules and sources](../specs/shell-safety.md).
+Inside a project, the phase decides which shell commands run (G-015, `gate/phase_shell.py`). Discussion and Planning
+run only checked reads: `ls`, `cat`, `head`, `tail`, `wc`, `grep`, `rg`, `find`, `diff`, `sed -n <lines>p` and `pwd`,
+joined by `|` if needed, with no globs, `$`, `;` or redirection; Git only in its read form,
+`git --no-pager --no-optional-locks -c core.fsmonitor=false status` or
+`git --no-pager --no-optional-locks -c core.fsmonitor=false diff --no-ext-diff --no-textconv` (plain `git status`
+is refused: it can write the index and run hooks). Implementation adds the project's checked test runners (offline
+and no-install forms: `npx --no-install`, `uv run --offline`, `cargo test --offline`; no `go test`); anything else
+(builds, installs, `git commit`, downloads) is refused and the refusal says what may run. Outside any project the
+destructive guard alone applies: ordinary commands run; broad deletion (`rm -fr *`), root/home deletion, disk
+erasure, raw disk writes and recursive system permission changes are blocked. Common shell wrappers are checked. This
+is an accident guard, not a sandbox for arbitrary scripts. [Rules and sources](../specs/shell-safety.md).
 **Gate · All Projects** (Window menu ⌘4) shows the actual shared ledger: checks, arguments,
 outcomes, reasons, project and source (web or terminal). Checks are saved in
 `gate-events.jsonl` and the latest 200 come back after a restart.
@@ -214,7 +223,15 @@ nothing (no step, no output, no tool event) for an hour; time paused while Pi an
 
 ### Commit protocol
 
-In a project folder with `ROADMAP.md` and `tasks/`, Gate revises any `git commit`
+Within a request, the harness commits (G-013): Pi's own `git commit` is refused. At the end of a request that changed
+files, the harness commits locally what the request changed inside its task's `Files:` (with Git hooks off). The
+change is verified, and its task and ROADMAP.md line ticked done, only from evidence: a test run that passed on the
+final code, and a failure of that test without the change (a run Gate saw, or the harness's own proof in a temporary
+copy of the project; a `--help` run or a run where no test ran does not count). Otherwise the commit is marked “not
+verified” and the task stays open; in a plan, a check-in waits for the person. Undo This Request reverts it.
+
+Outside a request (a commit typed in a project folder through Pi's tools, the bench's bare mode), Gate still applies
+the older commit order (G-005): in a project folder with `ROADMAP.md` and `tasks/`, Gate revises any `git commit`
 until it has seen, since the last commit: a failing test run, a code change, a
 passing test run on exactly the code being committed, a newly checked `- [x]` box in
 a `tasks/*.md` file, and one in `ROADMAP.md`. Each checked task file needs a
@@ -236,9 +253,12 @@ exempt. Pi exposes operation/stream state, not definitive GPU utilization.
 
 Recovery aborts, waits for the turn to end, compacts, reloads shared `AGENTS.md`,
 and reasks the original question with previous reasoning and the incident. Missing
-`[CANARY]` in completed assistant text follows the same path. One automatic retry
-is allowed per question. Memory reloads before every turn. The agent can record
-verified lessons/preferences; automatic incident lessons are currently fixed and
+`[CANARY]` in completed assistant text follows the same path. The harness wakes Pi at
+most `wake_ups` times per request (config.json or `PI_HARNESS_WAKE_UPS`, default 5, 0 for no limit): recoveries and
+its "continue" wake-ups (code changed and no test passed on it yet, a plan left incomplete, the starter sample) count
+together; then it stops and offers Ask Pi to Retry…. Memory reloads before every turn. The agent can record
+verified lessons/preferences in `AGENTS.md` with write or edit in any phase (Gate exempts that one file, size-guarded:
+at most 32 KiB, 4 KiB more at a time); automatic incident lessons are currently fixed and
 deduplicated by kind. Evidence-verified promotion remains an open roadmap task.
 
 Paste accessible image/audio paths in terminal Pi (quote paths containing spaces),

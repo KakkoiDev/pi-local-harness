@@ -29,6 +29,8 @@ export function planDecisions(plan){
  return result;
 }
 export function choiceCard(choice,{state={},answer,change}={}){
+ /* task 290: approval or a new plan replaced a question nobody answered; it says so and cannot be answered (needs design) */
+ if(choice.settled&&!state.answer&&!choice.answer)return settled(`${choice.question} · not answered: settled by ${choice.settled}`,{old:true});
  if(state.answer||choice.answer){const value=state.answer||choice.answer;return settled(`${choice.question}: ${value}${choice.options?.some(o=>o.label===value)?'':' · your words'} · ${choice.state==='auto'?'auto':`you · ${time(state.answeredAt||choice.when)}`}`,{state:choice.state,action:change});}
  const {el,head,body,foot}=card(choice.question,'question',choice.question);if(!choice.system_owned)head.querySelector('h3').dataset.noTranslate='';body.setAttribute('role','radiogroup');body.setAttribute('aria-label',choice.question);
  if(choice.number&&choice.total)head.append(node('span','',`Question ${choice.number} of ${choice.total}`));

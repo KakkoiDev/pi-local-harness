@@ -17,7 +17,10 @@ export function validateChoice(value) {
   return { ...(value.system_owned===true?{system_owned:true}:{}),...(value.number?{number:value.number,total:value.total}:{}),question:value.question.replace(/\s+/g,' ').trim(), options, recommended:0, allow_other:true };
 }
 
-export function installChoices(pi, {auto=()=>false, web=()=>false, record=async()=>{}, pending=async()=>{}, cancel=async()=>{}} = {}) {
+export function installChoices(pi, {auto=()=>false, web=()=>false, record=async()=>{}, pending=async()=>{}, cancel=async()=>{}, waiting} = {}) {
+  // Task 290: one question at a time. In the web a question pauses the turn; a second ask_choices in the same batch is
+  // refused, so the first question is never overwritten. `waiting()` (the extension's) says whether one still waits.
+  let open=null;const busy=()=>open!==null&&(waiting?waiting():true);
   const tool={
     name:'ask_choices',label:'Ask a choice',
     description:'Ask one decision the request, code and conventions do not answer. Offer 2–4 short options, recommended first (recommended: 0). The harness adds Something else…. Wait for the answer before using the decision.',
@@ -27,7 +30,8 @@ export function installChoices(pi, {auto=()=>false, web=()=>false, record=async(
         const choice=validateChoice(params);let answer,state='chosen';
         if (await auto(ctx)) { answer=choice.options[0].label;state='auto'; }
         else if (web(ctx)) {
-          await pending(choice,ctx);
+          if (busy()) throw Error(`One question at a time: wait for the person's answer to “${open}” before asking another. Stop here.`);
+          await pending(choice,ctx);open=choice.question;
           return {content:[{type:'text',text:'Waiting for the person’s choice. Stop here.'}],details:{...choice,pending:true}};
         } else {
           await pending(choice,ctx);

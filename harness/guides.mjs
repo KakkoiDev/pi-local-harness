@@ -5,12 +5,15 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
+// Task 290: Pi works in the project folder, so a guide names the harness's own files as {harness}/…, filled in here with
+// the harness's absolute folder (a bare kit/… path would not resolve from the project).
+const HARNESS = fileURLToPath(new URL('../', import.meta.url)).replace(/\/$/, '');
 export function loadGuides(folder = new URL('./guides/', import.meta.url)) {
   const path = folder instanceof URL ? fileURLToPath(folder) : folder;
   return readdirSync(path).filter(name => name.endsWith('.md')).sort().map(name => {
     const text = readFileSync(join(path, name), 'utf8'), match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
     const triggers = (match?.[1].match(/^triggers:\s*(.*)$/m)?.[1] || '').split(',').map(word => word.trim().toLowerCase()).filter(Boolean);
-    return { name: name.replace(/\.md$/, ''), triggers, text: (match?.[2] || text).trim() };
+    return { name: name.replace(/\.md$/, ''), triggers, text: (match?.[2] || text).trim().replaceAll('{harness}', HARNESS) };
   });
 }
 

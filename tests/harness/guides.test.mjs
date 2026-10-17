@@ -6,7 +6,9 @@ const guides = loadGuides(new URL('../../harness/guides/', import.meta.url));
 
 test('every guide has triggers and stays short (it joins the system prompt)', () => {
   assert.ok(guides.length >= 4);
-  for (const guide of guides) { assert.ok(guide.triggers.length, guide.name); assert.ok(guide.text.length < 700, `${guide.name} is short`); }
+  // Its own words are short; the harness's folder, filled in for {harness} (task 290), depends on where it is installed.
+  const harness = new URL('../../', import.meta.url).pathname.replace(/\/$/, '');
+  for (const guide of guides) { assert.ok(guide.triggers.length, guide.name); assert.ok(guide.text.replaceAll(harness, '{harness}').length < 700, `${guide.name} is short`); }
 });
 
 test('a request gets the guides its words call for, at most two, most matches first (strategy 5)', () => {

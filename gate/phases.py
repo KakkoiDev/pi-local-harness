@@ -87,11 +87,29 @@ def not_a_project(folder, tool):
     return NOT_A_PROJECT_REFUSAL.format(verb='Not run' if tool == 'execute_command' else 'Not written', folder=folder)
 
 
-def harness_read_only(args):
-    """Console mutation is not made read-only by the transport's historical tool label."""
+# Task 290: what Pi may run in each phase, said when a command is refused (the docs say the same).
+GIT_READ = '`git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`)'
+READS = 'ls, cat, head, tail, wc, grep, rg, find, diff, sed -n <lines>p and pwd, joined by | if needed (no globs, $, ; or redirection), and git in the read form ' + GIT_READ
+COMMAND_REFUSALS = {
+    'discussion': 'Not run: the project is in Discussion. Pi runs only checked reads: ' + READS + '. To build or run anything else, plan a task (Planning) and choose Start Building.',
+    'planning': 'Not run: the project is in Planning. Pi runs only checked reads: ' + READS + '. To build or run anything else, choose Start Building on the plan.',
+    'implementation': 'Not run: in Implementation Pi runs checked reads (' + READS + ') and the project\u2019s checked test runners (unittest, pytest, node --test, npm test …). Other commands are refused; the person can run them in a terminal.',
+}
+
+
+def harness_read_only(args, applies=False):
+    """Console mutation is not made read-only by the transport's historical tool label.
+
+    Task 290: the harness tool only previews a change (it puts the command on the person's input line, or in the web
+    returns the preview); it applies one itself only while Run on its own is on (`applies`), or with --yes. A preview
+    changes nothing, so it is a read. `update` (what is new) and `models check` are reads either way."""
     command=args.get('command');words=str(args.get('args') or '').split()
+    if '--yes' in words:applies=True;words=[word for word in words if word!='--yes']
     if any(word.startswith('--') for word in words):return False
     if command in {'harness','status','queue','job','gate','projects','paths','doctor','bench','reports','guide','report'}:return True
+    if command=='update' and not words or command=='models' and words[:1]==['check']:return True
+    if command in {'audit','undo'}:return False  # their own checks (the publication audit's task) decide
+    if not applies:return True
     if command in {'models','ollama'}:return not words
     if command=='config':return len(words)<=1 and words!=['set']
     if command=='auto':return words in ([],['status'])
@@ -113,7 +131,8 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if tool == 'read_file' and pi_tool != 'propose_plan': return None
     if tool == 'execute_command' and read_only(args.get('command')): return None
     command = tool == 'execute_command'
-    if phase == 'discussion': return DISCUSSION_COMMAND_REFUSAL if command else DISCUSSION_PLAN_REFUSAL if pi_tool == 'propose_plan' else DISCUSSION_REFUSAL
+    if tool == 'execute_command' and phase in ('discussion', 'planning'): return COMMAND_REFUSALS[phase]
+    if phase == 'discussion': return DISCUSSION_PLAN_REFUSAL if pi_tool == 'propose_plan' else DISCUSSION_REFUSAL
     path = None
     if pi_tool in ('write', 'edit') and isinstance(args.get('path'), str):
         candidate = Path(args['path']).expanduser()
@@ -125,6 +144,9 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
     if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
     if not approved: return NO_TASK_COMMAND_REFUSAL if command else 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
     if tool == 'execute_command' and test_run(args.get('command')): return None
+    if tool == 'execute_command':
+        title = re.search(r'^#\s+(.+)', task, re.M)  # task 263: say which task this phase serves
+        return COMMAND_REFUSALS['implementation'] + f' (task {title[1] if title else "in progress"})'
     if pi_tool == 'browser': return None  # verification runs only in an isolated scratch browser
     title = re.search(r'^#\s+(.+)', task, re.M)
     name = title[1] if title else 'in progress'
