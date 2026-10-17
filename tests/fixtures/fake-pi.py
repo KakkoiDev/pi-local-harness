@@ -18,7 +18,7 @@ emit({'type':'agent_start'})
 def call_gate(path,body):
     import urllib.request
     call=urllib.request.Request(f"http://127.0.0.1:{os.environ['PI_HARNESS_SHARED_PORT']}{path}",data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-Gate-Token':os.environ['PI_HARNESS_TOKEN']})
-    with urllib.request.urlopen(call,timeout=5) as response:return json.load(response)
+    with urllib.request.urlopen(call,timeout=1200 if path=='/request/end' else 5) as response:return json.load(response)  # like the extension (task 260)
 if '\nPerson: Tighten this TEST_SUGGEST\n' in request['message']:
     import re
     message=request['message'];anchor=message.split('\nSelected text: ',1)[1].split('\nThe thread so far',1)[0]

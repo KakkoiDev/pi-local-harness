@@ -11,7 +11,7 @@ import threading
 import time
 import uuid
 from .models import ActionProposal, ActionOutcome, ExecutionResult
-from .protocol import Protocol, project_root, commit_folder, test_folder, is_documentation
+from .protocol import Protocol, project_root, commit_folder, test_folder, is_documentation, test_invocation
 from .paperwork import Paperwork
 from . import rules, test_runs
 from harness import reports
@@ -319,7 +319,8 @@ class ProposalLedger:
                                  command=command, exit_code=exit_code, duration=self.clock() - created, output=output)
             except OSError as error: self.report('test-log', str(error), request=request, cwd=cwd)
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
-            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+            # Task 260: a `--help` call or a run where no test ran is neither Red nor Green in the task's progress.
+            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and test_invocation(command, output):
                 self.paperwork.ran(request, command, exit_code == 0)
             note = self.paperwork.observe(request)
             if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))

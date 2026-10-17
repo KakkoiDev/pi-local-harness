@@ -324,3 +324,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [309-Run on its own can do what its risk notice promises](tasks/309-run-on-its-own-can-do-what-it-promises.md)
 - [ ] [310-Project Start: the architecture decisions to settle](tasks/310-project-start-architecture-decisions.md)
 - [ ] [311-Test runs are sandboxed](tasks/311-sandboxed-test-runs.md)
+- [x] [260-Verification cannot be faked; check-ins never strand the plan](tasks/260-trustworthy-verification.md)

@@ -99,11 +99,13 @@ export default function harness(pi, dependencies = {}) {
       }
     }
   };
-  const call = async (path, body) => {
+  // Task 260: /request/end may run the harness's own Red proof (the suite twice); it gets the turn's long timeout, not 5 s.
+  const turnTimeout = 20 * 60 * 1000;
+  const call = async (path, body, timeout = 5000) => {
     if (!ports) throw new Error('Gate is unavailable');
     const response = await fetch(`http://127.0.0.1:${ports.gate}${path}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': ports.token || '' },
-      body: JSON.stringify(body), signal: AbortSignal.timeout(5000),
+      body: JSON.stringify(body), signal: AbortSignal.timeout(timeout),
     });
     if (!response.ok) { let said = ''; try { const body = await response.json(); said = body.error || body.message || ''; } catch {} throw new Error(`Gate HTTP ${response.status}${said ? `: ${said}` : ''}`); } // Gate's reason, so Pi can act on it
     return response.json();
@@ -431,7 +433,7 @@ export default function harness(pi, dependencies = {}) {
     // The request is over: the harness finishes its paperwork (commits when verified), then tells the web worker.
     const settledNow = async () => {
       if (requestId) {
-        const result = await call('/request/end', { request: requestId, review: !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing }).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
+        const result = await call('/request/end', { request: requestId, review: !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing }, turnTimeout).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
         if (result?.outcome === 'continue') {
           recovering = true; retries++;
           verifiedBefore = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
@@ -502,7 +504,7 @@ export default function harness(pi, dependencies = {}) {
   pi.on('before_provider_request', async () => {
     const url = process.env.PI_HARNESS_TURN_URL;
     if (!url) return undefined;
-    try { await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(20 * 60 * 1000) }); } catch {}
+    try { await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(turnTimeout) }); } catch {}
     return undefined;
   });
   pi.on('session_before_compact', () => { try { agentLock.acquire(); } catch { return { cancel: true }; } });
