@@ -154,6 +154,22 @@ def read_jsonl(path):
     except OSError: return []
 
 
+def decision_counts(path):
+    if not Path(path).is_file():return None
+    result={who:0 for who in ('code','laya','person','model')}
+    for line in read_jsonl(path):
+        if line.get('who') in result:result[line['who']]+=1
+    return result
+
+
+def decision_share(runs):
+    recorded=[line['decision_counts'] for line in runs if isinstance(line.get('decision_counts'),dict)]
+    if not recorded:return 'Not recorded'
+    total=sum(sum(row.get(who,0) for who in ('code','laya','person','model')) for row in recorded)
+    model=sum(row.get('model',0) for row in recorded)
+    return f"{100*model/total:.1f}% ({model}/{total}; {len(recorded)}/{len(runs)} runs recorded)" if total else f'— (0 decisions; {len(recorded)}/{len(runs)} runs recorded)'
+
+
 def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, level='everyday', bare=False):
     """One scenario, one result line (also returned)."""
     stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
@@ -207,6 +223,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
         'tool_calls': len(tools), 'tools_failed': sum(tool.get('status') == 'failed' for tool in tools),
         'test_runs': read_jsonl(data / 'test-runs.jsonl'), 'reports': counts(reports, 'kind'), 'rules': counts([line for line in gate if line.get('phase') == 'gate' and line.get('outcome') != 'ALLOW'], 'rule'),
         'gate_checks': sum(line.get('phase') == 'gate' for line in gate), 'folder': str(folder),
+        'decision_counts':decision_counts(data/'decisions.jsonl'),
     }
     result['first_try'] = result['resolved'] and not result['reports'].get('wake-up') and not result['reports'].get('recovery') and not user_turns
     folder.mkdir(parents=True, exist_ok=True)
@@ -215,7 +232,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     (folder / 'answer.md').write_text(answer)
     (folder / 'check.txt').write_text(said)
     (folder / 'regressions.txt').write_text(kept_said)
-    for name in ('reports.jsonl', 'gate-events.jsonl', 'test-runs.jsonl', 'services.log'):
+    for name in ('reports.jsonl', 'gate-events.jsonl', 'test-runs.jsonl', 'decisions.jsonl', 'services.log'):
         if (data / name).exists(): shutil.copy(data / name, folder / name)
     if (data / 'test-runs').is_dir(): shutil.copytree(data / 'test-runs', folder / 'test-runs')
     for record in (data / 'activity').glob('*.md') if (data / 'activity').is_dir() else []: shutil.copy(record, folder / f'request-{record.name}')
@@ -278,16 +295,16 @@ def compare(results, model=None, level='everyday'):
 def readme_table(results):
     """Everyday runs only; keep absent models visibly pending and do not mix builds into one score."""
     models=[('gemma4:e4b-mlx','Gemma 4 e4b (4B)','This Mac (Ollama)'),('qwen3.8:27b-mlx','Qwen 3.8 27B','This Mac (Ollama)'),('luna','ChatGPT Luna','OpenAI API')]
-    rows=['| Model | Where it runs | Solved with harness | Solved bare | Verified and committed by harness | Median minutes (harness) | Harness build | Date |','|---|---|---|---|---|---|---|---|']
+    rows=['| Model | Where it runs | Solved with harness | Solved bare | Verified and committed by harness | Median minutes (harness) | Harness build | Date | Model’s share of decisions |','|---|---|---|---|---|---|---|---|---|']
     for model,name,where in models:
         found=[item for item in results if item.get('prompt_level')=='everyday' and (item['model']==model or model=='luna' and 'luna' in item['model'].lower())]
         builds=sorted(set(item['harness'] for item in found))
-        if not builds:rows.append(f'| {name} | {where} | Pending | Pending | Pending | — | — | — |');continue
+        if not builds:rows.append(f'| {name} | {where} | Pending | Pending | Pending | — | — | — | Not recorded |');continue
         for build in builds:
             lines=[item for item in found if item['harness']==build];harness=[item for item in lines if item.get('mode','harness')=='harness'];bare=[item for item in lines if item.get('mode')=='bare']
             score=lambda items:f"{sum(bool(item.get('resolved',item.get('solved'))) for item in items)}/{len(items)}" if items else 'Pending'
             verified=f"{sum(bool(item.get('verified')) for item in harness)}/{len(harness)}" if harness else 'Pending'
             minutes=str(round(median(item['seconds'] for item in harness)/60,1)) if harness else '—'
             dates=', '.join(sorted(set(item['time'][:10] for item in lines)))
-            rows.append(f'| {name} | {where} | {score(harness)} | {score(bare)} | {verified} | {minutes} | {build} | {dates} |')
+            rows.append(f'| {name} | {where} | {score(harness)} | {score(bare)} | {verified} | {minutes} | {build} | {dates} | {decision_share(harness)} |')
     return '\n'.join(rows)

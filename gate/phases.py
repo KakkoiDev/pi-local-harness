@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import threading
+from harness.decision_log import record as record_decision
 
 PHASES = ('discussion', 'planning', 'implementation')
 
@@ -67,6 +68,7 @@ class Phases:
                 temporary.replace(file)
             else:
                 self.values[self.key(root)] = value
+            record_decision(self.data,None,'phase','person' if actor=='person' else 'code',phase,rule='G-015',automatic=actor=='auto')
             return deepcopy(value)
 
 

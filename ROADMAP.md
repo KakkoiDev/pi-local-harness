@@ -291,4 +291,4 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [250-Laya: System 1's classifier](tasks/250-laya-classifier.md)
 - [x] [247-Three phases for every request](tasks/247-three-phases.md)
 - [ ] [248-The design system is "Pi Workbench 1-bit" (the project stays "Pi Workbench")](tasks/248-rename-design-system.md)
-- [ ] [249-Every decision logged with who took it](tasks/249-decision-log.md)
+- [x] [249-Every decision logged with who took it](tasks/249-decision-log.md)

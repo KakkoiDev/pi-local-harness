@@ -54,7 +54,9 @@ into the harness data folder’s toolchain. It downloads about 678 MB of model f
 Python 3.12 and uv must already be installed. Requests never download a runtime or model.
 
 Code decides first, then Laya; uncertain answers go to an existing choice card. Laya cannot approve a plan, accept a
-task or change the phase. Use the explicit controls. The first 40-case synthetic evaluation answered 12 cases
+task or change the phase. Use the explicit controls. Decisions record their author in `<data>/decisions.jsonl`;
+model-proposed option ordering remains visible as a model recommendation. New benchmark records count each author,
+while old records without provenance stay “Not recorded”. The first 40-case synthetic evaluation answered 12 cases
 correctly and abstained on 28; it does not establish reliability on arbitrary requests.
 
 ## Music and sound effects

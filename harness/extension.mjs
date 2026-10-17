@@ -25,6 +25,7 @@ import {installPhases} from './phases.mjs';
 import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
+import {recordGuides} from './decisions.mjs';
 import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
 import { harnessTools, activeTools } from './tool-choice.mjs';
@@ -62,7 +63,7 @@ export default function harness(pi, dependencies = {}) {
   const watch = new ThoughtWatch();
   const steps = new StepWatch(); // strategy 3: what Pi does, beside what it thinks
   let guides = []; try { guides = loadGuides(); } catch {} // strategy 5: know-how that joins the prompt when a request calls for it
-  let chosenGuides = [];
+  let chosenGuides = [],lastGuideDecision;
   const proposals = new Map();
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
@@ -246,6 +247,8 @@ export default function harness(pi, dependencies = {}) {
     let gateRules = '';
     if (!bare) try { gateRules = `\n\n${readFileSync(`${moduleRoot}harness/gate-rules.md`, 'utf8').replace(/^<!--.*-->\n/, '')}`; } catch {}
     if (!bare && musicAvailable(context?.cwd || root) && !chosenGuides.some(item => item.name === 'music')) { const musicGuide = guides.find(item => item.name === 'music'); if (musicGuide) chosenGuides = [...chosenGuides, musicGuide]; }
+    const guideDecision=JSON.stringify([requestId,chosenGuides.map(item=>item.name)]);
+    if (!bare && requestId && guideDecision!==lastGuideDecision) {recordGuides(dataDir,requestId,chosenGuides);lastGuideDecision=guideDecision;}
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
     return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };

@@ -17,6 +17,7 @@ from pathlib import Path
 import re
 import subprocess
 import threading
+from harness.decision_log import record as record_decision
 
 from . import rules
 from .protocol import CheckFailed, changed_paths, is_documentation, project_root
@@ -115,6 +116,8 @@ class Paperwork:
                 choice.pop('judgement',None)
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
+            if not previous or any(previous.get(key)!=choice.get(key) for key in ('question','options')):
+                record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None)
             value={**choice,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
@@ -145,6 +148,9 @@ class Paperwork:
         with self.lock:
             item=self.requests.get(request)
             if not item:raise ValueError('No active request for this decision.')
+            waiting=self.waiting_choice(item['root']) or {}
+            labels=[option['label'] for option in waiting.get('options',[])]
+            record_decision(self.data,request,'question_answer','code' if state=='auto' else 'person',{'option':labels.index(clean(answer))} if clean(answer) in labels else 'other',rule='auto.recommendation' if state=='auto' else None,automatic=state=='auto')
             if self.phases.get(item['root'])['phase']=='discussion':
                 # Discussion choices live in harness data, never in the project's plan files.
                 waiting=self.waiting_choice(item['root']) or {}
@@ -232,13 +238,16 @@ class Paperwork:
         with self.lock:
             plan=self.plan_state(root)
             if not plan.get('check_in'):raise ValueError('No task is waiting for validation.')
-            if action=='stop':return {'finished':False,'stopped':True}
+            if action=='stop':
+                record_decision(self.data,None,'task_acceptance','person','stop',rule='G-015')
+                return {'finished':False,'stopped':True}
             if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
             if self.phases.get(root)['phase']!='implementation':raise ValueError('Choose Implementation to accept this task.')
             index=plan.get('index',0)+1
             finished=index>=len(plan['tasks'])
             plan.update(check_in=False,finished=finished,accepted=state,index=plan.get('index',0) if finished else index)
             self.plan_state(root,plan)
+            record_decision(self.data,None,'task_acceptance','code' if state=='auto' else 'person','accept',rule='G-015',automatic=state=='auto')
             return {'finished':finished,'next':None if finished else plan['tasks'][index],'total':len(plan['tasks'])}
 
     def active_scope(self, root):
@@ -342,6 +351,7 @@ class Paperwork:
                 first.write_text(first_text.rstrip()+'\n\nRequest '+datetime.now().strftime('%Y-%m-%d')+': “'+item['text']+'”\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
             self.plan_state(root,state);item['task']=tasks[0]['path']
+            record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')
             return {'root':str(root),'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
 
     def approve_plan(self, request, state='chosen'):
@@ -365,6 +375,7 @@ class Paperwork:
             item['new_plan']=False
             self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building')
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
+            record_decision(self.data,request,'plan_approval','code' if state=='auto' else 'person','approved',rule='G-015',automatic=state=='auto')
             return self.plan_status(request)
 
     # -- a request's life -------------------------------------------------------------------------------------------
@@ -511,10 +522,13 @@ class Paperwork:
             text = (root / task).read_text(encoding='utf-8')
             roadmap = (root / 'ROADMAP.md').read_text(encoding='utf-8')
             if not re.search(r'- \[ \]', text):
+                before_roadmap=roadmap
                 roadmap = re.sub(rf'^(\s*)- \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
+                if roadmap!=before_roadmap:record_decision(self.data,request,'box_ticked','code',1,rule='G-010')
             saved = self.commit(root, sorted(set(changed) | {task, 'ROADMAP.md'}), self.subject(item))
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+            if result['outcome']=='committed':record_decision(self.data,request,'step_done','code','verified_and_committed',rule='G-013')
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
                 plan.update(index=index,check_in=True,finished=False,verified=True);self.plan_state(root,plan)
@@ -624,10 +638,13 @@ class Paperwork:
         path = item['root'] / item['task']
         text = path.read_text(encoding='utf-8')
         if PROGRESS not in text: text = text.rstrip('\n') + f'\n\n{PROGRESS}\n'
-        path.write_text(text.rstrip('\n') + f'\n- [x] {line}\n', encoding='utf-8')
+        self.write(item,text.rstrip('\n') + f'\n- [x] {line}\n')
 
     def write(self, item, text):
-        (item['root'] / item['task']).write_text(text, encoding='utf-8')
+        path=item['root']/item['task'];before=path.read_text(encoding='utf-8') if path.exists() else ''
+        path.write_text(text,encoding='utf-8')
+        ticks=len(re.findall(r'^\s*- \[x\]',text,re.M))-len(re.findall(r'^\s*- \[x\]',before,re.M))
+        if ticks>0:record_decision(self.data,next((key for key,value in self.requests.items() if value is item),None),'box_ticked','code',ticks,rule='G-010')
 
     @staticmethod
     def add(root, paths):

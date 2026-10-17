@@ -64,6 +64,8 @@ class BenchTest(unittest.TestCase):
             self.assertEqual(order,['versions','start'],'record the build before the request runs')
             self.assertEqual((result['prompt_level'], result['prompt']), ('vague', 'Paging is broken. TEST_RUN_LOG'))
             self.assertEqual((result['scenario'], result['model'], result['effort'], result['status']), ('bug-pagination', 'fake:1b', 'low', 'completed'))
+            self.assertIsInstance(result['decision_counts'],dict);self.assertGreater(result['decision_counts']['code'],0)
+            self.assertTrue((Path(result['folder'])/'decisions.jsonl').is_file())
             self.assertEqual(len(result['test_runs']),1)
             test_run=result['test_runs'][0]; self.assertEqual(test_run['counts'],{'pass':3,'fail':1,'skipped':0})
             self.assertTrue((Path(result['folder'])/test_run['output_file']).is_file())

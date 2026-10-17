@@ -15,6 +15,7 @@ from .protocol import Protocol, project_root, commit_folder, test_folder, is_doc
 from .paperwork import Paperwork
 from . import rules, test_runs
 from harness import reports
+from harness.decision_log import record as record_decision
 
 def apply_edits(original, args, name='the file'):
     """The file after Pi's edit, as Pi applies it: each edits[].oldText matched once against the original, no overlaps.
@@ -106,7 +107,7 @@ class ProposalLedger:
     def counts_today(self):
         with self.lock: return dict(self.day.get(datetime.now().astimezone().date().isoformat(), {'today': 0, 'blocked_today': 0}))
 
-    def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None, cwd=None, source=None, rule=None):
+    def record_event(self, phase, outcome, proposal, reason, token=None, tool_call=None, cwd=None, source=None, rule=None, request=None):
         # Show scope, not uploaded file bodies or tool output.
         if self.paperwork.runs and cwd:
             root=project_root(cwd)
@@ -116,6 +117,7 @@ class ProposalLedger:
                 command=proposal.args.get('command','')
                 if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
                     self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
+        record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:
@@ -166,7 +168,7 @@ class ProposalLedger:
         proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
             outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
-            self.record_event('gate', outcome, proposal, said, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule_id)
+            self.record_event('gate', outcome, proposal, said, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule_id, request=request)
             self.report('rule', said, rule=rule_id, tool=tool_name, source=source, cwd=cwd)  # plan 184: for the later analysis
             return {'outcome': outcome, 'reason': said, 'rule': rule_id}
         rule, reason = self.engine.rejection(proposal, auth_level)
@@ -277,7 +279,7 @@ class ProposalLedger:
             token = str(uuid.uuid4())
             self.pending[token] = (now, proposal, expected, cwd, tool_call_id, source)
             if request: self.request_of[token] = request
-        self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id, cwd=cwd, source=source)
+        self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id, cwd=cwd, source=source, request=request)
         response['proposal_id'] = token
         return response
 
@@ -322,5 +324,5 @@ class ProposalLedger:
             note = self.paperwork.observe(request)
             if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))
         self.record_event('audit', event.status, proposal, event.reasoning, token, tool_call_id, cwd=cwd, source=source,
-                          rule={'DRIFT_DETECTED': 'G-006', 'POSTCONDITION_FAILED': 'G-007'}.get(event.status))
+                          rule={'DRIFT_DETECTED': 'G-006', 'POSTCONDITION_FAILED': 'G-007'}.get(event.status),request=request)
         return event
