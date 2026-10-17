@@ -42,10 +42,10 @@ remove those lines by hand; the harness does not do it.
 
 ## 2. A refused shell command is a G-015 refusal, not a Gate crash (review 14)
 
-- [ ] Red (unit, unmocked): with an active request, an unknown command in Discussion is refused G-015 with a
+- [x] Red (unit, unmocked): with an active request, an unknown command in Discussion is refused G-015 with a
       judgement (tests/test_laya.py); it was G-011 because `json.dumps` met a PosixPath.
-- [ ] gate/ledger.py passes `str(root)` to `judgements.decide`; tests/test_laya.py no longer asserts the Path.
-- [ ] Green: python3 -m unittest tests.test_laya.
+- [x] gate/ledger.py passes `str(root)` to `judgements.decide`; tests/test_laya.py no longer asserts the Path.
+- [x] Green: python3 -m unittest tests.test_laya.
 
 ## 3. Secrets and build output stay out of Pi's context (review 13)
 

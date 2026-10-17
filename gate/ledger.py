@@ -207,7 +207,7 @@ class ProposalLedger:
                 if tool_name=='execute_command' and request in self.paperwork.requests:
                     from .phase_shell import read_only,test_run
                     if not read_only(command) and not test_run(command):
-                        judgement=self.judgements.decide(request,'shell_risk',[command,root])
+                        judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
                 return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
             if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
