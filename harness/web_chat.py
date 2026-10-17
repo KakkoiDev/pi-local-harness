@@ -451,6 +451,7 @@ class WebChat:
             job=self.queue.add(project,chat,{'message':f"Choice: {choice['question']} → {answer}",'choice_answer':{'id':identifier}})
             for item in mine:item.update(answer=answer,state='chosen',when=timestamp(),key=key,job=job['id'])
             conversation=self.store.save(conversation)
+        self.queue.resume_waiting(chat,f'Answered: {answer}')
         return {'answer':answer,'job':job['id'],'conversation':conversation}
     def abandon(self, request):
         """Task 290: end Gate's paperwork for a request whose Pi crashed or was stopped before it could (no review, no
@@ -906,6 +907,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
                 conversation=self.chat.store.settle_choices(self.chat.project_chat(data['project'])['id'],'Start Building')
+                self.chat.queue.resume_waiting(conversation['id'],'Start Building')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):
                         message['plan'].update(approved=True,waiting=False);break
@@ -925,6 +927,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/plan/wait':
                 root=self.chat.documents.project_path(data['project']);self.chat.ledger.paperwork.phase(root,'discussion',action='Plan Another Task')
                 conversation=self.chat.project_chat(data['project'])
+                self.chat.queue.resume_waiting(conversation['id'],'Plan Another Task: the plan waits')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return

@@ -88,7 +88,10 @@ quote rather than silently moving.
 
 **Activity · All Projects** (Window menu ⌘3, the Agent section of the Projects window, or the
 status in the menu bar) shows running, waiting, completed, stopped, failed, and interrupted
-tasks of every project. Messages you send while Pi works join your waiting message. Filter by project or state, open the source chat/document,
+tasks of every project. A request that paused for a question or a plan is waiting for you (“Stopped by a question:
+waiting for your answer”, or for Start Building), not completed; it completes when you answer or act on the plan. A
+request you stopped says “Stopped by you”. Messages you send while Pi works join your waiting message; an answer to a
+question, Start Building and Continue are requests of their own and never join it (an answer goes first). Filter by project or state, open the source chat/document,
 inspect the Markdown record, cancel waiting work, or stop active work. Requests
 enter one durable FIFO queue. You can browse another project while it runs.
 Interrupted work is never automatically repeated.

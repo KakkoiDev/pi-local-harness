@@ -123,9 +123,15 @@ class WorkQueue:
         """Run a claimed request to its end; the record says how it ended."""
         try:
             self.execute(self.hydrate(job),lambda event:self.update(job,event))
-            with self.condition:job.update(status='completed',finished=now(),progress='Completed')
+            with self.condition:
+                # Task 290: a request that paused for a question or a plan waits for the person; it is not Completed.
+                plan=job.get('plan') or {}
+                if (job.get('choice') or {}).get('pending'):job.update(status='waiting',finished=now(),progress='Stopped by a question: waiting for your answer')
+                elif plan.get('pending') and not plan.get('approved'):job.update(status='waiting',finished=now(),progress='Stopped for the plan: waiting for Start Building')
+                else:job.update(status='completed',finished=now(),progress='Completed')
         except Exception as error:
-            with self.condition:job.update(status='stopped' if str(error)=='Stopped' else 'failed',finished=now(),progress=str(error))
+            stopped=str(error)=='Stopped'  # task 290: the person's Stop, never a question's pause
+            with self.condition:job.update(status='stopped' if stopped else 'failed',finished=now(),progress='Stopped by you' if stopped else str(error))
         finally:
             with self.condition:
                 job['text']=display_text(job.get('text',''));self.drop_attachments(job);self.save(job);self.condition.notify_all()
@@ -156,6 +162,11 @@ class WorkQueue:
             if note:data['message']=f"{data.get('message','').rstrip()}\n\nNote from the person: {note}"
             data['retry_of']=identifier
         return self.add(job['project'],job['chat'],data)
+    def resume_waiting(self, chat, progress):
+        """Task 290: the person answered the question or acted on the plan a request paused for; it is complete."""
+        with self.condition:
+            for job in self.jobs:
+                if job['chat']==chat and job['status']=='waiting':job.update(status='completed',progress=progress[:300]);self.save(job)
     def cancel(self, identifier):
         with self.condition:
             job=next((job for job in self.jobs if job['id']==identifier),None)

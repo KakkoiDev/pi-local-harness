@@ -165,7 +165,7 @@ class Console:
         rows = [{'id': job.get('id'), 'status': job.get('status'), 'project': job.get('project'),
                  'message': job.get('message', (job.get('data') or {}).get('message', '')), 'created': job.get('created'),
                  'progress': job.get('progress', '')} for job in jobs]
-        return [row for row in rows if state in (None, 'all') or row['status'] == {'waiting': 'queued'}.get(state, state)]
+        return [row for row in rows if state in (None, 'all') or row['status'] in ({'queued', 'waiting'} if state == 'waiting' else {state})]
 
     def job(self, identifier):
         identifier = str(identifier).lower()

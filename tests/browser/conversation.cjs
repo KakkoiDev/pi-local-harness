@@ -42,7 +42,10 @@ const readline = require('node:readline');
     const conversation = () => page.evaluate(id => fetch('/api/conversations/' + id).then(response => response.json()), created.chat);
 
     // 1. A choice click answers through its own route, once, and never touches the draft or its attachments.
-    await settled((await post('/api/jobs/create', { project: created.project, message: 'Discuss the app TEST_ERROR_CHOICE' })).id);
+    const paused = await settled((await post('/api/jobs/create', { project: created.project, message: 'Discuss the app TEST_ERROR_CHOICE' })).id);
+    assert.deepEqual([paused.status, paused.progress], ['waiting', 'Stopped by a question: waiting for your answer'], 'a pause waits for the person, not Completed');
+    await page.goto(`${base}/activity`); await page.locator('#job-' + paused.id + ' .task-state').waitFor();
+    assert.match(await page.locator('#job-' + paused.id + ' .task-state').textContent(), /Waiting/);
     await page.goto(`${base}/p/${created.project}/chat`);
     const card = page.locator('.pw-card[aria-label="Who uses it?"]'); await card.waitFor();
     const sent = []; page.on('request', request => { if (/\/api\/(jobs\/create|choices\/answer)$/.test(request.url())) sent.push({ path: new URL(request.url()).pathname, body: JSON.parse(request.postData()) }); });
@@ -62,6 +65,7 @@ const readline = require('node:readline');
     assert.deepEqual(after, [['Discuss the app TEST_ERROR_CHOICE', 0], ['Choice: Who uses it? → Only me', 0]], 'one answer, without the draft’s files');
     await page.reload(); await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).waitFor();
     assert.equal(await page.locator('#prompt').inputValue(), 'MY UNFINISHED DRAFT about something else');
+    assert.deepEqual((await workspace()).jobs.find(job => job.id === paused.id).progress, 'Answered: Only me');
 
     // 2. Answering while Pi is busy: the card locks at once, a second tab gets the first answer, nothing merges.
     await settled((await post('/api/jobs/create', { project: created.project, message: 'Discuss again TEST_ERROR_CHOICE' })).id);
@@ -122,7 +126,7 @@ const readline = require('node:readline');
     const streaming = await post('/api/jobs/create', { project: created.project, message: 'Explain TEST_STREAM_WAIT' });
     await page.locator('#stop').waitFor(); for (let i = 0; i < 50 && !(await workspace()).jobs.some(job => job.id === streaming.id && job.text); i++) await page.waitForTimeout(100);
     await page.locator('#stop').click(); const stopped = await settled(streaming.id);
-    assert.equal(stopped.status, 'stopped');
+    assert.equal(stopped.status, 'stopped'); assert.equal(stopped.progress, 'Stopped by you');
     const kept = page.locator('#messages .pw-msg').filter({ hasText: 'PARTIAL before the stop' });
     await kept.locator('.message-ended').filter({ hasText: 'Stopped by you' }).waitFor();
     await page.reload(); await kept.locator('.message-ended').filter({ hasText: 'Stopped by you' }).waitFor();

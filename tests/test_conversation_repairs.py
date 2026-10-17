@@ -328,5 +328,45 @@ class EndedAnswerTest(unittest.TestCase):
         self.assertEqual(messages[-1]['ended']['state'], 'failed')
 
 
+class ActivityPauseTest(unittest.TestCase):
+    """Review P2: a question or a plan pause is waiting in Activity, not Completed; "stopped by a question" is not
+    "stopped by you"."""
+    def queue(self, execute):
+        from harness.work_queue import WorkQueue
+        directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
+        return WorkQueue(Path(directory.name) / 'queue.json', execute, start=False)
+
+    def test_a_question_or_a_plan_pause_is_waiting_for_the_person(self):
+        for event, words in [({'type': 'choice', 'question': QUESTION, 'options': [], 'pending': True}, 'Stopped by a question: waiting for your answer'),
+                             ({'type': 'plan', 'goal': 'A counter', 'tasks': [], 'pending': True}, 'Stopped for the plan: waiting for Start Building')]:
+            with self.subTest(kind=event['type']):
+                queue = self.queue(lambda job, emit, event=event: emit(event))
+                queue.add('One', 'chat', {'message': 'work'}); queue.run_one()
+                job = queue.list()[0]
+                self.assertEqual((job['status'], job['progress']), ('waiting', words))
+                queue.resume_waiting('chat', 'Answered: Park')
+                self.assertEqual((queue.list()[0]['status'], queue.list()[0]['progress']), ('completed', 'Answered: Park'))
+
+    def test_an_approved_plan_or_an_answered_question_completes(self):
+        queue = self.queue(lambda job, emit: emit({'type': 'plan', 'goal': 'A counter', 'tasks': [], 'pending': False, 'approved': True}))
+        queue.add('One', 'chat', {'message': 'work'}); queue.run_one()
+        self.assertEqual(queue.list()[0]['status'], 'completed')
+
+    def test_stopped_by_you_says_so(self):
+        def execute(job, emit): raise ValueError('Stopped')
+        queue = self.queue(execute); queue.add('One', 'chat', {'message': 'work'}); queue.run_one()
+        self.assertEqual((queue.list()[0]['status'], queue.list()[0]['progress']), ('stopped', 'Stopped by you'))
+
+    def test_answering_completes_the_paused_request_in_activity(self):
+        bench = Workbench(self)
+        paused = bench.chat.queue.add(bench.project, bench.conversation, {'message': 'Tidy'})
+        with bench.chat.queue.condition:
+            job = bench.chat.queue.jobs[0]; job.update(status='waiting', progress='Stopped by a question: waiting for your answer')
+        identifier = bench.ask()
+        bench.call('/api/choices/answer', {'project': bench.project, 'id': identifier, 'option': 0, 'key': 'k'})
+        record = next(item for item in bench.chat.queue.list() if item['id'] == paused['id'])
+        self.assertEqual((record['status'], record['progress']), ('completed', 'Answered: Park'))
+
+
 if __name__ == '__main__':
     unittest.main()

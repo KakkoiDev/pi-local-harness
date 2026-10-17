@@ -16,7 +16,7 @@ GLYPH = {'completed': '✓', 'failed': '✗', 'attention': '!', 'running': '▶'
          'escalated': '?', 'in use': '●'}
 ASCII = {'✓': 'ok', '✗': 'NO', '!': '!!', '▶': '>', '○': 'o', '■': '#', '●': '*', '─': '-', '═': '=', '│': '|', '→': '->', '…': '...', '·': '-'}
 STATE = {'running': '▶ Running', 'queued': '○ Waiting', 'completed': '✓ Completed', 'failed': '✗ Failed', 'stopped': '■ Stopped',
-         'interrupted': '~ Interrupted', 'cancelled': '■ Cancelled'}
+         'interrupted': '~ Interrupted', 'cancelled': '■ Cancelled', 'waiting': '○ Waiting for you'}
 CHECK = {'ok': '✓ ok  ', 'fix': '✗ fix ', 'note': '! note'}
 
 

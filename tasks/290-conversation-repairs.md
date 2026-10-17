@@ -15,7 +15,7 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
   pending choice; two ask_choices in one batch: the second is refused ("one question at a time").
 - [x] A crash or stop mid-answer keeps the partial text in the chat, marked failed or stopped, exactly once; Gate gets
   the request's end.
-- [ ] Activity shows a choice or plan pause as waiting, not Completed; "stopped by a question" differs from "stopped by
+- [x] Activity shows a choice or plan pause as waiting, not Completed; "stopped by a question" differs from "stopped by
   you".
 - [ ] Pi's harness tool can propose changes again (Gate allows previews without --yes; `update` and `models check` are
   reads); AGENTS.md's lesson-writing either works (Gate exemption for the memory file, size-guarded) or is removed.
