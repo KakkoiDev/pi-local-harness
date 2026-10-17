@@ -44,13 +44,13 @@ node --test tests/harness/*.test.mjs            # Node tests (fast)
 python3 tests/verify_workflow.py                # both of the above + ROADMAP/task checks; must end with "Workflow Verification Passed!"
 ```
 
-Browser suites (slow, ~2 minutes each; run before committing any UI change):
+Browser suites (slow, ~2 minutes each, `conversation` under a minute; run before committing any UI change):
 
 ```sh
 # once: install Playwright somewhere outside the repo and a Chromium for it
 mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 && npx playwright install chromium && cd -
 # every time:
-python3 tests/browser/run.py design   # or chat, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
+python3 tests/browser/run.py design   # or chat, conversation, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/design.cjs   # design conformance; prints "Design checks passed."
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/chat.cjs     # regression; prints "UX regression passed: …"
 ```

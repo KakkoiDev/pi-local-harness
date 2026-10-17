@@ -5,9 +5,9 @@ Kind: code
 From docs/reviews/2026-10-18-claude-review.md (items 4, 5, 8, 9, 18 and P2 lines) and GPT-Sol's report (duplicate-choice
 and draft race, generic-crash partial replies, "repetitive blocking questions"), plus the bug hunt's documentation drift.
 
-- [ ] Choice answers go through their own route (question id, option id, idempotency key), resolved atomically, never
+- [x] Choice answers go through their own route (question id, option id, idempotency key), resolved atomically, never
   merged with other queued messages; the card locks once answered; a stale question id is a no-op.
-- [ ] A choice click, Start Building and Continue never touch the composer's draft or attachments.
+- [x] A choice click, Start Building and Continue never touch the composer's draft or attachments.
 - [ ] A system question never swallows the person's message: the original text reaches Pi after the answer.
 - [ ] The phase question never re-triggers on its own answer (request_advice skips "Choice: …" answers); keyword-only
   phase cards without Laya become an inline notice, not a blocking card.

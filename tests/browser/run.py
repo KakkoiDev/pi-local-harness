@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-SUITES = {'design': 'tests/browser/design.cjs', 'chat': 'tests/browser/chat.cjs'}
+SUITES = {'design': 'tests/browser/design.cjs', 'chat': 'tests/browser/chat.cjs', 'conversation': 'tests/browser/conversation.cjs'}
 SETUP = ('mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 '
          '&& npx playwright install chromium && cd -')
 

@@ -396,12 +396,52 @@ class WebChat:
         if comment is not None and not (isinstance(comment,dict) and isinstance(comment.get('path'),str) and isinstance(comment.get('id'),str)):raise ValueError('Choose a comment')
         if data.get('document') is not None and not isinstance(data.get('document'),str):raise ValueError('Choose a document')
         project=data['project'];chat=self.project_chat(project)
+        answered=re.fullmatch(r'Choice: (.+?) → (.+)',data.get('message','').strip(),re.S) if not data.get('choice_answer') else None
+        if answered:  # task 290: a "Choice: …" message answers the question waiting under that name, through the same path
+            with self.store.lock:
+                chat=self.store.get(chat['id'])
+                card=next((message['choice'] for message in reversed(chat['messages']) if message.get('role')=='assistant' and message.get('choice')),None)
+                if not card or card.get('question')!=answered[1].strip():return {'stale':True}
+                if not card.get('id'):card['id']=uuid.uuid4().hex[:16];self.store.save(chat)  # a card saved before task 290
+            labels=[option.get('label') for option in card.get('options',[])];text=answered[2].strip()
+            return self.answer_choice(project,{'id':card.get('id',''),'key':'message:'+text,**({'option':labels.index(text)} if text in labels else {'text':text})})
         if not data.get('message','').strip() and not data.get('attachments') and not data.get('document_comment'):raise ValueError('Write a prompt or choose a comment')
         if data.get('document_comment'):
             comment=data['document_comment']
             if len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
             self.documents.comment_prompt(comment['path'],comment['id'])
         return self.queue.add(project,chat['id'],data)
+    def answer_choice(self, project, data):
+        """Task 290 (review items 8 and 18): the person's answer to the question on a card, resolved atomically. The card
+        names its question (`id`) and the option chosen (`option`, its index) or the person's words (`text`); `key` makes a
+        repeated click the same answer. The card is locked once answered; an answer to a question that is no longer the
+        one waiting is a no-op ({'stale': True}); a second answer gets the first ({'answered': True}). The answer is a
+        request of its own, never joined with the chat's other messages, and runs before them."""
+        identifier=data.get('id');key=str(data.get('key') or '')[:100]
+        if not isinstance(identifier,str) or not identifier:raise ValueError('Name the question you answer.')
+        chat=self.project_chat(project)['id']
+        with self.store.lock:
+            conversation=self.store.get(chat)
+            cards=[message for message in conversation['messages'] if message.get('role')=='assistant' and message.get('choice')]
+            mine=[message['choice'] for message in cards if message['choice'].get('id')==identifier]
+            if not mine:return {'stale':True,'conversation':conversation}
+            choice=mine[-1]
+            if choice.get('answer'):
+                return {'answered':True,'answer':choice['answer'],'job':choice.get('job'),'duplicate':bool(key) and choice.get('key')==key,'conversation':conversation}
+            if choice.get('settled') or cards[-1]['choice'].get('id')!=identifier:return {'stale':True,'conversation':conversation}
+            ledger=getattr(self,'ledger',None)
+            waiting=ledger.paperwork.waiting_choice(self.documents.project_path(project)) if ledger else None
+            if waiting and (waiting.get('id')!=identifier if waiting.get('id') else waiting.get('question')!=choice.get('question')):return {'stale':True,'conversation':conversation}
+            labels=[option.get('label','') for option in choice.get('options',[])];option=data.get('option')
+            if isinstance(option,int) and not isinstance(option,bool) and 0<=option<len(labels):answer=labels[option]
+            else:
+                answer=' '.join(str(data.get('text') or '').split())
+                if not answer:raise ValueError('Choose an option or write your answer.')
+                if len(answer)>2000:raise ValueError('Keep the answer under 2,000 characters.')
+            job=self.queue.add(project,chat,{'message':f"Choice: {choice['question']} → {answer}",'choice_answer':{'id':identifier}})
+            for item in mine:item.update(answer=answer,state='chosen',when=timestamp(),key=key,job=job['id'])
+            conversation=self.store.save(conversation)
+        return {'answer':answer,'job':job['id'],'conversation':conversation}
     def execute_job(self, job, emit):
         data=job['data'].copy();data['project']=job['project'];self.send(job['chat'],data,emit,job=job['id'])
     def gate_events(self):
@@ -619,7 +659,9 @@ class WebChat:
                     if notice.startswith('Harness check-in: '):
                         check_in=json.loads(notice.removeprefix('Harness check-in: '));emit({'type':'check_in',**check_in})
                     if notice.startswith('Harness choice: '):
-                        pending_choice=json.loads(notice.removeprefix('Harness choice: '));emit({'type':'choice',**pending_choice})
+                        pending_choice=json.loads(notice.removeprefix('Harness choice: '))
+                        pending_choice.setdefault('id',uuid.uuid4().hex[:16])  # task 290: the card's answer names its question
+                        emit({'type':'choice',**pending_choice})
                     if notice=='Harness settled':harness_done=True
                     committed=committed_commit(notice) or committed
                 if event.get('type')=='agent_start':
@@ -716,7 +758,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -874,6 +916,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
             if path=='/api/directories/create':self.reply(self.chat.documents.create_directory(data.get('parent'),data.get('name')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
+            if path=='/api/choices/answer':self.reply(self.chat.answer_choice(data['project'],data));return  # task 290
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return

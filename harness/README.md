@@ -120,6 +120,14 @@ The person's controls need more (task 261): `/api/phase`, `/api/phase/build`, ch
 which the server writes into the served page (`<meta name="pi-person">`) and `js/ui.mjs` `personHeaders()` sends.
 Without it they answer 403 “Reload the page”. The phone gets the secret with the page.
 
+A card's answer has its own route (task 290): `POST /api/choices/answer` with `project`, the question's `id` (Gate gives
+each question one), `option` (the chosen option's index) or `text` (the person's words), and `key` (one per card, so a
+repeated click is the same answer). The answer is resolved atomically: the card is locked, the answer becomes a request
+of its own that runs before the chat's other waiting messages and is never joined with them, a second answer gets the
+first (`answered`), and an answer to a question that is no longer the one waiting is a no-op (`stale`). A
+`Choice: <question> → <answer>` message sent to `/api/jobs/create` takes the same path. Start Building and Continue
+send their own requests (`control`), never the composer's draft or attachments.
+
 Tailscale serve sets `Tailscale-User-Login` from the tailnet identity and removes
 any copy the client sent. Funnel (public internet) requests carry no login, so they
 are refused. A refused remote request returns 403 with the received Host, login and

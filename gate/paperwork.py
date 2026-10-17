@@ -17,6 +17,7 @@ from pathlib import Path
 import re
 import subprocess
 import threading
+import uuid
 from harness.decision_log import record as record_decision
 
 from . import rules
@@ -166,11 +167,15 @@ class Paperwork:
                 choice.pop('judgement',None)
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
-            if not previous or any(previous.get(key)!=choice.get(key) for key in ('question','options')):
+            same=bool(previous) and all(previous.get(key)==choice.get(key) for key in ('question','options'))
+            if not same:
                 record_decision(self.data,request,'recommendation','code' if system else 'model',{'option':0},rule='choice.recommendation' if system else None,proposal=not system)
-            value={**choice,'task':item['task'],'before':item['before'],'pending':True}
+            # Task 290: each question has an id, kept while the same question is asked again; the person's answer names it,
+            # so an answer to a question that was replaced is a no-op.
+            identifier=previous.get('id') if same and previous.get('id') else uuid.uuid4().hex[:16]
+            value={**choice,'id':identifier,'request':request,'task':item['task'],'before':item['before'],'pending':True}
             self.save_choice(item['root'],value)
-            return {key:value[key] for key in ['question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
+            return {key:value[key] for key in ['id','question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
 
     def confirmed_value(self,root,digest):
         file=self.choice_file(root)
