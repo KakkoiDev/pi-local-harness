@@ -51,7 +51,7 @@ marker") when the fix merges.
 | US-014 | move a project to the Trash and put it back | The Mac Trash (PI_TRASH_DIR in tests); Put Back + Add Existing Folder restores it | desk, phone | design.cjs (Task 154: Move Project to Trash…) |
 | US-015 | locate a project whose folder went missing | Listed as "folder missing"; Locate Folder… points it at the new place | desk | design.cjs (Audit task 150: gone folder; Task 154: Locate) |
 | US-016 | find a project and switch between projects | ⌘K search, the Projects home, ‹ Projects; each project keeps its own chat | desk, phone | chat.cjs (Second project, No matching projects); design.cjs (107) |
-| US-017 | keep project commands from colliding with Pi's work | Rename/move/trash wait while Pi works in that project | desk | partial: tests/test_project_commands.py (test_commands_wait_while_pi_works_in_the_project); P2 "rename is allowed while terminal Pi works" is open |
+| US-017 | keep project commands from colliding with Pi's work | Rename/move/trash wait while Pi works in that project | desk | stories.cjs US-017 (“Pi is answering about this project.”, nothing moves); tests/test_project_commands.py; P2 “rename is allowed while terminal Pi works” is open |
 
 ## Chat and requests
 
@@ -159,7 +159,7 @@ marker") when the fix merges.
 |---|---|---|---|---|
 | US-082 | change settings | Settings apply at once (appearance, Return sends, lessons, daily update check) | desk, phone | chat.cjs (Settings apply immediately); design.cjs (Round 9 settings) |
 | US-090 | use the workbench in Japanese | Settings › Language 日本語: composer, phase button (相談/計画) and plan card (実装開始) in Japanese, Pi's words unchanged, after a reload too | desk | stories.cjs US-090; design.cjs (Plan 198 Japanese, round 10 ja) |
-| US-091 | use terminal Pi in Japanese | Fixed check-in words and screens follow the saved language | terminal | tests/harness/terminal-planning.test.mjs (Japanese fixed check-in words), tests/harness/language.test.mjs |
+| US-091 | use terminal Pi in Japanese | Fixed check-in words and screens follow the saved language | terminal | stories.test.mjs US-091 (web Settings 日本語 → /plan answers “フェーズ：計画”); tests/harness/terminal-planning.test.mjs, tests/harness/language.test.mjs |
 | US-092 | type Japanese with an IME | The confirming Enter never sends | desk | design.cjs (121) |
 
 ## Phone (390 px) parity
@@ -180,12 +180,12 @@ marker") when the fix merges.
 | US-102 | turn Run on its own on and off with `/auto` | Risks with Cancel first; Turn On reaches the web; `/auto off` | terminal | stories.test.mjs US-102 |
 | US-103 | change a setting and undo it | `/config set` asks first, saves, logs; `/undo` puts it back | terminal | stories.test.mjs US-103 |
 | US-104 | read the live workbench | `/status`, `/projects` from the running services | terminal | stories.test.mjs US-104 |
-| US-105 | find commands and how-tos | `/harness` list, Tab completion, `/guide <words>` | terminal | tests/harness/console.test.mjs (/harness opens a list…, Tab completes…); tests/test_admin.py |
-| US-106 | have Pi propose console changes, never make them | Pi's change goes on my input line; Return runs it, I confirm | terminal | tests/harness/console.test.mjs (Pi proposes a change on the input line) |
-| US-107 | read Gate, the queue and one request in the terminal | `/gate`, `/gate why`, `/queue`, `/job` | terminal | partial: tests/harness/console.test.mjs, tests/test_admin.py |
+| US-105 | find commands and how-tos | `/harness` list, Tab completion, `/guide <words>` | terminal | stories.test.mjs US-105; tests/harness/console.test.mjs (/harness opens a list…, Tab completes…) |
+| US-106 | have Pi propose console changes, never make them | Pi's change goes on my input line; Return runs it, I confirm | terminal | stories.test.mjs US-106 (Pi’s harness tool puts /config set on my input line; config.json unchanged); tests/harness/console.test.mjs |
+| US-107 | read Gate, the queue and one request in the terminal | `/gate`, `/gate why`, `/queue`, `/job` | terminal | stories.test.mjs US-107 (a web request in /queue all, /job, and its Gate check in /gate) |
 | US-108 | manage models | `/models use|pull|remove|check`, each asks first; remove goes to the Trash | terminal | partial: tests/test_admin_ollama.py; pull: not coverable (download) |
 | US-109 | answer plan, choice and check-in lists in the terminal | Recommendation first; unverified defaults to Review First | terminal | tests/harness/terminal-planning.test.mjs; tests/harness/choices.test.mjs |
-| US-110 | see the phase in the footer and use phase commands outside a project | The footer's second segment; a project picker | terminal | tests/harness/phases.test.mjs (outside a project…); tests/harness/footer.test.mjs |
+| US-110 | see the phase in the footer and use phase commands outside a project | The footer's second segment; a project picker | terminal | stories.test.mjs US-110 (picker outside a project); tests/harness/phases.test.mjs, tests/harness/footer.test.mjs |
 
 ## Updates
 
@@ -227,18 +227,18 @@ marker") when the fix merges.
 | US-074 | be told when Gate refuses or cannot check a command | A refused command is a logged block with its rule; a Gate failure is G-011, reported | desk | stories.cjs US-074 **xfail item 14** |
 | US-079 | reconnect after plh stopped | "Connection interrupted. Your drafts are kept." and Reconnect | desk | chat.cjs (offline banner) |
 | US-084 | have long work never time out, only silence | Steady progress past the limit completes; silence fails with “Pi sent nothing for …” (the limit is 2 s in the scratch workbench) | desk | stories.cjs US-084; tests/test_web_chat.py |
-| US-085 | find out what is wrong | `/doctor` checks and says what to do | terminal | partial: tests/test_admin.py |
+| US-085 | find out what is wrong | `/doctor` checks and says what to do | terminal | stories.test.mjs US-085; tests/test_admin.py |
 
 ## Coverage
 
 Counted from the tables above: 108 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). New in task 264: 38 browser journeys in stories.cjs and 5 terminal journeys in stories.test.mjs.
+unit test counts as a journey). New in task 264: 39 browser journeys in stories.cjs and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 74 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-011, US-012, US-013, US-014, US-015, US-016, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-031, US-032, US-033, US-036, US-037, US-038, US-039, US-041, US-043, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-076, US-077, US-078, US-079, US-082, US-083, US-084, US-086, US-090, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-111, US-113 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 81 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-031, US-032, US-033, US-036, US-037, US-038, US-039, US-041, US-043, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-076, US-077, US-078, US-079, US-082, US-083, US-084, US-085, US-086, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113 |
 | Expected failure (xfail), with its review item | 14 | US-010 (P0-3), US-030 (NEW-1), US-034 (P0-1), US-035 (item 6), US-040 (item 6), US-042 (item 9), US-045 (item 6 and NEW-1), US-074 (item 14), US-075 (P2 crash mid-answer), US-080 (item 13), US-081 (P0-2), US-087 (item 11), US-088 (item 10), US-089 (item 7) |
-| Partial: unit or integration tests only, no journey yet | 13 | US-007, US-017, US-068, US-085, US-091, US-105, US-106, US-107, US-108, US-109, US-110, US-112, US-115 |
+| Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |
 | No test | 1 | US-044 (item 8: two quick answers; the race is not scripted yet) |
 

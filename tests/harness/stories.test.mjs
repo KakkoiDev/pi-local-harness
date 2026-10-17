@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { installPhases } from '../../harness/phases.mjs';
 import { installConsole } from '../../harness/console.mjs';
+import { loadTerminalLanguage, requestLanguage } from '../../harness/language.mjs';
 
 const { scratch } = createRequire(import.meta.url)('../browser/workbench.cjs');
 
@@ -26,11 +27,14 @@ async function workbench(t) {
 /** The person's terminal: command handlers, the select lists they answer and the notices they read. */
 function terminal(bench, cwd, answers = []) {
   const commands = {}, notices = [], asked = [];
-  const pi = { registerCommand: (name, value) => { commands[name] = value; }, registerTool() {}, sendMessage: message => notices.push(message.content) };
+  const tools = {};
+  const pi = { registerCommand: (name, value) => { commands[name] = value; }, registerTool: tool => { tools[tool.name] = tool; }, sendMessage: message => notices.push(message.content) };
   installPhases(pi, { call: bench.gate });
   installConsole(pi, { ports: () => ({ web: bench.ports.web }) });
-  const ctx = { cwd, ui: { notify: text => notices.push(text), select: async (title, options) => { asked.push({ title, options }); const answer = answers.shift(); return typeof answer === 'function' ? answer(options) : answer; } } };
-  return { type: (name, args = '') => commands[name].handler(args, ctx), notices, asked, answers };
+  const editor = { text: '' };
+  const ctx = { cwd, ui: { notify: text => notices.push(text), setEditorText: text => { editor.text = text; }, getEditorText: () => editor.text, setWidget() {},
+    select: async (title, options) => { asked.push({ title, options }); const answer = answers.shift(); return typeof answer === 'function' ? answer(options) : answer; } } };
+  return { type: (name, args = '') => commands[name].handler(args, ctx), notices, asked, answers, editor, pi: (command, args = '') => tools.harness.execute('story', { command, args }, undefined, undefined, ctx) };
 }
 
 test('US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Building approves; the web sees the same phase', async t => {
@@ -98,4 +102,67 @@ test('US-104 terminal: /status and /projects read the live workbench', async t =
   assert.match(person.notices.at(-1), /Listed/);
   await person.type('status');
   assert.match(person.notices.at(-1), /Web\s+✓/, person.notices.at(-1));
+});
+
+test('US-085 terminal: /doctor checks the live workbench and says what to do for each problem', async t => {
+  const bench = await workbench(t);
+  const person = terminal(bench, bench.directory);
+  await person.type('doctor');
+  const text = person.notices.at(-1);
+  assert.match(text, /Doctor/); assert.match(text, /Ollama/, 'the closed Ollama port is a problem it names'); assert.match(text, /✓|✗|!/);
+});
+
+test('US-091 terminal in Japanese: the language chosen in web Settings is the terminal’s on the next request', async t => {
+  const bench = await workbench(t);
+  t.after(() => loadTerminalLanguage('en'));
+  await bench.api('/api/settings', { language: 'ja' });
+  const { project } = await bench.api('/api/projects/create', { name: 'Nihongo', parent: bench.directory, kind: 'empty' });
+  loadTerminalLanguage(requestLanguage(bench.data, {}));  // what the extension does at each request (harness/extension.mjs)
+  const person = terminal(bench, join(bench.directory, 'Nihongo'));
+  await person.type('plan');
+  assert.match(person.notices.at(-1), /フェーズ：計画/);
+  assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'planning');
+});
+
+test('US-105 terminal: /harness list and /guide <words> answer from the harness itself', async t => {
+  const bench = await workbench(t);
+  const person = terminal(bench, bench.directory);
+  await person.type('harness', 'list');
+  assert.match(person.notices.at(-1), /\/status/); assert.match(person.notices.at(-1), /\/guide/);
+  await person.type('guide', 'phone');
+  assert.match(person.notices.at(-1), /Tailscale/);
+});
+
+test('US-106 terminal: Pi only proposes a console change; it goes on my input line and nothing changes', async t => {
+  const bench = await workbench(t);
+  const person = terminal(bench, bench.directory);
+  const before = (() => { try { return bench.read(bench.data, 'config.json'); } catch { return null; } })();
+  const result = await person.pi('config', 'set silence_seconds 99');
+  assert.equal(person.editor.text, '/config set silence_seconds 99', 'on the input line for the person');
+  assert.match(JSON.stringify(result.content), /silence_seconds/);
+  const after = (() => { try { return bench.read(bench.data, 'config.json'); } catch { return null; } })();
+  assert.equal(after, before, 'nothing changed until the person confirms');
+});
+
+test('US-107 terminal: /queue, /job and /gate show a request the web ran and the check Gate made', async t => {
+  const bench = await workbench(t);
+  const { project } = await bench.api('/api/projects/create', { name: 'Watched', parent: bench.directory, kind: 'empty' });
+  const job = await bench.api('/api/jobs/create', { project, message: 'Write it TEST_SCRIPT=write-in-discussion' });
+  await bench.job(job.id);
+  const person = terminal(bench, bench.directory);
+  await person.type('queue', 'all');
+  assert.match(person.notices.at(-1), /Write it/);
+  await person.type('job', job.id.slice(0, 8));
+  assert.match(person.notices.at(-1), /Write it TEST_SCRIPT=write-in-discussion/);
+  await person.type('gate');
+  assert.match(person.notices.at(-1), /app\.py/); assert.match(person.notices.at(-1), /Revise|Blocked|✗|■/);
+});
+
+test('US-110 terminal: a phase command outside a project offers the registered projects and applies to the chosen one', async t => {
+  const bench = await workbench(t);
+  const { project } = await bench.api('/api/projects/create', { name: 'Picked', parent: bench.directory, kind: 'empty' });
+  const person = terminal(bench, bench.directory, [options => options.find(option => option.startsWith('Picked'))]);
+  await person.type('plan');
+  assert.equal(person.asked[0].title, 'Choose a project');
+  assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'planning');
 });

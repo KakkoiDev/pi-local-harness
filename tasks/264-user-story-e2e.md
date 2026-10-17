@@ -19,8 +19,8 @@ inventory.
       behaves like Pi 1.1's stored session folder (review P0-3). Existing triggers unchanged.
 - [x] Browser journeys: tests/browser/stories.cjs, the `stories` suite of tests/browser/run.py; expected failures carry
       their review item and turn into XPASS when the fix merges.
-- [x] Terminal journeys: tests/harness/stories.test.mjs (phase commands, /auto, /config and /undo, /status, /projects).
-- [x] Coverage table: 74 journeys, 14 expected failures, 13 partial, 6 not coverable yet, 1 without a test.
+- [x] Terminal journeys: tests/harness/stories.test.mjs (phase commands and the project picker, /auto, /config and /undo, /status, /projects, /doctor, /harness, /guide, /queue, /job, /gate, Pi’s proposals, the Japanese terminal).
+- [x] Coverage table: 81 journeys, 14 expected failures, 6 partial, 6 not coverable yet, 1 without a test.
 - [ ] NEW-1 (found here, not in the review): propose_plan puts the first task's “Request …” line under `## Decisions`,
       so G-017 refuses every write of the first planned task; US-030 and US-045 stay expected failures until it is fixed.
-- [ ] Journeys for the 13 partial stories, and US-044 (two quick answers, item 8).
+- [ ] Journeys for the 6 partial stories, and US-044 (two quick answers, item 8).

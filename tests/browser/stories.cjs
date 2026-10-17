@@ -186,6 +186,17 @@ story('US-011', 'create a new project with the old name of a renamed one: it get
   assert.equal(await page.locator('#messages').getByText('Remember: basil').count(), 0, 'the new project shows the renamed project’s chat');
 });  // review item 16 needs a project created without a parent folder (the API's data folder): the web's New Project always names one
 
+story('US-017', 'rename a project while Pi works in it: it waits, says why, and nothing moves', async t => {
+  const { page } = t;
+  const made = await newProject(t, 'Busy');
+  const id = await say(t, 'A long job TEST_WAIT'); await t.bench.job(id, ['running']);
+  await page.locator('#menubar [aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="rename-project"]').click();
+  await page.locator('#name-dialog-input').fill('Renamed while busy'); await page.locator('#name-dialog-ok').click();
+  await page.getByText(/Pi is answering about this project/).first().waitFor();
+  assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'Renamed while busy'), 'nothing moved');
+  await t.bench.api('/api/jobs/stop', { id });
+});
+
 // -- The three phases, plans, check-ins ---------------------------------------------------------------------------
 story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first: a verified commit waits for Accept Task', async t => {
   const { page } = t;
