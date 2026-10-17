@@ -27,7 +27,7 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
   by the harness when `paperwork.decision` records them; G-017 and the plan card read those records.
 - [x] Red/Green 5, Files: a path in `.git/` is never in a task's Files (propose_plan refuses it, Gate refuses the write);
   the harness commits with hooks disabled (`core.hooksPath=/dev/null`), also for Undo's commits.
-- [ ] Red/Green 6, test runners: refuse `pytest --basetemp`, `--pastebin`, `-p`, `-o`; npm/yarn/pnpm/bun `--prefix`,
+- [x] Red/Green 6, test runners: refuse `pytest --basetemp`, `--pastebin`, `-p`, `-o`; npm/yarn/pnpm/bun `--prefix`,
   `--cwd`, `--dir`; `make` with `VAR=` assignments or `-f`/`-C`; `node --test --experimental-loader`/`--import`;
   `bun --preload`; any `--option=<path>` outside the project. Normal runs still pass.
 - [ ] Red/Green 7, decision log: Gate's allow and success events are no longer decisions (they stay in

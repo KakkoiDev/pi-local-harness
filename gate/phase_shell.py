@@ -101,4 +101,25 @@ def test_run(command):
     if words[:2]==['cargo','test'] and '--offline' not in words:return False
     if words[:2]==['uv','run'] and words[2:3]!=['--offline']:return False
     if any(word.startswith(('--import', '--require', '--eval', '--loader', '--config', '--rootdir', '--directory', '--output', '--junit', '--report', '--html')) or word in ('-e', '-c', '-r', '-C') for word in words): return False
-    return not any(word.startswith(('/', '../', '~')) or '/..' in word for word in words)
+    if not runner_options_allowed(words): return False
+    outside = lambda value: value.startswith(('/', '../', '~')) or value == '..' or '/..' in value
+    return not any(outside(word) or outside(word.partition('=')[2]) for word in words)
+
+
+PYTEST = (('pytest',), ('py.test',), ('python', '-m', 'pytest'), ('python3', '-m', 'pytest'), ('uv', 'run', 'pytest'), ('uv', 'run', '--offline', 'pytest'))
+
+
+def runner_options_allowed(words):
+    """Task 261: options that delete a folder (pytest --basetemp), upload (--pastebin), load a plugin or a script
+    (-p, -o addopts, --experimental-loader, --preload), or run another project's tests (--prefix, --cwd, make -f/-C,
+    make VAR= that replaces SHELL or a compiler)."""
+    short = lambda word, letters: re.fullmatch(r'-[A-Za-z0-9]+', word) is not None and any(letter in word[1:] for letter in letters)
+    if any(tuple(words[:len(prefix)]) == prefix for prefix in PYTEST):
+        if any(word.startswith(('--basetemp', '--pastebin', '--override-ini', '--confcutdir', '--rootdir', '--inifile', '-p')) or short(word, 'po') for word in words): return False
+    if words[0] in ('npm', 'yarn', 'pnpm', 'bun'):
+        if any(word.startswith(('--prefix', '--cwd', '--dir', '--preload', '--userconfig', '--globalconfig')) for word in words): return False
+    if words[0] == 'make':
+        if any('=' in word and not word.startswith('-') or word.startswith(('--file', '--makefile', '--include-dir', '--eval')) or short(word, 'fCIe') for word in words[1:]): return False
+    if words[0] == 'node':
+        if any(word.startswith(('--experimental-loader', '--test-reporter-destination', '--env-file', '--watch-path')) for word in words): return False
+    return True
