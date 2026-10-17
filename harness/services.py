@@ -127,6 +127,7 @@ def main():
             self.gate = gate
             self.ledger = ledger
             self.token = token
+            self.person_secret = WebHandler.person_secret  # task 261: the page's secret, never given to Pi workers
             super().__init__(*args)
     servers = []
     chat = None
@@ -145,7 +146,8 @@ def main():
         servers.append(web)
         for server in servers:
             threading.Thread(target=server.serve_forever, daemon=True).start()
-        ready = {'gate': api.server_port, 'web': web.server_port, 'token': token}
+        # 'person' goes only to whoever started these services (terminal Pi's extension reads this line from a pipe).
+        ready = {'gate': api.server_port, 'web': web.server_port, 'token': token, 'person': WebHandler.person_secret}
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
             if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]

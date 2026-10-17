@@ -244,6 +244,8 @@ class ChoicePaperworkTest(PaperworkTest):
     def test_an_answered_choice_is_a_timed_decision_and_keeps_existing_sections(self):
         self.paper.phases.choose(self.root,'planning',actor='person')
         self.paper.start('choice',str(self.root),'Do task 2')
+        from harness.autonomy import set_enabled
+        set_enabled(self.data.name,True,confirmed=True)  # task 261: auto answers need Run on its own on
         for state in ['chosen','auto','given']:
             self.paper.decision('choice','Who uses it?','My household',state)
         text=(self.root/'tasks/002-add-the-badge.md').read_text()

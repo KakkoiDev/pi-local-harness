@@ -105,6 +105,11 @@ class ServicesTest(unittest.TestCase):
             self.assertEqual(blocked.get('phase'),'discussion')
             self.assertEqual(web_post('/api/phase',{'project':registered['project'],'phase':'planning'},person=True)['phase'],'planning')
             self.assertEqual(post('/phase',{'cwd':str(plain)})['phase'],'planning')
+            # Task 261: Gate's token alone cannot act as the person; the ready line's person secret (terminal Pi) can.
+            with self.assertRaises(urllib.error.HTTPError) as denied:post('/phase',{'cwd':str(plain),'phase':'discussion'})
+            self.assertEqual(denied.exception.code,403);denied.exception.close()
+            self.assertEqual(post('/phase',{'cwd':str(plain),'phase':'discussion'},**{'X-Pi-Person':ports['person']})['phase'],'discussion')
+            with urllib.request.urlopen(web_base+'/',timeout=3) as response:self.assertIn(f'content="{ports["person"]}"',response.read().decode())
             with urllib.request.urlopen(f"http://127.0.0.1:{ports['web']}/index.html", timeout=3) as response:
                 self.assertEqual(response.status,200)
         finally:

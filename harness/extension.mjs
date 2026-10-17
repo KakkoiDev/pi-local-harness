@@ -114,7 +114,7 @@ export default function harness(pi, dependencies = {}) {
   const call = async (path, body) => {
     if (!ports) throw new Error('Gate is unavailable');
     const response = await fetch(`http://127.0.0.1:${ports.gate}${path}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': ports.token || '' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gate-Token': ports.token || '', ...(ports.person ? { 'X-Pi-Person': ports.person } : {}) }, // person: terminal Pi only (task 261)
       body: JSON.stringify(body), signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) { let said = ''; try { const body = await response.json(); said = body.error || body.message || ''; } catch {} throw new Error(`Gate HTTP ${response.status}${said ? `: ${said}` : ''}`); } // Gate's reason, so Pi can act on it

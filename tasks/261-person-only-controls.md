@@ -18,7 +18,7 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 - [x] Red/Green 2, person routes: `/api/phase`, `/api/phase/build`, check-in accept and stop, `/api/plan/wait`, `/api/auto`
   and a chat message that answers a waiting choice need the page's per-run secret (`X-Pi-Person`, from a meta tag in the
   served page); without it the answer is 403. The page sends it with every request; the phone gets it with the page.
-- [ ] Red/Green 3, Gate routes: `/plan/approve`, `/phase/accept` and `/decision` refuse `state=auto` unless Run on its own
+- [x] Red/Green 3, Gate routes: `/plan/approve`, `/phase/accept` and `/decision` refuse `state=auto` unless Run on its own
   is on; person actions (`chosen`, `given`, stop, a phase change, Start Building) need the person secret, which only the
   workbench page and the terminal's own Pi (through the services' private ready line) hold. Workbench Pi workers never
   get it.

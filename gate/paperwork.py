@@ -25,6 +25,16 @@ from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 PROGRESS = '## Progress (kept by the harness)'
 
 
+class NotAllowed(ValueError):
+    """Refused because the caller may not do it (task 261): Gate and the web answer 403."""
+
+
+def require_auto(data, what):
+    """An automatic answer stands for the person only while Run on its own is on, checked here, never taken from the caller."""
+    from harness.autonomy import enabled
+    if not enabled(data): raise NotAllowed(f'Run on its own is off: only the person can {what}.')
+
+
 def short_title(text):
     """A short first sentence without request filler; the full request stays in the task."""
     title = str(text or '').strip().splitlines()[0] if str(text or '').strip() else ''
@@ -148,6 +158,7 @@ class Paperwork:
     def decision(self,request,question,answer,state='chosen'):
         """An answered choice is evidence, kept in the task rather than inferred from Pi's prose."""
         if state not in {'chosen','auto','given'}:raise ValueError('A decision must be chosen, auto or given.')
+        if state=='auto':require_auto(self.data,'answer this question')
         clean=lambda value:' '.join(str(value).split())
         if not clean(question) or not clean(answer):raise ValueError('A decision needs a question and an answer.')
         with self.lock:
@@ -247,6 +258,7 @@ class Paperwork:
                 record_decision(self.data,None,'task_acceptance','person','stop',rule='G-015')
                 return {'finished':False,'stopped':True}
             if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
+            if state=='auto':require_auto(self.data,'accept this task')
             if self.phases.get(root)['phase']!='implementation':raise ValueError('Choose Implementation to accept this task.')
             index=plan.get('index',0)+1
             finished=index>=len(plan['tasks'])
@@ -361,6 +373,7 @@ class Paperwork:
 
     def approve_plan(self, request, state='chosen'):
         if state not in {'chosen','auto'}:raise ValueError('Approval must come from the person or auto-accept.')
+        if state=='auto':require_auto(self.data,'approve this plan')
         with self.lock:
             item=self.requests[request];root=item['root'];plan=self.plan_state(root)
             if not plan.get('pending'):raise ValueError('No plan is waiting for approval.')
