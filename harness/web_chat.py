@@ -170,6 +170,28 @@ def pi_command(session, choice=None):
         '--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
         *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
 
+def migrate_session(session, folder):
+    """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names ({"type":"session",…,"cwd":…}),
+    not in the process cwd; a renamed or moved project would fail ("Stored session working directory does not exist")
+    or work in its old place. When the header names another folder, it is rewritten to `folder`; every other line stays
+    byte for byte, and a copy of the file before the change stays beside it (session.jsonl.before-move-<time>).
+    Returns the backup's path, or None when nothing changed (no session yet, not a Pi session, already right)."""
+    session=Path(session);folder=Path(folder).resolve()
+    try:lines=session.read_bytes().split(b'\n')
+    except FileNotFoundError:return None
+    for index,line in enumerate(lines[:20]):  # the header is the first entry; a legacy prefix is short
+        try:header=json.loads(line)
+        except ValueError:continue
+        if not isinstance(header,dict) or header.get('type')!='session':continue
+        cwd=header.get('cwd')
+        if isinstance(cwd,str) and cwd and Path(cwd).expanduser().resolve()==folder:return None
+        backup=session.with_name(f"{session.name}.before-move-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}")
+        import shutil;shutil.copy2(session,backup)
+        lines[index]=json.dumps({**header,'cwd':str(folder)},ensure_ascii=False).encode()
+        temporary=session.with_name(f'.{session.name}.{uuid.uuid4().hex}.tmp');temporary.write_bytes(b'\n'.join(lines));temporary.replace(session)
+        return backup
+    return None
+
 def stop_group(group):
     """Stop what is left in a finished request's process group: SIGTERM, then SIGKILL for what ignores it."""
     import signal
@@ -318,13 +340,18 @@ class WebChat:
             result=store.rename_project(project,data.get('name',''))
             for summary in self.store.list():
                 if summary.get('project')==project:self.store.rename(summary['id'],result['name'])
-            return result
-        if command=='move':return store.move_project(project,data.get('parent',''))
-        if command=='locate':return store.locate_project(project,data.get('path',''))
+            return self.moved(project,result)
+        if command=='move':return self.moved(project,store.move_project(project,data.get('parent','')))
+        if command=='locate':return self.moved(project,store.locate_project(project,data.get('path','')))
         if command=='remove':return store.forget(project)
         if command=='trash':return store.trash_project(project)
         if command=='summary':return store.project_summary(project)
         raise ValueError('Unknown project command')
+    def moved(self, project, result):
+        """After Rename, Move or Locate (task 262): the project's chat sessions name the new folder."""
+        for summary in self.store.list():
+            if summary.get('project')==project:migrate_session(self.store.folder(summary['id'])/'session.jsonl',result['path'])
+        return result
     def ensure_idle_path(self, path):
         """A file or folder Pi is answering a comment in, or will, stays where it is until that request ends."""
         busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('document') and (job['document']==path or job['document'].startswith(path.rstrip('/')+'/'))]
@@ -525,6 +552,7 @@ class WebChat:
             if not detached:
                 self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
+            if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
             choice=self.choice();command=pi_command(None if detached else folder/'session.jsonl',choice)
             env={**os.environ,'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN':self.gate_token,'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')

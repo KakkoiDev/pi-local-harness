@@ -7,10 +7,15 @@ import time
 if '--session' in sys.argv:session=counter=Path(sys.argv[sys.argv.index('--session')+1])
 else:  # --no-session (task 115): record beside the context file, count replies on their own
     session=Path(os.environ['PI_HARNESS_CONTEXT']).parent/'session.jsonl';counter=session.with_name('oneoff')
+session_cwd=None
+if '--session' in sys.argv and session.is_file() and session.read_text().startswith('{'):
+    # Like Pi 1.1.0: a real session file's header names the working folder; Pi stops when that folder is gone.
+    session_cwd=json.loads(session.read_text().splitlines()[0]).get('cwd');counter=session.with_name(session.name+'.count')
+    if session_cwd and not Path(session_cwd).is_dir():print(f'Stored session working directory does not exist: {session_cwd}',file=sys.stderr);sys.exit(1)
 request=json.loads(sys.stdin.readline())
 assert int(os.environ['PI_HARNESS_SHARED_PORT'])>0
 session.with_suffix('.request.json').write_text(json.dumps(request))
-session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':os.environ.get('PI_HARNESS_TOKEN'),'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv}))
+session.with_suffix('.environment.json').write_text(json.dumps({'cwd':os.getcwd(),'args':sys.argv,'data':os.environ.get('PI_AGENT_DATA'),'token':os.environ.get('PI_HARNESS_TOKEN'),'context':Path(os.environ['PI_HARNESS_CONTEXT']).read_text() if os.environ.get('PI_HARNESS_CONTEXT') else None,'session':'--no-session' not in sys.argv,'session_cwd':session_cwd}))
 count=int(counter.read_text())+1 if counter.exists() else 1
 counter.write_text(str(count))
 def emit(value):print(json.dumps(value),flush=True)

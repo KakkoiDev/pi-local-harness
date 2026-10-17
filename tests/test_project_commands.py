@@ -105,5 +105,57 @@ class ProjectCommandsTest(unittest.TestCase):
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
 
 
+class RenamedSessionsTest(unittest.TestCase):
+    """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names, not in the process cwd. A renamed or
+    moved project's chat session is migrated: the header names the new folder, a backup copy stays beside it."""
+    def setUp(self):
+        import json, os, sys
+        self.json = json
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        executable = self.root / 'pi'; executable.write_text('#!' + sys.executable + '\n' + Path('tests/fixtures/fake-pi.py').read_text()); executable.chmod(0o755)
+        path = patch.dict(os.environ, {'PATH': str(self.root) + os.pathsep + os.environ['PATH']}); path.start(); self.addCleanup(path.stop)
+        self.chat = WebChat(self.root / 'chats', 12345, 2, data_root=self.root / 'data'); self.addCleanup(self.chat.close)
+        self.code = self.root / 'code'; self.code.mkdir()
+        self.project = self.chat.documents.create_project('Flashcards', str(self.code))
+        self.conversation = self.chat.project_chat(self.project)
+        self.session = self.chat.store.folder(self.conversation['id']) / 'session.jsonl'
+        self.message = '{"type":"message","id":"a1","parentId":null,"message":{"role":"user","content":[{"type":"text","text":"keep me"}]}}'
+
+    def write_session(self, cwd):
+        header = {'type': 'session', 'version': 3, 'id': '11111111-1111-4111-8111-111111111111', 'timestamp': '2026-10-18T00:00:00.000Z', 'cwd': str(cwd)}
+        self.session.write_text(self.json.dumps(header) + '\n' + self.message + '\n')
+        return self.session.read_text()
+
+    def header(self):
+        return self.json.loads(self.session.read_text().splitlines()[0])
+
+    def backups(self):
+        return sorted(self.session.parent.glob('session.jsonl.before-move-*'))
+
+    def test_a_session_naming_another_folder_is_migrated_before_pi_starts(self):
+        folder = self.chat.documents.project_path(self.project)
+        original = self.write_session(self.code / 'Old name')  # renamed outside the harness, or before this fix
+        self.chat.send(self.conversation['id'], {'message': 'Hello'}, lambda event: None)
+        environment = self.json.loads(self.session.with_suffix('.environment.json').read_text())
+        self.assertEqual(environment['session_cwd'], str(folder), 'Pi starts in the project folder, not the old one')
+        self.assertEqual(self.header()['cwd'], str(folder))
+        self.assertEqual(self.session.read_text().splitlines()[1], self.message, 'the conversation is kept')
+        self.assertEqual([backup.read_text() for backup in self.backups()], [original], 'a backup copy, never a deletion')
+        self.chat.send(self.conversation['id'], {'message': 'Again'}, lambda event: None)
+        self.assertEqual(len(self.backups()), 1, 'a session that already matches is left alone')
+
+    def test_rename_and_move_migrate_the_session_at_once(self):
+        self.write_session(self.chat.documents.project_path(self.project))
+        renamed = self.chat.project_command('rename', self.project, {'name': 'Kanji'})
+        self.assertEqual(self.header()['cwd'], renamed['path'])
+        self.assertEqual(self.session.read_text().splitlines()[1], self.message)
+        self.assertEqual(len(self.backups()), 1)
+        learning = self.code / 'learning'; learning.mkdir()
+        moved = self.chat.project_command('move', self.project, {'parent': str(learning)})
+        self.assertEqual(self.header()['cwd'], moved['path'])
+        self.assertEqual(len(self.backups()), 2, 'each migration keeps its own backup')
+
+
 if __name__ == '__main__':
     unittest.main()
