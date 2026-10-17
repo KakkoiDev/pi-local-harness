@@ -77,7 +77,15 @@ remove those lines by hand; the harness does not do it.
 - [x] Red (unit): plh does not auto-update while a workbench answers on its port; it says why and starts the
       installed build.
 - [x] Fix each; Japanese copy for the new refusal sentences in messages/ja.json.
-- [ ] Green: python3 tests/verify_workflow.py; node --test tests/harness/*.test.mjs; browser suites.
+- [x] Green: python3 tests/verify_workflow.py; node --test tests/harness/*.test.mjs; browser suites.
+
+## Not verified here / still open
+
+- The web Update window's "Update" (POST /api/updates apply) still says "Restart plh to use it" when auto_update is
+  false; only `/update now` was fixed.
+- Rows the tests already wrote to the person's data folder stay there (the command above lists them). The baseline
+  Node run of this task, before the fix, added 3 report rows and 1 decision row (2026-10-17T19:30:11Z) to them.
+- The Files window still lists `.env` and ignored files (inventory unchanged); only Pi's context leaves them out.
 
 ## Needs design
 
