@@ -530,3 +530,17 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  .pw-theme[data-mode=light] .pw-theme__side[data-mode=dark],.pw-theme[data-mode=dark] .pw-theme__side[data-mode=light]{display:none}
  .pw-theme__colour input[type=color]{width:44px;height:44px}
 }
+/* Round 12 (R12_Fixes, R12_Grant, R12_Reopen): a focused link keeps its reading; the status names the project on the desk
+   and keeps “Working” on the phone; the stale-page line inside its card; the task info bar in Work; the π sheet's
+   buttons stack when a label is wider than half the row (Japanese). */
+.pw-block--plan:has(.pw-link-reading a:focus)>.pw-link-reading{display:flex}
+.pw-block--plan:has(.pw-link-reading a:focus)>.pw-block__content{display:none}
+.status-phone{display:none}
+.phone-status .status-desk{display:none}
+.phone-status .status-phone{display:inline}
+.pw-card>.pw-stale{margin:0 12px 12px}
+.task-infobar .pw-btn{min-height:24px;font-size:13px}
+@media (max-width:760px){
+ .window-projects>.window-section--actions:not(.pi-sheet-extra){flex-wrap:wrap}
+ .window-projects>.window-section--actions:not(.pi-sheet-extra)>.pw-btn{flex:1 0 calc(50% - 8px);min-width:max-content}
+}

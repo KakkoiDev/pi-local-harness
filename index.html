@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/design/app-icons/pi-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/design/app-icons/pi-16.png">
   <link rel="icon" type="image/png" media="(prefers-color-scheme:dark)" href="/design/app-icons/pi-192-dark.png">
-  <script>/* Settings apply before first paint; js/chat.mjs applySettings() does the same after Save. */try{const read=key=>JSON.parse(localStorage.getItem('plh.'+key)),appearance=read('appearance'),root=document.documentElement;if(appearance==='system')root.dataset.appearance='system';else root.dataset.theme=appearance==='inverse'?'dark':'light';root.dataset.pattern=read('desktopPattern')||'dots';}catch{}</script>
+  <script>/* Settings apply before first paint; js/chat.mjs applySettings() does the same after Save. */try{const read=key=>JSON.parse(localStorage.getItem('plh.'+key)),appearance=read('appearance'),root=document.documentElement;if(appearance==='system'||appearance===null)root.dataset.appearance='system';/* round 12: Match System is the default */else root.dataset.theme=appearance==='inverse'?'dark':'light';root.dataset.pattern=read('desktopPattern')||'dots';}catch{}</script>
   <link rel="stylesheet" href="/design/tokens.css">
   <link rel="stylesheet" href="/design/components.css">
   <link rel="stylesheet" href="/chat.css"><!-- layout: design/layout.css plus the legacy section -->
@@ -45,8 +45,8 @@
         <button class="pw-menu__item" role="menuitem" data-command="new-project">New Project…<span class="pw-menu__key">⌘N</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="add-folder">Add Existing Folder…<span class="pw-menu__key">⌘O</span></button>
         <div class="pw-menu__sep" role="separator"></div>
-        <button class="pw-menu__item" role="menuitem" data-command="new-file">New File…<span class="pw-menu__key">⇧⌘N</span></button>
-        <button class="pw-menu__item" role="menuitem" data-command="new-task">New Task…<span class="pw-menu__key">⌘T</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="new-file">New File…<span class="pw-menu__key">⌃⌥N</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="new-task">New Task…<span class="pw-menu__key">⌃⌥T</span></button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="save">Save<span class="pw-menu__key">⌘S</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="reload-document">Reload from Disk…</button>
@@ -54,7 +54,7 @@
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="rename-file">Rename or Move…</button><!-- task 146 -->
         <button class="pw-menu__item" role="menuitem" data-command="trash-page">Move to Trash…<span class="pw-menu__key">⌘⌫</span></button>
-        <button class="pw-menu__item" role="menuitem" data-command="close-window">Close Window<span class="pw-menu__key">⌘W</span></button>
+        <button class="pw-menu__item" role="menuitem" data-command="close-window">Close Window</button>
       </div></div>
     <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-edit">Edit</button>
       <div id="menu-edit" class="pw-menu" role="menu" aria-label="Edit" hidden>
@@ -106,28 +106,28 @@
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="stop">Stop<span class="pw-menu__key">⌘.</span></button>
         <button class="pw-menu__item" role="menuitem" data-command="cancel-waiting">Cancel Waiting Request…</button>
-        <button class="pw-menu__item" role="menuitem" data-command="task-record">Show Task Record</button>
+        <button class="pw-menu__item" role="menuitem" data-command="task-record">Show Task Record<span class="pw-menu__key">⌃⌥R</span></button>
         <div class="pw-menu__sep" role="separator"></div>
-        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="run-on-own">Run on Its Own<span class="pw-menu__key">⌥⌘A</span></button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="run-on-own">Run on Its Own<span class="pw-menu__key">⌃⌥A</span></button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="reconnect">Reconnect</button>
       </div></div>
     <div class="menubar-slot"><button class="pw-menubar__title" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-window">Window</button>
       <div id="menu-window" class="pw-menu" role="menu" aria-label="Window" hidden>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-chat">Chat<span class="pw-menu__key">⌘1</span></button><!-- round 4: Window is where you are; Chat and Work first --><!-- the project's views; from Activity or Gate they go back to the last project -->
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌘2</span></button>
-        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-preview">Preview<span class="pw-menu__key">⌥⌘P</span></button><!-- round 7 -->
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-chat">Chat<span class="pw-menu__key">⌃⌥1</span></button><!-- round 4: Window is where you are; Chat and Work first --><!-- the project's views; from Activity or Gate they go back to the last project -->
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-work">Work<span class="pw-menu__key">⌃⌥2</span></button>
+        <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-preview">Preview<span class="pw-menu__key">⌃⌥V</span></button><!-- round 7 -->
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-projects">Projects</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-files">Files</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="true" data-command="toggle-review">Review</button>
         <button class="pw-menu__item" role="menuitemcheckbox" aria-checked="false" data-command="toggle-event-info">Event Info</button>
         <div class="pw-menu__sep" role="separator"></div>
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity · All Projects<span class="pw-menu__key">⌘3</span></button><!-- app windows (task 128) -->
-        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌘4</span></button>
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-activity">Activity · All Projects<span class="pw-menu__key">⌃⌥3</span></button><!-- app windows (task 128) -->
+        <button class="pw-menu__item" role="menuitemradio" aria-checked="false" data-command="view-gate">Gate · All Projects<span class="pw-menu__key">⌃⌥4</span></button>
       </div></div>
     <span class="pw-menubar__spacer"></span>
-    <span class="pw-menubar__status"><span class="pw-menubar__picks"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">gemma4:26b-mlx</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><button id="agent-status" type="button" class="pw-statusbtn" aria-keyshortcuts="Meta+3" aria-label="Agent status. Open Activity"><span id="agent-state" role="status">Connecting…</span><span class="pw-statusbtn__more" aria-hidden="true"><svg viewBox="0 0 16 16" width="10" height="10"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button><!-- StatusButton (task 131): opens Activity · All Projects --><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
+    <span class="pw-menubar__status"><span class="pw-menubar__picks"><!-- task 147: choose the model and the thinking level; a model without thinking dims the second button (disable, never hide) --><button id="model-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="model-menu" aria-label="Model"><span id="model">gemma4:26b-mlx</span></button> · <button id="effort-button" type="button" class="pw-menubar__pick" aria-haspopup="menu" aria-expanded="false" aria-controls="effort-menu" aria-label="Thinking level"><span class="effort">High thinking</span></button></span><button id="agent-status" type="button" class="pw-statusbtn" aria-keyshortcuts="Control+Alt+3" aria-label="Agent status. Open Activity"><span id="agent-state" role="status">Connecting…</span><span class="pw-statusbtn__more" aria-hidden="true"><svg viewBox="0 0 16 16" width="10" height="10"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></button><!-- StatusButton (task 131): opens Activity · All Projects --><button id="connection-retry" class="pw-btn" hidden>Reconnect</button></span>
   </nav>
 
   <!-- phone bar (≤760px) -->
@@ -163,8 +163,8 @@
           <div id="project-list" class="pw-group__body"></div><!-- rows are buttons: no list role without listitems --></section>
         <section class="pw-group" data-group="agent" aria-labelledby="pg-agent"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-agent"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="agent-list"><span data-icon="disclosure-open"></span>Agent<span class="pw-group__count">All projects</span></button></h3></div>
           <div id="agent-list" class="pw-group__body">
-            <a id="agent-activity" href="/activity" class="pw-row" aria-keyshortcuts="Meta+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
-            <a id="agent-gate" href="/gate" class="pw-row" aria-keyshortcuts="Meta+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
+            <a id="agent-activity" href="/activity" class="pw-row" aria-keyshortcuts="Control+Alt+3" aria-current="false"><span data-icon="list-bullet"></span><span class="pw-row__label">Activity</span><span id="agent-activity-meta" class="pw-row__meta"></span></a>
+            <a id="agent-gate" href="/gate" class="pw-row" aria-keyshortcuts="Control+Alt+4" aria-current="false"><span data-icon="gate"></span><span class="pw-row__label">Gate</span><span id="agent-gate-meta" class="pw-row__meta"></span></a>
           </div></section>
         <section class="pw-group phone-model" aria-labelledby="pg-model"><div class="pw-group__head"><h3 class="pw-group__title" id="pg-model"><button type="button" class="pw-group__toggle" aria-expanded="true" aria-controls="model-list"><span data-icon="disclosure-open"></span>Model<span class="pw-group__count">One in memory at a time</span></button></h3></div><!-- round 8 (Ph8_Pi, Ph_Model): the phone's Model and Thinking -->
           <div id="model-list" class="pw-group__body">
@@ -204,13 +204,13 @@
       <header class="pw-titlebar"><button class="pw-box" aria-label="Close window" data-command="close-window"></button><div class="pw-titlebar__stripes"></div><h1 id="window-title" class="pw-titlebar__title">Pi Workbench</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window" data-command="zoom"></button></header>
       <div id="workspace-bar" class="pw-toolbar">
         <nav class="view-tabs pw-seg" aria-label="Workspace view">
-          <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌘1</kbd></button>
-          <button id="work-tab" aria-pressed="false">Work<kbd>⌘2</kbd></button>
-          <button id="preview-tab" aria-pressed="false" data-command="toggle-preview" hidden>Preview<kbd>⌥⌘P</kbd></button><!-- P_Narrow: a view when the chat would drop under 480px -->
+          <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌃⌥1</kbd></button>
+          <button id="work-tab" aria-pressed="false">Work<kbd>⌃⌥2</kbd></button>
+          <button id="preview-tab" aria-pressed="false" data-command="toggle-preview" hidden>Preview<kbd>⌃⌥V</kbd></button><!-- P_Narrow: a view when the chat would drop under 480px -->
         </nav>
         <span class="pw-menubar__spacer"></span>
         <span id="project-folder" class="pw-mono pw-help"></span>
-        <button id="preview-toggle" type="button" class="pw-btn preview-toggle" aria-pressed="false" aria-controls="preview" data-command="toggle-preview">Preview<span class="pw-kbd">⌥⌘P</span></button><!-- P_Beside -->
+        <button id="preview-toggle" type="button" class="pw-btn preview-toggle" aria-pressed="false" aria-controls="preview" data-command="toggle-preview">Preview<span class="pw-kbd">⌃⌥V</span></button><!-- P_Beside -->
         <span id="save-status" class="pw-label" role="status"></span><!-- Work view only (Work board) -->
       </div>
       <div id="offline-banner" class="pw-alert-line" role="alert" hidden><span data-icon="caution"></span><p>Connection interrupted. Your drafts are kept. If you just updated, quit plh, start it again, then reconnect.</p><button id="offline-reconnect" class="pw-btn pw-btn--default">Reconnect</button></div>
@@ -436,9 +436,9 @@
       <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="language" value="system">Match System</label>
     </fieldset>
     <fieldset class="settings-group"><legend class="pw-label">Appearance</legend>
-      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="paper">Paper (black on white)</label>
-      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="inverse">Inverse (white on black)</label>
-      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="system">Match System</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="system">Match System (default)</label><!-- round 12 (R12_Fixes): the default; Paper and Inverse stay deliberate choices -->
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="paper">Paper (black on white, always)</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="appearance" value="inverse">Inverse (white on black, always)</label>
     </fieldset>
     <fieldset class="settings-group desk-only"><legend class="pw-label">Desktop pattern</legend>
       <div id="settings-pattern" role="radiogroup" aria-label="Desktop pattern" class="settings-patterns"><button type="button" role="radio" aria-checked="true" aria-label="Dots" data-pattern="dots" class="pw-desk"></button><button type="button" role="radio" aria-checked="false" aria-label="Gray" data-pattern="gray" class="pw-desk pw-desk--gray"></button><button type="button" role="radio" aria-checked="false" aria-label="Plain" data-pattern="plain" class="pw-desk pw-desk--plain"></button></div>

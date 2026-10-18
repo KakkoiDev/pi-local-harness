@@ -29,7 +29,7 @@ export function installPhases({api,project,changed=()=>{},auto=()=>false,build=(
    const disabled=phase==='implementation'&&!state.tasks.length;
    const item=node(mobile?'label':'button',mobile?'pw-option':'pw-menu__item'),name=node('span',mobile?'pw-option__label':''),small=node('small','',disabled?(state.pending?'Build the planned tasks':'No planned task yet. Plan one first.'):MEANINGS[phase]);name.append(glyph(phase),NAMES[phase]);
    if(mobile){const radio=node('input','pw-radio');radio.type='radio';radio.name='phase';radio.value=phase;radio.checked=phase===state.phase;radio.disabled=disabled;radio.setAttribute('aria-label',NAMES[phase]);radio.onclick=()=>choose(phase);item.append(radio,name,small);}
-   else{item.type='button';item.setAttribute('role','menuitemradio');item.setAttribute('aria-checked',String(phase===state.phase));item.setAttribute('aria-disabled',String(disabled));item.tabIndex=-1;const head=node('span');head.append(name,node('span','pw-menu__key',`⇧⌘${index+1}`));item.append(head,small);item.onclick=()=>{if(!disabled)choose(phase);};}
+   else{item.type='button';item.setAttribute('role','menuitemradio');item.setAttribute('aria-checked',String(phase===state.phase));item.setAttribute('aria-disabled',String(disabled));item.tabIndex=-1;const head=node('span');head.append(name,node('span','pw-menu__key',['⌃⌥D','⌃⌥P','⌃⌥I'][index]));item.append(head,small);item.onclick=()=>{if(!disabled)choose(phase);};}
    menu.append(item);items.push(item);
   }
   const note=node('p','pw-menu__note',mobile?'Only you change the phase. Pi can’t. The terminal shares it.':'Only you change the phase. Pi can’t. Saved with the project; terminal Pi shares it.');note.setAttribute('role','note');menu.append(node('div','pw-menu__sep'),note);
@@ -42,7 +42,7 @@ export function installPhases({api,project,changed=()=>{},auto=()=>false,build=(
  }
  document.addEventListener('change-phase',open);
  button.onclick=open;button.onkeydown=event=>{if(event.key==='ArrowDown'){event.preventDefault();open();}};
- document.addEventListener('keydown',event=>{if(event.metaKey&&event.shiftKey&&['Digit1','Digit2','Digit3'].includes(event.code)){event.preventDefault();choose(Object.keys(NAMES)[Number(event.code.slice(-1))-1]);}});
+ /* Round 12: ⌃⌥D · ⌃⌥P · ⌃⌥I choose without opening (js/shortcuts.mjs calls choose); ⇧⌘3 was macOS's screenshot. */
  return {
   open,choose,get state(){return state;},
   async refresh(){const id=project(),request=++serial;if(owner!==id){owner=id;state={phase:'discussion',tasks:[],history:[]};closeMenu();alert.hidden=true;}draw();if(!id||busy)return;try{const saved=await api('/api/phase?project='+encodeURIComponent(id));if(request!==serial||project()!==id||busy)return;if(JSON.stringify(saved)!==JSON.stringify(state)){state=saved;draw();changed();}}catch{}},

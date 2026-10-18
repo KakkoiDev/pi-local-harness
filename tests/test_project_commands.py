@@ -109,8 +109,8 @@ class ProjectCommandsTest(unittest.TestCase):
         import json, os
         lock = self.store.root / '.agent-lock'; lock.write_text(json.dumps({'pid': os.getppid(), 'token': 'terminal'}))
         for command, data in [('rename', {'name': 'Other'}), ('move', {'parent': str(self.root)}), ('trash', {})]:
-            words = {'rename': 'rename', 'move': 'move', 'trash': 'move to the Trash'}[command]
-            with self.assertRaisesRegex(ValueError, f'Can’t {words} “Japanese study app” while terminal Pi works in it.') as refused: self.chat.project_command(command, self.project, data)
+            words = {'rename': 'Can’t rename “Japanese study app” while', 'move': 'Can’t move “Japanese study app” while', 'trash': 'Can’t move “Japanese study app” to the Trash while'}[command]
+            with self.assertRaisesRegex(ValueError, words + ' terminal Pi works in it.') as refused: self.chat.project_command(command, self.project, data)
             self.assertNotIsInstance(refused.exception, ProjectBusy, 'no workbench request to show')
             self.assertIsInstance(refused.exception, TerminalBusy, 'round 12 (R12_Renamed): the page shows its own alert')
             self.assertEqual(refused.exception.command, command); self.assertRegex(refused.exception.since, r'^\d\d:\d\d$')

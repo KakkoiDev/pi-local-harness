@@ -1,4 +1,7 @@
 import {awayCard} from './plan-cards.mjs';
+import { reopenButton } from './check-ins.mjs';/* round 12 */
+import { terminalBusy } from './refusals.mjs';
+import { linkReading } from './work-links.mjs';
 import { saveDraft,loadDraft } from './drafts.mjs';
 import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName,askRetry } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext,alsoReadLine } from './context-line.mjs';
@@ -67,6 +70,7 @@ export function installWorkspace(host){
    if(block.type==='check'){const check=node('input','pw-check');check.type='checkbox';check.checked=block.checked;check.setAttribute('aria-label','Task complete');check.onchange=()=>{block.checked=check.checked;block.dirty=true;changed();};row.append(check);}
    const text=node(block.type==='heading'?'h'+Math.min(block.level||2,6):block.type==='code'||block.type==='raw'?'pre':'div','pw-block__content',block.text);text.dataset.placeholder=['bullet','number','check'].includes(block.type)?'List item':'Write, or choose a style in the ruler';const empty=()=>row.classList.toggle('pw-block--empty',!text.textContent.trim());empty();
    text.contentEditable='plaintext-only';text.setAttribute('role','textbox');text.setAttribute('aria-label',block.type==='heading'?'Heading':'Block text');text.spellcheck=block.type!=='code';
+   {const reading=linkReading(block.text,{page:page?.path,open:path=>openFile(path),focus:()=>text.focus()});if(reading){row.classList.add('pw-block--plan');row.append(reading);text.addEventListener('blur',()=>{if(block.dirty)renderBlocks();});}}/* round 12 (R12_Fixes): Markdown links in Work */
    const approved=block.text.match(/^Plan approved:\s*(.+)$/),decision=block.type==='bullet'&&block.text.match(/^(.*?)\s*\((chosen|given|auto)\)$/);
    if(approved||decision){
     row.classList.add('pw-block--plan');const shown=node('div','pw-plan-reading');
@@ -187,7 +191,7 @@ export function installWorkspace(host){
  const shownState=status=>status==='waiting'?'queued':status;
  function selectJob(id){selectedReport=null;selectedJob=id;recordShown(false);renderActivity();}
  // One button shows and hides the record, its name saying which (2026-10-14: "Hide Task Record" once it is open); the menu item follows.
- function recordShown(on){$('activity-record').hidden=!on;$('activity-record-scrim').hidden=!(on&&matchMedia('(max-width:760px)').matches);/* Ph_ActivityRecord: a sheet over the dither */const label=on?'Hide Task Record':'Show Task Record';document.querySelectorAll('[data-command="task-record"],#activity-detail .activity-record-toggle').forEach(item=>{item.textContent=label;});document.querySelectorAll('#activity-detail .activity-record-toggle').forEach(item=>item.setAttribute('aria-expanded',String(on)));}
+ function recordShown(on){$('activity-record').hidden=!on;$('activity-record-scrim').hidden=!(on&&matchMedia('(max-width:760px)').matches);/* Ph_ActivityRecord: a sheet over the dither */const label=on?'Hide Task Record':'Show Task Record';document.querySelectorAll('[data-command="task-record"],#activity-detail .activity-record-toggle').forEach(item=>{const key=item.querySelector('.pw-menu__key');item.textContent=label;if(key)item.append(key);/* round 12: the menu keeps ⌃⌥R */});document.querySelectorAll('#activity-detail .activity-record-toggle').forEach(item=>item.setAttribute('aria-expanded',String(on)));}
  $('activity-record-close').onclick=$('activity-record-scrim').onclick=()=>recordShown(false);
  async function showRecord(id){if(!$('activity-record').hidden){recordShown(false);return;}try{const result=await api('/api/activity-record?id='+id);$('activity-record-text').textContent=result.markdown;$('activity-record-path').textContent=result.path||'';recordShown(true);$('activity-record').scrollIntoView({block:'nearest'});}catch(e){error(e.message);}}
  function renderJobDetail(job){
@@ -207,7 +211,7 @@ export function installWorkspace(host){
   if(job.status==='running'){const stop=node('button','pw-btn','Stop');stop.type='button';stop.onclick=()=>api('/api/jobs/stop',{id:job.id}).catch(e=>error(e.message));/* this request only (task 164) */actions.append(stop);}
   if(needsAttention(job)){/* plan 184 (A_Retry): Pi genuinely stopped (crash, model gone, wake-ups used up, or stopped by the person) */const retry=node('button','pw-btn','Ask Pi to Retry…');retry.type='button';retry.onclick=async()=>{const answer=await askRetry({request:job.message||'Attached files',project:name});if(!answer)return;try{const again=await api(`/api/jobs/${job.id}/retry`,{note:answer.note});host.toast(`Queued again in ${name}.`);await poll();selectJob(again.id);}catch(e){error(e.message);}};actions.append(retry);}
   if(job.status==='queued'){const cancel=node('button','pw-btn','Cancel…');cancel.type='button';cancel.onclick=async()=>{if(await ask({message:'Cancel the waiting request?',detail:'It has not started. You can send it again from the chat.',danger:'Cancel Request',safe:'Keep Waiting'})!=='danger')return;try{await api('/api/jobs/cancel',{id:job.id});await poll();}catch(e){error(e.message);}};actions.append(cancel);}
-  const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.setAttribute('aria-controls','activity-record');record.setAttribute('aria-expanded',String(!$('activity-record').hidden));record.type='button';record.onclick=()=>showRecord(job.id);actions.append(record);detail.append(actions);
+  const record=node('button','pw-btn activity-record-toggle',$('activity-record').hidden?'Show Task Record':'Hide Task Record');record.setAttribute('aria-controls','activity-record');record.setAttribute('aria-expanded',String(!$('activity-record').hidden));record.type='button';record.onclick=()=>showRecord(job.id);{const reopen=reopenButton(job,{api,ask,toast:host.toast,error,reopened:poll});if(reopen)actions.append(reopen);}/* round 12 (R12_Reopen) */actions.append(record);detail.append(actions);
  }
  function openReport(report){
   selectedReport=report;host.showActivity();const detail=$('activity-detail');detail.hidden=false;
@@ -300,10 +304,10 @@ export function installWorkspace(host){
  // StatusButton (task 131): attention (a failed, stopped or interrupted request not yet seen in Activity) wins; then Working,
  // then "N waiting" (queued, nothing running), then Ready. It names the real state: "Failed · 1 needs attention".
  function renderQueue(){const waiting=state.jobs.filter(job=>job.status==='queued').length,attention=agentSummary().attention,button=$('agent-status');
-  let glyph=null,text='Ready';
+  let glyph=null,text='Ready',named=null;
   if(attention.length){const kinds=[...new Set(attention.map(job=>job.status))];glyph='caution';text=kinds.length===1?`${kinds[0][0].toUpperCase()+kinds[0].slice(1)} · ${attention.length} need${attention.length===1?'s':''} attention`:`${attention.length} need attention`;}
-  else if(state.busy){glyph='running';text=state.auto_accept?'Working · on its own':'Working'+(waiting?' · '+waiting+' waiting':'');}else if(waiting){glyph='waiting';text=waiting+' waiting';}
-  agentState(glyph,text);button.classList.toggle('pw-statusbtn--attention',attention.length>0);button.removeAttribute('aria-disabled');button.setAttribute('aria-label',`Agent status: ${text}. Open Activity`);}
+  else if(state.busy){glyph='running';text=state.auto_accept?'Working · on its own':'Working'+(waiting?' · '+waiting+' waiting':'');const name=state.projects.find(item=>item.id===state.jobs.find(job=>job.status==='running')?.project)?.name;if(name&&!state.auto_accept)named=[name,'Working on '+name+(waiting?' · '+waiting+' waiting':''),'Working on '+(name.length>18?name.slice(0,18)+'…':name)+(waiting?' · '+waiting+' waiting':'')];}else if(waiting){glyph='waiting';text=waiting+' waiting';}
+  if(named){$('agent-state').replaceChildren(icon(glyph),node('span','status-desk',named[2]),node('span','status-phone',text));text=named[1];}else agentState(glyph,text);button.classList.toggle('pw-statusbtn--attention',attention.length>0);button.removeAttribute('aria-disabled');button.setAttribute('aria-label',`Agent status: ${text}. Open Activity`);}
  // One poll at a time; a caller during a poll waits for it (await poll() always sees fresh state).
  let pollRun=null;
  function poll(){return pollRun||(pollRun=pollOnce().finally(()=>{pollRun=null;}));}
@@ -345,7 +349,7 @@ export function installWorkspace(host){
  const parentOf=path=>path.replace(/\/[^/]+\/?$/,'')||'/';
  async function projectCall(command,id,body={}){
   try{return await api('/api/projects/'+command,{project:id,...body});}
-  catch(e){if(!e.data?.busy)throw e;/* Pi works in this project: say so instead of acting; a dimmed item could not say why */
+  catch(e){if(e.data?.terminal){await terminalBusy(ask,e.data,()=>host.showActivity());return null;}/* round 12 (R12_Renamed) */if(!e.data?.busy)throw e;/* Pi works in this project: say so instead of acting; a dimmed item could not say why */
    if(await ask({icon:'note',message:e.message,detail:'Try again when that request ends. Moving or trashing the folder now would pull it out from under Pi.',danger:'Show in Activity',safe:'OK',plain:true})==='danger')openJob(e.data.job);return null;}
  }
  function leaveProject(id){if(project!==id)return;project=null;resetDocument();host.setLevel('projects');host.showView('chat');}

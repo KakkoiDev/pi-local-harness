@@ -1,5 +1,6 @@
 // Round 10: inline cards, using the shared design components. Person messages are durable answer evidence.
 import {icon as glyph} from './ui.mjs';
+import {grantSection,gateQuestionCard} from './scope-cards.mjs';
 const node=(tag,cls='',text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
 const prose=(tag,cls,text)=>{const el=node(tag,cls,text);el.dataset.noTranslate='';return el;};
 const button=(text,action,primary=false)=>{const el=node('button','pw-btn'+(primary?' pw-btn--default':''),text);el.type='button';el.onclick=action;return el;};
@@ -29,6 +30,7 @@ export function planDecisions(plan){
  return result;
 }
 export function choiceCard(choice,{state={},answer,change}={}){
+ if(choice.scope||choice.replan)return gateQuestionCard(choice,{state,answer});/* round 12: Gate's scope and re-plan questions (gate/scope.py) */
  /* task 290: approval or a new plan replaced a question nobody answered; it says so and cannot be answered (needs design) */
  if(choice.settled&&!state.answer&&!choice.answer)return settled(`${choice.question} · not answered: settled by ${choice.settled}`,{old:true});
  if(state.answer||choice.answer){const value=state.answer||choice.answer;return settled(`${choice.question}: ${value}${choice.options?.some(o=>o.label===value)?'':' · your words'} · ${choice.state==='auto'?'auto':`you · ${time(state.answeredAt||choice.when)}`}`,{state:choice.state,action:change});}
@@ -49,21 +51,13 @@ export function planCard(plan,{name='',state={},approve,another,change,open}={})
  if(state.approved||plan.approved)return settled(`Plan approved: building · ${count} · Start Building${plan.state==='auto'?'':` · you · ${time(state.continuedAt||plan.when)}`}`,{state:plan.state,action:open,label:'Open the Plan'});
  const {el,head,body,foot}=card('Plan: '+name,'file','Plan');head.append(node('span','',count));body.append(prose('p','pw-plan__goal',plan.goal),node('h4','pw-plan__h','Tasks'));
  const tasks=node('ol','pw-plan__tasks');for(const task of plan.tasks.length>7?plan.tasks.slice(0,5):plan.tasks){const item=node('li');item.append(prose('span','',task.title));item.append(node('small','',`Done when ${task.done_when}`));tasks.append(item);}
- if(plan.tasks.length>7){const item=node('li');item.append(link(`and ${plan.tasks.length-5} more tasks · Open the Plan`,open));tasks.append(item);}body.append(tasks,node('h4','pw-plan__h','Decisions'));
+ if(plan.tasks.length>7){const item=node('li');item.append(link(`and ${plan.tasks.length-5} more tasks · Open the Plan`,open));tasks.append(item);}body.append(tasks,...grantSection(plan),node('h4','pw-plan__h','Decisions'));/* round 12: What you grant, above Decisions */
  const list=node('ul','pw-plan__decisions');for(const decision of decisions){const li=node('li');li.append(glyph('done'),prose('b','',decision.question),prose('span','',decision.answer),tag(decision.state));list.append(li);}body.append(list);
  if(plan.waiting)return settled(`Plan waiting · ${plan.tasks.length} tasks, not started · Plan Another Task · you`,{action:open,label:'Open the Plan'});
  if(!state.historical){body.append(node('p','pw-help','Start Building approves this plan and moves to Implementation. Plan Another Task keeps it waiting and goes back to Discussion.'));foot.append(button('Start Building',approve,true),button('Plan Another Task',another),button('Change…',change));}foot.append(link('Open the Plan',open));return el;
 }
-export function frameCheckIn(row,check,{data={},state={},next,review,stop,preview,undo}={}){
- if(state.continued&&check.next){row.querySelector('.pw-done__head')?.append(node('span','',` · continued by you · ${time(state.continuedAt)}`));return row;}
- if(check.accepted&&!check.next){const line=settled(`All ${check.total} planned tasks are built · still Implementation`,{action:stop,label:'Back to Discussion'});row.className=line.className;row.replaceChildren(...line.childNodes);return row;}
- row.className='pw-card';row.setAttribute('aria-label',`Task ${check.number} of ${check.total} done${check.verified?'':', not verified'}`);
- const head=node('div','pw-card__head'),body=node('div','pw-card__body'),foot=node('div','pw-card__foot');head.append(glyph(check.verified?'done':'caution'),node('h3','pw-card__title',`Task ${check.number} of ${check.total} done${check.verified?'':', not verified'}: ${check.title||data.title||check.task}`),node('span','','Waiting for you to check it'));
- for(const text of data.person||[])body.append(node('p','pw-done__text',text));
- const facts=node('dl','pw-facts');facts.append(node('dt','',check.verified?'Verified':'Not verified'),node('dd','',check.verification||check.reason||'no passing test run after the last change'),node('dt','','Next'),node('dd','',check.next||'Plan complete.'));body.append(facts);
- const links=node('div','pw-card__links');links.append(link('Show in Preview',preview));if(undo)links.append(link('Undo This Task…',undo));body.append(links);
- foot.append(button(check.next?'Accept and Continue':'Accept Task',next,check.verified),button('Review First',review,!check.verified),button('Stop Here',stop));row.replaceChildren(head,body,foot);return row;
-}
+/* Round 12: the check-in card lives in js/check-ins.mjs (Retry Task, Accept Anyway…, evidence, Restored). */
+export {frameCheckIn} from './check-ins.mjs';
 export function awayCard(report,{change,seen,activity}={}){
  const {el,head,body,foot}=card('Ran on its own: report','clock','Report: ran on its own');head.append(node('span','',`${time(report.started)} – ${time(report.ended)} · ${report.outcome||''}`));
  for(const [key,title] of [['done','Done'],['decisions','Decided on its own'],['external','Left this Mac or used the Trash'],['problems','Problems']]){

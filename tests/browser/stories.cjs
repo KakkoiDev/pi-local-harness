@@ -32,7 +32,7 @@ async function choosePhase(t, name) {
   const { page } = t;
   await page.locator('#phase-button').click();
   await page.locator('#phase-menu').getByRole(/radio/.test(await page.locator('#phase-menu').getAttribute('role')) ? 'radio' : 'menuitemradio', { name: new RegExp('^' + name) }).click();
-  await page.waitForFunction(phase => document.querySelector('#phase-button').textContent.includes(phase), name);
+  await page.waitForFunction(phase => (document.querySelector('#phase-button')?.textContent||'').includes(phase), name);
 }
 
 /** Type in the composer and send; returns the request's id once it is queued. */
@@ -56,7 +56,7 @@ async function startBuilding(t, card) {
   const { page } = t;
   const sent = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
   await card.getByRole('button', { name: 'Start Building', exact: true }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   return (await (await sent).json()).id;
 }
 
@@ -99,13 +99,13 @@ paper = Paperwork(Protocol(), data=data); paper.projects = DocumentStore(data)
 paper.plan_state(root, {'tasks': paths, 'pending': True, 'digest': paper.plan_digest(root, paths)})
 paper.start_building(root)
 `, root, t.bench.data, JSON.stringify(tasks), goal]);
-  await t.page.reload(); await t.page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await t.page.reload(); await t.page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
 }
 const COUNT = { title: 'Count clicks', files: ['counter.py', 'tests/'], done_when: 'Each click adds one.' };
 const RESET = { title: 'Reset the count', files: ['counter.py', 'tests/'], done_when: 'Reset sets the count to zero.' };
 
 /** The check-in card the last request left, and its DoneRow. */
-const checkIn = t => t.page.locator('.pw-card').filter({ hasText: 'Waiting for you to check it' }).last();
+const checkIn = t => t.page.locator('.pw-card[aria-label^="Task "]').last();  // round 12: “done” or “not verified”
 
 // -- First run and projects --------------------------------------------------------------------------------------
 story('US-001', 'first run: an empty workbench leads to the first project, which opens its chat', async t => {
@@ -209,7 +209,8 @@ story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first
   assert.match(text, /- \[x\] Red:/); assert.match(text, /- \[x\] Green:/);
   assert.match(t.bench.read(root, 'ROADMAP.md'), new RegExp(`- \\[x\\] .*\\(tasks/${task}\\)`));
   assert.match(commits(t, root)[0], /^Pi Workbench\|Count clicks \(task \d+\)$/, 'the harness committed the task');
-  assert.match(await check.textContent(), /Next.*ready-to-publish/s, 'the plan ends with its publication audit task');
+  assert.match(await check.textContent(), /Next\s*Task 2: .*publish/si, 'the plan ends with its publication audit task (round 12: Next names it)');
+  assert.match(await check.locator('.pw-facts').textContent(), /Test run\s*python3 -m unittest discover -s tests · 1 passed · 0 failed/, 'round 12: the evidence names the run Gate saw');
   const next = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
   await check.getByRole('button', { name: 'Accept and Continue', exact: true }).click();
   await answered(t, (await (await next).json()).id);
@@ -254,13 +255,13 @@ story('US-032', 'Start Building on a waiting plan: one task built and verified, 
   assert.equal(decisions(t).filter(row => row.kind === 'task_acceptance' && row.who === 'person').length, 2);
 });
 
-story('US-033', 'a task built without a passing test is committed but marked not verified; Review First is the default and opens the task', async t => {
+story('US-033', 'a task built without a passing test is committed but marked not verified; Retry Task is the default (round 12), Review First opens the task', async t => {
   const { root } = await newProject(t, 'Untested');
   await givenApprovedTasks(t, root, [COUNT]);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
   const check = checkIn(t); await check.waitFor();
   assert.match(await check.textContent(), /not verified/);
-  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Review First');
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');
   assert.match(commits(t, root)[0], /^Pi Workbench\|Count clicks \(task \d+, not verified\)$/, 'committed, marked');
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.match(t.bench.read(root, 'tasks', task), /Not verified at \d\d:\d\d: no test passed on the final code/);
@@ -302,7 +303,7 @@ story('US-036', 'Plan Another Task keeps the plan waiting in Discussion; Build t
   await review.getByRole('checkbox', { name: /Reset/ }).uncheck();
   assert.equal(await review.getByRole('checkbox', { name: /Counter/ }).isChecked(), true);
   await review.getByRole('button', { name: 'Start Building', exact: true }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   const state = await t.bench.api('/api/phase?project=' + await page.evaluate(() => location.pathname.split('/')[2]));
   assert.deepEqual(state.tasks.map(task => task.title).filter(title => /Counter|Reset/.test(title)), ['Counter', 'Reset'], 'Reset stays waiting, Counter is approved');
   assert.equal(state.phase, 'implementation');
@@ -428,7 +429,7 @@ story('US-054', 'Run on its own stops at an unverified task for my review, and s
   await turnOnRunOnItsOwn(t);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
   const check = checkIn(t); await check.waitFor();
-  assert.match(await check.textContent(), /not verified/); assert.equal(await check.locator('.pw-btn--default').textContent(), 'Review First');
+  assert.match(await check.textContent(), /not verified/); assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');  // round 12
   const report = page.locator('.pw-card').filter({ hasText: 'Ran on its own' }).last(); await report.waitFor();
   assert.match(await report.textContent(), /not verified/);
   assert.equal(exists(root, 'tests', 'test_counter.py'), false, 'the next task never started');
@@ -699,6 +700,148 @@ story('US-081', 'only the person can change the phase: a local process without t
   assert.equal(response.status, 403, 'a script on this Mac changed the phase as “the person”');
 });
 
+// -- Round 12: check-ins, what you grant, renames, the hunt's fixes ----------------------------------------------
+/** Wait until a condition on disk holds (the request that follows an answer runs on its own). */
+async function until(check, what, timeout = 15000) {
+  const end = Date.now() + timeout;
+  while (Date.now() < end) { if (check()) return; await new Promise(resolve => setTimeout(resolve, 100)); }
+  throw new Error('Timed out: ' + what);
+}
+
+story('US-118', 'an unverified task: Retry Task is the default; Accept Anyway… asks first, then ROADMAP.md says “accepted without verification”', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Unverified');
+  await givenApprovedTasks(t, root, [COUNT, RESET]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
+  const check = checkIn(t); await check.waitFor();
+  assert.equal(await check.locator('.pw-card__title').textContent(), 'Task 1 of 2 not verified: Count clicks');
+  assert.deepEqual(await check.locator('.pw-card__foot .pw-btn').allTextContents(), ['Retry Task', 'Review First', 'Accept Anyway…', 'Stop Here']);
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');
+  assert.match(await check.locator('.pw-facts').textContent(), /Retry Task runs task 1 again from its steps/);
+  await check.getByRole('button', { name: 'Accept Anyway…', exact: true }).click();
+  await page.locator('#alert-dialog[open]').waitFor();
+  assert.equal(await page.locator('#alert-message').textContent(), 'Accept task 1 without a passing test?');
+  assert.equal(await page.locator('#alert-default').textContent(), 'Cancel', 'Cancel is the default');
+  await page.keyboard.press('Escape'); await page.locator('#alert-dialog[open]').waitFor({ state: 'detached' });
+  assert.doesNotMatch(t.bench.read(root, 'ROADMAP.md'), /accepted without verification/, 'Cancel changed nothing');
+  await check.getByRole('button', { name: 'Accept Anyway…', exact: true }).click();
+  await page.locator('#alert-danger').click();
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  await until(() => new RegExp(`- \\[x\\] \\[\\d+-Count clicks\\]\\(tasks/${task}\\) \\(accepted without verification\\)`).test(t.bench.read(root, 'ROADMAP.md')), 'the labelled roadmap line');
+  assert.ok(commits(t, root).some(line => /^Pi Workbench\|Count clicks \(task \d+, accepted without verification\)$/.test(line)), 'a harness commit records it');
+  assert.ok(decisions(t).some(row => row.kind === 'task_acceptance' && row.answer === 'accept_anyway' && row.who === 'person'));
+});
+
+story('US-119', 'reopen a done task from Work: it asks first, then the boxes and the roadmap line open again and the code stays', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Reopen');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-counter'); await answered(t, id);
+  await checkIn(t).waitFor();
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  await page.goto(`${t.base}/p/${project}/work/tasks/${task}`);
+  const bar = page.locator('#task-infobar'); await bar.getByRole('button', { name: 'Reopen Task…', exact: true }).waitFor();
+  assert.match(await bar.textContent(), /Done/);
+  await bar.getByRole('button', { name: 'Reopen Task…', exact: true }).click();
+  await page.locator('#alert-dialog[open]').waitFor();
+  assert.equal(await page.locator('#alert-message').textContent(), 'Reopen “Count clicks”?');
+  assert.match(await page.locator('#alert-detail').textContent(), /^Its 2 boxes are unchecked and its ROADMAP\.md line goes back to open\./);
+  assert.equal(await page.locator('#alert-default').textContent(), 'Cancel');
+  await page.locator('#alert-danger').click();
+  await page.locator('#toast-text').filter({ hasText: 'Reopened “Count clicks”.' }).waitFor();
+  assert.match(t.bench.read(root, 'ROADMAP.md'), new RegExp(`- \\[ \\] \\[\\d+-Count clicks\\]\\(tasks/${task}\\)`));
+  assert.doesNotMatch(t.bench.read(root, 'tasks', task).split('## Progress')[0], /- \[x\]/, 'its boxes are open');
+  assert.ok(exists(root, 'counter.py'), 'the code stays');
+  await bar.waitFor({ state: 'hidden' });
+});
+
+story('US-120', 'Pi needs a file outside the task: Gate asks me, Add to Task 1 writes it into the task’s Files and the build goes on', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Widen');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-outside'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Pi wants to change a file outside task 1"]'); await card.waitFor();
+  assert.match(await card.locator('.pw-card__head').textContent(), /Gate asks you/);
+  assert.match(await card.textContent(), /notes\/extra\.py/);
+  assert.deepEqual(await card.locator('.pw-card__foot .pw-btn').allTextContents(), ['Add to Task 1', 'Keep Out', 'Open the Task']);
+  assert.equal(await card.locator('.pw-btn--default').textContent(), 'Add to Task 1');
+  assert.ok(!exists(root, 'notes', 'extra.py'), 'nothing was written before the answer');
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Add to Task 1', exact: true }).click();
+  await answered(t, (await (await resumed).json()).job);
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  assert.match(t.bench.read(root, 'tasks', task), /^Files: counter\.py, tests\/, notes\/extra\.py$/m);
+  const check = checkIn(t); await check.waitFor();
+  assert.doesNotMatch(await check.textContent(), /not verified/, 'the check-in: ' + await check.textContent());
+  assert.equal(t.bench.git(root, 'status', '--porcelain', '--', 'notes').trim(), '', 'notes/extra.py is committed with the task');
+  assert.ok(decisions(t).some(row => row.kind === 'scope_widening' && row.answer === 'Add to Task 1' && row.who === 'person'));
+});
+
+story('US-121', 'a choice after plh restarted: the card says the page is out of date and Reload Page fixes it; nothing was sent', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Stale');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
+  const check = checkIn(t); await check.waitFor();
+  await page.evaluate(() => { document.querySelector('meta[name="pi-person"]').content = 'from-before-the-restart'; });
+  await check.getByRole('button', { name: 'Retry Task', exact: true }).click();
+  const line = check.locator('.pw-alert-line[role="alert"]'); await line.waitFor();
+  assert.match(await line.textContent(), /^This page is out of date after plh restarted, so your choice wasn’t sent\. Reload the page, then choose again\./);
+  assert.equal(await line.locator('.pw-btn--default').textContent(), 'Reload Page');
+  assert.equal(await page.locator('#error').isVisible(), false, 'never the generic error line');
+  await line.getByRole('button', { name: 'Reload Page', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('meta[name="pi-person"]').content !== 'from-before-the-restart');
+  const again = checkIn(t); await again.waitFor();
+  assert.equal(await again.locator('.pw-btn--default').textContent(), 'Retry Task', 'the check-in still waits');
+});
+
+story('US-122', 'rename a project while terminal Pi works: its own alert, Show in Activity · OK, and nothing moves', async t => {
+  const { page } = t;
+  const made = await newProject(t, 'Class Notes');
+  fs.writeFileSync(join(t.bench.data, '.agent-lock'), JSON.stringify({ pid: process.pid, token: 'terminal' }));
+  try {
+    await page.locator('#menubar [aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="rename-project"]').click();
+    await page.locator('#name-dialog-input').fill('Class Notes 2'); await page.locator('#name-dialog-ok').click();
+    await page.locator('#alert-dialog[open]').waitFor();
+    assert.equal(await page.locator('#alert-message').textContent(), 'Can’t rename “Class Notes” while terminal Pi works in it.');
+    assert.match(await page.locator('#alert-detail').textContent(), /^plh in a terminal is using this folder \(a request started at \d\d:\d\d\)\. .*Nothing was changed\.$/);
+    assert.deepEqual([await page.locator('#alert-danger').textContent(), await page.locator('#alert-default').textContent()], ['Show in Activity', 'OK']);
+    assert.equal(await page.locator('#name-dialog').evaluate(dialog => dialog.open), false, 'the name dialog closed: the alert stands alone');
+    await page.locator('#alert-danger').click();
+    await page.waitForFunction(() => document.body.dataset.view === 'activity');
+    assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'Class Notes 2'), 'nothing moved');
+  } finally { fs.rmSync(join(t.bench.data, '.agent-lock'), { force: true }); }
+});
+
+story('US-123', 'a task line in ROADMAP.md is a link in Work: a click opens the task file', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Linked');
+  await page.goto(`${t.base}/p/${project}/work/ROADMAP.md`);
+  const link = page.locator('#document-editor a.pw-link', { hasText: '001-Plan this app' }); await link.waitFor();
+  assert.equal(await link.getAttribute('href'), `/p/${project}/work/tasks/001-first-task.md`, '⌘-click opens it in a new tab');
+  assert.equal(await page.locator('#document-editor').getByText('[001-Plan this app](tasks/001-first-task.md)').isVisible(), false, 'not raw Markdown');
+  await link.click();
+  await page.locator('#document-path').filter({ hasText: 'tasks/001-first-task.md' }).waitFor();
+});
+
+story('US-124', 'the ⌃⌥ shortcuts: views ⌃⌥1–4 and the phases ⌃⌥D · ⌃⌥P; menus show ⌃⌥; ⌘2 is left to the browser', async t => {
+  const { page } = t;
+  await newProject(t, 'Keys');
+  await page.keyboard.press('Control+Alt+Digit2'); await page.waitForFunction(() => document.body.dataset.view === 'work');
+  await page.keyboard.press('Control+Alt+Digit1'); await page.waitForFunction(() => document.body.dataset.view === 'chat');
+  await page.keyboard.press('Meta+Digit2'); await page.waitForTimeout(200);
+  assert.equal(await page.evaluate(() => document.body.dataset.view), 'chat', '⌘2 belongs to the browser’s tabs');
+  await page.keyboard.press('Control+Alt+KeyP'); await page.locator('#phase-button').filter({ hasText: 'Planning' }).waitFor();
+  await page.waitForFunction(() => document.getElementById('phase-button').getAttribute('aria-busy') !== 'true');
+  await page.keyboard.press('Control+Alt+KeyD'); await page.locator('#phase-button').filter({ hasText: 'Discussion' }).waitFor();
+  await page.waitForFunction(() => document.getElementById('phase-button').getAttribute('aria-busy') !== 'true');
+  await page.locator('#phase-button').click();
+  assert.deepEqual(await page.locator('#phase-menu .pw-menu__key').allTextContents(), ['⌃⌥D', '⌃⌥P', '⌃⌥I']);
+  await page.keyboard.press('Escape');
+  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"] .pw-menu__key').allTextContents(), ['⌃⌥1', '⌃⌥2', '⌃⌥3', '⌃⌥4']);
+  await page.keyboard.press('Control+Alt+Digit3'); await page.waitForURL(`${t.base}/activity`);
+});
+
 // -- Language and phone -------------------------------------------------------------------------------------------
 story('US-090', 'the workbench in Japanese: Settings › Language, then the phase button and the plan card are in Japanese', async t => {
   const { page } = t;
@@ -724,13 +867,13 @@ story('US-095', 'on a phone (390 px): plan in Planning and Start Building from t
   await page.locator('#phase-button').click();
   const sheet = page.locator('#phase-menu'); await sheet.waitFor();
   await sheet.getByRole('radio', { name: /^Planning/ }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Planning'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Planning'));
   const id = await say(t, 'TEST_PHASE_PLAN'); await answered(t, id);
   const card = page.locator('.pw-card[aria-label="Plan"]').last(); await card.waitFor();
   const start = card.getByRole('button', { name: 'Start Building', exact: true });
   assert.ok((await start.boundingBox()).height >= 44, '44 px touch target');
   await start.click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
 });
 

@@ -92,3 +92,18 @@ remove those lines by hand; the harness does not do it.
 - The Implementation shortcut ⇧⌘3 is macOS's screenshot shortcut. The design boards (PhaseControl card,
   R11_PhaseMenu, R11_Refusals) draw ⇧⌘1 · ⇧⌘2 · ⇧⌘3, so it is not changed here; the designer should choose another.
 - The new refusal copy ("Not run: …", "Not proposed: …", "not a project") is not on R11_Refusals yet.
+
+## Round 12 build (design round 12 step 5; board R12_Refusals)
+
+- [x] Refusal sentences name ⌃⌥P and ⌃⌥I (the design's new keys); “Not a project” reads “… is not a project. Add it with
+  Add Existing Folder…, or ask Pi to create a ROADMAP.md there to make it one.” with the home folder as ~.
+- [x] Japanese refusal words follow R12_Strings (実行していません · 提案していません · 書き込んでいません · プロジェクトではありません).
+- [x] The shortcut table of R12_Refusals: ⌃⌥1–4, ⌃⌥D · ⌃⌥P · ⌃⌥I, ⌃⌥V, ⌃⌥A, ⌃⌥N, ⌃⌥T, ⌃⌥R; menus show ⌃⌥; the
+  moved ⌘ keys work only when installed as an app (js/shortcuts.mjs). The Needs design item on ⇧⌘3 is answered.
+- [x] Green: python3 tests/verify_workflow.py; browser suites (stories US-124; design and chat press ⌃⌥).
+
+- [x] A “Not a project” refusal block shows “■ Not a project” and Add Existing Folder… instead of the phase line and
+  Change Phase… (js/ui.mjs toolCard).
+
+Not verified in a browser: the “Not a project” block (no story writes outside a project yet); the code path is the
+toolCard branch on “ is not a project.”.

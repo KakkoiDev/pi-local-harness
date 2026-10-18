@@ -106,7 +106,7 @@ const readline = require('node:readline');
     await page.route('**/check-in/accept', route => route.fulfill({ json: { conversation: checked, finished: false } }));
     await page.reload(); await page.locator('#prompt').fill('Still my draft'); await page.locator('#files').setInputFiles({ name: 'more.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
     sent.length = 0;
-    await page.locator('.pw-card').filter({ hasText: 'Task 1 of 2 done' }).last().getByRole('button', { name: 'Accept and Continue', exact: true }).click();
+    await page.locator('.pw-card').filter({ hasText: 'Task 1 of 2 not verified' }).last().getByRole('button', { name: 'Retry Task', exact: true }).click();  // round 12: an unverified check-in's default
     for (let i = 0; i < 20 && !sent.length; i++) await page.waitForTimeout(100);
     assert.deepEqual(sent.map(item => [item.body.message, (item.body.attachments || []).length]), [['Continue the approved task.', 0]]);
     assert.equal(await page.locator('#prompt').inputValue(), 'Still my draft');

@@ -52,6 +52,7 @@ marker") when the fix merges.
 | US-015 | locate a project whose folder went missing | Listed as "folder missing"; Locate Folder… points it at the new place | desk | design.cjs (Audit task 150: gone folder; Task 154: Locate) |
 | US-016 | find a project and switch between projects | ⌘K search, the Projects home, ‹ Projects; each project keeps its own chat | desk, phone | chat.cjs (Second project, No matching projects); design.cjs (107) |
 | US-017 | keep project commands from colliding with Pi's work | Rename/move/trash wait while Pi works in that project | desk | stories.cjs US-017 (“Pi is answering about this project.”, nothing moves); tests/test_project_commands.py; P2 “rename is allowed while terminal Pi works” is open |
+| US-122 | be told plainly when terminal Pi blocks a rename (round 12, task 262) | Its own alert “Can’t rename “Class Notes” while terminal Pi works in it.” with when the terminal request started, Show in Activity · OK (default); the name dialog closes; nothing moves. After a rename a running Preview restarts in the new folder with one note line | desk | stories.cjs US-122; tests/test_project_commands.py (TerminalBusy, the Preview note) |
 
 ## Chat and requests
 
@@ -71,9 +72,10 @@ marker") when the fix merges.
 | ID | As a person I… | Acceptance | Surfaces | Test |
 |---|---|---|---|---|
 | US-031 | talk in Discussion without Pi writing anything | A write is refused ("Not written: the project is in Discussion"), shown in Activity and Gate with the project; nothing on disk | desk | stories.cjs US-031 |
-| US-037 | change the phase with the phase button | ⇧⌘1–3 or the menu; each change is a phase line; Implementation is disabled with nothing planned | desk, phone | design.cjs (round 11 phase lifecycle); stories.cjs US-030, US-095 |
+| US-037 | change the phase with the phase button | ⌃⌥D · ⌃⌥P · ⌃⌥I (round 12; were ⇧⌘1–3) or the menu; each change is a phase line; Implementation is disabled with nothing planned | desk, phone | design.cjs (round 11 phase lifecycle); stories.cjs US-030, US-095 |
 | US-038 | see why a refused change was refused and change phase from there | Gate's row is named by the phase, with Change Phase… and Why? | desk, phone | design.cjs (phase-refusal card) |
 | US-039 | have the phase saved and shared with the terminal | The same phase after a restart and in `/status` | desk, terminal | stories.test.mjs US-100 |
+| US-124 | use one shortcut family the browser leaves alone (round 12) | ⌃⌥1–4 switch Chat · Work · Activity · Gate; ⌃⌥D · ⌃⌥P · ⌃⌥I choose the phase; menus and the phase menu show ⌃⌥; ⌘2 in a browser tab is left to the browser (installed as an app, ⌘ works too) | desk | stories.cjs US-124; design.cjs and chat.cjs press ⌃⌥ |
 
 ## Choices
 
@@ -91,7 +93,7 @@ marker") when the fix merges.
 |---|---|---|---|---|
 | US-030 | plan, Start Building and get the first task built and verified | Plan card → Start Building (the only approval, "Plan approved: chosen") → Pi works test-first → check-in "done", Red/Green ticked, roadmap ticked, one harness commit, Next: the plan's publication audit task → Accept and Continue; decision log: plan_layout code, plan_approval person, box_ticked code, step_done code, task_acceptance person | desk | stories.cjs US-030 |
 | US-032 | build an approved plan task by task | Task 1 check-in → Accept and Continue starts task 2 → Accept Task; one commit per task; every box ticked; two person acceptances logged | desk | stories.cjs US-032 |
-| US-033 | see that a task without a passing test is not verified | Committed "(not verified)", the task stays open with the reason, the roadmap line open; Review First is the default | desk | stories.cjs US-033; design.cjs (empty code task) |
+| US-033 | see that a task without a passing test is not verified | Committed "(not verified)", the task stays open with the reason, the roadmap line open; Retry Task is the default (round 12; Review First opens the task) | desk | stories.cjs US-033; design.cjs (empty code task) |
 | US-034 | trust "verified" | A comment-only edit with an old failing run and a `--help` "green" is not verified | desk | stories.cjs US-034 (fixed by task 260) |
 | US-035 | ask a question while a task is in progress | The question is answered; no check-in; the task stays in progress | desk | stories.cjs US-035 (fixed by task 260) |
 | US-036 | plan another task and build only some of the waiting ones | Plan Another Task → Discussion with the waiting strip → Build the Planned Tasks… with checkboxes → Start Building approves only the checked ones | desk, phone | stories.cjs US-036; design.cjs (round 11 waiting review at 1440/390) |
@@ -101,6 +103,9 @@ marker") when the fix merges.
 | US-087 | step back to Discussion during a check-in and come back to accept | Implementation can be chosen again and Accept Task finishes | desk | stories.cjs US-087 (fixed by task 260) |
 | US-088 | answer a question Pi asks in the middle of building | The code written before the question is part of the verified, committed task; the answer is in its Decisions | desk | stories.cjs US-088 (fixed by task 260) |
 | US-089 | trust that an approved docs task that changed nothing is not "verified" | No “done” check-in, its box stays open, nothing is committed as done | desk | stories.cjs US-089 (fixed by task 260) |
+| US-118 | accept an unverified task anyway, on purpose (round 12, task 260) | The not-verified check-in names files outside the task; Retry Task is the default; Accept Anyway… asks “Accept task 1 without a passing test?” (Cancel is the default); then its ROADMAP.md line is ticked “(accepted without verification)” in a harness commit; decision log: task_acceptance person accept_anyway | desk | stories.cjs US-118; tests/test_round12_checkins.py |
+| US-119 | reopen a task that was marked done (round 12, task 260) | Work shows Done and Reopen Task… on a done task file (Activity too, for a request that ended at a check-in); it asks “Reopen “Count clicks”?”; the boxes and the ROADMAP.md line open again; the code stays | desk | stories.cjs US-119; tests/test_round12_checkins.py (the label goes with the tick) |
+| US-120 | decide when Pi needs a file outside the task (round 12, task 261) | Gate refuses the write and asks “Pi wants to change a file outside task 1 · Gate asks you”: Add to Task 1 (default) · Keep Out · Open the Task; Add writes the file into Files: and the task is built and verified with it; Keep Out, then a second need, asks “The plan needs to change”: Re-plan (Planning) · Keep the Plan. The plan card shows What you grant (Kind and Files with their sources) | desk | stories.cjs US-120; tests/test_round12_checkins.py (Keep Out, Re-plan, Keep the Plan, What you grant) |
 | US-049 | get the plan filled before code counts | Missing Goal or Done when: one wake-up, then "Plan incomplete (G-014)", task open | desk | design.cjs (Task 233 plan-incomplete row); tests/test_paperwork.py |
 
 ## Run on its own
@@ -133,6 +138,7 @@ marker") when the fix merges.
 | US-062 | ask Pi about the whole file | Ask Pi About This File…; the answer stays with the document | desk, phone | design.cjs (108, Ph8_Ask) |
 | US-063 | handle a file changed outside | "Changed outside", Reload from disk, my draft kept | desk | chat.cjs (Reload “ROADMAP.md” from disk?) |
 | US-064 | find in files | Find in Files needs Work, then searches | desk | chat.cjs (Find in Files) |
+| US-123 | follow a link in a Markdown file (round 12) | `[001-Plan this app](tasks/001-first-task.md)` in ROADMAP.md reads as a link in Work; a click opens the task file there; ⌘-click opens it in a new tab | desk | stories.cjs US-123 |
 
 ## Preview
 
@@ -215,6 +221,7 @@ marker") when the fix merges.
 |---|---|---|---|---|
 | US-080 | keep secrets out of what Pi sees | .env, secrets/ and .gitignored files are never in "Pi sees" | desk | stories.cjs US-080 (fixed by task 263) |
 | US-081 | be the only one who changes the phase, approves or accepts | A local process without the page's secret is refused | desk | stories.cjs US-081 (task 261: person routes need the page’s X-Pi-Person secret) |
+| US-121 | be told when my page is out of date after plh restarted (round 12, task 261) | A person control refused for an old secret shows “This page is out of date after plh restarted, so your choice wasn’t sent. …” with Reload Page inside the card I pressed, not the error line; after the reload the check-in still waits | desk | stories.cjs US-121; tests/test_round12_checkins.py (the 403 says stale) |
 | US-083 | never lose a file for good | Every delete goes to the Trash | desk, terminal | design.cjs (146, 154); tests/test_project_commands.py |
 
 ## Recovery
@@ -233,12 +240,12 @@ marker") when the fix merges.
 
 ## Coverage
 
-Counted from the tables above: 110 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). Browser journeys in stories.cjs: 41 (39 from task 264, 2 from task 312) and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 117 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 48 (39 from task 264, 2 from task 312, 7 from round 12) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 97 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 104 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117, US-118, US-119, US-120, US-121, US-122, US-123, US-124 |
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |

@@ -143,6 +143,7 @@ class ScopeWidening(unittest.TestCase):
         # Pi's ask_choices sends the question again without its scope (validateChoice): Gate keeps it and returns it.
         again = self.paper.choice_pending('r', {key: choice[key] for key in ('question', 'options', 'recommended', 'allow_other', 'system_owned')})
         self.assertEqual(again['scope']['file'], 'app/admin.js')
+        self.assertEqual(again['task'], 'tasks/001-subjects.md', 'the answer resumes the task in progress, whatever “task 1” names')
         self.assertEqual(self.write('app/subjects.js')['rule'], 'G-017', 'nothing else is written while the question waits')
 
     def test_add_to_task_writes_the_file_into_files_and_the_plan_stays_approved(self):

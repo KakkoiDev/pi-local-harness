@@ -188,3 +188,25 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - The Preview reloads after Save ("You changed 1 file. Reloaded.").
 - Token labels ("Primary: buttons and links"), font weights (400 and 700 only) and the fonts panel's search and sample: please review.
 - A font not yet saved shows in the panel's sample only; the live Preview uses a system font until Save downloads it into the project.
+
+## E. Round 12 build steps 2–5 and 8: built from your boards; please revisit (2026-10-18)
+
+Built as drawn: R12_Verify, R12_Reopen, R12_Grant, R12_Renamed, R12_Refusals, R12_Fixes, R12_Strings, Ph12_Verify. Where a
+board left something open, the smallest version was built:
+- **Reopen Task… in Activity**: a button in the request's detail actions, for a request that ended at a check-in (the
+  board draws only Work's info bar). Work's info bar shows “✓ Done” and the button, without the date.
+- **Evidence on a done check-in**: Test run (command · passed · failed · seconds · time), Tests changed (a removed or
+  weakened test carries the caution glyph and “removed” or “fewer checks”, then one help line), Tried it, Next “Task 2:
+  <title>”. A weakened test makes Review First the default. Please draw the weakened line.
+- **The scope card** (“Pi wants to change a file outside task 1 · Gate asks you”): the file on its own line, Pi's reason
+  as a help line; answered, it settles to one line like a choice. **The re-plan card** (“The plan needs to change ·
+  task 1 of 1”) appears when Pi needs a file the person kept out; its body is one sentence (“Pi needs <file>, which you
+  kept out of task 1. …”), not yet “what it adds and moves”: the plan's new content does not exist until Planning.
+- **What you grant**: Kind's source is “your answer” only when a recorded decision answered the kind; otherwise “task
+  file”. The “Laya” tag is not shown yet (Laya does not decide Files today). A file added by Add to Task shows with its
+  own “your answer” tag and time.
+- **Stale page**: the alert line goes into the card (or dialog, or form) of the last press; elsewhere it goes above the
+  error line.
+- **Status**: the desk shows “Working on <project>” (18 characters, then “…”); the phone keeps “Working”.
+- **Shortcuts**: the R12_Refusals table is built (⌃⌥V, ⌃⌥A, ⌃⌥N, ⌃⌥T, ⌃⌥R; Close Window has no key). New Project keeps
+  ⌘N (Project Start's own work).

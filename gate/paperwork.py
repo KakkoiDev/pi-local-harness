@@ -188,7 +188,7 @@ class Paperwork:
             # so an answer to a question that was replaced is a no-op.
             identifier=previous.get('id') if same and previous.get('id') else uuid.uuid4().hex[:16]
             held=list(previous.get('held') or []) if same else []
-            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'],'before':item['before'],'pending':True}
+            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'] or (choice.get('scope') or choice.get('replan') or {}).get('task'),'before':item['before'],'pending':True}  # round 12: Gate's scope question belongs to the task in progress
             self.save_choice(item['root'],value)
             return {key:value[key] for key in ['id','question','options','recommended','task','pending',*[key for key in ('system_owned','scope','replan') if value.get(key)]]}
 

@@ -47,3 +47,11 @@ records (test-runs.jsonl rows, audit log cwd) keep the old folder as history.
 - The Preview restarts silently after a rename or move (its usual "starting" state); a note such as "Started again in
   the renamed folder" is not drawn. Open on Phone ends with the old app and is not turned on again.
 - The refusal while terminal Pi works is the existing project-command error alert; no dedicated card.
+
+## Round 12 build (design round 12 step 4; board R12_Renamed)
+
+- [x] Red (unit): Rename, Move and Move to Trash while terminal Pi works raise TerminalBusy (“Can’t rename “<name>” while
+  terminal Pi works in it.”, with the time the terminal request started); the web answers 409 `terminal: true`.
+- [x] Red (unit): a Preview restarted by Rename or Move says “Restarted in the renamed folder: <folder>” in its note line.
+- [x] The dedicated alert: Show in Activity · OK (default); the name dialog closes first (js/refusals.mjs).
+- [x] Green: python3 tests/verify_workflow.py; browser stories US-122.
