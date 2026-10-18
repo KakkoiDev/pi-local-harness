@@ -236,6 +236,12 @@ class ProxyTest(unittest.TestCase):
         stream = events(self.post(self.request(stream=True))[1])
         self.assertEqual(assembled(stream), ('Let me check.', '', [{'name': 'read', 'arguments': {'path': 'app/db.py'}}], 'tool_calls'))
 
+    def test_a_streamed_gemma_call_without_its_quote_tokens(self):
+        pieces = ['Reading it.', 'call:re', 'ad{path:app/', 'db.py}<tool_call|>']  # Ollama dropped <|tool_call> and the <|"|> quotes
+        self.upstream.reply = (200, chunks(pieces), 0)
+        stream = events(self.post(self.request(stream=True))[1])
+        self.assertEqual(assembled(stream), ('Reading it.', '', [{'name': 'read', 'arguments': {'path': 'app/db.py'}}], 'tool_calls'))
+
     def test_a_stream_that_stops_mid_answer_is_not_completed(self):
         self.upstream.reply = (200, chunks(['Partial'])[:1] + [], 3)  # one chunk, after longer than the proxy waits
         status, raw = self.post(self.request(stream=True))

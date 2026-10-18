@@ -166,6 +166,65 @@ class NeverACall(unittest.TestCase):
         with self.assertRaises(ParseError): validate('t', {'mode': 'x'}, {'properties': {'mode': {'type': 'string', 'enum': ['a', 'b']}}})
 
 
+PROPOSE_PLAN = {'type': 'function', 'function': {'name': 'propose_plan', 'parameters': {  # harness/planning.mjs
+    'type': 'object', 'properties': {'goal': {'type': 'string'}, 'tasks': {'type': 'array', 'items': {'type': 'object', 'properties': {
+        'title': {'type': 'string'}, 'kind': {'type': 'string', 'enum': ['code', 'docs', 'chore']}, 'files': {'type': 'array', 'items': {'type': 'string'}},
+        'done_when': {'type': 'string'}, 'content': {'type': 'string'}}, 'required': ['title', 'files', 'done_when', 'content']}}}}}}
+STEPS = ('1. Define … to app/db.py.\n2. Add all CRUD functions for habits and daily logs (e.g., `get_all_habits`, `mark_complete`, '
+         '`daily_completion_counts`) to app/db.py.\n3. Create a new migration file migrations/002-habits.sql …\n4. Ensure the `connect()` '
+         'function … (by creating them with `IF NOT EXISTS`).')
+DONE = 'The database is capable of storing and querying habits and daily logs; a test verifies the new functionality.'
+# gemma4:e4b-mlx on the owner's build (da0063f): Ollama's decode dropped the <|"|> quote tokens, so no value is quoted.
+LIVE = ('Here is the plan.call:propose_plan{goal:…,tasks:[{steps:' + STEPS + ',done_when:' + DONE +
+        ',files:[app/db.py,migrations/002-habits.sql],kind:code,title:003-Implement Data Model and Database Schema}]}<tool_call|>')
+
+
+class GemmaNativeWithoutQuotes(unittest.TestCase):
+    """Gemma's own `call:name{…}` with its quote tokens lost: the offered tool's schema says where each value ends."""
+
+    def test_the_live_sample_is_read_and_its_wrong_key_keeps_it_text(self):
+        failure = repair(LIVE, TOOLS + [PROPOSE_PLAN])
+        self.assertIsInstance(failure, Failure)
+        self.assertEqual(failure.tool, 'propose_plan')
+        self.assertIn('unknown argument tasks[0].steps', failure.reason, 'read completely; the model named a key the tool does not have')
+
+    def test_the_live_sample_splits_exactly_at_known_keys(self):
+        schema = json.loads(json.dumps(PROPOSE_PLAN))
+        item = schema['function']['parameters']['properties']['tasks']['items']
+        item['properties']['steps'] = {'type': 'string'}; item['required'] = ['title', 'files', 'done_when']
+        result = repair(LIVE, [schema])
+        self.assertEqual(calls(result), [('propose_plan', {'goal': '…', 'tasks': [{'steps': STEPS, 'done_when': DONE, 'files': ['app/db.py', 'migrations/002-habits.sql'],
+                                                                                'kind': 'code', 'title': '003-Implement Data Model and Database Schema'}]})])
+        self.assertEqual(result.content, 'Here is the plan.')
+
+    def test_the_same_plan_with_the_right_key_is_repaired(self):
+        result = repair(LIVE.replace('{steps:', '{content:'), [PROPOSE_PLAN])
+        task = calls(result)[0][1]['tasks'][0]
+        self.assertEqual((task['content'], task['kind'], task['files']), (STEPS, 'code', ['app/db.py', 'migrations/002-habits.sql']))
+
+    def test_with_the_opening_tag_and_with_or_without_quote_tokens(self):
+        quoted = '<|tool_call>call:propose_plan{goal:<|"|>Habits<|"|>,tasks:[{content:<|"|>a, b: c<|"|>,done_when:<|"|>works<|"|>,files:[<|"|>app/db.py<|"|>],kind:<|"|>Code<|"|>,title:<|"|>Data<|"|>}]}<tool_call|>'
+        bare = quoted.replace('<|"|>', '').replace('a, b: c', 'a, b and c')
+        for text in (quoted, bare):
+            task = calls(repair(text, [PROPOSE_PLAN]))[0][1]['tasks'][0]
+            self.assertEqual((task['files'], task['kind'], task['title']), (['app/db.py'], 'code', 'Data'), text)
+        self.assertEqual(calls(repair(quoted, [PROPOSE_PLAN]))[0][1]['tasks'][0]['content'], 'a, b: c', 'a quoted value keeps its commas and colons')
+        failure = repair(quoted.replace('<|"|>', ''), [PROPOSE_PLAN])
+        self.assertEqual((type(failure), failure.reason), (Failure, 'unreadable call: unknown argument b'), 'unquoted, `a, b: c` may be a key b: left as text')
+
+    def test_read_and_write_without_quote_tokens(self):
+        self.assertEqual(calls(repair('Reading it.\ncall:read{path:app/db.py}<tool_call|>', TOOLS)), [('read', {'path': 'app/db.py'})])
+        code = 'import os\nprint("hi, there")  # it\'s a test, path: none\n'
+        result = repair('<|tool_call>call:write{content:' + code + ',path:app/x.py}<tool_call|>', TOOLS)
+        self.assertEqual(calls(result), [('write', {'content': code, 'path': 'app/x.py'})], 'newlines, commas, quotes and an apostrophe stay in the value')
+        self.assertEqual(calls(repair('Writing.call:write{path:a.txt,content:one, two}', TOOLS)), [('write', {'path': 'a.txt', 'content': 'one, two'})], 'at the very end, no tags at all')
+
+    def test_still_text_when_it_cannot_mean_one_thing(self):
+        self.assertIsInstance(repair('call:propose_plan{goal:x,tasks:[{content:a,done_when:b,files:[a],kind:poem,title:t}]}<tool_call|>', [PROPOSE_PLAN]), Failure, 'not one of the kinds')
+        self.assertIsInstance(repair('call:propose_plan{goal:x,tasks:[{content:a,done_when:b}]}<tool_call|>', [PROPOSE_PLAN]), Failure, 'required keys missing')
+        self.assertIsNone(repair('I would call:propose_plan later, maybe.', [PROPOSE_PLAN]), 'prose')
+
+
 class Streaming(unittest.TestCase):
     """hold_from: the text before a possible pseudo call streams at once; the rest waits for the end of the turn."""
 
@@ -184,11 +243,12 @@ class Streaming(unittest.TestCase):
 
     def test_every_repaired_span_starts_after_what_was_streamed(self):
         texts = ['I will look.\n<execute_tool>\nread{path:app/db.py}\n</execute_tool>', 'Let me read it.\n\nread(path="app/db.py")',
-                 'Reading.\n```json\n{"name": "read", "arguments": {"path": "a"}}\n```', '<|tool_call>call:read{path:<|"|>a<|"|>}<tool_call|>']
+                 'Reading.\n```json\n{"name": "read", "arguments": {"path": "a"}}\n```', '<|tool_call>call:read{path:<|"|>a<|"|>}<tool_call|>',
+                 LIVE.replace('{steps:', '{content:'), 'Writing.call:write{path:a.txt,content:one, two}', 'Reading it.\ncall:read{path:app/db.py}<tool_call|>']
         for text in texts:
-            result = repair(text, TOOLS)
+            result = repair(text, TOOLS + [PROPOSE_PLAN])
             for size in range(len(text) + 1):  # however the text arrived in pieces
-                streamed = min(hold_from(text[:size], TOOLS), size)
+                streamed = min(hold_from(text[:size], TOOLS + [PROPOSE_PLAN]), size)
                 self.assertLessEqual(streamed, result.spans[0][0], (text, size))
 
 
