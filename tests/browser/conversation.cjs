@@ -90,7 +90,7 @@ const readline = require('node:readline');
     for (let i = 0; i < 50 && (await workspace()).jobs.some(job => ['queued', 'running'].includes(job.status)); i++) await page.waitForTimeout(200);
     await page.reload(); await page.locator('#prompt').fill('Still my draft'); await page.locator('#files').setInputFiles({ name: 'more.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
     // The new plan settled the older open question: it says so and cannot be answered.
-    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it? · not answered: settled by a new plan' }).waitFor();
+    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: not answered · settled by a new plan' }).waitFor();
     assert.equal(await page.locator('.pw-card[aria-label="Who uses it?"] .pw-option').count(), 0);
     assert.equal(await page.locator('#send').textContent(), 'Send', 'the composer is no longer answering it');
     sent.length = 0;

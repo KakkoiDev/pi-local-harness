@@ -59,3 +59,36 @@ Design: designer round 12 part D (the panel, desk and phone, English and Japanes
   `harness/theme-helper.js` to its HTML pages; Open on Phone and terminal apps still use the app itself.
 - The block ends with `/* theme: end */`, so the reader knows where it stops. Undo takes back a person's commit only
   when it is a theme save (title `Theme: …` and the `Workbench-Change: theme` trailer).
+
+## Round 12: rebuilt to the designer's drawing (card ThemePanel; boards R12_ThemeColours, R12_ThemeRadius, R12_ThemeParts, Ph12_Theme, Ph12_ThemePick)
+
+- [x] One card per request, labelled "Pi Workbench · no model", with tabs Colours · Radius · Spacing · Chart (and Fonts,
+  not drawn yet: see design/briefs/round-12.md). Unsaved changes stay across tabs; the foot counts them ("1 change not
+  saved: Primary · the Preview shows it now") beside Discard and Save Theme.
+- [x] Colours: the designer's eight rows (Primary … Border · Input · Ring) with plain names and where they show, light
+  and dark, a swatch with "Aa" in its text colour, hex, contrast (never blocking), Reset per row; the first five in the
+  chat, then "▸ 3 more". The picker (js/theme-panel.mjs): saturation field, hue strip, hex and the oklch it maps to,
+  five recent colours, Esc puts the old value back; Colour · Text on it when the row has a text colour.
+- [x] Radius and Spacing: one slider in px (radius 0–24, spacing 3–6 in 0.5 steps; the block gets rem) with samples of
+  the derived sizes. Chart: five colours, one value for light and dark, a warning when two are closer than 0.1 in OKLab.
+- [x] The Preview's note line "◐ Showing the unsaved theme · Save or Discard in the chat" while anything is unsaved.
+- [x] Save Theme: one request; the panel becomes "saved · Open Again" and the chat gets "✓ Theme saved: … ·
+  styles/input.css · 14:38" with Undo, whose alert reads in theme words ("Undo the theme save?").
+- [x] Leaving unsaved (sending a message, switching chat or project, Close on the phone) asks "Save the theme changes
+  before going on?": Don't Save · Cancel · Save (default). Closing the page with unsaved changes asks the browser's way.
+- [x] No theme file: the designer's card; **Add a Theme File** (person route /api/theme/add) writes the starters'
+  styles/input.css and Basecoat's CSS (vendor/basecoat) as one undoable commit of the person's ("Theme: added the theme
+  file"). A project whose styles/input.css is its own CSS is never overwritten.
+- [x] Entry points: the request, Project › Theme… ⌃⌥K, and the Harness notice under Pi's answer ("Open Radius…").
+- [x] Phone: full screen (Close · Theme · Light/Dark), the app live on top in its own frame through the Preview's proxy
+  ("Live · unsaved"), 56 px rows with 32 px swatches, the picker as its own page (Reset · Done).
+- [x] Tests: tests/test_theme.py (groups, Add a Theme File and its Undo), tests/harness/theme.test.mjs (HSV, oklch,
+  distance), stories US-116 (updated: picker, Esc, drag, Save Theme, Undo in theme words), US-117 (⌃⌥K, the no-file
+  card), US-118 (3 more, tabs, samples, chart warning), US-119 (Don't Save · Cancel · Save), US-120 (Add a Theme File),
+  US-121 (phone full screen).
+
+Decision (round 12): the theme stays the marked block in `styles/input.css` rather than the drawing's separate
+`app/static/theme.css`. The starters' Tailwind build already compiles input.css (harness/preview.py), the block keeps
+the person's own rules untouched and is read back exactly, Pi's context note and kit/cards/basecoat.md already point at
+it, and a separate file would add an @import and a migration for no gain the person would see. The panel shows the
+real path.

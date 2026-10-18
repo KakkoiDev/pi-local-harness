@@ -1,0 +1,58 @@
+<main class="app mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+  <div class="flex items-center justify-between gap-4">
+    <h1 class="text-2xl font-semibold" data-t="settings.title">Settings</h1>
+    <p id="settings-saved" class="text-muted-foreground text-sm" role="status" aria-live="polite"></p>
+  </div>
+
+  <section class="card" aria-labelledby="settings-language">
+    <header><h2 id="settings-language" class="font-semibold" data-t="settings.language">Language</h2></header>
+    <section>
+      <fieldset class="grid gap-3" role="radiogroup" aria-labelledby="settings-language">
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="language" value="en" checked><span lang="en">English</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="language" value="ja"><span lang="ja">日本語</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="language" value="auto"><span data-t="settings.language.auto">Same as this device</span></label>
+      </fieldset>
+    </section>
+  </section>
+
+  <section class="card" aria-labelledby="settings-appearance">
+    <header><h2 id="settings-appearance" class="font-semibold" data-t="settings.appearance">Appearance</h2></header>
+    <section>
+      <fieldset class="grid gap-3" role="radiogroup" aria-labelledby="settings-appearance">
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="theme" value="system" checked><span data-t="settings.theme.system">Match System</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="theme" value="light"><span data-t="settings.theme.light">Light</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="theme" value="dark"><span data-t="settings.theme.dark">Dark</span></label>
+      </fieldset>
+    </section>
+  </section>
+
+  <section class="card" aria-labelledby="settings-notifications">
+    <header><h2 id="settings-notifications" class="font-semibold" data-t="settings.notifications">Notifications</h2></header>
+    <section class="grid gap-4">
+      <label class="label justify-between gap-4 font-normal">
+        <span class="grid gap-0.5"><span data-t="settings.notify.comments">Comments on my notes</span><span class="text-muted-foreground text-sm" data-t="settings.notify.comments_help">An email when someone comments.</span></span>
+        <input class="input" type="checkbox" role="switch" name="notify_comments" checked>
+      </label>
+      <div class="field">
+        <label class="label" for="settings-digest" data-t="settings.digest">Summary email</label>
+        <select class="select" id="settings-digest" name="digest">
+          <option value="off" data-t="settings.digest.off">Never</option>
+          <option value="daily" data-t="settings.digest.daily">Every day</option>
+          <option value="weekly" selected data-t="settings.digest.weekly">Every Monday</option>
+        </select>
+      </div>
+    </section>
+  </section>
+
+  <section class="card" aria-labelledby="settings-account">
+    <header><h2 id="settings-account" class="font-semibold" data-t="settings.account">Account</h2></header>
+    <section class="item-group">
+      <a class="item" href="/profile"><section><h3 data-t="account.profile">Profile</h3><p data-t="settings.profile_help">Picture, name and bio</p></section><aside aria-hidden="true">›</aside></a>
+      <a class="item" href="/settings/account"><section><h3 data-t="account.title">Account</h3><p data-t="settings.account_help">Email, password, devices</p></section><aside aria-hidden="true">›</aside></a>
+      <a class="item" href="/about"><section><h3 data-t="about.title">About Class Notes</h3><p>1.4.0</p></section><aside aria-hidden="true">›</aside></a>
+    </section>
+    <footer>
+      <form method="post" action="/logout" class="contents"><button class="btn w-full @3xl:w-auto" data-variant="outline" type="submit" data-t="logout.action">Log Out</button></form>
+    </footer>
+  </section>
+</main>

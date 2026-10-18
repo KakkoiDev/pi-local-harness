@@ -69,7 +69,7 @@ def task_title(root, path):
     return found[1].strip() if found else Path(path).stem
 
 
-def accept_anyway(paperwork, root, state='chosen'):
+def accept_anyway(paperwork, root, state='chosen', request=None):
     """The person's Accept Anyway… on an unverified check-in (never automatic): the task counts as done, labelled."""
     if state != 'chosen': raise ValueError('Only the person can accept a task without a passing test.')
     from .paperwork import PROGRESS, clock
@@ -93,7 +93,7 @@ def accept_anyway(paperwork, root, state='chosen'):
         following = index + 1; finished = following >= len(plan['tasks'])
         plan.update(check_in=False, finished=finished, accepted='anyway', index=index if finished else following); plan.pop('card', None)
         paperwork.plan_state(root, plan)
-        record_decision(paperwork.data, None, 'task_acceptance', 'person', 'accept_anyway', rule='G-015')
+        record_decision(paperwork.data, request, 'task_acceptance', 'person', 'accept_anyway', rule='G-015')
         return {'finished': finished, 'next': None if finished else plan['tasks'][following], 'total': len(plan['tasks']), 'anyway': True, 'task': task, **saved}
 
 

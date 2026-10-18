@@ -1,0 +1,58 @@
+<button class="btn" type="button" onclick="document.getElementById('invite-dialog').showModal()" data-t="invite.open">Invite People</button>
+
+<dialog id="invite-dialog" class="dialog" aria-labelledby="invite-title" aria-describedby="invite-desc" onclick="if (event.target === this) this.close()">
+  <div class="w-full @3xl:max-w-lg">
+    <header>
+      <h2 id="invite-title" data-t="invite.title">Invite people to Class project</h2>
+      <p id="invite-desc" data-t="invite.lede">They get an email with a link. Invitations expire after 7 days.</p>
+    </header>
+    <section class="grid gap-4">
+      <form id="invite-form" class="grid gap-2" hx-post="/projects/12/invites" hx-target="#invite-pending" hx-swap="beforeend">
+        <label class="label" for="invite-emails" data-t="invite.emails">Email addresses</label>
+        <div class="flex gap-2">
+          <input class="input flex-1" id="invite-emails" name="emails" type="text" inputmode="email" autocomplete="off" placeholder="name@example.com, …" aria-describedby="invite-emails-hint" required>
+          <label class="sr-only" for="invite-role" data-t="invite.role">Role</label>
+          <select class="select w-32" id="invite-role" name="role">
+            <option value="member" selected data-t="roles.member">Member</option>
+            <option value="viewer" data-t="roles.viewer">Viewer</option>
+            <option value="owner" data-t="roles.owner">Owner</option>
+          </select>
+        </div>
+        <p class="text-muted-foreground text-sm" id="invite-emails-hint" data-t="invite.emails_hint">Separate several addresses with commas.</p>
+        <button class="btn justify-self-end" type="submit" data-t="invite.send">Send Invitations</button>
+      </form>
+
+      <div class="grid gap-2">
+        <h3 class="text-sm font-medium" data-t="invite.people">People with access</h3>
+        <ul class="item-group" id="invite-pending">
+          <li class="item" data-size="sm">
+            <figure><span class="avatar" data-size="sm"><span>AK</span></span></figure>
+            <section><h4>Aiko Kato <span class="text-muted-foreground font-normal" data-t="invite.you">(you)</span></h4><p>aiko@example.com</p></section>
+            <aside><span class="text-muted-foreground text-sm" data-t="roles.owner">Owner</span></aside>
+          </li>
+          <li class="item" data-size="sm">
+            <figure><span class="avatar" data-size="sm"><span>RS</span></span></figure>
+            <section><h4>ren@example.com</h4><p><span class="badge" data-variant="outline" data-t="invite.pending">Invited</span> <span data-t="invite.expires">expires 25 Oct</span></p></section>
+            <aside class="flex gap-1">
+              <button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="invite.resend">Resend</button>
+              <button class="btn" data-variant="ghost" data-size="sm" type="button" aria-label="Cancel invitation for ren@example.com" data-t="invite.cancel">Cancel</button>
+            </aside>
+          </li>
+        </ul>
+      </div>
+
+      <div class="grid gap-2 border-t pt-4">
+        <h3 class="text-sm font-medium" data-t="invite.link">Invite link</h3>
+        <div class="flex gap-2">
+          <label class="sr-only" for="invite-link" data-t="invite.link">Invite link</label>
+          <input class="input flex-1 font-mono text-xs" id="invite-link" readonly value="https://notes.example.com/invites/k3p9-a72d">
+          <button class="btn" data-variant="outline" type="button" data-t="invite.copy">Copy</button>
+        </div>
+        <p class="text-muted-foreground text-sm"><span data-t="invite.link_hint">Anyone with the link joins as a Viewer.</span> <button class="btn" data-variant="link" data-size="sm" type="button" data-t="invite.reset_link">Reset Link…</button></p>
+      </div>
+    </section>
+    <footer>
+      <button class="btn" data-variant="outline" type="button" onclick="this.closest('dialog').close()" data-t="invite.done">Done</button>
+    </footer>
+  </div>
+</dialog>

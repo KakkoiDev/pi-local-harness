@@ -4,14 +4,13 @@
 // lost in a reload comes back from the project's state with a "Restored" notice. Reopen Task… (Work, Activity) asks, then
 // unchecks the task's boxes and reopens its ROADMAP.md line (POST /api/tasks/reopen, a person route).
 import {icon as glyph} from './ui.mjs';
+import {harnessNotice} from './notices.mjs';
 const node=(tag,cls='',text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
 const button=(text,action,primary=false)=>{const el=node('button','pw-btn'+(primary?' pw-btn--default':''),text);el.type='button';el.onclick=action;return el;};
 const link=(text,action)=>{const el=node('a','pw-link',text);el.href='#';el.onclick=e=>{e.preventDefault();action?.();};return el;};
 const time=value=>value?new Date(value).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
 const mono=text=>{const el=node('span','pw-mono',text);el.style.fontSize='13px';return el;};
 
-/** The harness's own voice inside a card (HarnessNotice, round 12): `.pw-notice role="note"`, who and what. */
-export function notice(who,text){const el=node('p','pw-notice');el.setAttribute('role','note');el.style.margin='0 0 4px';el.append(node('span','pw-notice__who',who),node('span','pw-notice__text',text));return el;}
 
 function testLine(run){
  if(!run?.command)return null;const dd=node('dd');dd.append(mono(run.command));
@@ -35,7 +34,7 @@ export function frameCheckIn(row,check,{data={},state={},next,review,stop,previe
  row.className='pw-card';row.setAttribute('aria-label',verified?`${count} done`:`${count} not verified`);
  const head=node('div','pw-card__head'),body=node('div','pw-card__body'),foot=node('div','pw-card__foot');
  head.append(glyph(verified?'done':'caution'),node('h3','pw-card__title',verified?`${count} done: ${title}`:`${count} not verified: ${title}`),node('span','',verified?'Waiting for you to check it':'Waiting for you'));
- if(restored)body.append(notice('Restored',`The chat message was lost in a reload. This check-in comes from the project’s state (${check.task}).`));
+ if(restored)body.append(harnessNotice(`The chat message was lost in a reload. This check-in comes from the project’s state (${check.task}).`,{who:'Restored'}));
  for(const text of data.person||[])body.append(node('p','pw-done__text',text));
  const facts=node('dl','pw-facts');let caution=false;
  if(verified){facts.append(node('dt','','Verified'),node('dd','',check.verification||'a test passed on the final code'));caution=evidenceFacts(facts,check);

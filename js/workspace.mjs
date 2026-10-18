@@ -2,6 +2,7 @@ import {awayCard} from './plan-cards.mjs';
 import { reopenButton } from './check-ins.mjs';/* round 12 */
 import { terminalBusy } from './refusals.mjs';
 import { linkReading } from './work-links.mjs';
+import { relabelState } from './notices.mjs';
 import { saveDraft,loadDraft } from './drafts.mjs';
 import { icon,stateGlyph,toolCard,segmentFor,readState,writeState,imeEnter } from './ui.mjs';import { ask,askName,askRetry } from './dialogs.mjs';import { dictateButton } from './dictation.mjs';import { installPopup } from './menubar.mjs';
 import { parseMarkdown,serializeMarkdown } from './markdown-blocks.mjs';import { spoken } from './message-markdown.mjs';import { installFilesWindow } from './files-window.mjs';import { contextLine,showContext,alsoReadLine } from './context-line.mjs';
@@ -228,7 +229,7 @@ export function installWorkspace(host){
   const list=$('activity-list'),focused=list.contains(document.activeElement),head=node('div','pw-table__row pw-table__head');head.setAttribute('role','row');for(const label of ['State','Request','Project','Source','Started','Time']){const cell=node('span','',label);cell.setAttribute('role','columnheader');head.append(cell);}list.replaceChildren(head);
   if(!ordered.length){if(!state.jobs.length||filter==='pending'){const empty=node('div','activity-empty');empty.append(node('h3','pw-label','All caught up'),node('p','pw-help','Requests from every project, its comments and whole-file questions wait here in one queue. Terminal Pi runs directly and shows in Gate.')/* C_ActivityDesk */);list.append(empty);}else list.append(node('p','list-empty pw-empty','No tasks match these filters.'));}
   for(const job of ordered){const item=state.projects.find(project=>project.id===job.project),row=node('div','activity-task pw-table__row');row.id='job-'+job.id;row.setAttribute('role','row');/* C_ActivityDesk: a row, not a link, so the project name can be one */row.tabIndex=job.id===selectedJob?0:-1;if(job.id===selectedJob)row.setAttribute('aria-current','true');
-   const glyph=stateGlyph(shownState(job.status));glyph.classList.add('task-state',job.status);
+   const glyph=relabelState(stateGlyph(shownState(job.status)),job);glyph.classList.add('task-state',job.status);/* round 12: Waiting for you · Stopped by a question · Stopped by you */
    const link=node('a','pw-link',item?.name||job.project);link.href='/p/'+job.project+'/chat';link.onclick=event=>{event.preventDefault();event.stopPropagation();goToProject(job.project,'chat');};const where=node('span');where.append(link);
    row.append(glyph,node('span','pw-table__cell--text activity-request',job.message||'Attached files'),where,node('span','',job.comment_id?'Comment · '+job.document.split('/').pop().replace(/\.md$/,'').slice(0,12)+'…':job.document?job.document.split('/').pop():'Chat'),node('span','',job.status==='queued'?'queued '+clock(job.created):clock(job.started||job.created)),node('span','',duration(job)));
    row.onclick=event=>{event.preventDefault();selectJob(job.id);host.jobOpened();};row.onpointerdown=()=>{row.dataset.pointer='1';};row.onfocus=()=>{if(!row.dataset.pointer&&selectedJob!==job.id)selectJob(job.id);};for(const cell of row.children)cell.setAttribute('role','gridcell');list.append(row);

@@ -76,7 +76,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
                 person_action=self.path=='/phase/build' or self.path=='/phase' and data.get('phase') or self.path=='/phase/accept' and (data.get('action','accept')=='stop' or data.get('state','chosen')!='auto')
                 if person_action and not self.person():self.refuse_person();return
                 if self.path=='/phase/accept':
-                    self.send_json_response(self.ledger.paperwork.accept_task(root,data.get('action','accept'),data.get('state','chosen')));return
+                    self.send_json_response(self.ledger.paperwork.accept_task(root,data.get('action','accept'),data.get('state','chosen'),request=data.get('request') if isinstance(data.get('request'),str) else None));return  # task 273: the request it belongs to
                 self.send_json_response(self.ledger.paperwork.start_building(root,selected=data.get('tasks')) if self.path=='/phase/build' else self.ledger.paperwork.phase(root,data.get('phase'),action=data.get('action','phase button')))
             except NotAllowed as error:self.send_error_response(403,str(error))
             except Exception as error:self.send_error_response(400,str(error))

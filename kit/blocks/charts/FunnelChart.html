@@ -1,0 +1,11 @@
+<section class="card" aria-labelledby="funnel-title">
+  <header>
+    <h2 id="funnel-title" data-t="chart.funnel.title">Shop funnel</h2>
+    <p data-t="chart.funnel.lede">October, from visit to payment</p>
+  </header>
+  <section>
+    <canvas id="funnel-chart" class="chart aspect-auto h-64" role="img" aria-label="Shop funnel: 12,400 visits, 986 paid, 8 % overall. The biggest drop is from viewing a product to adding to cart (31 % carry on)." data-chart-type="bar" data-chart-label-key="stage" data-chart-data='[{"stage":"Visited the shop","people":12400},{"stage":"Viewed a product","people":6820},{"stage":"Added to cart","people":2140},{"stage":"Started checkout","people":1310},{"stage":"Paid","people":986}]' data-chart-series='{"people":{"label":"People","color":"var(--chart-1)"}}' data-chart-legend="false"></canvas>
+    <p class="text-muted-foreground mt-2 text-sm"><span data-t="chart.funnel.overall">Overall: <b class="text-foreground">8 %</b> of visitors paid.</span> <span data-t="chart.funnel.drop">Biggest drop: Viewed a product → Added to cart (31 % carry on).</span></p>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Stage</th><th>People</th><th>Carried on</th></tr></thead><tbody><tr><th scope="row">Visited the shop</th><td class="text-right tabular-nums">12,400</td><td class="text-right tabular-nums">100 %</td></tr><tr><th scope="row">Viewed a product</th><td class="text-right tabular-nums">6,820</td><td class="text-right tabular-nums">55 %</td></tr><tr><th scope="row">Added to cart</th><td class="text-right tabular-nums">2,140</td><td class="text-right tabular-nums">31 %</td></tr><tr><th scope="row">Started checkout</th><td class="text-right tabular-nums">1,310</td><td class="text-right tabular-nums">61 %</td></tr><tr><th scope="row">Paid</th><td class="text-right tabular-nums">986</td><td class="text-right tabular-nums">75 %</td></tr></tbody></table></div></details>
+  </section>
+</section>

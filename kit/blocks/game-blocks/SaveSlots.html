@@ -1,0 +1,15 @@
+<section id="saves" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="saves-title" data-mode="save" hidden>
+  <div class="game-panel" style="width:min(620px,100%);display:grid;gap:10px">
+    <h2 id="saves-title" class="game-h" data-t="saves.save_title">Save Game</h2>
+    <ul class="game-list" role="listbox" aria-label="Save slots">
+      <li role="option" tabindex="0" aria-selected="true" data-slot="1">
+        <img src="data:image/png;base64,…" alt="" width="80" height="45" style="image-rendering:pixelated">
+        <span style="flex:1"><span class="game-small" data-t="saves.slot">Slot 1</span><br><span data-t="place.willow_field">Willow Field</span></span>
+        <span class="game-small game-num" style="text-align:right">2:03:00<br>18 Oct 14:20</span>
+      </li>
+      <li role="option" tabindex="-1" data-slot="2"><span class="game-small" style="width:80px;text-align:center">—</span><span style="flex:1"><span class="game-small">Slot 2</span><br><span data-t="saves.empty">Empty</span></span></li>
+      <li role="option" tabindex="-1" data-slot="3">…</li>
+    </ul>
+    <p class="game-hint"><!-- Enter/south: Save here · Delete/west: Delete · Esc/east: Back --></p>
+  </div>
+</section>

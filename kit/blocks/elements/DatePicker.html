@@ -1,0 +1,36 @@
+<!-- 1. Native date field (default) -->
+<div class="field">
+  <label class="label" for="due-date" data-t="date.due">Due date</label>
+  <input class="input" id="due-date" name="due" type="date" min="2026-01-01" max="2027-12-31" aria-describedby="due-date-help">
+  <p class="text-muted-foreground text-sm" id="due-date-help" data-t="date.due_help">The day the task should be done.</p>
+</div>
+
+<!-- 2. Calendar popover -->
+<div class="field">
+  <label class="label" id="visit-label" for="visit-trigger" data-t="date.visit">Visit date</label>
+  <div id="visit" class="popover">
+    <button type="button" class="btn w-full justify-start font-normal" data-variant="outline" id="visit-trigger"
+            aria-haspopup="dialog" aria-expanded="false" aria-controls="visit-popover" aria-labelledby="visit-label visit-trigger">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span id="visit-text" data-t="date.choose">Choose a date</span>
+    </button>
+    <div id="visit-popover" data-popover aria-hidden="true" class="w-72 p-3" role="dialog" aria-label="Visit date" data-t-label="date.visit">
+      <header class="flex items-center justify-between gap-2 pb-2">
+        <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-step="-1" aria-label="Previous month" data-t-label="date.prev_month">‹</button>
+        <h2 class="text-sm font-medium" id="visit-month" aria-live="polite">October 2026</h2>
+        <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-step="1" aria-label="Next month" data-t-label="date.next_month">›</button>
+      </header>
+      <table class="w-full text-center text-sm" role="grid" aria-labelledby="visit-month">
+        <thead><tr class="text-muted-foreground text-xs"><th scope="col" abbr="Monday">Mo</th><th scope="col">Tu</th><th scope="col">We</th><th scope="col">Th</th><th scope="col">Fr</th><th scope="col">Sa</th><th scope="col">Su</th></tr></thead>
+        <tbody><!-- 6 rows × 7 cells, filled by the script -->
+          <tr><td><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" data-date="2026-10-01" tabindex="-1">1</button></td>…</tr>
+        </tbody>
+      </table>
+      <footer class="flex justify-between gap-2 pt-2">
+        <button type="button" class="btn" data-variant="ghost" data-size="sm" data-today data-t="date.today">Today</button>
+        <button type="button" class="btn" data-variant="ghost" data-size="sm" data-clear data-t="date.clear">Clear</button>
+      </footer>
+    </div>
+  </div>
+  <input type="hidden" name="visit" id="visit-value" value="">
+</div>

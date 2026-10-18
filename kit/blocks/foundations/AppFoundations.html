@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-t="app.name">Notes</title>
+  <script>
+    // before the body, so there is no flash: Match System (default), Light or Dark
+    const theme = localStorage.getItem('theme') ?? 'system';
+    document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches));
+  </script>
+  <link rel="stylesheet" href="static/app.css">
+  <script src="static/basecoat.min.js" defer></script>
+</head>
+<body class="bg-background text-foreground">
+  <div class="app flex h-dvh flex-col @3xl:flex-row">
+    <!-- SidePanel (desktop) or TopBar, then the page, then BottomBar (phone) -->
+    <main class="min-h-0 flex-1 overflow-y-auto"></main>
+  </div>
+  <div id="toaster" class="toaster"></div>
+</body>
+</html>

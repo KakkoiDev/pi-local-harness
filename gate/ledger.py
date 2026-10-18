@@ -118,8 +118,6 @@ class ProposalLedger:
                 command=proposal.args.get('command','')
                 if phase=='audit' and outcome in {'SUCCESS','VERIFIED'} and isinstance(command,str) and re.search(r'\bgit\b[^;\n]*\bpush\b|\b(?:curl|wget|npm install|pip install|uv add|gh issue create|gh pr create|trash)\b',command):
                     self.paperwork.runs.add(root,'external',{'action':'Ran '+command[:500]})
-        # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
-        if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'))
         args = {key: str(value)[:500] for key, value in proposal.args.items()
                 if key in {'command', 'cmd', 'script', 'path', 'pattern'}}
         with self.lock:
@@ -127,10 +125,13 @@ class ProposalLedger:
             self.events.append({'id': self.event_sequence, 'timestamp': datetime.now().astimezone().isoformat(timespec='seconds'),
                                 'phase': phase, 'outcome': outcome, 'tool': proposal.tool_name,
                                 'args': args, 'reason': reason, 'proposal_id': token, 'tool_call': tool_call,
-                                'cwd': cwd, 'source': source, **({'rule': rule} if rule else {})})  # task 129: where it ran, web or terminal; plan 179: the rule that decided
-            self.count(self.events[-1])
+                                'cwd': cwd, 'source': source, **({'rule': rule} if rule else {}), **({'request': request} if request else {})})  # task 129: where it ran, web or terminal; plan 179: the rule that decided; task 273: the request it belongs to
+            self.count(self.events[-1]); identifier = self.event_sequence
             if self.events_file:
                 with self.events_file.open('a', encoding='utf-8') as handle: handle.write(json.dumps(self.events[-1]) + '\n')
+        # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
+        # Task 273: it names its event, so an expert's decision row shows the command or path without this log keeping it.
+        if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'),event=identifier)
 
     def report(self, kind, detail, **fields):
         if self.events_file: reports.report(self.events_file.parent, kind, detail, **fields)

@@ -66,7 +66,7 @@ def scripted_story():
         emit({'type':'tool_execution_start','toolCallId':identifier,'toolName':name,'args':args})
         if checked.get('outcome')!='ALLOW':
             emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':True,'result':{'content':[{'type':'text','text':str(checked.get('reason'))}]}})
-            asked=(checked.get('judgement') or {}).get('choice')
+            asked=(checked.get('judgement') or {}).get('choice');asked=asked if asked and (asked.get('scope') or asked.get('replan')) else None  # only Gate's scope questions; the scripts never answered the other judgements
             if asked:  # round 12: Gate's own question (a file outside the task), asked the way the extension's ask_choices does
                 shown={key:asked[key] for key in ('question','options','recommended','allow_other','system_owned') if key in asked}  # validateChoice keeps only these
                 if automatic():
@@ -86,13 +86,14 @@ def scripted_story():
         if result.get('report'):notify('Harness report: '+json.dumps(result['report']))
         check=result.get('check_in');more=False
         if check and check.get('verified') and automatic():
-            gate('/phase/accept',{'cwd':check['root'],'state':'auto'});check['accepted']=True;more=bool(check.get('next'))
+            gate('/phase/accept',{'cwd':check['root'],'state':'auto','request':job});check['accepted']=True;more=bool(check.get('next'))
         if check and not more:notify('Harness check-in: '+json.dumps(check))
         if result.get('commit'):
             label={'committed':'','not verified':' (not verified)','plan incomplete':' (plan incomplete)'}.get(result.get('outcome'),'')
             notify(f"Harness note: “{result.get('message')}”{label} · committed as {result['commit']}")
         return more
-    gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    started=gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    if (started.get('advice') or {}).get('notice'):notify('Harness notice: '+started['advice']['notice'])  # like the extension (task 290)
     while index<len(steps):
         step=steps[index];index+=1
         if 'think' in step:emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':step['think']}})

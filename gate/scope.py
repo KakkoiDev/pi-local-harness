@@ -110,7 +110,11 @@ def answer(paperwork, request, item, waiting, value, state):
     paperwork.plan_state(root, plan)
     paperwork.save_choice(root, {**waiting, 'pending': False, 'answer': value, 'state': state, 'at': now()})
     record_decision(paperwork.data, request, 'scope_widening' if waiting.get('scope') else 'replan', 'code' if state == 'auto' else 'person', value, rule='G-015', automatic=state == 'auto')
-    if state == 'auto' and paperwork.runs: paperwork.runs.add(root, 'decisions', {'task': task, 'question': waiting['question'], 'answer': value})
+    if state == 'auto' and paperwork.runs:
+        # Run on its own widened the task's scope without asking: the report names the file, so the person sees it.
+        widened = bool(waiting.get('scope') and value == ADD.format(n=number))
+        said = f"Widened task {number} without asking: {asked['file']} added to its Files" if widened else waiting['question']
+        paperwork.runs.add(root, 'decisions', {'task': task, 'question': said, 'answer': value, 'file': asked['file'], 'scope_widened': widened})
     return {'task': task, 'question': waiting['question'], 'answer': value, 'state': state}
 
 

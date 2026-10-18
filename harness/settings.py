@@ -69,6 +69,7 @@ SETTINGS = {
     'web_data': ('PI_WEB_DATA', '', _text, 'Folder for chats and uploads (empty: the data folder’s chats/).', str),
     'gate_auth': ('PI_GATE_AUTH', 'admin', _choice('standard', 'admin'), 'Gate profile for Pi’s tools: admin also allows high-risk tools; both enforce the destructive-shell rules.', str),
     'language': ('PI_HARNESS_LANGUAGE', 'system', _choice('system', 'en', 'ja'), 'The language shared with web Settings: system (the device locale), en or ja. /commands stay in English.', str),
+    'detail': (None, 'beginner', _choice('beginner', 'expert'), 'How much the decision rows show (Settings › Pi › Detail, task 273): beginner hides decisions made by code; expert shows all with rules, paths and commands.', None),
     'audit_log': ('PI_HARNESS_LOG_FILE', '', _text, 'Gate’s audit log (empty: the data folder’s gate-audit.log).', str),
 }
 DEFAULTS = {key: default for key, (_, default, _, _, _) in SETTINGS.items()}

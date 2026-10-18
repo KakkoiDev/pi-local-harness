@@ -1,0 +1,36 @@
+<section class="app grid gap-4 p-4 @3xl:p-8" aria-labelledby="gallery-title">
+  <header class="flex items-center justify-between gap-2">
+    <h1 id="gallery-title" class="text-xl font-semibold @3xl:text-2xl" data-t="gallery.title">Kyoto trip</h1>
+    <span class="text-muted-foreground text-sm" data-t="gallery.count">24 photos</span>
+  </header>
+  <ul class="grid grid-cols-3 gap-1 @3xl:grid-cols-5 @3xl:gap-2" id="gallery-grid">
+    <li>
+      <button class="block aspect-square w-full overflow-hidden rounded-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none" type="button"
+        data-photo="51" aria-label="Open photo: Fushimi Inari gates, 1 of 24" onclick="openPhoto(51)">
+        <img class="size-full object-cover" src="/photos/51/thumb.jpg" alt="" loading="lazy" decoding="async" width="400" height="400">
+      </button>
+    </li>
+  </ul>
+</section>
+
+<dialog id="photo-viewer" class="dialog" aria-labelledby="photo-caption" onclick="if (event.target === this) this.close()">
+  <div class="grid w-full max-w-4xl gap-0 overflow-hidden p-0">
+    <header class="flex-row items-center justify-between gap-2 p-3">
+      <p class="text-muted-foreground text-sm tabular-nums" data-t="gallery.position">1 of 24</p>
+      <div class="flex gap-1">
+        <a class="btn" data-variant="ghost" data-size="sm" href="/photos/51/original" download data-t="gallery.download">Download</a>
+        <button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="gallery.delete">Delete</button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Close" data-t-label="gallery.close" onclick="this.closest('dialog').close()">×</button>
+      </div>
+    </header>
+    <figure class="relative grid place-items-center bg-black">
+      <img id="photo-large" class="max-h-[75dvh] w-auto object-contain" src="/photos/51/large.jpg" alt="Orange torii gates along a path at Fushimi Inari">
+      <button class="btn absolute left-2 top-1/2 -translate-y-1/2" data-variant="secondary" data-size="icon" type="button" aria-label="Previous photo" data-t-label="gallery.previous">‹</button>
+      <button class="btn absolute right-2 top-1/2 -translate-y-1/2" data-variant="secondary" data-size="icon" type="button" aria-label="Next photo" data-t-label="gallery.next">›</button>
+    </figure>
+    <figcaption id="photo-caption" class="grid gap-1 p-4">
+      <span class="font-medium">Fushimi Inari gates</span>
+      <span class="text-muted-foreground text-sm">12 Oct 2026 · Aiko</span>
+    </figcaption>
+  </div>
+</dialog>

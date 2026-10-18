@@ -1,0 +1,33 @@
+<!-- under a message in the channel: the thread summary -->
+<button class="btn h-auto gap-2 px-2 py-1" data-variant="ghost" type="button" aria-controls="thread" aria-expanded="true">
+  <span class="avatar-group"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><span class="avatar" data-size="sm"><span class="bg-muted">KM</span></span></span>
+  <span class="text-sm font-medium text-primary underline-offset-4 hover:underline" data-t="thread.replies">4 replies</span>
+  <span class="text-muted-foreground text-xs" data-t="thread.last">Last reply 10:32</span>
+</button>
+
+<!-- the thread panel -->
+<aside id="thread" class="flex h-full flex-col border-l bg-background @3xl:w-96" aria-labelledby="thread-title">
+  <header class="flex items-center justify-between gap-2 border-b px-4 py-3">
+    <div><h2 id="thread-title" class="font-semibold" data-t="thread.title">Thread</h2><p class="text-muted-foreground text-xs">#field-trip</p></div>
+    <button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Close thread" data-t-label="thread.close">✕</button>
+  </header>
+  <ol class="flex-1 overflow-y-auto px-4 py-3 grid content-start gap-4" aria-label="Replies">
+    <li class="grid grid-cols-[auto_1fr] gap-x-3">
+      <span class="avatar"><span class="bg-muted">RS</span></span>
+      <div><p class="text-sm"><b>Ren Sato</b> <time class="text-muted-foreground text-xs" datetime="2026-10-18T10:04">10:04</time></p><p>Who can bring the class banner?</p></div>
+    </li>
+    <li role="separator" class="text-muted-foreground flex items-center gap-2 text-xs"><hr class="flex-1"><span data-t="thread.count">4 replies</span><hr class="flex-1"></li>
+    <li class="grid grid-cols-[auto_1fr] gap-x-3">
+      <span class="avatar"><span class="bg-muted">KA</span></span>
+      <div><p class="text-sm"><b>Kana Abe</b> <time class="text-muted-foreground text-xs">10:12</time></p><p>I can, it’s in the art room.</p></div>
+    </li>
+  </ol>
+  <form class="grid gap-2 border-t p-3" hx-post="/threads/m_88/replies">
+    <label class="sr-only" for="reply" data-t="thread.reply_label">Reply</label>
+    <textarea id="reply" name="text" class="textarea min-h-16" rows="2" placeholder="Reply…" data-t-placeholder="thread.placeholder"></textarea>
+    <div class="flex items-center justify-between gap-2">
+      <label class="label gap-2 text-sm font-normal"><input class="input" type="checkbox" name="also_channel"><span data-t="thread.also_send">Also send to #field-trip</span></label>
+      <button class="btn" data-size="sm" type="submit" data-t="thread.send">Reply</button>
+    </div>
+  </form>
+</aside>

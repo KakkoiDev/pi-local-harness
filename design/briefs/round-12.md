@@ -189,6 +189,15 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - Token labels ("Primary: buttons and links"), font weights (400 and 700 only) and the fonts panel's search and sample: please review.
 - A font not yet saved shows in the panel's sample only; the live Preview uses a system font until Save downloads it into the project.
 
+**Rebuilt to your drawing (2026-10-18); for the next brief**
+- **Fonts** is a fifth tab after Chart, kept from the built panel and set in your parts (`.pw-slider` rows: label, the family in use, a Google Fonts search, Reset, the sample). Please draw it.
+- **A colour's text**: the drawing shows "Aa" in the text colour but no way to change it. The picker has a small segment **Colour · Text on it** (on Border · Input · Ring: **Colour · Focus ring**). Please confirm or redraw.
+- **Rows that hold several tokens**: Card also sets the popover (and its text); Border · Input · Ring sets border and input, the ring from the picker. Border · Input · Ring shows no contrast (Basecoat's light borders would always read "below AA"); please say what it should show.
+- **Sidebar tokens** are not in the panel (your eight rows); a block saved with them still reads.
+- **Chart**: one value per series for light and dark, as drawn. Basecoat's five default blues are close, so the warning shows by default ("Hard to tell apart: Chart 2 and Chart 3 · …"); the note no longer claims the defaults stay apart.
+- **After Save Theme** the panel becomes "Theme · Colours saved · Open Again" above the new saved line, so it can be reopened.
+- **The file** stays `styles/input.css` (the marked block), not `app/static/theme.css`: the starters' Tailwind build already reads it.
+- **Phone, in the chat**: the card shows **Open Theme** and the unsaved line; the full screen opens on a new request. The live app on top needs the app running here (it says so while it starts); opened from a phone over the tailnet there is no live link.
 ## E. Round 12 build steps 2–5 and 8: built from your boards; please revisit (2026-10-18)
 
 Built as drawn: R12_Verify, R12_Reopen, R12_Grant, R12_Renamed, R12_Refusals, R12_Fixes, R12_Strings, Ph12_Verify. Where a

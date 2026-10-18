@@ -181,6 +181,19 @@ class ScopeWidening(unittest.TestCase):
         refused = self.write('app/admin.js', 'r3')
         self.assertNotIn('judgement', refused); self.assertIn('is not part of task', refused['reason'])
 
+    def test_run_on_its_own_widens_without_asking_and_the_report_names_the_file(self):
+        """Run on its own takes the recommended Add to Task N; the end-of-run report lists it as a widened scope."""
+        from harness.autonomy import set_enabled
+        set_enabled(self.paper.data, True, confirmed=True)
+        refused = self.write('app/admin.js')
+        choice = refused['judgement']['choice']
+        self.paper.decision('r', choice['question'], choice['options'][0]['label'], 'auto')
+        self.assertIn('app/admin.js', (self.root / 'tasks/001-subjects.md').read_text())
+        report = self.paper.runs.get(self.paper.runs.index()['active'][self.paper.runs.key(self.root)])
+        widened = [item for item in report['decisions'] if item.get('scope_widened')]
+        self.assertEqual(len(widened), 1, report['decisions'])
+        self.assertEqual(widened[0]['question'], 'Widened task 1 without asking: app/admin.js added to its Files')
+
     def test_plans_and_git_internals_are_never_asked_about(self):
         self.assertNotIn('judgement', self.write('.git/hooks/pre-commit'))
 

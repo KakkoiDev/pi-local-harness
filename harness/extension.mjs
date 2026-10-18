@@ -27,16 +27,17 @@ import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
 import { dataFolder } from './data-folder.mjs';
-import {recordGuides} from './decisions.mjs';
+import {recordGuides,recordBlocks} from './decisions.mjs';
 import { installBrowser } from './browser.mjs';
 import { StepWatch } from './stuck.mjs';
 import { harnessTools, activeTools } from './tool-choice.mjs';
 import { loadGuides, chooseGuides } from './guides.mjs';
+import { loadBlocks, chooseBlocks, blocksPrompt, blocksHint, installBlocks } from './blocks.mjs';
 import { installMusic, musicAvailable } from './music.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
-export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', web_search:'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
+export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', web_search:'read_file', app_block:'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
@@ -78,6 +79,10 @@ export default function harness(pi, dependencies = {}) {
   const steps = new StepWatch(); // strategy 3: what Pi does, beside what it thinks
   let guides = []; try { guides = loadGuides(); } catch {} // strategy 5: know-how that joins the prompt when a request calls for it
   let chosenGuides = [],lastGuideDecision;
+  // Plan 266 item 7: the App Block cards a request's words call for (code picks; the classifier only when code is unsure).
+  let blocks; try { blocks = loadBlocks(); } catch {}
+  const noBlocks = () => ({ cards: [], others: [], candidates: [], who: 'code' });
+  let chosenBlocks = noBlocks(), lastBlockDecision;
   const proposals = new Map();
   // Round 6 (T_Gate): what Gate and the tool said per call, for the two-line tool rows (toolCallId → check).
   const checks = new Map(), check = (id, values) => { checks.set(id, { ...checks.get(id), ...values }); if (checks.size > 500) checks.delete(checks.keys().next().value); };
@@ -177,6 +182,7 @@ export default function harness(pi, dependencies = {}) {
   installPhases(pi,{call});
   installTheme(pi);  // task 312: /theme prints the app's theme tokens (the panel is the workbench's)
   installSearch(extras,{call:(path,data)=>call(path,{...data,request:requestId})});
+  installBlocks(extras,{index:blocks});
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).
   // Plan 198: target "app" is the project's own app, started through the workbench's Preview if it is not running.
@@ -268,8 +274,12 @@ export default function harness(pi, dependencies = {}) {
     const guideDecision=JSON.stringify([requestId,chosenGuides.map(item=>item.name)]);
     if (!bare && requestId && guideDecision!==lastGuideDecision) {recordGuides(dataDir,requestId,chosenGuides);lastGuideDecision=guideDecision;}
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
+    const blockDecision=JSON.stringify([requestId,chosenBlocks.cards]);
+    if (!bare && requestId && chosenBlocks.cards.length && chosenBlocks.who==='code' && blockDecision!==lastBlockDecision) {try{recordBlocks(dataDir,requestId,chosenBlocks.cards);}catch{}lastBlockDecision=blockDecision;}
+    let blockCards = '';
+    if (!bare && blocks) try { blockCards = chosenBlocks.cards.length ? blocksPrompt(chosenBlocks.cards, blocks, undefined, chosenBlocks.others) : blocksHint(chosenBlocks.candidates); } catch {}
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
-    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${blockCards}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;
@@ -301,13 +311,15 @@ export default function harness(pi, dependencies = {}) {
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
     chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);
     if (chosenGuides.length) incident('guide', chosenGuides.map(guide => guide.name).join(', '));
+    chosenBlocks = bare || !blocks || /^Choice: /.test(String(event.text || '')) ? noBlocks() : { ...chosenBlocks, ...chooseBlocks(event.text, blocks), who: 'code' };
     // Strategy 4: only the harness tools this request needs (a small tool set for a small model).
     if (!bare && pi.setActiveTools && pi.getActiveTools) {
       const folder = ctx?.cwd || context?.cwd || root, tasks = existsSync(join(folder, 'tasks')) && existsSync(join(folder, 'ROADMAP.md'));
-      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !sharedPortEnv(), tasks, auto:await automatic(), music:musicAvailable(folder) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
+      try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !sharedPortEnv(), tasks, auto:await automatic(), music:musicAvailable(folder), blocks:Boolean(chosenBlocks.cards.length || chosenBlocks.candidates.length) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
-    requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
+    // Task 273: a chained request (the next approved task) keeps its web job's id as a prefix, so its decisions join that answer.
+    requestId = bare ? undefined : chain ? (process.env.PI_HARNESS_JOB ? `${process.env.PI_HARNESS_JOB}.${randomUUID().slice(0, 8)}` : randomUUID()) : process.env.PI_HARNESS_JOB || randomUUID();
     let held = [];
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(async answer=>{
       held = Array.isArray(answer.held) ? answer.held.filter(text => typeof text === 'string' && text.trim()) : []; // task 290: words a question interrupted
@@ -323,6 +335,13 @@ export default function harness(pi, dependencies = {}) {
         const result=await call('/judgement',{request:requestId,kind:'applicable_guide',args:[event.text || '',guides.map(item=>item.name)]});
         if (result.choice) { const picked=await askSystemChoice(result.choice,context);const name=picked.details?.answer==='Use the planning guide'?'planning':picked.details?.answer;const guide=guides.find(item=>item.name===name);if(guide)chosenGuides=[guide]; }
         else if (!result.abstained) { const guide=guides.find(item=>item.name===result.answer);if(guide)chosenGuides=[guide]; }
+      }
+      // Plan 266 item 7: only common or shared words matched; the classifier picks one of those few cards, or none.
+      if (answer.root && !chosenBlocks.cards.length && chosenBlocks.candidates.length && !waitingChoice) {
+        try {
+          const result=await call('/judgement',{request:requestId,kind:'app_block',args:[event.text || '',chosenBlocks.candidates]});
+          if (!result.abstained && chosenBlocks.candidates.includes(result.answer)) chosenBlocks={...chosenBlocks,cards:[result.answer],candidates:[],who:'laya'};
+        } catch (error) { incident('blocks', `no classifier pick: ${error.message}`); } /* the hint with the names still goes to Pi */
       }
     }).catch(error => incident('paperwork', `could not start: ${error.message}`));
     lastAnswer = ''; { const reading = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null); await reading; verifiedBefore = reading; } // G-012 and plan 184: read before the turn starts
@@ -464,7 +483,7 @@ export default function harness(pi, dependencies = {}) {
           pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${result.instruction}`);
           return;
         }
-        requestId = undefined;
+        const ended = requestId; requestId = undefined;  // task 273: the auto acceptance below is recorded under this request
         if (result?.report) {
           const report=result.report;
           notify(tr(`Run report: ${report.counts.done} tasks · ${report.counts.decisions} decisions · ${report.counts.external} external actions · ${report.counts.problems} problems. /report`),'info');
@@ -473,7 +492,7 @@ export default function harness(pi, dependencies = {}) {
         if (result?.check_in) {
           const check=result.check_in;
           if (check.verified && await automatic()) {
-            await call('/phase/accept',{cwd:check.root,state:'auto'});
+            await call('/phase/accept',{cwd:check.root,state:'auto',request:ended});
             if(!check.next){check.accepted=true;notify(tr('Plan complete.'),'info');}
             else {say('committed',`${result.message} · committed as ${result.commit}`,'info');
             nextPlanInput=true;recovering=true;
@@ -482,7 +501,7 @@ export default function harness(pi, dependencies = {}) {
           }
           if (sharedPortEnv()) notify('Harness check-in: '+JSON.stringify(check),'info');
           else if(!check.accepted) {
-            if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
+            if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root,request:ended});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
           }
         }
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request

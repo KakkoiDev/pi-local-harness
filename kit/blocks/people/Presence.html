@@ -1,0 +1,36 @@
+<!-- In TopBar: who is here -->
+<div class="popover" id="presence">
+  <button class="btn" data-variant="ghost" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="presence-popover" aria-label="3 people here: Ren Sato, Mina Takahashi and you">
+    <span class="avatar-group">
+      <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-1)"><span>RS</span></span>
+      <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-3)"><span>MT</span></span>
+      <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-2)"><span>AK</span></span>
+    </span>
+  </button>
+  <div data-popover id="presence-popover" aria-hidden="true" class="w-64">
+    <h3 class="text-sm font-medium" data-t="presence.here">Here now</h3>
+    <ul class="mt-2 grid gap-2 text-sm">
+      <li class="flex items-center gap-2">
+        <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-1)"><span>RS</span></span>
+        <span class="flex-1">Ren Sato</span>
+        <span class="text-muted-foreground text-xs" data-t="presence.editing">Editing</span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-3)"><span>MT</span></span>
+        <span class="flex-1">Mina Takahashi</span>
+        <span class="text-muted-foreground text-xs" data-t="presence.viewing">Viewing</span>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="avatar ring-2 ring-[var(--presence)]" data-size="sm" style="--presence: var(--chart-2)"><span>AK</span></span>
+        <span class="flex-1">Aiko Kato <span class="text-muted-foreground" data-t="invite.you">(you)</span></span>
+      </li>
+    </ul>
+    <p class="text-muted-foreground mt-3 flex items-center gap-1 text-xs" role="status"><span class="size-2 rounded-full bg-[var(--chart-3)]" aria-hidden="true"></span><span data-t="presence.live">Live</span></p>
+  </div>
+</div>
+
+<!-- Under a chat or editor: who is typing -->
+<p id="typing" class="text-muted-foreground h-5 text-xs" aria-live="polite" data-t="presence.typing_one">Ren is typing…</p>
+
+<!-- Inside a document: where someone is (a label on their cursor or selected block) -->
+<span class="pointer-events-none absolute -top-5 left-0 rounded border-2 bg-background px-1.5 text-xs" style="border-color: var(--chart-1)" aria-hidden="true">Ren</span>

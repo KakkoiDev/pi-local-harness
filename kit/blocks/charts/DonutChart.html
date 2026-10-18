@@ -1,0 +1,13 @@
+<section class="card" aria-labelledby="payments-title">
+  <header>
+    <h2 id="payments-title" data-t="chart.payments.title">Payment methods</h2>
+    <p data-t="chart.payments.lede">Share of 1,284 orders in October</p>
+  </header>
+  <section>
+    <div class="relative">
+      <canvas id="payments-chart" class="chart aspect-square max-h-72 mx-auto" role="img" aria-label="Payment methods: card 48 %, convenience store 21 %, bank transfer 14 %, QR code payment 12 %, other 5 %." data-chart-type="doughnut" data-chart-label-key="method" data-chart-data='[{"method":"Card","share":48},{"method":"Convenience store","share":21},{"method":"Bank transfer","share":14},{"method":"QR code payment","share":12},{"method":"Other","share":5}]' data-chart-series='{"share":{"label":"Share"}}' data-chart-legend="true"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-2xl font-semibold tabular-nums">1,284</span><span class="text-muted-foreground text-xs">orders</span></div>
+    </div>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Method</th><th>Share</th></tr></thead><tbody><tr><th scope="row">Card</th><td class="text-right tabular-nums">48 %</td></tr><tr><th scope="row">Convenience store</th><td class="text-right tabular-nums">21 %</td></tr><tr><th scope="row">Bank transfer</th><td class="text-right tabular-nums">14 %</td></tr><tr><th scope="row">QR code payment</th><td class="text-right tabular-nums">12 %</td></tr><tr><th scope="row">Other</th><td class="text-right tabular-nums">5 %</td></tr></tbody></table></div></details>
+  </section>
+</section>

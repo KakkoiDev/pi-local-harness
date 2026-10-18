@@ -22,9 +22,10 @@ class UpdateService:
                 for key,value in changes.items():
                     if key=='updates_daily' and isinstance(value,bool):continue
                     if key=='language' and value in ('en','ja','system'):continue
+                    if key=='detail' and value in ('beginner','expert'):continue  # task 273: Settings › Pi › Detail
                     raise ValueError('Invalid workbench setting.')
                 saved.update(changes);autonomy.write(path,saved)
-            return {key:saved.get(key,DEFAULTS[key]) for key in ('updates_daily','language')}
+            return {key:saved.get(key,DEFAULTS[key]) for key in ('updates_daily','language','detail')}
 
     def status(self):
         return {**autonomy.read(self.path,{'state':'unchecked'}),'busy':self.busy}

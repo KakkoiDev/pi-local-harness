@@ -1,0 +1,32 @@
+<main class="app grid min-h-dvh place-items-center bg-muted/40 p-4">
+  <section class="card w-full max-w-md" aria-labelledby="welcome-title" aria-describedby="welcome-step">
+    <header class="gap-3">
+      <p id="welcome-step" class="text-muted-foreground text-xs" data-t="welcome.step">Step 1 of 3</p>
+      <h1 id="welcome-title" class="text-xl font-semibold" data-t="welcome.1.title">Welcome to Class Notes</h1>
+      <p class="text-muted-foreground text-sm" data-t="welcome.1.body">Choose your language. You can change it later in Settings.</p>
+    </header>
+    <section>
+      <fieldset class="grid gap-2" role="radiogroup" aria-labelledby="welcome-title">
+        <label class="label gap-3 rounded-md border p-3 font-normal has-[:checked]:border-primary">
+          <input class="input" type="radio" name="lang" value="en" checked>
+          <span lang="en">English</span>
+        </label>
+        <label class="label gap-3 rounded-md border p-3 font-normal has-[:checked]:border-primary">
+          <input class="input" type="radio" name="lang" value="ja">
+          <span lang="ja">日本語</span>
+        </label>
+      </fieldset>
+    </section>
+    <footer class="flex items-center justify-between gap-2">
+      <button class="btn" data-variant="ghost" type="button" id="welcome-skip" data-t="welcome.skip">Skip</button>
+      <div class="flex items-center gap-3">
+        <ol class="flex gap-1.5" aria-hidden="true">
+          <li class="size-2 rounded-full bg-primary"></li>
+          <li class="size-2 rounded-full bg-muted-foreground/30"></li>
+          <li class="size-2 rounded-full bg-muted-foreground/30"></li>
+        </ol>
+        <button class="btn" type="button" id="welcome-next" data-t="welcome.next">Next</button>
+      </div>
+    </footer>
+  </section>
+</main>

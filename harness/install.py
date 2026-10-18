@@ -23,6 +23,15 @@ PAPERWORK_192 = "Chats belong to one project folder. Use its working directory a
 PAPERWORK_BEFORE = "Chats belong to one project folder. Use its working directory and the current roadmap/task snapshots supplied with each request. Resume this project's own history; do not copy conversations into shared memory or load unrelated project folders. Keep ROADMAP.md and tasks/*.md current, mark only verified work complete, and report blockers clearly. In a folder with ROADMAP.md and tasks/, Gate allows `git commit` only after: a failing test run, the implementation, a passing test run on the final code, a newly checked task box, and a newly checked roadmap box. Run tests without pipes or `|| true` so their exit code counts. Every task file has a `Kind:` line: code (red and green), chore (green), docs, or planning (no test runs, no code changes). A commit that only adds unchecked tasks is a planning commit."
 
 
+_PATTERNS=shutil.ignore_patterns('__pycache__','*.pyc','node_modules')
+def _ignore(folder,names):
+    """Build caches, and design/app-blocks: the designer's 4 MB catalogue is the source kit/blocks is built from (plan 266
+    item 7); Pi reads the cards in kit/blocks, so nothing at runtime needs the catalogue."""
+    skipped=set(_PATTERNS(folder,names))
+    if Path(folder).resolve()==(ROOT/'design').resolve():skipped.add('app-blocks')
+    return skipped
+
+
 def install(prefix, agent, data, source=ROOT, commit=None):
     prefix,agent,data,source=Path(prefix).resolve(),Path(agent).resolve(),Path(data).resolve(),Path(source).resolve()
     commit=commit or head(source)
@@ -34,7 +43,7 @@ def install(prefix, agent, data, source=ROOT, commit=None):
     target.parent.mkdir(parents=True,exist_ok=True)
     stage=target.parent/('.plh-install-'+uuid.uuid4().hex);stage.mkdir()
     for item in ['harness','gate','.pi','js','specs','design','fonts','kit','messages']:
-        shutil.copytree(ROOT/item,stage/item,ignore=shutil.ignore_patterns('__pycache__','*.pyc','node_modules'))
+        shutil.copytree(ROOT/item,stage/item,ignore=_ignore)
     for item in ['plh.py','agent_api.py','index.html','chat.css','README.md','PRODUCT.md','DESIGN.md']:
         shutil.copy2(ROOT/item,stage/item)
     # plh reads this on launch to follow the checkout (see plh.py update).

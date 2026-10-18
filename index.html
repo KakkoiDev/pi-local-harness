@@ -87,7 +87,7 @@
         <button class="pw-menu__item" role="menuitem" data-command="project-chat">Open Project Chat</button>
         <button class="pw-menu__item" role="menuitem" data-command="ask-document">Ask Pi About This Document…</button>
         <button class="pw-menu__item" role="menuitem" data-command="copy-folder-path">Copy Folder Path</button>
-        <button class="pw-menu__item" role="menuitem" data-command="theme">Theme…</button><!-- task 312: the app's colours, radius, spacing and fonts -->
+        <button class="pw-menu__item" role="menuitem" data-command="theme">Theme…<span class="pw-menu__key">⌃⌥K</span></button><!-- task 312: the app's colours, radius, spacing and fonts -->
         <div class="pw-menu__sep" role="separator"></div><!-- task 154 (P_Menu, P_MenuMissing): act on the open project -->
         <button class="pw-menu__item" role="menuitem" data-command="rename-project">Rename Project…</button>
         <button class="pw-menu__item" role="menuitem" data-command="move-project">Move Project…</button>
@@ -446,6 +446,10 @@
     <label class="pw-label settings-option desk-only"><input id="settings-return" type="checkbox" class="pw-check">Return sends a message (Shift-Return adds a line)</label>
     <p class="pw-help phone-only settings-mac-note">Desktop pattern and “Return sends” are Mac settings; change them in Settings on the Mac.</p><!-- Ph8_Settings -->
     <h3 class="pw-label">Pi</h3><label class="pw-auto"><input id="settings-auto" type="checkbox" class="pw-check">Run on its own</label><p class="pw-help">All projects. Pi answers, plans, builds, publishes, pushes, downloads, sends and uses the Trash without asking. Turning it on shows these risks first.</p>
+    <fieldset class="settings-group"><legend class="pw-label">Detail</legend><!-- task 273, R12_Gate: Settings › Pi › Detail -->
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="detail" value="beginner">Beginner: plain words; decisions made by code are hidden</label>
+      <label class="pw-label settings-option"><input type="radio" class="pw-radio" name="detail" value="expert">Expert: every decision with its author, file paths and commands</label>
+    </fieldset>
     <fieldset class="settings-group"><legend class="pw-label">Updates</legend><label class="pw-label settings-option"><input id="settings-updates" type="checkbox" class="pw-check">Check for updates once a day</label><button id="settings-check-updates" type="button" class="pw-btn">Check Now</button></fieldset>
     <p class="pw-help">Changes apply at once; terminal Pi’s /settings shows the same values.</p>
     <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn pw-btn--default">Done</button></div>

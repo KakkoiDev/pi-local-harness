@@ -1,0 +1,51 @@
+<section id="comments" class="grid gap-4" aria-labelledby="comments-title">
+  <h2 id="comments-title" class="text-lg font-semibold"><span data-t="comments.title">Comments</span> <span class="text-muted-foreground">(3)</span></h2>
+
+  <ol class="grid gap-4">
+    <li id="comment-81">
+      <article class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+        <span class="avatar" data-size="sm"><span>RS</span></span>
+        <div class="grid gap-1">
+          <header class="flex flex-wrap items-baseline gap-x-2 text-sm">
+            <span class="font-medium">Ren Sato</span>
+            <a class="text-muted-foreground hover:underline" href="#comment-81"><time datetime="2026-10-18T09:12+09:00">2 h ago</time></a>
+          </header>
+          <p class="text-sm leading-relaxed">Could we add the reading in hiragana under each kanji?</p>
+          <footer class="flex items-center gap-1">
+            <button class="btn" data-variant="ghost" data-size="xs" type="button" aria-expanded="false" aria-controls="reply-81" data-t="comments.reply">Reply</button>
+            <div class="dropdown-menu">
+              <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="More for Ren Sato’s comment">⋯</button>
+              <div data-popover aria-hidden="true"><div role="menu">
+                <button role="menuitem" data-t="comments.copy_link">Copy Link</button>
+                <button role="menuitem" data-t="comments.report">Report…</button>
+              </div></div>
+            </div>
+          </footer>
+          <ol class="mt-2 grid gap-3 border-l pl-4" aria-label="Replies to Ren Sato">
+            <li id="comment-82">
+              <article class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                <span class="avatar" data-size="sm"><span>AK</span></span>
+                <div class="grid gap-1">
+                  <header class="flex flex-wrap items-baseline gap-x-2 text-sm"><span class="font-medium">Aiko Kato</span><span class="badge" data-variant="secondary" data-t="comments.author">Author</span><a class="text-muted-foreground hover:underline" href="#comment-82"><time datetime="2026-10-18T09:40+09:00">1 h ago</time></a></header>
+                  <p class="text-sm leading-relaxed">Good idea, added.</p>
+                </div>
+              </article>
+            </li>
+          </ol>
+        </div>
+      </article>
+    </li>
+  </ol>
+
+  <form class="grid grid-cols-[auto_1fr] gap-3" hx-post="/posts/7/comments" hx-target="#comments" hx-select="#comments" hx-swap="outerHTML">
+    <span class="avatar" data-size="sm"><span>AK</span></span>
+    <div class="field">
+      <label class="label sr-only" for="comment-new" data-t="comments.new_label">Write a comment</label>
+      <textarea class="textarea min-h-20" id="comment-new" name="body" placeholder="Write a comment…" data-t-placeholder="comments.placeholder" maxlength="2000" required></textarea>
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-muted-foreground text-xs" data-t="comments.hint">⌘Return to send</span>
+        <button class="btn" data-size="sm" type="submit" data-t="comments.send">Comment</button>
+      </div>
+    </div>
+  </form>
+</section>

@@ -43,7 +43,7 @@ class Phases:
                 raise ValueError('The saved project phase could not be read.')
             return deepcopy(value)
 
-    def choose(self, root, phase, *, actor, planned=False, action='phase button'):
+    def choose(self, root, phase, *, actor, planned=False, action='phase button', request=None):
         if phase not in PHASES:
             raise ValueError('Choose Discussion, Planning or Implementation.')
         if actor not in ('person', 'auto'):
@@ -68,7 +68,7 @@ class Phases:
                 temporary.replace(file)
             else:
                 self.values[self.key(root)] = value
-            record_decision(self.data,None,'phase','person' if actor=='person' else 'code',phase,rule='G-015',automatic=actor=='auto')
+            record_decision(self.data,request,'phase','person' if actor=='person' else 'code',phase,rule='G-015',automatic=actor=='auto')
             return deepcopy(value)
 
 

@@ -1,0 +1,18 @@
+<section id="results" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="res-title" hidden>
+  <div class="game-panel" style="width:min(520px,100%);display:grid;gap:12px">
+    <h2 id="res-title" class="game-h"><span data-t="results.clear">Level Clear</span> · 1-4</h2>
+    <dl class="game-num" style="display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0">
+      <dt data-t="results.coins">Coins</dt><dd style="margin:0">42 × 10 = 420</dd>
+      <dt data-t="results.time_bonus">Time bonus</dt><dd style="margin:0">1 200</dd>
+      <dt data-t="results.no_damage">No damage</dt><dd style="margin:0">500</dd>
+      <dt style="color:var(--g-accent)" data-t="results.total">Total</dt><dd style="margin:0;color:var(--g-accent)">2 120</dd>
+    </dl>
+    <p class="game-row" style="justify-content:center;gap:6px;margin:0" aria-label="2 of 3 stars">…three .game-icon[data-kind=star]…</p>
+    <p class="game-row" role="status" style="justify-content:center;margin:0;color:var(--g-accent)" data-t="results.new_best">New best!</p>
+    <ul class="game-menu">
+      <li><button class="game-btn" autofocus data-t="results.next">Next Level</button></li>
+      <li><button class="game-btn" data-t="results.retry">Try Again</button></li>
+      <li><button class="game-btn" data-t="results.levels">Level Select</button></li>
+    </ul>
+  </div>
+</section>

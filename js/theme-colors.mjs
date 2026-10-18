@@ -56,3 +56,45 @@ export function contrast(first, second) {
   const [x, y] = [luminance(over(a, b)), luminance(b)].sort((p, q) => q - p);
   return (x + 0.05) / (y + 0.05);
 }
+
+// -- round 12 (the designer's picker, ThemePanel card): HSV for the saturation field and hue strip, the oklch a hex maps
+// to, and how far apart two colours look (OKLab), for the chart warning.
+
+/** {h 0–360, s 0–1, v 0–1} from a colour's text, or null. */
+export function toHsv(text) {
+  const colour = parseColour(text); if (!colour) return null;
+  const { r, g, b } = colour, max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: ((h * 60) + 360) % 360, s: max ? d / max : 0, v: max };
+}
+
+/** #rrggbb from hue (0–360), saturation and value (0–1). */
+export function fromHsv(h, s, v) {
+  const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); };
+  return '#' + [f(5), f(3), f(1)].map(value => Math.round(clamp(value) * 255).toString(16).padStart(2, '0')).join('');
+}
+
+/** OKLab {L, a, b} of a colour (alpha dropped), or null. */
+export function toOklab(text) {
+  const colour = parseColour(text); if (!colour) return null;
+  const [r, g, b] = [colour.r, colour.g, colour.b].map(decode);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return { L: 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, a: 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, b: 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s };
+}
+
+/** “oklch(0.65 0.19 42)”: the oklch a colour maps to, rounded the way Basecoat writes it; '' when it is not a colour. */
+export function toOklch(text) {
+  const lab = toOklab(text); if (!lab) return '';
+  const C = Math.hypot(lab.a, lab.b), H = C < 0.0005 ? 0 : (Math.atan2(lab.b, lab.a) * 180 / Math.PI + 360) % 360;
+  const trim = (value, places) => String(Number(value.toFixed(places)));
+  return `oklch(${trim(lab.L, 3)} ${trim(C, 3)} ${trim(H, 1)})`;
+}
+
+/** How far apart two colours look (OKLab distance; under about 0.1 is hard to tell apart in a chart), or null. */
+export function distance(first, second) {
+  const a = toOklab(first), b = toOklab(second); if (!a || !b) return null;
+  return Math.hypot(a.L - b.L, a.a - b.a, a.b - b.b);
+}

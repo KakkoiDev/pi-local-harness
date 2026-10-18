@@ -53,13 +53,15 @@ Markdown as blocks or source, comment on a passage, and ask Pi about a passage o
 
 ## How do I change my app's colours, corners or fonts?
 
-Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**.
-Pi Workbench answers by itself, without Pi: a panel with the app's theme (colours in light and dark with a contrast
-check, chart colours, corner radius, spacing, fonts). The Preview changes as you move a picker or a slider. **Save**
-writes only what you changed into `styles/input.css` and keeps it as your own change, which **Undo This Request…**
-takes back; closing without saving puts the Preview back. A chosen Google font is downloaded into the project, with
-its licence, when you save. In terminal Pi, `/theme` prints the tokens. A project not made from a starter has no theme
-file, and the panel says so.
+Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**
+(⌃⌥K). Pi Workbench answers by itself, without a model: a panel with tabs for **Colours** (light and dark side by side,
+each with its contrast; the first five show, "▸ 3 more" opens the rest), **Radius**, **Spacing**, **Chart** and
+**Fonts**. A swatch opens a picker (drag the field and the hue strip, type a hex; Esc puts the old value back), and the
+Preview follows as you go. **Save Theme** writes only what you changed into `styles/input.css` as your own change; the
+line "Theme saved: …" has **Undo**. Sending a message, switching project or closing the panel with unsaved changes asks
+first (Don't Save · Cancel · Save). A chosen Google font is downloaded into the project, with its licence, when you
+save. On a phone the panel opens full screen with the live app on top. A project with no theme file offers **Add a
+Theme File** (Basecoat's defaults, one change you can undo). In terminal Pi, `/theme` prints the tokens.
 
 ## How do comments work?
 
@@ -179,6 +181,8 @@ Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confi
 
 When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, the harness records each answer and shows it in the task’s Decisions section with its source and time. Pi cannot write a decision itself: a “(chosen …)” line it wrote is refused, and a line the harness did not record asks again before code changes.
 
+Under each answer, “5 decisions · 2 automatic” opens the decisions behind it, each with its author: you, auto (Run on its own took the recommendation), Laya, code or model. Change… on a question’s answer says what it redoes, records your new answer and asks Pi to redo what depended on it; a phase changes from its row too, and an accepted task can be reopened. A numbered batch of questions (“2 of 3”) offers Take All Recommendations. Settings › Pi › Detail: Beginner hides decisions made by code; Expert shows all, with rules, paths and commands. In terminal Pi, `/decisions` lists the last request’s decisions (`/decisions --all` for everything).
+
 
 Every project starts in Discussion. Use the composer’s phase button (⌃⌥D · ⌃⌥P · ⌃⌥I), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
 
@@ -200,3 +204,14 @@ Phase commands opened outside a project offer the registered-project picker; the
 Checked shell reads are `ls`, `cat`, `head`, `tail`, `wc`, `grep`, `rg`, `find`, `diff`, `sed -n <lines>p` and `pwd`; Git only reads in this form: `git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`). A refused command says what may run. Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
 
 Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating, revising and rendering a composition are allowed in every phase, but only as a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting (`gate/media.py`, task 291). Other writes into `assets/music/` follow the phase rules.
+
+## Can Pi build a login page, an online shop or a game for me?
+
+Yes, from the designer's App Blocks: 137 ready-made parts (log in, side panel, data table, charts, cart, kanban…),
+whole apps (online shop, admin dashboard, notes, chat, CRM…), game genres (RPG, shooter, cozy, roguelike…) and art
+direction. Name what you want in the chat, in English or Japanese ("add a login page", 「ログイン画面を作って」, "build an
+online shop", "make an RPG"): Pi Workbench gives Pi exactly that card, never the whole library, and Pi copies its
+markup, texts and states instead of inventing them. An app's card lists its blocks; Pi loads each one with its
+`app_block` tool. `python3 kit/blocks/add.py <project> <Name>` (in the harness folder) copies what a block needs, such
+as Chart.js for a chart, with licences, and `python3 kit/blocks/check.py <page>` checks a page for classes Basecoat
+does not have, missing labels, charts without a table, hard-coded colours and CDN links.

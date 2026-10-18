@@ -492,43 +492,105 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  #phase-menu .pw-radio{width:22px;height:22px}
 }
 
-/* Task 312: the theme panel, in the 1-bit parts until the designer's round 12 part D lands. Everything is a .pw-theme__*
-   class on a pw-card, so the drawings can restyle it without touching js/theme-panel.mjs. The swatches are the app's
-   colours (the native colour inputs); the panel around them stays black and white. */
+/* Task 312: the theme panel, round 12 (card ThemePanel). The designer's rules (.pw-theme__row, .pw-swatch, .pw-contrast,
+   .pw-picker, .pw-slider, .pw-samples) are the round 12 block at the end of design/components.css; these are only what
+   the drawing implies and that block leaves out: the tabs in the head, the "3 more" row, the popover's place, the samples'
+   frames, the chart warning, the fonts group (not drawn yet), and the phone's full screen with the live app on top. */
 .pw-workbench-reply{margin:0}
-.pw-theme{max-width:720px}
-.pw-theme__file{font-size:12px}
-.pw-theme__shows{margin:0;font-size:13px}
-.pw-theme__modes{display:none}
-.pw-theme__table{display:flex;flex-direction:column}
-.pw-theme__row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,1.2fr) minmax(0,1.2fr);gap:8px;padding:6px 0;border-top:1px solid var(--wash);align-items:start}
-.pw-theme__row--head{font-size:13px;border-top:0;padding-top:0}
-.pw-theme__name{display:flex;flex-direction:column;gap:2px;min-width:0}
-.pw-theme__name .pw-mono{font-size:12px;color:var(--ink-disabled);overflow-wrap:anywhere}
-.pw-theme__side{display:flex;flex-direction:column;gap:4px;min-width:0}
-.pw-theme__colour{display:flex;align-items:center;gap:4px;min-width:0}
-.pw-theme__colour input[type=color]{width:32px;height:28px;padding:0;border:1px solid var(--ink);background:var(--paper);flex:none}
-.pw-theme__colour .pw-field{font-size:12px;min-height:28px;padding:2px 6px;min-width:0;flex:1}
-.pw-theme__colour[data-changed] .pw-field{font-weight:600}
-.pw-theme__colour .pw-btn{min-height:26px;padding:0 6px;font-size:13px}
-.pw-theme__caption{font-size:12px}
-.pw-theme__contrast{margin:0;font-size:12px}
-.pw-theme__contrast[data-pass=false]{text-decoration:underline dotted}
-.pw-theme__slider{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.pw-theme__slider input[type=range]{flex:1 1 200px;accent-color:var(--ink)}
-.pw-theme__value{font-size:14px}
-.pw-theme__samples{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.pw-theme__sample{border:1px solid var(--ink);padding:6px 10px;font-size:13px;background:var(--paper)}
-.pw-theme__sample--field{box-shadow:var(--shadow-field);min-width:120px}
-.pw-theme__font{display:flex;flex-direction:column;gap:6px;padding:6px 0;border-top:1px solid var(--wash)}
-.pw-theme__fonts{display:flex;flex-direction:column;max-height:220px;overflow:auto}
+.pw-msg__nomodel{font-size:13px}
+.pw-theme{max-width:760px;position:relative}
+.pw-theme .pw-card__head{gap:6px 12px}
+.pw-theme .pw-card__title{flex:0 1 auto}
+.pw-theme__tabs>*{height:26px;font-size:13px;padding:0 10px}
+.pw-theme__file{margin-left:auto;font-size:12px}
+.pw-theme__gap{flex:1}
+.pw-theme .pw-card__foot .pw-help{margin:0}
+.pw-theme .pw-card__foot .pw-theme__status{flex:1 1 240px;min-width:0}
+.pw-theme .pw-card__foot .pw-theme__gap{display:none}
+.pw-theme__bar,.pw-theme__live,.pw-theme__opener,.pw-theme__chevron,.pw-picker__back,.pw-picker__foot{display:none}
+.pw-theme__name b{font-weight:600}
+.pw-theme__row--head>[role=columnheader]:last-child{min-width:1px}
+.pw-theme__body,.pw-theme .pw-card__body{min-width:0}
+.pw-theme .pw-card__body[data-collapsed] .pw-theme__row--extra{display:none}
+.pw-theme__more{font:inherit;font-family:var(--font-chrome);font-size:14px;text-align:left;background:none;border:0;border-top:1px dotted var(--ink);padding:7px 12px;color:var(--ink);cursor:default}
+.pw-theme__more:hover{background:var(--wash)}
+.pw-contrast{display:inline-flex;align-items:center;gap:3px}
+.pw-contrast[hidden]{display:none}
+.pw-theme__row--chart{grid-template-columns:minmax(90px,auto) 1fr auto}
+.pw-theme__note{margin:0;padding:8px 12px;border-top:1px dotted var(--ink)}
+.pw-theme__warn{margin:0;padding:6px 12px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:13px;display:flex;gap:6px;align-items:center}
+.pw-theme__warn[hidden]{display:none}
+.pw-sample{font-family:system-ui,sans-serif;font-size:14px;line-height:18px;border:1px solid;padding:8px 16px;box-sizing:border-box}
+.pw-sample--gap{border:0;padding:0;display:flex;flex-direction:column;gap:4px;background:none!important}
+.pw-sample__boxes{display:flex}
+.pw-sample__box{border:1px dashed var(--ink);width:36px;height:24px}
+.pw-theme__value{font-size:13px}
+.pw-theme__font{border-top:1px dotted var(--ink)}
+.pw-theme__font:first-child{border-top:0}
+.pw-theme__font .pw-field{min-width:0}
+.pw-theme__font .pw-theme__value{grid-column:1/-1;font-size:14px}
+.pw-theme__fonts{grid-column:1/-1;display:flex;flex-direction:column;max-height:220px;overflow:auto}
 .pw-theme__fonts:empty{display:none}
-.pw-theme__specimen{margin:0;font-size:18px}
+.pw-theme__specimen{grid-column:1/-1;margin:0;font-size:18px}
+.pw-theme-none .pw-card__title{flex:1 1 200px}
+.pw-theme-none .pw-card__foot .pw-help{margin:0}
+/* The picker: a popover under the swatch on the desk */
+.pw-picker--popover{position:fixed;z-index:60;width:280px}
+.pw-picker__field{cursor:crosshair;touch-action:none}
+.pw-picker__field:focus-visible,.pw-picker__hue:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-picker__dot{position:absolute;width:10px;height:10px;border:2px solid #fff;outline:1px solid #000;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.pw-picker__hue{position:relative;touch-action:none}
+.pw-picker__thumb{position:absolute;top:-3px;bottom:-3px;width:4px;background:var(--paper);border:1px solid var(--ink);transform:translateX(-50%);pointer-events:none}
+.pw-picker__title{font-weight:600}
+.pw-picker__which>*{height:24px;font-size:13px;padding:0 8px}
+.pw-picker__which:empty{display:none}
+.pw-picker__line{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pw-picker__oklch{white-space:nowrap}
+.pw-picker__line .pw-theme__hex{width:90px}
+.pw-picker .pw-help{margin:0}
+.pw-picker__recent{display:flex;gap:4px}
+.pw-picker__recent[hidden]{display:none}
 @media(max-width:760px){
- .pw-theme__modes{display:flex}
- .pw-theme__row{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}
- .pw-theme[data-mode=light] .pw-theme__side[data-mode=dark],.pw-theme[data-mode=dark] .pw-theme__side[data-mode=light]{display:none}
- .pw-theme__colour input[type=color]{width:44px;height:44px}
+ /* In the chat, the panel is a card that opens full screen; full screen: the live app on top (Ph12_Theme) */
+ .pw-theme:not([data-screen])>.pw-card__body,.pw-theme:not([data-screen])>.pw-card__foot{display:none}
+ .pw-theme:not([data-screen]) .pw-theme__file,.pw-theme:not([data-screen]) .pw-theme__tabs{display:none}
+ .pw-theme:not([data-screen])>.pw-theme__opener{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px}
+ .pw-theme__opener .pw-help{margin:0}
+ .pw-theme[data-screen]{position:fixed;inset:0;z-index:50;max-width:none;width:auto;margin:0;border:0;box-shadow:none;overflow:hidden}
+ .pw-theme[data-screen]>.pw-theme__bar{display:flex;align-items:center;gap:8px;min-height:var(--size-touch);padding:0 8px;border-bottom:1px solid var(--ink);flex:none}
+ .pw-theme__bar-title{flex:1;text-align:center;font-weight:600}
+ .pw-theme__bar .pw-btn,.pw-theme__modes>*{min-height:36px}
+ .pw-theme[data-screen]>.pw-theme__live{display:block;position:relative;flex:none;height:34vh;border-bottom:1px solid var(--ink);background:var(--wash);overflow:hidden}
+ .pw-theme__live iframe{display:block;border:0;width:100%;height:100%;background:#fff}
+ .pw-theme__nolive{margin:0;padding:16px}
+ .pw-theme__tag{position:absolute;top:6px;right:6px;background:var(--paper);border:1px solid var(--ink);padding:0 6px;font-family:var(--font-chrome);font-size:12px;line-height:18px}
+ .pw-theme[data-screen]>.pw-card__head{flex:none}
+ .pw-theme[data-screen] .pw-card__title,.pw-theme[data-screen] .pw-theme__file{display:none}
+ .pw-theme[data-screen] .pw-theme__tabs{flex:1;overflow-x:auto}
+ .pw-theme[data-screen] .pw-theme__tabs>*{flex:1 0 auto;height:36px;font-size:15px}
+ .pw-theme[data-screen]>.pw-card__body{flex:1;min-height:0;overflow:auto}
+ .pw-theme[data-screen] .pw-card__body[data-collapsed] .pw-theme__row--extra{display:grid}
+ .pw-theme[data-screen] .pw-theme__more,.pw-theme[data-screen] .pw-theme__status{display:none}
+ .pw-theme[data-screen]>.pw-card__foot{flex:none}
+ /* rows: one side (the bar's Light · Dark), 56 px, a 32 px swatch, hex and › */
+ .pw-theme .pw-theme__row--head{display:none}
+ .pw-theme .pw-theme__row{grid-template-columns:minmax(0,1fr) auto;min-height:56px;padding:6px 12px}
+ .pw-theme[data-mode=light] .pw-theme__val[data-mode=dark],.pw-theme[data-mode=dark] .pw-theme__val[data-mode=light]{display:none}
+ .pw-theme .pw-theme__row .pw-contrast,.pw-theme .pw-theme__row .pw-theme__reset{display:none}
+ .pw-theme .pw-theme__chevron{display:inline;font-size:20px;padding-left:4px}
+ .pw-theme .pw-theme__val{flex-wrap:nowrap}
+ .pw-theme .pw-theme__hex{height:32px;font-size:14px}
+ /* the picker is its own page under the live app (Ph12_ThemePick) */
+ .pw-theme[data-picking]>.pw-card__head,.pw-theme[data-picking]>.pw-card__body,.pw-theme[data-picking]>.pw-card__foot{display:none}
+ .pw-theme[data-picking]>.pw-picker{position:static;width:auto;flex:1;min-height:0;overflow:auto;border:0;box-shadow:none;padding:12px 16px;font-size:15px}
+ .pw-theme[data-picking] .pw-picker__back{display:inline;align-self:flex-start;background:none;border:0;padding:0;font:inherit;min-height:var(--size-touch)}
+ .pw-theme[data-picking] .pw-picker__field{height:auto;flex:1;min-height:140px}
+ .pw-theme[data-picking] .pw-picker__hue{height:28px}
+ .pw-theme[data-picking] .pw-picker__help{display:none}
+ .pw-theme[data-picking] .pw-picker__foot{display:flex;gap:8px;justify-content:flex-end}
+ .pw-theme[data-picking] .pw-picker__foot .pw-btn{min-height:var(--size-touch);flex:1}
+ .pw-picker--popover{left:8px!important;right:8px;width:auto}
+ html.pw-theme-screen-open,html.pw-theme-screen-open body{overflow:hidden}
 }
 /* Round 12 (R12_Fixes, R12_Grant, R12_Reopen): a focused link keeps its reading; the status names the project on the desk
    and keeps “Working” on the phone; the stale-page line inside its card; the task info bar in Work; the π sheet's
@@ -544,3 +606,9 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  .window-projects>.window-section--actions:not(.pi-sheet-extra){flex-wrap:wrap}
  .window-projects>.window-section--actions:not(.pi-sheet-extra)>.pw-btn{flex:1 0 calc(50% - 8px);min-width:max-content}
 }
+/* Round 12 (tasks 290, 273): HarnessNotice, CutLine and DecisionRow sit inside the answer's article here, not between
+   transcript items as on the boards, so they keep the answer's spacing and the decision row has no box of its own. */
+.pw-msg .pw-notice,.pw-msg .pw-cut,.pw-msg .pw-decisions{margin:0}
+.pw-msg details.pw-decisions{border:0;padding:0;font-size:13px}
+.pw-decisions small{font-size:12px}
+.pw-decisions li .pw-link[aria-disabled="true"]{color:var(--ink-disabled)}

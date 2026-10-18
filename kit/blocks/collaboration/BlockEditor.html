@@ -1,0 +1,45 @@
+<article id="page" class="mx-auto grid w-full max-w-3xl gap-1 px-4 py-8 @3xl:px-12" aria-labelledby="page-title">
+  <header class="mb-4 grid gap-2">
+    <h1 id="page-title" class="text-3xl font-semibold outline-none" contenteditable="true" data-placeholder="Untitled">Field trip plan</h1>
+    <p class="text-muted-foreground text-sm"><span data-t="editor.edited">Edited</span> <time datetime="2026-10-18T09:12">9:12</time> · <span id="page-saved" role="status" data-t="editor.saved">Saved</span></p>
+  </header>
+  <div id="blocks" class="grid gap-0.5" role="list" aria-label="Page content" data-t-label="editor.blocks">
+    <div class="group relative flex items-start gap-1" role="listitem" data-block="b1" data-type="paragraph">
+      <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 @max-3xl:opacity-100" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block" data-t-label="editor.handle" aria-haspopup="menu">⋮⋮</button>
+      <p class="min-h-7 flex-1 py-0.5 outline-none" contenteditable="true">We leave the school at 8:30 and take the 8:52 train.</p>
+    </div>
+    <div class="group relative flex items-start gap-1" role="listitem" data-block="b2" data-type="todo">
+      <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 @max-3xl:opacity-100" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block" data-t-label="editor.handle" aria-haspopup="menu">⋮⋮</button>
+      <label class="flex flex-1 items-start gap-2 py-0.5"><input class="input mt-1" type="checkbox" checked><span contenteditable="true" class="flex-1 outline-none">Book the group ticket</span></label>
+    </div>
+    <div class="group relative flex items-start gap-1" role="listitem" data-block="b3" data-type="paragraph" data-empty="true">
+      <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 @max-3xl:opacity-100" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block" data-t-label="editor.handle" aria-haspopup="menu">⋮⋮</button>
+      <p class="min-h-7 flex-1 py-0.5 outline-none" contenteditable="true" aria-describedby="slash-hint">/</p>
+    </div>
+  </div>
+  <!-- the slash menu: opens under the block where "/" was typed -->
+  <div id="slash-menu" class="dropdown-menu">
+    <div data-popover aria-hidden="true" class="w-72">
+      <div role="menu" aria-label="Add a block" data-t-label="editor.add">
+        <div role="group" aria-labelledby="slash-basic">
+          <div role="heading" id="slash-basic" data-t="editor.group.basic">Basic blocks</div>
+          <div role="menuitem" data-type="paragraph"><span data-t="block.paragraph">Text</span><kbd class="kbd">Ctrl Alt 0</kbd></div>
+          <div role="menuitem" data-type="heading1"><span data-t="block.heading1">Heading 1</span><kbd class="kbd">#</kbd></div>
+          <div role="menuitem" data-type="heading2"><span data-t="block.heading2">Heading 2</span><kbd class="kbd">##</kbd></div>
+          <div role="menuitem" data-type="bulleted"><span data-t="block.bulleted">Bulleted List</span><kbd class="kbd">-</kbd></div>
+          <div role="menuitem" data-type="numbered"><span data-t="block.numbered">Numbered List</span><kbd class="kbd">1.</kbd></div>
+          <div role="menuitem" data-type="todo"><span data-t="block.todo">To-do</span><kbd class="kbd">[]</kbd></div>
+        </div>
+        <hr role="separator">
+        <div role="group" aria-labelledby="slash-more">
+          <div role="heading" id="slash-more" data-t="editor.group.more">More</div>
+          <div role="menuitem" data-type="quote" data-t="block.quote">Quote</div>
+          <div role="menuitem" data-type="code" data-t="block.code">Code</div>
+          <div role="menuitem" data-type="divider" data-t="block.divider">Divider</div>
+          <div role="menuitem" data-type="image" data-t="block.image">Image…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p id="slash-hint" class="sr-only" data-t="editor.slash_hint">Type / to add a block</p>
+</article>

@@ -9,8 +9,10 @@ import threading
 _lock=threading.Lock()
 
 
-def record(data,request,kind,who,answer,*,confidence=None,rule=None,automatic=False,abstained=False,proposal=False):
-    """abstained: Laya did not answer (kept for provenance, not counted). proposal: the model proposed it (task 261)."""
+def record(data,request,kind,who,answer,*,confidence=None,rule=None,automatic=False,abstained=False,proposal=False,event=None):
+    """abstained: Laya did not answer (kept for provenance, not counted). proposal: the model proposed it (task 261).
+    event: the Gate event this refusal is (gate-events.jsonl id), so the decision row can name its command or path
+    for an expert without this log keeping commands (plan 267, task 273)."""
     if data is None:return
     if who not in ('code','laya','person','model'):raise ValueError('Unknown decision author.')
     value={'time':datetime.now(timezone.utc).isoformat(timespec='milliseconds'),'request':request,'kind':kind,'who':who,'answer':answer}
@@ -18,6 +20,7 @@ def record(data,request,kind,who,answer,*,confidence=None,rule=None,automatic=Fa
     if automatic:value['automatic']=True
     if abstained:value['abstained']=True
     if proposal:value['proposal']=True
+    if isinstance(event,int) and not isinstance(event,bool):value['event']=event
     if confidence is not None:
         if isinstance(confidence,bool) or not isinstance(confidence,(int,float)) or not math.isfinite(confidence) or not 0<=confidence<=1:raise ValueError('Invalid decision confidence.')
         value['confidence']=confidence

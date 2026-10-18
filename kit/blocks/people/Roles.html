@@ -1,0 +1,40 @@
+<section class="app grid gap-4 p-4 @3xl:p-8" aria-labelledby="members-title">
+  <header class="flex flex-wrap items-center justify-between gap-2">
+    <h1 id="members-title" class="text-xl font-semibold @3xl:text-2xl" data-t="roles.title">Members</h1>
+    <button class="btn" type="button" data-t="invite.open">Invite People</button>
+  </header>
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr><th scope="col" data-t="roles.col.person">Person</th><th scope="col" data-t="roles.col.role">Role</th><th scope="col" class="@max-3xl:hidden" data-t="roles.col.joined">Joined</th><th scope="col"><span class="sr-only" data-t="roles.col.actions">Actions</span></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="flex items-center gap-3"><span class="avatar"><span>AK</span></span><div><p class="font-medium">Aiko Kato <span class="text-muted-foreground font-normal" data-t="invite.you">(you)</span></p><p class="text-muted-foreground text-sm">aiko@example.com</p></div></div></td>
+          <td>
+            <label class="sr-only" for="role-3" data-t="roles.role_for">Role for Aiko Kato</label>
+            <select class="select w-32" id="role-3" name="role" hx-patch="/projects/12/members/3" hx-trigger="change" hx-target="closest tr" hx-swap="outerHTML">
+              <option value="owner" selected data-t="roles.owner">Owner</option>
+              <option value="member" data-t="roles.member">Member</option>
+              <option value="viewer" data-t="roles.viewer">Viewer</option>
+            </select>
+          </td>
+          <td class="text-muted-foreground @max-3xl:hidden">2 Sep 2026</td>
+          <td class="text-right"><button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="roles.leave">Leave</button></td>
+        </tr>
+        <tr>
+          <td><div class="flex items-center gap-3"><span class="avatar"><span>MT</span></span><div><p class="font-medium">Mina Takahashi</p><p class="text-muted-foreground text-sm">mina@example.com</p></div></div></td>
+          <td><!-- same select, "viewer" selected --></td>
+          <td class="text-muted-foreground @max-3xl:hidden">14 Oct 2026</td>
+          <td class="text-right"><button class="btn" data-variant="ghost" data-size="sm" type="button" aria-label="Remove Mina Takahashi" data-t="roles.remove">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <section class="accordion">
+    <details>
+      <summary data-t="roles.what_can">What can each role do?</summary>
+      <!-- the role table above as <table class="table"> with roles.can.* rows -->
+    </details>
+  </section>
+</section>

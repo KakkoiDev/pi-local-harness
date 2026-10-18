@@ -1,0 +1,20 @@
+<main class="app grid min-h-dvh place-items-center bg-muted/40 p-4">
+  <section class="card w-full max-w-sm" aria-labelledby="confirm-title">
+    <div class="empty">
+      <header>
+        <figure class="bg-muted text-foreground mb-2 size-12 rounded-full">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </figure>
+        <h1 id="confirm-title" class="text-xl font-semibold" data-t="confirm.title">Confirm your email</h1>
+        <p class="text-muted-foreground text-sm"><span data-t="confirm.body_before">We sent a link to</span> <b class="text-foreground font-medium">aiko@example.com</b>. <span data-t="confirm.body_after">Open it on any device to finish.</span></p>
+      </header>
+      <footer class="grid gap-2 mt-4">
+        <form method="post" action="/confirm-email/resend" class="contents">
+          <button class="btn w-full" data-variant="outline" type="submit" id="confirm-resend" data-t="confirm.resend">Send the Email Again</button>
+        </form>
+        <a class="btn w-full" data-variant="ghost" href="/signup" data-t="confirm.wrong_email">Wrong Email? Start Over</a>
+      </footer>
+    </div>
+    <p id="confirm-status" class="text-muted-foreground text-center text-sm" role="status"></p>
+  </section>
+</main>
