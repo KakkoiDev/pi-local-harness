@@ -3028,6 +3028,7 @@
   ["{n} files", "{n} ファイル"],
   ["{n} file", "{n} ファイル"],
   ["{n} ticked", "{n} 件チェック"],
-  ["Change: {what}", "変更：{what}"]
+  ["Change: {what}", "変更：{what}"],
+  ["{value} ×{n}", "{value} ×{n}"]
  ]
 }

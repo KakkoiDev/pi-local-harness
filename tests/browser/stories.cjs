@@ -746,7 +746,15 @@ async function settledAll(t) {
   }
   await t.page.reload();
 }
-const openSettings = async t => { await t.page.evaluate(() => document.querySelector('[data-command="settings"]').click()); const dialog = t.page.locator('#settings-dialog'); await dialog.waitFor(); return dialog; };
+/** Settings… from its menu item (the shortcut may change), once the page's scripts are ready after a reload. */
+async function openSettings(t) {
+  const dialog = t.page.locator('#settings-dialog');
+  for (let i = 0; i < 20 && !(await dialog.isVisible()); i++) {
+    await t.page.evaluate(() => document.querySelector('[data-command="settings"]').click());
+    await dialog.waitFor({ timeout: 500 }).catch(() => {});
+  }
+  await dialog.waitFor(); return dialog;
+}
 
 story('US-118', 'without Laya, a phase word gets the harness’s own notice under the answer, with how to install it', async t => {
   const { page } = t;
