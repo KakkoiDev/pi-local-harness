@@ -603,10 +603,12 @@ story('US-075', 'Pi crashes mid-request: the chat itself says the request failed
   await newProject(t, 'Crash in chat');
   const id = await say(t, 'Do the thing TEST_SCRIPT=crash-midway'); await answered(t, id);
   await page.reload();
-  const answer = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last();
-  await answer.locator('.message-ended').filter({ hasText: 'Failed before Pi finished: Pi exited unexpectedly: Model crashed: out of memory' }).waitFor({ timeout: 5000 });
+  const answer = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last();  // round 12: the CutLine
+  await answer.locator('.pw-cut[role="status"] .pw-cut__text').filter({ hasText: 'Failed before Pi finished: Pi exited unexpectedly: Model crashed: out of memory' }).waitFor({ timeout: 5000 });
+  assert.equal(await answer.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).getAttribute('class'), 'pw-btn pw-btn--default', 'Retry is the default');
+  assert.equal(await answer.locator('.pw-cut').getByRole('button', { name: 'Undo This Request…', exact: true }).count(), 0, 'Undo only when files changed');
   const again = page.waitForResponse(response => /\/api\/jobs\/[0-9a-f]{32}\/retry$/.test(response.url()));
-  await answer.getByRole('button', { name: 'Retry', exact: true }).click();
+  await answer.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).click();
   const retried = await (await again).json();
   assert.equal(retried.retry_of, id, 'Retry queues the same request again');
   assert.equal((await answered(t, retried.id)).message, 'Do the thing TEST_SCRIPT=crash-midway');
@@ -615,8 +617,8 @@ story('US-075', 'Pi crashes mid-request: the chat itself says the request failed
   await givenApprovedTasks(t, root, [COUNT]);
   await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=write-then-crash'));
   assert.ok(exists(root, 'counter.py'));
-  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last(); await cut.waitFor();
-  await cut.getByRole('button', { name: 'Undo This Request…', exact: true }).click();
+  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last(); await cut.waitFor();
+  await cut.locator('.pw-cut').getByRole('button', { name: 'Undo This Request…', exact: true }).click();
   await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
   await page.locator('.pw-done').filter({ hasText: 'Undone' }).last().waitFor();
   assert.equal(exists(root, 'counter.py'), false, 'the crashed request’s file is gone');
@@ -732,6 +734,110 @@ story('US-095', 'on a phone (390 px): plan in Planning and Start Building from t
   await start.click();
   await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
+});
+
+// -- Round 12: the harness's voice and Gate's judgements (tasks 290, 273; boards R12_Conversation, R12_Gate) -------
+/** Wait until the scratch workbench runs nothing, then reload so the chat shows the saved conversation. */
+async function settledAll(t) {
+  for (let i = 0; i < 150; i++) {
+    const jobs = (await t.bench.api('/api/workspace')).jobs;
+    if (!jobs.some(job => ['queued', 'running'].includes(job.status))) break;
+    await t.page.waitForTimeout(200);
+  }
+  await t.page.reload();
+}
+const openSettings = async t => { await t.page.evaluate(() => document.querySelector('[data-command="settings"]').click()); const dialog = t.page.locator('#settings-dialog'); await dialog.waitFor(); return dialog; };
+
+story('US-118', 'without Laya, a phase word gets the harness’s own notice under the answer, with how to install it', async t => {
+  const { page } = t;
+  await newProject(t, 'Notice');
+  const id = await say(t, 'Explain the planning phase TEST_SCRIPT=say-planning'); await answered(t, id);
+  await page.reload();
+  const notice = page.locator('#messages .pw-notice[role="note"]').last(); await notice.waitFor();
+  assert.equal(await notice.locator('.pw-notice__who').textContent(), 'Harness', 'the harness speaks, not Pi');
+  assert.equal(await notice.locator('.pw-notice__text').textContent(), 'Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.');
+  assert.equal(await notice.evaluate(el => getComputedStyle(el).borderTopStyle), 'dotted');
+  assert.equal(await notice.evaluate(el => Boolean(el.closest('.pw-msg__body'))), false, 'outside Pi’s words');
+  await notice.getByRole('link', { name: 'How to Install', exact: true }).click();
+  await page.locator('#alert-detail').filter({ hasText: 'plh setup laya' }).waitFor();
+  await page.locator('#alert-default').click();
+  assert.equal(await page.locator('#messages .pw-card[aria-label*="phase"]').count(), 0, 'nothing blocks: no card');
+});
+
+story('US-119', 'the decisions under an answer name who made each; Change… on my answer says what it redoes, then redoes it', async t => {
+  const { page } = t;
+  await newProject(t, 'Decided');
+  const id = await say(t, 'Which colours? TEST_SCRIPT=discuss-choice'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Which colours?"]'); await card.waitFor();
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Answer', exact: true }).click();
+  await answered(t, (await (await resumed).json()).job);
+  await settledAll(t);
+  const row = page.locator('#messages details.pw-decisions:not([hidden])').first(); await row.locator('summary').waitFor();
+  assert.match(await row.locator('summary').textContent(), /^▸\s*2 decisions · 1 automatic$/, 'collapsed: the count and the automatic ones');
+  await row.locator('summary').click();
+  const mine = row.locator('li').filter({ hasText: 'Which colours?' });
+  assert.equal(await mine.locator('.pw-tag').textContent(), 'you');
+  const proposed = row.locator('li').filter({ hasText: 'Recommended option' });
+  assert.equal(await proposed.locator('.pw-tag').textContent(), 'model', 'the model’s judgement is named, not hidden');
+  assert.match(await proposed.locator('.pw-tag').getAttribute('class'), /pw-tag--dotted/);
+  assert.equal(await proposed.getByRole('link', { name: 'Change…', exact: true }).getAttribute('aria-disabled'), 'true', 'cannot be changed here: disabled, with the reason');
+  await mine.getByRole('link', { name: 'Change…', exact: true }).click();
+  const change = page.locator('.pw-change'); await change.waitFor();
+  assert.equal(await change.locator('.pw-card__title').textContent(), 'Change: Which colours?');
+  assert.match(await change.textContent(), /Current choice \(you, /);
+  assert.match(await change.locator('.pw-card__foot').textContent(), /Redoes: /, 'it names what it redoes');
+  assert.equal(await change.getByRole('radio', { name: 'White on black' }).isChecked(), true, 'the other answer is preselected');
+  const sent = page.waitForResponse(response => response.url().endsWith('/api/decisions/change'));
+  await change.getByRole('button', { name: 'Change and Redo', exact: true }).click();
+  const redo = await answered(t, (await (await sent).json()).job);
+  assert.equal(redo.message, 'Change: Which colours? → White on black (was Black on white). Redo what depended on it.');
+  await settledAll(t);
+  await page.locator('.pw-card--settled').filter({ hasText: 'Which colours?: White on black' }).waitFor();
+  assert.ok(decisions(t).some(item => item.kind === 'question_answer' && item.who === 'person' && item.rule === 'decision.change'), 'recorded as the person’s');
+});
+
+story('US-120', 'a batch of questions: “Question 1 of 3” with Take All Recommendations answers the rest with their recommendations', async t => {
+  const { page } = t;
+  await newProject(t, 'Batch');
+  const id = await say(t, 'Make notes for my class TEST_SCRIPT=batch-questions'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Who writes the notes?"]'); await card.waitFor();
+  assert.match(await card.locator('.pw-card__head').textContent(), /Question 1 of 3/);
+  const take = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Take All Recommendations', exact: true }).click();
+  const body = JSON.parse((await take).request().postData());
+  assert.deepEqual([body.option, body.take_all], [0, true]);
+  for (let i = 0; i < 100 && decisions(t).filter(row => row.kind === 'question_answer' && row.who === 'person').length < 3; i++) await page.waitForTimeout(200);
+  await settledAll(t);
+  for (const text of ['Who writes the notes?: Only me', 'How should notes be sorted?: Newest first', 'Should deleted notes go to a Trash first?: Yes, keep them 30 days'])
+    await page.locator('.pw-card--settled').filter({ hasText: text }).first().waitFor();
+  await page.locator('#messages').getByText('Noted all three answers.', { exact: true }).waitFor();
+  assert.equal(decisions(t).filter(row => row.kind === 'question_answer' && row.who === 'person').length, 3, 'each answer is the person’s');
+  assert.equal((await t.bench.api('/api/workspace')).jobs.filter(job => job.status === 'waiting').length, 0, 'nothing is left waiting');
+});
+
+story('US-121', 'Settings › Pi › Detail: Beginner hides decisions made by code; Expert shows them with the rule and the command', async t => {
+  const { page } = t;
+  await newProject(t, 'Detail');
+  const id = await say(t, 'Run it TEST_SCRIPT=unknown-command'); await answered(t, id);
+  const loaded = page.waitForResponse(response => /\/decisions$/.test(response.url()));
+  await settledAll(t); await loaded;
+  const answer = page.locator('#messages .pw-msg').filter({ hasText: 'Tried a command.' }).last(); await answer.waitFor();
+  assert.equal(await answer.locator('details.pw-decisions:not([hidden])').count(), 0, 'Beginner (the default): Gate’s refusal is code’s, so no row');
+  let settings = await openSettings(t);
+  assert.equal(await settings.locator('input[name="detail"][value="beginner"]').isChecked(), true);
+  const saved = page.waitForResponse(response => response.url().endsWith('/api/settings') && response.request().method() === 'POST' && /detail/.test(response.request().postData() || ''));
+  await settings.locator('input[name="detail"][value="expert"]').check(); await saved;
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  const row = answer.locator('details.pw-decisions:not([hidden])'); await row.waitFor();
+  await row.locator('summary').click();
+  const refused = row.locator('li').filter({ hasText: 'Command' });
+  assert.equal(await refused.locator('.pw-tag').textContent(), 'code');
+  assert.match(await refused.textContent(), /refused|sent back/);
+  assert.match(await refused.locator('.pw-decisions__rule').textContent(), /^(G-\d+|gate\.preflight)/, 'the rule');
+  assert.match(await refused.locator('.pw-decisions__detail').textContent(), /frobnicate --all/, 'and the command');
+  await page.reload(); settings = await openSettings(t);
+  assert.equal(await settings.locator('input[name="detail"][value="expert"]').isChecked(), true, 'kept in config.json');
 });
 
 module.exports = { story, newProject, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

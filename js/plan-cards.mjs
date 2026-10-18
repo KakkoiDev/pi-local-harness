@@ -30,10 +30,12 @@ export function planDecisions(plan){
 }
 export function choiceCard(choice,{state={},answer,change}={}){
  /* task 290: approval or a new plan replaced a question nobody answered; it says so and cannot be answered (needs design) */
- if(choice.settled&&!state.answer&&!choice.answer)return settled(`${choice.question} · not answered: settled by ${choice.settled}`,{old:true});
- if(state.answer||choice.answer){const value=state.answer||choice.answer;return settled(`${choice.question}: ${value}${choice.options?.some(o=>o.label===value)?'':' · your words'} · ${choice.state==='auto'?'auto':`you · ${time(state.answeredAt||choice.when)}`}`,{state:choice.state,action:change});}
+ /* round 12 (R12_Conversation): “Sorting: not answered · settled by Start Building · 14:12”, with Change… to answer it after all */
+ if(choice.settled&&!state.answer&&!choice.answer){const el=settled('',{old:true,action:change}),line=el.querySelector('.pw-card__line > span');line.append(prose('span','',choice.question),': ',node('b','','not answered'),' · ',node('span','',`settled by ${choice.settled}`),...(choice.when?[` · ${time(choice.when)}`]:[]));return el;}
+ if(state.answer||choice.answer){const value=choice.changed_from!==undefined?choice.answer:state.answer||choice.answer;/* task 273: a changed answer wins over the first one's message */return settled(`${choice.question}: ${value}${choice.options?.some(o=>o.label===value)?'':' · your words'} · ${choice.state==='auto'?'auto':`you · ${time(state.answeredAt||choice.when)}`}`,{state:choice.state,action:change});}
  const {el,head,body,foot}=card(choice.question,'question',choice.question);if(!choice.system_owned)head.querySelector('h3').dataset.noTranslate='';body.setAttribute('role','radiogroup');body.setAttribute('aria-label',choice.question);
- if(choice.number&&choice.total)head.append(node('span','',`Question ${choice.number} of ${choice.total}`));
+ if(choice.number&&choice.total>1)head.append(node('span','',`Question ${choice.number} of ${choice.total}`));
+ else if(!choice.system_owned&&choice.task){const number=String(choice.task).match(/(\d+)/);head.append(node('span','',number?`Pi asked a question · task ${Number(number[1])}`:'Pi asked a question'));}/* R12_Gate: a question Pi asked during a task */
  let selected=0;const group='choice-'+crypto.randomUUID(),radios=[],other=node('input','pw-field');other.placeholder='Type your answer';other.setAttribute('aria-label','Your answer');other.hidden=true;
  const options=[...choice.options,{label:'Something else…'}];
  for(const [index,option] of options.entries()){
@@ -41,7 +43,9 @@ export function choiceCard(choice,{state={},answer,change}={}){
   radio.onchange=()=>{selected=index;radios.forEach((r,i)=>r.checked=i===index);other.hidden=index!==choice.options.length;if(!other.hidden)other.focus();};
   if(index===0)label.append(tag('Recommended'));row.append(radio,label);if(option.detail)row.append(prose('small','',option.detail));if(index===choice.options.length)row.append(other);body.append(row);
  }
- foot.append(button('Answer',()=>{const value=selected===choice.options.length?other.value.trim():choice.options[selected].label;if(value)answer(value);else other.focus();},true),node('span','pw-help','or type your answer below'));return el;
+ foot.append(button('Answer',()=>{const value=selected===choice.options.length?other.value.trim():choice.options[selected].label;if(value)answer(value);else other.focus();},true));
+ if(choice.number&&choice.total&&choice.number<choice.total)foot.append(button('Take All Recommendations',()=>answer(choice.options[0].label,{take_all:true})));/* R12_Gate: this one and the rest of the batch take their recommendations */
+ foot.append(node('span','pw-help','or type your answer below'));return el;
 }
 export function planCard(plan,{name='',state={},approve,another,change,open}={}){
  const decisions=planDecisions(plan),count=`${plan.tasks.length} tasks · ${decisions.length} decisions`;

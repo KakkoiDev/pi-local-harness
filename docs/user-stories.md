@@ -82,6 +82,8 @@ marker") when the fix merges.
 | US-040 | answer a question in Planning | One question per card, recommended first and preselected, Something else… last; the answer lands in the planned task's Decisions (chosen) and the decision log (person) | desk, phone | stories.cjs US-040 (item 6 is fixed by task 260: the choice no longer makes its own task and the plan shows; NEW-2 by task 293) |
 | US-041 | answer a question in Discussion | The settled card survives a reload; no commit, no file changed; the decision log has the answer | desk | stories.cjs US-041 |
 | US-042 | answer a choice while I am typing something else | My draft stays in the composer | desk | stories.cjs US-042 (item 9, task 290) |
+| US-119 | see who made each decision behind an answer, and change my answer (task 273) | “▸ 2 decisions · 1 automatic” under the answer; each row has its source tag (you · auto · Laya · code · model; auto and model dotted); Change… on my answer opens a card that names what it redoes; Change and Redo records my new answer (person, `decision.change`) and queues one request to redo what depended on it; a decision that cannot be changed here keeps Change… disabled with the reason | desk | stories.cjs US-119; tests/test_decision_rows.py |
+| US-120 | answer a batch of questions at once (task 273) | “Question 1 of 3” with Take All Recommendations: the rest of the batch takes each recommendation as my answer, nothing is left waiting | desk | stories.cjs US-120; tests/test_decision_rows.py |
 | US-043 | type my own answer | Something else… opens a field; typing in the composer answers the card | desk, phone | design.cjs (Round 10: A study group) |
 | US-044 | get exactly one answer per question, even if I answer quickly | No merged or lost answers | desk | none (item 8, task 290: answers merge or are lost; a race needing two queued answers is not scripted yet) |
 
@@ -163,6 +165,7 @@ marker") when the fix merges.
 | US-090 | use the workbench in Japanese | Settings › Language 日本語: composer, phase button (相談/計画) and plan card (実装開始) in Japanese, Pi's words unchanged, after a reload too | desk | stories.cjs US-090; design.cjs (Plan 198 Japanese, round 10 ja) |
 | US-091 | use terminal Pi in Japanese | Fixed check-in words and screens follow the saved language | terminal | stories.test.mjs US-091 (web Settings 日本語 → /plan answers “フェーズ：計画”); tests/harness/terminal-planning.test.mjs, tests/harness/language.test.mjs |
 | US-092 | type Japanese with an IME | The confirming Enter never sends | desk | design.cjs (121) |
+| US-121 | choose how much the decision rows show (task 273) | Settings › Pi › Detail: Beginner hides decisions made by code; Expert shows them with the rule and the command (from Gate's event, never from the decision log), kept in config.json | desk | stories.cjs US-121; tests/test_decision_rows.py; /decisions: tests/harness/decisions-command.test.mjs |
 
 ## Phone (390 px) parity
 
@@ -222,7 +225,8 @@ marker") when the fix merges.
 | ID | As a person I… | Acceptance | Surfaces | Test |
 |---|---|---|---|---|
 | US-070 | see a crash in Activity and retry it | Failed, with "Pi exited unexpectedly: …"; Ask Pi to Retry… queues it again; the failed run stays | desk | stories.cjs US-070; chat.cjs (A_Retry) |
-| US-075 | see a crash in the chat | The chat says the request failed, with Retry and Undo This Request… | desk | stories.cjs US-075 (review P2) |
+| US-075 | see a crash in the chat | The CutLine (round 12, `.pw-cut`, role status) says the request failed, with Retry (default) and Undo This Request… only when files changed | desk | stories.cjs US-075 (review P2) |
+| US-118 | learn from the harness itself that Laya is not installed (round 12) | A phase word gets the dotted HarnessNotice (“Harness · Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.”) with How to Install; no card blocks | desk | stories.cjs US-118; tests/test_decision_rows.py |
 | US-071 | get my workbench back after plh crashed mid-request | After a restart the request is Interrupted, never repeated; the chat goes on | desk | stories.cjs US-071 |
 | US-072 | get one clean answer after Pi loops | Recovery aborts, compacts, asks again once; one answer | desk, terminal | stories.cjs US-072; tests/harness/extension.test.mjs (ten-second loop check, abort/compact/reask) |
 | US-073 | reload while Pi works | The answer still arrives | desk | stories.cjs US-073; chat.cjs (bug 173, back to a live chat) |
@@ -233,12 +237,12 @@ marker") when the fix merges.
 
 ## Coverage
 
-Counted from the tables above: 110 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). Browser journeys in stories.cjs: 41 (39 from task 264, 2 from task 312) and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 114 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 45 (39 from task 264, 2 from task 312, 4 from round 12's task 273) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 97 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 101 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117, US-118, US-119, US-120, US-121 |
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |

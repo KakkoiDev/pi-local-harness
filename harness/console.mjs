@@ -26,6 +26,7 @@ export const CONSOLE_COMMANDS = {
   audit: 'Run the publication checks for this project (asks first; offline).',
   undo: 'Undo the last change made from the console (asks first).',
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
+  decisions: 'The last request’s decisions with their authors: /decisions [--all] (task 273).',
   bench: 'The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.',
   guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
   update: 'A new version of Pi Workbench on GitHub, and what changed: /update · /update now (asks first).',

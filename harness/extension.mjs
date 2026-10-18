@@ -307,7 +307,8 @@ export default function harness(pi, dependencies = {}) {
       try { pi.setActiveTools(activeTools(pi.getActiveTools(), harnessTools(event.text, { terminal: !sharedPortEnv(), tasks, auto:await automatic(), music:musicAvailable(folder) }), (pi.getAllTools?.() || []).map(tool => tool.name))); } catch {}
     }
     // Plan 184: the harness keeps this request's paperwork (task, progress, commit); Pi only writes content.
-    requestId = bare ? undefined : chain ? randomUUID() : process.env.PI_HARNESS_JOB || randomUUID();
+    // Task 273: a chained request (the next approved task) keeps its web job's id as a prefix, so its decisions join that answer.
+    requestId = bare ? undefined : chain ? (process.env.PI_HARNESS_JOB ? `${process.env.PI_HARNESS_JOB}.${randomUUID().slice(0, 8)}` : randomUUID()) : process.env.PI_HARNESS_JOB || randomUUID();
     let held = [];
     if (requestId) await call('/request', { request: requestId, cwd: context?.cwd || root, text: event.text || '' }).then(async answer=>{
       held = Array.isArray(answer.held) ? answer.held.filter(text => typeof text === 'string' && text.trim()) : []; // task 290: words a question interrupted
@@ -464,7 +465,7 @@ export default function harness(pi, dependencies = {}) {
           pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${result.instruction}`);
           return;
         }
-        requestId = undefined;
+        const ended = requestId; requestId = undefined;  // task 273: the auto acceptance below is recorded under this request
         if (result?.report) {
           const report=result.report;
           notify(tr(`Run report: ${report.counts.done} tasks · ${report.counts.decisions} decisions · ${report.counts.external} external actions · ${report.counts.problems} problems. /report`),'info');
@@ -473,7 +474,7 @@ export default function harness(pi, dependencies = {}) {
         if (result?.check_in) {
           const check=result.check_in;
           if (check.verified && await automatic()) {
-            await call('/phase/accept',{cwd:check.root,state:'auto'});
+            await call('/phase/accept',{cwd:check.root,state:'auto',request:ended});
             if(!check.next){check.accepted=true;notify(tr('Plan complete.'),'info');}
             else {say('committed',`${result.message} · committed as ${result.commit}`,'info');
             nextPlanInput=true;recovering=true;
@@ -482,7 +483,7 @@ export default function harness(pi, dependencies = {}) {
           }
           if (sharedPortEnv()) notify('Harness check-in: '+JSON.stringify(check),'info');
           else if(!check.accepted) {
-            if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
+            if(await checkIn(context,check)==='continue'){await call('/phase/accept',{cwd:check.root,request:ended});if(check.next){nextPlanInput=true;recovering=true;pi.sendUserMessage('Continue the approved task.');return;}notify(tr('Plan complete.'),'info');}
           }
         }
         if (result?.outcome === 'committed') say('committed', result.commit ? `${result.message} · committed as ${result.commit}` : result.message, 'info');  // the commit: Undo This Request
