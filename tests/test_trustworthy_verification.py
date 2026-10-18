@@ -299,6 +299,24 @@ class CheckIns(Base):
 
 class RedProofInACopy(Base):
     def test_the_red_proof_never_touches_the_live_tree(self):
+        # The probe writes its log outside the project, which the test sandbox (task 311, tests/test_sandbox.py) refuses.
+        from unittest.mock import patch
+        with patch('gate.sandbox.available', return_value=False): self.red_proof_in_a_copy()
+
+    def test_the_red_proof_runs_in_the_test_sandbox(self):
+        from gate import sandbox
+        if not sandbox.available(): self.skipTest('sandbox-exec is macOS only')
+        outside = Path(self.data.name) / 'escaped.txt'
+        self.approve()
+        self.paper.start('r', str(self.root), 'Build the approved task.')
+        (self.root / 'app.py').write_text(SUB)
+        (self.root / 'tests/test_sub.py').write_text(f'import unittest, pathlib\nfrom app import sub\nclass T(unittest.TestCase):\n    def test_sub(self):\n        try: pathlib.Path({str(outside)!r}).write_text("x")\n        except OSError: pass\n        self.assertEqual(sub(3, 1), 2)\n')
+        self.assertEqual(self.run_cmd('r', 'python3 -m unittest'), 0)  # this helper runs unsandboxed: the file appears
+        outside.unlink(missing_ok=True)
+        self.assertEqual(self.paper.end('r')['outcome'], 'committed')
+        self.assertFalse(outside.exists(), 'the harness ran the model\'s test in the sandbox')
+
+    def red_proof_in_a_copy(self):
         log = Path(self.data.name) / 'seen.jsonl'
         probe = (f'import unittest, os, json, pathlib\nfrom app import sub\nclass T(unittest.TestCase):\n'
                  f'    def test_sub(self):\n'

@@ -428,7 +428,7 @@ export function themePanel(message, { api, project, preview, saved: onSaved, clo
     const url = await previewRef?.liveUrl?.().catch(() => '');
     if (card.dataset.screen === undefined) return;
     if (!url) { live.replaceChildren(node('p', 'pw-help pw-theme__nolive', 'The app is not running yet: the changes show in the Preview once it is.'), liveTag); liveTimer = setTimeout(startLive, 2000); return; }
-    liveFrame = node('iframe'); liveFrame.title = 'The app, live'; liveFrame.src = url; liveOrigin = new URL(url).origin;
+    liveFrame = node('iframe'); liveFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-modals'); liveFrame.title = 'The app, live'; liveFrame.src = url; liveOrigin = new URL(url).origin;
     live.replaceChildren(liveFrame, liveTag);
   }
   const fromLive = event => { if (liveFrame && event.source === liveFrame.contentWindow && event.origin === liveOrigin && event.data?.type === 'pi-theme-ready') { post(preview, state); panel.followPreview(Boolean(event.data.dark)); } };

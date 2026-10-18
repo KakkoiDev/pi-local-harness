@@ -110,6 +110,9 @@ enabled for the tailnet, then `/config set remote_hosts ["your-mac.tailnet.ts.ne
 ["you@example.com"]`, and restart `plh`. Then **π › Open on Phone…** shows the address and a QR code to scan. If it says
 phone access is off, it also says why (often: enable Serve once for the tailnet, at the link shown).
 
+An app shared from the Preview with Open on Phone admits the same Tailscale logins as the workbench (remote_users),
+nobody else on the tailnet.
+
 While the workbench runs, it reconnects if its Tailscale Serve session exits. The same recovery applies to an app
 shared from Preview. Closing the workbench or stopping that share ends recovery and its owned Serve process. This
 does not keep a sleeping Mac reachable or reconnect a device that is signed out of Tailscale.
@@ -172,6 +175,16 @@ Gate's history, backups and the app's own trash. Project files stay in their own
 Open a request in Activity. Its Tests list comes from Gate: each command, exit code, printed counts, duration and
 time. The data folder keeps `test-runs.jsonl` and the last 200 output lines in `test-runs/<id>.txt`. Bench results
 include those records and output files too. Counts are shown only when the runner printed a recognised summary.
+
+### Can the tests Pi writes harm my Mac?
+
+No: on macOS every test run Gate allows runs in the test sandbox (`sandbox-exec`). It may write only in the project, a
+temporary folder and the toolchain caches (never in `.git`), cannot read the workbench's data folder or folders such as
+`~/.ssh`, gets none of the harness's variables or tokens, and has no network. The base check of a new project, the Red
+proof and `/audit` run the same way. When a test fails because of the sandbox, a Harness notice under the answer says
+so. If a test really needs the network, choose **Project › Test Sandbox…**: No network (recommended), This computer
+only (localhost) or The internet, kept for that project. Only you can change it, never Pi. On other systems the
+sandbox is not there yet (Linux: bubblewrap, planned).
 
 ## How do I check whether my app is ready to publish?
 

@@ -154,7 +154,7 @@ class AgentHandler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             event = self.ledger.complete(data['proposal_id'], data['tool_name'], data['args'],
                                          data.get('output'), data.get('exit_code', 0))
-            self.send_json_response({'status': event.status, 'reason': event.reasoning, **({'note': note} if (note := self.ledger.last_note(data['proposal_id'])) else {})})
+            self.send_json_response({'status': event.status, 'reason': event.reasoning, **({'note': note} if (note := self.ledger.last_note(data['proposal_id'])) else {}), **({'sandbox_refused': refused} if (refused := self.ledger.last_sandbox_refusal(data['proposal_id'])) else {})})
         except KeyError as error:
             self.send_error_response(409, str(error))
         except Exception as error:

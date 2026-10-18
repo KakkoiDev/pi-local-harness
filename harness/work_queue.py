@@ -10,6 +10,7 @@ import time
 import uuid
 from urllib.parse import quote
 from datetime import datetime
+from gate.sandbox import shown  # task 311: a sandboxed test run shows the command Gate allowed
 
 def now():return datetime.now().astimezone().isoformat(timespec='seconds')
 
@@ -191,7 +192,7 @@ class WorkQueue:
                 if delta['type']=='thinking_delta':job['thinking']=(job['thinking']+delta.get('delta',''))[-50000:];job['progress']='Thinking'
             elif kind=='tool_execution_start':
                 job['progress']='Using '+event['toolName']
-                if event.get('toolCallId'):args=event.get('args') or {};job.setdefault('tools',[]).append({'id':event['toolCallId'],'name':event['toolName'],'detail':str(next((args[key] for key in ('command','path','pattern') if key in args),''))[:300],'status':'running'});job['tools']=job['tools'][-200:]
+                if event.get('toolCallId'):args=event.get('args') or {};job.setdefault('tools',[]).append({'id':event['toolCallId'],'name':event['toolName'],'detail':shown(str(next((args[key] for key in ('command','path','pattern') if key in args),'')))[:300],'status':'running'});job['tools']=job['tools'][-200:]
             elif kind=='tool_execution_end':
                 job['progress']='Tool failed; reconsidering' if event.get('isError') else 'Tool finished'
                 for tool in job.get('tools',[]):

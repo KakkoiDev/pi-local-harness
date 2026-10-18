@@ -65,7 +65,8 @@ def full_suite(folder):
     argv = commands(folder)['tests']
     environment = {**os.environ, 'UV_OFFLINE': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
     try:
-        ran = subprocess.run(argv, cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
+        from gate import sandbox  # task 311: the project's own code runs in the test sandbox
+        ran = subprocess.run(sandbox.argv(argv, folder), cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
         from gate.test_runs import counts
         passed = ran.returncode == 0 and bool(counts(ran.stdout + ran.stderr).get('pass'))
     except (OSError, subprocess.TimeoutExpired):

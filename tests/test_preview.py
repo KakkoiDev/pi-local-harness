@@ -54,14 +54,14 @@ class PreviewTest(unittest.TestCase):
         self.assertIn('tailwindcss -i styles/input.css -o static/app.css --watch=always &', shell, 'then follow the templates')
         self.assertIn('exec ', shell); self.assertIn('app.main:app', shell)
         site = self.folder('site', {'index.html': '<h1>Hi</h1>'})
-        self.assertEqual(run_command(site, 4000)[1:4], ['-m', 'http.server', '4000'])
+        self.assertEqual(Path(run_command(site, 4000)[2]).name, 'preview_files.py'); self.assertEqual(run_command(site, 4000)[-1], '4000')  # task 304: not http.server
         self.assertIsNone(run_command(self.folder('notes', {'README.md': '# Notes'}), 4000))
         tui = self.folder('tui', {'pyproject.toml': '[project]\nname="app"\n', 'app/tui.py': '', 'serve.py': ''})
         self.assertEqual(run_command(tui,4000)[1:3],['run','python']);self.assertEqual(Path(run_command(tui,4000)[3]).name,'terminal-preview.py');self.assertEqual(run_command(tui,4000)[-1],'4000')
         styled = self.folder('styled', {'index.html': '', 'styles/input.css': '@import "tailwindcss";'})
         shell = run_command(styled, 4000)[-1]
         self.assertIn('--from pytailwindcss tailwindcss -i styles/input.css -o static/app.css && {', shell, 'a no-server app gets its styles too')
-        self.assertIn('http.server 4000', shell)
+        self.assertIn('preview_files.py 4000', shell)
 
     def test_a_project_with_no_app_says_so_and_says_what_it_is(self):
         status = self.previews.start('notes', self.folder('notes', {'README.md': '# Notes'}))
@@ -141,20 +141,22 @@ class PreviewTest(unittest.TestCase):
             def wait(self, timeout=None): return 0
         def serve(port, https):
             served.append((port, https)); return Serve(port), None
+        users = ('me@example.com',)
         previews = Previews(self.root / 'previews5', serve=serve); self.addCleanup(previews.close)
-        self.assertIn('not running', previews.phone('site', 'mac.tail.ts.net')['problem'], 'only a running app')
+        self.assertIn('not running', previews.phone('site', 'mac.tail.ts.net', users)['problem'], 'only a running app')
         previews.start('site', site); wait(previews, 'site', ('running',))
-        found = previews.phone('site', 'mac.tail.ts.net')
-        self.assertEqual(found['url'], 'https://mac.tail.ts.net:8443/'); self.assertEqual(served, [(previews.apps['site'].port, 8443)])
-        self.assertEqual(previews.phone('site', 'mac.tail.ts.net')['url'], found['url']); self.assertEqual(len(served), 1, 'served once')
+        found = previews.phone('site', 'mac.tail.ts.net', users)
+        self.assertEqual(found['url'], 'https://mac.tail.ts.net:8443/'); self.assertEqual(served, [(previews.apps['site'].guard.listen_port, 8443)], 'task 304: Serve reaches the guard, not the app')
+        self.assertEqual(previews.phone('site', 'mac.tail.ts.net', users)['url'], found['url']); self.assertEqual(len(served), 1, 'served once')
         first = previews.apps['site'].phone
         previews.start('other', other); wait(previews, 'other', ('running',))
-        previews.phone('other', 'mac.tail.ts.net')
+        previews.phone('other', 'mac.tail.ts.net', users)
         self.assertTrue(first.stopped, 'one app on the phone address at a time')
         self.assertEqual(previews.status('other')['phone'], 'https://mac.tail.ts.net:8443/')
         second = previews.apps['other'].phone; previews.stop('other')
         self.assertTrue(second.stopped, 'stopping the app stops its phone address')
-        self.assertIn('Phone access is off', previews.phone('site', '')['problem'])
+        self.assertIn('Phone access is off', previews.phone('site', '', users)['problem'])
+        self.assertIn('remote_users', previews.phone('site', 'mac.tail.ts.net', ())['problem'], 'no allowed login: no phone address')
 
     def test_close_stops_every_app(self):
         site = self.folder('site', {'index.html': 'x'})
@@ -162,6 +164,89 @@ class PreviewTest(unittest.TestCase):
         process = self.previews.apps['site'].process
         self.previews.close()
         self.assertIsNotNone(process.poll())
+
+
+class PreviewNeverServesOutsideTheProjectTest(unittest.TestCase):
+    """Task 304: the plain-site server, the frame's proxy, the phone guard and the terminal app's checks."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def raw(self, port, path, host=None, headers=()):
+        import http.client
+        connection = http.client.HTTPConnection('127.0.0.1', port, timeout=5)
+        connection.putrequest('GET', path, skip_host=True)
+        connection.putheader('Host', host or f'127.0.0.1:{port}')
+        for key, value in headers: connection.putheader(key, value)
+        connection.endheaders(); response = connection.getresponse(); body = response.read(); connection.close()
+        return response.status, body
+
+    def site(self):
+        site = self.root / 'site'; (site / 'sub').mkdir(parents=True); (site / 'empty').mkdir()
+        (site / 'index.html').write_text('<h1>Home</h1>'); (site / 'sub' / 'index.html').write_text('<h1>Sub</h1>')
+        (site / '.env').write_text('TOKEN=secret'); (site / '.git').mkdir(); (site / '.git' / 'config').write_text('[core]')
+        outside = self.root / 'outside.txt'; outside.write_text('private')
+        (site / 'link.txt').symlink_to(outside); (site / 'linkdir').symlink_to(self.root)
+        (site / 'inner.txt').symlink_to(site / 'index.html')
+        return site
+
+    def test_the_site_server_serves_only_files_inside_the_project(self):
+        import threading
+        from harness import preview_files
+        server = preview_files.serve(0, self.site()); port = server.server_address[1]
+        threading.Thread(target=server.serve_forever, daemon=True).start(); self.addCleanup(server.server_close); self.addCleanup(server.shutdown)
+        self.assertEqual(self.raw(port, '/'), (200, b'<h1>Home</h1>'))
+        self.assertEqual(self.raw(port, '/sub/'), (200, b'<h1>Sub</h1>'))
+        self.assertEqual(self.raw(port, '/inner.txt')[0], 200, 'a symlink that stays inside is fine')
+        for path in ('/.env', '/.git/config', '/sub/../.env', '/%2eenv', '/link.txt', '/linkdir/outside.txt', '/empty/', '/../outside.txt', '/nothing'):
+            self.assertEqual(self.raw(port, path)[0], 404, path)
+        self.assertNotIn(b'private', self.raw(port, '/linkdir/')[1], 'no listing, nothing outside')
+        self.assertEqual(self.raw(port, '/', host='evil.example:80')[0], 403, 'a rebound DNS name is refused')
+        self.assertEqual(self.raw(port, '/', host=f'localhost:{port}')[0], 200)
+
+    def test_the_frame_proxy_refuses_a_foreign_host(self):
+        import http.server, threading
+        from harness.preview import Frame
+        class App(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args): pass
+            def do_GET(self):
+                self.send_response(200); self.send_header('Content-Type', 'text/plain'); self.end_headers(); self.wfile.write(b'app')
+        app = http.server.ThreadingHTTPServer(('127.0.0.1', 0), App)
+        threading.Thread(target=app.serve_forever, daemon=True).start(); self.addCleanup(app.server_close); self.addCleanup(app.shutdown)
+        frame = Frame(app.server_address[1], ('http://127.0.0.1:3000',)); self.addCleanup(frame.close)
+        self.assertEqual(self.raw(frame.port, '/'), (200, b'app'))
+        self.assertEqual(self.raw(frame.port, '/', host='evil.example')[0], 403)
+
+    def test_open_on_phone_admits_only_the_workbenchs_tailscale_users(self):
+        import http.server, threading
+        from harness.preview_guard import Guard
+        seen = []
+        class App(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args): pass
+            def do_GET(self):
+                seen.append((self.headers.get('Host'), self.headers.get('Origin'), self.headers.get('Tailscale-User-Login')))
+                self.send_response(200); self.send_header('Content-Length', '3'); self.end_headers(); self.wfile.write(b'app')
+        app = http.server.ThreadingHTTPServer(('127.0.0.1', 0), App); port = app.server_address[1]
+        threading.Thread(target=app.serve_forever, daemon=True).start(); self.addCleanup(app.server_close); self.addCleanup(app.shutdown)
+        guard = Guard(port, 'mac.tail.ts.net', ['me@example.com'], 8443); self.addCleanup(guard.close)
+        host = 'mac.tail.ts.net:8443'
+        self.assertEqual(self.raw(guard.listen_port, '/', host=host)[0], 403, 'no Tailscale login')
+        self.assertEqual(self.raw(guard.listen_port, '/', host=host, headers=[('Tailscale-User-Login', 'stranger@example.com')])[0], 403)
+        self.assertEqual(self.raw(guard.listen_port, '/', host='evil.example', headers=[('Tailscale-User-Login', 'me@example.com')])[0], 403)
+        self.assertEqual(self.raw(guard.listen_port, '/', host=host, headers=[('Tailscale-User-Login', 'me@example.com'), ('Origin', 'https://evil.example')])[0], 403)
+        self.assertEqual(seen, [], 'nothing refused reached the app')
+        self.assertEqual(self.raw(guard.listen_port, '/', host=host, headers=[('Tailscale-User-Login', 'me@example.com'), ('Origin', 'https://mac.tail.ts.net:8443')]), (200, b'app'))
+        self.assertEqual(seen, [(f'127.0.0.1:{port}', f'http://127.0.0.1:{port}', None)], 'the app sees its own loopback Host and Origin, and no login header')
+
+    def test_the_terminal_app_accepts_only_its_own_page_and_this_computer(self):
+        from harness.preview_files import loopback, own_origin
+        self.assertTrue(own_origin(None, 4000)); self.assertTrue(own_origin('http://127.0.0.1:4000', 4000)); self.assertTrue(own_origin('http://localhost:4000', 4000))
+        for origin in ('https://evil.example', 'http://127.0.0.1:3000', 'null', 'http://127.0.0.1:4000.evil.example'):
+            self.assertFalse(own_origin(origin, 4000), origin)
+        for host in ('127.0.0.1:4000', 'localhost:4000', '[::1]:4000', 'localhost'): self.assertTrue(loopback(host), host)
+        for host in ('evil.example', 'evil.example:4000', '127.0.0.1.evil.example:4000', '', 'localhost.evil:4000'): self.assertFalse(loopback(host), host)
+        source = (Path(__file__).resolve().parents[1] / 'harness' / 'terminal-preview.py').read_text()
+        self.assertIn('app.middlewares.insert(0,guard)', source, 'the guard runs before textual-serve starts the app for a WebSocket')
 
 
 class WorkbenchPreviewTest(unittest.TestCase):

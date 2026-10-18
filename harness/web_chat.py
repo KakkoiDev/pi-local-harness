@@ -857,6 +857,15 @@ mimetypes.add_type('font/woff2','.woff2')
 FONTS=['SourceSerif4-Variable','SourceSerif4-Italic-Variable','IBMPlexMono-Regular','IBMPlexMono-Medium']
 
 class WebHandler(BaseHTTPRequestHandler):
+    def end_headers(self):
+        # Task 305: no page or reply of the workbench can be framed by another site (clickjacking), and no reply is
+        # sniffed into another type (a JSON reply read as HTML).
+        self.send_header('X-Frame-Options','DENY');self.send_header('Content-Security-Policy',"frame-ancestors 'none'");self.send_header('X-Content-Type-Options','nosniff')
+        super().end_headers()
+    def internal_error(self, error):
+        """Task 305: a 500 says what happened in a sentence; the exception text (paths, values) goes to the log only."""
+        import traceback;traceback.print_exception(error)
+        self.reply({'error':'Internal error: the workbench could not do this. The details are in its log.'},500)
     def reply(self, value, code=200):
         body=json.dumps(value,ensure_ascii=False).encode()
         self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
@@ -868,7 +877,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -915,6 +924,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
             if path=='/api/project-start':from harness import project_start;self.reply(project_start.catalogue(self.chat,parse_qs(urlparse(self.path).query)));return  # round 12, plan 253
+            if path=='/api/project-sandbox':  # task 311: how far this project's test runs may reach
+                from gate import sandbox;self.reply({**sandbox.widened(self.chat.documents.root,self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])),'available':sandbox.available()});return
             if path=='/api/theme/fonts':self.reply(self.chat.fonts.search(parse_qs(urlparse(self.path).query).get('q',[''])[0]));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -948,7 +959,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
                 allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
-                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row')})  # round 12: HarnessNotice, CutLine, DecisionRow
+                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -957,14 +968,16 @@ class WebHandler(BaseHTTPRequestHandler):
             if disposition is None and file.name=='index.html' and file.parent==ROOT:
                 body=body.replace(b'<meta charset="utf-8">',b'<meta charset="utf-8"><meta name="pi-person" content="'+html.escape(self.person_secret).encode()+b'">',1)
             self.send_response(200);self.send_header('Content-Type',mime)
-            self.send_header('Content-Length',str(len(body)));self.send_header('X-Content-Type-Options','nosniff')
+            self.send_header('Content-Length',str(len(body)))
             self.send_header('Cache-Control','no-store')
             if disposition:self.send_header('Content-Disposition',disposition)
             self.end_headers();self.wfile.write(body)
         except (FileNotFoundError,KeyError):self.reply({'error':'Not found'},404)
         except ValueError as error:self.reply({'error':str(error)},400)  # e.g. "This is a binary file", not a bare Not found
-        except OSError as error:self.reply({'error':'Ollama is not reachable: '+str(error)},503)  # /api/models when Ollama is down
-        except Exception as error:self.reply({'error':f'Internal error: {type(error).__name__}'},500)
+        except OSError as error:
+            if path!='/api/models':self.internal_error(error);return
+            self.reply({'error':'Ollama is not reachable: '+str(error)},503)  # /api/models when Ollama is down
+        except Exception as error:self.internal_error(error)
     def do_POST(self):
         if not self.trusted():self.reply({'error':self.refusal()},403);return
         streaming=False
@@ -1037,8 +1050,12 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
+            if path=='/api/projects/sandbox':  # task 311: the person widens (or closes) the test sandbox for one project
+                from gate import sandbox
+                result=sandbox.widen(self.chat.documents.root,self.chat.documents.project_path(data['project']),data.get('network'))
+                record(self.chat.documents.root,None,'sandbox_network','person',result['network']);self.reply(result);return
             if path=='/api/undo':self.reply(self.chat.undo(data['project'],data['commit'],bool(data.get('preview')),bool(data.get('save'))));return
-            if path=='/api/preview/phone':self.chat.documents.project_path(data['project']);self.reply(self.chat.previews.phone(data['project'],(self.phone_url or '').removeprefix('https://').rstrip('/')));return  # P_OnPhone
+            if path=='/api/preview/phone':self.chat.documents.project_path(data['project']);self.reply(self.chat.previews.phone(data['project'],(self.phone_url or '').removeprefix('https://').rstrip('/'),self.remote_users));return  # P_OnPhone; task 304: the same users as the workbench
             if path in ('/api/preview/start','/api/preview/stop'):self.reply(self.chat.preview(data.get('project'),path.rsplit('/',1)[-1],cwd=data.get('cwd')));return
             if path=='/api/directories/create':self.reply(self.chat.documents.create_directory(data.get('parent'),data.get('name')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
@@ -1097,4 +1114,4 @@ class WebHandler(BaseHTTPRequestHandler):
         except (TypeError,AttributeError) as error:
             if not streaming:self.reply({'error':f'Malformed request field: {error}'},400)
         except Exception as error:
-            if not streaming:self.reply({'error':f'Internal error: {type(error).__name__}: {error}'},500)
+            if not streaming:self.internal_error(error)

@@ -1,0 +1,14 @@
+{
+ "steps": [
+  {
+   "write": "tests/test_escape.py",
+   "content": "import unittest\nfrom pathlib import Path\n\n\nclass Escape(unittest.TestCase):\n    def test_writes_next_to_the_project(self):\n        Path('../escaped.txt').write_text('a test wrote outside its project')\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] The test could not write outside the project."
+  }
+ ]
+}

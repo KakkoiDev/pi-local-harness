@@ -86,6 +86,7 @@ class ProposalLedger:
         from harness.judgements import Judgements
         self.judgements=Judgements(self.paperwork)
         self.request_of, self.notes = {}, {}
+        self.sandboxed, self.sandbox_refusals = {}, {}  # task 311: tokens of test runs Gate put in the sandbox (their network), and what it refused
         # Checks survive a restart of plh: one JSON line per event, the last 200 read back (the person lost them on restart).
         self.events_file = Path(events_file) if events_file else None
         self.day = {}  # 'YYYY-MM-DD' -> {'today': n, 'blocked_today': n}: before-execution checks per day, beyond the 200 kept in memory
@@ -170,6 +171,10 @@ class ProposalLedger:
 
     def last_note(self, token):
         return self.notes.pop(token, None)
+
+    def last_sandbox_refusal(self, token):
+        """Task 311: what the sandbox refused in this run, for the person's notice (the note carries it to Pi)."""
+        return self.sandbox_refusals.pop(token, None)
 
     MEMORY_LIMIT, MEMORY_GROWTH = 32 * 1024, 4 * 1024
 
@@ -264,6 +269,12 @@ class ProposalLedger:
                         return {**refuse('G-016','An unstated value could not be ruled out. Ask the person before using it.'),'judgement':judgement}
 
         expected = None
+        if root and tool_name == 'execute_command' and isinstance(command, str):
+            from .phase_shell import test_run as allowed_test
+            if allowed_test(command):  # task 311: an allowed test run executes the model's code; it runs in the sandbox
+                from . import sandbox
+                wrapped = sandbox.wrap(command, root, self.paperwork.data)
+                if wrapped: response.update(command=wrapped, sandbox=sandbox.widened(self.paperwork.data, root)['network'])
         if pi_tool in ('write', 'edit'):
             path = Path(args['path']).expanduser()
             if not path.is_absolute():
@@ -326,6 +337,7 @@ class ProposalLedger:
             token = str(uuid.uuid4())
             self.pending[token] = (now, proposal, expected, cwd, tool_call_id, source)
             if request: self.request_of[token] = request
+            if response.get('sandbox'): self.sandboxed[token] = response['sandbox']
         self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id, cwd=cwd, source=source, request=request)
         response['proposal_id'] = token
         return response
@@ -358,6 +370,13 @@ class ProposalLedger:
             if problem:
                 self.notes[token] = f'{problem} Fix it before going on.'
                 self.report('syntax', problem, tool=proposal.tool_name, cwd=cwd, source=source)
+        network = self.sandboxed.pop(token, None)
+        if network and proposal.tool_name == 'execute_command':
+            from .sandbox import refusal
+            refused = refusal(output, exit_code, network)
+            if refused:
+                self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), refused])); self.sandbox_refusals[token] = refused
+                self.report('sandbox', refused, tool=proposal.tool_name, cwd=cwd, source=source)
         request = self.request_of.pop(token, None)
         folder = test_folder(command, cwd) if isinstance(command, str) and proposal.tool_name == 'execute_command' else None
         if folder and self.events_file and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
