@@ -62,7 +62,7 @@ PI_JOURNEY_LIVE=1 python3 tests/browser/run.py journey   # opt-in: the same jour
 ```
 
 **Required: `python3 tests/browser/run.py all` exits 0, and `all` includes `journey`.** The golden journey
-(`tests/browser/journey.cjs`, US-240 to US-255) replays the owner's session of 2026-10-18 from a stalled request to a
+(`tests/browser/journey.cjs`, US-240 to US-256) replays the owner's session of 2026-10-18 from a stalled request to a
 finished, published app through the real UI. It runs the real Pi 1.1.0 (`pi` on PATH) with the real harness extension
 and fakes only the model (`tests/fixtures/fake-ollama.cjs`, scripted by `tests/browser/journey/*.json`); without Pi it
 prints "Not run" and exits 2, which fails `all` (never skip it). It is not marked xfail anywhere: a failing step is a

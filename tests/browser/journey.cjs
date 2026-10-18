@@ -502,6 +502,29 @@ step('J13', 'the end: Ready to publish passes from the Workbench, every task is 
   });
 });
 
+step('J14', 'the finished app in the Preview: its page shows, adding a habit and ticking it today work (the project’s own code)', async t => {
+  const { page } = t;
+  const row = page.locator('#messages .pw-card[aria-label^="Task "]').last();
+  await row.getByText('Show in Preview', { exact: true }).click();
+  const app = page.frameLocator('#preview-body iframe');
+  // The Preview opened by itself when the project was created and stopped then (the habit code did not exist yet).
+  const again = page.locator('#preview-body').getByRole('button', { name: 'Start Again', exact: true });
+  if (await until(async () => (await again.count()) > 0 || (await app.getByRole('heading').count()) > 0, 20000) && await again.count()) {
+    t.note('J14: the Preview showed its first run, stopped at Create (no habit code then); pressed Start Again'); await again.click();
+  }
+  await t.check('the Preview shows the app', async () => app.getByRole('heading').first().waitFor({ timeout: 60000 }).catch(async () => {
+    throw new Error(`no page in the Preview: ${JSON.stringify(await t.bench.api('/api/preview?project=' + t.project).catch(error => error.message)).slice(0, 400)}; frames ${page.frames().map(frame => frame.url()).join(', ')}`);
+  }));
+  await t.check('the app in the Preview is named Habit Tracker', async () => assert.equal(await app.getByRole('heading').first().textContent({ timeout: 5000 }), 'Habit Tracker'));
+  await t.check('adding a habit and ticking it today work in the Preview', async () => {
+    await app.getByLabel('Habit').fill('Read'); await app.getByRole('button', { name: 'Add', exact: true }).click();
+    const habit = app.locator('li[data-habit="Read"]'); await habit.waitFor({ timeout: 15000 });
+    await habit.getByRole('button', { name: 'Tick today', exact: true }).click();
+    await app.locator('li[data-habit="Read"] .streak', { hasText: '1' }).waitFor({ timeout: 15000 });
+    assert.equal(await app.locator('li[data-habit="Read"] .month').textContent(), '1');
+  });
+});
+
 step('J12', 'reloads and a second tab: state is consistent, no card reopens, no duplicates', async t => {
   const { page } = t;
   for (const { where, before, after } of t.reloads) await t.check(`after the reload ${where}`, async () => {
@@ -668,8 +691,10 @@ async function main() {
   fs.writeFileSync(join(bench.directory, 'agent', 'models.json'), JSON.stringify({ providers: { ollama: { baseUrl: url + '/v1' } } }));
   const wrapper = join(bench.directory, 'pi-real');  // the real Pi, kept to the scratch folder
   fs.writeFileSync(wrapper, `#!/bin/sh\nHOME='${bench.directory}/home' PI_CODING_AGENT_DIR='${bench.directory}/agent' exec '${realPi}' "$@"\n`, { mode: 0o755 });
-  // uv stand-ins, as US-116: never a download (test runs through them are counted in the live report).
-  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(bench.directory, name), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nprintf "# pass 1\\n# fail 0\\n"\nexit 0\n', { mode: 0o755 });
+  // uv stand-ins, as US-116: never a download (test runs through them are counted in the live report). `uv run uvicorn …
+  // --port N` (the Preview of a Web app) serves the project's own habit code through tests/fixtures/uvicorn-standin.py.
+  const standin = join(__dirname, '../fixtures/uvicorn-standin.py');
+  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(bench.directory, name), `#!/bin/sh\nport=''; previous=''; server=''\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; uvicorn) server=1;; esac; [ "$previous" = "--port" ] && port="$arg"; previous="$arg"; done\nif [ -n "$server" ] && [ -n "$port" ]; then exec python3 -I '${standin}' "$port"; fi\nprintf "# pass 1\\n# fail 0\\n"\nexit 0\n`, { mode: 0o755 });
   fs.mkdirSync(bench.data, { recursive: true });
   if (LIVE) fs.writeFileSync(join(bench.data, 'model.json'), JSON.stringify({ model: LIVE_MODEL, effort: 'low' }) + '\n');
   // The fake models' measured verdicts, so the workbench never measures them (capability.check).

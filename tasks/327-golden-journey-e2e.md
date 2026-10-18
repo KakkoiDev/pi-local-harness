@@ -8,7 +8,7 @@ project and it is more bugged than 3 days ago". Then: "make sure that the user s
 recorded as an E2E test", "continue the test so that you can go further and actually finish something", and "the e2e
 model will use the 4b model for speed".
 
-Files: tests/browser/journey.cjs, tests/browser/journey/*.json, tests/fixtures/fake-ollama.cjs, tests/browser/run.py,
+Files: tests/browser/journey.cjs, tests/browser/journey/*.json, tests/fixtures/fake-ollama.cjs, tests/fixtures/uvicorn-standin.py, tests/browser/run.py,
 tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents.md
 
 - [x] A fake model, not a fake Pi: tests/fixtures/fake-ollama.cjs answers as Ollama does (`/api/tags`, `/api/show`,
@@ -18,7 +18,7 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
   extension run, so the extension's defects (pseudo tool calls, nudges, [CANARY] drift, guide questions, scope pauses)
   are tested, not the fake Pi's imitation of them. Pi's HOME and PI_CODING_AGENT_DIR are scratch; the repair proxy
   (task 326) sits between Pi and the fake model as it does in front of Ollama.
-- [x] tests/browser/journey.cjs: 14 steps in the owner's order, one workbench, soft checks (one finding never hides the
+- [x] tests/browser/journey.cjs: 15 steps in the owner's order, one workbench, soft checks (one finding never hides the
   next), and where a failure leaves the journey stuck the step does what the owner did next (Stop, “continue”, Retry
   Task) and says so. Each check names its finding. Watchers in every tab record any [CANARY] (plain, `code`, **bold**),
   every card shown, and “Loading” on the model button, across reloads.
@@ -27,19 +27,20 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
   describe-only turn nudged, Goal, steps, Decisions (8, 10) · J07 Start Building, guide card, pseudo tool calls (11, 12,
   13) · J08 scope card, Add to Task (16) · J09 Stop and continue (17) · J10 verified check-in, Accept and Continue ·
   J11 queue: remove, edit, the edited one runs (325) · J10b Run on its own, risk notice, widened without asking, report ·
-  J13 Ready to publish, every task verified and committed, roadmap done, the finished app's own code works · J12 reloads
+  J13 Ready to publish, every task verified and committed, roadmap done, the finished app's own code works · J14 the finished app in the Preview · J12 reloads
   (mid-stream, a waiting card, after Stop) and a second tab.
 - [x] `journey` in run.py's SUITES and in `all`; docs/contributing-for-agents.md makes `run.py all` (journey included) a
   required check; without Pi the journey says "Not run" (exit 2), which fails `all`.
 - [x] Live mode: `PI_JOURNEY_LIVE=1` runs the workflow against the real Ollama at 127.0.0.1:11434 with gemma4:e4b-mlx,
   scratch data and projects, generous timeouts, workflow checks, and journey-live-report.txt/.json in the kept scratch
   folder. Documented as opt-in, outside the required offline gate.
-- [x] User stories US-240 to US-255 in docs/user-stories.md, coverage table updated.
+- [x] User stories US-240 to US-256 in docs/user-stories.md, coverage table updated.
 - [ ] The journey passes. Not yet: it fails on real product defects (below). Nothing is marked xfail.
-- [ ] The finished app in the Preview. Not possible offline: the Web app package's Preview runs FastAPI through `uv run
-  uvicorn`, and FastAPI is not installed without a download (not approved). J13 runs the project's own code instead.
+- [x] J14, the finished app in the Preview: the Web app package's Preview runs `uv run uvicorn … --port N`; FastAPI would
+  need a download (not approved), so the journey's uv stand-in serves that command with tests/fixtures/uvicorn-standin.py,
+  a stand-in web layer over the project's own habit code (add a habit, tick it, streak, month). US-256.
 
-## Defects the journey finds on harness-next (da0063f, after tasks 324, 325, 326)
+## Defects the journey finds on harness-next (05d3054, after tasks 324, 325, 326 and b54f3c8)
 
 1. J02: a refused model switch's message is the toast at the bottom of the window, 822 px below the model menu.
 2. J03: the project folder is “Habit Tracker” (spaces), not a slug.
@@ -50,7 +51,8 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
    line”); and its check needs `/audit`, which only terminal Pi offers: the Workbench has no way to run it.
 6. J13: after Retry Task, task 3's commit leaves out tests/test_chart.py, written in the first attempt (it stays
    untracked); tasks/001-first-task.md's ticked boxes are never committed.
-7. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
+7. J14: because of 5, the app keeps the starter's name: the Preview's page says “Notes”, not “Habit Tracker”.
+8. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
 
 ## For the person
 
