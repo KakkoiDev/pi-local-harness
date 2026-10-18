@@ -164,3 +164,12 @@ else…" last; the model never removes a feature or changes the target.
    package is requested.
 9. **Existing no-server apps (kit/starter-static):** stay as they are (recommended, as plan 253 says) · a migration
    task later · Something else…
+
+### The person's answers (2026-10-18): "do recommended"
+
+1. Pyodide. 2. Its download is approved; it happens when task 276/277 starts, pinned and checksum-checked as described,
+with the files and sizes listed in the task's commit. 3. FastAPI, if the spike runs it in Pyodide; Starlette only
+otherwise (the spike decides; no further question). 4. sqlite3 on a persistent browser filesystem. 5. Bundled and
+offline. 6. The harness keeps the Android key per project in the data folder, with a backup reminder. 7. The PWA when it
+is enough. 8. The Android toolchain is asked for when the first mobile package is requested. 9. Existing no-server
+apps stay as they are.

@@ -324,7 +324,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [ ] [307-UI fixes found by walking the workbench](tasks/307-ui-fixes-from-the-hunt.md)
 - [ ] [308-Small correctness fixes](tasks/308-small-correctness-fixes.md)
 - [ ] [309-Run on its own can do what its risk notice promises](tasks/309-run-on-its-own-can-do-what-it-promises.md)
-- [ ] [310-Project Start: the architecture decisions to settle](tasks/310-project-start-architecture-decisions.md)
+- [x] [310-Project Start: the architecture decisions to settle](tasks/310-project-start-architecture-decisions.md)
 - [ ] [311-Test runs are sandboxed](tasks/311-sandboxed-test-runs.md)
 - [ ] [312-Tinker with the site's look in the chat (theme panel)](tasks/312-theme-panel.md)
 - [x] [260-Verification cannot be faked; check-ins never strand the plan](tasks/260-trustworthy-verification.md)
