@@ -28,3 +28,7 @@ with a small script for the interactive ones and Jinja macros for the complex on
    (`{% import 'basecoat/dialog.html.jinja' as dialog %}`), with `js/basecoat.min.js` loaded once.
 4. No other CSS framework; the project's own few rules go at the end of `styles/input.css` (`static/app.css` is what the
    Tailwind build writes: never edit it).
+5. **Colours, corners, spacing and fonts come from the theme**, never hard-coded: `bg-primary`, `text-primary-foreground`,
+   `text-muted-foreground`, `border-border`, `rounded-lg`, `font-sans`, not `#3b82f6`, `bg-blue-500` or `rounded-[7px]`.
+   The person tunes the theme in the workbench's theme panel, which writes the block marked
+   `/* theme: edited in the workbench */` in `styles/input.css`: leave that block to them.

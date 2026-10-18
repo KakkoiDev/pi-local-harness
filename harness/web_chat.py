@@ -14,6 +14,8 @@ from harness import model as models
 from harness.work_queue import WorkQueue, display_text
 from harness.preview import Previews
 from harness import undo as undoing
+from harness import laya, theme
+from harness.decision_log import record
 import json
 import os
 from pathlib import Path
@@ -246,7 +248,9 @@ class WebChat:
         from harness.web_updates import UpdateService
         from harness.admin import update_source
         self.updates=UpdateService(self.documents.root,update_source())
-        self.previews=Previews(self.documents.root/'.previews')  # plan 198: the project's app beside the chat
+        self.previews=Previews(self.documents.root/'.previews',origins=(f'http://127.0.0.1:{web_port}',f'http://localhost:{web_port}') if web_port else ())  # plan 198: the project's app beside the chat
+        from harness.theme_fonts import Fonts
+        self.fonts=Fonts(self.documents.root)  # task 312: the Google Fonts list, cached in the data folder
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
@@ -420,7 +424,40 @@ class WebChat:
             comment=data['document_comment']
             if len(Path(comment['path']).parts)<3 or Path(comment['path']).parts[1]!=project:raise ValueError('Comment belongs to another project')
             self.documents.comment_prompt(comment['path'],comment['id'])
+        if not data.get('attachments') and not data.get('document_comment') and not data.get('document') and not data.get('control') and not data.get('origin'):
+            answer,group=self.theme_intent(data.get('message',''))
+            if answer=='yes':return self.open_theme(project,group,data.get('message',''))
+            if answer=='hint':data={**data,'theme_hint':group}  # Laya abstained: Pi answers, and the answer offers the panel
         return self.queue.add(project,chat['id'],data)
+    # Task 312, the theme panel: System 1 answers "I want to adjust the site's colours" itself, without Pi. Code first
+    # (harness/theme.py recognise); when code is unsure, Laya; when Laya abstains, the normal path with a suggestion.
+    def theme_intent(self, message):
+        answer,group=theme.recognise(message);request='theme-'+uuid.uuid4().hex[:12]
+        if answer=='yes':record(self.documents.root,request,'theme_panel','code',group,rule='theme.phrase')
+        if answer!='maybe':return answer,group
+        ledger=getattr(self,'ledger',None);classifier=ledger.judgements.classifier if ledger else None
+        result=laya.theme_panel(message,classifier=classifier) if classifier else {'answer':None,'confidence':0.0,'abstained':True}
+        record(self.documents.root,request,'theme_panel','laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'],abstained=bool(result['abstained']))
+        if result['abstained']:return 'hint',group
+        return ('yes' if result['answer'] else None),group
+    def open_theme(self, project, group='colours', message=''):
+        """The panel as Pi Workbench's reply in the project chat (after the person's words, when they asked in words)."""
+        if group not in theme.GROUPS:raise ValueError('Unknown theme group.')
+        chat=self.project_chat(project)
+        if message.strip():self.store.append(chat['id'],{'role':'user','content':message})
+        conversation=self.store.append(chat['id'],{'role':'assistant','author':'workbench','content':theme.TEXT[group],'theme':{'id':uuid.uuid4().hex[:16],'group':group}})
+        return {'theme':group,'conversation':conversation}
+    def theme_save(self, project, data):
+        """The person's Save in the panel (a person-only route): the block, the fonts it needs, one commit of theirs."""
+        root=self.documents.project_path(project)
+        busy=[job for job in self.queue.list() if job['status']=='running' and job.get('project')==project]
+        if busy:raise ProjectBusy(busy[0]['id'])
+        try:result=theme.save(root,data.get('light'),data.get('dark'),data.get('fonts'),download=self.fonts.download)
+        except OSError as error:raise ValueError(f'Not saved: a font could not be downloaded ({error}). Nothing was changed.') from error
+        if result.get('unchanged'):return result
+        message={'role':'assistant','author':'workbench','content':result['message']+(' '+result['note'] if result.get('note') else '')}
+        if result.get('commit'):message['commit']=result['commit'];self.changed(project,root,result['commit'],'You')
+        return {**result,'conversation':self.store.append(self.project_chat(project)['id'],message),'state':theme.state(root)}
     def answer_choice(self, project, data):
         """Task 290 (review items 8 and 18): the person's answer to the question on a card, resolved atomically. The card
         names its question (`id`) and the option chosen (`option`, its index) or the person's words (`text`); `key` makes a
@@ -742,7 +779,7 @@ class WebChat:
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
             if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
             answered=True
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {}),**({'theme_hint':data['theme_hint']} if data.get('theme_hint') in theme.GROUPS else {})})
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         except Exception as error:
@@ -805,7 +842,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen'})
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save'})  # task 312: the theme panel is the person's
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -850,6 +887,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/workspace':self.reply(self.chat.workspace());return
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
+            if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
+            if path=='/api/theme/fonts':self.reply(self.chat.fonts.search(parse_qs(urlparse(self.path).query).get('q',[''])[0]));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
             if path=='/api/project-file':self.reply(self.chat.documents.read_file(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -879,7 +918,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -936,6 +975,8 @@ class WebHandler(BaseHTTPRequestHandler):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
+            if path=='/api/theme/open':self.reply(self.chat.open_theme(data['project'],data.get('group','colours')));return  # task 312: Project › Theme…
+            if path=='/api/theme/save':self.reply(self.chat.theme_save(data['project'],data));return
             if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task')));return  # task 260: the person's recovery from a false completion
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':

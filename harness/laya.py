@@ -136,6 +136,11 @@ def applicable_guide(request,guides,*,classifier=None):
     return (classifier.ask if classifier else ask)('choice',{'request':request},'Choose the guide most relevant to the request, or none when no guide applies.',options=names+(['none'] if 'none' not in names else []),min_confidence=.95)
 
 
+def theme_panel(message,*,classifier=None):
+    """Task 312: only after code was unsure. A yes opens the theme panel in the chat; it never changes the theme."""
+    return (classifier.ask if classifier else ask)('noul',{'message':message},'The person asks to adjust the app’s look themselves (its colours, corner radius, spacing or fonts), rather than asking for a specific change to the code.',min_confidence=.95)
+
+
 def shell_risk(command,project,*,classifier=None):
     """Only after code has abstained; this result cannot override a phase or safety refusal."""
     return (classifier.ask if classifier else ask)('score',{'command':command,'project':str(project)},'Classify the command by its most dangerous possible effect. Reading only is read_only; modifying project files is writes_in_project; changing other files is writes_elsewhere; destructive, privileged or concealed execution is dangerous.',options=['read_only','writes_in_project','writes_elsewhere','dangerous'],min_confidence=.995)

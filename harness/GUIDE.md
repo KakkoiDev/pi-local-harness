@@ -51,6 +51,16 @@ Move to Trash wait while Pi works in that project or in the terminal.
 **Chat** (⌘1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌘2) shows the files: edit
 Markdown as blocks or source, comment on a passage, and ask Pi about a passage or the whole file.
 
+## How do I change my app's colours, corners or fonts?
+
+Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**.
+Pi Workbench answers by itself, without Pi: a panel with the app's theme (colours in light and dark with a contrast
+check, chart colours, corner radius, spacing, fonts). The Preview changes as you move a picker or a slider. **Save**
+writes only what you changed into `styles/input.css` and keeps it as your own change, which **Undo This Request…**
+takes back; closing without saving puts the Preview back. A chosen Google font is downloaded into the project, with
+its licence, when you save. In terminal Pi, `/theme` prints the tokens. A project not made from a starter has no theme
+file, and the panel says so.
+
 ## How do comments work?
 
 Select text in Work and choose **Comment** (⇧⌘M). A comment stays with the file until you choose **Ask Pi**; Pi's answer

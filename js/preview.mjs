@@ -51,7 +51,7 @@ export function fixMessage(error) {
 const REMOTE = typeof location !== 'undefined' && !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
 const phoneScreen = () => matchMedia('(max-width:760px)').matches;
 
-export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff }) {
+export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff, themeReady }) {
   const body = $('preview-body'), beside = $('preview'), slot = $('preview-view');
   let status = { state: 'none' }, shown = false, timer = 0, lastNote = '', fixing = false, mode = 'beside', loadedSrc = '';
   const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: document.documentElement.lang === 'ja' ? 'ja' : 'en', path: '/' });  // the app starts in the workbench's language
@@ -87,6 +87,15 @@ export function installPreview({ api, project, send, showView, view, working, on
   }
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
   body.append(bar1, bar2, note, stage,keys, foot);
+  // Task 312: the theme panel's changes go to the helper the Preview's proxy adds to the app (harness/theme-helper.js);
+  // each page it loads says it is ready, and gets the panel's last changes again.
+  let themeMaps = null;
+  const postTheme = maps => { themeMaps = maps; if (!iframe.src || status.terminal) return; try { iframe.contentWindow?.postMessage({ type: 'pi-theme', ...maps }, new URL(iframe.src).origin); } catch { /* not loaded yet: sent again when it is ready */ } };
+  window.addEventListener('message', event => {
+    if (event.source !== iframe.contentWindow || !iframe.src || event.origin !== new URL(iframe.src).origin || event.data?.type !== 'pi-theme-ready') return;
+    if (themeMaps) postTheme(themeMaps);
+    themeReady?.(Boolean(event.data.dark));
+  });
   const terminalKey=(key,value)=>{if(!iframe.src)return;iframe.contentWindow.postMessage({type:key==='Control'?'pi-terminal-control':'pi-terminal-key',key,value},new URL(iframe.src).origin);};
   for(const [key,label] of [['Escape','Esc'],['Tab','Tab'],['ArrowUp','↑'],['ArrowDown','↓'],['Control','Ctrl'],['Enter','Return']]){const el=button(label,()=>{if(key==='Control'){control=!control;el.setAttribute('aria-pressed',String(control));}terminalKey(key,control);});if(key==='Control')el.setAttribute('aria-pressed','false');keys.append(el);}
   window.addEventListener('message',event=>{if(!status.terminal||event.source!==iframe.contentWindow||!iframe.src||event.origin!==new URL(iframe.src).origin)return;
@@ -247,6 +256,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     commands: () => ({ language: settings().language, app: status.kind !== 'notweb' && status.kind !== 'empty', running: status.state === 'running' }),
     setLanguage: value => { save({ language: value }); draw(); load(true); },
     reload: () => status.terminal?restart():load(true),
+    postTheme,
     openApp: () => openApp.click(),
     stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },

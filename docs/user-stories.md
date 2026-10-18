@@ -144,6 +144,8 @@ marker") when the fix merges.
 | US-067 | run a Terminal app in Preview | Restart, sizes 80 × 24 · 120 × 40 · Fit, the phone key row | desk, phone | design.cjs (Terminal Preview controls, with the status faked); the real textual-serve start: not coverable (download) |
 | US-068 | ask Pi to fix an app that stopped | The last 8 lines; Ask Pi to Fix sends the last line and the 8 lines | desk | partial: tests/test_preview.py, tests/harness/preview-ui.test.mjs |
 | US-069 | open my app on my phone | The app's own tailnet address and a QR | desk | not coverable: needs a real tailnet (the off state is in US-060 and design.cjs Task 141) |
+| US-116 | adjust my app's colours by hand (task 312) | “I want to adjust the site’s colours” opens Pi Workbench's theme panel with no request for Pi (a code decision in decisions.jsonl); a colour picker restyles the Preview at once; Save commits “Theme: primary” as my own change, only the changed token in styles/input.css; Undo This Request… restores the file and the Preview | desk | stories.cjs US-116; tests/test_theme.py, tests/harness/theme.test.mjs |
+| US-117 | ask for the theme panel in Japanese or from the menu (task 312) | 「サイトの色を調整したい」 opens it without Pi; Project › Theme… opens another; a project without the starter's CSS says “This project has no theme file.”; Save refuses a request without the person's secret | desk | stories.cjs US-117 |
 
 ## Activity and Gate
 
@@ -231,12 +233,12 @@ marker") when the fix merges.
 
 ## Coverage
 
-Counted from the tables above: 108 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). New in task 264: 39 browser journeys in stories.cjs and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 110 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 41 (39 from task 264, 2 from task 312) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 95 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 97 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117 |
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |

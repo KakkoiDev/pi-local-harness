@@ -192,6 +192,9 @@ def build_context(store, project, request, current=None, passage='', thread='', 
             if mine: items.remove(mine); items.insert(0, {**mine, 'kind': 'this file'})
 
     if 'README.md' in meta: offer('Project rules: README.md',read('README.md',FILE_CAP),'README.md',required=True,kind='related')
+    from harness.theme import context_note  # task 312: after the person saved a theme, styles follow its tokens
+    note = context_note(root)
+    if note: offer('The app’s theme', note, required=True)
 
     # 3. Mentioned files, then 4. auto-selected while room is left
     chosen = [name for name in mentioned(f'{request}\n{passage}\n{thread}', names) if name != current_name]
