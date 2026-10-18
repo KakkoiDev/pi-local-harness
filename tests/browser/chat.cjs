@@ -22,7 +22,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   process.on('exit',code=>{if(code)console.log('Server log (not 200/304):\n'+serverLog.join('\n'));});
   const lines=readline.createInterface({input:server.stdout});
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
-  browser=await chromium.launch({headless:true,...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
+  browser=await chromium.launch({headless:true,args:['--use-mock-keychain', '--password-store=basic'],...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:950}}),errors=[];await page.route('**/api/updates',route=>route.fulfill({json:{state:'current',checked:1}}));
   page.on('pageerror',e=>errors.push(e.message));
   const chatConsole=[];page.on('console',message=>chatConsole.push(message.type()+': '+message.text()));

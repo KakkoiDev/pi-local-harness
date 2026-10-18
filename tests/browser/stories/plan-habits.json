@@ -1,0 +1,43 @@
+{
+ "steps": [
+  {
+   "think": "Plan the habit tracker."
+  },
+  {
+   "say": "[CANARY] The plan is ready."
+  },
+  {
+   "plan": {
+    "goal": "Track daily habits.",
+    "tasks": [
+     {
+      "title": "Data model and database schema",
+      "kind": "code",
+      "files": [
+       "app/db.py",
+       "tests/"
+      ],
+      "done_when": "The habits and daily_logs tables exist with their functions.",
+      "content": "Test the tables, then add them."
+     },
+     {
+      "title": "Habit list screen",
+      "kind": "code",
+      "files": [
+       "app/main.py",
+       "tests/"
+      ],
+      "done_when": "The home page lists the habits.",
+      "content": "Test the list, then show it."
+     }
+    ]
+   }
+  },
+  {
+   "think": "Starting the first task."
+  },
+  {
+   "hang": 60
+  }
+ ]
+}

@@ -53,7 +53,7 @@ def main():
                 if all(job['status'] not in ('queued', 'running') for job in call(base, '/api/workspace')['jobs']): break
                 time.sleep(0.25)
         out = HERE / 'workbench-phone.png'
-        subprocess.run([browser, '--headless', '--hide-scrollbars', '--window-size=390,844', '--force-device-scale-factor=2',
+        subprocess.run([browser, '--headless', '--use-mock-keychain', '--password-store=basic', '--hide-scrollbars', '--window-size=390,844', '--force-device-scale-factor=2',
                         '--virtual-time-budget=8000', f'--user-data-dir={folder / "profile"}', f'--screenshot={out}',
                         f'{base}/p/{project}/chat'], check=True, capture_output=True, timeout=120)
         print(out)

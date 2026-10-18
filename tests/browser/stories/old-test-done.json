@@ -1,0 +1,13 @@
+{
+ "steps": [
+  {
+   "think": "The database test should cover it."
+  },
+  {
+   "bash": "python3 -m unittest tests.test_base"
+  },
+  {
+   "say": "[CANARY] Task 1 is done: the tests pass."
+  }
+ ]
+}

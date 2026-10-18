@@ -575,7 +575,7 @@ class Paperwork:
                 # Before the Decisions section, never inside it: G-017 reads every line there as a decision (task 261).
                 first.write_text(first_text[:section.start()]+quoted+'\n\n'+first_text[section.start():] if section else first_text.rstrip()+'\n\n'+quoted+'\n',encoding='utf-8')
             state={'tasks':[task['path'] for task in tasks],'pending':True,'approved':False,'before':item['before'],'digest':self.plan_digest(root,[task['path'] for task in tasks])}
-            self.plan_state(root,state);item['task']=tasks[0]['path']
+            self.plan_state(root,state);item['task']=tasks[0]['path'];item['proposed']=True
             self.settle_waiting(root,'a new plan')
             record_decision(self.data,request,'plan_layout','code',len(tasks),rule='G-010')
             return {'root':str(root),'goal':goal[1].strip() if goal else '', 'tasks':tasks,'pending':True}
@@ -592,19 +592,34 @@ class Paperwork:
                 file=root/path;text=re.sub(r'^Plan approved:.*\n?', '',file.read_text(encoding='utf-8'),flags=re.M)
                 lines=text.splitlines();lines.insert(1,'\nPlan approved: '+state+' '+datetime.now().astimezone().isoformat(timespec='seconds'))
                 file.write_text('\n'.join(lines)+'\n',encoding='utf-8')
+            planning=[]
             for file in (root/'tasks').glob('*.md'):
                 text=file.read_text(encoding='utf-8')
                 if 'Kind: planning' in text:
+                    planning.append(file.relative_to(root).as_posix())
                     file.write_text(text.replace('- [ ]','- [x]'),encoding='utf-8')
                     roadmap=root/'ROADMAP.md';roadmap.write_text(re.sub(r'^(\s*[-*+]) \[ \](.*\(tasks/'+re.escape(file.name)+r'\))',r'\1 [x]\2',roadmap.read_text(encoding='utf-8'),flags=re.M),encoding='utf-8')
             plan.update(pending=False,approved=True,index=0,check_in=False,finished=False)
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
+            self.commit_approval(root,plan,planning)
             self.settle_waiting(root,'Start Building' if state=='chosen' else 'Run on its own')
             item['new_plan']=False
             self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building',request=request)
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
             record_decision(self.data,request,'plan_approval','code' if state=='auto' else 'person','approved',rule='G-015',automatic=state=='auto')
             return self.plan_status(request)
+
+    def commit_approval(self, root, plan, planning):
+        """Task 324 (live 2026-10-19): the approval is the harness's own paperwork, committed at once (the approved and
+        waiting task files, the planning task it completes, ROADMAP.md), so no later request's commit sweeps it in.
+        Outside a git repository, or with nothing to commit, nothing happens."""
+        paths=[path for path in dict.fromkeys(['ROADMAP.md',*plan.get('tasks',[]),*plan.get('waiting',[]),*planning]) if (root/path).is_file()]
+        try:changed=changed_paths(root)
+        except CheckFailed:changed=None
+        paths=[path for path in paths if changed is not None and path in changed]
+        if not paths:return None
+        count=len(plan['tasks'])
+        return self.commit(root,paths,f"Plan approved: {count} task{'s' if count!=1 else ''}")
 
     # -- a request's life -------------------------------------------------------------------------------------------
     def start(self, request, cwd, text):
@@ -622,6 +637,11 @@ class Paperwork:
             active=plan['tasks'][plan.get('index',0)] if plan.get('approved') and not plan.get('finished') and not plan.get('check_in') and 0<=plan.get('index',0)<len(plan.get('tasks',[])) else None
             if item['task'] in plan.get('tasks',[])+plan.get('waiting',[]) and item['task']!=active:
                 item['task']=None;item['other_task']=True  # task 260: naming a planned task that is not in progress does not make it this request's
+            elif item['task'] and (task_kind(root,item['task'])=='planning' or active and item['task'] not in plan.get('tasks',[])):
+                # Task 324 (live 2026-10-19): "Continue task 1" named tasks/001, the done planning task, and the work of the
+                # approved task in progress was recorded and committed there. A planning task is never a request's task, and
+                # while an approved task is in progress a task outside the plan is not either: the request's task is the one in progress.
+                item['task']=None
             from harness.autonomy import enabled
             if self.runs and enabled(self.data):item['auto_run']=self.runs.begin(root)
             self.requests[request]=item
@@ -675,14 +695,21 @@ class Paperwork:
         """A test run Gate saw: written into the task's progress."""
         with self.lock:
             item = self.requests.get(request)
-            if not item or not item['task'] or not test_invocation(command): return
+            if not item or not test_invocation(command): return
+            # Task 324 (live 2026-10-19): a test run is work on the approved task in progress, so the request takes it as its
+            # task (a question that runs nothing still never does, task 260).
+            if not item['task'] and item.get('candidate'): item['task'] = item['candidate']
+            if not item['task']: return
             text = (item['root'] / item['task']).read_text(encoding='utf-8')
             if not passed and '- [x] Red:' not in text:
                 self.progress(item, f'Red: `{command}` failed at {clock()}')
             if passed:
                 item['test_command'] = command  # the harness proves Red with it at the end, if Pi did not show it
                 answer = self.protocol.verification(item['root'])
-                if answer and answer[2]:
+                # Task 324: a test that passes before this request changed anything is not evidence (task 260: Red comes from
+                # this change), so it is not written as Green; the end names it.
+                if not [path for path in self.changes(item) if not plan_path(path)]: item['stale_pass'] = command
+                elif answer and answer[2]:
                     line = f'- [x] Green: `{command}` passed at {clock()}'
                     if '- [x] Green:' in text: self.write(item, re.sub(r'- \[x\] Green: .*', line.replace('\\', r'\\'), text, count=1))
                     else: self.progress(item, line[6:])
@@ -741,7 +768,14 @@ class Paperwork:
                     saved = self.commit(root, changed, self.subject(item, ', not verified'), f'Not verified: {reason}.')
                     return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
                 if not paperwork: return {'outcome': 'nothing changed'}
-                saved = self.commit(root, paperwork, self.subject(item, ', plan'))
+                if self.phases.get(root)['phase'] == 'implementation' and in_plan and task_kind(root, task) in ('code', 'docs', 'chore'):
+                    # Task 324: in Implementation, notes on a planned task that is not the approved one in progress complete
+                    # nothing and are never committed as "Done"; they stay with the task until it is built.
+                    return {'outcome': 'not verified', 'task': task, 'reason': 'this task is not the approved task in progress; nothing was built'}
+                # Task 324 (live: "(task 003, plan)" for a code task): a proposal is named as one; otherwise the task's own Kind.
+                count = len(plan.get('tasks', []))
+                subject = f"Plan proposed: {count} task{'s' if count != 1 else ''}" if item.get('proposed') else self.subject(item, ', ' + (task_kind(root, task) or 'plan'))
+                saved = self.commit(root, paperwork, subject)
                 return {'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
             # Task 260: only the task's Files are its work; anything else stays out of its commit and is named.
             outside = [path for path in content if not file_allowed(text, path)]
@@ -768,8 +802,9 @@ class Paperwork:
             if planned and not publish and kind == 'code' and not implementation_paths(code):
                 # An empty implementation is not documentation work. Keep existing task/roadmap
                 # evidence and HEAD intact; end() persists the truthful unverified check-in.
+                stale = f"; `{item['stale_pass']}` already passed before any change, so it is not evidence" if item.get('stale_pass') else ''
                 return {'outcome': 'not verified', 'task': task,
-                        'reason': 'no implementation change for the approved code task; paperwork or tests alone do not complete it'}
+                        'reason': 'no implementation change for the approved code task; paperwork or tests alone do not complete it'+stale}
             if planned and not publish and kind in ('docs', 'chore') and not [path for path in inside if not plan_path(path)]:
                 # Task 260: a docs or chore task is done only when one of its files changed.
                 return {'outcome': 'not verified', 'task': task,
@@ -933,7 +968,7 @@ class Paperwork:
         from harness.context import mentioned  # the same reading of "task 2" as the context Pi gets
         root = item['root']
         names = sorted(path.relative_to(root).as_posix() for path in (root / 'tasks').glob('*.md'))
-        named = [name for name in mentioned(item['text'], names) if name.startswith('tasks/')]
+        named = [name for name in mentioned(item['text'], names) if name.startswith('tasks/') and task_kind(root, name) != 'planning']  # task 324
         if named:
             text = (root / named[0]).read_text(encoding='utf-8')
             if PROGRESS not in text: (root / named[0]).write_text(text.rstrip('\n') + f'\n\n{PROGRESS}\n', encoding='utf-8')
