@@ -24,6 +24,7 @@ export function fileLines(files) {
 
 export function doneRow(commit, { project, api, ask, showPreview, send, changed, checkIn, checkState, checkActions }) {
   const row = node('section', 'pw-done'); row.setAttribute('aria-label', 'What was done');
+  const { run } = undoActions(commit, { project, api, ask, send, changed });
   const fill = data => {
     const files = data.files.length, head = node('p', 'pw-done__head'), actions = node('div', 'pw-done__actions');
     const undoRow = Boolean(data.undo_of), redoRow = /^Redo: /.test(data.title);
@@ -49,6 +50,12 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed,
     catch { row.replaceChildren(node('p', 'pw-done__head', 'This change is no longer in the project’s history.')); }
   };
 
+  load();
+  return row;
+}
+
+/** Undo This Request… and Redo Request…: the before-undo check, then harness/undo.py and its alerts (task 203, 208). */
+function undoActions(commit, { project, api, ask, send, changed }) {
   async function run(data, kind) {
     const name = firstSentence(data.person, data.name), files = data.files.length;
     const summary = node('details', ''); summary.open = true;
@@ -84,9 +91,13 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed,
     }
     await ask({ icon: 'note', message: result.message, danger: 'Cancel', safe: 'OK', plain: true });
   }
+  return { run };
+}
 
-  load();
-  return row;
+/** Undo This Request… for a commit shown outside its DoneRow (review P2: under an answer a crash or a stop cut short). */
+export async function undoRequest(commit, deps) {
+  if (!cache.has(commit)) cache.set(commit, await deps.api('/api/undo', { project: deps.project, commit, preview: true }));
+  await undoActions(commit, deps).run(cache.get(commit), 'undo');
 }
 
 export function forgetDone() { cache.clear(); }

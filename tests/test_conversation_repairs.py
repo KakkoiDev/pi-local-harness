@@ -301,6 +301,13 @@ class EndedAnswerTest(unittest.TestCase):
         self.assertEqual(answers[0]['ended']['state'], 'failed'); self.assertIn('segfault', answers[0]['ended']['reason'])
         self.assertNotIn(job, self.ledger.paperwork.requests, 'Gate got the request’s end')
 
+    def test_a_crash_before_any_text_still_says_so_in_the_chat(self):
+        job, error, messages = self.run_request('Do the thing TEST_FAIL')
+        self.assertIn('Model crashed', error)
+        self.assertEqual(messages[-1]['role'], 'assistant'); self.assertEqual(messages[-1]['content'], '')
+        self.assertEqual(messages[-1]['ended']['state'], 'failed'); self.assertIn('Model crashed', messages[-1]['ended']['reason'])
+        self.assertEqual(messages[-1]['ended']['job'], job)
+
     def test_a_crash_after_the_answer_keeps_the_whole_answer(self):
         _, error, messages = self.run_request('Explain TEST_CRASH_AFTER_END')
         self.assertIn('crash after message_end', error)
@@ -317,7 +324,7 @@ class EndedAnswerTest(unittest.TestCase):
         job, error, messages = self.run_request('Explain TEST_STREAM_WAIT')
         self.assertEqual(error, 'Stopped')
         self.assertEqual(messages[-1]['content'], 'PARTIAL before the stop')
-        self.assertEqual(messages[-1]['ended'], {'state': 'stopped'})
+        self.assertEqual(messages[-1]['ended'], {'state': 'stopped', 'job': job}, 'Retry queues this request again')
         self.assertNotIn(job, self.ledger.paperwork.requests)
 
     def test_a_failed_request_shows_the_question_it_left_waiting(self):

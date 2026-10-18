@@ -33,7 +33,10 @@ Built as the smallest version with existing classes; the designer has not drawn 
 - A question settled without an answer (approval or a new plan replaced it): an old-style settled line, “Park or drop? ·
   not answered: settled by Start Building” (`pw-card--settled pw-card--old`, no glyph).
 - The line under an answer a crash or a stop cut short (`p.pw-help.message-ended`): “Stopped by you before Pi
-  finished.” with the stopped icon, or “Failed before Pi finished: <reason>” with the caution icon.
+  finished.” with the stopped icon, or “Failed before Pi finished: <reason>” with the caution icon. Shown even when Pi
+  wrote nothing yet (review P2, US-075), with Retry (queues the same request again, as Activity's Ask Pi to Retry…
+  without a note) and, when Gate committed what the request changed, Undo This Request… (the DoneRow's undo), in a
+  `pw-done__actions` row.
 
 ## Verified, and not verified
 

@@ -28,6 +28,8 @@ PROGRESS = '## Progress (kept by the harness)'
 # Task 263: the Goal section ends at the next heading or at the first task box; with no heading after it, the old
 # pattern ran to the end of the file and propose_plan erased the roadmap's task lines.
 GOAL = r'^## Goal\s*\n(.*?)(?=^## |^\s*[-*+] \[[ xX~]\]|\Z)'
+# Task 293 (NEW-2): where the recorded decisions keep a Planning answer given before the plan has a task.
+UNPLANNED = '(before the plan)'
 
 
 def open_boxes(text):
@@ -234,18 +236,34 @@ class Paperwork:
             labels=[option['label'] for option in waiting.get('options',[])]
             record_decision(self.data,request,'question_answer','code' if state=='auto' else 'person',{'option':labels.index(clean(answer))} if clean(answer) in labels else 'other',rule='auto.recommendation' if state=='auto' else None,automatic=state=='auto')
             if not item['task'] and item.get('candidate'):item['task']=item['candidate']
-            if self.phases.get(item['root'])['phase']=='discussion' or not item['task']:
+            phase=self.phases.get(item['root'])['phase'];plan=self.plan_state(item['root'])
+            # Task 293: in Planning, a plan waiting for Start Building takes an answer its request had no task for.
+            task=item['task'] or (plan['tasks'][0] if phase=='planning' and plan.get('pending') and plan.get('tasks') else None)
+            if phase=='discussion' or not task:
                 # Discussion choices, and choices of a request without a task (task 260: a question never creates one),
                 # live in harness data, never in the project's plan files.
                 waiting=self.waiting_choice(item['root']) or {}
                 value={**waiting,'task':None,'question':clean(question),'answer':clean(answer),'state':state,'pending':False,
                        'at':datetime.now().astimezone().isoformat(timespec='seconds')}
                 self.save_choice(item['root'],value)
+                # Task 293 (NEW-2): a Planning answer given before the plan exists waits for the plan's first task.
+                if phase=='planning':self.keep_decision(item['root'],UNPLANNED,{key:value[key] for key in ('question','answer','state','at')})
                 if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',value)
                 return {key:value[key] for key in ['task','question','answer','state']}
-            was_approved=self.plan_status_for_item(item)
-            path=item['root']/item['task'];text=path.read_text(encoding='utf-8')
-            line=f"- {clean(question)}: {clean(answer)} ({state} {datetime.now().astimezone().isoformat(timespec='seconds')})\n"
+            was_approved=self.plan_status_for_item({**item,'task':task})
+            self.write_decision(item['root'],task,{'question':clean(question),'answer':clean(answer),'state':state,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
+            if was_approved or plan.get('pending') and task in plan.get('tasks',[]):  # the harness's own decision line is not a change of scope
+                plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
+            waiting=self.waiting_choice(item['root'])
+            if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
+            if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',{'task':task,'question':clean(question),'answer':clean(answer)})
+            return {'task':task,'question':clean(question),'answer':clean(answer),'state':state}
+
+    def write_decision(self, root, task, value):
+        """The decision's line in the task's Decisions section (only the harness writes one, G-017) and its record."""
+        with self.lock:
+            path=root/task;text=path.read_text(encoding='utf-8')
+            line=f"- {value['question']}: {value['answer']} ({value['state']} {value['at']})\n"
             section=re.search(r'^## Decisions\s*\n',text,re.M)
             if not section:text=text.rstrip()+'\n\n## Decisions\n\n'+line
             else:
@@ -253,13 +271,18 @@ class Paperwork:
                 position=section.end()+end.start() if end else len(text)
                 text=text[:position].rstrip()+'\n'+line+'\n'+text[position:]
             path.write_text(text,encoding='utf-8')
-            self.keep_decision(item['root'],item['task'],{'question':clean(question),'answer':clean(answer),'state':state,'at':datetime.now().astimezone().isoformat(timespec='seconds')})
-            if was_approved:
-                plan=self.plan_state(item['root']);plan['digest']=self.plan_digest(item['root'],plan['tasks']);self.plan_state(item['root'],plan)
-            waiting=self.waiting_choice(item['root'])
-            if waiting and waiting['question']==clean(question):self.save_choice(item['root'],{**waiting,'pending':False,'answer':clean(answer),'state':state})
-            if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',{'task':item['task'],'question':clean(question),'answer':clean(answer)})
-            return {'task':item['task'],'question':clean(question),'answer':clean(answer),'state':state}
+            self.keep_decision(root,task,value)
+
+    def carry_decisions(self, root, task):
+        """Task 293 (NEW-2): the Planning answers given before the plan had a task go into its first task, once."""
+        with self.lock:
+            held=self.recorded_decisions(root,UNPLANNED)
+            if not held:return
+            values=self.all_recorded(root);values.pop(UNPLANNED,None);file=self.decisions_file(root)
+            if file:
+                temporary=file.with_suffix('.tmp');temporary.write_text(json.dumps(values,ensure_ascii=False),encoding='utf-8');temporary.replace(file)
+            else:self.recorded[self.project_key(root)]=values
+            for value in held:self.write_decision(root,task,value)
 
     # -- decisions the harness recorded (task 261): G-017 and the plan card read these, never lines Pi wrote -----------------
     def decisions_file(self, root):
@@ -467,6 +490,7 @@ class Paperwork:
                 if not (root/path).resolve().is_relative_to(root):raise ValueError('Task must stay inside the project.')
                 text=(root/path).read_text(encoding='utf-8')
                 if 'Kind: audit' in text or 'Kind: planning' in text:continue
+                if not tasks and self.recorded_decisions(root,UNPLANNED):self.carry_decisions(root,path);text=(root/path).read_text(encoding='utf-8')
                 title=re.search(r'^# (?:\d+: )?(.+)',text,re.M)
                 done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 if not title or not done:raise ValueError('Each task needs a title and Done when.')

@@ -328,7 +328,7 @@ story('US-040', 'a choice in Planning: the recommended option first, the answer 
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.match(t.bench.read(root, 'tasks', task), /- Who uses it\?: A team \(chosen /, 'the answer is in the planned task’s Decisions');
   assert.ok(decisions(t).some(row => row.kind === 'question_answer' && row.who === 'person'));
-}, { xfail: 'NEW-2 (not in the review; nearest open task 293): an answer given in Planning before the plan exists stays in harness data and never reaches the planned task’s Decisions (the plan card says 0 decisions)' });
+});
 
 story('US-041', 'a choice in Discussion: the answer stays in harness data and the project is untouched', async t => {
   const { page } = t;
@@ -534,8 +534,24 @@ story('US-075', 'Pi crashes mid-request: the chat itself says the request failed
   await newProject(t, 'Crash in chat');
   const id = await say(t, 'Do the thing TEST_SCRIPT=crash-midway'); await answered(t, id);
   await page.reload();
-  await page.locator('#messages, #error').filter({ hasText: /Model crashed|failed|stopped/i }).first().waitFor({ timeout: 5000 });
-}, { xfail: 'review P2 “a crash mid-answer keeps the partial text only in Activity; the chat shows nothing”' });
+  const answer = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last();
+  await answer.locator('.message-ended').filter({ hasText: 'Failed before Pi finished: Pi exited unexpectedly: Model crashed: out of memory' }).waitFor({ timeout: 5000 });
+  const again = page.waitForResponse(response => /\/api\/jobs\/[0-9a-f]{32}\/retry$/.test(response.url()));
+  await answer.getByRole('button', { name: 'Retry', exact: true }).click();
+  const retried = await (await again).json();
+  assert.equal(retried.retry_of, id, 'Retry queues the same request again');
+  assert.equal((await answered(t, retried.id)).message, 'Do the thing TEST_SCRIPT=crash-midway');
+  // What a crashed request changed is committed (not verified) by Gate; Undo This Request… under the line takes it back.
+  const { root } = await newProject(t, 'Crash after a write');
+  await givenApprovedTasks(t, root, [COUNT]);
+  await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=write-then-crash'));
+  assert.ok(exists(root, 'counter.py'));
+  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last(); await cut.waitFor();
+  await cut.getByRole('button', { name: 'Undo This Request…', exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
+  await page.locator('.pw-done').filter({ hasText: 'Undone' }).last().waitFor();
+  assert.equal(exists(root, 'counter.py'), false, 'the crashed request’s file is gone');
+});
 
 story('US-071', 'plh crashes while Pi works: after a restart the request is Interrupted, never repeated, and the chat goes on', async t => {
   let { page } = t;
