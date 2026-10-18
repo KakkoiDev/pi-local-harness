@@ -1,0 +1,13 @@
+{
+ "steps": [
+  {
+   "think": "Looking at the project first."
+  },
+  {
+   "read": "ROADMAP.md"
+  },
+  {
+   "hang": 600
+  }
+ ]
+}

@@ -142,3 +142,31 @@ Questions for the board: should a waiting message look like a dimmed user bubble
 so the transcript reads as "what I said, what waits"? Should the menu bar's "1 waiting" status jump to this list? Is
 the italic "Edited" acceptable in the 1-bit system, or should it be a glyph? Reorder (drag or Move Up/Down) was left out;
 draw it only if you think it is worth it.
+
+## Tool calls fixed, and "tools" in the model menu (task 326), not drawn yet
+
+The owner asked that small models (gemma4:e4b-mlx) really use their tools; the workbench now turns tool calls a model
+wrote as text into real calls. Built from existing parts; please draw if you want something else.
+
+- **Model menu:** each item's key now starts with "tools" for a model that can call tools ("tools · thinks · sees",
+  "tools · no thinking"); a model without tools still says "no tools" and is disabled. Same in the phone sheet.
+- **Activity › a request's facts:** a "Tool calls fixed" row: "1 written as text by gemma4:e4b-mlx, run as real calls
+  (read)". Shown only when it happened.
+- **Activity › above the list:** a `pw-help` note (`#activity-repairs`, role note) when a model needed fixes in 3
+  requests within 14 days: "gemma4:e4b-mlx often writes tool calls as text: the workbench fixed them in 4 recent
+  requests. Another model may work faster." Never a card, never blocking.
+
+Question for the board: should the note offer a control (Choose Another Model…) or stay text?
+
+## The chat critical path (task 324), built from existing parts
+
+- **A request the phase button started.** Choosing Planning after a discussion queues "Write the plan from our
+  discussion." (Implementation with an approved task: "Build the approved task."). The chat shows it with the
+  existing HarnessNotice (`Harness · Planning started from your discussion`), not as a "You" message. Please draw it
+  in R12_Conversation (desk and phone) if it should look different, e.g. with the phase glyph.
+- **A refused model switch.** While Pi works, picking another model no longer shows "Loading …"; the refusal ("Pi is
+  working. Switch models when the queue is empty.") is the existing toast at the top. A "Switch after this request"
+  offer would need a drawing.
+- **Progress words.** "Starting Pi…" then "Waiting for the model (it may be loading)…" replace "Preparing
+  attachments…" when nothing is attached. The CutLine reason for a stalled model is the board's own copy.
+

@@ -75,7 +75,9 @@ class BenchTest(unittest.TestCase):
             lines = runner.read_jsonl(Path(folder) / 'out/results.jsonl'); self.assertEqual(len(lines), 1)
             run = Path(result['folder']); self.assertTrue((run / 'project/pager.py').is_file()); self.assertTrue((run / 'answer.md').is_file()); self.assertTrue((run / 'check.txt').is_file()); self.assertTrue((run / 'regressions.txt').is_file())
             self.assertEqual(runner.summary(lines)[0], {'model': 'fake:1b', 'effort': 'low', 'harness': result['harness'], 'prompt_level': 'vague', 'mode': 'harness', 'runs': 1, 'solved': 0,
-                                                       'first_try': 0, 'verified': 0, 'pass_k': '0/1 (k=1)', 'minutes': round(result['seconds'] / 60, 1), 'wake_ups': 0.0, 'refusals': 0.0})
+                                                       'first_try': 0, 'verified': 0, 'pass_k': '0/1 (k=1)', 'minutes': round(result['seconds'] / 60, 1), 'wake_ups': 0.0, 'refusals': 0.0,
+                                                       'answer_words': result['answer_words'], 'tool_repairs': 0.0})
+            self.assertEqual((result['answer_words'], result['tool_repairs']), (2, 0), 'task 326: "[CANARY] reply 1" is two words of the model\'s')
             self.assertEqual((result['regressions'], result['resolved'], result['user_turns']), (True, False, 0), 'its own tests still pass; the fake Pi asked nothing')
 
     def test_when_pi_asks_the_scripted_user_answers(self):

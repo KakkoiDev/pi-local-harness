@@ -81,7 +81,7 @@ class RpcBridgeTest(unittest.TestCase):
             root=Path(directory);executable=root/'pi';executable.write_text('#!'+sys.executable+'\n'+Path('tests/fixtures/fake-pi.py').read_text());executable.chmod(0o755)
             chat=WebChat(root/'data',12345,3000,gate_token='shared-token');self.addCleanup(chat.close);conversation=chat.store.create();events=[]
             with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):chat.send(conversation['id'],{'message':'TEST_FINAL_TEXT'},events.append)
-            self.assertEqual([event['text'] for event in events if event['type']=='assistant_final'],['[CANARY] clean answer'])
+            self.assertEqual([event['text'] for event in events if event['type']=='assistant_final'],['clean answer'])
 
     def test_real_subprocess_protocol_preserves_session_and_streams(self):
         import os
@@ -97,7 +97,7 @@ class RpcBridgeTest(unittest.TestCase):
                 chat.send(conversation['id'],{'message':'Continue'},events.append)
             saved=chat.store.get(conversation['id'])
             self.assertEqual(len(saved['messages']),4)
-            self.assertEqual(saved['messages'][-1]['content'],'[CANARY] reply 2')
+            self.assertEqual(saved['messages'][-1]['content'],'reply 2')
             self.assertTrue(any(event['type']=='message_update' for event in events))
             self.assertEqual(events[-1]['type'],'done');self.assertEqual(chat.active,{})
             request=json.loads((chat.store.folder(conversation['id'])/'session.request.json').read_text())
@@ -190,8 +190,8 @@ class ProjectContextTest(unittest.TestCase):
             self.assertEqual(request['message'],'Continue first','the message is what was typed; context goes to the system prompt (task 114)')
             capture=json.loads((chat.store.folder(one['id'])/'session.environment.json').read_text())
             self.assertIn('Fresh roadmap unique marker',capture['context']);self.assertNotIn('Second',capture['context'])
-            self.assertEqual(chat.store.get(one['id'])['messages'][-1]['content'],'[CANARY] reply 2')
-            self.assertEqual(chat.store.get(two['id'])['messages'][-1]['content'],'[CANARY] reply 1')
+            self.assertEqual(chat.store.get(one['id'])['messages'][-1]['content'],'reply 2')
+            self.assertEqual(chat.store.get(two['id'])['messages'][-1]['content'],'reply 1')
             capture=json.loads((chat.store.folder(one['id'])/'session.environment.json').read_text())
             self.assertEqual(Path(capture['cwd']),chat.documents.project_path(first))
 
@@ -267,7 +267,7 @@ class LongRequestTest(unittest.TestCase):
         started = time.monotonic()
         self.chat.send(self.conversation['id'], {'message': 'Long work TEST_TICK'}, lambda event: None)
         self.assertGreater(time.monotonic() - started, 2.5, 'longer than the silence limit')
-        self.assertTrue(self.chat.store.get(self.conversation['id'])['messages'][-1]['content'].startswith('[CANARY]'))
+        self.assertTrue(self.chat.store.get(self.conversation['id'])['messages'][-1]['content'].startswith('reply'))
 
     def test_a_silent_pi_fails_with_a_clear_message(self):
         with self.assertRaisesRegex(ValueError, 'Pi sent nothing for 1.5 seconds'):
@@ -300,7 +300,7 @@ class DocumentContextTest(unittest.TestCase):
             self.assertIn('Earlier answer marker',comment_request['message'],'the whole thread, Pi\'s answers included')
             self.assertIn('Describe what we are building.',comment_env['context'],'the page is in the context')
             self.assertTrue(any(event.get('type')=='message_update' for event in events),'the answer still streams to the job')
-            self.assertEqual(next(item for item in chat.documents.get(path)['comments'] if item['id']==entry['id'])['agent_reply'],'[CANARY] reply 1')
+            self.assertEqual(next(item for item in chat.documents.get(path)['comments'] if item['id']==entry['id'])['agent_reply'],'reply 1')
 
 
 class PendingChoiceBridgeTest(unittest.TestCase):

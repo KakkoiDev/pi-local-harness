@@ -1,0 +1,27 @@
+{
+ "steps": [
+  {
+   "think": "Plan the counter."
+  },
+  {
+   "say": "[CANARY] The plan is ready."
+  },
+  {
+   "plan": {
+    "goal": "A click counter for one person.",
+    "tasks": [
+     {
+      "title": "Count clicks",
+      "kind": "code",
+      "files": [
+       "counter.py",
+       "tests/"
+      ],
+      "done_when": "Each click adds one.",
+      "content": "Test a click, then implement it."
+     }
+    ]
+   }
+  }
+ ]
+}

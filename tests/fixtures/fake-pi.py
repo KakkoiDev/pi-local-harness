@@ -45,6 +45,7 @@ def scripted_story():
     found=re.search(r'TEST_SCRIPT=([\w-]+)',request['message']);state=session.with_suffix('.script')
     resume=request['message'].strip().startswith('Choice: ') or request['message'].strip() in ('Build the approved task.','Continue the approved task.')
     if found:name,index=found[1],0
+    elif request['message'].strip()=='Write the plan from our discussion.' and (Path(os.environ.get('PI_FAKE_SCRIPTS','.'))/'plan-from-discussion.json').is_file():name,index='plan-from-discussion',0  # task 324: the Planning button's request
     elif state.exists() and resume:name,index=json.loads(state.read_text())
     else:return
     spec=json.loads((Path(os.environ['PI_FAKE_SCRIPTS'])/f'{name}.json').read_text(encoding='utf-8'))
@@ -110,6 +111,16 @@ def scripted_story():
             def bash():
                 done=subprocess.run(running.get('command') or step['bash'],shell=True,capture_output=True,text=True,timeout=120);return done.stdout+done.stderr,done.returncode
             tool(index,'bash','execute_command',{'command':step['bash']},bash)
+        if 'model' in step:  # task 326: ask "the model" through the workbench's tool-call repair proxy, as Pi's provider does, and run the calls it returns
+            import urllib.request
+            offered=[{'type':'function','function':{'name':'read','description':'Read a file','parameters':{'type':'object','properties':{'path':{'type':'string'}},'required':['path']}}}]
+            body={'model':'gemma4:e4b-mlx','stream':False,'messages':[{'role':'user','content':request['message']}],'tools':offered,'_pi_harness_request':job}
+            asked=urllib.request.Request(os.environ['PI_HARNESS_TOOL_REPAIR_URL']+'/chat/completions',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
+            with urllib.request.urlopen(asked,timeout=30) as response:message=json.load(response)['choices'][0]['message']
+            for number,call in enumerate(message.get('tool_calls') or []):
+                args=json.loads(call['function']['arguments'])
+                tool(f'{index}{number}',call['function']['name'],'read_file',args,lambda args=args:(Path(args['path']).read_text(errors='replace'),0) if Path(args['path']).is_file() else ('No such file',1))
+            if not message.get('tool_calls'):text='[CANARY] '+(message.get('content') or '')
         if 'hang' in step:time.sleep(step['hang'])
         if 'crash' in step:sys.stderr.write(step['crash']+'\n');sys.exit(3)
         if ('plan' in step or 'choice' in step) and automatic():
@@ -192,6 +203,21 @@ if request['message'].rstrip().endswith('TEST_ABORTED_CHOICE'):  # an abort text
     sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_NOTICE'):  # task 290: the extension's inline notice (a phase word)
     emit({'type':'extension_ui_request','method':'notify','message':'Harness notice: Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'})
+if 'TEST_HANG_AFTER_TOOL' in request['message']:  # 2026-10-18: a tool finishes, then the model stream stalls silently
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'Reading the roadmap first.'}})
+    emit({'type':'tool_execution_start','toolCallId':'call-stall','toolName':'read','args':{'path':'ROADMAP.md'}})
+    emit({'type':'tool_execution_end','toolCallId':'call-stall','toolName':'read','isError':False})
+    session.with_suffix('.pid').write_text(str(os.getpid()))
+    time.sleep(600)
+if 'TEST_OLLAMA_DOWN' in request['message']:  # what Pi says when Ollama does not answer at all
+    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'error','errorMessage':'Connection error.'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
+if 'TEST_MODEL_ERROR' in request['message']:  # the model answers with an error (Ollama 500)
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'Starting the answer'}})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Starting the answer'}],'stopReason':'error','errorMessage':'500: {"error":"model runner has unexpectedly stopped"}'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_PHASE_PLAN'):
@@ -250,6 +276,7 @@ if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts
 if request['message'].rstrip().endswith('TEST_REFUSED'):  # another agent holds the lock
     emit({'type':'extension_ui_request','method':'notify','message':'Harness refused: One agent is already working. Wait or stop the active task before starting another.'})
     sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_SLOW_START'):time.sleep(3)  # 2026-10-19: a big model loads and reads a long prompt before its first token
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
         emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})
@@ -264,6 +291,8 @@ if request['message'].rstrip().endswith('TEST_WAIT'):
 else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})
     text=f'[CANARY] reply {count}'
+    if 'TEST_CANARY_CODE' in request['message']:text=f'`[CANARY]` reply {count}'  # the owner's model, 2026-10-18
+    if 'TEST_CANARY_BOLD' in request['message']:text=f'**[CANARY]**\n\nreply {count}'
     if 'TEST_ASK' in request['message']:text='[CANARY] I can do that two ways. Should I keep the old name too?'  # the bench's scripted user answers it
     if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.\n\n| If you are… | Action | A very long example column that should scroll on a phone |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう and a much longer cell to push the width |'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})

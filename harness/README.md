@@ -28,8 +28,10 @@ applies the next time plh starts). A variable already set in your shell wins ove
 |---|---|---|---|
 | `gate_port`, `web_port` | `PI_GATE_PORT`, `PI_WEB_PORT` | 8000, 3000 | Ports; 0 chooses one |
 | `silence_seconds` | `PI_HARNESS_SILENCE_SECONDS` | 3600 | A request stops after this long without a word from Pi |
+| `model_silence_seconds` | `PI_HARNESS_MODEL_SILENCE_SECONDS` | 120 | While Pi waits for the model: this long with no token, thought or tool call fails the request (“the model stopped answering”) and the next one starts |
 | `hang_seconds` | `PI_HANG_MS` (×1000) | 60 | Thought-phase inactivity before abort, compact and re-ask |
 | `ollama_url` | `PI_OLLAMA_URL` | http://127.0.0.1:11434 | Where Ollama answers |
+| `tool_repair`, `tool_repair_port` | `PI_TOOL_REPAIR`, `PI_TOOL_REPAIR_PORT` | true, 0 | Pi reaches Ollama through the tool-call repair proxy (task 326); 0 chooses its port |
 | `gate_auth` | `PI_GATE_AUTH` | admin | Gate profile; both enforce destructive-shell rules |
 | `whisper_model` | `PI_WHISPER_MODEL` | whisper-base-mlx | Transcription model |
 | `remote_hosts`, `remote_users` | `PI_WEB_REMOTE_HOSTS`, `PI_WEB_REMOTE_USERS` | none | Phone access over the tailnet |

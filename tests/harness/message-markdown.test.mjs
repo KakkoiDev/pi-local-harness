@@ -10,6 +10,15 @@ test('the reply marker is the harness’s, not the reader’s', () => {
   assert.equal(spoken(''), '');
 });
 
+test('the marker in code or bold is hidden too, and never flashes while a reply streams (task 324)', () => {
+  assert.equal(spoken('`[CANARY]` Done.'), 'Done.');
+  assert.equal(spoken('**[CANARY]**\n\nDone.'), 'Done.');
+  assert.equal(spoken('[CANARY]\n- one\n- two'), '- one\n- two', 'a list after the marker keeps its first bullet');
+  assert.equal(spoken('[CANARY]\n**Bold** start'), '**Bold** start');
+  for (const head of ['[', '[CAN', '`[CANARY', '**[CANARY]']) assert.equal(spoken(head, true), '', head);
+  assert.equal(spoken('[CAN'), '[CAN', 'only while streaming');
+});
+
 test('inline marks become tokens, never HTML', () => {
   assert.deepEqual(inlineTokens('a **b** `c` *d* [e](https://x.test/y) <b>f</b>'), [
     { type: 'text', text: 'a ' }, { type: 'strong', text: 'b' }, { type: 'text', text: ' ' }, { type: 'code', text: 'c' },
@@ -38,4 +47,17 @@ test('model reply shapes: a list right under text, a numbered list split by code
  assert.deepEqual(messageBlocks('Steps:\n1. one\n2. two').map(block=>block.tag),['p','ol']);
  const split=messageBlocks('1. one\n\n```\ncode\n```\n\n2. two');assert.equal(split.at(-1).start,2,'keeps counting after the code block');
  assert.deepEqual(messageBlocks('> a\n> b\n\n> c').map(block=>block.text),['a\nb','c']);
+});
+
+test('underscores inside identifiers never start emphasis (task 324: add_habit, get_daily_stats)', () => {
+  assert.deepEqual(inlineTokens('Call add_habit and get_daily_stats.'), [{ type: 'text', text: 'Call add_habit and get_daily_stats.' }]);
+  assert.deepEqual(inlineTokens('an _emphasised_ word'), [{ type: 'text', text: 'an ' }, { type: 'em', text: 'emphasised' }, { type: 'text', text: ' word' }]);
+  assert.deepEqual(inlineTokens('snake_case_name'), [{ type: 'text', text: 'snake_case_name' }]);
+});
+
+test('a small model’s numbered questions with lettered options become nested lists (task 324)', () => {
+  assert.deepEqual(messageBlocks('1. Which colour?\n   * A) Red\n   * B) Blue\n2. Which size?\n   * A) Big').map(block => block.items), [[
+    { text: 'Which colour?', items: ['A) Red', 'B) Blue'], checked: undefined }, { text: 'Which size?', items: ['A) Big'], checked: undefined }]]);
+  assert.deepEqual(messageBlocks('1. Which colour? * A) Red * B) Blue')[0].items[0], { text: 'Which colour?', items: ['A) Red', 'B) Blue'], checked: undefined });
+  assert.deepEqual(messageBlocks('```\n1. x\n   * y\n```'), [{ tag: 'pre', text: '1. x\n   * y' }], 'code stays code');
 });

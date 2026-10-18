@@ -96,7 +96,10 @@ back into the composer. Activity lists waiting messages too. In terminal Pi: `/q
 
 ## Can Pi work on a long task?
 
-Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). When
+Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`), or
+if the model itself stops answering: while Pi waits for the model, two minutes with no token, thought or tool call end
+the request as failed, with what Pi wrote so far and Retry, and the next request starts (`/config set
+model_silence_seconds …`; a running command or the harness's own checks are not the model). When
 Pi stops with work open (code changed and no test passed on it, a loop, a hang), the harness wakes it to continue, at
 most `wake_ups` times per request (default 5; `/config set wake_ups …`, 0 for no limit). Stop
 ends a request at any time: in Chat, in Activity, or ⌘. .
@@ -111,6 +114,19 @@ memory. In terminal Pi: `/models` lists the installed models and what they can d
 
 In terminal Pi: `/models pull <name>` downloads it (large models are many GB), `/models remove <name>` moves it to the
 Trash. Both ask first. `/models check <name>` measures whether it answers two requests at once.
+
+## Why does Pi fix small models' tool calls?
+
+Small local models such as gemma4:e4b-mlx can call tools, but they often write the call as text instead (for example
+`<execute_tool>read{path:app/db.py}</execute_tool>`, or `read(path="app/db.py")` on the last line), and then nothing
+runs. Pi Workbench sits between Pi and Ollama and turns such text into a real call, by fixed rules: only for a tool the
+request offered, only when the arguments fit that tool, and never from prose or a code example that merely mentions a
+tool. The call then runs through Gate like any other. Each fix is logged as an automatic decision made by code, without
+file contents; Activity shows "Tool calls fixed" on the request and names a model that keeps needing it. The model menu
+says "tools" only for models that can call tools. Turn it off with `/config set tool_repair false` (next start of plh).
+
+Every model is also asked to answer as briefly as possible: no restated request, repeated plan or filler. Questions
+still come as cards, and errors, how a change was verified and what you must approve stay complete.
 
 ## How do I use it from my phone or another device?
 
@@ -198,6 +214,13 @@ sandbox is not there yet (Linux: bubblewrap, planned).
 ## How do I check whether my app is ready to publish?
 
 Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confirmation it runs the publication checks offline and records each command in the last roadmap task. Failed commands leave their boxes open. The full test result is logged. Other roadmap tasks must also be complete. Missing tools require a separate approved installation; the audit never downloads them. App descriptions are checked for starter leftovers and consistent README, manifest and English app names; arbitrary prose still needs human review.
+
+## Does choosing Planning start the plan?
+
+Yes, when you have discussed something in the chat: choosing Planning with the phase button asks Pi to write the plan
+from your discussion (the chat says "Harness · Planning started from your discussion"); if Pi is busy, it starts after
+the current request. On an empty chat nothing starts: write what you want planned. Choosing Implementation with an
+approved task starts that task. Pi itself never changes the phase.
 
 ## Why does Pi ask me to choose?
 
