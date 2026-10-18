@@ -103,6 +103,16 @@ class StalledModelTest(FakePi):
         self.assertGreater(time.monotonic() - started, 3, 'longer than the model limit in all')
         self.assertRegex(self.messages()[-1]['content'], r'^reply \d+$')
 
+    def test_a_slow_first_token_is_not_a_stall(self):
+        """2026-10-19 (live): qwen3.8:27b took over 120 s to load and read a long prompt; the request was healthy."""
+        with patch.object(web_chat, 'MODEL_START', 10):
+            self.chat.send(self.conversation, {'message': 'Start slowly TEST_SLOW_START'}, lambda event: None)  # 3 s before any output
+        self.assertRegex(self.messages()[-1]['content'], r'^reply \d+$')
+
+    def test_a_model_that_never_starts_fails_with_its_own_reason(self):
+        with patch.object(web_chat, 'MODEL_START', 2), self.assertRaisesRegex(ValueError, r'^the model did not start answering \(no reply in 2 s\)\.$'):
+            self.chat.send(self.conversation, {'message': 'Start slowly TEST_SLOW_START'}, lambda event: None)
+
     def test_long_work_that_keeps_reporting_is_not_stalled(self):
         self.chat.send(self.conversation, {'message': 'Long work TEST_TICK'}, lambda event: None)
         self.assertNotIn('ended', self.messages()[-1])

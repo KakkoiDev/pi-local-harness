@@ -56,10 +56,18 @@ SILENCE=float(os.getenv('PI_HARNESS_SILENCE_SECONDS','3600'))
 # for the harness's own paperwork or compaction, not paused for the chat), this much silence ends the request as failed:
 # "the model stopped answering (no reply in 120 s)". A thinking model streams tokens, so it is never silent this long.
 MODEL_SILENCE=float(os.getenv('PI_HARNESS_MODEL_SILENCE_SECONDS','120'))
+# 2026-10-19 (live, qwen3.8:27b): a big model loading and reading a long prompt sent nothing for over 120 s before its
+# first token and the watchdog failed a healthy request. Until the model's first output in a request, the longer
+# model_start_seconds applies; once it has spoken, a silence of MODEL_SILENCE means it stopped.
+MODEL_START=float(os.getenv('PI_HARNESS_MODEL_START_SECONDS','900'))
 
 
 def model_silence_reason(seconds):
     return f'the model stopped answering (no reply in {seconds:g} s).'
+
+
+def model_start_reason(seconds):
+    return f'the model did not start answering (no reply in {seconds:g} s).'
 
 
 def silence_words(seconds):
@@ -751,7 +759,7 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
-            heard=time.monotonic();settled=False;thought=''
+            heard=time.monotonic();settled=False;thought='';spoke=False  # spoke: the model has sent its first output (MODEL_START until then)
             # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
             # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
             tools_running=set();harness_turn=False;compacting=False
@@ -765,8 +773,8 @@ class WebChat:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
-                if not settled and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>MODEL_SILENCE:
-                    raise ValueError(model_silence_reason(MODEL_SILENCE))
+                if not settled and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>(MODEL_SILENCE if spoke else max(MODEL_START,MODEL_SILENCE)):
+                    raise ValueError(model_silence_reason(MODEL_SILENCE) if spoke else model_start_reason(max(MODEL_START,MODEL_SILENCE)))
                 if cancelled.is_set():raise ValueError('Stopped')
                 if settled and harness_done:break
                 try:event=events.get(timeout=2 if settled else .5)  # plan 184: room for the harness to wake Pi after it settles (a fallback: it says "Harness settled")
@@ -775,6 +783,7 @@ class WebChat:
                     continue
                 heard=time.monotonic()
                 kind=event.get('type') if isinstance(event,dict) else None
+                if kind in ('message_update','tool_execution_start'):spoke=True
                 if kind=='tool_execution_start':tools_running.add(event.get('toolCallId') or f'tool-{len(tools_running)}')
                 elif kind=='tool_execution_end':
                     if event.get('toolCallId') in tools_running:tools_running.discard(event.get('toolCallId'))

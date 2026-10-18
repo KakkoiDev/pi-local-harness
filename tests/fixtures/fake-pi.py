@@ -276,6 +276,7 @@ if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts
 if request['message'].rstrip().endswith('TEST_REFUSED'):  # another agent holds the lock
     emit({'type':'extension_ui_request','method':'notify','message':'Harness refused: One agent is already working. Wait or stop the active task before starting another.'})
     sys.stdin.readline();sys.exit(0)
+if request['message'].rstrip().endswith('TEST_SLOW_START'):time.sleep(3)  # 2026-10-19: a big model loads and reads a long prompt before its first token
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
         emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':f'Thinking step {step}.\n' if step else '**Plan** the reply. '+'averyveryverylongunbrokenwordthatmustwrap'*4+'\n\n'}})
