@@ -50,3 +50,23 @@ bench/runner.py, js/chat.mjs, js/workspace.mjs, tests.
 
 - A refused person control (403 “Reload the page”) shows as the generic error line; the designer may want its own
   message and a Reload button.
+
+## Round 12 build (design round 12 step 3; board R12_Grant)
+
+- [x] Red (unit): a write outside the task's Files in Implementation is refused (G-015) with Gate's question “Pi wants to
+  change a file outside task N” (Add to Task N · Keep Out); the question keeps its scope when Pi's ask_choices sends it
+  again; Add writes the file into Files: and the plan stays approved; Keep Out, then a second need, asks “The plan needs
+  to change” (Re-plan → Planning by the person's answer · Keep the Plan → plain refusals) (tests/test_round12_checkins.py).
+- [x] Gate side in gate/scope.py (hooks in gate/ledger.py and Paperwork.decision / choice_pending); under Run on its own
+  the recommended answer is taken and reported, and no re-plan question is asked.
+- [x] What you grant on the plan card: Kind and Files of each task with their source tags (your answer · task file), above
+  Decisions (js/scope-cards.mjs; propose_plan sends `grant` per task).
+- [x] The scope card (Add to Task N default · Keep Out · Open the Task) and the re-plan card (Re-plan default · Keep the
+  Plan · Open the Plan).
+- [x] A person route refused for a stale secret answers `stale: true`; the page shows “This page is out of date after plh
+  restarted, so your choice wasn't sent. …” with Reload Page where the press happened, not the error line
+  (js/refusals.mjs); the reload keeps the chat's scroll position.
+- [x] Green: python3 tests/verify_workflow.py; browser suites (stories US-120, US-121).
+
+Not built: the “Laya” source tag (Laya does not decide Files today); the re-plan card does not list “what it adds and
+moves” (the new plan does not exist until Planning). Both are in design/briefs/round-12.md, part E.

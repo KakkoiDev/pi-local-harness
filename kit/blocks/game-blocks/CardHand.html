@@ -1,0 +1,14 @@
+<section id="hand-area" aria-label="Your hand" style="position:absolute;left:0;right:0;bottom:12px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px">
+  <div class="game-pile" role="img" aria-label="Deck: 18 cards"><span class="game-num">18</span></div>
+  <div class="game-hand" role="listbox" aria-label="Hand, 5 cards" aria-orientation="horizontal" style="--mid:2">
+    <button class="game-card" role="option" aria-selected="false" style="--i:0;--d:1" aria-describedby="card-1-text">
+      <span class="game-cost" aria-label="Cost 1">1</span>
+      <b data-t="card.spark">Spark</b>
+      <span class="game-art" aria-hidden="true"></span>
+      <span id="card-1-text" data-t="card.spark.text">Deal 3 damage.</span>
+    </button>
+    <!-- … one .game-card per card; --i its index, --d its distance from the middle (0, 1, 2) for the fan -->
+  </div>
+  <div class="game-pile" role="img" aria-label="Discard: 4 cards" style="opacity:.8"><span class="game-num">4</span></div>
+</section>
+<p class="game-row" style="position:absolute;right:16px;top:12px"><span data-t="cards.energy">Energy</span> <b class="game-num">3/3</b></p>

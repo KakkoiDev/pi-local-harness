@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from harness import documents
-from harness.web_chat import ProjectBusy, WebChat
+from harness.web_chat import ProjectBusy, TerminalBusy, WebChat
 
 
 class ProjectCommandsTest(unittest.TestCase):
@@ -109,8 +109,11 @@ class ProjectCommandsTest(unittest.TestCase):
         import json, os
         lock = self.store.root / '.agent-lock'; lock.write_text(json.dumps({'pid': os.getppid(), 'token': 'terminal'}))
         for command, data in [('rename', {'name': 'Other'}), ('move', {'parent': str(self.root)}), ('trash', {})]:
-            with self.assertRaisesRegex(ValueError, 'Pi is working in the terminal') as refused: self.chat.project_command(command, self.project, data)
+            words = {'rename': 'Can’t rename “Japanese study app” while', 'move': 'Can’t move “Japanese study app” while', 'trash': 'Can’t move “Japanese study app” to the Trash while'}[command]
+            with self.assertRaisesRegex(ValueError, words + ' terminal Pi works in it.') as refused: self.chat.project_command(command, self.project, data)
             self.assertNotIsInstance(refused.exception, ProjectBusy, 'no workbench request to show')
+            self.assertIsInstance(refused.exception, TerminalBusy, 'round 12 (R12_Renamed): the page shows its own alert')
+            self.assertEqual(refused.exception.command, command); self.assertRegex(refused.exception.since, r'^\d\d:\d\d$')
         self.assertTrue((self.code / 'Japanese study app').is_dir())
         self.assertEqual(self.chat.project_command('summary', self.project, {})['project'], self.project, 'reading is fine')
         lock.unlink()
@@ -145,6 +148,15 @@ class PreviewFollowsTest(unittest.TestCase):
         before = self.app().process; learning = self.code / 'learning'; learning.mkdir()
         moved = self.chat.project_command('move', self.project, {'parent': str(learning)})
         self.assertIsNotNone(before.poll()); self.assertEqual(self.app().process.args[-1], moved['path'])
+
+    def test_the_restarted_preview_says_where_it_runs_now(self):
+        """Round 12 (R12_Renamed): one note line once the app answers: “Restarted in the renamed folder: …”."""
+        self.chat.preview(self.project, 'start')
+        renamed = self.chat.project_command('rename', self.project, {'name': 'Store'})
+        self.app().state = 'running'
+        note = self.chat.preview(self.project, 'status')['note']
+        self.assertEqual(note['text'], 'Restarted in the renamed folder: ' + renamed['path'].replace(str(Path.home()), '~', 1))
+        self.assertRegex(note['time'], r'^\d\d:\d\d$')
 
     def test_a_stopped_preview_stays_stopped_and_trash_stops_the_app(self):
         self.chat.project_command('rename', self.project, {'name': 'Store'})

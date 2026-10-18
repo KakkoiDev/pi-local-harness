@@ -337,6 +337,29 @@ test('each request gets only the harness tools it needs (strategy 4)', async () 
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });
 
+test('a request that names an App Block gets its card, the foundation and the app_block tool (plan 266 item 7)', async () => {
+ const dir=mkdtempSync(join(tmpdir(),'pi-blocks-'));const saved={...process.env};
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_WEB_PORT:'3999'});
+ const handlers={};let active=['read','bash','edit','write'];const tools=[];
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},registerTool(tool){tools.push(tool.name);},registerCommand(){},sendUserMessage(){},
+  getActiveTools:()=>active,setActiveTools:names=>{active=names;},getAllTools:()=>['read','bash','edit','write',...tools].map(name=>({name}))};
+ try {
+  harness(pi,{root:dir+'/'});
+  const ctx={ui:{notify(){},setWidget(){},setStatus(){}},cwd:dir};
+  await handlers.session_start({},ctx);
+  await handlers.input({source:'rpc',text:'Add a login page to my app'},ctx);
+  assert.ok(active.includes('app_block'),'Pi can load one more card by name');
+  const prompt=handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt;
+  assert.match(prompt,/App Blocks for this request[\s\S]*^# LogIn$[\s\S]*^# AppFoundations$/m);
+  assert.doesNotMatch(prompt,/^# SignUp$/m,'only the matching card');
+  const row=JSON.parse(readFileSync(join(dir,'data','decisions.jsonl'),'utf8').trim().split('\n').at(-1));
+  assert.deepEqual([row.kind,row.who,row.rule,row.answer],['app_block_chosen','code','blocks.keywords',['LogIn']]);
+  await handlers.input({source:'rpc',text:'Write a README'},ctx);
+  assert.ok(!active.includes('app_block'));
+  assert.doesNotMatch(handlers.before_agent_start({systemPrompt:'Base'}).systemPrompt,/App Blocks/);
+ } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
+});
+
 for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} recovery keeps its request until the resumed turn settles (task 227)`, async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-recovery-request-')),saved={...process.env},fetchBefore=globalThis.fetch;
  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_WEB_DATA:join(dir,'web'),PI_TRASH_DIR:join(dir,'trash'),PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});

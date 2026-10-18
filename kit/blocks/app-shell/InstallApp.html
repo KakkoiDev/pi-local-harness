@@ -1,0 +1,21 @@
+<section id="install-card" class="card gap-4 py-4" aria-labelledby="install-title" hidden>
+  <div class="flex items-start gap-3 px-4">
+    <img src="/static/icon-192.png" alt="" width="48" height="48" class="rounded-xl">
+    <div class="grid flex-1 gap-1">
+      <h2 id="install-title" class="font-semibold" data-t="install.title">Put Class Notes on your home screen</h2>
+      <p class="text-muted-foreground text-sm" data-t="install.body">It opens full screen and works offline, like an app.</p>
+    </div>
+  </div>
+  <!-- browsers that can install (Chrome, Edge, Samsung Internet) -->
+  <footer class="flex justify-end gap-2 px-4" id="install-prompt">
+    <button class="btn" data-variant="ghost" type="button" id="install-later" data-t="install.later">Not Now</button>
+    <button class="btn" type="button" id="install-now" data-t="install.action">Install</button>
+  </footer>
+  <!-- Safari on iPhone and iPad: steps instead of a button -->
+  <ol class="grid gap-2 px-4 text-sm" id="install-steps" hidden>
+    <li class="flex items-center gap-2"><span class="bg-muted grid size-6 place-items-center rounded-full text-xs">1</span><span data-t="install.ios.step1">Tap Share</span>
+      <svg class="size-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/></svg>
+      <span data-t="install.ios.step1_where">in the browser bar</span></li>
+    <li class="flex items-center gap-2"><span class="bg-muted grid size-6 place-items-center rounded-full text-xs">2</span><span data-t="install.ios.step2">Choose Add to Home Screen</span></li>
+  </ol>
+</section>

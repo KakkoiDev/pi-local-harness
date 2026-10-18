@@ -1,0 +1,17 @@
+<section class="grid gap-4" aria-labelledby="orders-title">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 id="orders-title" class="text-2xl font-semibold" data-t="orders.title">Your orders</h1>
+    <select class="select w-40" name="period" aria-label="Show" data-t-label="orders.period" data-t="orders.period"><option value="all" data-t="orders.period.all">All orders</option><option value="3m" data-t="orders.period.3m">Last 3 months</option><option value="2026">2026</option></select>
+  </div>
+  <!-- desktop (@3xl and up): the table; phone: the item list -->
+  <div class="hidden @3xl:block">
+<div class="table-container">
+  <table class="table">
+    <caption class="sr-only" data-t="orders.caption">Your orders, newest first</caption>
+    <thead><tr><th scope="col" data-t="orders.number">Order</th><th scope="col" data-t="orders.date">Date</th><th scope="col" data-t="orders.status">Status</th><th scope="col" class="text-right" data-t="orders.items">Items</th><th scope="col" class="text-right" data-t="orders.total">Total</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody><tr><td class="font-mono"><a href="/orders/2026-1042" class="hover:underline">2026-1042</a></td><td>18 Oct 2026</td><td><span class="badge" data-variant="outline" data-t="orders.status.pending">Awaiting payment</span></td><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">¥4,730</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-1042" aria-label="View order 2026-1042" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0987" class="hover:underline">2026-0987</a></td><td>2 Oct 2026</td><td><span class="badge" data-variant="secondary" data-t="orders.status.shipped">Shipped</span></td><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">¥2,800</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0987" aria-label="View order 2026-0987" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0911" class="hover:underline">2026-0911</a></td><td>14 Sep 2026</td><td><span class="badge" data-variant="primary" data-t="orders.status.delivered">Delivered</span></td><td class="text-right tabular-nums">4</td><td class="text-right tabular-nums">¥7,150</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0911" aria-label="View order 2026-0911" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0850" class="hover:underline">2026-0850</a></td><td>30 Aug 2026</td><td><span class="badge" data-variant="destructive" data-t="orders.status.cancelled">Cancelled</span></td><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">¥1,650</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0850" aria-label="View order 2026-0850" data-t="orders.view">View</a></td></tr></tbody>
+  </table>
+</div>
+  </div>
+  <ul class="item-group gap-2 @3xl:hidden" role="list"><!-- one item per order: number, date · items, status badge, total --></ul>
+</section>

@@ -1,0 +1,15 @@
+<section aria-labelledby="feed-title">
+  <h2 id="feed-title" class="sr-only" data-t="feed.title">Recent notes</h2>
+  <ul id="feed" class="grid gap-3" role="feed" aria-busy="false">
+    <li><article class="card" aria-posinset="1" aria-setsize="134" tabindex="0">…</article></li>
+    <!-- … 20 items per page … -->
+    <li id="feed-more" class="grid justify-items-center gap-2 py-4" role="none">
+      <button class="btn" data-variant="outline" type="button"
+              hx-get="/notes?after=n_0420" hx-target="closest li" hx-swap="outerHTML"
+              data-t="feed.more">Load More</button>
+      <p class="text-sm text-muted-foreground" data-t="feed.shown">Showing 20 of 134</p>
+    </li>
+  </ul>
+  <!-- automatic loading, only for browse feeds: when this enters the screen, press Load More -->
+  <div id="feed-sentinel" aria-hidden="true" class="h-px"></div>
+</section>

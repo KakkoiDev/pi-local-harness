@@ -1,0 +1,29 @@
+<header class="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-2 @3xl:px-4">
+  <button type="button" class="btn" data-variant="ghost" data-size="icon" aria-controls="sidebar" aria-expanded="false" aria-label="Show or hide the side panel" data-t-label="nav.toggle" onclick="document.getElementById('sidebar').toggle()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a href="/" class="font-semibold @3xl:hidden" data-t="app.name">Class Notes</a>
+  <form role="search" action="/search" class="@max-3xl:hidden w-full max-w-sm">
+    <label class="input-group">
+      <span data-align="start"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input type="search" name="q" placeholder="Search notes…" data-t-placeholder="top.search_hint" aria-label="Search notes" data-t-label="top.search">
+      <span data-align="end"><kbd class="kbd">⌘K</kbd></span>
+    </label>
+  </form>
+  <span class="flex-1"></span>
+  <button type="button" class="btn @3xl:hidden" data-variant="ghost" data-size="icon" aria-label="Search notes" data-t-label="top.search" onclick="document.getElementById('command').showModal()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  <a href="/notes/new" class="btn" data-size="sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span class="@max-3xl:sr-only" data-t="top.new">New Note</span></a>
+  <a href="/notifications" class="btn relative" data-variant="ghost" data-size="icon" aria-label="Notifications, 2 new"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-destructive" aria-hidden="true"></span></a>
+  <div id="account" class="dropdown-menu">
+    <button type="button" id="account-trigger" class="avatar" aria-haspopup="menu" aria-controls="account-menu" aria-expanded="false" aria-label="Account menu" data-t-label="top.account"><span>AY</span></button>
+    <div id="account-popover" data-popover aria-hidden="true" data-align="end">
+      <div role="menu" id="account-menu" aria-labelledby="account-trigger">
+        <div role="heading" class="flex-col items-start"><span class="font-medium">Aiko Yamada</span><span class="text-muted-foreground text-xs">aiko@example.com</span></div>
+        <hr role="separator">
+        <a role="menuitem" href="/profile"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg><span data-t="top.profile">Profile</span></a>
+        <a role="menuitem" href="/settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="top.settings">Settings</span></a>
+        <a role="menuitem" href="?lang=ja" lang="ja"><span data-t="top.language">日本語</span></a>
+        <hr role="separator">
+        <form method="post" action="/logout"><button role="menuitem" type="submit" class="w-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span data-t="top.logout">Log Out</span></button></form>
+      </div>
+    </div>
+  </div>
+</header>

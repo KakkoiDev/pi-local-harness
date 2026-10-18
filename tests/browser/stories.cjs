@@ -67,7 +67,7 @@ async function choosePhase(t, name) {
   const { page } = t;
   await page.locator('#phase-button').click();
   await page.locator('#phase-menu').getByRole(/radio/.test(await page.locator('#phase-menu').getAttribute('role')) ? 'radio' : 'menuitemradio', { name: new RegExp('^' + name) }).click();
-  await page.waitForFunction(phase => document.querySelector('#phase-button').textContent.includes(phase), name);
+  await page.waitForFunction(phase => (document.querySelector('#phase-button')?.textContent||'').includes(phase), name);
 }
 
 /** Type in the composer and send; returns the request's id once it is queued. */
@@ -91,7 +91,7 @@ async function startBuilding(t, card) {
   const { page } = t;
   const sent = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
   await card.getByRole('button', { name: 'Start Building', exact: true }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   return (await (await sent).json()).id;
 }
 
@@ -134,13 +134,13 @@ paper = Paperwork(Protocol(), data=data); paper.projects = DocumentStore(data)
 paper.plan_state(root, {'tasks': paths, 'pending': True, 'digest': paper.plan_digest(root, paths)})
 paper.start_building(root)
 `, root, t.bench.data, JSON.stringify(tasks), goal]);
-  await t.page.reload(); await t.page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await t.page.reload(); await t.page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
 }
 const COUNT = { title: 'Count clicks', files: ['counter.py', 'tests/'], done_when: 'Each click adds one.' };
 const RESET = { title: 'Reset the count', files: ['counter.py', 'tests/'], done_when: 'Reset sets the count to zero.' };
 
 /** The check-in card the last request left, and its DoneRow. */
-const checkIn = t => t.page.locator('.pw-card').filter({ hasText: 'Waiting for you to check it' }).last();
+const checkIn = t => t.page.locator('.pw-card[aria-label^="Task "]').last();  // round 12: “done” or “not verified”
 
 // -- First run and projects --------------------------------------------------------------------------------------
 story('US-001', 'first run: an empty workbench leads to the first project, which opens its chat', async t => {
@@ -182,7 +182,7 @@ async function offlineUv(t, extra = {}) {
 }
 const EXTRA = join(__dirname, '../fixtures/capabilities/extra.json');
 
-story('US-118', 'create with capabilities: the sentence’s suggestions are marked, never checked; Create runs the base’s tests and they pass', async t => {
+story('US-133', 'create with capabilities: the sentence’s suggestions are marked, never checked; Create runs the base’s tests and they pass', async t => {
   await offlineUv(t);
   const { page } = t;
   await startProject(t, 'Class Notes', 'A notes app for my class that works offline on a phone');
@@ -216,9 +216,9 @@ story('US-118', 'create with capabilities: the sentence’s suggestions are mark
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
   await page.locator('#toast-text').filter({ hasText: `Created “Class Notes”: all ${tests} tests of the base pass.` }).waitFor();
   const root = join(t.directory, 'Class Notes');
-  for (const name of ['vendor/chartjs/chart.umd.min.js', 'vendor/chartjs/LICENSE.md', 'tests/cap-charts.test.mjs', 'tests/cap-offline.test.mjs', 'tests/cap-install.test.mjs']) assert.ok(exists(root, name), name);
+  for (const name of ['vendor/chart.js-4.5.1/chart.umd.min.js', 'vendor/chart.js-4.5.1/LICENSE.md', 'vendor/basecoat/chart.min.js', 'tests/cap-charts.test.mjs', 'tests/cap-offline.test.mjs', 'tests/cap-install.test.mjs']) assert.ok(exists(root, name), name);
   assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')), { packages: ['static', 'phone'], capabilities: ['offline', 'charts', 'install'] });
-  assert.match(t.bench.read(root, 'sw.js'), /'vendor\/chartjs\/chart\.umd\.min\.js'/, 'the offline shell caches the library');
+  assert.match(t.bench.read(root, 'sw.js'), /'vendor\/chart\.js-4\.5\.1\/chart\.umd\.min\.js'/, 'the offline shell caches the library');
   assert.match(t.bench.read(root, 'README.md'), /## Capabilities[\s\S]*Chart\.js 4\.5\.1/);
   const run = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(item => item.cwd === root).at(-1);
   assert.equal(run.counts.pass, Number(tests)); assert.equal(run.counts.fail, 0);
@@ -227,7 +227,7 @@ story('US-118', 'create with capabilities: the sentence’s suggestions are mark
   assert.equal(t.bench.git(root, 'status', '--porcelain').trim(), '');
 });
 
-story('US-119', 'on the phone, a capability that is not available yet shows its reason, and a conflict shows before choosing', async t => {
+story('US-134', 'on the phone, a capability that is not available yet shows its reason, and a conflict shows before choosing', async t => {
   const { page } = t;
   await startProject(t, 'Party Game', '', { where: false });  // it creates nothing; the phone's folder browser has its own check (design.cjs, Ph8_ChooseFolder)
   await page.locator('#start-next').click();
@@ -251,7 +251,7 @@ story('US-119', 'on the phone, a capability that is not available yet shows its 
   assert.match(await page.locator('#start-packages .pw-cap[data-id="tui"]').textContent(), /Not with: Multiplayer, real time/);
 }, { viewport: { width: 390, height: 844 } });
 
-story('US-120', 'a failing base test creates nothing (the folder goes to the Trash, the test is named); Add a Capability… keeps nothing either', async t => {
+story('US-135', 'a failing base test creates nothing (the folder goes to the Trash, the test is named); Add a Capability… keeps nothing either', async t => {
   await offlineUv(t, { PI_KIT_CAPABILITIES_EXTRA: EXTRA });
   const { page } = t;
   await startProject(t, 'Broken');
@@ -275,7 +275,7 @@ story('US-120', 'a failing base test creates nothing (the folder goes to the Tra
   assert.equal(commits(t, made.root).length, 1);
 });
 
-story('US-121', 'Add a Capability…: what changes, Safety and Undo; it is kept as one request when the tests pass, and Undo takes it back', async t => {
+story('US-136', 'Add a Capability…: what changes, Safety and Undo; it is kept as one request when the tests pass, and Undo takes it back', async t => {
   await offlineUv(t);
   const { page } = t;
   const { root } = await newProject(t, 'Quiz Night', 'static');
@@ -376,7 +376,8 @@ story('US-030', 'plan in Planning, Start Building, Pi builds the task test-first
   assert.match(text, /- \[x\] Red:/); assert.match(text, /- \[x\] Green:/);
   assert.match(t.bench.read(root, 'ROADMAP.md'), new RegExp(`- \\[x\\] .*\\(tasks/${task}\\)`));
   assert.match(commits(t, root)[0], /^Pi Workbench\|Count clicks \(task \d+\)$/, 'the harness committed the task');
-  assert.match(await check.textContent(), /Next.*ready-to-publish/s, 'the plan ends with its publication audit task');
+  assert.match(await check.textContent(), /Next\s*Task 2: .*publish/si, 'the plan ends with its publication audit task (round 12: Next names it)');
+  assert.match(await check.locator('.pw-facts').textContent(), /Test run\s*python3 -m unittest discover -s tests · 1 passed · 0 failed/, 'round 12: the evidence names the run Gate saw');
   const next = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
   await check.getByRole('button', { name: 'Accept and Continue', exact: true }).click();
   await answered(t, (await (await next).json()).id);
@@ -421,13 +422,13 @@ story('US-032', 'Start Building on a waiting plan: one task built and verified, 
   assert.equal(decisions(t).filter(row => row.kind === 'task_acceptance' && row.who === 'person').length, 2);
 });
 
-story('US-033', 'a task built without a passing test is committed but marked not verified; Review First is the default and opens the task', async t => {
+story('US-033', 'a task built without a passing test is committed but marked not verified; Retry Task is the default (round 12), Review First opens the task', async t => {
   const { root } = await newProject(t, 'Untested');
   await givenApprovedTasks(t, root, [COUNT]);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
   const check = checkIn(t); await check.waitFor();
   assert.match(await check.textContent(), /not verified/);
-  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Review First');
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');
   assert.match(commits(t, root)[0], /^Pi Workbench\|Count clicks \(task \d+, not verified\)$/, 'committed, marked');
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   assert.match(t.bench.read(root, 'tasks', task), /Not verified at \d\d:\d\d: no test passed on the final code/);
@@ -469,7 +470,7 @@ story('US-036', 'Plan Another Task keeps the plan waiting in Discussion; Build t
   await review.getByRole('checkbox', { name: /Reset/ }).uncheck();
   assert.equal(await review.getByRole('checkbox', { name: /Counter/ }).isChecked(), true);
   await review.getByRole('button', { name: 'Start Building', exact: true }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   const state = await t.bench.api('/api/phase?project=' + await page.evaluate(() => location.pathname.split('/')[2]));
   assert.deepEqual(state.tasks.map(task => task.title).filter(title => /Counter|Reset/.test(title)), ['Counter', 'Reset'], 'Reset stays waiting, Counter is approved');
   assert.equal(state.phase, 'implementation');
@@ -595,7 +596,7 @@ story('US-054', 'Run on its own stops at an unverified task for my review, and s
   await turnOnRunOnItsOwn(t);
   const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
   const check = checkIn(t); await check.waitFor();
-  assert.match(await check.textContent(), /not verified/); assert.equal(await check.locator('.pw-btn--default').textContent(), 'Review First');
+  assert.match(await check.textContent(), /not verified/); assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');  // round 12
   const report = page.locator('.pw-card').filter({ hasText: 'Ran on its own' }).last(); await report.waitFor();
   assert.match(await report.textContent(), /not verified/);
   assert.equal(exists(root, 'tests', 'test_counter.py'), false, 'the next task never started');
@@ -698,11 +699,25 @@ async function tokenIs(t, name, value) {
   throw new Error(`${name} in the Preview is “${seen}”, not “${value}”`);
 }
 
-story('US-116', 'adjust the site’s colours: the panel opens without Pi, a picker restyles the Preview, Save commits, Undo restores', async t => {
-  // The App-with-no-server starter builds its styles with `uv tool run pytailwindcss` (a download, US-066): a stand-in
-  // uv on the services' PATH copies Basecoat's tokens into static/app.css and lets the watch wait.
+/** The App-with-no-server starter builds its styles with `uv tool run pytailwindcss` (a download, US-066): a stand-in uv
+ * on the services' PATH copies Basecoat's tokens into static/app.css and lets the watch wait. */
+async function standInUv(t) {
   fs.writeFileSync(join(t.directory, 'uv'), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nmkdir -p static && cat vendor/basecoat/css/base/base.css > static/app.css\n', { mode: 0o755 });
   await t.bench.restart(); await t.reopen();
+}
+/** Ask for the panel in words; returns the panel the workbench answered with. */
+async function askTheme(t, words, group = 'colours') {
+  const { page } = t;
+  await page.locator('#prompt:not([disabled])').waitFor();
+  await page.locator('#prompt').fill(words);
+  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await page.locator('#send').click();
+  assert.equal((await (await answered).json()).theme, group);
+  return page.locator(`[data-theme-panel]`).last();
+}
+
+story('US-116', 'adjust the site’s colours: the panel opens without Pi, the picker restyles the Preview (Esc puts it back), Save Theme commits, Undo restores', async t => {
+  await standInUv(t);
   const { page } = t;
   const { root } = await newProject(t, 'Colours', 'static');
   const original = t.bench.read(root, 'styles', 'input.css');
@@ -710,42 +725,199 @@ story('US-116', 'adjust the site’s colours: the panel opens without Pi, a pick
   const opened = await page.waitForFunction(() => document.querySelector('#preview-toggle').getAttribute('aria-pressed') === 'true', null, { timeout: 3000 }).then(() => true, () => false);
   if (!opened) await page.locator('#preview-toggle').click();
   await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
-  await page.locator('#prompt').fill('I want to adjust the site’s colours');
-  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
-  await page.locator('#send').click();
-  assert.equal((await (await answered).json()).theme, 'colours');
-  const panel = page.locator('.pw-theme[data-group="colours"]'); await panel.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  const panel = await askTheme(t, 'I want to adjust the site’s colours');
+  const primary = panel.locator('.pw-theme__row[data-token="primary"]'); await primary.waitFor();
   assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
   assert.equal(decisions(t).at(-1).kind, 'theme_panel'); assert.equal(decisions(t).at(-1).who, 'code');
-  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench/);
-  assert.match(await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__contrast').first().textContent(), /✓ AA/);
-  await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__side[data-mode="light"] input[type=color]').first().fill('#ff0000');
+  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench.*· no model/);
+  assert.equal(await panel.locator('.pw-card__title').textContent(), 'Theme · Colours');
+  assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['Colours', 'Radius', 'Spacing', 'Chart', 'Fonts']);
+  assert.match(await primary.locator('.pw-theme__name').textContent(), /^Primary\s*buttons and links$/);
+  assert.match(await primary.locator('.pw-theme__val[data-mode="light"] .pw-contrast').textContent(), /^\d+\.\d : 1 · AA ✓$/);
+  assert.equal(await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').inputValue(), '#171717', 'Basecoat’s oklch shown as hex');
+  assert.match(await panel.locator('.pw-theme__status').textContent(), /^No changes yet$/);
+  assert.ok(await panel.getByRole('button', { name: 'Save Theme', exact: true }).isDisabled(), 'nothing to save yet');
+  // The swatch opens the picker: a hex (and its oklch), and Esc puts the old value back.
+  const swatch = primary.locator('.pw-theme__val[data-mode="light"] .pw-swatch');
+  await swatch.click(); assert.equal(await swatch.getAttribute('aria-expanded'), 'true');
+  const picker = page.locator('.pw-picker'); await picker.waitFor();
+  assert.equal(await picker.locator('.pw-picker__title').textContent(), 'Primary · light');
+  await picker.locator('.pw-theme__hex').fill('#ff0000'); await picker.locator('.pw-theme__hex').press('Enter');
   await tokenIs(t, '--primary', '#ff0000');
+  assert.equal(await picker.locator('.pw-picker__oklch').textContent(), 'or oklch(0.628 0.258 29.2)');
+  assert.ok(await page.locator('.pw-preview__note--theme').isVisible(), '◐ Showing the unsaved theme');
+  await page.keyboard.press('Escape');
+  await picker.waitFor({ state: 'detached' });
+  await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
+  assert.ok(!(await page.locator('.pw-preview__note--theme').isVisible()), 'Esc put the old value back: nothing unsaved');
+  // Dragging on the saturation field picks a colour the Preview follows; a click outside keeps it.
+  await swatch.click(); await picker.waitFor();
+  const field = await picker.locator('.pw-picker__field').boundingBox();
+  await page.mouse.move(field.x + field.width * 0.9, field.y + field.height * 0.1); await page.mouse.down(); await page.mouse.move(field.x + field.width * 0.8, field.y + field.height * 0.2); await page.mouse.up();
+  const dragged = await picker.locator('.pw-theme__hex').inputValue();
+  assert.match(dragged, /^#[0-9a-f]{6}$/); assert.notEqual(dragged, '#171717');
+  await tokenIs(t, '--primary', dragged);
+  await panel.locator('.pw-card__title').click(); await picker.waitFor({ state: 'detached' });
+  await tokenIs(t, '--primary', dragged);
+  // The hex field takes a colour too; the foot counts what is not saved.
+  await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').fill('#ff0000'); await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').press('Enter');
+  await tokenIs(t, '--primary', '#ff0000');
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '1 change not saved: Primary · the Preview shows it now');
   assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'nothing is written before Save');
-  await panel.getByRole('button', { name: 'Save', exact: true }).click();
-  await page.locator('.pw-workbench-reply', { hasText: 'Theme saved: primary.' }).waitFor();
+  await panel.getByRole('button', { name: 'Save Theme', exact: true }).click();
+  const saved = page.locator('.pw-theme-saved', { hasText: 'Theme saved: primary' }); await saved.waitFor();
+  assert.match(await saved.textContent(), /· styles\/input\.css · \d\d:\d\d/);
+  await panel.locator('.pw-card__line', { hasText: 'saved' }).waitFor();
   assert.match(commits(t, root)[0], /\|Theme: primary$/, 'the person’s own commit');
   assert.match(t.bench.read(root, 'styles', 'input.css'), /\/\* theme: edited in the workbench \*\/\n:root \{\n {2}--primary: #ff0000;\n\}/);
   await tokenIs(t, '--primary', '#ff0000');
-  const row = page.locator('.pw-msg', { hasText: 'Theme saved: primary.' }).locator('.pw-done'); await row.getByText('Undo This Request…', { exact: true }).click();
-  await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
+  // Undo, in the theme's words.
+  await saved.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: 'Undo the theme save?' }).waitFor();
+  assert.match(await page.locator('#alert-detail').textContent(), /^Primary goes back to how it was before this save/);
+  await page.locator('#alert-danger').click();
   await page.waitForFunction(() => [...document.querySelectorAll('.pw-done__head')].some(head => /Undone/.test(head.textContent)));
   assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'Undo restores the file');
   await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
 });
 
-story('US-117', 'ask in Japanese: サイトの色を調整したい opens the panel; Project › Theme… too; a project without the starter’s CSS says so', async t => {
+story('US-117', 'ask in Japanese: サイトの色を調整したい opens the panel; Project › Theme… and ⌃⌥K too; a project without the starter’s CSS says so', async t => {
   const { page } = t;
   await newProject(t, 'Plain');
-  await page.locator('#prompt').fill('サイトの色を調整したい');
-  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
-  await page.locator('#send').click();
-  assert.equal((await (await answered).json()).theme, 'colours');
-  await page.locator('.pw-theme', { hasText: 'This project has no theme file.' }).waitFor();
+  const panel = await askTheme(t, 'サイトの色を調整したい');
+  await page.locator('.pw-theme-none', { hasText: 'This project has no theme file' }).waitFor();
+  assert.match(await panel.textContent(), /Projects made from the web app and no-server starters have one\./);
   assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
-  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="theme"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('.pw-theme').length === 2);
-  assert.equal((await fetch(t.base + '/api/theme/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project: 'x' }) })).status, 403, 'Save is the person’s control only');
+  await page.locator('[aria-controls="menu-project"]').click();
+  assert.equal(await page.locator('#menu-project [data-command="theme"] .pw-menu__key').textContent(), '⌃⌥K');
+  await page.locator('#menu-project [data-command="theme"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-theme-panel]').length === 2);
+  await page.locator('#prompt').click(); await page.keyboard.press('Control+Alt+KeyK');
+  await page.waitForFunction(() => document.querySelectorAll('[data-theme-panel]').length === 3);
+  for (const route of ['/api/theme/save', '/api/theme/add'])
+    assert.equal((await fetch(t.base + route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project: 'x' }) })).status, 403, `${route} is the person’s control only`);
+});
+
+story('US-118', 'the theme panel in the chat: five colours and “▸ 3 more”, the tabs switch groups, and the radius slider shows its samples', async t => {
+  const { page } = t;
+  await newProject(t, 'Rows', 'static');
+  const panel = await askTheme(t, 'I want to adjust the colours');
+  await panel.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  const visible = async () => (await panel.locator('.pw-theme__row:not(.pw-theme__row--head)').evaluateAll(rows => rows.filter(row => row.offsetParent).map(row => row.dataset.token)));
+  assert.deepEqual(await visible(), ['primary', 'secondary', 'accent', 'muted', 'destructive']);
+  const more = panel.getByRole('button', { name: '▸ 3 more: Background, Card, Border · Input · Ring', exact: true });
+  await more.click();
+  assert.deepEqual(await visible(), ['primary', 'secondary', 'accent', 'muted', 'destructive', 'background', 'card', 'border']);
+  assert.equal(await more.count(), 0);
+  // Card edits the popover too; Border · Input · Ring edits border and input, the ring from the picker.
+  await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__val[data-mode="dark"] .pw-theme__hex').fill('#111827');
+  await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__val[data-mode="dark"] .pw-theme__hex').press('Enter');
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '1 change not saved: Card · the Preview shows it now');
+  assert.equal(await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__reset').isDisabled(), false);
+  await panel.getByRole('tab', { name: 'Radius', exact: true }).click();
+  assert.equal(await panel.locator('.pw-card__title').textContent(), 'Theme · Radius');
+  assert.equal(await panel.locator('.pw-slider label').textContent(), 'Radius: corners of buttons, cards and fields');
+  assert.equal(await panel.locator('.pw-slider .pw-theme__reset').textContent(), 'Reset (10 px)');
+  await panel.locator('.pw-slider input[type=range]').fill('16');
+  assert.equal(await panel.locator('.pw-slider .pw-theme__value').textContent(), '1.000rem · 16 px');
+  assert.deepEqual(await panel.locator('.pw-samples .pw-sample').allTextContents(), ['Button · sm 12 px', 'Button · md 14 px', 'Card · lg 16 px', 'Dialog · xl 20 px', 'Field · md']);
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '2 changes not saved: Card, Radius 16 px · the Preview shows it now', 'unsaved changes stay across groups');
+  await panel.getByRole('tab', { name: 'Spacing', exact: true }).click();
+  assert.deepEqual(await panel.locator('.pw-slider input[type=range]').evaluate(input => [input.min, input.max, input.step]), ['3', '6', '0.5']);
+  await panel.getByRole('tab', { name: 'Chart', exact: true }).click();
+  assert.equal(await panel.locator('.pw-theme__row--chart').count(), 5);
+  assert.match(await panel.locator('.pw-theme__warn').textContent(), /Hard to tell apart: .*Chart 3 and Chart 4/, 'Basecoat’s five blues are close');
+  await panel.getByRole('button', { name: 'Discard', exact: true }).click();
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), 'No changes yet');
+});
+
+story('US-119', 'leaving with unsaved theme changes asks “Save the theme changes before going on?”: Cancel stays, Don’t Save drops them, Save saves', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Leaving', 'static');
+  const panel = await askTheme(t, 'Can I change the radius?', 'radius');
+  await panel.locator('.pw-slider input[type=range]').waitFor();
+  await panel.locator('.pw-slider input[type=range]').fill('16');
+  const dialog = page.locator('#theme-leave-dialog');
+  await page.locator('#prompt').fill('Make the buttons blue'); await page.locator('#send').click();
+  await dialog.waitFor();
+  assert.equal(await dialog.locator('.pw-alert__message').textContent(), 'Save the theme changes before going on?');
+  assert.equal(await dialog.locator('.pw-alert__detail').textContent(), 'Radius 16 px is changed in the Preview only. If you don’t save, the Preview goes back to the saved theme.');
+  assert.deepEqual(await dialog.locator('.pw-dialog__actions .pw-btn').allTextContents(), ['Don’t Save', 'Cancel', 'Save']);
+  assert.match(await dialog.locator('.pw-btn--default').textContent(), /^Save$/, 'Save is the default');
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click(); await dialog.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#prompt').inputValue(), 'Make the buttons blue', 'nothing was sent');
+  assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0);
+  assert.match(await panel.locator('.pw-theme__status').textContent(), /^1 change not saved/);
+  // Save: the theme is saved as its own change, then the message goes.
+  await page.locator('#send').click(); await dialog.waitFor();
+  const queued = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+  await queued;
+  assert.match(commits(t, root)[0], /\|Theme: radius$/);
+  await page.locator('.pw-theme-saved', { hasText: 'Theme saved: radius' }).waitFor();
+  // Don’t Save: the change goes, the message goes.
+  const again = await (async () => { await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="theme"]').click(); return page.locator('[data-theme-panel]').last(); })();
+  await again.locator('.pw-theme__row[data-token="primary"] .pw-theme__val[data-mode="light"] .pw-theme__hex').fill('#00ff00');
+  await again.locator('.pw-theme__row[data-token="primary"] .pw-theme__val[data-mode="light"] .pw-theme__hex').press('Enter');
+  await page.locator('#prompt').fill('Thanks'); await page.locator('#send').click(); await dialog.waitFor();
+  const sent = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await dialog.getByRole('button', { name: 'Don’t Save', exact: true }).click(); await sent;
+  assert.match(commits(t, root)[0], /\|Theme: radius$/, 'nothing more was saved');
+  assert.equal(await again.locator('.pw-theme__status').textContent(), 'No changes yet');
+});
+
+story('US-120', 'a project with no theme file: Add a Theme File adds Basecoat’s defaults as one change, and the panel opens', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'No theme yet');
+  const card = await askTheme(t, 'I want to adjust the site’s colours');
+  await card.getByRole('button', { name: 'Add a Theme File', exact: true }).click();
+  await card.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  assert.equal(await card.locator('.pw-card__title').textContent(), 'Theme · Colours');
+  assert.match(t.bench.read(root, 'styles', 'input.css'), /^@import "tailwindcss";\n@import "\.\.\/vendor\/basecoat\/css\/basecoat\.css";\n$/);
+  assert.ok(exists(root, 'vendor', 'basecoat', 'css', 'basecoat.css'));
+  assert.match(commits(t, root)[0], /\|Theme: added the theme file$/, 'one change of the person’s');
+  const line = page.locator('.pw-theme-saved', { hasText: 'Theme file added' }); await line.waitFor();
+  assert.equal(await line.getByRole('button', { name: 'Undo', exact: true }).count(), 1);
+});
+
+story('US-121', 'on a phone (390 px): the theme panel opens full screen with the live app on top; a row opens the picker page; Close asks before dropping changes', async t => {
+  await standInUv(t);
+  const { page } = t;
+  await newProject(t, 'Pocket theme', 'static');
+  // The Preview is closed: the full-screen panel shows the app itself (“the Preview tab isn't needed”).
+  const opened = await page.waitForFunction(() => document.querySelector('#preview-toggle').getAttribute('aria-pressed') === 'true', null, { timeout: 3000 }).then(() => true, () => false);
+  if (opened) await page.locator('#preview-toggle').click();
+  await page.setViewportSize({ width: 390, height: 844 }); await page.reload();
+  const panel = await askTheme(t, 'I want to adjust the site’s colours');
+  await page.waitForFunction(() => document.querySelector('[data-theme-panel][data-screen]'));
+  const box = await panel.boundingBox();
+  assert.deepEqual([box.x, box.y, box.width, box.height].map(Math.round), [0, 0, 390, 844], 'full screen');
+  assert.equal(await panel.locator('.pw-theme__bar-title').textContent(), 'Theme');
+  const live = page.frameLocator('[data-theme-panel] .pw-theme__live iframe');
+  await panel.locator('.pw-theme__live iframe').waitFor({ timeout: 20000 });
+  assert.equal(await panel.locator('.pw-theme__tag').textContent(), 'Live');
+  const row = panel.locator('.pw-theme__row[data-token="primary"]');
+  assert.ok(Math.round((await row.boundingBox()).height) >= 56, '56 px rows');
+  const swatch = await row.locator('.pw-theme__val[data-mode="light"] .pw-swatch').boundingBox();
+  assert.deepEqual([Math.round(swatch.width), Math.round(swatch.height)], [32, 32], '32 px swatches');
+  assert.equal(await row.locator('.pw-theme__val[data-mode="dark"]').isVisible(), false, 'one side at a time');
+  await row.locator('.pw-theme__name').click();
+  await page.waitForFunction(() => document.querySelector('[data-theme-panel][data-picking] .pw-picker'));
+  assert.equal(await panel.locator('.pw-picker__title').textContent(), 'Primary · light');
+  assert.equal(await panel.locator('.pw-theme__rows, .pw-card__body').first().isVisible(), false, 'the picker is its own page');
+  await panel.locator('.pw-picker .pw-theme__hex').fill('#ff0000'); await panel.locator('.pw-picker .pw-theme__hex').press('Enter');
+  assert.equal(await panel.locator('.pw-theme__tag').textContent(), 'Live · unsaved');
+  const end = Date.now() + 15000; let seen = '';
+  while (Date.now() < end && seen !== '#ff0000') { seen = await live.locator('html').evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()).catch(() => ''); if (seen !== '#ff0000') await new Promise(resolve => setTimeout(resolve, 200)); }
+  assert.equal(seen, '#ff0000', 'the live app on top follows the picker');
+  await panel.getByRole('button', { name: 'Done', exact: true }).click();
+  await row.waitFor();
+  await panel.getByRole('button', { name: 'Close', exact: true }).click();
+  const dialog = page.locator('#theme-leave-dialog'); await dialog.waitFor();
+  await dialog.getByRole('button', { name: 'Don’t Save', exact: true }).click();
+  await page.waitForFunction(() => !document.querySelector('[data-theme-panel][data-screen]'));
+  await panel.getByRole('button', { name: 'Open Theme', exact: true }).waitFor();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
 });
 
 // -- Recovery -----------------------------------------------------------------------------------------------------
@@ -770,10 +942,12 @@ story('US-075', 'Pi crashes mid-request: the chat itself says the request failed
   await newProject(t, 'Crash in chat');
   const id = await say(t, 'Do the thing TEST_SCRIPT=crash-midway'); await answered(t, id);
   await page.reload();
-  const answer = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last();
-  await answer.locator('.message-ended').filter({ hasText: 'Failed before Pi finished: Pi exited unexpectedly: Model crashed: out of memory' }).waitFor({ timeout: 5000 });
+  const answer = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last();  // round 12: the CutLine
+  await answer.locator('.pw-cut[role="status"] .pw-cut__text').filter({ hasText: 'Failed before Pi finished: Pi exited unexpectedly: Model crashed: out of memory' }).waitFor({ timeout: 5000 });
+  assert.equal(await answer.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).getAttribute('class'), 'pw-btn pw-btn--default', 'Retry is the default');
+  assert.equal(await answer.locator('.pw-cut').getByRole('button', { name: 'Undo This Request…', exact: true }).count(), 0, 'Undo only when files changed');
   const again = page.waitForResponse(response => /\/api\/jobs\/[0-9a-f]{32}\/retry$/.test(response.url()));
-  await answer.getByRole('button', { name: 'Retry', exact: true }).click();
+  await answer.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).click();
   const retried = await (await again).json();
   assert.equal(retried.retry_of, id, 'Retry queues the same request again');
   assert.equal((await answered(t, retried.id)).message, 'Do the thing TEST_SCRIPT=crash-midway');
@@ -782,8 +956,8 @@ story('US-075', 'Pi crashes mid-request: the chat itself says the request failed
   await givenApprovedTasks(t, root, [COUNT]);
   await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=write-then-crash'));
   assert.ok(exists(root, 'counter.py'));
-  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.message-ended') }).last(); await cut.waitFor();
-  await cut.getByRole('button', { name: 'Undo This Request…', exact: true }).click();
+  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last(); await cut.waitFor();
+  await cut.locator('.pw-cut').getByRole('button', { name: 'Undo This Request…', exact: true }).click();
   await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
   await page.locator('.pw-done').filter({ hasText: 'Undone' }).last().waitFor();
   assert.equal(exists(root, 'counter.py'), false, 'the crashed request’s file is gone');
@@ -866,6 +1040,148 @@ story('US-081', 'only the person can change the phase: a local process without t
   assert.equal(response.status, 403, 'a script on this Mac changed the phase as “the person”');
 });
 
+// -- Round 12: check-ins, what you grant, renames, the hunt's fixes ----------------------------------------------
+/** Wait until a condition on disk holds (the request that follows an answer runs on its own). */
+async function until(check, what, timeout = 15000) {
+  const end = Date.now() + timeout;
+  while (Date.now() < end) { if (check()) return; await new Promise(resolve => setTimeout(resolve, 100)); }
+  throw new Error('Timed out: ' + what);
+}
+
+story('US-126', 'an unverified task: Retry Task is the default; Accept Anyway… asks first, then ROADMAP.md says “accepted without verification”', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Unverified');
+  await givenApprovedTasks(t, root, [COUNT, RESET]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
+  const check = checkIn(t); await check.waitFor();
+  assert.equal(await check.locator('.pw-card__title').textContent(), 'Task 1 of 2 not verified: Count clicks');
+  assert.deepEqual(await check.locator('.pw-card__foot .pw-btn').allTextContents(), ['Retry Task', 'Review First', 'Accept Anyway…', 'Stop Here']);
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');
+  assert.match(await check.locator('.pw-facts').textContent(), /Retry Task runs task 1 again from its steps/);
+  await check.getByRole('button', { name: 'Accept Anyway…', exact: true }).click();
+  await page.locator('#alert-dialog[open]').waitFor();
+  assert.equal(await page.locator('#alert-message').textContent(), 'Accept task 1 without a passing test?');
+  assert.equal(await page.locator('#alert-default').textContent(), 'Cancel', 'Cancel is the default');
+  await page.keyboard.press('Escape'); await page.locator('#alert-dialog[open]').waitFor({ state: 'detached' });
+  assert.doesNotMatch(t.bench.read(root, 'ROADMAP.md'), /accepted without verification/, 'Cancel changed nothing');
+  await check.getByRole('button', { name: 'Accept Anyway…', exact: true }).click();
+  await page.locator('#alert-danger').click();
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  await until(() => new RegExp(`- \\[x\\] \\[\\d+-Count clicks\\]\\(tasks/${task}\\) \\(accepted without verification\\)`).test(t.bench.read(root, 'ROADMAP.md')), 'the labelled roadmap line');
+  assert.ok(commits(t, root).some(line => /^Pi Workbench\|Count clicks \(task \d+, accepted without verification\)$/.test(line)), 'a harness commit records it');
+  assert.ok(decisions(t).some(row => row.kind === 'task_acceptance' && row.answer === 'accept_anyway' && row.who === 'person'));
+});
+
+story('US-127', 'reopen a done task from Work: it asks first, then the boxes and the roadmap line open again and the code stays', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Reopen');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-counter'); await answered(t, id);
+  await checkIn(t).waitFor();
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  await page.goto(`${t.base}/p/${project}/work/tasks/${task}`);
+  const bar = page.locator('#task-infobar'); await bar.getByRole('button', { name: 'Reopen Task…', exact: true }).waitFor();
+  assert.match(await bar.textContent(), /Done/);
+  await bar.getByRole('button', { name: 'Reopen Task…', exact: true }).click();
+  await page.locator('#alert-dialog[open]').waitFor();
+  assert.equal(await page.locator('#alert-message').textContent(), 'Reopen “Count clicks”?');
+  assert.match(await page.locator('#alert-detail').textContent(), /^Its 2 boxes are unchecked and its ROADMAP\.md line goes back to open\./);
+  assert.equal(await page.locator('#alert-default').textContent(), 'Cancel');
+  await page.locator('#alert-danger').click();
+  await page.locator('#toast-text').filter({ hasText: 'Reopened “Count clicks”.' }).waitFor();
+  assert.match(t.bench.read(root, 'ROADMAP.md'), new RegExp(`- \\[ \\] \\[\\d+-Count clicks\\]\\(tasks/${task}\\)`));
+  assert.doesNotMatch(t.bench.read(root, 'tasks', task).split('## Progress')[0], /- \[x\]/, 'its boxes are open');
+  assert.ok(exists(root, 'counter.py'), 'the code stays');
+  await bar.waitFor({ state: 'hidden' });
+});
+
+story('US-128', 'Pi needs a file outside the task: Gate asks me, Add to Task 1 writes it into the task’s Files and the build goes on', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Widen');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-outside'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Pi wants to change a file outside task 1"]'); await card.waitFor();
+  assert.match(await card.locator('.pw-card__head').textContent(), /Gate asks you/);
+  assert.match(await card.textContent(), /notes\/extra\.py/);
+  assert.deepEqual(await card.locator('.pw-card__foot .pw-btn').allTextContents(), ['Add to Task 1', 'Keep Out', 'Open the Task']);
+  assert.equal(await card.locator('.pw-btn--default').textContent(), 'Add to Task 1');
+  assert.ok(!exists(root, 'notes', 'extra.py'), 'nothing was written before the answer');
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Add to Task 1', exact: true }).click();
+  await answered(t, (await (await resumed).json()).job);
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
+  assert.match(t.bench.read(root, 'tasks', task), /^Files: counter\.py, tests\/, notes\/extra\.py$/m);
+  const check = checkIn(t); await check.waitFor();
+  assert.doesNotMatch(await check.textContent(), /not verified/, 'the check-in: ' + await check.textContent());
+  assert.equal(t.bench.git(root, 'status', '--porcelain', '--', 'notes').trim(), '', 'notes/extra.py is committed with the task');
+  assert.ok(decisions(t).some(row => row.kind === 'scope_widening' && row.answer === 'Add to Task 1' && row.who === 'person'));
+});
+
+story('US-129', 'a choice after plh restarted: the card says the page is out of date and Reload Page fixes it; nothing was sent', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Stale');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-untested'); await answered(t, id);
+  const check = checkIn(t); await check.waitFor();
+  await page.evaluate(() => { document.querySelector('meta[name="pi-person"]').content = 'from-before-the-restart'; });
+  await check.getByRole('button', { name: 'Retry Task', exact: true }).click();
+  const line = check.locator('.pw-alert-line[role="alert"]'); await line.waitFor();
+  assert.match(await line.textContent(), /^This page is out of date after plh restarted, so your choice wasn’t sent\. Reload the page, then choose again\./);
+  assert.equal(await line.locator('.pw-btn--default').textContent(), 'Reload Page');
+  assert.equal(await page.locator('#error').isVisible(), false, 'never the generic error line');
+  await line.getByRole('button', { name: 'Reload Page', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('meta[name="pi-person"]').content !== 'from-before-the-restart');
+  const again = checkIn(t); await again.waitFor();
+  assert.equal(await again.locator('.pw-btn--default').textContent(), 'Retry Task', 'the check-in still waits');
+});
+
+story('US-130', 'rename a project while terminal Pi works: its own alert, Show in Activity · OK, and nothing moves', async t => {
+  const { page } = t;
+  const made = await newProject(t, 'Class Notes');
+  fs.writeFileSync(join(t.bench.data, '.agent-lock'), JSON.stringify({ pid: process.pid, token: 'terminal' }));
+  try {
+    await page.locator('#menubar [aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="rename-project"]').click();
+    await page.locator('#name-dialog-input').fill('Class Notes 2'); await page.locator('#name-dialog-ok').click();
+    await page.locator('#alert-dialog[open]').waitFor();
+    assert.equal(await page.locator('#alert-message').textContent(), 'Can’t rename “Class Notes” while terminal Pi works in it.');
+    assert.match(await page.locator('#alert-detail').textContent(), /^plh in a terminal is using this folder \(a request started at \d\d:\d\d\)\. .*Nothing was changed\.$/);
+    assert.deepEqual([await page.locator('#alert-danger').textContent(), await page.locator('#alert-default').textContent()], ['Show in Activity', 'OK']);
+    assert.equal(await page.locator('#name-dialog').evaluate(dialog => dialog.open), false, 'the name dialog closed: the alert stands alone');
+    await page.locator('#alert-danger').click();
+    await page.waitForFunction(() => document.body.dataset.view === 'activity');
+    assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'Class Notes 2'), 'nothing moved');
+  } finally { fs.rmSync(join(t.bench.data, '.agent-lock'), { force: true }); }
+});
+
+story('US-131', 'a task line in ROADMAP.md is a link in Work: a click opens the task file', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Linked');
+  await page.goto(`${t.base}/p/${project}/work/ROADMAP.md`);
+  const link = page.locator('#document-editor a.pw-link', { hasText: '001-Plan this app' }); await link.waitFor();
+  assert.equal(await link.getAttribute('href'), `/p/${project}/work/tasks/001-first-task.md`, '⌘-click opens it in a new tab');
+  assert.equal(await page.locator('#document-editor').getByText('[001-Plan this app](tasks/001-first-task.md)').isVisible(), false, 'not raw Markdown');
+  await link.click();
+  await page.locator('#document-path').filter({ hasText: 'tasks/001-first-task.md' }).waitFor();
+});
+
+story('US-132', 'the ⌃⌥ shortcuts: views ⌃⌥1–4 and the phases ⌃⌥D · ⌃⌥P; menus show ⌃⌥; ⌘2 is left to the browser', async t => {
+  const { page } = t;
+  await newProject(t, 'Keys');
+  await page.keyboard.press('Control+Alt+Digit2'); await page.waitForFunction(() => document.body.dataset.view === 'work');
+  await page.keyboard.press('Control+Alt+Digit1'); await page.waitForFunction(() => document.body.dataset.view === 'chat');
+  await page.keyboard.press('Meta+Digit2'); await page.waitForTimeout(200);
+  assert.equal(await page.evaluate(() => document.body.dataset.view), 'chat', '⌘2 belongs to the browser’s tabs');
+  await page.keyboard.press('Control+Alt+KeyP'); await page.locator('#phase-button').filter({ hasText: 'Planning' }).waitFor();
+  await page.waitForFunction(() => document.getElementById('phase-button').getAttribute('aria-busy') !== 'true');
+  await page.keyboard.press('Control+Alt+KeyD'); await page.locator('#phase-button').filter({ hasText: 'Discussion' }).waitFor();
+  await page.waitForFunction(() => document.getElementById('phase-button').getAttribute('aria-busy') !== 'true');
+  await page.locator('#phase-button').click();
+  assert.deepEqual(await page.locator('#phase-menu .pw-menu__key').allTextContents(), ['⌃⌥D', '⌃⌥P', '⌃⌥I']);
+  await page.keyboard.press('Escape');
+  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"] .pw-menu__key').allTextContents(), ['⌃⌥1', '⌃⌥2', '⌃⌥3', '⌃⌥4']);
+  await page.keyboard.press('Control+Alt+Digit3'); await page.waitForURL(`${t.base}/activity`);
+});
+
 // -- Language and phone -------------------------------------------------------------------------------------------
 story('US-090', 'the workbench in Japanese: Settings › Language, then the phase button and the plan card are in Japanese', async t => {
   const { page } = t;
@@ -891,14 +1207,126 @@ story('US-095', 'on a phone (390 px): plan in Planning and Start Building from t
   await page.locator('#phase-button').click();
   const sheet = page.locator('#phase-menu'); await sheet.waitFor();
   await sheet.getByRole('radio', { name: /^Planning/ }).click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Planning'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Planning'));
   const id = await say(t, 'TEST_PHASE_PLAN'); await answered(t, id);
   const card = page.locator('.pw-card[aria-label="Plan"]').last(); await card.waitFor();
   const start = card.getByRole('button', { name: 'Start Building', exact: true });
   assert.ok((await start.boundingBox()).height >= 44, '44 px touch target');
   await start.click();
-  await page.waitForFunction(() => document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
+});
+
+// -- Round 12: the harness's voice and Gate's judgements (tasks 290, 273; boards R12_Conversation, R12_Gate) -------
+/** Wait until the scratch workbench runs nothing, then reload so the chat shows the saved conversation. */
+async function settledAll(t) {
+  for (let i = 0; i < 150; i++) {
+    const jobs = (await t.bench.api('/api/workspace')).jobs;
+    if (!jobs.some(job => ['queued', 'running'].includes(job.status))) break;
+    await t.page.waitForTimeout(200);
+  }
+  await t.page.reload();
+}
+/** Settings… from its menu item (the shortcut may change), once the page's scripts are ready after a reload. */
+async function openSettings(t) {
+  const dialog = t.page.locator('#settings-dialog');
+  for (let i = 0; i < 20 && !(await dialog.isVisible()); i++) {
+    await t.page.evaluate(() => document.querySelector('[data-command="settings"]').click());
+    await dialog.waitFor({ timeout: 500 }).catch(() => {});
+  }
+  await dialog.waitFor(); return dialog;
+}
+
+story('US-122', 'without Laya, a phase word gets the harness’s own notice under the answer, with how to install it', async t => {
+  const { page } = t;
+  await newProject(t, 'Notice');
+  const id = await say(t, 'Explain the planning phase TEST_SCRIPT=say-planning'); await answered(t, id);
+  await page.reload();
+  const notice = page.locator('#messages .pw-notice[role="note"]').last(); await notice.waitFor();
+  assert.equal(await notice.locator('.pw-notice__who').textContent(), 'Harness', 'the harness speaks, not Pi');
+  assert.equal(await notice.locator('.pw-notice__text').textContent(), 'Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.');
+  assert.equal(await notice.evaluate(el => getComputedStyle(el).borderTopStyle), 'dotted');
+  assert.equal(await notice.evaluate(el => Boolean(el.closest('.pw-msg__body'))), false, 'outside Pi’s words');
+  await notice.getByRole('link', { name: 'How to Install', exact: true }).click();
+  await page.locator('#alert-detail').filter({ hasText: 'plh setup laya' }).waitFor();
+  await page.locator('#alert-default').click();
+  assert.equal(await page.locator('#messages .pw-card[aria-label*="phase"]').count(), 0, 'nothing blocks: no card');
+});
+
+story('US-123', 'the decisions under an answer name who made each; Change… on my answer says what it redoes, then redoes it', async t => {
+  const { page } = t;
+  await newProject(t, 'Decided');
+  const id = await say(t, 'Which colours? TEST_SCRIPT=discuss-choice'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Which colours?"]'); await card.waitFor();
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Answer', exact: true }).click();
+  await answered(t, (await (await resumed).json()).job);
+  await settledAll(t);
+  const row = page.locator('#messages details.pw-decisions:not([hidden])').first(); await row.locator('summary').waitFor();
+  assert.match(await row.locator('summary').textContent(), /^▸\s*2 decisions · 1 automatic$/, 'collapsed: the count and the automatic ones');
+  await row.locator('summary').click();
+  const mine = row.locator('li').filter({ hasText: 'Which colours?' });
+  assert.equal(await mine.locator('.pw-tag').textContent(), 'you');
+  const proposed = row.locator('li').filter({ hasText: 'Recommended option' });
+  assert.equal(await proposed.locator('.pw-tag').textContent(), 'model', 'the model’s judgement is named, not hidden');
+  assert.match(await proposed.locator('.pw-tag').getAttribute('class'), /pw-tag--dotted/);
+  assert.equal(await proposed.getByRole('link', { name: 'Change…', exact: true }).getAttribute('aria-disabled'), 'true', 'cannot be changed here: disabled, with the reason');
+  await mine.getByRole('link', { name: 'Change…', exact: true }).click();
+  const change = page.locator('.pw-change'); await change.waitFor();
+  assert.equal(await change.locator('.pw-card__title').textContent(), 'Change: Which colours?');
+  assert.match(await change.textContent(), /Current choice \(you, /);
+  assert.match(await change.locator('.pw-card__foot').textContent(), /Redoes: /, 'it names what it redoes');
+  assert.equal(await change.getByRole('radio', { name: 'White on black' }).isChecked(), true, 'the other answer is preselected');
+  const sent = page.waitForResponse(response => response.url().endsWith('/api/decisions/change'));
+  await change.getByRole('button', { name: 'Change and Redo', exact: true }).click();
+  const redo = await answered(t, (await (await sent).json()).job);
+  assert.equal(redo.message, 'Change: Which colours? → White on black (was Black on white). Redo what depended on it.');
+  await settledAll(t);
+  await page.locator('.pw-card--settled').filter({ hasText: 'Which colours?: White on black' }).waitFor();
+  assert.ok(decisions(t).some(item => item.kind === 'question_answer' && item.who === 'person' && item.rule === 'decision.change'), 'recorded as the person’s');
+});
+
+story('US-124', 'a batch of questions: “Question 1 of 3” with Take All Recommendations answers the rest with their recommendations', async t => {
+  const { page } = t;
+  await newProject(t, 'Batch');
+  const id = await say(t, 'Make notes for my class TEST_SCRIPT=batch-questions'); await answered(t, id);
+  const card = page.locator('.pw-card[aria-label="Who writes the notes?"]'); await card.waitFor();
+  assert.match(await card.locator('.pw-card__head').textContent(), /Question 1 of 3/);
+  const take = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Take All Recommendations', exact: true }).click();
+  const body = JSON.parse((await take).request().postData());
+  assert.deepEqual([body.option, body.take_all], [0, true]);
+  for (let i = 0; i < 100 && decisions(t).filter(row => row.kind === 'question_answer' && row.who === 'person').length < 3; i++) await page.waitForTimeout(200);
+  await settledAll(t);
+  for (const text of ['Who writes the notes?: Only me', 'How should notes be sorted?: Newest first', 'Should deleted notes go to a Trash first?: Yes, keep them 30 days'])
+    await page.locator('.pw-card--settled').filter({ hasText: text }).first().waitFor();
+  await page.locator('#messages').getByText('Noted all three answers.', { exact: true }).waitFor();
+  assert.equal(decisions(t).filter(row => row.kind === 'question_answer' && row.who === 'person').length, 3, 'each answer is the person’s');
+  assert.equal((await t.bench.api('/api/workspace')).jobs.filter(job => job.status === 'waiting').length, 0, 'nothing is left waiting');
+});
+
+story('US-125', 'Settings › Pi › Detail: Beginner hides decisions made by code; Expert shows them with the rule and the command', async t => {
+  const { page } = t;
+  await newProject(t, 'Detail');
+  const id = await say(t, 'Run it TEST_SCRIPT=unknown-command'); await answered(t, id);
+  const loaded = page.waitForResponse(response => /\/decisions$/.test(response.url()));
+  await settledAll(t); await loaded;
+  const answer = page.locator('#messages .pw-msg').filter({ hasText: 'Tried a command.' }).last(); await answer.waitFor();
+  assert.equal(await answer.locator('details.pw-decisions:not([hidden])').count(), 0, 'Beginner (the default): Gate’s refusal is code’s, so no row');
+  let settings = await openSettings(t);
+  assert.equal(await settings.locator('input[name="detail"][value="beginner"]').isChecked(), true);
+  const saved = page.waitForResponse(response => response.url().endsWith('/api/settings') && response.request().method() === 'POST' && /detail/.test(response.request().postData() || ''));
+  await settings.locator('input[name="detail"][value="expert"]').check(); await saved;
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  const row = answer.locator('details.pw-decisions:not([hidden])'); await row.waitFor();
+  await row.locator('summary').click();
+  const refused = row.locator('li').filter({ hasText: 'Command' });
+  assert.equal(await refused.locator('.pw-tag').textContent(), 'code');
+  assert.match(await refused.textContent(), /refused|sent back/);
+  assert.match(await refused.locator('.pw-decisions__rule').textContent(), /^(G-\d+|gate\.preflight)/, 'the rule');
+  assert.match(await refused.locator('.pw-decisions__detail').textContent(), /frobnicate --all/, 'and the command');
+  await page.reload(); settings = await openSettings(t);
+  assert.equal(await settings.locator('input[name="detail"][value="expert"]').isChecked(), true, 'kept in config.json');
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

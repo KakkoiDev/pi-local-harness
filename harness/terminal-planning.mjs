@@ -21,9 +21,9 @@ export async function checkIn(ctx,value,{read=path=>readFileSync(join(value.root
  const title=renderView({title:(verified?(value.number?tr(`Task ${value.number} of ${value.total} done`):tr('Task done')):tr('Not verified'))+(value.title?' · '+value.title:''),summary:value.number?`${value.number} / ${value.total}`:'',parts:[
   {kind:'lines',lines:[value.task || '',value.reason || '']},
   {kind:'kv',rows:[[tr('Verified'),value.verification || value.reason || '—'],[tr('Next'),next || tr('Plan complete.')]]}]},width,{style:ansiStyle}).join('\n');
- const keep=tr(next?'Accept and Continue':'Accept Task'),review=tr('Review First'),stop=tr('Stop Here'),back=tr('Back');
+ const keep=tr(!verified?'Retry Task':next?'Accept and Continue':'Accept Task'),review=tr('Review First'),stop=tr('Stop Here'),back=tr('Back');
  for (;;) {
-  const options=verified?[keep,review,stop]:[review,keep,stop];
+  const options=[keep,review,stop];/* round 12 (task 260): an unverified task's default is Retry Task, which builds it again */
   const picked=await ctx?.ui?.select?.(title,options);
   if(picked===keep)return 'continue';
   if(picked===review) {

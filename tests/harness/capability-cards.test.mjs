@@ -15,11 +15,13 @@ function project(record, files = []) {
 }
 
 test('a project started with capabilities gives Pi each one’s card and where its files are', t => {
-  const folder = project({ packages: ['static'], capabilities: ['charts', 'multiplayer', 'offline'] }, ['vendor/chartjs/chart.umd.min.js', 'vendor/p2p-core/p2p-core.js']);
+  const folder = project({ packages: ['static'], capabilities: ['charts', 'multiplayer', 'offline'] }, ['vendor/p2p-core/p2p-core.js']);
   t.after(() => rmSync(folder, { recursive: true, force: true }));
   const text = capabilityCards(folder);
   assert.match(text, /^Capabilities this project uses/);
-  assert.match(text, /### Dashboard and charts \(in this project: vendor\/chartjs\/chart\.umd\.min\.js\)\n\n# Charts for Pi/);
+  assert.match(text, /### Dashboard and charts\n\n# Charts for Pi/);
+  assert.match(text, /Its App Blocks \(copy their markup files, never retype them\):\n\n# Dashboard/, 'the block the capability installed, with its card');
+  assert.match(text, /Related App Blocks \(load one with the app_block tool\): BarChart, LineChart, AreaChart, DonutChart, KpiTile\./);
   assert.match(text, /### Multiplayer, real time \(in this project: vendor\/p2p-core\)\n\n# p2p-core for coding agents/);
   assert.match(text, /### Works offline\n\n# Works offline, for Pi/);
   assert.deepEqual(projectCapabilities(folder), ['charts', 'multiplayer', 'offline']);

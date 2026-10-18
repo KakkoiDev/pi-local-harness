@@ -1,0 +1,13 @@
+<div class="grid gap-2" id="import-progress">
+  <div class="flex items-baseline justify-between gap-4 text-sm">
+    <span id="import-progress-label" data-t="progress.import">Importing notes</span>
+    <span class="text-muted-foreground tabular-nums" data-t="progress.count">36 of 120</span>
+  </div>
+  <div class="progress" role="progressbar" aria-labelledby="import-progress-label" aria-valuemin="0" aria-valuemax="120" aria-valuenow="36" aria-valuetext="36 of 120">
+    <span style="width: 30%"></span>
+  </div>
+  <div class="flex items-center justify-between gap-4">
+    <span class="text-muted-foreground text-sm" data-t="progress.time_left">About 1 minute left</span>
+    <button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="common.cancel">Cancel</button>
+  </div>
+</div>

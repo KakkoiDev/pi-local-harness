@@ -1,0 +1,37 @@
+<main class="app grid min-h-0 gap-4 p-4 @3xl:p-8">
+  <header class="flex items-center justify-between gap-4">
+    <h1 class="text-xl font-semibold @3xl:text-2xl" data-t="board.title">Class project</h1>
+    <button class="btn" type="button" data-t="board.add_card">Add Card</button>
+  </header>
+  <p id="board-live" class="sr-only" aria-live="polite"></p>
+  <div class="flex snap-x gap-4 overflow-x-auto pb-2 @3xl:grid @3xl:grid-cols-3 @3xl:overflow-visible">
+    <section class="grid w-[85%] shrink-0 snap-start content-start gap-3 rounded-lg bg-muted/50 p-3 @3xl:w-auto" aria-labelledby="col-todo" data-column="todo">
+      <header class="flex items-center justify-between">
+        <h2 id="col-todo" class="text-sm font-semibold"><span data-t="board.col.todo">To Do</span> <span class="badge" data-variant="secondary">3</span></h2>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Add a card to To Do">+</button>
+      </header>
+      <ol class="grid gap-2" role="list">
+        <li>
+          <article class="card gap-2 p-3" draggable="true" tabindex="0" data-card="17" aria-describedby="board-help">
+            <h3 class="text-sm font-medium">Interview three classmates</h3>
+            <div class="flex items-center justify-between gap-2">
+              <span class="badge" data-variant="outline">Research</span>
+              <span class="avatar" data-size="sm"><span>AK</span></span>
+            </div>
+            <div class="dropdown-menu">
+              <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Move or edit “Interview three classmates”">⋯</button>
+              <div data-popover aria-hidden="true"><div role="menu">
+                <button role="menuitem" data-t="board.move_to_doing">Move to Doing</button>
+                <button role="menuitem" data-t="board.move_to_done">Move to Done</button>
+                <hr role="separator">
+                <button role="menuitem" data-t="board.edit">Edit…</button>
+              </div></div>
+            </div>
+          </article>
+        </li>
+      </ol>
+    </section>
+    <!-- Doing (data-column="doing"), Done (data-column="done") the same way -->
+  </div>
+  <p id="board-help" class="sr-only" data-t="board.help">Space to pick up, arrow keys to move, Space to drop, Esc to cancel.</p>
+</main>

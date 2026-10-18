@@ -55,3 +55,22 @@ or ignored files deeper in the tree fail in the copy and leave the task not veri
 - Showing a pending check-in after a reload: `/api/phase` now returns `check_in` (task, verified, next, reason); the
   page does not read it yet.
 - How to show "changes outside the task's Files" in the not-verified message.
+
+## Round 12 build (design round 12 step 2; boards R12_Verify, R12_Reopen, Ph12_Verify)
+
+- [x] Red (unit): Accept Anyway checks the boxes, labels the ROADMAP.md line “accepted without verification”, commits and
+  moves on; never automatic; refused for a verified task; Reopen takes the label away (tests/test_round12_checkins.py).
+- [x] Red (unit): the unverified card names the changed files outside the task (`outside`) and its title; a verified card
+  carries its evidence (the test run, the tests changed, Tried it, a test with fewer checks or removed) and the next title.
+- [x] The not-verified check-in: Retry Task (default) · Review First · Accept Anyway… · Stop Here, “Outside the task”,
+  Next “Retry Task runs task N again from its steps”; Accept Anyway… asks “Accept task N without a passing test?” (Cancel
+  default) and goes through `POST …/check-in/accept-anyway` (person-only) (js/check-ins.mjs).
+- [x] Evidence lines on a done check-in; a removed or weakened test makes Review First the default.
+- [x] A check-in restored after a reload (from `/api/phase`) shows the `.pw-notice` “Restored · …” and answers through the
+  check-in routes with `restored: true`.
+- [x] Reopen Task… in Work (an info bar on a done task file) and in Activity (a request that ended at a check-in), with
+  “Reopen “<title>”?” first.
+- [x] The terminal check-in defaults to Retry Task for an unverified task.
+- [x] Green: python3 tests/verify_workflow.py; browser suites (stories US-118, US-119, US-033; design and conversation updated).
+
+The “Needs design” items above are answered by round 12 and built.

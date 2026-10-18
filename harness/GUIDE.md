@@ -48,18 +48,20 @@ Move to Trash wait while Pi works in that project or in the terminal.
 
 ## Chat or Work?
 
-**Chat** (⌘1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌘2) shows the files: edit
+**Chat** (⌃⌥1) is the project's one conversation with Pi: ask, plan, request changes. **Work** (⌃⌥2) shows the files: edit
 Markdown as blocks or source, comment on a passage, and ask Pi about a passage or the whole file.
 
 ## How do I change my app's colours, corners or fonts?
 
-Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**.
-Pi Workbench answers by itself, without Pi: a panel with the app's theme (colours in light and dark with a contrast
-check, chart colours, corner radius, spacing, fonts). The Preview changes as you move a picker or a slider. **Save**
-writes only what you changed into `styles/input.css` and keeps it as your own change, which **Undo This Request…**
-takes back; closing without saving puts the Preview back. A chosen Google font is downloaded into the project, with
-its licence, when you save. In terminal Pi, `/theme` prints the tokens. A project not made from a starter has no theme
-file, and the panel says so.
+Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**
+(⌃⌥K). Pi Workbench answers by itself, without a model: a panel with tabs for **Colours** (light and dark side by side,
+each with its contrast; the first five show, "▸ 3 more" opens the rest), **Radius**, **Spacing**, **Chart** and
+**Fonts**. A swatch opens a picker (drag the field and the hue strip, type a hex; Esc puts the old value back), and the
+Preview follows as you go. **Save Theme** writes only what you changed into `styles/input.css` as your own change; the
+line "Theme saved: …" has **Undo**. Sending a message, switching project or closing the panel with unsaved changes asks
+first (Don't Save · Cancel · Save). A chosen Google font is downloaded into the project, with its licence, when you
+save. On a phone the panel opens full screen with the live app on top. A project with no theme file offers **Add a
+Theme File** (Basecoat's defaults, one change you can undo). In terminal Pi, `/theme` prints the tokens.
 
 ## How do comments work?
 
@@ -80,7 +82,7 @@ the files Pi opened itself. The word beside each selected file explains its role
 ## Where do I see what Pi is doing?
 
 The status at the top right of the menu bar: Ready, Working, waiting, or what needs attention. Click it for **Activity**
-(⌘3): every request with its state, steps and record, and a button back to where it came from. **Gate** (⌘4) lists every
+(⌃⌥3): every request with its state, steps and record, and a button back to where it came from. **Gate** (⌃⌥4) lists every
 command check, allowed or blocked, and why.
 
 ## Can Pi work on a long task?
@@ -179,20 +181,37 @@ Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confi
 
 When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, the harness records each answer and shows it in the task’s Decisions section with its source and time. Pi cannot write a decision itself: a “(chosen …)” line it wrote is refused, and a line the harness did not record asks again before code changes.
 
+Under each answer, “5 decisions · 2 automatic” opens the decisions behind it, each with its author: you, auto (Run on its own took the recommendation), Laya, code or model. Change… on a question’s answer says what it redoes, records your new answer and asks Pi to redo what depended on it; a phase changes from its row too, and an accepted task can be reopened. A numbered batch of questions (“2 of 3”) offers Take All Recommendations. Settings › Pi › Detail: Beginner hides decisions made by code; Expert shows all, with rules, paths and commands. In terminal Pi, `/decisions` lists the last request’s decisions (`/decisions --all` for everything).
 
-Every project starts in Discussion. Use the composer’s phase button (⇧⌘1–3), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
 
-Plans start in Planning. Pi provides the Goal and task content through `propose_plan`; System 1 creates the task layout. Start Building is the only approval. Plan Another Task leaves the plan waiting in Discussion. Build the Planned Tasks… reviews the waiting scope with checkboxes. Each task gets its own verified commit and waits for Accept and Continue, or Accept Task on the last task. Stop Here pauses without accepting. A plain “yes” does not approve or accept a task. Each task needs a `Files:` line listing the files or folders Pi may change; `.git/` can never be one of them, and the harness commits with Git hooks off. A task is verified only from evidence: a test run that passed on the final code, and the harness's own proof that the same test fails in a temporary copy of the project without the change (your files are never touched); a `--help` run or a run where no test ran does not count. A docs or chore task needs a change to one of its files. Changes outside the task's `Files:` leave it not verified and stay out of its commit. Questions asked during Implementation do not end the task in progress. Accepting an unverified task retries the same task; it is never skipped. A pending check-in can be accepted from any phase.
+Every project starts in Discussion. Use the composer’s phase button (⌃⌥D · ⌃⌥P · ⌃⌥I), or `/discuss`, `/plan` and `/build` in terminal Pi. The saved phase is shared by both clients. Discussion permits reading, talking and checked read-only shell commands; Planning permits ROADMAP.md and task Markdown only. Implementation requires an approved task with explicit `Files:` scope. Unknown shell commands are blocked; approved Implementation tasks may run the checked test runners. Small fixes follow the same permissions.
+
+Plans start in Planning. Pi provides the Goal and task content through `propose_plan`; System 1 creates the task layout. Start Building is the only approval. Plan Another Task leaves the plan waiting in Discussion. Build the Planned Tasks… reviews the waiting scope with checkboxes. Each task gets its own verified commit and waits for Accept and Continue, or Accept Task on the last task. Stop Here pauses without accepting. A plain “yes” does not approve or accept a task. Each task needs a `Files:` line listing the files or folders Pi may change; `.git/` can never be one of them, and the harness commits with Git hooks off. A task is verified only from evidence: a test run that passed on the final code, and the harness's own proof that the same test fails in a temporary copy of the project without the change (your files are never touched); a `--help` run or a run where no test ran does not count. A docs or chore task needs a change to one of its files. Changes outside the task's `Files:` leave it not verified and stay out of its commit. Questions asked during Implementation do not end the task in progress. An unverified task's check-in names the changed files outside the task and defaults to Retry Task, which builds the same task again; it is never skipped. Accept Anyway… asks first, then accepts it without a passing test: its boxes are checked and its ROADMAP.md line reads “accepted without verification”. A done check-in shows its evidence: the test run Gate saw, the tests changed (a removed or weakened test makes Review First the default), Pi's “Tried it” and the next task. Reopen Task… (on a done task file in Work, or a request in Activity) unchecks the task's boxes and reopens its ROADMAP.md line; the code stays. A pending check-in can be accepted from any phase, and after a reload it comes back from the project's state, marked Restored.
+
+When Pi needs a file outside the task's `Files:`, Gate refuses the write and asks you: Add to Task N writes the file into the task's Files line and the plan stays approved; Keep Out keeps it out. If Pi then needs a file you kept out, Gate asks whether the plan needs to change: Re-plan moves the project to Planning, Keep the Plan leaves later writes refused. The plan card shows What you grant (each task's Kind and Files, and where each came from) above the Decisions. After plh restarts, a page opened before cannot act for you: its controls say “This page is out of date…” with Reload Page. Rename, Move and Move to Trash wait while terminal Pi works (its own alert, with Show in Activity); a running Preview restarts in the renamed or moved folder and says so in one note line.
+
+Shortcuts are one ⌃⌥ family the browser and macOS leave alone: Chat · Work · Activity · Gate ⌃⌥1–4, the phases ⌃⌥D · ⌃⌥P · ⌃⌥I, Preview ⌃⌥V, Run on Its Own ⌃⌥A, New File… ⌃⌥N, New Task… ⌃⌥T, Show Task Record ⌃⌥R. Installed as an app (its own window), the old ⌘ keys work too.
 
 ## How do I let Pi work on its own?
 
 `/auto on` turns on Run on its own for every project, immediately and until `/auto off`. Every enable shows the risks and defaults to Cancel: Pi chooses recommended answers, approves plans, continues tasks, publishes, pushes, downloads, sends and uses the Trash without another question. What leaves the Mac cannot be taken back by Undo. `/auto status` shows the shared setting; `/report` shows the last run’s tasks, decisions, external actions and problems. An unverified task stops the run for review. The terminal prints the report counts at the end.
 
 
-In terminal Pi, plan previews offer Start Building, Plan Another Task, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Accept and Continue starts the next request, Accept Task validates the last task, Review First shows the task text and Stop Here keeps the acceptance pending. An unverified task defaults to Review First.
+In terminal Pi, plan previews offer Start Building, Plan Another Task, Change… and Open ROADMAP.md. Change asks for your words and starts another planning turn; opening the file grants no approval. After a task, Accept and Continue starts the next request, Accept Task validates the last task, Review First shows the task text and Stop Here keeps the acceptance pending. An unverified task defaults to Retry Task, which builds the same task again.
 
 Phase commands opened outside a project offer the registered-project picker; the selection applies to that command. Project phase and approved-plan state follow the project ID when it moves or is renamed. A pending plan needs explicit Start Building approval; selecting Implementation alone cannot approve it.
 
 Checked shell reads are `ls`, `cat`, `head`, `tail`, `wc`, `grep`, `rg`, `find`, `diff`, `sed -n <lines>p` and `pwd`; Git only reads in this form: `git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`). A refused command says what may run. Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
 
 Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating, revising and rendering a composition are allowed in every phase, but only as a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting (`gate/media.py`, task 291). Other writes into `assets/music/` follow the phase rules.
+
+## Can Pi build a login page, an online shop or a game for me?
+
+Yes, from the designer's App Blocks: 137 ready-made parts (log in, side panel, data table, charts, cart, kanban…),
+whole apps (online shop, admin dashboard, notes, chat, CRM…), game genres (RPG, shooter, cozy, roguelike…) and art
+direction. Name what you want in the chat, in English or Japanese ("add a login page", 「ログイン画面を作って」, "build an
+online shop", "make an RPG"): Pi Workbench gives Pi exactly that card, never the whole library, and Pi copies its
+markup, texts and states instead of inventing them. An app's card lists its blocks; Pi loads each one with its
+`app_block` tool. `python3 kit/blocks/add.py <project> <Name>` (in the harness folder) copies what a block needs, such
+as Chart.js for a chart, with licences, and `python3 kit/blocks/check.py <page>` checks a page for classes Basecoat
+does not have, missing labels, charts without a table, hard-coded colours and CDN links.

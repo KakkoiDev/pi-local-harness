@@ -86,7 +86,8 @@ export function installPreview({ api, project, send, showView, view, working, on
     return null;
   }
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
-  body.append(bar1, bar2, note, stage,keys, foot);
+  const themeNote = node('p', 'pw-preview__note pw-preview__note--theme', '◐ Showing the unsaved theme · Save or Discard in the chat'); themeNote.hidden = true;  // task 312, round 12
+  body.append(bar1, bar2, note, themeNote, stage,keys, foot);
   // Task 312: the theme panel's changes go to the helper the Preview's proxy adds to the app (harness/theme-helper.js);
   // each page it loads says it is ready, and gets the panel's last changes again.
   let themeMaps = null;
@@ -257,6 +258,15 @@ export function installPreview({ api, project, send, showView, view, working, on
     setLanguage: value => { save({ language: value }); draw(); load(true); },
     reload: () => status.terminal?restart():load(true),
     postTheme,
+    themeNote: on => { themeNote.hidden = !on; },
+    // Task 312 on a phone: the theme panel shows the app live on top of itself (Ph12_Theme), through the same proxy and
+    // helper as this frame. '' when the app does not run (yet), is a terminal app, or this page is remote (no helper).
+    liveUrl: async () => {
+      const current = project(); if (!current || REMOTE) return '';
+      let found = await api(`/api/preview?project=${encodeURIComponent(current.id)}`);
+      if (found.state === 'none' && found.kind === 'app') found = await api('/api/preview/start', { project: current.id });
+      return found.state === 'running' && !found.terminal && found.url ? appAddress(found.url, settings().path, settings().language) : '';
+    },
     openApp: () => openApp.click(),
     stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },

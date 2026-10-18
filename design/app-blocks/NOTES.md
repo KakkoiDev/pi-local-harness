@@ -26,3 +26,9 @@ Both `lib/` folders hold the same five files (same sha256).
 ## Mapping
 
 The workbench copies map the checker's old name to Gate (task 96). App Blocks has no such use; nothing was changed in these files.
+
+## After a sync
+
+Pi does not read this folder: `python3 kit/blocks/build.py` turns `components/*/README.md` into the cards in
+`kit/blocks/` (plan 266 item 7, task 317), and `tests/test_app_blocks.py` fails until it is run. This folder is not
+installed with the harness (`harness/install.py`).

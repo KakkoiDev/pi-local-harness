@@ -17,45 +17,51 @@ HEADINGS = ':where(h1, h2, h3, h4, h5, h6)'
 HEADING_RULE = f'{HEADINGS} {{ font-family: var(--font-heading); }}'
 MARK = 'Workbench-Change: theme'  # the commit trailer that lets Undo take back the person's theme save (harness/undo.py)
 
-# (token, its foreground or None, plain words, the colour its contrast is checked against, the AA minimum)
+# The colour rows the designer drew (round 12, R12_ThemeColours, R12_ThemeParts): a plain name, where it shows, the
+# token, the tokens that take the same value (`also`), its text colour (edited from the picker), and the AA minimum of
+# the pair. Destructive has no text token in Basecoat 1.0.2: it is checked as text on the page (`against`).
+# (token, also, text token, text also, text label, plain name, where it shows, against, AA minimum)
 COLOURS = [
-    ('background', 'foreground', 'Background and text', None, 4.5),
-    ('card', 'card-foreground', 'Cards', None, 4.5),
-    ('popover', 'popover-foreground', 'Menus and popovers', None, 4.5),
-    ('primary', 'primary-foreground', 'Primary: buttons and links', None, 4.5),
-    ('secondary', 'secondary-foreground', 'Secondary buttons', None, 4.5),
-    ('muted', 'muted-foreground', 'Muted: quiet areas and hints', None, 4.5),
-    ('accent', 'accent-foreground', 'Accent: hover and selection', None, 4.5),
-    ('destructive', None, 'Destructive: delete and errors', 'background', 4.5),
-    ('border', None, 'Borders', None, None),
-    ('input', None, 'Field borders', None, None),
-    ('ring', None, 'Focus ring', None, None),
-    ('sidebar', 'sidebar-foreground', 'Sidebar', None, 4.5),
-    ('sidebar-primary', 'sidebar-primary-foreground', 'Sidebar: primary', None, 4.5),
-    ('sidebar-accent', 'sidebar-accent-foreground', 'Sidebar: accent', None, 4.5),
-    ('sidebar-border', None, 'Sidebar borders', None, None),
-    ('sidebar-ring', None, 'Sidebar focus ring', None, None),
+    ('primary', (), 'primary-foreground', (), 'Text on it', 'Primary', 'buttons and links', None, 4.5),
+    ('secondary', (), 'secondary-foreground', (), 'Text on it', 'Secondary', 'second buttons, chips', None, 4.5),
+    ('accent', (), 'accent-foreground', (), 'Text on it', 'Accent', 'hover and selection', None, 4.5),
+    ('muted', (), 'muted-foreground', (), 'Text on it', 'Muted', 'quiet backgrounds, hints', None, 4.5),
+    ('destructive', (), None, (), None, 'Destructive', 'delete and errors', 'background', 4.5),
+    ('background', (), 'foreground', (), 'Text on it', 'Background', 'the page', None, 4.5),
+    ('card', ('popover',), 'card-foreground', ('popover-foreground',), 'Text on it', 'Card', 'cards and dialogs', None, 4.5),
+    ('border', ('input',), 'ring', (), 'Focus ring', 'Border · Input · Ring', 'lines, fields, focus', None, None),
 ]
-CHARTS = [(f'chart-{n}', None, f'Chart colour {n}', 'background', 3.0) for n in range(1, 6)]  # graphics: 3:1 (WCAG 1.4.11)
+CHARTS = [(f'chart-{n}', (), None, (), None, f'Chart {n}', '', None, None) for n in range(1, 6)]
+# Not in the panel (the designer's eight rows), still read and written so a block saved before round 12 stays readable.
+SIDEBAR = ['sidebar', 'sidebar-foreground', 'sidebar-primary', 'sidebar-primary-foreground', 'sidebar-accent', 'sidebar-accent-foreground', 'sidebar-border', 'sidebar-ring']
 
 
 def _rows(rows):
-    return [{'token': token, 'foreground': fore, 'label': label, 'against': against or fore, 'minimum': minimum} for token, fore, label, against, minimum in rows]
+    return [{'token': token, 'also': list(also), 'foreground': fore, 'foreground_also': list(fore_also), 'foreground_label': fore_label,
+             'label': label, 'where': where, 'against': against or fore, 'minimum': minimum}
+            for token, also, fore, fore_also, fore_label, label, where, against, minimum in rows]
 
 
+# One group per panel, in the order of the designer's tabs (Colours · Radius · Spacing · Chart), then Fonts (built
+# before the drawings; the designer has not drawn it yet). Radius and spacing sliders move in px; the block gets rem.
 GROUPS = {
-    'colours': {'title': 'Colours', 'kind': 'colour', 'rows': _rows(COLOURS)},
-    'charts': {'title': 'Chart colours', 'kind': 'colour', 'rows': _rows(CHARTS)},
-    'radius': {'title': 'Corner radius', 'kind': 'length', 'token': 'radius', 'min': 0, 'max': 2, 'step': 0.025, 'unit': 'rem'},
-    'spacing': {'title': 'Spacing', 'kind': 'length', 'token': 'spacing', 'min': 0.125, 'max': 0.5, 'step': 0.0125, 'unit': 'rem'},
+    'colours': {'title': 'Colours', 'kind': 'colour', 'rows': _rows(COLOURS), 'shown': 5},
+    'radius': {'title': 'Radius', 'kind': 'length', 'token': 'radius', 'min': 0, 'max': 24, 'step': 1, 'unit': 'px',
+               'label': 'Radius: corners of buttons, cards and fields'},
+    'spacing': {'title': 'Spacing', 'kind': 'length', 'token': 'spacing', 'min': 3, 'max': 6, 'step': 0.5, 'unit': 'px',
+                'label': 'Spacing unit: every gap and padding is a multiple of it'},
+    'charts': {'title': 'Chart', 'kind': 'chart', 'rows': _rows(CHARTS)},
     'fonts': {'title': 'Fonts', 'kind': 'font', 'tokens': ['font-sans', 'font-heading']},
 }
-COLOUR_TOKENS = [name for token, fore, *_ in COLOURS + CHARTS for name in (token, fore) if name]
+COLOUR_TOKENS = list(dict.fromkeys(name for token, also, fore, fore_also, *_ in COLOURS + CHARTS for name in (token, *also, fore, *fore_also) if name)) + SIDEBAR
 LENGTHS = {'radius': (0, 4), 'spacing': (0.0625, 1)}  # rem; px are read as 16 to the rem
 FONT_TOKENS = ('font-sans', 'font-heading')
 ALLOWED = (*COLOUR_TOKENS, *LENGTHS, *FONT_TOKENS)  # the only names the block and the Preview helper accept
-TEXT = {'colours': 'Here are the colour values.', 'charts': 'Here are the chart colours.', 'radius': 'Here is the corner radius.',
-        'spacing': 'Here is the spacing.', 'fonts': 'Here are the fonts.'}
+TEXT = {'colours': 'Here are the app’s colours. Change one and the Preview follows; nothing is written until you save.',
+        'radius': 'Here is the radius. Drag it; the Preview follows.',
+        'spacing': 'Here is the spacing unit. Drag it; the Preview follows.',
+        'charts': 'Here are the chart colours. Change one and the Preview follows; nothing is written until you save.',
+        'fonts': 'Here are the fonts. Choose one and the Preview follows; nothing is written until you save.'}
 FALLBACK = {'serif': 'ui-serif, Georgia, serif', 'monospace': 'ui-monospace, SFMono-Regular, Menlo, monospace', 'handwriting': 'cursive', 'display': 'ui-sans-serif, system-ui, sans-serif'}
 SANS = 'ui-sans-serif, system-ui, sans-serif'
 
@@ -271,7 +277,12 @@ def state(root):
     """What the panel shows: the groups, Basecoat's defaults, the saved changes, and the fonts in use. A project without
     the starter's CSS gets only the message."""
     root = Path(root)
-    if not has_theme(root): return {'available': False, 'message': NO_FILE + '.', 'detail': f'The panel edits the {FILE} of a project made from a starter. Nothing here was changed.'}
+    if not has_theme(root):
+        if (root / FILE).exists():  # the project's own CSS, not Basecoat's: the panel does not guess at it
+            return {'available': False, 'message': NO_FILE + '.', 'path': FILE, 'can_add': False,
+                    'detail': f'{FILE} is the project’s own CSS, not a Basecoat theme, so there is nothing the panel can tinker with. Nothing was changed.'}
+        return {'available': False, 'message': NO_FILE + '.', 'path': FILE, 'can_add': True,
+                'detail': f'There is nothing to tinker with yet: the app has no Basecoat theme ({FILE}). Projects made from the web app and no-server starters have one.'}
     try: block = read_block((root / FILE).read_text(encoding='utf-8'))
     except (ThemeFileError, UnicodeError) as error: return {'available': False, 'message': str(error) if isinstance(error, ThemeFileError) else f'{FILE} is not UTF-8 text.', 'path': FILE}
     return {'available': True, 'path': FILE, 'groups': GROUPS, 'allowed': list(ALLOWED), 'defaults': defaults(root),
@@ -291,6 +302,40 @@ def context_note(root):
 
 def git(root, *args, check=True):
     return subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True, timeout=60, check=check)
+
+
+def _commit(root, title, files):
+    """The person's own commit of these files, with the theme mark so the same Undo can take it back."""
+    if not (root / '.git').exists(): return {}
+    who = git(root, 'config', 'user.name', check=False).stdout.strip() or 'You'
+    mail = git(root, 'config', 'user.email', check=False).stdout.strip() or 'you@localhost'
+    git(root, 'add', '--', *files)
+    done = git(root, '-c', f'user.name={who}', '-c', f'user.email={mail}', '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', title, '-m', f'Saved in the theme panel at {datetime.now().strftime("%H:%M")}.\n\n{MARK}', '--', *files, check=False)
+    if done.returncode == 0: return {'commit': git(root, 'rev-parse', '--short=12', 'HEAD').stdout.strip()}
+    return {'note': 'Saved, but git could not record it: ' + (done.stderr.strip()[-200:] or 'unknown error')}
+
+
+ADDED = '@import "tailwindcss";\n@import "../vendor/basecoat/css/basecoat.css";\n'
+
+
+def add_file(root):
+    """Add a Theme File (round 12, R12_ThemeParts): a project without one gets the starters' styles/input.css and
+    Basecoat's CSS (kit/vendor), so its theme is Basecoat's defaults, as one commit of the person's that Undo takes
+    back. The Preview's Tailwind watch builds it into static/app.css, which the app's pages load. A project whose
+    styles/input.css is its own CSS is refused: nothing is overwritten."""
+    root = Path(root)
+    if has_theme(root): raise ValueError('This project already has a theme file.')
+    if (root / FILE).exists(): raise ValueError(f'{FILE} is the project’s own CSS, so no theme file was added. Nothing was changed.')
+    vendor, files = root / 'vendor/basecoat', [FILE]
+    if not (vendor / 'css/basecoat.css').is_file():
+        if vendor.exists(): raise ValueError('vendor/basecoat has files of the project’s own, so no theme file was added. Nothing was changed.')
+        import shutil
+        shutil.copytree(KIT_BASE.parent.parent, vendor / 'css'); shutil.copy(KIT_BASE.parent.parent.parent / 'LICENSE.md', vendor / 'LICENSE.md')
+        files.append('vendor/basecoat')
+    (root / FILE).parent.mkdir(parents=True, exist_ok=True)
+    (root / FILE).write_text(ADDED, encoding='utf-8')
+    return {'message': 'Theme file added: Basecoat’s default colours, radius and spacing.', 'names': [], 'files': files, 'title': 'Theme: added the theme file',
+            **_commit(root, 'Theme: added the theme file', files)}
 
 
 def save(root, light=None, dark=None, fonts=None, download=None):
@@ -337,11 +382,4 @@ def save(root, light=None, dark=None, fonts=None, download=None):
     temporary.write_text(updated, encoding='utf-8'); temporary.replace(css)
     title = 'Theme: ' + ', '.join(name.removeprefix('font-') + (' font' if name.startswith('font-') else '') for name in names)
     result = {'message': title.replace('Theme:', 'Theme saved:', 1) + '.', 'names': names, 'files': [FILE, *files], 'title': title}
-    if (root / '.git').exists():
-        who = git(root, 'config', 'user.name', check=False).stdout.strip() or 'You'
-        mail = git(root, 'config', 'user.email', check=False).stdout.strip() or 'you@localhost'
-        git(root, 'add', '--', FILE, *files)
-        done = git(root, '-c', f'user.name={who}', '-c', f'user.email={mail}', '-c', 'core.hooksPath=/dev/null', 'commit', '-q', '-m', title, '-m', f'Saved in the theme panel at {datetime.now().strftime("%H:%M")}.\n\n{MARK}', '--', FILE, *files, check=False)
-        if done.returncode == 0: result['commit'] = git(root, 'rev-parse', '--short=12', 'HEAD').stdout.strip()
-        else: result['note'] = 'Saved, but git could not record it: ' + (done.stderr.strip()[-200:] or 'unknown error')
-    return result
+    return {**result, **_commit(root, title, [FILE, *files])}

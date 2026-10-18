@@ -117,8 +117,37 @@ class SaveTest(unittest.TestCase):
     def test_a_project_without_the_starters_css_has_no_theme_file(self):
         with tempfile.TemporaryDirectory() as folder:
             found = theme.state(Path(folder))
-            self.assertEqual(found, {'available': False, 'message': 'This project has no theme file.', 'detail': found['detail']})
+            self.assertEqual(found, {'available': False, 'message': 'This project has no theme file.', 'detail': found['detail'], 'path': theme.FILE, 'can_add': True})
             with self.assertRaises(ValueError): theme.save(Path(folder), {'radius': '1rem'})
+            (Path(folder) / 'styles').mkdir(); (Path(folder) / theme.FILE).write_text('body { color: red; }\n')
+            self.assertFalse(theme.state(Path(folder))['can_add'], 'the project’s own CSS is never replaced')
+            with self.assertRaises(ValueError): theme.add_file(Path(folder))
+            self.assertEqual((Path(folder) / theme.FILE).read_text(), 'body { color: red; }\n')
+
+    def test_add_a_theme_file_brings_basecoats_defaults_as_one_undoable_change(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root / 'README.md').write_text('mine\n')
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            for key, value in (('user.name', 'Ada'), ('user.email', 'ada@example.com')): subprocess.run(['git', '-C', str(root), 'config', key, value], check=True)
+            subprocess.run(['git', '-C', str(root), 'add', '-A'], check=True); subprocess.run(['git', '-C', str(root), 'commit', '-q', '-m', 'Start'], check=True)
+            result = theme.add_file(root)
+            self.assertTrue(theme.state(root)['available']); self.assertEqual(theme.state(root)['saved'], {'light': {}, 'dark': {}}, 'Basecoat’s defaults, nothing changed')
+            self.assertTrue((root / 'vendor/basecoat/css/basecoat.css').is_file()); self.assertTrue((root / 'vendor/basecoat/LICENSE.md').is_file())
+            self.assertEqual(subprocess.run(['git', '-C', str(root), 'log', '-1', '--format=%an|%s'], capture_output=True, text=True).stdout.strip(), 'Ada|Theme: added the theme file')
+            with self.assertRaises(ValueError): theme.add_file(root)
+            self.assertEqual(undo.undo(root, result['commit'])['outcome'], 'undone')
+            self.assertFalse((root / theme.FILE).exists()); self.assertFalse((root / 'vendor/basecoat/css/basecoat.css').exists())
+            self.assertEqual((root / 'README.md').read_text(), 'mine\n')
+
+    def test_the_groups_are_the_designers_tabs_and_rows(self):
+        self.assertEqual(list(theme.GROUPS), ['colours', 'radius', 'spacing', 'charts', 'fonts'])
+        self.assertEqual([theme.GROUPS[key]['title'] for key in theme.GROUPS], ['Colours', 'Radius', 'Spacing', 'Chart', 'Fonts'])
+        rows = theme.GROUPS['colours']['rows']
+        self.assertEqual([row['label'] for row in rows], ['Primary', 'Secondary', 'Accent', 'Muted', 'Destructive', 'Background', 'Card', 'Border · Input · Ring'])
+        self.assertEqual(theme.GROUPS['colours']['shown'], 5, 'in the chat, five rows and “3 more”')
+        self.assertEqual((rows[6]['also'], rows[7]['also'], rows[7]['foreground']), (['popover'], ['input'], 'ring'))
+        self.assertEqual((theme.GROUPS['spacing']['min'], theme.GROUPS['spacing']['max'], theme.GROUPS['spacing']['step']), (3, 6, 0.5), 'spacing unit 3–6 px in 0.5 steps')
+        self.assertIn('sidebar-primary', theme.ALLOWED, 'a block saved before round 12 stays readable')
 
     def test_pi_hears_about_a_saved_theme(self):
         self.assertEqual(theme.context_note(self.root), '')
@@ -160,7 +189,7 @@ class ChatTest(unittest.TestCase):
         self.assertEqual(job['data']['theme_hint'], 'colours')
 
     def test_the_panels_routes_are_the_persons_only(self):
-        self.assertTrue({'/api/theme/open', '/api/theme/save'} <= WebHandler.PERSON_ROUTES)
+        self.assertTrue({'/api/theme/open', '/api/theme/save', '/api/theme/add'} <= WebHandler.PERSON_ROUTES)
 
 
 class HelperTest(unittest.TestCase):

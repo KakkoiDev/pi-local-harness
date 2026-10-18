@@ -149,7 +149,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 
   // 109: New File… names the real file; New Task… numbers it and adds it to the roadmap.
   await page.locator('#menubar [aria-controls="menu-file"]').click();
-  assert.equal((await page.locator('#menu-file [data-command="new-file"]').textContent()).replace('⇧⌘N',''),'New File…');
+  assert.equal((await page.locator('#menu-file [data-command="new-file"]').textContent()).replace('⌃⌥N',''),'New File…');/* round 12: ⌃⌥N */
   await page.locator('#menu-file [data-command="new-file"]').click();
   await page.locator('#name-dialog-input').fill('notes');
   assert.equal(await page.locator('#name-dialog-help').textContent(),'Creates “notes.md” in Design check and opens it. Any name works; .md is added when there is no extension, and “specs/phone.md” creates the folder too.');
@@ -224,14 +224,14 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   // 113: an open Reasoning panel stays open while reasoning streams in, and after the reply finishes.
   await page.locator('#chat-tab').click();
   await page.locator('#prompt').fill('Think it over. TEST_THINK');await page.locator('#send').click();
-  const live=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details');
+  const live=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details:not(.pw-decisions)');
   await live.locator('summary').waitFor();await live.locator('summary').click();
   await page.waitForFunction(()=>(document.querySelector('#messages .pw-msg:not(.pw-msg--user):last-of-type details')?.textContent||'').includes('Thinking step 3'));
-  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open after new reasoning');
+  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details:not(.pw-decisions)').evaluate(element=>element.open),true,'still open after new reasoning');
   await page.locator('#messages').getByText(/reply \d+/).last().waitFor({timeout:15000});
-  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details').evaluate(element=>element.open),true,'still open on the finished reply');
+  assert.equal(await page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details:not(.pw-decisions)').evaluate(element=>element.open),true,'still open on the finished reply');
   // 125: reasoning renders its Markdown and wraps inside its box, also at phone width.
-  const reasoning=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details');
+  const reasoning=page.locator('#messages .pw-msg:not(.pw-msg--user)').last().locator('details:not(.pw-decisions)');
   assert.equal(await reasoning.locator('strong').first().textContent(),'Plan');
   await page.setViewportSize({width:390,height:844});
   assert.equal(await reasoning.evaluate(element=>[...element.querySelectorAll('*')].every(child=>child.scrollWidth<=element.clientWidth+1)),true,'nothing wider than the box');
@@ -266,6 +266,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   const id=created.project;
   { // Round 11: the shared phase control, keyboard, saved state and phone sheet.
   await page.goto(`${base}/p/${id}/chat`);
+  await page.locator('#phase-button').waitFor();/* the app loads by a dynamic import, after the load event */
   assert.equal(await page.locator('#phase-button').count(),1,'the phase control exists');
   await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor();
   await page.route('**/api/phase',route=>route.fulfill({status:503,json:{error:'fixture save failure'}}));
@@ -281,9 +282,9 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
   assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'Describe the task to plan, or answer Pi');
   await page.reload();await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor();
-  await page.keyboard.press('Shift+Meta+Digit1');await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor({timeout:2000});
+  await page.keyboard.press('Control+Alt+KeyD');await page.locator('#phase-button').filter({hasText:'Discussion'}).waitFor({timeout:2000});
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
-  await page.keyboard.press('Shift+Meta+Digit2');await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor({timeout:2000});
+  await page.keyboard.press('Control+Alt+KeyP');await page.locator('#phase-button').filter({hasText:'Planning'}).waitFor({timeout:2000});
   await page.waitForFunction(()=>document.getElementById('phase-button').getAttribute('aria-busy')!=='true');
   await page.setViewportSize({width:1024,height:900});await page.locator('#phase-button').click();await page.locator('#phase-menu').waitFor();await page.screenshot({path:shot('plh-247-phase-tablet.png')});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.keyboard.press('Escape');
   await page.setViewportSize({width:390,height:844});await page.locator('#phase-button').click();
@@ -342,7 +343,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   // 106: views and files are in the path; Back and Forward restore them; a reload lands in the same place.
   await page.locator('#file-tree .pw-row',{hasText:'notes.txt'}).click();
   await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
-  await page.keyboard.press('ControlOrMeta+Digit3');await page.waitForURL(`${base}/activity`);
+  await page.keyboard.press('Control+Alt+Digit3');await page.waitForURL(`${base}/activity`);
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/notes.txt`);
   assert.equal(await page.evaluate(()=>document.body.dataset.view),'work');assert.equal(await page.locator('#document-path').textContent(),'notes.txt');
   await page.goBack();await page.waitForURL(`${base}/p/${registered.project}/work/ROADMAP.md`);await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
@@ -388,9 +389,9 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 
   // 128: the project window has Chat | Work; Activity and Gate are app windows (C_ActivityDesk, C_GateDesk, Menus).
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#chat-tab').waitFor();
-  assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.filter(item=>!item.hidden).map(item=>item.textContent)),['Chat⌘1','Work⌘2'],'round 7: Preview is a third segment only when the chat would drop under 480px (P_Narrow)');
+  assert.deepEqual(await page.locator('#workspace-bar .view-tabs button').evaluateAll(items=>items.filter(item=>!item.hidden).map(item=>item.textContent)),['Chat⌃⌥1','Work⌃⌥2'],'round 7: Preview is a third segment only when the chat would drop under 480px (P_Narrow)');
   await page.locator('#menubar [aria-controls="menu-window"]').click();
-  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌘1','Work⌘2','Activity · All Projects⌘3','Gate · All Projects⌘4']);
+  assert.deepEqual(await page.locator('#menu-window [role="menuitemradio"]').evaluateAll(items=>items.map(item=>item.textContent)),['Chat⌃⌥1','Work⌃⌥2','Activity · All Projects⌃⌥3','Gate · All Projects⌃⌥4']);/* round 12: one ⌃⌥ family */
   await page.locator('#menu-window [data-command="view-activity"]').click();await page.waitForURL(`${base}/activity`);
   assert.equal(await page.locator('#window-title').textContent(),'Activity · All Projects');
   assert.equal(await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').getAttribute('aria-label'),'Close Activity and go back');
@@ -402,7 +403,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#menubar [aria-controls="menu-view"]').click();
   assert.equal(await page.locator('#menu-view [data-command="view-chat"]').count(),0,'round 4: Chat and Work live in Window, View is how you see the document');
   await page.keyboard.press('Escape');
-  await page.keyboard.press('ControlOrMeta+Digit4');await page.waitForURL(`${base}/gate`);
+  await page.keyboard.press('Control+Alt+Digit4');await page.waitForURL(`${base}/gate`);
   assert.equal(await page.locator('#window-title').textContent(),'Gate · All Projects');
   assert.equal(await page.locator('#gate-panel .pw-infobar #gate-live').count(),1,'live status sits in the info bar');
   await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').click();await page.waitForURL(new RegExp('/p/'));
@@ -437,7 +438,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#agent-activity').click();await page.waitForURL(`${base}/activity`);
   assert.equal(await page.locator('#agent-activity').getAttribute('aria-current'),'page');
   assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running','opening Activity marks attention seen');
-  // From Activity or Gate, Chat and Work (Window menu, ⌘1/⌘2) and the ‹ project link go back into the project.
+  // From Activity or Gate, Chat and Work (Window menu, ⌃⌥1/⌃⌥2) and the ‹ project link go back into the project.
   assert.equal(await page.locator('#activity-panel .app-back').textContent(),'‹ Design check');
   await page.locator('#menubar [aria-controls="menu-window"]').click();await page.locator('#menu-window [data-command="view-work"]').click();
   await page.waitForURL(new RegExp(`/p/${id}/work`));assert.equal(await page.evaluate(()=>document.body.dataset.level),'project');
@@ -1049,9 +1050,11 @@ paper.start_building(root)
   assert.equal(await page.locator('#send').textContent(),'Send Change');assert.equal(await page.locator('#prompt').inputValue(),'');
   const checkJob=await post('/api/jobs/create',{project:created.project,message:'Check in TEST_CHECK_IN'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),checkJob.id);
-  await page.reload();const checkCard=page.locator('.pw-card').filter({hasText:'Task 1 of 2 done, not verified:'}).last();await checkCard.waitFor();
-  assert.equal(await checkCard.locator('.pw-btn--default').textContent(),'Review First');
-  await page.reload();await page.locator('.pw-card').filter({hasText:'Waiting for you to check it'}).last().waitFor();
+  await page.reload();const checkCard=page.locator('.pw-card').filter({hasText:'Task 1 of 2 not verified:'}).last();await checkCard.waitFor();
+  assert.equal(await checkCard.locator('.pw-btn--default').textContent(),'Retry Task');/* round 12 (R12_Verify): Retry Task is the default */
+  assert.deepEqual(await checkCard.locator('.pw-card__foot .pw-btn').allTextContents(),['Retry Task','Review First','Accept Anyway…','Stop Here']);
+  await page.screenshot({path:shot('plh-r12-verify-1440.png')});
+  await page.reload();await page.locator('.pw-card').filter({hasText:'Waiting for you'}).last().waitFor();
   // Round 11: the actual approval route, waiting review, durable subset and final validation.
   const phaseProject=await post('/api/projects/create',{name:'Phase lifecycle',parent:directory,kind:'empty'});
   await post('/api/phase',{project:phaseProject.project,phase:'planning'});
@@ -1071,7 +1074,7 @@ paper.start_building(root)
   }
   await page.getByRole('button',{name:'Build the Planned Tasks…',exact:true}).click();
   const phaseReview=page.getByRole('dialog',{name:'Build the planned tasks?',exact:true});for(const box of await phaseReview.locator('input[type=checkbox]').all())await box.uncheck();await phaseReview.locator('input[type=checkbox]').first().check();
-  await phaseReview.getByRole('button',{name:'Start Building',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#phase-button').textContent.includes('Implementation'));
+  await phaseReview.getByRole('button',{name:'Start Building',exact:true}).click();await page.waitForFunction(()=>(document.querySelector('#phase-button')?.textContent||'').includes('Implementation'));
   await page.waitForFunction(()=>document.querySelector('#send').textContent==='Send');
   const state=await page.evaluate(project=>fetch('/api/phase?project='+project).then(r=>r.json()),phaseProject.project),task=state.tasks[0].path;
   // Real Gate settlement, not a synthetic check-in: an empty code task must stay unverified.

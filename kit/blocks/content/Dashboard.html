@@ -1,0 +1,58 @@
+<main class="app grid gap-6 p-4 @3xl:p-8">
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold" data-t="dashboard.title">Overview</h1>
+      <p class="text-muted-foreground text-sm" data-t="dashboard.updated">Updated at 09:41</p>
+    </div>
+    <div class="field w-40">
+      <label class="label sr-only" for="dashboard-period" data-t="dashboard.period">Period</label>
+      <select class="select" id="dashboard-period" name="period">
+        <option value="7d" data-t="dashboard.period.7d">Last 7 days</option>
+        <option value="30d" selected data-t="dashboard.period.30d">Last 30 days</option>
+        <option value="12m" data-t="dashboard.period.12m">Last 12 months</option>
+      </select>
+    </div>
+  </header>
+
+  <section class="grid grid-cols-2 gap-4 @3xl:grid-cols-4" aria-labelledby="dashboard-stats">
+    <h2 id="dashboard-stats" class="sr-only" data-t="dashboard.stats">Key numbers</h2>
+    <article class="card gap-2 p-4">
+      <p class="text-muted-foreground text-sm" data-t="dashboard.stat.revenue">Revenue</p>
+      <p class="text-2xl font-semibold tabular-nums">¥1,284,000</p>
+      <p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="secondary">+12.4%</span><span class="text-muted-foreground" data-t="dashboard.vs_previous">vs previous period</span></p>
+    </article>
+    <!-- three more tiles: dashboard.stat.orders, dashboard.stat.customers, dashboard.stat.refunds -->
+  </section>
+
+  <section class="card" aria-labelledby="dashboard-chart-title">
+    <header>
+      <h2 id="dashboard-chart-title" class="font-semibold" data-t="dashboard.chart.title">Revenue by week</h2>
+      <p class="text-muted-foreground text-sm" data-t="dashboard.chart.lede">This period against the one before</p>
+    </header>
+    <section>
+      <canvas id="dashboard-chart" class="chart aspect-[5/2] @max-3xl:aspect-[4/3]"
+        role="img" aria-label="Revenue by week, this period against the one before"
+        data-chart-type="line" data-chart-label-key="week" data-chart-legend="true"
+        data-chart-data='[{"week":"W1","now":280,"before":240},{"week":"W2","now":310,"before":260}]'
+        data-chart-series='{"now":{"label":"This period","color":"var(--chart-1)","surface":"gradient"},"before":{"label":"Previous period","color":"var(--chart-2)"}}'></canvas>
+      <details class="mt-2 text-sm">
+        <summary data-t="dashboard.chart.table">Show as a table</summary>
+        <!-- the same numbers in a <table class="table"> (see LineChart) -->
+      </details>
+    </section>
+  </section>
+
+  <section class="card" aria-labelledby="dashboard-attention">
+    <header><h2 id="dashboard-attention" class="font-semibold" data-t="dashboard.attention">Needs attention</h2></header>
+    <section class="grid gap-2">
+      <a class="item" data-variant="outline" href="/orders?status=late">
+        <section><h3 data-t="dashboard.attention.late">3 orders are late</h3><p data-t="dashboard.attention.late_hint">Shipped more than 5 days after ordering</p></section>
+        <aside><span class="badge" data-variant="destructive">3</span></aside>
+      </a>
+    </section>
+  </section>
+</main>
+<script src="/static/chart.umd.min.js"></script>
+<script src="/static/basecoat.min.js"></script>
+<script src="/static/basecoat.chart.min.js"></script>
+<script>basecoat.chart(document.getElementById('dashboard-chart'));</script>

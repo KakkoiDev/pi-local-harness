@@ -28,6 +28,7 @@ The product rule for every feature: **the workbench takes care of the basics, Pi
 | `js/workspace.mjs` | Projects, Work (editor, comments, Review), Activity, polling. | Document and project UI. |
 | `js/*.mjs` (others) | Router, menubar, dialogs, Files window, Markdown. | That one concern. |
 | `design/` | **The designer's source of truth**: cards (`system/components/*/README.md`), boards (`canvas/*.dc.html`), `components.css`, `IMPLEMENTATION.md`. Synced from claude.ai artifacts; see `design/README.md`. | Never edit by hand except the four documented repo additions in `components.css`. |
+| `kit/blocks/` | App Block cards for the apps Pi builds, generated from `design/app-blocks` by `kit/blocks/build.py` (only `keywords.json` is hand-written); routed by `harness/blocks.mjs`. | After re-syncing `design/app-blocks`: run `python3 kit/blocks/build.py`. |
 | `design/briefs/` | What we asked the designer. | Before a UI change the designer has not drawn (see § 5 rule 9). |
 | `tasks/NNN-*.md`, `ROADMAP.md` | One file per piece of work; the roadmap links every task. | Every change (§ 4). |
 | `docs/plans/` | Plans for larger projects (component library, htmx/SSE). | Before starting those projects. |

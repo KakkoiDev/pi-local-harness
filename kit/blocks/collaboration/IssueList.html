@@ -1,0 +1,36 @@
+<section class="grid gap-3" aria-labelledby="issues-title">
+  <div class="flex flex-wrap items-center gap-2">
+    <h1 id="issues-title" class="mr-auto text-xl font-semibold" data-t="issues.title">Issues</h1>
+    <a class="btn" href="/r/class-site/issues/new" data-t="issues.new">New Issue</a>
+  </div>
+  <form class="flex flex-wrap items-center gap-2" role="search" hx-get="/r/class-site/issues" hx-target="#issue-rows" hx-trigger="input changed delay:300ms, change" hx-push-url="true">
+    <div class="input-group min-w-0 flex-1">
+      <span data-align="inline-start" aria-hidden="true">⌕</span>
+      <input type="search" name="q" value="is:open" aria-label="Search issues" data-t-label="issues.search">
+    </div>
+    <button class="btn" data-variant="outline" type="button" aria-haspopup="menu" data-t="issues.label">Label ▾</button>
+    <button class="btn" data-variant="outline" type="button" aria-haspopup="menu" data-t="issues.assignee">Assignee ▾</button>
+    <button class="btn" data-variant="outline" type="button" aria-haspopup="menu" data-t="issues.sort">Sort: Newest ▾</button>
+  </form>
+  <div class="overflow-hidden rounded-lg border">
+    <nav class="flex gap-4 border-b bg-muted/40 px-4 py-2 text-sm" aria-label="Issue state">
+      <a href="?state=open" aria-current="page" class="font-semibold"><span data-t="issues.open">Open</span> <span class="tabular-nums">12</span></a>
+      <a href="?state=closed" class="text-muted-foreground"><span data-t="issues.closed">Closed</span> <span class="tabular-nums">48</span></a>
+    </nav>
+    <ul id="issue-rows" class="divide-y" aria-label="Open issues">
+      <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3 hover:bg-muted/40">
+        <span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open" data-t-label="issues.open">◉</span>
+        <div class="min-w-0">
+          <a href="/r/class-site/issues/42" class="font-medium hover:underline">Timetable page shows Saturday twice</a>
+          <span class="badge ml-1" data-variant="destructive">bug</span>
+          <span class="badge" data-variant="outline">timetable</span>
+          <p class="text-muted-foreground text-xs">#42 · <span data-t="issues.opened_by">opened 2 days ago by Kana Abe</span></p>
+        </div>
+        <div class="flex items-center gap-3 text-muted-foreground text-xs">
+          <span class="avatar-group"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span></span>
+          <span aria-label="3 comments">💬 3</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>

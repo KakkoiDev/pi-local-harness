@@ -445,6 +445,7 @@ COMMANDS = {
     'audit': ('[folder]', 'Run the publication checks for this project (asks first; offline).'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
+    'decisions': ('[--all] [request]', 'The last request’s decisions with their authors (you, auto, Laya, code, model); --all adds those code made, with rules, paths and commands.'),
     'bench': ('', 'The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.'),
     'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
     'update': ('[now]', 'Is a new version of Pi Workbench on GitHub, and what changed; now updates (asks first).'),
@@ -626,6 +627,9 @@ def build(console, command, args, yes=False):
         latest = {'kind': 'table', 'heading': 'Latest runs', 'columns': ['WHEN', 'SCENARIO', 'MODEL', 'RESULT'], 'flex': 3,
                   'rows': [[short_time(line.get('time')), line['scenario'], line['model'], ('✓ solved' if line['solved'] else '✗ not solved') + (' · verified' if line.get('verified') else '') + f" · {line['seconds'] // 60} min"] for line in results[-12:][::-1]], 'empty': '—'}
         return {'summary': rows, 'results': results[-50:]}, view('Bench', totals, latest, summary=f'{len(results)} runs', hint='python3 -m bench run [ids] [--model M] · each run’s files: <data>/bench/runs/')
+    if command == 'decisions':  # task 273, board T_Decisions: the decision rows in the terminal
+        from harness import decision_rows
+        return decision_rows.terminal(console.data, args)
     if command == 'reports':  # plan 184: what went wrong while Pi worked alone
         from harness import reports as incident
         found = incident.read(console.data); found = [item for item in found if not args or item.get('kind') == args[0]]

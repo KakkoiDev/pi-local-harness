@@ -153,25 +153,55 @@ def _worker_entries(text, entries):
     return text[:found.start(2)] + inside + text[found.end(2):]
 
 
-def planned(capability, base):
-    """(files added, files changed) when `capability` goes into a `base` project, without writing anything."""
+def _blocks():
+    """kit/blocks/add.py: App Blocks' own copier, so a capability's libraries land exactly where the blocks expect them."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('kit_blocks_add', KIT / 'blocks' / 'add.py')
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module
+
+
+def _block_files(names, base, folder=None):
+    """(files App Blocks' add() would copy, whether it adds texts) for `names` in a `base` project, without writing."""
+    blocks = _blocks(); cards = {card['name']: card for card in blocks.index()['cards']}
+    chosen = blocks.expand(names, cards)
+    needed = {library for name in chosen for library in cards[name]['libraries']}
+    prefix = 'static/' if base == 'web' and needed - {'basecoat', 'littlejs'} else ''
+    files = []
+    for library, pairs in blocks.FILES.items():
+        if library not in needed: continue
+        for source, relative in pairs:
+            target = prefix + relative
+            if target in files: continue
+            if folder is not None and (Path(folder) / target).is_file() and (Path(folder) / target).read_bytes() == source.read_bytes(): continue
+            files.append(target)
+    texts = json.loads((KIT / 'blocks' / 'texts.json').read_text(encoding='utf-8'))['cards']
+    return files, any(texts.get(name) for name in chosen)
+
+
+def planned(capability, base, folder=None):
+    """(files added, files changed) when `capability` goes into a `base` project, without writing anything. With the
+    project's `folder`, a library file already there, byte for byte, is neither added nor changed."""
     spec = capability.get('install', {}).get(base)
     if spec is None: raise ValueError(f"{capability['name']} can't go into this package.")
     added = []
     if spec.get('files'):
-        folder = Path(capability['_kit']) / spec['files']
-        added += [path.relative_to(folder).as_posix() for path in _fragment_files(capability, base)]
+        fragments = Path(capability['_kit']) / spec['files']
+        added += [path.relative_to(fragments).as_posix() for path in _fragment_files(capability, base)]
     for source, target in spec.get('copy', []):
         source = Path(capability['_kit']) / source
         if source.is_dir(): added += [f'{target}/{path.relative_to(source).as_posix()}' for path in sorted(source.rglob('*')) if path.is_file() and '__pycache__' not in path.parts]
         else: added.append(target)
-    changed = ['README.md', 'packaging.json'] + ([WORKER[base]] if spec.get('shell') else [])
+    texts = False
+    if spec.get('blocks'):
+        files, texts = _block_files(spec['blocks'], base, folder); added += [name for name in files if name not in added]
+    changed = ['README.md', 'packaging.json'] + ([WORKER[base]] if spec.get('shell') else []) + (['messages/en.json', 'messages/ja.json'] if texts else [])
     return added, changed
 
 
 def install(folder, capability, base):
     """Copy one capability's files into the project and add its files to the offline shell. Returns the files added."""
-    folder = Path(folder); spec = capability['install'][base]; added, _ = planned(capability, base)
+    folder = Path(folder); spec = capability['install'][base]; added, _ = planned(capability, base, folder)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"{capability['name']}: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''} in the project.")
     if spec.get('files'):
@@ -182,6 +212,7 @@ def install(folder, capability, base):
         source = Path(capability['_kit']) / source; target = folder / target; target.parent.mkdir(parents=True, exist_ok=True)
         if source.is_dir(): shutil.copytree(source, target, ignore=IGNORED, dirs_exist_ok=True)
         else: shutil.copy2(source, target)
+    if spec.get('blocks'): _blocks().add(folder, spec['blocks'])  # the libraries, licences and texts, as App Blocks copy them
     if spec.get('shell'):
         worker = folder / WORKER[base]; worker.write_text(_worker_entries(worker.read_text(encoding='utf-8'), spec['shell']), encoding='utf-8')
     return added
@@ -374,7 +405,7 @@ def preview(folder, identifier):
     folder = Path(folder); base, _, present = project_state(folder)
     if base is None: raise ValueError('Not a project from the kit: Add a Capability… needs a Web app, an App with no server or a Terminal app.')
     item = _by_id(catalogue()['capabilities'], identifier, 'capability')
-    added, changed = planned(item, base) if base in item.get('install', {}) else ([], [])
+    added, changed = planned(item, base, folder) if base in item.get('install', {}) else ([], [])
     return {'base': base, 'present': present, 'added': added, 'changed': [name for name in changed if name != 'packaging.json' or (folder / name).is_file()],
             'tests_added': tests_added(item, base) if base in item.get('install', {}) else 0, 'tests_now': sum(count_tests(folder / name) for name in base_tests(folder))}
 
@@ -397,7 +428,7 @@ def add(folder, identifier, data=None, request=None, full_suite=None):
     missing = [need for need in item.get('needs', []) if need not in present]
     if missing: raise ValueError(f"{item['name']} needs {', '.join(_by_id(catalogue()['capabilities'], need, 'capability')['name'] for need in missing)} first.")
     if not (folder / '.git').exists(): raise ValueError('This project has no history, so the change could not be undone. Nothing was changed.')
-    added, changed = planned(item, base)
+    added, changed = planned(item, base, folder)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"Not added: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''}. Nothing was changed.")
     edited = [line[3:] for line in _git(folder, 'status', '--porcelain', '--', *changed).stdout.splitlines()]

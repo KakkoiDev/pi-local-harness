@@ -48,7 +48,7 @@ def scripted_story():
     elif state.exists() and resume:name,index=json.loads(state.read_text())
     else:return
     spec=json.loads((Path(os.environ['PI_FAKE_SCRIPTS'])/f'{name}.json').read_text(encoding='utf-8'))
-    steps=spec['steps'];text=spec.get('say','[CANARY] done');job=os.environ['PI_HARNESS_JOB']
+    steps=spec['steps'];text=spec.get('say','[CANARY] done');job=os.environ['PI_HARNESS_JOB'];script=name
     notify=lambda message:emit({'type':'extension_ui_request','method':'notify','message':message})
     def settle(answer,stop='stop'):
         emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':answer}] if answer else [],'stopReason':stop}})
@@ -65,7 +65,16 @@ def scripted_story():
         checked=gate('/gatekeep',{'tool_name':gate_name,'args':args,'pi_tool':name,'auth_level':'admin','tool_call_id':identifier,'cwd':os.getcwd(),'source':'web','request':job})
         emit({'type':'tool_execution_start','toolCallId':identifier,'toolName':name,'args':args})
         if checked.get('outcome')!='ALLOW':
-            emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':True,'result':{'content':[{'type':'text','text':str(checked.get('reason'))}]}});return
+            emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':True,'result':{'content':[{'type':'text','text':str(checked.get('reason'))}]}})
+            asked=(checked.get('judgement') or {}).get('choice');asked=asked if asked and (asked.get('scope') or asked.get('replan')) else None  # only Gate's scope questions; the scripts never answered the other judgements
+            if asked:  # round 12: Gate's own question (a file outside the task), asked the way the extension's ask_choices does
+                shown={key:asked[key] for key in ('question','options','recommended','allow_other','system_owned') if key in asked}  # validateChoice keeps only these
+                if automatic():
+                    gate('/choice',{'request':job,'choice':shown});gate('/decision',{'request':job,'question':asked['question'],'answer':asked['options'][0]['label'],'state':'auto'})
+                else:
+                    pending=gate('/choice',{'request':job,'choice':shown});state.write_text(json.dumps([script,number-1]))  # the answer retries this call
+                    notify('Harness choice: '+json.dumps(pending));gate('/request/pause',{'request':job});settle('','aborted')
+            return
         output,code=run()
         gate('/audit',{'proposal_id':checked['proposal_id'],'tool_name':gate_name,'args':args,'output':output,'exit_code':code})
         emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':code!=0})
@@ -77,13 +86,14 @@ def scripted_story():
         if result.get('report'):notify('Harness report: '+json.dumps(result['report']))
         check=result.get('check_in');more=False
         if check and check.get('verified') and automatic():
-            gate('/phase/accept',{'cwd':check['root'],'state':'auto'});check['accepted']=True;more=bool(check.get('next'))
+            gate('/phase/accept',{'cwd':check['root'],'state':'auto','request':job});check['accepted']=True;more=bool(check.get('next'))
         if check and not more:notify('Harness check-in: '+json.dumps(check))
         if result.get('commit'):
             label={'committed':'','not verified':' (not verified)','plan incomplete':' (plan incomplete)'}.get(result.get('outcome'),'')
             notify(f"Harness note: “{result.get('message')}”{label} · committed as {result['commit']}")
         return more
-    gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    started=gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    if (started.get('advice') or {}).get('notice'):notify('Harness notice: '+started['advice']['notice'])  # like the extension (task 290)
     while index<len(steps):
         step=steps[index];index+=1
         if 'think' in step:emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':step['think']}})

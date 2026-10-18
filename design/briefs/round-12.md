@@ -189,6 +189,37 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - Token labels ("Primary: buttons and links"), font weights (400 and 700 only) and the fonts panel's search and sample: please review.
 - A font not yet saved shows in the panel's sample only; the live Preview uses a system font until Save downloads it into the project.
 
+**Rebuilt to your drawing (2026-10-18); for the next brief**
+- **Fonts** is a fifth tab after Chart, kept from the built panel and set in your parts (`.pw-slider` rows: label, the family in use, a Google Fonts search, Reset, the sample). Please draw it.
+- **A colour's text**: the drawing shows "Aa" in the text colour but no way to change it. The picker has a small segment **Colour · Text on it** (on Border · Input · Ring: **Colour · Focus ring**). Please confirm or redraw.
+- **Rows that hold several tokens**: Card also sets the popover (and its text); Border · Input · Ring sets border and input, the ring from the picker. Border · Input · Ring shows no contrast (Basecoat's light borders would always read "below AA"); please say what it should show.
+- **Sidebar tokens** are not in the panel (your eight rows); a block saved with them still reads.
+- **Chart**: one value per series for light and dark, as drawn. Basecoat's five default blues are close, so the warning shows by default ("Hard to tell apart: Chart 2 and Chart 3 · …"); the note no longer claims the defaults stay apart.
+- **After Save Theme** the panel becomes "Theme · Colours saved · Open Again" above the new saved line, so it can be reopened.
+- **The file** stays `styles/input.css` (the marked block), not `app/static/theme.css`: the starters' Tailwind build already reads it.
+- **Phone, in the chat**: the card shows **Open Theme** and the unsaved line; the full screen opens on a new request. The live app on top needs the app running here (it says so while it starts); opened from a phone over the tailnet there is no live link.
+## E. Round 12 build steps 2–5 and 8: built from your boards; please revisit (2026-10-18)
+
+Built as drawn: R12_Verify, R12_Reopen, R12_Grant, R12_Renamed, R12_Refusals, R12_Fixes, R12_Strings, Ph12_Verify. Where a
+board left something open, the smallest version was built:
+- **Reopen Task… in Activity**: a button in the request's detail actions, for a request that ended at a check-in (the
+  board draws only Work's info bar). Work's info bar shows “✓ Done” and the button, without the date.
+- **Evidence on a done check-in**: Test run (command · passed · failed · seconds · time), Tests changed (a removed or
+  weakened test carries the caution glyph and “removed” or “fewer checks”, then one help line), Tried it, Next “Task 2:
+  <title>”. A weakened test makes Review First the default. Please draw the weakened line.
+- **The scope card** (“Pi wants to change a file outside task 1 · Gate asks you”): the file on its own line, Pi's reason
+  as a help line; answered, it settles to one line like a choice. **The re-plan card** (“The plan needs to change ·
+  task 1 of 1”) appears when Pi needs a file the person kept out; its body is one sentence (“Pi needs <file>, which you
+  kept out of task 1. …”), not yet “what it adds and moves”: the plan's new content does not exist until Planning.
+- **What you grant**: Kind's source is “your answer” only when a recorded decision answered the kind; otherwise “task
+  file”. The “Laya” tag is not shown yet (Laya does not decide Files today). A file added by Add to Task shows with its
+  own “your answer” tag and time.
+- **Stale page**: the alert line goes into the card (or dialog, or form) of the last press; elsewhere it goes above the
+  error line.
+- **Status**: the desk shows “Working on <project>” (18 characters, then “…”); the phone keeps “Working”.
+- **Shortcuts**: the R12_Refusals table is built (⌃⌥V, ⌃⌥A, ⌃⌥N, ⌃⌥T, ⌃⌥R; Close Window has no key). New Project keeps
+  ⌘N (Project Start's own work).
+
 **Project Start, built from R12_NP1–NP4, Ph12_NP2–NP4 and R12_AddCap (2026-10-18); please revisit**
 - Step 1's “Create in” is a row (“Create in ~/code ›”) that opens the folder browser in a pick mode, as on the phone (Ph8_ChooseFolder), not a popup: the browser already has New Folder… and 44 px rows.
 - The help under the sentence says “The workbench reads the sentence…”: the suggestions are code (keywords per capability, English and Japanese), not Pi.
@@ -197,3 +228,4 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - Available now: Database, Works offline, Dashboard and charts, Multiplayer, Game loop and collision, Installs on a phone, and a new row, Share by QR code (Publish). The rest are listed, disabled, with “Not available yet: …”.
 - Create's failure: a `.pw-cap__warn` naming the failing test and capability, a “Failing test: … (file), from …” line and the test output (dotted box) in the Summary; the dialog stays open.
 - Add a Capability… rows are radios (one capability per request); “What changes” fills in when one is chosen. Its result is the standard done row: “Added …: … Tried it: all N tests of the base pass, M of them new.”
+- **New Project's key**: R12_Refusals gives ⌃⌥N to New File… and no ⌃⌥ key to New Project, so New Project… keeps ⌘N only when installed as an app (like the other ⌘ keys) and its menu item shows no key. Please give it a ⌃⌥ key, or say which one moves.

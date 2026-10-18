@@ -5,6 +5,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { loadBlocks, cardText } from './blocks.mjs';
 
 const KIT = fileURLToPath(new URL('../kit/', import.meta.url));
 
@@ -25,7 +26,16 @@ export function capabilityCards(folder, kit = KIT) {
     const item = catalogue.capabilities.find(capability => capability.id === id);
     if (!item?.card || !existsSync(join(kit, item.card))) continue;
     const files = Object.values(item.install || {}).flatMap(spec => (spec.copy || []).map(([, target]) => target)).filter((path, index, all) => all.indexOf(path) === index && existsSync(join(folder, path)));
-    cards.push(`### ${item.name}${files.length ? ` (in this project: ${files.join(', ')})` : ''}\n\n${readFileSync(join(kit, item.card), 'utf8').trim()}`);
+    // App Blocks (kit/blocks): the blocks the capability installed come with their cards; related ones by name (app_block).
+    const installed = [...new Set(Object.values(item.install || {}).flatMap(spec => spec.blocks || []))];
+    let blocks = '';
+    if (installed.length || item.related_blocks?.length) try {
+      const index = loadBlocks(join(kit, 'blocks', 'index.json'));
+      const texts = installed.map(name => cardText(name, index)).filter(Boolean);
+      const related = (item.related_blocks || []).filter(name => index.byName.has(name));
+      blocks = (texts.length ? `\n\nIts App Blocks (copy their markup files, never retype them):\n\n${texts.join('\n\n---\n\n')}` : '') + (related.length ? `\n\nRelated App Blocks (load one with the app_block tool): ${related.join(', ')}.` : '');
+    } catch {}
+    cards.push(`### ${item.name}${files.length ? ` (in this project: ${files.join(', ')})` : ''}\n\n${readFileSync(join(kit, item.card), 'utf8').trim()}${blocks}`);
   }
   return cards.length ? `Capabilities this project uses (chosen in Project Start; each one's card):\n\n${cards.join('\n\n')}` : '';
 }

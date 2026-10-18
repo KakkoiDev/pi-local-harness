@@ -178,6 +178,8 @@ class Paperwork:
                 if previous and all(previous.get(key)==choice.get(key) for key in ('question','options')) and previous.get('judgement'):
                     choice['judgement']=previous['judgement']
             same=bool(previous) and all(previous.get(key)==choice.get(key) for key in ('question','options'))
+            for key in ('scope','replan'):  # round 12: Gate's own question keeps what it is about when Pi's tool asks it again
+                if same and previous.get(key) and key not in choice:choice[key]=previous[key]
             if previous and not same and previous.get('request')==request:
                 raise ValueError(f"One question at a time: wait for the person's answer to “{previous['question']}” before asking another.")  # task 290
             if not same:
@@ -186,9 +188,11 @@ class Paperwork:
             # so an answer to a question that was replaced is a no-op.
             identifier=previous.get('id') if same and previous.get('id') else uuid.uuid4().hex[:16]
             held=list(previous.get('held') or []) if same else []
-            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'],'before':item['before'],'pending':True}
+            value={**choice,'id':identifier,'request':request,'held':held,'task':item['task'] or (choice.get('scope') or choice.get('replan') or {}).get('task'),'before':item['before'],'pending':True}  # round 12: Gate's scope question belongs to the task in progress
             self.save_choice(item['root'],value)
-            return {key:value[key] for key in ['id','question','options','recommended','task','pending',*(['system_owned'] if value.get('system_owned') else [])]}
+            # Task 273 (J-51): a numbered batch keeps its numbers, so the card says “Question 2 of 3” and offers Take All Recommendations.
+            numbered=isinstance(value.get('number'),int) and isinstance(value.get('total'),int) and not isinstance(value.get('number'),bool) and 1<=value['number']<=value['total']<=20
+            return {key:value[key] for key in ['id','question','options','recommended','task','pending',*[key for key in ('system_owned','scope','replan') if value.get(key)],*(['number','total'] if numbered else [])]}
 
     def confirmed_value(self,root,digest):
         file=self.choice_file(root)
@@ -235,6 +239,9 @@ class Paperwork:
             waiting=self.waiting_choice(item['root']) or {}
             labels=[option['label'] for option in waiting.get('options',[])]
             record_decision(self.data,request,'question_answer','code' if state=='auto' else 'person',{'option':labels.index(clean(answer))} if clean(answer) in labels else 'other',rule='auto.recommendation' if state=='auto' else None,automatic=state=='auto')
+            if (waiting.get('scope') or waiting.get('replan')) and waiting.get('question')==clean(question):
+                from .scope import answer as scope_answer  # round 12 (task 261): Add to Task, Keep Out, Re-plan, Keep the Plan
+                return scope_answer(self,request,item,waiting,clean(answer),state)
             if not item['task'] and item.get('candidate'):item['task']=item['candidate']
             phase=self.phases.get(item['root'])['phase'];plan=self.plan_state(item['root'])
             # Task 293: in Planning, a plan waiting for Start Building takes an answer its request had no task for.
@@ -327,7 +334,7 @@ class Paperwork:
             value=json.loads(legacy.read_text(encoding='utf-8'));return self.plan_state(root,value)
         except (OSError,ValueError):return {}
 
-    def phase(self, root, phase=None, *, action='phase button'):
+    def phase(self, root, phase=None, *, action='phase button', request=None):
         """Trusted person controls only. No Pi tool exposes phase selection."""
         root=Path(root).resolve()
         if self.project_root(root)!=root:raise ValueError('Choose a registered project or a folder with ROADMAP.md and tasks/.')
@@ -338,7 +345,7 @@ class Paperwork:
                 if not paths:raise ValueError('No planned task yet. Plan one first.')
                 waiting=plan.get('approved') and plan.get('check_in') and not plan.get('finished')  # task 260: a check-in never strands the plan
                 if plan.get('pending') or not (self.active_scope(root) or waiting):raise ValueError('No approved task is in progress. Choose Planning, then Start Building on the plan.')
-            if phase:self.phases.choose(root,phase,actor='person',planned=bool(paths),action=action)
+            if phase:self.phases.choose(root,phase,actor='person',planned=bool(paths),action=action,request=request)
             value=self.phases.get(root);tasks=[]
             for path in paths:
                 file=root/path
@@ -348,7 +355,7 @@ class Paperwork:
             card={'check_in':plan['card']} if plan.get('check_in') and plan.get('card') else {}  # task 260: a reload can show the waiting check-in
             return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished')),**card}
 
-    def start_building(self, root, selected=None):
+    def start_building(self, root, selected=None, request=None):
         """Explicit Start Building confirmation, separate from choosing a phase."""
         import uuid
         root=Path(root).resolve()
@@ -356,7 +363,7 @@ class Paperwork:
         with self.lock:
             plan=self.plan_state(root)
             if not plan.get('pending') and not plan.get('finished'):
-                result=self.phase(root,'implementation',action='Start Building');self.settle_waiting(root,'Start Building');return result
+                result=self.phase(root,'implementation',action='Start Building',request=request);self.settle_waiting(root,'Start Building');return result
             available=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if selected is None:selected=available
             if not isinstance(selected,list) or not selected or len(set(selected))!=len(selected) or any(path not in available for path in selected):raise ValueError('Choose at least one task from the waiting plan.')
@@ -364,20 +371,24 @@ class Paperwork:
             selected=[path for path in available if path in selected]
             plan.update(tasks=selected,waiting=[path for path in available if path not in selected],pending=True,digest=self.plan_digest(root,selected))
             self.plan_state(root,plan)
-            request='build-'+uuid.uuid4().hex
+            # Task 273: under the plan's request (its message), so the approval shows in that answer's decisions.
+            request=f'{request}.build-{uuid.uuid4().hex[:8]}' if request else 'build-'+uuid.uuid4().hex
             self.requests[request]={'root':root,'text':'Start Building','before':{},'task':None}
             try:self.approve_plan(request)
             finally:self.requests.pop(request,None)
             return self.phase(root)
 
-    def accept_task(self, root, action='accept', state='chosen'):
-        if action not in ('accept','stop') or state not in ('chosen','auto'):raise ValueError('Unknown check-in action.')
+    def accept_task(self, root, action='accept', state='chosen', request=None):
+        if action not in ('accept','stop','anyway') or state not in ('chosen','auto'):raise ValueError('Unknown check-in action.')
         root=Path(root).resolve()
+        if action=='anyway':
+            from .checkins import accept_anyway  # round 12 (task 260): the person's Accept Anyway…, labelled in ROADMAP.md
+            return accept_anyway(self,root,state,request)
         with self.lock:
             plan=self.plan_state(root)
             if not plan.get('check_in'):raise ValueError('No task is waiting for validation.')
             if action=='stop':
-                record_decision(self.data,None,'task_acceptance','person','stop',rule='G-015')
+                record_decision(self.data,request,'task_acceptance','person','stop',rule='G-015')
                 return {'finished':False,'stopped':True}
             if not plan.get('verified') and state=='auto':raise ValueError('Review the unverified task before accepting it.')
             if state=='auto':require_auto(self.data,'accept this task')
@@ -385,13 +396,13 @@ class Paperwork:
             if not plan.get('verified'):
                 # An unverified task is not skipped: accepting retries the same task (the card names it).
                 plan.update(check_in=False,accepted=state);plan.pop('card',None);self.plan_state(root,plan)
-                record_decision(self.data,None,'task_acceptance','person','retry',rule='G-015')
+                record_decision(self.data,request,'task_acceptance','person','retry',rule='G-015')
                 return {'finished':False,'next':plan['tasks'][plan.get('index',0)],'total':len(plan['tasks']),'retry':True}
             index=plan.get('index',0)+1
             finished=index>=len(plan['tasks'])
             plan.update(check_in=False,finished=finished,accepted=state,index=plan.get('index',0) if finished else index);plan.pop('card',None)
             self.plan_state(root,plan)
-            record_decision(self.data,None,'task_acceptance','code' if state=='auto' else 'person','accept',rule='G-015',automatic=state=='auto')
+            record_decision(self.data,request,'task_acceptance','code' if state=='auto' else 'person','accept',rule='G-015',automatic=state=='auto')
             return {'finished':finished,'next':None if finished else plan['tasks'][index],'total':len(plan['tasks'])}
 
     def active_scope(self, root):
@@ -496,7 +507,8 @@ class Paperwork:
                 if not title or not done:raise ValueError('Each task needs a title and Done when.')
                 # Task 261: the card shows the decisions the harness recorded, never lines written into the file.
                 decisions='\n'.join(f"- {value['question']}: {value['answer']} ({value['state']})" for value in self.recorded_decisions(root,path))
-                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions})
+                from .scope import grant  # round 12: What you grant (Kind and Files, with their sources)
+                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions,'grant':grant(self,root,path,text)})
             if not tasks:raise ValueError('The plan needs at least one open task.')
             goal=re.search(GOAL,roadmap,re.M|re.S)
             first=root/tasks[0]['path']
@@ -533,7 +545,7 @@ class Paperwork:
             self.plan_state(root,plan);item['task']=plan['tasks'][0]
             self.settle_waiting(root,'Start Building' if state=='chosen' else 'Run on its own')
             item['new_plan']=False
-            self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building')
+            self.phases.choose(root,'implementation',actor='auto' if state=='auto' else 'person',planned=True,action='Start Building',request=request)
             if state=='auto' and self.runs:self.runs.add(root,'decisions',{'question':'Plan approval','answer':'Approved recommended plan','tasks':plan['tasks']})
             record_decision(self.data,request,'plan_approval','code' if state=='auto' else 'person','approved',rule='G-015',automatic=state=='auto')
             return self.plan_status(request)
@@ -626,7 +638,7 @@ class Paperwork:
             if item and result and result.get('outcome')=='not verified' and item.get('planned'):
                 # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
-                card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks'])}
+                card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks']),**({'outside':result['outside']} if result.get('outside') else {}),'title':self.subject(item).rsplit(' (task ',1)[0]}
                 plan.update(check_in=True,verified=False,card=card);self.plan_state(item['root'],plan)
                 result['check_in']=card
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
@@ -693,7 +705,7 @@ class Paperwork:
                           "(left out of the commit; add them to Files: in Planning, or to .gitignore when a tool makes them)")
                 self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
                 saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
-                return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
+                return {'outcome': 'not verified', 'task': task, 'reason': reason, 'outside': outside, **saved}  # round 12: the card names them
             kind = task_kind(root, task)
             if planned and not publish and kind == 'code' and not implementation_paths(code):
                 # An empty implementation is not documentation work. Keep existing task/roadmap
@@ -732,12 +744,14 @@ class Paperwork:
                 roadmap = re.sub(rf'^(\s*[-*+]) \[ \](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1 [x]\2', roadmap, count=1, flags=re.MULTILINE)
                 (root / 'ROADMAP.md').write_text(roadmap, encoding='utf-8')
                 if roadmap!=before_roadmap:record_decision(self.data,request,'box_ticked','code',1,rule='G-010')
+            from .checkins import evidence, task_title
+            proof = evidence(self, request, item, inside) if planned else None  # round 12 (plan 267): before the commit, HEAD is the old code
             saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item))
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
             if result['outcome']=='committed':record_decision(self.data,request,'step_done','code','verified_and_committed',rule='G-013')
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
-                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task'}
+                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task',**({'evidence':proof} if proof else {}),**({'next_title':task_title(root,next_task)} if next_task else {})}
                 plan.update(index=index,check_in=True,finished=False,verified=True,card=result['check_in']);self.plan_state(root,plan)
             return result
 
@@ -822,7 +836,7 @@ class Paperwork:
             if run(): return f'the tests pass without the change too (`{command}`): they do not test it'
         return True
 
-    def reopen(self, root, task):
+    def reopen(self, root, task, request=None):
         """Task 260, person only (never a Pi tool): reopen a task the harness marked done without real evidence. Its boxes
         and roadmap line open again, the approved plan points at it, and a harness commit records it (Undo works)."""
         root = Path(root).resolve()
@@ -839,7 +853,8 @@ class Paperwork:
             item = {'root': root, 'task': task, 'text': 'Reopen', 'before': {}}
             self.progress(item, f'Reopened at {clock()} by the person: the earlier completion is not accepted; the task is open again')
             roadmap = root / 'ROADMAP.md'
-            roadmap.write_text(re.sub(rf'^(\s*)- \[[xX]\](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [ ]\2', roadmap.read_text(encoding='utf-8'), flags=re.M), encoding='utf-8')
+            from .checkins import unlabel  # round 12: "accepted without verification" goes with the tick
+            roadmap.write_text(re.sub(rf'^(\s*)- \[[xX]\](.*\(tasks/{re.escape(Path(task).name)}\))', r'\1- [ ]\2', unlabel(roadmap.read_text(encoding='utf-8'), task), flags=re.M), encoding='utf-8')
             plan = self.plan_state(root)
             tasks = plan.get('tasks', []) if not plan.get('finished') else []
             if task not in tasks: tasks = [task] + [path for path in tasks if path != task]
@@ -848,7 +863,7 @@ class Paperwork:
             else:
                 plan.update(tasks=tasks, index=tasks.index(task), approved=True, pending=False, check_in=False, finished=False, digest=self.plan_digest(root, tasks))
             plan.pop('card', None); self.plan_state(root, plan)
-            record_decision(self.data, None, 'task_reopen', 'person', 'reopen', rule='G-015')
+            record_decision(self.data, request, 'task_reopen', 'person', 'reopen', rule='G-015')
             saved = self.commit(root, [task, 'ROADMAP.md'], self.subject(item, ', reopened'), 'Reopened by the person: the earlier completion was not verified.')
             return {'task': task, 'index': plan['index'], 'approved': plan['approved'], **saved}
 

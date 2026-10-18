@@ -16,6 +16,7 @@ from harness.preview import Previews
 from harness import undo as undoing
 from harness import laya, theme
 from harness.decision_log import record
+from harness import decision_rows
 import json
 import os
 from pathlib import Path
@@ -52,6 +53,13 @@ SILENCE=float(os.getenv('PI_HARNESS_SILENCE_SECONDS','3600'))
 
 def silence_words(seconds):
     return f'{seconds/3600:g} hour{"" if seconds==3600 else "s"}' if seconds>=3600 else f'{seconds/60:g} minutes' if seconds>=120 else f'{seconds:g} seconds'
+
+
+class TerminalBusy(ValueError):
+    """Round 12 (task 262, R12_Renamed): a project command refused while terminal Pi works; the page shows its own alert."""
+    def __init__(self, command, name, since):
+        said={'rename':f'Can’t rename “{name}” while terminal Pi works in it.','move':f'Can’t move “{name}” while terminal Pi works in it.'}.get(command,f'Can’t move “{name}” to the Trash while terminal Pi works in it.')
+        super().__init__(said);self.command,self.name,self.since=command,name,since
 
 
 class ProjectBusy(ValueError):
@@ -353,7 +361,11 @@ class WebChat:
         if command in ('rename','move','trash'):
             busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
             if busy:raise ProjectBusy(busy[0]['id'])
-            if self.agent_running():raise ValueError('Pi is working in the terminal, maybe in this folder. Rename, move or trash the project when it has finished.')  # task 262
+            if self.agent_running():
+                lock=self.documents.root/'.agent-lock'
+                try:since=time.strftime('%H:%M',time.localtime(lock.stat().st_mtime))
+                except OSError:since=''
+                raise TerminalBusy(command,next((item['name'] for item in store.list_projects() if item['id']==project),project),since)  # task 262
         if command in ('rename','move'):
             # Task 262: the Preview's app runs in the folder; the harness stops it (its own process) and starts it again there.
             restart=self.previews.active(project);self.previews.stop(project)
@@ -366,7 +378,10 @@ class WebChat:
             except Exception:
                 if restart:self.previews.start(project,store.project_path(project))
                 raise
-            if restart:self.previews.start(project,Path(result['path']))
+            if restart:
+                self.previews.start(project,Path(result['path']))
+                where=str(result['path']).replace(str(Path.home()),'~',1)
+                self.previews.restarted(project,f"Restarted in the {'renamed' if command=='rename' else 'moved'} folder: {where}")  # round 12 (R12_Renamed): one note line
             return self.moved(project,result)
         if command=='locate':return self.moved(project,store.locate_project(project,data.get('path','')))
         if command=='remove':self.previews.stop(project);return store.forget(project)
@@ -455,7 +470,16 @@ class WebChat:
         try:result=theme.save(root,data.get('light'),data.get('dark'),data.get('fonts'),download=self.fonts.download)
         except OSError as error:raise ValueError(f'Not saved: a font could not be downloaded ({error}). Nothing was changed.') from error
         if result.get('unchanged'):return result
-        message={'role':'assistant','author':'workbench','content':result['message']+(' '+result['note'] if result.get('note') else '')}
+        return self.theme_saved(project,root,result)
+    def theme_add(self, project):
+        """Add a Theme File (round 12): Basecoat's defaults as one commit of the person's (a person-only route)."""
+        root=self.documents.project_path(project)
+        busy=[job for job in self.queue.list() if job['status']=='running' and job.get('project')==project]
+        if busy:raise ProjectBusy(busy[0]['id'])
+        return self.theme_saved(project,root,theme.add_file(root),added=True)
+    def theme_saved(self, project, root, result, added=False):
+        """The workbench's one line in the chat (✓ Theme saved: … · the file · time, Undo), the commit told to the Preview."""
+        message={'role':'assistant','author':'workbench','content':result['message']+(' '+result['note'] if result.get('note') else ''),'theme_saved':{'names':result['names'],'path':theme.FILE,'added':added}}
         if result.get('commit'):message['commit']=result['commit'];self.changed(project,root,result['commit'],'You')
         return {**result,'conversation':self.store.append(self.project_chat(project)['id'],message),'state':theme.state(root)}
     def answer_choice(self, project, data):
@@ -489,6 +513,7 @@ class WebChat:
             for item in mine:item.update(answer=answer,state='chosen',when=timestamp(),key=key,job=job['id'])
             conversation=self.store.save(conversation)
         self.queue.resume_waiting(chat,f'Answered: {answer}')
+        if data.get('take_all') is True:decision_rows.take_all(self,chat,choice)  # task 273: the rest of a numbered batch takes each recommendation
         return {'answer':answer,'job':job['id'],'conversation':conversation}
     def abandon(self, request):
         """Task 290: end Gate's paperwork for a request whose Pi crashed or was stopped before it could (no review, no
@@ -779,7 +804,8 @@ class WebChat:
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
             if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
             answered=True
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {}),**({'theme_hint':data['theme_hint']} if data.get('theme_hint') in theme.GROUPS else {})})
+            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'request':key,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {}),**({'theme_hint':data['theme_hint']} if data.get('theme_hint') in theme.GROUPS else {})})
+            if pending_choice and not detached and project:decision_rows.take_next(self,project,identifier,pending_choice,emit)  # task 273: Take All Recommendations
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         except Exception as error:
@@ -794,7 +820,7 @@ class WebChat:
                 how={'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]}
                 how.update({**({'job':job} if job else {}),**({'commit':ended['commit']} if (ended or {}).get('commit') else {})})
                 try:
-                    self.store.append(identifier,{'role':'assistant','content':text,'ended':how,
+                    self.store.append(identifier,{'role':'assistant','content':text,'ended':how,'request':key,
                         **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
                     emit({'type':'conversation','conversation':self.store.get(identifier)})
                 except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
@@ -842,9 +868,9 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/projects/start','/api/projects/capability'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
-        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
+        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
         return (path=='/api/jobs/create' or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/send',path) is not None) and str(data.get('message','')).lstrip().startswith('Choice: ')
     def person(self):
@@ -907,6 +933,8 @@ class WebHandler(BaseHTTPRequestHandler):
                 if query.get('document'):request['document']=query['document']
                 if query.get('comment'):request={'message':'','document_comment':{'path':query.get('path',''),'id':query['comment']}}
                 self.reply(self.chat.context_preview(query['project'],request));return
+            decisions=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/decisions',path)  # task 273: the decision rows under each answer
+            if decisions:self.reply(decision_rows.conversation(self.chat.documents.root,self.chat.store.get(decisions[1])));return
             if path.startswith('/api/conversations/'):
                 self.reply(self.chat.store.get(path.rsplit('/',1)[-1]));return
             if path.startswith('/api/files/'):
@@ -919,7 +947,8 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -946,27 +975,30 @@ class WebHandler(BaseHTTPRequestHandler):
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
             if self.person_only(path,data) and not self.person():
-                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.'},403);return
+                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.','stale':True},403);return  # round 12 (R12_Grant): the page says it is out of date and offers Reload Page
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
-                result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
+                planned=next((message.get('request') for message in reversed(self.chat.project_chat(data['project'])['messages']) if message.get('plan')),None)  # task 273: the approval joins the plan's answer
+                result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'),request=planned)
                 conversation=self.chat.store.settle_choices(self.chat.project_chat(data['project'])['id'],'Start Building')
                 self.chat.queue.resume_waiting(conversation['id'],'Start Building')
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):
                         message['plan'].update(approved=True,waiting=False);break
                 self.chat.store.save(conversation);self.reply(result);return
-            action=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/(accept|stop)',path)
+            action=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/(accept|accept-anyway|stop)',path)
             if action:
                 conversation=self.chat.store.get(action[1]);index=data.get('index')
-                if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(conversation['messages']):raise ValueError('Check-in not found.')
-                check=conversation['messages'][index].get('check_in')
-                if not check:raise ValueError('Check-in not found.')
                 root=self.chat.documents.project_path(conversation['project'])
                 plan=self.chat.ledger.paperwork.plan_state(root)
+                if data.get('restored') is True and index is None:check={**(plan.get('card') or {}),'restored':True} if plan.get('check_in') else {}  # round 12: a check-in restored after a reload has no message
+                else:
+                    if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(conversation['messages']):raise ValueError('Check-in not found.')
+                    check=conversation['messages'][index].get('check_in')
+                if not check:raise ValueError('Check-in not found.')
                 if not plan.get('tasks') or check['task']!=plan['tasks'][plan.get('index',0)]:raise ValueError('This check-in is no longer current.')
-                result=self.chat.ledger.paperwork.accept_task(root,action='accept' if action[2]=='accept' else 'stop')
-                check.update(accepted=action[2]=='accept',state='accepted' if action[2]=='accept' else 'stopped',when=timestamp())
+                result=self.chat.ledger.paperwork.accept_task(root,action={'accept':'accept','accept-anyway':'anyway','stop':'stop'}[action[2]],request=check.get('request') or (conversation['messages'][index].get('request') if isinstance(index,int) else None))  # task 273: under the check-in's answer
+                check.update(accepted=action[2]!='stop',state={'accept':'accepted','accept-anyway':'accepted anyway','stop':'stopped'}[action[2]],when=timestamp())
                 self.reply({'conversation':self.chat.store.save(conversation),**result});return
             if path=='/api/plan/wait':
                 root=self.chat.documents.project_path(data['project']);self.chat.ledger.paperwork.phase(root,'discussion',action='Plan Another Task')
@@ -978,7 +1010,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
             if path=='/api/theme/open':self.reply(self.chat.open_theme(data['project'],data.get('group','colours')));return  # task 312: Project › Theme…
             if path=='/api/theme/save':self.reply(self.chat.theme_save(data['project'],data));return
-            if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task')));return  # task 260: the person's recovery from a false completion
+            if path=='/api/theme/add':self.reply(self.chat.theme_add(data['project']));return  # round 12: Add a Theme File
+            if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task'),request=data.get('request') if isinstance(data.get('request'),str) else None));return  # task 260: the person's recovery from a false completion
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':
                 action=data.get('action','check')
@@ -1010,6 +1043,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/directories/create':self.reply(self.chat.documents.create_directory(data.get('parent'),data.get('name')));return
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/choices/answer':self.reply(self.chat.answer_choice(data['project'],data));return  # task 290
+            if path=='/api/decisions/change':self.reply(decision_rows.change_answer(self.chat,data['project'],data));return  # task 273: Change… on a decision row
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
@@ -1056,6 +1090,8 @@ class WebHandler(BaseHTTPRequestHandler):
             except Exception as error:emit({'type':'error','error':str(error)})
         except ProjectBusy as error:
             if not streaming:self.reply({'error':str(error),'busy':True,'job':error.job},409)
+        except TerminalBusy as error:
+            if not streaming:self.reply({'error':str(error),'terminal':True,'command':error.command,'name':error.name,'since':error.since},409)
         except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
             if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)
         except (TypeError,AttributeError) as error:

@@ -1,6 +1,7 @@
 # Plan 267: System 1 makes every judgement
 
-Date: 2026-10-18. Status: planned (tasks 268-274). The person: "the UX improvements for the gate to make all
+Date: 2026-10-18. Status: planned (tasks 268-274); task 273's decision row, Change… for answers, the phase and
+accepted tasks, batch questions, Beginner and Expert detail and `/decisions` are built (round 12, step 7). The person: "the UX improvements for the gate to make all
 judgements". CONSTITUTION.md Articles 1, 2, 3, 6, 10 and 11: System 1 (code, then Laya) decides; System 2 (the model)
 only produces; when System 1 cannot decide with confidence, the person decides, never the model.
 

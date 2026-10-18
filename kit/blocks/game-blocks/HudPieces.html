@@ -1,0 +1,29 @@
+<section id="hud" class="game-hud" aria-label="Status">
+  <div data-slot="tl" class="grid gap-1">
+    <div class="game-row" role="meter" aria-labelledby="hud-hp-l" aria-valuemin="0" aria-valuemax="10" aria-valuenow="7">
+      <span class="game-icon" data-kind="heart" aria-hidden="true"></span>
+      <span id="hud-hp-l" class="sr-only" data-t="hud.health">Health</span>
+      <span class="game-bar" style="--value:0.7;width:120px"></span>
+      <span class="game-num">7/10</span>
+    </div>
+    <div class="game-row" role="meter" aria-labelledby="hud-en-l" aria-valuemin="0" aria-valuemax="50" aria-valuenow="30">
+      <span id="hud-en-l" class="game-small" data-t="hud.energy">Energy</span>
+      <span class="game-bar" data-kind="energy" style="--value:0.6;width:96px"></span>
+    </div>
+  </div>
+  <div data-slot="tc" class="game-objective" role="status">
+    <span class="game-h" data-t="hud.objective">Objective</span>
+    <p class="game-line" style="margin:2px 0 0;font-size:12px" data-t="quest.find_well">Find the old well north of the field</p>
+  </div>
+  <div data-slot="tr" class="grid gap-1 justify-items-end">
+    <span class="game-num"><span data-t="hud.score">Score</span> <b id="hud-score">12 450</b></span>
+    <span class="game-num" role="timer" aria-label="Time left"><span data-t="hud.time">Time</span> <b>02:41</b></span>
+    <span class="game-row game-num"><span class="game-icon" data-kind="coin" aria-hidden="true"></span><b>86</b></span>
+  </div>
+  <div data-slot="bl" class="game-minimap" role="img" aria-label="Map: you are in the middle of Willow Field"><!-- a small canvas: the level at 1 px per tile, the player blinking --></div>
+  <div data-slot="br" class="grid justify-items-end">
+    <span class="game-combo game-num" aria-live="off">×12</span>
+    <span class="game-small" data-t="hud.combo">Combo</span>
+  </div>
+</section>
+<p id="hud-live" class="sr-only" aria-live="polite"></p>

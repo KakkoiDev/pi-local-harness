@@ -1,0 +1,41 @@
+<main class="app mx-auto grid w-full max-w-xl gap-6 p-4 @3xl:p-8">
+  <header class="grid justify-items-center gap-3 text-center">
+    <img src="/static/icon.svg" alt="" width="72" height="72" class="rounded-2xl">
+    <div>
+      <h1 class="text-2xl font-semibold" data-t="app.name">Class Notes</h1>
+      <p class="text-muted-foreground text-sm" data-t="about.tagline">Notes for our Japanese class.</p>
+    </div>
+  </header>
+
+  <section class="card" aria-label="Version" data-t-label="about.version">
+    <section class="item-group">
+      <div class="item" data-size="sm"><section><h3 data-t="about.version">Version</h3></section><aside class="tabular-nums">1.4.0</aside></div>
+      <hr>
+      <div class="item" data-size="sm"><section><h3 data-t="about.updated">Last updated</h3></section><aside><time datetime="2026-10-16">16 Oct 2026</time></aside></div>
+      <hr>
+      <div class="item" data-size="sm"><section><h3 data-t="about.made_by">Made by</h3></section><aside>Aiko Tanaka</aside></div>
+    </section>
+    <footer class="flex flex-wrap gap-2">
+      <a class="btn" data-variant="outline" href="/help" data-t="about.help">Help</a>
+      <button class="btn" data-variant="outline" type="button" id="about-check-update" data-t="about.check_update">Check for Updates</button>
+    </footer>
+  </section>
+
+  <section class="accordion" aria-label="Licences">
+    <details>
+      <summary>
+        <span data-t="about.licences">Open-source licences</span>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <ul class="grid gap-1 text-sm">
+        <li>Basecoat 1.0.2 · MIT</li>
+        <li>Tailwind CSS 4.3.3 · MIT</li>
+        <li>htmx 4.0.0 · Zero-Clause BSD</li>
+        <li>Chart.js 4.5.1 · MIT</li>
+      </ul>
+      <a class="text-sm underline underline-offset-4" href="/static/THIRD_PARTY_NOTICES.md" data-t="about.licences_full">Full notices</a>
+    </details>
+  </section>
+
+  <p class="text-muted-foreground text-center text-xs" data-t="about.made_with">Made with Pi Workbench</p>
+</main>

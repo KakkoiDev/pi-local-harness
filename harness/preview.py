@@ -199,6 +199,11 @@ class Previews:
         with self.lock: app = self.apps.get(project)
         if app and app.state == 'running': app.note = {'text': text, 'time': time.strftime('%H:%M')}
 
+    def restarted(self, project, text):
+        """Round 12 (task 262): after Rename or Move, the note says where the app runs now (shown once it answers)."""
+        with self.lock: app = self.apps.get(project)
+        if app: app.note = {'text': text, 'time': time.strftime('%H:%M')}
+
     def start(self, project, folder):
         with self.lock:
             app = self.apps.get(project)

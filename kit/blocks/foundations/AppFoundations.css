@@ -1,0 +1,13 @@
+:root { --chart-1: #0072b2; --chart-2: #e69f00; --chart-3: #009e73; --chart-4: #cc79a7; --chart-5: #d55e00; }
+.dark { --chart-1: #56b4e9; --chart-2: #e69f00; --chart-3: #2bb58f; --chart-4: #da8fba; --chart-5: #f07a2a; }
+.app { container: app / inline-size; }
+@container app (width < 48rem) {
+  .btn:not([data-size]), .btn[data-size="default"], .btn[data-size="sm"], .btn[data-size="lg"],
+  .input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select.select, .select:not(select) > button, .textarea { min-height: 2.75rem; }
+  .btn[data-size="icon"], .btn[data-size="icon-sm"] { min-width: 2.75rem; min-height: 2.75rem; }
+  .input[type="checkbox"], .input[type="radio"] { width: 1.375rem; height: 1.375rem; }
+  .sidebar nav a, .sidebar summary, .dropdown-menu [role="menuitem"], .command [role="menuitem"], [role="option"], .tabs [role="tab"], .input-group { min-height: 2.75rem; }
+}
+.toast .toast-content p { word-break: normal; overflow-wrap: anywhere; }
+.toast .toast-content :lang(ja) { line-break: strict; }
+:lang(ja) { line-height: 1.7; font-synthesis-weight: none; }

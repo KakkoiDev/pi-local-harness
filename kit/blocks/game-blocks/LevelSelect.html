@@ -1,0 +1,23 @@
+<section id="levels" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="lv-title" hidden>
+  <div class="game-panel" style="width:min(640px,100%);display:grid;gap:12px">
+    <div class="game-row" style="justify-content:space-between">
+      <h2 id="lv-title" class="game-h" data-t="levels.title">Choose a Level</h2>
+      <span class="game-row game-num"><span class="game-icon" data-kind="star" aria-hidden="true"></span><span data-t="levels.stars_total">14 / 30</span></span>
+    </div>
+    <div class="game-tabs" role="tablist">
+      <button class="game-tab" role="tab" aria-selected="true" data-t="world.1">1 · Meadow</button>
+      <button class="game-tab" role="tab" aria-selected="false" tabindex="-1" data-t="world.2">2 · Caves</button>
+      <button class="game-tab" role="tab" aria-selected="false" tabindex="-1" aria-disabled="true" data-t="world.3">3 · ???</button>
+    </div>
+    <div class="game-slots" role="grid" style="--cols:5;gap:8px">
+      <button class="game-slot" role="gridcell" aria-label="Level 1-1, 3 stars" style="width:64px;height:64px;display:grid;align-content:center;gap:4px">
+        <span class="game-num">1-1</span><span class="game-row" style="gap:1px" aria-hidden="true"><i class="game-icon" data-kind="star"></i><i class="game-icon" data-kind="star"></i><i class="game-icon" data-kind="star"></i></span>
+      </button>
+      <!-- open, not finished: no stars; locked: <span class="game-slot" role="gridcell" aria-disabled="true" aria-label="Level 1-7, locked">🔒 drawn as a padlock sprite</span> -->
+    </div>
+    <div class="game-row" style="justify-content:space-between" aria-live="polite">
+      <span><span class="game-speaker" data-t="level.1_4">1-4 · Windy Hill</span> <span class="game-small"><span data-t="levels.best">Best</span> 0:48.20</span></span>
+      <button class="game-btn" data-variant="solid" data-t="levels.play">Play</button>
+    </div>
+  </div>
+</section>

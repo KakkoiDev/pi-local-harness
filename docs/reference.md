@@ -88,7 +88,7 @@ sends the whole thread with what you typed, and Pi's answers are added below, in
 Anchors must match a unique passage in the current file. Changed passages retain the original
 quote rather than silently moving.
 
-**Activity · All Projects** (Window menu ⌘3, the Agent section of the Projects window, or the
+**Activity · All Projects** (Window menu ⌃⌥3, the Agent section of the Projects window, or the
 status in the menu bar) shows running, waiting, completed, stopped, failed, and interrupted
 tasks of every project. A request that paused for a question or a plan is waiting for you (“Stopped by a question:
 waiting for your answer”, or for Start Building), not completed; it completes when you answer or act on the plan. A
@@ -211,7 +211,7 @@ and no-install forms: `npx --no-install`, `uv run --offline`, `cargo test --offl
 destructive guard alone applies: ordinary commands run; broad deletion (`rm -fr *`), root/home deletion, disk
 erasure, raw disk writes and recursive system permission changes are blocked. Common shell wrappers are checked. This
 is an accident guard, not a sandbox for arbitrary scripts. [Rules and sources](../specs/shell-safety.md).
-**Gate · All Projects** (Window menu ⌘4) shows the actual shared ledger: checks, arguments,
+**Gate · All Projects** (Window menu ⌃⌥4) shows the actual shared ledger: checks, arguments,
 outcomes, reasons, project and source (web or terminal). Checks are saved in
 `gate-events.jsonl` and the latest 200 come back after a restart.
 
@@ -285,6 +285,13 @@ For local music and sound creation, see [music setup and limits](music.md). The 
 revisions. Its successful files join the existing chat attachments and audio player.
 See [application integration and source reuse](music-projects.md) and the
 [LLM music guide](../harness/music/AGENT_GUIDE.md).
+
+App Blocks (plan 266 item 7): `harness/blocks.mjs` matches a request's words against `kit/blocks/index.json` and adds at
+most two cards, plus the AppFoundations or GameKit card they assume, to the system prompt (14,000 characters at most);
+when only common or shared words match, the classifier (judgement `app_block`) picks one of those few or none, never a
+question to the person. Both decisions go to `decisions.jsonl` (`app_block_chosen` by code, `app_block` by the
+classifier). The `app_block` tool loads one more card by its exact name (Gate: a read). `kit/blocks/add.py` sets a
+project up for blocks; `kit/blocks/check.py` checks pages; see [kit/README.md](../kit/README.md).
 
 ## Where to change things
 

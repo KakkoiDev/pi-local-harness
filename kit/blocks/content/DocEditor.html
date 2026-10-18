@@ -1,0 +1,32 @@
+<main class="app mx-auto grid w-full max-w-3xl gap-3 p-4 @3xl:p-8">
+  <header class="flex flex-wrap items-center justify-between gap-2">
+    <a class="btn" data-variant="ghost" data-size="sm" href="/notes" data-t="doc.back">‹ All Notes</a>
+    <p id="doc-status" class="text-muted-foreground flex items-center gap-1 text-sm" role="status" aria-live="polite">
+      <span data-t="doc.saved">Saved</span>
+    </p>
+  </header>
+  <form id="doc-form" class="grid gap-3" hx-put="/notes/42" hx-trigger="input changed delay:800ms, submit" hx-target="#doc-status" hx-swap="innerHTML">
+    <label class="sr-only" for="doc-title" data-t="doc.title_label">Title</label>
+    <input id="doc-title" name="title" class="w-full border-0 bg-transparent p-0 text-2xl font-semibold outline-none" value="Week 3 · Vocabulary" placeholder="Untitled" data-t-placeholder="doc.untitled">
+    <div class="flex flex-wrap items-center gap-2 border-y py-2" role="toolbar" aria-label="Formatting" data-t-label="doc.toolbar" aria-controls="doc-body">
+      <div class="button-group">
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="**" aria-label="Bold" data-t-label="doc.bold" title="Bold (⌘B)"><b>B</b></button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="_" aria-label="Italic" data-t-label="doc.italic" title="Italic (⌘I)"><i>I</i></button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="# " aria-label="Heading" data-t-label="doc.heading">H</button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="- " aria-label="Bulleted list" data-t-label="doc.bullets">•</button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="- [ ] " aria-label="Checklist" data-t-label="doc.checklist">☐</button>
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" data-md="link" aria-label="Link" data-t-label="doc.link" title="Link (⌘K)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+      </div>
+      <span class="flex-1"></span>
+      <button class="btn" data-variant="outline" data-size="sm" type="button" aria-pressed="false" data-t="doc.preview">Preview</button>
+    </div>
+    <label class="sr-only" for="doc-body" data-t="doc.body_label">Note</label>
+    <textarea id="doc-body" name="body" class="textarea min-h-[60dvh] resize-y border-0 px-0 text-base leading-relaxed shadow-none focus-visible:ring-0" placeholder="Start writing…" data-t-placeholder="doc.placeholder">## Words
+- 駅 (eki) station
+- 電車 (densha) train</textarea>
+  </form>
+  <footer class="text-muted-foreground flex justify-between text-xs">
+    <span data-t="doc.words">48 words</span>
+    <span data-t="doc.edited">Edited 18 Oct, 09:41</span>
+  </footer>
+</main>

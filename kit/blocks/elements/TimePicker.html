@@ -1,0 +1,32 @@
+<!-- 1. Native time field: any time, in 5-minute steps -->
+<div class="field">
+  <label class="label" for="start-time" data-t="time.start">Start time</label>
+  <input class="input" id="start-time" name="start" type="time" step="300" min="08:00" max="22:00" aria-describedby="start-time-help">
+  <p class="text-muted-foreground text-sm" id="start-time-help" data-t="time.zone_help">Times are in Japan time (JST).</p>
+</div>
+
+<!-- 2. Native select of fixed times (short lists, up to ~30) -->
+<div class="field">
+  <label class="label" for="reminder" data-t="time.reminder">Daily reminder</label>
+  <select class="select" id="reminder" name="reminder">
+    <option value="" data-t="time.none">No reminder</option>
+    <option value="07:00">7:00 AM</option>
+    <option value="08:00" selected>8:00 AM</option>
+    <option value="21:00">9:00 PM</option>
+  </select>
+</div>
+
+<!-- 3. Free slots: radio buttons that look like buttons -->
+<fieldset class="fieldset" aria-describedby="slots-help">
+  <legend class="label" data-t="time.slots">Choose a time</legend>
+  <p class="text-muted-foreground text-sm" id="slots-help" data-t="time.slots_help">60 minutes · Wednesday 14 October</p>
+  <div class="grid grid-cols-3 gap-2 @3xl:grid-cols-4" role="radiogroup">
+    <label class="btn has-[:checked]:bg-primary has-[:checked]:text-primary-foreground" data-variant="outline">
+      <input type="radio" name="slot" value="10:00" class="sr-only">10:00
+    </label>
+    <label class="btn opacity-50" data-variant="outline" aria-disabled="true">
+      <input type="radio" name="slot" value="11:00" class="sr-only" disabled><s>11:00</s>
+    </label>
+    <!-- … one label per slot … -->
+  </div>
+</fieldset>
