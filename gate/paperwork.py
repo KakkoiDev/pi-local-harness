@@ -125,6 +125,9 @@ def clock():
     return datetime.now().strftime('%H:%M')
 
 
+# A decision the harness recorded in a task's Decisions section: "- question: answer (chosen|auto <time>)".
+DECISION_LINE=re.compile(r'^- .+\((?:chosen|auto)[^)\n]*\)[ \t]*$',re.M)
+
 class Paperwork:
     def __init__(self, protocol, data=None, identity=('Pi Workbench', 'pi-workbench@localhost')):
         self.protocol, self.data, self.identity = protocol, data, identity
@@ -431,10 +434,28 @@ class Paperwork:
 
     def same_plan(self, root, tasks, saved):
         """Whether the saved digest still names this plan. A digest saved before task 324 (when the Decisions section
-        counted) is accepted too, so a plan in progress survives the update, including one a Stop had broken (its note)."""
-        return bool(saved) and saved in (self.plan_digest(root, tasks), self.plan_digest(root, tasks, legacy=True))
+        counted) is accepted too, so a plan in progress survives the update, including one a Stop had broken (its note).
+        Live, 2026-10-19: the old build re-saved its digest after each recorded decision; the new build no longer does,
+        so one more decision line made the old digest match nothing and every call was refused. An old digest is
+        therefore also tried with fewer decision lines, and once it matches it is replaced by the new form."""
+        if not saved:return False
+        if saved==self.plan_digest(root,tasks):return True
+        counts=[len(DECISION_LINE.findall(self.decisions_section(root/path))) for path in tasks]
+        for keep in [None,*range(max(counts,default=0)-1,-1,-1)]:
+            if saved==self.plan_digest(root,tasks,legacy=True,keep=keep):
+                plan=self.plan_state(root)
+                if plan.get('digest')==saved:self.plan_state(root,{**plan,'digest':self.plan_digest(root,tasks)})
+                return True
+        return False
 
-    def plan_digest(self, root, tasks, legacy=False):
+    @staticmethod
+    def decisions_section(path):
+        try:text=path.read_text(encoding='utf-8')
+        except OSError:return ''
+        found=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,flags=re.M|re.S)
+        return found[1] if found else ''
+
+    def plan_digest(self, root, tasks, legacy=False, keep=None):
         # Progress, approval stamps and the harness's roadmap ticks do not change the approved scope.
         texts=[]
         for path in ['ROADMAP.md',*tasks]:
@@ -453,6 +474,16 @@ class Paperwork:
             # only the harness writes there) are paperwork, not the approved scope.
             text=re.sub(r'^(?:Not verified at |Plan incomplete \(G-014\): ).*The task stays open\.\s*$','',text,flags=re.M)
             if not legacy:text=re.sub(r'^## Decisions\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
+            elif keep is not None:  # an old digest from before the last `keep`+1… decision lines were recorded
+                section=re.search(r'^## Decisions\s*\n(.*?)(?=^## |\Z)',text,flags=re.M|re.S)
+                if section:
+                    kept=[];seen=0
+                    for line in section[1].split('\n'):
+                        if DECISION_LINE.fullmatch(line):
+                            seen+=1
+                            if seen>keep:continue
+                        kept.append(line)
+                    text=text[:section.start(1)]+'\n'.join(kept)+text[section.end(1):]
             text=re.sub(r'- \[[ x]\]', '- []', text)
             texts.append('\n'.join(line.rstrip() for line in text.splitlines() if line.strip()))
         return hashlib.sha256('\n'.join(texts).encode()).hexdigest()

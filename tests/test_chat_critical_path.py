@@ -231,5 +231,26 @@ class StopKeepsTheTaskTest(unittest.TestCase):
         self.assertTrue(paper.active_scope(root), 'a decision the harness records is not a change of the plan')
 
 
+    def test_an_old_digest_saved_with_fewer_decisions_still_names_the_plan_and_is_upgraded(self):
+        """Live, 2026-10-19: the old build re-saved its digest after each decision (Decisions counted); the new build
+        appended one more decision without re-saving, and every call was refused "No approved task is in progress"."""
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); base = Path(temp.name).resolve(); data = base / 'data'; data.mkdir()
+        root = base / 'proj'; (root / 'tasks').mkdir(parents=True)
+        (root / 'ROADMAP.md').write_text('# P\n\n## Goal\n\nCount clicks.\n\n## Tasks\n\n- [ ] [002-Count](tasks/002-count.md)\n')
+        task = root / 'tasks/002-count.md'
+        task.write_text('# 002: Count\n\nPlan approved: chosen 2026-10-18T09:00:00+09:00\n\nKind: code\nFiles: counter.py\n\nDone when: Counts.\n\n## Decisions\n'
+                        + ''.join(f'- Guide?: None (chosen 2026-10-18T1{n}:00:00+09:00)\n' for n in range(3)))
+        paper = Paperwork(Protocol(), data=data); paths = ['tasks/002-count.md']
+        old_digest = paper.plan_digest(root, paths, legacy=True)  # what the old build saved after the third decision
+        paper.plan_state(root, {'tasks': paths, 'approved': True, 'index': 0, 'digest': old_digest})
+        task.write_text(task.read_text() + '- Guide?: None (chosen 2026-10-19T00:56:25+09:00)\n')  # the new build's fourth
+        self.assertTrue(paper.active_scope(root), 'the approved task is still in progress')
+        self.assertEqual(paper.plan_state(root)['digest'], paper.plan_digest(root, paths), 'the digest is upgraded to the new form')
+        task.write_text(task.read_text().replace('Files: counter.py', 'Files: counter.py, other.py'))
+        self.assertFalse(paper.active_scope(root), 'a real change of the scope still stops the plan')
+
+
 if __name__ == '__main__':
     unittest.main()
