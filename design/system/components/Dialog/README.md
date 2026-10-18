@@ -29,3 +29,7 @@ A Note alert “A new version of Pi Workbench is ready”, the versions, up to 2
 - **Settings › Pi › Detail**: Beginner (plain words; decisions made by code are hidden) · Expert (every decision with its author, file paths and commands).
 - **Appearance**: the default is **Match System**; Paper (black on white, always) and Inverse stay deliberate choices.
 - **Rename refused** while terminal Pi works in the folder: “Can't rename “Class Notes” while terminal Pi works in it.” Show in Activity · **OK**. After a rename the Preview restarts from the new folder with one note line.
+
+## Round 13
+
+- **File menu**: New Project… **⌃⌥⇧N** · Add Existing Folder… **⌃⌥O** · — · New File… ⌃⌥N · New Task… ⌃⌥T · — · Rename Project…. ⇧ makes the bigger “new”, as ⇧⌘N (New Folder) on the Mac; ⌘N and ⌘O stay the browser’s. Board: R13_Keys.

@@ -637,3 +637,24 @@ Boards: canvas page **Project Start & fixes** — [R12_NP1]–[R12_NP4], [R12_Ad
 - **Appearance**: the default Paper → **Match System**.
 - **Unverified check-in**: the default Accept and Continue → **Retry Task**; accepting is Accept Anyway….
 - **Refusal words**: “Not in this phase” blocks now start with Not run / Not proposed / Not written / Not a project, by kind.
+
+## 2026-10-18 · Round 13: the round 12 builds, revisited
+
+Boards: canvas page **Round 13 revisits** — [R13_ThemeFonts], [R13_ThemeParts], [Ph13_ThemeCard], [Ph13_ThemeStarting], [Ph13_ThemeNoLive], [R13_CheckWeakened], [Ph13_CheckWeakened], [R13_NPName], [R13_NPCaps], [Ph13_NPName], [Ph13_NPPick], [Ph13_NPPackages], [R13_NPParts], [R13_Keys]. Cards: ThemePanel, ProjectStart, CheckInCard, Dialog (each with a round 13 section). CSS: the round 13 block at the end of bundle.css (`.pw-fontrow`, `.pw-fontsample`, `.pw-fontget`, `.pw-theme--folded`, `.pw-output`).
+
+1. **Theme panel**: a fifth tab, **Fonts** (Headings and Body rows, Google Fonts search, Download and Use with the licence into static/fonts/<family>/, a no-Japanese warning). The picker's **Colour · Text on it** segment is kept as built (Border · Input · Ring: **Colour · Focus ring**). Multi-token rows say what else they set. Border · Input · Ring shows **the ring's 3:1 check** against the card, not a text ratio. Chart warns about Basecoat's default blues at once and offers **Use Colour-Blind-Safe Colours**. After Save Theme the panel folds to “Theme · Colours saved · Open Again”. On the phone the chat shows a card with **Open Theme**; the full screen says when the app is starting or when there is no live link over the tailnet.
+2. **Check-in evidence**: a weakened test reads “⚠ fewer checks `<test>`: 5 checks → 2 · Show” under the removed one, with one help line; Review First becomes the default and comes first.
+3. **Project Start as built**: Create in is a row that opens the folder browser in pick mode; the sentence help names the workbench; Suggested in bold in the meta line; only the available capabilities can be checked (Share by QR code added); one base package plus Phone app on a page package; a failed Create shows the failing test, its capability and the output, and stays open; Add a Capability… uses radios and fills What changes on choice.
+4. **Keys**: New Project… ⌃⌥⇧N; Add Existing Folder… ⌃⌥O.
+
+### Changed earlier text (one specification)
+
+- **Theme file**: `app/static/theme.css` → the marked theme block of **`styles/input.css`** (the panel head reads “styles/input.css · theme block”).
+- **Theme tabs**: four → five (Fonts).
+- **Border · Input · Ring contrast**: a text ratio → the ring's 3:1 check; borders and input edges are not checked.
+- **Chart note**: “the default five stay apart for colour blindness” is no longer true of Basecoat's blues: it now warns by default.
+- **After Save Theme**: the panel no longer disappears; it folds to one line with Open Again.
+- **Project Start packages**: several base packages at once → one base package (others disabled with the plan 253 / task 277 reason) plus Phone app on a page package.
+- **Add a Capability…**: checkboxes → radios, one per request.
+- **New Project's key**: ⌘N (the browser keeps it) → **⌃⌥⇧N**; new: Add Existing Folder… ⌃⌥O.
+- **Check-in default**: with a removed or weakened test the button order becomes Review First · Accept and Continue · Stop Here.

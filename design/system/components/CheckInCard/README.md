@@ -18,3 +18,8 @@ After each verified task in a plan: the task's DoneRow while it waits for the pe
 - **Not verified** (no passing test run after the last change): caution head “Task 2 of 4 not verified: Subjects”, facts Not verified (the command and its result), **Outside the task** (changed files not in its Files, named), Next. Foot: **Retry Task** (default) · Review First · **Accept Anyway…** · Stop Here. Accept Anyway… asks “Accept task 2 without a passing test?”; the task is then marked “accepted without verification” in ROADMAP.md. Reopen Task… (Work, Activity) unchecks its boxes and reopens its ROADMAP line; the code stays.
 - **Evidence** on a done check-in: Test run (command · passed · failed · time), Tests changed, Tried it, Next. When a test was removed or weakened the line carries a caution and **Review First** becomes the default.
 - **Restored** after a reload: a `.pw-notice` “Restored · This check-in comes from the project's state (tasks/…).” at the top of the body.
+
+## Round 13: a weakened test (R13_CheckWeakened, Ph13_CheckWeakened)
+
+- **Tests changed** lists each changed test on its own line: “⚠ removed `test_empty_subject` in tests/test_subjects.py · Show” and “⚠ fewer checks `test_filter`: 5 checks → 2 · Show” (the count of assertions before and after), then one help line: “Pi changed tests while building this task. Review First shows what they no longer check.”
+- Either kind makes **Review First** the default and moves it first: Review First · Accept and Continue · (right) Stop Here. On the phone the three stack, full width, Review First on top.

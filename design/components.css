@@ -673,3 +673,25 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-theme__row{grid-template-columns:1fr auto;min-height:56px}
   .pw-swatch{width:32px;height:32px}
 }
+
+/* ---- 2026-10-18 · Round 13: the round 12 builds, revisited ---- */
+
+/* ThemePanel · Fonts: one row per role (headings, body); the family, a search, Reset, then a sample in the app's look */
+.pw-fontrow{display:grid;grid-template-columns:minmax(120px,auto) 1fr auto;gap:6px 12px;align-items:center;padding:10px 12px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-fontrow:first-child{border-top:0}
+.pw-fontrow__family{font-family:var(--font-mono);font-size:13px}
+.pw-fontrow__search{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+.pw-fontrow__search .pw-field{flex:1;min-width:0;height:26px}
+.pw-fontsample{grid-column:1/-1;border:1px solid var(--ink);padding:8px 10px;background:#fff;color:#0f172a;display:flex;flex-direction:column;gap:2px}
+.pw-fontget{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px dotted var(--ink);padding:6px 10px;font-size:13px}
+.pw-fontget__text{flex:1 1 260px;min-width:0}
+/* the picker's what-am-I-editing segment */
+.pw-picker .pw-seg{align-self:flex-start}
+/* a theme panel folded after Save Theme */
+.pw-theme--folded{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px}
+/* test output under a failed Create */
+.pw-output{margin:0;border:1px dotted var(--ink);padding:8px 10px;font-family:var(--font-mono);font-size:12px;line-height:17px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto}
+@media (max-width:760px){
+  .pw-fontrow{grid-template-columns:1fr auto;min-height:44px}
+  .pw-fontrow__search .pw-field{height:44px}
+}
