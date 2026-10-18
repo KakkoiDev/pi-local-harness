@@ -375,6 +375,8 @@
   "Document": "書類",
   "Markdown Source": "Markdown ソース",
   "Retry Save": "保存を再試行",
+  "Retry": "再試行",
+  "Stopped by you before Pi finished.": "Pi が終える前にあなたが止めました。",
   "Document editor": "書類エディタ",
   "File source": "ファイルのソース",
   "⌘S saves · changes save as you type": "⌘S で保存 · 入力すると自動で保存されます",
@@ -1904,6 +1906,10 @@
   [
    "Internal error: {type}: {error}",
    "内部エラー：{type}：{error}"
+  ],
+  [
+   "Failed before Pi finished: {reason}",
+   "Pi が終える前に失敗しました：{reason}"
   ],
   [
    "Queued again in {project}.",

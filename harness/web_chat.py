@@ -752,12 +752,15 @@ class WebChat:
             if started and not answered:
                 answered=True;stopped=str(error)=='Stopped'
                 text=reply or display_text(partial).strip();check_in=check_in or (ended or {}).get('check_in')
-                if text or pending_choice or pending_plan or check_in:
-                    try:
-                        self.store.append(identifier,{'role':'assistant','content':text,'ended':{'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]},
-                            **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
-                        emit({'type':'conversation','conversation':self.store.get(identifier)})
-                    except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
+                # Review P2: the chat says so even when Pi wrote nothing yet; the line offers Retry (the request, queued
+                # again) and Undo This Request for the commit Gate made of what it changed.
+                how={'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]}
+                how.update({**({'job':job} if job else {}),**({'commit':ended['commit']} if (ended or {}).get('commit') else {})})
+                try:
+                    self.store.append(identifier,{'role':'assistant','content':text,'ended':how,
+                        **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
+                    emit({'type':'conversation','conversation':self.store.get(identifier)})
+                except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
             raise
         finally:
             if process:

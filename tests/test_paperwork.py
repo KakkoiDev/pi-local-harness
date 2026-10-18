@@ -275,6 +275,45 @@ class ChoicePaperworkTest(PaperworkTest):
         self.assertIn('Who uses it?: My household (chosen ',(self.root/'tasks/002-add-the-badge.md').read_text())
         self.assertIsNone(self.paper.waiting_choice(self.root))
 
+    def test_a_planning_answer_before_the_plan_lands_in_the_plans_first_task_once(self):
+        # Task 293 (NEW-2): the answer comes through Gate (the person's "Choice: …" request), never from Pi's text.
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('ask',str(self.root),'Plan a team counter')
+        self.paper.choice_pending('ask',{'question':'Who uses it?','options':[{'label':'Only me'},{'label':'A team'}],'recommended':0})
+        self.paper.pause('ask')
+        self.paper.start('answer',str(self.root),'Choice: Who uses it? → A team')
+        self.assertIsNone(self.paper.requests['answer']['task'])
+        plan=self.paper.propose_plan('answer',{'goal':'A click counter.','tasks':[{'title':'Count clicks','files':['app.py'],'done_when':'Each click adds one.','content':'Count.'}]})
+        task=plan['tasks'][0]
+        self.assertRegex((self.root/task['path']).read_text(),r'## Decisions\n\n- Who uses it\?: A team \(chosen \d{4}-')
+        self.assertEqual(task['decisions'],'- Who uses it?: A team (chosen)')
+        self.paper.propose_plan('answer')
+        self.assertEqual((self.root/task['path']).read_text().count('- Who uses it?: A team ('),1,'carried once')
+        self.paper.start_building(self.root)  # the harness's line is not a change of the plan's scope
+        self.assertEqual(self.paper.phases.get(self.root)['phase'],'implementation')
+
+    def test_a_planning_answer_while_the_plan_waits_is_appended_to_it(self):
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('plan',str(self.root),'Plan a counter')
+        path=self.paper.propose_plan('plan',{'goal':'A click counter.','tasks':[{'title':'Count clicks','files':['app.py'],'done_when':'Each click adds one.','content':'Count.'}]})['tasks'][0]['path']
+        self.paper.pause('plan')
+        self.paper.start('ask',str(self.root),'One more thing')
+        self.paper.choice_pending('ask',{'question':'Colour?','options':[{'label':'Blue'},{'label':'Red'}],'recommended':0})
+        self.paper.pause('ask')
+        self.paper.start('answer',str(self.root),'Choice: Colour? → Red')
+        self.assertIn('- Colour?: Red (chosen ',(self.root/path).read_text())
+        self.paper.pause('answer');self.paper.start_building(self.root)
+        self.assertEqual(self.paper.phases.get(self.root)['phase'],'implementation')
+
+    def test_a_discussion_answer_stays_out_of_the_next_plan(self):
+        self.paper.start('ask',str(self.root),'Which colours?')
+        self.paper.choice_pending('ask',{'question':'Colour?','options':[{'label':'Blue'},{'label':'Red'}],'recommended':0})
+        self.paper.pause('ask');self.paper.start('answer',str(self.root),'Choice: Colour? → Red');self.paper.pause('answer')
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('plan',str(self.root),'Plan a counter')
+        path=self.paper.propose_plan('plan',{'goal':'A click counter.','tasks':[{'title':'Count clicks','files':['app.py'],'done_when':'Each click adds one.','content':'Count.'}]})['tasks'][0]['path']
+        self.assertNotIn('Colour?',(self.root/path).read_text())
+
 class PlanLifecycleTest(PaperworkTest):
     def test_plan_waits_for_person_approval_survives_restart_and_reuses_task(self):
         self.paper.start('plan',str(self.root),'Add a scoreboard')
