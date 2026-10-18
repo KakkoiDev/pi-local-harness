@@ -602,3 +602,74 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-reasons li{padding:8px 0;min-height:44px}
   .pw-context__why{min-height:44px}
 }
+
+/* ---- 2026-10-18 · Round 12: Project Start (plan 253) and the review's screens (tasks 260–263, 290, 291, plan 267) ---- */
+
+/* HarnessNotice: an inline note from the harness under an answer (not Pi's words) */
+.pw-notice{align-self:stretch;max-width:760px;margin:-12px 0 0;display:flex;align-items:flex-start;flex-wrap:wrap;gap:4px 10px;border:1px dotted var(--ink);padding:6px 10px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-notice__who{font-weight:600}
+.pw-notice__text{flex:1 1 240px;min-width:0}
+
+/* CutLine: under an answer that was stopped or failed before Pi finished */
+.pw-cut{align-self:stretch;max-width:760px;margin:-12px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;border-top:1px solid var(--ink);padding-top:8px;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-cut__text{flex:1 1 260px;min-width:0}
+.pw-cut .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DecisionRow: the decisions behind an answer, collapsed under it */
+.pw-decisions{align-self:stretch;max-width:760px;margin:-12px 0 0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-decisions>summary{cursor:default;display:inline-flex;gap:6px;align-items:center;list-style:none}
+.pw-decisions>summary::-webkit-details-marker{display:none}
+.pw-decisions ul{list-style:none;margin:6px 0 0;padding:0;border-top:1px dotted var(--ink)}
+.pw-decisions li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:5px 0;border-bottom:1px dotted var(--ink);font-size:14px}
+.pw-decisions li .pw-link{margin-left:auto;font-size:13px}
+
+/* Capability picker (Project Start) */
+.pw-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:14px}
+.pw-steps li{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;border-bottom:1px dotted var(--ink)}
+.pw-steps li[aria-current="step"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-steps li[data-done]::after{content:"✓";margin-left:auto}
+.pw-cap{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;padding:8px 2px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-cap small{grid-column:2;font-size:13px;line-height:18px}
+.pw-cap__meta{grid-column:2;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px;line-height:16px}
+.pw-cap[aria-disabled="true"]{color:var(--ink-disabled)}
+.pw-cap__warn{grid-column:2;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;border:1px solid var(--ink);padding:4px 8px;margin-top:4px;color:var(--ink)}
+.pw-capgroup{margin:0;padding:0;border:0}
+.pw-capgroup>legend{padding:10px 0 2px;font-family:var(--font-chrome);font-size:13px;font-weight:600}
+
+/* Shortcut table */
+.pw-keys{border-collapse:collapse;font-family:var(--font-chrome);font-size:14px}
+.pw-keys th,.pw-keys td{border-bottom:1px dotted var(--ink);padding:5px 12px 5px 0;text-align:left;vertical-align:top}
+.pw-keys th{border-bottom:1px solid var(--ink);font-size:13px}
+.pw-keys kbd{font:inherit;border:1px solid var(--ink);padding:0 4px;white-space:nowrap}
+
+@media (max-width:760px){
+  .pw-cap{min-height:44px;grid-template-columns:22px 1fr;padding:10px 2px}
+  .pw-cap .pw-check{width:22px;height:22px}
+  .pw-cut .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-decisions>summary{min-height:44px}
+  .pw-decisions li{min-height:44px}
+}
+
+/* ThemePanel (task 312): the app's theme, edited live from the chat. Workbench UI; only the swatches carry the app's colours. */
+.pw-theme .pw-card__body{gap:0;padding:0}
+.pw-theme__row{display:grid;grid-template-columns:minmax(150px,1.2fr) 1fr 1fr auto;align-items:center;gap:6px 12px;padding:7px 12px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-theme__row:first-child{border-top:0}
+.pw-theme__row--head{font-size:12px;font-weight:600;padding-top:6px;padding-bottom:6px}
+.pw-theme__name small{display:block;font-size:12px;line-height:16px}
+.pw-theme__val{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pw-swatch{flex:none;width:22px;height:22px;border:1px solid var(--ink);display:inline-grid;place-content:center;font-size:11px;font-weight:600;cursor:default;padding:0}
+.pw-swatch[aria-expanded="true"]{outline:2px solid var(--ink);outline-offset:1px}
+.pw-theme__hex{font-family:var(--font-mono);font-size:12px;width:76px;height:22px;border:1px solid var(--ink);padding:0 4px;background:var(--paper)}
+.pw-contrast{font-size:12px;white-space:nowrap}
+.pw-theme__reset{font:inherit;font-size:12px;background:none;border:0;padding:0;text-decoration:underline;color:inherit;cursor:default}
+.pw-theme__reset:disabled{color:var(--ink-disabled);text-decoration:none}
+.pw-picker{width:240px;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:10px;display:flex;flex-direction:column;gap:8px;font-family:var(--font-chrome);font-size:13px}
+.pw-picker__field{height:140px;border:1px solid var(--ink);position:relative}
+.pw-picker__hue{height:12px;border:1px solid var(--ink);background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.pw-slider{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;font-family:var(--font-chrome);font-size:14px;padding:10px 12px}
+.pw-slider input[type=range]{width:100%;accent-color:var(--ink)}
+.pw-samples{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;padding:10px 12px;border-top:1px dotted var(--ink)}
+@media (max-width:760px){
+  .pw-theme__row{grid-template-columns:1fr auto;min-height:56px}
+  .pw-swatch{width:32px;height:32px}
+}

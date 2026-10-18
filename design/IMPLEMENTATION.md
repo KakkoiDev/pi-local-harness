@@ -615,3 +615,25 @@ Boards: canvas page **Phases** — [R11_Answers], [R11_Parts], [R11_Discussion],
 - **Run on its own**: “approves its own plans” now means it presses Start Building, moving Planning → Implementation; it never moves to Discussion or Planning.
 - **Round 10 point 5 (Work)** is unchanged; the task files now come from the harness's layout in Planning.
 - ChoiceCard and the report (AwayCard) are unchanged.
+
+## 2026-10-18 · Round 12: Project Start (plan 253), the review's screens (tasks 260–263, 290, 291, plan 267) and the theme panel (task 312)
+
+Boards: canvas page **Project Start & fixes** — [R12_NP1]–[R12_NP4], [R12_AddCap], [Ph12_NP2]–[Ph12_NP4], [R12_Verify], [R12_Reopen], [R12_Grant], [R12_Renamed], [R12_Refusals], [R12_Conversation], [R12_Gate], [T_Decisions], [R12_Fixes], [R12_Strings], [Ph12_Verify], [Ph12_Gate], [Ph12_Cut], [R12_ThemeColours], [R12_ThemeRadius], [R12_ThemeParts], [Ph12_Theme], [Ph12_ThemePick]. Cards: **ProjectStart**, **ThemePanel**, **HarnessNotice** (new; also CutLine and DecisionRow), CheckInCard, PlanCard, PhaseControl, Dialog (each with a round 12 section). CSS: the round 12 block at the end of bundle.css (`.pw-notice`, `.pw-cut`, `.pw-decisions`, `.pw-steps`, `.pw-cap*`, `.pw-keys`, `.pw-theme*`, `.pw-swatch`, `.pw-contrast`, `.pw-picker`, `.pw-slider`, `.pw-samples`).
+
+1. **Project Start (253)**: Name → Capabilities → Packages → Summary; capabilities and packages are separate; suggestions from the sentence are marked, never pre-checked; disabled rows keep their reason; Create runs the base's tests and creates nothing if one fails. **Add a Capability…** keeps a change only if every existing test still passes, as one undoable request.
+2. **Unverified check-in (260)**: Retry Task is the default; Accept Anyway… confirms and labels the task; Reopen Task… from Work and Activity; files outside the task are named.
+3. **What you grant (261)**: Kind and Files with their sources on the plan; a file outside them is a Gate question (Add to Task / Keep Out); a stale page after a restart says so and offers Reload Page.
+4. **Rename (262)**: refused while terminal Pi works there; otherwise the Preview restarts in the new folder with one note line.
+5. **Refusal words (263)**: one per kind — Not run (commands), Not proposed, Not written (files), Not a project. Shortcut table in R12_Refusals.
+6. **Conversation (290, 291)**: HarnessNotice (the harness's voice, dotted); a question settled without an answer reads “not answered”; CutLine for stopped or failed answers (Undo only when files changed); Activity shows waiting, stopped by a question, stopped by you.
+7. **Gate's judgements (267)**: the decision row under answers (source tags you · auto · Laya · code · model), Change… names what it redoes; batch questions with Take All Recommendations; “Pi asked a question” mid-task; the re-plan card; evidence on check-ins; `/decisions` in the terminal (T_Decisions).
+8. **Bug-hunt fixes**: Markdown links in Work, the ChoiceCard doesn't repeat its question, the composer while Pi works (Stop · Queue), the status names the project, Japanese buttons stack on the phone sheet. Strings in English and Japanese: R12_Strings.
+9. **Theme panel (312)**: the workbench answers by itself (“Pi Workbench · no model”) with one group per panel: Colours (plain names, light and dark, swatch, hex, contrast never blocking, Reset per token, picker), Radius and Spacing (one slider each, derived sizes on samples), Chart. The Preview follows live; Save Theme writes one request with a “Theme saved: …” line and Undo; leaving unsaved asks Don't Save · Cancel · Save; no theme file offers Add a Theme File. Entry points: the request in the chat, Project › Theme… ⌃⌥K, and a harness hint under Pi's answer. Phone: full screen with the live app on top.
+
+### Changed earlier text (one specification)
+
+- **Shortcuts**: Chat · Work ⌘1 · ⌘2 → ⌃⌥1 · ⌃⌥2; Activity · Gate ⌘3 · ⌘4 → ⌃⌥3 · ⌃⌥4; phases ⇧⌘1–3 → **⌃⌥D · ⌃⌥P · ⌃⌥I**. Menus show ⌃⌥; installed as an app, ⌘ works too.
+- **New Project kinds** (web app, no server, …) are now **packages**, chosen in step 3, separate from capabilities.
+- **Appearance**: the default Paper → **Match System**.
+- **Unverified check-in**: the default Accept and Continue → **Retry Task**; accepting is Accept Anyway….
+- **Refusal words**: “Not in this phase” blocks now start with Not run / Not proposed / Not written / Not a project, by kind.

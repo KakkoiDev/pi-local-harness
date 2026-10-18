@@ -12,3 +12,9 @@ After each verified task in a plan: the task's DoneRow while it waits for the pe
 
 - The head's right side reads “Waiting for you to check it”. Buttons: **Accept and Continue** (default; replaces Continue) · Review First · Stop Here. Stop Here pauses without accepting; the card keeps waiting. All of this stays in Implementation.
 - The last task: **Accept Task**; then one settled line “All 4 planned tasks are built · still Implementation · Back to Discussion” (Back to Discussion is the person's choice; Pi never moves the phase).
+
+## Round 12 (task 260, plan 267)
+
+- **Not verified** (no passing test run after the last change): caution head “Task 2 of 4 not verified: Subjects”, facts Not verified (the command and its result), **Outside the task** (changed files not in its Files, named), Next. Foot: **Retry Task** (default) · Review First · **Accept Anyway…** · Stop Here. Accept Anyway… asks “Accept task 2 without a passing test?”; the task is then marked “accepted without verification” in ROADMAP.md. Reopen Task… (Work, Activity) unchecks its boxes and reopens its ROADMAP line; the code stays.
+- **Evidence** on a done check-in: Test run (command · passed · failed · time), Tests changed, Tried it, Next. When a test was removed or weakened the line carries a caution and **Review First** becomes the default.
+- **Restored** after a reload: a `.pw-notice` “Restored · This check-in comes from the project's state (tasks/…).” at the top of the body.

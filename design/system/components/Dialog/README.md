@@ -22,3 +22,10 @@ Groups, label column left: **Language** (English · 日本語 · Match System, e
 ## Check for Updates… (round 9)
 
 A Note alert “A new version of Pi Workbench is ready”, the versions, up to 20 plain-words lines in a scroll box, “Your projects, chats and settings are not touched.”; Later · **Update**. States: updating (bar), updated (“Restart plh to use it.” + two steps; Restart Now · Done), up to date, can't reach GitHub (Try Again), and the two blocked states with “Nothing was changed.” and a button that asks Pi to do the safe thing. Board: R9_UpdateStates.
+
+## Round 12
+
+- **New Project** is now the four-step ProjectStart dialog (see its card); **Project › Add a Capability…** and **Project › Theme… ⌃⌥K** join the Project menu.
+- **Settings › Pi › Detail**: Beginner (plain words; decisions made by code are hidden) · Expert (every decision with its author, file paths and commands).
+- **Appearance**: the default is **Match System**; Paper (black on white, always) and Inverse stay deliberate choices.
+- **Rename refused** while terminal Pi works in the folder: “Can't rename “Class Notes” while terminal Pi works in it.” Show in Activity · **OK**. After a rename the Preview restarts from the new folder with one note line.

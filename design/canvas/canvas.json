@@ -2489,6 +2489,214 @@
    "h": 844,
    "title": "24 · Phone · Why? sheet",
    "page": "r11"
+  },
+  "R12_NP1.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "B1 · Project Start: Name",
+   "page": "r12"
+  },
+  "R12_NP2.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "B2 · Capabilities",
+   "page": "r12"
+  },
+  "R12_NP3.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "B3 · Packages",
+   "page": "r12"
+  },
+  "R12_NP4.dc.html": {
+   "x": 0,
+   "y": 1060,
+   "w": 1440,
+   "h": 900,
+   "title": "B4 · Summary before Create",
+   "page": "r12"
+  },
+  "R12_AddCap.dc.html": {
+   "x": 1520,
+   "y": 1060,
+   "w": 1440,
+   "h": 900,
+   "title": "B5 · Add a Capability…",
+   "page": "r12"
+  },
+  "Ph12_NP2.dc.html": {
+   "x": 3040,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "B6 · Phone · Capabilities",
+   "page": "r12"
+  },
+  "Ph12_NP3.dc.html": {
+   "x": 3490,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "B7 · Phone · Packages",
+   "page": "r12"
+  },
+  "Ph12_NP4.dc.html": {
+   "x": 3940,
+   "y": 1060,
+   "w": 390,
+   "h": 844,
+   "title": "B8 · Phone · Summary",
+   "page": "r12"
+  },
+  "R12_Verify.dc.html": {
+   "x": 0,
+   "y": 2120,
+   "w": 1440,
+   "h": 760,
+   "title": "C1 · 260 · unverified check-in, Accept Anyway, restored",
+   "page": "r12"
+  },
+  "R12_Reopen.dc.html": {
+   "x": 1520,
+   "y": 2120,
+   "w": 1440,
+   "h": 900,
+   "title": "C2 · 260 · Reopen Task…",
+   "page": "r12"
+  },
+  "R12_Grant.dc.html": {
+   "x": 3040,
+   "y": 2120,
+   "w": 1440,
+   "h": 1050,
+   "title": "C3 · 261 · what you grant; stale page",
+   "page": "r12"
+  },
+  "R12_Renamed.dc.html": {
+   "x": 0,
+   "y": 3330,
+   "w": 1440,
+   "h": 720,
+   "title": "C4 · 262 · renamed projects",
+   "page": "r12"
+  },
+  "R12_Refusals.dc.html": {
+   "x": 1520,
+   "y": 3330,
+   "w": 1440,
+   "h": 1250,
+   "title": "C5 · 263 · refusal words; shortcuts",
+   "page": "r12"
+  },
+  "R12_Conversation.dc.html": {
+   "x": 3040,
+   "y": 3330,
+   "w": 1440,
+   "h": 1050,
+   "title": "C6 · 290 · notice, unanswered, cut short, Activity",
+   "page": "r12"
+  },
+  "R12_Gate.dc.html": {
+   "x": 0,
+   "y": 4740,
+   "w": 1440,
+   "h": 1300,
+   "title": "C7 · 267 · decisions, scope, evidence, batch, re-plan, Change…",
+   "page": "r12"
+  },
+  "T_Decisions.dc.html": {
+   "x": 1520,
+   "y": 4740,
+   "w": 1440,
+   "h": 520,
+   "title": "C8 · terminal /decisions",
+   "page": "r12"
+  },
+  "R12_Fixes.dc.html": {
+   "x": 3040,
+   "y": 4740,
+   "w": 1440,
+   "h": 1150,
+   "title": "C9 · bug-hunt fixes",
+   "page": "r12"
+  },
+  "Ph12_Verify.dc.html": {
+   "x": 0,
+   "y": 6200,
+   "w": 390,
+   "h": 844,
+   "title": "C10 · Phone · unverified",
+   "page": "r12"
+  },
+  "Ph12_Gate.dc.html": {
+   "x": 450,
+   "y": 6200,
+   "w": 390,
+   "h": 844,
+   "title": "C11 · Phone · scope and decisions",
+   "page": "r12"
+  },
+  "Ph12_Cut.dc.html": {
+   "x": 900,
+   "y": 6200,
+   "w": 390,
+   "h": 844,
+   "title": "C12 · Phone · cut short and notice",
+   "page": "r12"
+  },
+  "R12_Strings.dc.html": {
+   "x": 1350,
+   "y": 6200,
+   "w": 1440,
+   "h": 1900,
+   "title": "Strings, English and Japanese",
+   "page": "r12"
+  },
+  "R12_ThemeColours.dc.html": {
+   "x": 0,
+   "y": 8260,
+   "w": 1440,
+   "h": 900,
+   "title": "Theme panel · Colours (picker open)",
+   "page": "r12"
+  },
+  "R12_ThemeRadius.dc.html": {
+   "x": 1520,
+   "y": 8260,
+   "w": 1440,
+   "h": 900,
+   "title": "Theme panel · Radius",
+   "page": "r12"
+  },
+  "R12_ThemeParts.dc.html": {
+   "x": 3040,
+   "y": 8260,
+   "w": 1440,
+   "h": 1990,
+   "title": "Theme panel · every part",
+   "page": "r12"
+  },
+  "Ph12_Theme.dc.html": {
+   "x": 0,
+   "y": 9320,
+   "w": 390,
+   "h": 844,
+   "title": "Phone · Theme panel",
+   "page": "r12"
+  },
+  "Ph12_ThemePick.dc.html": {
+   "x": 450,
+   "y": 9320,
+   "w": 390,
+   "h": 844,
+   "title": "Phone · colour picker",
+   "page": "r12"
   }
  },
  "createdOnFiles": {
@@ -2813,6 +3021,15 @@
    "w": 240,
    "x": 0,
    "y": -260
+  },
+  "r12": {
+   "kind": "title1",
+   "maxW": 4500,
+   "page": "r12",
+   "text": "Round 12 — B: Project Start · C: screens for the review’s fixes (A: its own artifact, next)",
+   "w": 240,
+   "x": 0,
+   "y": -260
   }
  },
  "order": [
@@ -3110,7 +3327,33 @@
   "Ph11_Auto.dc.html",
   "Ph11_Refusal.dc.html",
   "Ph11_SaveFailed.dc.html",
-  "Ph11_Context.dc.html"
+  "Ph11_Context.dc.html",
+  "R12_NP1.dc.html",
+  "R12_NP2.dc.html",
+  "R12_NP3.dc.html",
+  "R12_NP4.dc.html",
+  "R12_AddCap.dc.html",
+  "Ph12_NP2.dc.html",
+  "Ph12_NP3.dc.html",
+  "Ph12_NP4.dc.html",
+  "R12_Verify.dc.html",
+  "R12_Reopen.dc.html",
+  "R12_Grant.dc.html",
+  "R12_Renamed.dc.html",
+  "R12_Refusals.dc.html",
+  "R12_Conversation.dc.html",
+  "R12_Gate.dc.html",
+  "T_Decisions.dc.html",
+  "R12_Fixes.dc.html",
+  "Ph12_Verify.dc.html",
+  "Ph12_Gate.dc.html",
+  "Ph12_Cut.dc.html",
+  "R12_Strings.dc.html",
+  "R12_ThemeColours.dc.html",
+  "R12_ThemeRadius.dc.html",
+  "R12_ThemeParts.dc.html",
+  "Ph12_Theme.dc.html",
+  "Ph12_ThemePick.dc.html"
  ],
  "pages": [
   {
@@ -3152,6 +3395,10 @@
   {
    "id": "r11",
    "name": "Phases"
+  },
+  {
+   "id": "r12",
+   "name": "Project Start & fixes"
   },
   {
    "id": "edit",

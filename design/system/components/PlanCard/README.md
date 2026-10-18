@@ -14,3 +14,10 @@ The plan, waiting for a yes. Nothing is built until it is approved (or Run on it
 - When Planning is ready the foot is **Start Building** (default: approves the plan and moves the project to Implementation) · **Plan Another Task** (keeps the plan waiting, back to Discussion) · **Change…** (stays in Planning) · **Open the Plan**. A help line above the foot says what the first two do. **Approve Plan is removed**: Start Building is the only approval, here or in the waiting review.
 - Settled: “Plan approved: building · 4 tasks · Start Building · you · 14:12”; “Plan waiting · 4 tasks, not started · Plan Another Task · you”; with Run on its own, “Plan approved: building” + dotted auto tag.
 - **Tasks waiting** in Discussion: a `.pw-waiting` strip above the composer, “4 planned tasks wait: Write and keep notes, Subjects, and 2 more”, Open the Plan, **Build the Planned Tasks…**. The review (dialog on the desk, sheet on the phone): “Build the planned tasks?”, each task as a checkbox with its Done when (all checked), “The project moves to Implementation. Pi builds the checked tasks in order and waits for you to check each one. Unchecked tasks stay waiting.”, Open the Plan; Cancel · **Start Building** (disabled with “Choose at least one task” when none is checked).
+
+## Round 12: What you grant (plan 267, task 261)
+
+- Above Decisions, **What you grant**: Kind and the Files of each task, each with its source tag (your answer · task file · Laya) and time; “Pi may change only these files in each task. A file outside them asks you first.”
+- **Scope widening** during a task: a card “Pi wants to change a file outside task 2 · Gate asks you”, the file, Pi's one-line reason; **Add to Task 2** (default) · Keep Out · Open the Task.
+- **Re-plan**: “The plan needs to change · task 3 of 4”, what it adds and moves; **Re-plan** (default) · Keep the Plan · Open the Plan.
+- **Stale page** after plh restarted: an alert line inside the card “This page is out of date after plh restarted, so your choice wasn't sent.” **Reload Page**.
