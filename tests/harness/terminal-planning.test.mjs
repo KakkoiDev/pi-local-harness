@@ -12,11 +12,11 @@ test('terminal plan shows Goal, every task and its decisions',()=>{
  const view=planView({goal:'Notes for a class',tasks:[{title:'Keep notes',done_when:'A note survives reload',decisions:'- Sorting: newest (auto)'}]},80);
  assert.match(view,/Goal.*Notes for a class/);assert.match(view,/Keep notes/);assert.match(view,/A note survives reload/);assert.match(view,/Sorting: newest/);
 });
-test('verified check-in defaults to Continue; unverified defaults to Review First',async()=>{
+test('verified check-in defaults to Continue; unverified defaults to Retry Task (round 12)',async()=>{
  for(const verified of [true,false]) {
   let shown;
   const result=await checkIn({ui:{select:async(title,options)=>{shown={title,options};return options.at(-1);},notify(){}}},{task:'tasks/001-ball.md',verified,verification:'node --test · 6 passed',next:'tasks/002-score.md',number:1,total:2}, {read:()=> '# Ball\n'});
-  assert.equal(shown.options[0],verified?'Accept and Continue':'Review First');assert.match(shown.title,/node --test/);assert.equal(result,'stop');
+  assert.equal(shown.options[0],verified?'Accept and Continue':'Retry Task');assert.match(shown.title,/node --test/);assert.equal(result,'stop');
  }
 });
 test('review shows the actual task before returning to the check-in',async()=>{

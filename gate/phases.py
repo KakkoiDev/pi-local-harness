@@ -72,19 +72,22 @@ class Phases:
             return deepcopy(value)
 
 
-DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).'
-PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
+DISCUSSION_REFUSAL = 'Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⌃⌥P).'
+PLANNING_REFUSAL = 'Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⌃⌥I).'
 # Task 263: a refused command did not run and a refused plan was not proposed; "Not written" only for writes.
-DISCUSSION_COMMAND_REFUSAL = 'Not run: the project is in Discussion. Pi can read, search and talk; this command could change files. To plan this change, choose Planning in the phase button (⇧⌘2).'
-PLANNING_COMMAND_REFUSAL = 'Not run: the project is in Planning. Pi can only write ROADMAP.md and tasks/; this command could change code. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).'
-DISCUSSION_PLAN_REFUSAL = 'Not proposed: the project is in Discussion. Plans are proposed in Planning. Choose Planning in the phase button (⇧⌘2).'
+DISCUSSION_COMMAND_REFUSAL = 'Not run: the project is in Discussion. Pi can read, search and talk; this command could change files. To plan this change, choose Planning in the phase button (⌃⌥P).'
+PLANNING_COMMAND_REFUSAL = 'Not run: the project is in Planning. Pi can only write ROADMAP.md and tasks/; this command could change code. To change code, choose Start Building on the plan, or Implementation (⌃⌥I).'
+DISCUSSION_PLAN_REFUSAL = 'Not proposed: the project is in Discussion. Plans are proposed in Planning. Choose Planning in the phase button (⌃⌥P).'
 NO_TASK_COMMAND_REFUSAL = 'Not run: No approved task is in progress. Choose Planning, then Start Building on the plan.'
 # Task 263: a folder that is neither registered nor has ROADMAP.md has no phase button to press.
-NOT_A_PROJECT_REFUSAL = '{verb}: {folder} is not a project, so Pi can read here but not change anything. Register the folder as a project in the workbench, or add a ROADMAP.md, then plan the change.'
+# Round 12 (R12_Refusals): the folder is named and the two ways to make it a project are said.
+NOT_A_PROJECT_REFUSAL = '{verb}: {folder} is not a project. Add it with Add Existing Folder…, or ask Pi to create a ROADMAP.md there to make it one.'
 
 
 def not_a_project(folder, tool):
-    return NOT_A_PROJECT_REFUSAL.format(verb='Not run' if tool == 'execute_command' else 'Not written', folder=folder)
+    home = str(Path.home())
+    shown = '~' + str(folder)[len(home):] if str(folder) == home or str(folder).startswith(home + '/') else str(folder)
+    return NOT_A_PROJECT_REFUSAL.format(verb='Not run' if tool == 'execute_command' else 'Not written', folder=shown)
 
 
 # Task 290: what Pi may run in each phase, said when a command is refused (the docs say the same).

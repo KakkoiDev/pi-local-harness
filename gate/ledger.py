@@ -238,6 +238,10 @@ class ProposalLedger:
                     audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
                 except (ValueError,KeyError,IndexError):pass
             reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            if reason and phase=='implementation' and task and pi_tool in ('write','edit') and request in self.paperwork.requests:
+                from .scope import widen  # round 12 (task 261): a file outside the task is the person's question
+                asked=widen(self.paperwork,request,root,args,cwd,task,assistant_text)
+                if asked:return {**refuse('G-015',asked['reason']),'phase':phase,'judgement':{'choice':asked['choice']}}
             if reason and outside and phase=='discussion' and not self.paperwork.phases.get(root)['history']:
                 from .phases import not_a_project
                 reason=not_a_project(root,tool_name)

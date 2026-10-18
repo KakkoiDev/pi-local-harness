@@ -54,6 +54,12 @@ def silence_words(seconds):
     return f'{seconds/3600:g} hour{"" if seconds==3600 else "s"}' if seconds>=3600 else f'{seconds/60:g} minutes' if seconds>=120 else f'{seconds:g} seconds'
 
 
+class TerminalBusy(ValueError):
+    """Round 12 (task 262, R12_Renamed): a project command refused while terminal Pi works; the page shows its own alert."""
+    def __init__(self, command, name, since):
+        super().__init__(f'Can’t {dict(rename="rename",move="move",trash="move to the Trash").get(command,command)} “{name}” while terminal Pi works in it.');self.command,self.name,self.since=command,name,since
+
+
 class ProjectBusy(ValueError):
     """A project command refused while Pi works in that project (task 154); `job` is the request to show in Activity."""
     def __init__(self, job):
@@ -353,7 +359,11 @@ class WebChat:
         if command in ('rename','move','trash'):
             busy=[job for job in self.queue.list() if job['status'] in ('queued','running') and job.get('project')==project]
             if busy:raise ProjectBusy(busy[0]['id'])
-            if self.agent_running():raise ValueError('Pi is working in the terminal, maybe in this folder. Rename, move or trash the project when it has finished.')  # task 262
+            if self.agent_running():
+                lock=self.documents.root/'.agent-lock'
+                try:since=time.strftime('%H:%M',time.localtime(lock.stat().st_mtime))
+                except OSError:since=''
+                raise TerminalBusy(command,next((item['name'] for item in store.list_projects() if item['id']==project),project),since)  # task 262
         if command in ('rename','move'):
             # Task 262: the Preview's app runs in the folder; the harness stops it (its own process) and starts it again there.
             restart=self.previews.active(project);self.previews.stop(project)
@@ -366,7 +376,10 @@ class WebChat:
             except Exception:
                 if restart:self.previews.start(project,store.project_path(project))
                 raise
-            if restart:self.previews.start(project,Path(result['path']))
+            if restart:
+                self.previews.start(project,Path(result['path']))
+                where=str(result['path']).replace(str(Path.home()),'~',1)
+                self.previews.restarted(project,f"Restarted in the {'renamed' if command=='rename' else 'moved'} folder: {where}")  # round 12 (R12_Renamed): one note line
             return self.moved(project,result)
         if command=='locate':return self.moved(project,store.locate_project(project,data.get('path','')))
         if command=='remove':self.previews.stop(project);return store.forget(project)
@@ -844,7 +857,7 @@ class WebHandler(BaseHTTPRequestHandler):
     person_secret=secrets.token_urlsafe(32)
     PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save'})  # task 312: the theme panel is the person's
     def person_only(self, path, data):
-        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
+        if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
         return (path=='/api/jobs/create' or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/send',path) is not None) and str(data.get('message','')).lstrip().startswith('Choice: ')
     def person(self):
@@ -945,7 +958,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
             if self.person_only(path,data) and not self.person():
-                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.'},403);return
+                self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.','stale':True},403);return  # round 12 (R12_Grant): the page says it is out of date and offers Reload Page
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 result=self.chat.ledger.paperwork.start_building(root,selected=data.get('tasks'))
@@ -955,17 +968,19 @@ class WebHandler(BaseHTTPRequestHandler):
                     if message.get('plan'):
                         message['plan'].update(approved=True,waiting=False);break
                 self.chat.store.save(conversation);self.reply(result);return
-            action=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/(accept|stop)',path)
+            action=re.fullmatch(r'/api/conversations/([0-9a-f]{32})/check-in/(accept|accept-anyway|stop)',path)
             if action:
                 conversation=self.chat.store.get(action[1]);index=data.get('index')
-                if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(conversation['messages']):raise ValueError('Check-in not found.')
-                check=conversation['messages'][index].get('check_in')
-                if not check:raise ValueError('Check-in not found.')
                 root=self.chat.documents.project_path(conversation['project'])
                 plan=self.chat.ledger.paperwork.plan_state(root)
+                if data.get('restored') is True and index is None:check={**(plan.get('card') or {}),'restored':True} if plan.get('check_in') else {}  # round 12: a check-in restored after a reload has no message
+                else:
+                    if not isinstance(index,int) or isinstance(index,bool) or not 0<=index<len(conversation['messages']):raise ValueError('Check-in not found.')
+                    check=conversation['messages'][index].get('check_in')
+                if not check:raise ValueError('Check-in not found.')
                 if not plan.get('tasks') or check['task']!=plan['tasks'][plan.get('index',0)]:raise ValueError('This check-in is no longer current.')
-                result=self.chat.ledger.paperwork.accept_task(root,action='accept' if action[2]=='accept' else 'stop')
-                check.update(accepted=action[2]=='accept',state='accepted' if action[2]=='accept' else 'stopped',when=timestamp())
+                result=self.chat.ledger.paperwork.accept_task(root,action={'accept':'accept','accept-anyway':'anyway','stop':'stop'}[action[2]])
+                check.update(accepted=action[2]!='stop',state={'accept':'accepted','accept-anyway':'accepted anyway','stop':'stopped'}[action[2]],when=timestamp())
                 self.reply({'conversation':self.chat.store.save(conversation),**result});return
             if path=='/api/plan/wait':
                 root=self.chat.documents.project_path(data['project']);self.chat.ledger.paperwork.phase(root,'discussion',action='Plan Another Task')
@@ -1053,6 +1068,8 @@ class WebHandler(BaseHTTPRequestHandler):
             except Exception as error:emit({'type':'error','error':str(error)})
         except ProjectBusy as error:
             if not streaming:self.reply({'error':str(error),'busy':True,'job':error.job},409)
+        except TerminalBusy as error:
+            if not streaming:self.reply({'error':str(error),'terminal':True,'command':error.command,'name':error.name,'since':error.since},409)
         except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
             if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)
         except (TypeError,AttributeError) as error:

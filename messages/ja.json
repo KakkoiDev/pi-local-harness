@@ -75,7 +75,7 @@
   "System 1 ticks task boxes from recorded evidence. Provide content and run the checks.": "System 1 が記録された根拠でタスクをチェックします。内容を作成し、確認を実行してください。",
   "Enter a search query of 1–500 characters.": "検索語を1〜500文字で入力してください。",
   "Choose a registered project or a folder with ROADMAP.md and tasks/.": "登録済みのプロジェクト、または ROADMAP.md と tasks/ があるフォルダを選んでください。",
-  "Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.": "書き込みませんでした：タスクに Files: 行がありません。Planning で Files: 行を追加してから Start Building を選んでください。",
+  "Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.": "書き込んでいません：タスクに Files: 行がありません。Planning で Files: 行を追加してから Start Building を選んでください。",
   "About Pi Workbench": "Pi Workbench について",
   "Settings…": "設定…",
   "Settings": "設定",
@@ -1305,13 +1305,13 @@
   "Discussion…": "相談…",
   "Planning…": "計画…",
   "Implementation…": "実装…",
-  "Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⇧⌘2).": "書き込みませんでした：プロジェクトは相談中です。Pi は読み取り、検索、相談を行えますが、ファイルは変更できません。この変更を計画するには、フェーズボタンで計画（⇧⌘2）を選んでください。",
-  "Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).": "書き込みませんでした：プロジェクトは計画中です。Pi が変更できるのは ROADMAP.md と tasks/ だけです。コードを変更するには、計画の実装開始、または実装（⇧⌘3）を選んでください。",
-  "Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.": "書き込みませんでした：承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
-  "Not run: the project is in Discussion. Pi can read, search and talk; this command could change files. To plan this change, choose Planning in the phase button (⇧⌘2).": "実行しませんでした：プロジェクトは相談中です。Pi は読み取り、検索、相談を行えますが、このコマンドはファイルを変更する可能性があります。この変更を計画するには、フェーズボタンで計画（⇧⌘2）を選んでください。",
-  "Not run: the project is in Planning. Pi can only write ROADMAP.md and tasks/; this command could change code. To change code, choose Start Building on the plan, or Implementation (⇧⌘3).": "実行しませんでした：プロジェクトは計画中です。Pi が変更できるのは ROADMAP.md と tasks/ だけで、このコマンドはコードを変更する可能性があります。コードを変更するには、計画の実装開始、または実装（⇧⌘3）を選んでください。",
-  "Not proposed: the project is in Discussion. Plans are proposed in Planning. Choose Planning in the phase button (⇧⌘2).": "提案しませんでした：プロジェクトは相談中です。計画は計画中に提案します。フェーズボタンで計画（⇧⌘2）を選んでください。",
-  "Not run: No approved task is in progress. Choose Planning, then Start Building on the plan.": "実行しませんでした：承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
+  "Not written: the project is in Discussion. Pi can read, search and talk, but can’t write files. To plan this change, choose Planning in the phase button (⌃⌥P).": "書き込んでいません：プロジェクトは相談中です。Pi は読み取り、検索、相談を行えますが、ファイルは変更できません。この変更を計画するには、フェーズボタンで計画（⌃⌥P）を選んでください。",
+  "Not written: the project is in Planning. Pi can only write ROADMAP.md and tasks/. To change code, choose Start Building on the plan, or Implementation (⌃⌥I).": "書き込んでいません：プロジェクトは計画中です。Pi が変更できるのは ROADMAP.md と tasks/ だけです。コードを変更するには、計画の実装開始、または実装（⌃⌥I）を選んでください。",
+  "Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.": "書き込んでいません：承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
+  "Not run: the project is in Discussion. Pi can read, search and talk; this command could change files. To plan this change, choose Planning in the phase button (⌃⌥P).": "実行していません：プロジェクトは相談中です。Pi は読み取り、検索、相談を行えますが、このコマンドはファイルを変更する可能性があります。この変更を計画するには、フェーズボタンで計画（⌃⌥P）を選んでください。",
+  "Not run: the project is in Planning. Pi can only write ROADMAP.md and tasks/; this command could change code. To change code, choose Start Building on the plan, or Implementation (⌃⌥I).": "実行していません：プロジェクトは計画中です。Pi が変更できるのは ROADMAP.md と tasks/ だけで、このコマンドはコードを変更する可能性があります。コードを変更するには、計画の実装開始、または実装（⌃⌥I）を選んでください。",
+  "Not proposed: the project is in Discussion. Plans are proposed in Planning. Choose Planning in the phase button (⌃⌥P).": "提案していません：プロジェクトは相談中です。計画は計画中に提案します。フェーズボタンで計画（⌃⌥P）を選んでください。",
+  "Not run: No approved task is in progress. Choose Planning, then Start Building on the plan.": "実行していません：承認済みのタスクが進行していません。計画を選び、計画の実装開始を選んでください。",
   "The saved project phase could not be read.": "保存されたプロジェクトのフェーズを読み取れませんでした。",
   "Choose Discussion, Planning or Implementation.": "相談、計画、実装のいずれかを選んでください。",
   "Only the person can choose the project phase.": "プロジェクトのフェーズを選べるのはあなただけです。",
@@ -2939,19 +2939,19 @@
   ],
   [
    "Not written: {path} is not part of task {name}. Pi can change only the task’s files. To include it, add it to the task in Planning, or plan a new task.",
-   "書き込みませんでした：{path} はタスク {name} に含まれていません。Pi はタスクのファイルだけを変更できます。含めるには、計画中にタスクへ追加するか、新しいタスクを計画してください。"
+   "書き込んでいません：{path} はタスク {name} に含まれていません。Pi はタスクのファイルだけを変更できます。含めるには、計画中にタスクへ追加するか、新しいタスクを計画してください。"
   ],
   [
    "Not run: in Implementation Pi can run tests and read-only commands; other commands could change files outside task {name}. Run the tests, or change the task’s files with edit or write.",
-   "実行しませんでした：実装中に Pi が実行できるのはテストと読み取り専用のコマンドだけです。ほかのコマンドはタスク {name} の外のファイルを変更する可能性があります。テストを実行するか、edit または write でタスクのファイルを変更してください。"
+   "実行していません：実装中に Pi が実行できるのはテストと読み取り専用のコマンドだけです。ほかのコマンドはタスク {name} の外のファイルを変更する可能性があります。テストを実行するか、edit または write でタスクのファイルを変更してください。"
   ],
   [
-   "Not written: {folder} is not a project, so Pi can read here but not change anything. Register the folder as a project in the workbench, or add a ROADMAP.md, then plan the change.",
-   "書き込みませんでした：{folder} はプロジェクトではないため、Pi はここで読み取りはできますが変更はできません。ワークベンチでこのフォルダをプロジェクトとして登録するか、ROADMAP.md を追加してから、変更を計画してください。"
+   "Not written: {folder} is not a project. Add it with Add Existing Folder…, or ask Pi to create a ROADMAP.md there to make it one.",
+   "書き込んでいません：{folder} はプロジェクトではありません。「既存のフォルダを追加…」で追加するか、Pi に ROADMAP.md を作らせてプロジェクトにしてください。"
   ],
   [
-   "Not run: {folder} is not a project, so Pi can read here but not change anything. Register the folder as a project in the workbench, or add a ROADMAP.md, then plan the change.",
-   "実行しませんでした：{folder} はプロジェクトではないため、Pi はここで読み取りはできますが変更はできません。ワークベンチでこのフォルダをプロジェクトとして登録するか、ROADMAP.md を追加してから、変更を計画してください。"
+   "Not run: {folder} is not a project. Add it with Add Existing Folder…, or ask Pi to create a ROADMAP.md there to make it one.",
+   "実行していません：{folder} はプロジェクトではありません。「既存のフォルダを追加…」で追加するか、Pi に ROADMAP.md を作らせてプロジェクトにしてください。"
   ],
   ["Theme saved: {names}.", "テーマを保存しました：{names}。"],
   ["Theme: {group}", "テーマ：{group}"]
