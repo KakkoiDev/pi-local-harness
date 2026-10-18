@@ -124,7 +124,8 @@ def run(root,data,request=None,project=None):
     for key,argv in commands(root).items():
         started=time.monotonic()
         try:
-            result=subprocess.run(argv,cwd=root,env=environment,capture_output=True,text=True,timeout=600)
+            from gate import sandbox  # task 311: the publication audit runs the project's code: in the test sandbox
+            result=subprocess.run(sandbox.argv(argv,root,data,sandbox.widened(data,root)['network']),cwd=root,env=environment,capture_output=True,text=True,timeout=600)
             code=result.returncode;output=result.stdout+result.stderr
         except (OSError,subprocess.TimeoutExpired) as error:code=-1;output=str(error)
         passed=code==0

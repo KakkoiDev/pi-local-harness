@@ -826,7 +826,9 @@ class Paperwork:
             copy = Path(temporary).resolve() / root.name
             problem = copy_project(root, copy)
             if problem: return problem
-            run = lambda: subprocess.run(command, shell=True, cwd=copy, capture_output=True, timeout=600, env=environment).returncode == 0
+            from . import sandbox  # task 311: the harness's own runs of the model's tests are sandboxed too (the copy is the project)
+            argv = sandbox.shell(command, copy, self.data, sandbox.widened(self.data, root)['network'])
+            run = lambda: subprocess.run(argv, cwd=copy, capture_output=True, timeout=600, env=environment).returncode == 0
             if not run(): return f'the tests fail with the change (`{command}`)'
             for path in changes:
                 original = subprocess.run(['git', '-C', str(root), 'show', f'HEAD:./{path}'], capture_output=True)

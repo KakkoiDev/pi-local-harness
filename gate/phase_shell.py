@@ -103,7 +103,8 @@ def test_run(command):
     if any(word.startswith(('--import', '--require', '--eval', '--loader', '--config', '--rootdir', '--directory', '--output', '--junit', '--report', '--html')) or word in ('-e', '-c', '-r', '-C') for word in words): return False
     if not runner_options_allowed(words): return False
     outside = lambda value: value.startswith(('/', '../', '~')) or value == '..' or '/..' in value
-    return not any(outside(word) or outside(word.partition('=')[2]) for word in words)
+    # Review P2: a value with a kind in front (--cov-report=html:/tmp/x) names a path too.
+    return not any(outside(word) or outside(word.partition('=')[2]) or outside(word.partition('=')[2].partition(':')[2]) for word in words)
 
 
 PYTEST = (('pytest',), ('py.test',), ('python', '-m', 'pytest'), ('python3', '-m', 'pytest'), ('uv', 'run', 'pytest'), ('uv', 'run', '--offline', 'pytest'))

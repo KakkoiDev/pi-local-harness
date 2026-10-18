@@ -350,10 +350,12 @@ def run_check(folder, data=None, request=None, project=None):
     result = {'passed': bool(commands), 'counts': {'pass': 0, 'fail': 0, 'skipped': 0}, 'tests': 0, 'failing': [], 'commands': [], 'output': '', 'reason': '' if commands else 'The base has no tests to run.'}
     environment = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'UV_OFFLINE': '1', 'NODE_NO_WARNINGS': '1'}
     environment.pop('PYTHONPATH', None)  # the project's own app/, never the harness's
+    sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
+    from gate import sandbox  # task 311: the base check runs the project's code: in the test sandbox, like Pi's test runs
     for argv in commands:
         started = time.monotonic()
         try:
-            ran = subprocess.run(argv, cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
+            ran = subprocess.run(sandbox.argv(argv, folder, data, sandbox.widened(data, folder)['network']), cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
             code, output = ran.returncode, ran.stdout + ran.stderr
         except (OSError, subprocess.TimeoutExpired) as error:
             code, output = -1, f'Could not run: {error}'

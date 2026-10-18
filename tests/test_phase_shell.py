@@ -61,10 +61,11 @@ class ReviewShellTest(unittest.TestCase):
                         'make test SHELL=/bin/sh', 'make test CC=evil', 'make -f Other.mk test', 'make test -f ../Makefile', 'make test --file=x', 'make -C .. test', 'make test --directory=..',
                         'node --test --experimental-loader ./x.mjs', 'node --test --experimental-loader=./x.mjs', 'node --test --import ./x.mjs', 'node --test --test-reporter-destination=/tmp/x',
                         'bun test --preload ./x.ts', 'bun test --preload=./x.ts', 'bun test --cwd ..',
-                        'npm test --x=/etc/passwd', 'python3 -m unittest discover -s ..']:
+                        'npm test --x=/etc/passwd', 'python3 -m unittest discover -s ..',
+                        'pytest --cov-report=html:/tmp/x', 'pytest --cov-report=xml:../x.xml', 'npm --prefix .. test', 'pytest --basetemp', 'node --test --loader=./x.mjs']:  # review P2 runner list
             self.assertFalse(test_run(command), command)
         for command in ['pytest', 'pytest -q tests/test_app.py', 'pytest -x -vv -k counter', 'python3 -m pytest tests', 'uv run --offline pytest -q',
                         'python3 -m unittest discover -s tests -p "test_*.py"', 'python3 -m unittest -v', 'npm test', 'npm test -- --watch=false',
                         'npm run test', 'yarn test', 'pnpm test', 'make test', 'make test -j4', 'node --test tests/app.test.mjs',
-                        'node --test --test-name-pattern=counter tests/', 'bun test', 'bun test tests/app.test.ts']:
+                        'node --test --test-name-pattern=counter tests/', 'bun test', 'bun test tests/app.test.ts', 'pytest --cov-report=term-missing']:
             self.assertTrue(test_run(command), command)

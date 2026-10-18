@@ -33,7 +33,7 @@ def run_command(folder, port):
         styles = [UV, 'run', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
         return ['/bin/sh', '-c', f"{shlex.join(styles)} && {{ {shlex.join([*styles, '--watch=always'])} & exec {shlex.join(server)}; }}"]
     if (folder / 'index.html').is_file():
-        files = [sys.executable, '-m', 'http.server', str(port), '--bind', '127.0.0.1']
+        files = [sys.executable, '-I', str(Path(__file__).with_name('preview_files.py')), str(port)]  # task 304: never outside the project, no dot-paths, no listings, loopback Host only
         if not (folder / 'styles' / 'input.css').is_file(): return files
         # An app with no server (kit/starter-static): the same Tailwind build and watch, then the files.
         styles = [UV, 'tool', 'run', '--from', 'pytailwindcss', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
@@ -101,6 +101,8 @@ class Frame:
             protocol_version = 'HTTP/1.0'  # one response per connection: a stream (server-sent events) ends when the app's does
             def log_message(self, *args): pass
             def relay(self):
+                from harness.preview_files import loopback
+                if not loopback(self.headers.get('Host')): self.send_error(403, 'This preview answers only on this computer'); return  # task 304: no DNS rebinding
                 if self.path.split('?', 1)[0] == HELPER_PATH:
                     self.send_response(200); self.send_header('Content-Type', 'text/javascript; charset=utf-8'); self.send_header('Content-Length', str(len(helper)))
                     self.send_header('Cache-Control', 'no-store'); self.send_header('X-Content-Type-Options', 'nosniff'); self.end_headers(); self.wfile.write(helper); return
@@ -144,7 +146,7 @@ def tailnet_serve(port, https):
 class App:
     def __init__(self, process, port, log, first=False):
         self.process, self.port, self.log, self.state, self.error, self.first, self.note = process, port, log, 'starting', '', first, None
-        self.phone, self.phone_url = None, ''
+        self.phone, self.phone_url, self.guard = None, '', None  # task 304: the Tailscale user check in front of the app
         self.terminal=False
         self.frame=None  # the theme helper's proxy (Frame), for the workbench's own Preview frame
 
@@ -171,23 +173,28 @@ class Previews:
         if app.phone and app.phone.poll() is None: found['phone'] = app.phone_url
         return found
 
-    def phone(self, project, host):
+    def phone(self, project, host, users=()):
         """Open on Phone (P_OnPhone): the app on the tailnet while it runs, https://<host>:8443/ (tailscale serve). The
-        workbench's own phone address (host) must be on: it is the same machine and the same Serve."""
+        workbench's own phone address (host) must be on: it is the same machine and the same Serve. Task 304: Serve
+        reaches the app through a guard that admits only the workbench's own Tailscale logins (remote_users)."""
         if not host: return {'problem': 'Phone access is off: the workbench is not on the tailnet (remote_hosts in config.json).'}
+        if not users: return {'problem': 'Phone access is off: no Tailscale login is allowed (remote_users in config.json).'}
         with self.lock:
             app = self.apps.get(project)
             if not app or app.state != 'running': return {'problem': 'The app is not running. Start it in the Preview first.'}
             if app.phone and app.phone.poll() is None: return {'url': app.phone_url}
             for other in self.apps.values():
                 if other is not app and other.phone: self.end_phone(other)
-            process, problem = self.serve(app.port, PHONE_PORT)
-            if not process: return {'problem': problem or 'Tailscale could not serve the app.'}
-            app.phone, app.phone_url = process, f'https://{host}:{PHONE_PORT}/'
+            from harness.preview_guard import Guard
+            guard = Guard(app.port, host, users, PHONE_PORT)
+            process, problem = self.serve(guard.listen_port, PHONE_PORT)
+            if not process: guard.close(); return {'problem': problem or 'Tailscale could not serve the app.'}
+            app.phone, app.phone_url, app.guard = process, f'https://{host}:{PHONE_PORT}/', guard
             return {'url': app.phone_url}
 
     @staticmethod
     def end_phone(app):
+        if app.guard: app.guard.close(); app.guard = None
         if not app.phone: return
         app.phone.terminate()
         try: app.phone.wait(timeout=5)

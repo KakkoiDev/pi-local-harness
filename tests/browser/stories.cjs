@@ -1040,6 +1040,57 @@ story('US-081', 'only the person can change the phase: a local process without t
   assert.equal(response.status, 403, 'a script on this Mac changed the phase as “the person”');
 });
 
+// -- Security hardening (tasks 304, 305, 311) ----------------------------------------------------------------------
+story('US-140', 'a test that writes outside its project is stopped by the sandbox; the notice says how I widen it, and Project › Test Sandbox… changes it only when I choose', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Boxed');
+  const project = await page.evaluate(() => location.pathname.split('/')[2]);
+  const before = await t.bench.api('/api/project-sandbox?project=' + project);
+  assert.equal(before.network, 'none', 'no network by default');
+  if (before.available) {
+    await givenApprovedTasks(t, root, [{ title: 'Escape test', files: ['tests/'], done_when: 'The test runs.' }]);
+    const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-escape'); await answered(t, id);
+    assert.equal(fs.existsSync(join(root, '..', 'escaped.txt')), false, 'the test could not write outside the project');
+    await page.reload();
+    const notice = page.locator('#messages .pw-notice[role="note"]').filter({ hasText: 'Test Sandbox' }).last(); await notice.waitFor();
+    assert.match(await notice.textContent(), /may write only in the project, a temporary folder/);
+  }
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="test-sandbox"]').click();
+  await page.locator('#alert-message').filter({ hasText: 'Test Sandbox' }).waitFor();
+  const group = page.locator('#sandbox-network');
+  assert.equal(await group.getByLabel('No network (recommended)').isChecked(), true);
+  assert.equal(await page.locator('#alert-default').textContent(), 'Cancel', 'the safe button is the default');
+  await group.getByLabel('This computer only (localhost)').check();
+  await page.locator('#alert-default').click();
+  assert.equal((await t.bench.api('/api/project-sandbox?project=' + project)).network, 'none', 'Cancel changes nothing');
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="test-sandbox"]').click();
+  await group.getByLabel('This computer only (localhost)').check();
+  await page.locator('#alert-danger').click();
+  await page.waitForFunction(project => fetch('/api/project-sandbox?project=' + project).then(r => r.json()).then(d => d.network === 'local'), project);
+  const refused = await fetch(t.base + '/api/projects/sandbox', { method: 'POST', headers: { 'Content-Type': 'application/json', Host: new URL(t.base).host }, body: JSON.stringify({ project, network: 'internet' }) });
+  assert.equal(refused.status, 403, 'a local process without the page cannot widen it');
+});
+
+story('US-141', 'the Preview serves only the project: no .env, no foreign Host, the app in a sandboxed frame; the workbench cannot be framed', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Hidden');
+  fs.writeFileSync(join(root, '.env'), 'API_KEY=very-secret-value\n');
+  await givenApprovedTasks(t, root, [{ title: 'Greeting page', files: ['index.html', 'tests/'], done_when: 'The page greets the visitor.' }]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-site'); await answered(t, id);
+  const row = checkIn(t); await row.waitFor();
+  await row.getByText('Show in Preview', { exact: true }).click();
+  await page.frameLocator('#preview-body iframe').getByRole('heading', { name: 'Hello from Pi' }).waitFor({ timeout: 20000 });
+  const sandbox = await page.locator('#preview-body iframe').getAttribute('sandbox');
+  assert.match(sandbox, /allow-scripts/); assert.doesNotMatch(sandbox, /allow-top-navigation/, 'the app cannot navigate the workbench away');
+  const status = await t.bench.api('/api/preview?project=' + await page.evaluate(() => location.pathname.split('/')[2]));
+  const secret = await fetch(new URL('/.env', status.url)); assert.equal(secret.status, 404, '.env is never served');
+  assert.doesNotMatch(await secret.text(), /very-secret-value/);
+  assert.equal((await fetch(new URL('/.git/config', status.url))).status, 404, '.git is never served');
+  const rebound = await new Promise((resolve, reject) => require('node:http').get(status.url, { headers: { Host: 'evil.example' } }, response => { response.resume(); resolve(response.statusCode); }).on('error', reject));  /* fetch drops a Host header */
+  assert.equal(rebound, 403, 'a foreign Host (DNS rebinding) is refused');
+  const page_ = await fetch(t.base + '/'); assert.equal(page_.headers.get('x-frame-options'), 'DENY'); assert.match(page_.headers.get('content-security-policy'), /frame-ancestors 'none'/);
+});
+
 // -- Round 12: check-ins, what you grant, renames, the hunt's fixes ----------------------------------------------
 /** Wait until a condition on disk holds (the request that follows an answer runs on its own). */
 async function until(check, what, timeout = 15000) {

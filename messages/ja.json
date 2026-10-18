@@ -1,5 +1,17 @@
 {
  "exact": {
+  "Test Sandbox…": "テストのサンドボックス…",
+  "Test Sandbox": "テストのサンドボックス",
+  "Network for test runs": "テスト実行のネットワーク",
+  "No network (recommended)": "ネットワークなし（推奨）",
+  "This computer only (localhost)": "このコンピュータのみ（localhost）",
+  "The internet": "インターネット",
+  "Change": "変更",
+  "Test runs write only in the project and a temporary folder, cannot read the workbench’s data or your keys, and have no network. Widen the network only for tests that need it.": "テストの実行は、プロジェクトと一時フォルダにだけ書き込めます。ワークベンチのデータや鍵は読めず、ネットワークも使えません。ネットワークは、本当に必要なテストのときだけ広げてください。",
+  "Test runs are not sandboxed on this system yet (the sandbox uses macOS sandbox-exec). The choice is kept for when it is.": "このシステムでは、テストの実行はまだサンドボックスに入りません（サンドボックスは macOS の sandbox-exec を使います）。選択は、使えるようになったときのために保存されます。",
+  "Test runs have no network again.": "テストの実行は、再びネットワークなしになりました。",
+  "Test runs may reach this computer (localhost).": "テストの実行は、このコンピュータ（localhost）に接続できます。",
+  "Test runs may reach the internet.": "テストの実行は、インターネットに接続できます。",
   "Retry Task": "タスクをやり直す",
   "Accept Anyway…": "このまま承認…",
   "Accept Anyway": "このまま承認",

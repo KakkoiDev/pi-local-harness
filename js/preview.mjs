@@ -2,6 +2,8 @@
 // One body with two homes: its own window to the right of the chat while the chat keeps 480px, else a third view of
 // the main window (Chat · Work · Preview ⌥⌘P). The harness runs the app (harness/preview.py); this file shows it.
 import { readState, writeState } from './ui.mjs';
+/* Task 304: the app runs in a sandboxed frame with its own origin (another port): scripts, forms, dialogs and links in a new tab work, but it can never navigate the workbench page itself (no top navigation). */
+export const APP_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads';
 
 const $ = id => document.getElementById(id);
 const SVG = {
@@ -70,7 +72,7 @@ export function installPreview({ api, project, send, showView, view, working, on
   const stage = node('div', 'pw-preview__stage pw-desk');
   const keys=node('div','pw-terminal-keys');
   const frame = node('div', 'pw-preview__frame'), iframe = node('iframe'), caption = node('span', 'pw-preview__caption');
-  iframe.title = 'The app'; frame.append(iframe);
+  iframe.title = 'The app'; iframe.setAttribute('sandbox', APP_SANDBOX); frame.append(iframe);
   const state = node('span', 'pw-glyph'); state.setAttribute('role', 'status');
   const stopStart = button('Stop', () => (status.state === 'running' || status.state === 'starting' ? stop() : start()));
   const onPhone = button('Open on Phone…', () => phone().then(url => url && openOnPhone(project().name, url)), { disabled: true });

@@ -204,6 +204,7 @@ export default function harness(pi, dependencies = {}) {
   };
   const browserTool = installBrowser(extras, { forbidden: () => [ports?.web, process.env.PI_WEB_PORT].filter(Boolean).map(Number), shots: join(dataDir, 'browser'), app: projectApp });
   const boxes = new Map(); // toolCallId → the exact edit a task_box call became, for Gate's check and its audit
+  const sandboxed = new Map(); // task 311: toolCallId → the bash input Gate allowed, before it became the sandboxed command
   pi.on('session_start', async (_event, ctx) => {
     context = ctx; closing = false;
     let stderr = '';
@@ -416,6 +417,9 @@ export default function harness(pi, dependencies = {}) {
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
+      // Task 311: Gate runs an allowed test command in the sandbox (gate/sandbox.py). Pi's bash runs Gate's wrapped
+      // command; the audit gets the command Gate allowed, so it is not drift.
+      if (typeof result.command === 'string' && typeof args?.command === 'string') { sandboxed.set(event.toolCallId, { ...args }); event.input.command = result.command; }
     } catch (error) {
       // G-011 (plan 184, L-002): Gate failed (an error, not a decision) even after retries. This call does not run; the run
       // goes on (no babysitting) and the failure is reported for the analysis.
@@ -436,8 +440,9 @@ export default function harness(pi, dependencies = {}) {
     try {
       const started = checks.get(event.toolCallId)?.started, seconds = started ? (Date.now() - started) / 1000 : undefined;
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
-        args: boxes.get(event.toolCallId) || event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
-      boxes.delete(event.toolCallId);
+        args: boxes.get(event.toolCallId) || sandboxed.get(event.toolCallId) || event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+      boxes.delete(event.toolCallId); sandboxed.delete(event.toolCallId);
+      if (result.sandbox_refused) notify(sharedPortEnv() ? `Harness notice: ${result.sandbox_refused}` : result.sandbox_refused, 'warning'); /* task 311: the person can widen it */
       // Plan 184: the first change gives the request its task; Pi reads where it is and that the harness keeps it.
       const told = result.note ? [{ type: 'text', text: result.note }] : [];
       // Round 6 (T_Gate): Gate's verdict and the command's own result are separate words. A command that exits with an

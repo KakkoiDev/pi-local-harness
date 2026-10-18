@@ -97,3 +97,17 @@ or a new one appears, so the list stays true):
 - **Charts without a table alternative** (the catalogue's own rule, "every chart has a table alternative"): Dashboard's
   trend chart, KpiTile's sparkline (Sparkline's own card has one) and GaugeRing. If a single-value chart's visible
   number is its alternative, say so in AppFoundations and we will teach the checker that exception.
+
+## Test Sandbox… (task 311), not drawn yet
+
+Project › Test Sandbox… is built from the existing alert (note icon) with a radio group (`.settings-group`,
+`.pw-radio`), because no board shows it. It says what a test run may do (write only in the project and a temporary
+folder, read neither the workbench's data nor the person's keys, no network) and offers three choices, kept per
+project: **No network (recommended)** · **This computer only (localhost)** · **The internet**. Buttons: Change ·
+Cancel (default). When a failing test run met the sandbox, a Harness notice under the answer says so and names this
+command. Please draw: the dialog (desk and phone sheet), and whether the notice should carry a "Test Sandbox…" link
+that opens it directly (today it names the menu command in words).
+
+The Preview frame is now sandboxed (task 304: `allow-scripts allow-same-origin allow-forms allow-modals allow-popups
+allow-downloads`, no top navigation). Nothing changes on screen; an app that tries to navigate the workbench page
+itself now stays inside the frame.

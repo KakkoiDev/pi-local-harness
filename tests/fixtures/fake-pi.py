@@ -60,6 +60,7 @@ def scripted_story():
             if path=='/gatekeep':notify(f'Harness note: Gate could not check a tool call ({reason}); that call did not run and Pi continues.')
             return {'outcome':'UNAVAILABLE','reason':reason,'error':reason}
     automatic=lambda:bool(gate('/auto',{}).get('enabled'))
+    running={}
     def tool(number,name,gate_name,args,run):
         identifier=f'call-{name}-{number}'
         checked=gate('/gatekeep',{'tool_name':gate_name,'args':args,'pi_tool':name,'auth_level':'admin','tool_call_id':identifier,'cwd':os.getcwd(),'source':'web','request':job})
@@ -75,8 +76,10 @@ def scripted_story():
                     pending=gate('/choice',{'request':job,'choice':shown});state.write_text(json.dumps([script,number-1]))  # the answer retries this call
                     notify('Harness choice: '+json.dumps(pending));gate('/request/pause',{'request':job});settle('','aborted')
             return
+        running['command']=checked.get('command')  # task 311: like the extension, bash runs Gate's sandboxed command
         output,code=run()
-        gate('/audit',{'proposal_id':checked['proposal_id'],'tool_name':gate_name,'args':args,'output':output,'exit_code':code})
+        audited=gate('/audit',{'proposal_id':checked['proposal_id'],'tool_name':gate_name,'args':args,'output':output,'exit_code':code})
+        if (audited or {}).get('sandbox_refused'):notify('Harness notice: '+audited['sandbox_refused'])
         emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':code!=0})
     def finish():
         """/request/end as the extension does it; True when Run on its own accepted a verified check-in with a next task."""
@@ -105,7 +108,7 @@ def scripted_story():
             tool(index,'write','write_file',{'path':step['write'],'content':step['content']},write)
         if 'bash' in step:
             def bash():
-                done=subprocess.run(step['bash'],shell=True,capture_output=True,text=True,timeout=120);return done.stdout+done.stderr,done.returncode
+                done=subprocess.run(running.get('command') or step['bash'],shell=True,capture_output=True,text=True,timeout=120);return done.stdout+done.stderr,done.returncode
             tool(index,'bash','execute_command',{'command':step['bash']},bash)
         if 'hang' in step:time.sleep(step['hang'])
         if 'crash' in step:sys.stderr.write(step['crash']+'\n');sys.exit(3)
