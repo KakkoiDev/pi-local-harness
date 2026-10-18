@@ -196,3 +196,14 @@ Phase commands opened outside a project offer the registered-project picker; the
 Checked shell reads are `ls`, `cat`, `head`, `tail`, `wc`, `grep`, `rg`, `find`, `diff`, `sed -n <lines>p` and `pwd`; Git only reads in this form: `git --no-pager --no-optional-locks -c core.fsmonitor=false status` (or `diff --no-ext-diff --no-textconv`). A refused command says what may run. Checked shell reads reject unquoted glob expansion and ripgrep configuration injection. Package-launching test commands require checked offline/no-install forms (`npx --no-install`, `uv run --offline`, `cargo test --offline`); Go test is not currently allowed by this grammar. Project test code still runs with the account’s permissions.
 
 Discussion includes `web_search`: Bing returns titles, links and snippets; source text is treated as data. No query is sent by tests. Music reads are allowed in Discussion; creating, revising and rendering a composition are allowed in every phase, but only as a new numbered revision folder under `assets/music/<name>/` in the project, never overwriting (`gate/media.py`, task 291). Other writes into `assets/music/` follow the phase rules.
+
+## Can Pi build a login page, an online shop or a game for me?
+
+Yes, from the designer's App Blocks: 137 ready-made parts (log in, side panel, data table, charts, cart, kanban…),
+whole apps (online shop, admin dashboard, notes, chat, CRM…), game genres (RPG, shooter, cozy, roguelike…) and art
+direction. Name what you want in the chat, in English or Japanese ("add a login page", 「ログイン画面を作って」, "build an
+online shop", "make an RPG"): Pi Workbench gives Pi exactly that card, never the whole library, and Pi copies its
+markup, texts and states instead of inventing them. An app's card lists its blocks; Pi loads each one with its
+`app_block` tool. `python3 kit/blocks/add.py <project> <Name>` (in the harness folder) copies what a block needs, such
+as Chart.js for a chart, with licences, and `python3 kit/blocks/check.py <page>` checks a page for classes Basecoat
+does not have, missing labels, charts without a table, hard-coded colours and CDN links.

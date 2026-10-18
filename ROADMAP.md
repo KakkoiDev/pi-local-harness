@@ -327,6 +327,7 @@ Design: [DESIGN.md](DESIGN.md), [design/README.md](design/README.md), build orde
 - [x] [310-Project Start: the architecture decisions to settle](tasks/310-project-start-architecture-decisions.md)
 - [ ] [311-Test runs are sandboxed](tasks/311-sandboxed-test-runs.md)
 - [x] [312-Tinker with the site's look in the chat (theme panel)](tasks/312-theme-panel.md)
+- [x] [317-App Blocks as cards Pi loads one at a time](tasks/317-app-block-cards.md)
 - [x] [260-Verification cannot be faked; check-ins never strand the plan](tasks/260-trustworthy-verification.md)
 
 Plan 267: System 1 makes every judgement ([docs/plans/267-system-1-makes-every-judgement.md](docs/plans/267-system-1-makes-every-judgement.md)).

@@ -54,6 +54,16 @@ kit are included. Preserve the host's pipeline when adapting a recipe.
 
 **gaming-core:** see the [separate implementation report](gaming-core.md).
 
+## App Blocks: already in Pi (task 317)
+
+The Basecoat side of "generate a settings page" no longer needs visual-core's component guides: the designer's App
+Blocks (plan 266 item 7) are cards in `kit/blocks/` (one per block, archetype, genre and art card, with its markup as a
+file), routed by the request's words (`harness/blocks.mjs`, the `app_block` tool for one more card), set up with
+`kit/blocks/add.py` (Basecoat's script, Chart.js 4.5.1 and Basecoat's chart wrapper, licences kept) and checked with
+`kit/blocks/check.py`. A visual or game adapter that needs a block names it by its exact card name from
+`kit/blocks/index.json`. The game genre cards assume gaming-core's input layer: see design/briefs/round-13.md for where
+its gamepad naming differs from GameKit's.
+
 ## Implementation order
 
 1. Add an explicit optional core setup operation, with a manifest of repository,

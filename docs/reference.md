@@ -286,6 +286,13 @@ revisions. Its successful files join the existing chat attachments and audio pla
 See [application integration and source reuse](music-projects.md) and the
 [LLM music guide](../harness/music/AGENT_GUIDE.md).
 
+App Blocks (plan 266 item 7): `harness/blocks.mjs` matches a request's words against `kit/blocks/index.json` and adds at
+most two cards, plus the AppFoundations or GameKit card they assume, to the system prompt (14,000 characters at most);
+when only common or shared words match, the classifier (judgement `app_block`) picks one of those few or none, never a
+question to the person. Both decisions go to `decisions.jsonl` (`app_block_chosen` by code, `app_block` by the
+classifier). The `app_block` tool loads one more card by its exact name (Gate: a read). `kit/blocks/add.py` sets a
+project up for blocks; `kit/blocks/check.py` checks pages; see [kit/README.md](../kit/README.md).
+
 ## Where to change things
 
 | File | Responsibility |
