@@ -61,7 +61,7 @@ class Session {
 /** Launch Chromium headless; {session, close}. */
 export async function launchChrome(chrome) {
   const profile = mkdtempSync(join(tmpdir(), 'pi-browser-'));
-  const child = spawn(chrome, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', '--disable-gpu', '--hide-scrollbars=false', 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const child = spawn(chrome, ['--headless=new', '--use-mock-keychain', '--password-store=basic', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', '--disable-gpu', '--hide-scrollbars=false', 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const url = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Chromium did not start')), 20000);
     createInterface({ input: child.stderr }).on('line', line => { const match = line.match(/DevTools listening on (ws:\S+)/); if (match) { clearTimeout(timer); resolve(match[1]); } });

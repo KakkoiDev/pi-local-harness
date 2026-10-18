@@ -21,7 +21,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   const lines=readline.createInterface({input:server.stdout});
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
   const base=`http://127.0.0.1:${ports.web}`;
-  browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
+  browser=await chromium.launch({headless:true,args:['--use-mock-keychain', '--password-store=basic','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
   page.on('pageerror',e=>errors.push(e.message));
   // The server's stderr (its request log) must be read: an unread pipe fills up and the server stalls mid-request.

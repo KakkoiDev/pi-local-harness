@@ -26,7 +26,7 @@ const readline = require('node:readline');
     const lines = readline.createInterface({ input: server.stdout });
     const ports = await new Promise((resolve, reject) => { const timeout = setTimeout(() => reject(new Error('Server startup timeout')), 10000); lines.once('line', line => { clearTimeout(timeout); resolve(JSON.parse(line)); }); server.once('exit', code => reject(new Error('Server exited ' + code))); });
     const base = `http://127.0.0.1:${ports.web}`;
-    browser = await chromium.launch({ headless: true, ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
+    browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'], ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
     const errors = [];
     const open = async (path = '/') => {
       const page = await browser.newPage({ viewport: { width: 1440, height: 950 } });

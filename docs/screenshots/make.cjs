@@ -23,7 +23,7 @@ const readline = require('node:readline');
   try {
     const ports = await new Promise((resolve, reject) => { readline.createInterface({ input: server.stdout }).once('line', line => resolve(JSON.parse(line))); server.once('exit', code => reject(new Error('Server exited ' + code))); });
     const base = `http://127.0.0.1:${ports.web}`;
-    browser = await chromium.launch({ headless: true, ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
+    browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'], ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
     await page.goto(base);
     const post = (path, body) => page.evaluate(async ([path, body]) => (await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })).json(), [path, body]);

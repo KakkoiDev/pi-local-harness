@@ -73,7 +73,7 @@ function scratch(prefix = 'pi-stories-') {
 
 function launch() {
   const { chromium } = require('playwright');  // only the browser stories need it; tests/harness/stories.test.mjs does not
-  return chromium.launch({ headless: true, ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
+  return chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'], ...(process.env.PI_TEST_CHROME ? { executablePath: process.env.PI_TEST_CHROME } : {}) });
 }
 
 /**
