@@ -1588,7 +1588,18 @@ story('US-206', 'choosing Planning after a discussion starts the plan without ty
   await page.locator('#messages .pw-notice').filter({ hasText: 'Building started: the approved task' }).waitFor();
 });
 
+/** Stand-ins for uv/uvx that never download: the Tailwind watch sleeps, `uv run uvicorn … --port N` serves the folder on
+ * N (so a web app's Preview really answers), anything else reports a passing test run. Live 2026-10-19: US-207 reached
+ * github.com for the Tailwind binary. */
+async function offlineWebUv(t) {
+  const stub = '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\n'
+    + 'case " $* " in *" uvicorn "*) exec python3 -c \'import sys,http.server,functools;a=sys.argv[1:];p=int(a[a.index("--port")+1]) if "--port" in a else 8000;http.server.ThreadingHTTPServer(("127.0.0.1",p),functools.partial(http.server.SimpleHTTPRequestHandler,directory=".")).serve_forever()\' "$@";; esac\n'
+    + 'mkdir -p static 2>/dev/null; printf "# pass 1\\n# fail 0\\n"\nexit 0\n';
+  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), stub, { mode: 0o755 });
+  await t.bench.restart(); await t.reopen();
+}
 story('US-207', 'a project folder with spaces and capitals (“Habit Tracker”): plan, build, sandboxed test runs, the commit and the Preview all work', async t => {
+  await offlineWebUv(t);
   const { root, job } = await planAndBuild(t, { name: 'Habit Tracker' });
   assert.equal(job.status === 'completed' || job.status === 'waiting', true, 'the build ran: ' + job.status + ' ' + job.progress);
   assert.ok(exists(root, 'counter.py') && exists(root, 'tests', 'test_counter.py'), 'Pi wrote into the folder with a space');
