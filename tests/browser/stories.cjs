@@ -1769,6 +1769,33 @@ story('US-225', 'on a phone (390 px) the waiting message reads in full, its butt
   assert.equal((await t.bench.api('/api/workspace')).jobs.find(item => item.id === id).message, 'Shorter introduction');
 });
 
+story('US-208', 'Gate’s question mid-request pauses it like a card of Pi’s: Waiting for you, the card survives a reload, Keep Out keeps the file out, Keep the Plan ends it, and the chat goes on', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Keep out');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-outside');
+  const paused = await answered(t, id);
+  assert.equal(paused.status, 'waiting', 'paused for the person, not failed or running');
+  await page.reload();
+  const card = page.locator('.pw-card[aria-label="Pi wants to change a file outside task 1"]'); await card.waitFor();
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Keep Out', exact: true }).click();
+  const next = await answered(t, (await (await resumed).json()).job);
+  assert.notEqual(next.status, 'running');
+  assert.ok(!exists(root, 'notes', 'extra.py'), 'kept out');
+  // This scripted Pi tries the same file again: Gate asks once whether the plan should change; Keep the Plan ends it.
+  const replan = page.locator('.pw-card[aria-label="The plan needs to change"]'); await replan.waitFor({ timeout: 10000 });
+  const kept = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await replan.getByRole('button', { name: 'Keep the Plan', exact: true }).click();
+  await answered(t, (await (await kept).json()).job);
+  assert.ok(!exists(root, 'notes', 'extra.py'), 'still kept out');
+  await settledAll(t);
+  assert.equal((await chatJobs(t, project)).filter(job => ['queued', 'running'].includes(job.status)).length, 0, 'nothing is stuck');
+  assert.ok(decisions(t).some(row => row.answer === 'Keep Out' && row.who === 'person'), 'my answer is recorded');
+  // The chat goes on: a plain message runs (a question left waiting never blocks it).
+  assert.notEqual((await answered(t, await say(t, 'What is left to do?'))).status, 'running');
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

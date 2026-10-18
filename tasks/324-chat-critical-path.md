@@ -40,6 +40,10 @@ is docs/reviews/2026-10-18-chat-critical-path-audit.md; stories US-200 to US-219
   into real tool calls is task 326).
 - [x] 13. Guide selection never asks the person.
 - [x] 14. Choosing Planning with a discussion in the chat starts a planning request; an empty chat starts nothing.
+- [x] 15. A pending system-owned question of a request that ended, or one System 1 decides itself (applicable_guide),
+  never blocks writes (G-017); it is settled ("its request ended"). Unit (test_person_controls).
+- [x] 16. Gate's scope question mid-request pauses the request (Waiting for you), the card survives a reload, Keep Out
+  and Keep the Plan work, the chat goes on (US-208). Text Pi writes after a saved card still shows live.
 
 ## Checks
 - [ ] Workflow verification and all browser suites pass; the audit is written.

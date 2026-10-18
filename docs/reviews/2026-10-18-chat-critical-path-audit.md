@@ -15,7 +15,7 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
 | Repeated "Instruction drift: the completed response omitted [CANARY]" recoveries | `missingCanary` required the literal `[CANARY]`; a wrapped marker counted as drift, so the harness compacted and re-asked answers that had followed the instruction. Each recovery costs a compaction and a full re-ask. | The drift detector accepts the wrapped forms; it still reads the raw text (nothing is stripped before it). |
 | "Loop detected" recoveries | Working as designed. Checked that a recovery cannot wedge a request: the abort ends the turn (`agent_end`, so the watchdog waits for the harness), compaction is not "the model" (`compaction_start`…`compaction_end`), and the re-asked turn is watched again from `agent_start`. The hour limit still bounds everything. |
 
-## What was tested (stories US-200 to US-207, all passing)
+## What was tested (stories US-200 to US-208, all passing)
 
 - **US-200** the owner's scenario: a tool finishes, the model stalls; Planning chosen; a message queued behind it.
   The stalled request fails after 3 s (scratch setting) with the CutLine and Retry; the Planning message runs.
@@ -32,6 +32,8 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
   Fails on 87491f6 (see below).
 - **US-206** choosing Planning starts the plan (the owner's request): after a discussion a planning request runs and a
   plan card arrives without typing; an empty chat starts nothing; Implementation with an approved task starts it.
+- **US-208** Gate's scope question mid-request: Waiting for you, the card after a reload, Keep Out, Keep the Plan, and
+  the chat goes on.
 - **US-207** a folder with spaces and capitals ("Habit Tracker"): plan, build, sandboxed test runs, Gate's commit,
   the Preview.
 - Unit: `tests/test_chat_critical_path.py` (watchdog, next request after a stall, a thinking model and long tool work
@@ -65,6 +67,12 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
     swallowed the rest of the answer. Both render now.
 11. **Plan steps on one line** ("1. … 2. … 3. …") become a list in the task file; **propose_plan replaced the person's
     Goal**: it now stays, with the plan's goal as one `Plan:` line under it.
+13. **An invisible system question deadlocked a request** (live, qwen3.8:27b): a "Which guide should Pi use?" raised
+    mid-request was saved as the project's waiting choice but never shown; every later write got G-017 "A choice is
+    waiting for the person" and Pi looped. Guide choice no longer asks (item 4), and G-017 no longer blocks on a
+    system-owned question whose request has ended, or on a judgement System 1 decides itself: it is settled. With that
+    out of the way, Gate's scope question for a file outside the task appears and pauses the request (US-208).
+14. **Live text after a saved card** was hidden while the request ran on; it shows now.
 12. `ask_choices`' description tells small models never to write questions with options in prose.
 
 ## What remains

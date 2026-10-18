@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+from harness.judgements import NO_CARD
 from pathlib import Path
 import threading
 import time
@@ -265,7 +266,12 @@ class ProposalLedger:
                     if not read_only(command) and not test_run(command):
                         judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
                 return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
-            if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
+            waiting=self.paperwork.waiting_choice(root) if tool_name == 'write_file' else None
+            if waiting and waiting.get('system_owned') and ((waiting.get('judgement') or {}).get('kind') in NO_CARD or (waiting.get('request')!=request and waiting.get('request') not in self.paperwork.requests)):
+                # Task 324 (live: a never-shown "Which guide should Pi use?" blocked every write of later requests): a
+                # question System 1 raised for a request that has ended, or one System 1 decides itself, never blocks work.
+                self.paperwork.settle_waiting(root,'its request ended');waiting=None
+            if waiting:
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             if tool_name == 'write_file' and phase == 'implementation':
                 rejected=rules.planning_refusal(task,assistant_text,required=False,recorded=self.paperwork.active_decisions(root))
