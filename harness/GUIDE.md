@@ -53,13 +53,15 @@ Markdown as blocks or source, comment on a passage, and ask Pi about a passage o
 
 ## How do I change my app's colours, corners or fonts?
 
-Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**.
-Pi Workbench answers by itself, without Pi: a panel with the app's theme (colours in light and dark with a contrast
-check, chart colours, corner radius, spacing, fonts). The Preview changes as you move a picker or a slider. **Save**
-writes only what you changed into `styles/input.css` and keeps it as your own change, which **Undo This Request…**
-takes back; closing without saving puts the Preview back. A chosen Google font is downloaded into the project, with
-its licence, when you save. In terminal Pi, `/theme` prints the tokens. A project not made from a starter has no theme
-file, and the panel says so.
+Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**
+(⌃⌥K). Pi Workbench answers by itself, without a model: a panel with tabs for **Colours** (light and dark side by side,
+each with its contrast; the first five show, "▸ 3 more" opens the rest), **Radius**, **Spacing**, **Chart** and
+**Fonts**. A swatch opens a picker (drag the field and the hue strip, type a hex; Esc puts the old value back), and the
+Preview follows as you go. **Save Theme** writes only what you changed into `styles/input.css` as your own change; the
+line "Theme saved: …" has **Undo**. Sending a message, switching project or closing the panel with unsaved changes asks
+first (Don't Save · Cancel · Save). A chosen Google font is downloaded into the project, with its licence, when you
+save. On a phone the panel opens full screen with the live app on top. A project with no theme file offers **Add a
+Theme File** (Basecoat's defaults, one change you can undo). In terminal Pi, `/theme` prints the tokens.
 
 ## How do comments work?
 

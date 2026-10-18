@@ -455,7 +455,16 @@ class WebChat:
         try:result=theme.save(root,data.get('light'),data.get('dark'),data.get('fonts'),download=self.fonts.download)
         except OSError as error:raise ValueError(f'Not saved: a font could not be downloaded ({error}). Nothing was changed.') from error
         if result.get('unchanged'):return result
-        message={'role':'assistant','author':'workbench','content':result['message']+(' '+result['note'] if result.get('note') else '')}
+        return self.theme_saved(project,root,result)
+    def theme_add(self, project):
+        """Add a Theme File (round 12): Basecoat's defaults as one commit of the person's (a person-only route)."""
+        root=self.documents.project_path(project)
+        busy=[job for job in self.queue.list() if job['status']=='running' and job.get('project')==project]
+        if busy:raise ProjectBusy(busy[0]['id'])
+        return self.theme_saved(project,root,theme.add_file(root),added=True)
+    def theme_saved(self, project, root, result, added=False):
+        """The workbench's one line in the chat (✓ Theme saved: … · the file · time, Undo), the commit told to the Preview."""
+        message={'role':'assistant','author':'workbench','content':result['message']+(' '+result['note'] if result.get('note') else ''),'theme_saved':{'names':result['names'],'path':theme.FILE,'added':added}}
         if result.get('commit'):message['commit']=result['commit'];self.changed(project,root,result['commit'],'You')
         return {**result,'conversation':self.store.append(self.project_chat(project)['id'],message),'state':theme.state(root)}
     def answer_choice(self, project, data):
@@ -842,7 +851,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save'})  # task 312: the theme panel is the person's
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add'})  # task 312: the theme panel is the person's
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -977,6 +986,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
             if path=='/api/theme/open':self.reply(self.chat.open_theme(data['project'],data.get('group','colours')));return  # task 312: Project › Theme…
             if path=='/api/theme/save':self.reply(self.chat.theme_save(data['project'],data));return
+            if path=='/api/theme/add':self.reply(self.chat.theme_add(data['project']));return  # round 12: Add a Theme File
             if path=='/api/tasks/reopen':self.reply(self.chat.ledger.paperwork.reopen(self.chat.documents.project_path(data['project']),data.get('task')));return  # task 260: the person's recovery from a false completion
             if path=='/api/settings':self.reply(self.chat.updates.settings(data));return
             if path=='/api/updates':

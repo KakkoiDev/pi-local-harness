@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { contrast, parseColour, toHex } from '../../js/theme-colors.mjs';
+import { contrast, parseColour, toHex, toHsv, fromHsv, toOklch, distance } from '../../js/theme-colors.mjs';
 import { installTheme, themeLines } from '../../harness/theme.mjs';
 
 test('the panel reads Basecoat’s oklch colours as picker hex and checks WCAG contrast', () => {
@@ -14,6 +14,15 @@ test('the panel reads Basecoat’s oklch colours as picker hex and checks WCAG c
   assert.equal(Math.round(contrast('#000000', '#ffffff')), 21); assert.equal(contrast('#777777', '#777777'), 1);
   assert.ok(contrast('oklch(0.985 0 0)', 'oklch(0.205 0 0)') >= 4.5, 'Basecoat’s primary pair passes AA');
   assert.equal(contrast('nope', '#fff'), null);
+});
+
+test('the round 12 picker: HSV round-trips, the oklch a hex maps to, and chart colours too close to tell apart', () => {
+  for (const hex of ['#e8590c', '#2563eb', '#16a34a', '#000000', '#ffffff', '#777777']) { const { h, s, v } = toHsv(hex); assert.equal(fromHsv(h, s, v), hex); }
+  assert.equal(fromHsv(0, 1, 1), '#ff0000'); assert.equal(fromHsv(120, 1, 1), '#00ff00'); assert.equal(toHsv('nope'), null);
+  assert.equal(toOklch('#ffffff'), 'oklch(1 0 0)'); assert.equal(toOklch('#e8590c'), 'oklch(0.644 0.192 41.7)');
+  assert.equal(toHex(toOklch('#2563eb')), '#2563eb', 'the oklch shown maps back to the same hex');
+  assert.ok(distance('#2563eb', '#1d4ed8') < 0.1, 'two neighbouring blues are hard to tell apart');
+  assert.ok(distance('#2563eb', '#ea580c') > 0.3); assert.equal(distance('x', '#fff'), null);
 });
 
 test('/theme prints the tokens and the file, and says when there is no theme file', async () => {

@@ -55,13 +55,14 @@ export function doneRow(commit, { project, api, ask, showPreview, send, changed,
 }
 
 /** Undo This Request… and Redo Request…: the before-undo check, then harness/undo.py and its alerts (task 203, 208). */
-function undoActions(commit, { project, api, ask, send, changed }) {
+function undoActions(commit, { project, api, ask, send, changed, wording }) {  // wording: the alert in other words (the theme panel's saved line)
   async function run(data, kind) {
     const name = firstSentence(data.person, data.name), files = data.files.length;
     const summary = node('details', ''); summary.open = true;
     summary.append(node('summary', '', `${files} file${files === 1 ? '' : 's'} change${files === 1 ? 's' : ''} back`), fileLines(data.files));
     const answer = kind === 'redo'
       ? await ask({ icon: 'caution', message: `Redo “${firstSentence(data.person)}”?`, detail: 'Its changes come back as a new change. Requests after the undo stay.', danger: 'Redo Request', safe: 'Cancel', extra: summary })
+      : wording ? await ask({ icon: 'caution', danger: 'Undo', safe: 'Cancel', extra: summary, ...wording })
       : await ask({ icon: 'caution', message: `Undo “${name}”?`, detail: 'Your app’s data is not touched, and requests after this one stay. Undo is saved as a new change, so nothing is lost: it can be redone.', danger: 'Undo Request', safe: 'Cancel', extra: summary });
     if (answer !== 'danger') return;
     await attempt(data, name, false);

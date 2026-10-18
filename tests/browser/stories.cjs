@@ -531,11 +531,25 @@ async function tokenIs(t, name, value) {
   throw new Error(`${name} in the Preview is “${seen}”, not “${value}”`);
 }
 
-story('US-116', 'adjust the site’s colours: the panel opens without Pi, a picker restyles the Preview, Save commits, Undo restores', async t => {
-  // The App-with-no-server starter builds its styles with `uv tool run pytailwindcss` (a download, US-066): a stand-in
-  // uv on the services' PATH copies Basecoat's tokens into static/app.css and lets the watch wait.
+/** The App-with-no-server starter builds its styles with `uv tool run pytailwindcss` (a download, US-066): a stand-in uv
+ * on the services' PATH copies Basecoat's tokens into static/app.css and lets the watch wait. */
+async function standInUv(t) {
   fs.writeFileSync(join(t.directory, 'uv'), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nmkdir -p static && cat vendor/basecoat/css/base/base.css > static/app.css\n', { mode: 0o755 });
   await t.bench.restart(); await t.reopen();
+}
+/** Ask for the panel in words; returns the panel the workbench answered with. */
+async function askTheme(t, words, group = 'colours') {
+  const { page } = t;
+  await page.locator('#prompt:not([disabled])').waitFor();
+  await page.locator('#prompt').fill(words);
+  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await page.locator('#send').click();
+  assert.equal((await (await answered).json()).theme, group);
+  return page.locator(`[data-theme-panel]`).last();
+}
+
+story('US-116', 'adjust the site’s colours: the panel opens without Pi, the picker restyles the Preview (Esc puts it back), Save Theme commits, Undo restores', async t => {
+  await standInUv(t);
   const { page } = t;
   const { root } = await newProject(t, 'Colours', 'static');
   const original = t.bench.read(root, 'styles', 'input.css');
@@ -543,42 +557,199 @@ story('US-116', 'adjust the site’s colours: the panel opens without Pi, a pick
   const opened = await page.waitForFunction(() => document.querySelector('#preview-toggle').getAttribute('aria-pressed') === 'true', null, { timeout: 3000 }).then(() => true, () => false);
   if (!opened) await page.locator('#preview-toggle').click();
   await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
-  await page.locator('#prompt').fill('I want to adjust the site’s colours');
-  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
-  await page.locator('#send').click();
-  assert.equal((await (await answered).json()).theme, 'colours');
-  const panel = page.locator('.pw-theme[data-group="colours"]'); await panel.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  const panel = await askTheme(t, 'I want to adjust the site’s colours');
+  const primary = panel.locator('.pw-theme__row[data-token="primary"]'); await primary.waitFor();
   assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
   assert.equal(decisions(t).at(-1).kind, 'theme_panel'); assert.equal(decisions(t).at(-1).who, 'code');
-  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench/);
-  assert.match(await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__contrast').first().textContent(), /✓ AA/);
-  await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__side[data-mode="light"] input[type=color]').first().fill('#ff0000');
+  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench.*· no model/);
+  assert.equal(await panel.locator('.pw-card__title').textContent(), 'Theme · Colours');
+  assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['Colours', 'Radius', 'Spacing', 'Chart', 'Fonts']);
+  assert.match(await primary.locator('.pw-theme__name').textContent(), /^Primary\s*buttons and links$/);
+  assert.match(await primary.locator('.pw-theme__val[data-mode="light"] .pw-contrast').textContent(), /^\d+\.\d : 1 · AA ✓$/);
+  assert.equal(await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').inputValue(), '#171717', 'Basecoat’s oklch shown as hex');
+  assert.match(await panel.locator('.pw-theme__status').textContent(), /^No changes yet$/);
+  assert.ok(await panel.getByRole('button', { name: 'Save Theme', exact: true }).isDisabled(), 'nothing to save yet');
+  // The swatch opens the picker: a hex (and its oklch), and Esc puts the old value back.
+  const swatch = primary.locator('.pw-theme__val[data-mode="light"] .pw-swatch');
+  await swatch.click(); assert.equal(await swatch.getAttribute('aria-expanded'), 'true');
+  const picker = page.locator('.pw-picker'); await picker.waitFor();
+  assert.equal(await picker.locator('.pw-picker__title').textContent(), 'Primary · light');
+  await picker.locator('.pw-theme__hex').fill('#ff0000'); await picker.locator('.pw-theme__hex').press('Enter');
   await tokenIs(t, '--primary', '#ff0000');
+  assert.equal(await picker.locator('.pw-picker__oklch').textContent(), 'or oklch(0.628 0.258 29.2)');
+  assert.ok(await page.locator('.pw-preview__note--theme').isVisible(), '◐ Showing the unsaved theme');
+  await page.keyboard.press('Escape');
+  await picker.waitFor({ state: 'detached' });
+  await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
+  assert.ok(!(await page.locator('.pw-preview__note--theme').isVisible()), 'Esc put the old value back: nothing unsaved');
+  // Dragging on the saturation field picks a colour the Preview follows; a click outside keeps it.
+  await swatch.click(); await picker.waitFor();
+  const field = await picker.locator('.pw-picker__field').boundingBox();
+  await page.mouse.move(field.x + field.width * 0.9, field.y + field.height * 0.1); await page.mouse.down(); await page.mouse.move(field.x + field.width * 0.8, field.y + field.height * 0.2); await page.mouse.up();
+  const dragged = await picker.locator('.pw-theme__hex').inputValue();
+  assert.match(dragged, /^#[0-9a-f]{6}$/); assert.notEqual(dragged, '#171717');
+  await tokenIs(t, '--primary', dragged);
+  await panel.locator('.pw-card__title').click(); await picker.waitFor({ state: 'detached' });
+  await tokenIs(t, '--primary', dragged);
+  // The hex field takes a colour too; the foot counts what is not saved.
+  await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').fill('#ff0000'); await primary.locator('.pw-theme__val[data-mode="light"] .pw-theme__hex').press('Enter');
+  await tokenIs(t, '--primary', '#ff0000');
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '1 change not saved: Primary · the Preview shows it now');
   assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'nothing is written before Save');
-  await panel.getByRole('button', { name: 'Save', exact: true }).click();
-  await page.locator('.pw-workbench-reply', { hasText: 'Theme saved: primary.' }).waitFor();
+  await panel.getByRole('button', { name: 'Save Theme', exact: true }).click();
+  const saved = page.locator('.pw-theme-saved', { hasText: 'Theme saved: primary' }); await saved.waitFor();
+  assert.match(await saved.textContent(), /· styles\/input\.css · \d\d:\d\d/);
+  await panel.locator('.pw-card__line', { hasText: 'saved' }).waitFor();
   assert.match(commits(t, root)[0], /\|Theme: primary$/, 'the person’s own commit');
   assert.match(t.bench.read(root, 'styles', 'input.css'), /\/\* theme: edited in the workbench \*\/\n:root \{\n {2}--primary: #ff0000;\n\}/);
   await tokenIs(t, '--primary', '#ff0000');
-  const row = page.locator('.pw-msg', { hasText: 'Theme saved: primary.' }).locator('.pw-done'); await row.getByText('Undo This Request…', { exact: true }).click();
-  await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
+  // Undo, in the theme's words.
+  await saved.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: 'Undo the theme save?' }).waitFor();
+  assert.match(await page.locator('#alert-detail').textContent(), /^Primary goes back to how it was before this save/);
+  await page.locator('#alert-danger').click();
   await page.waitForFunction(() => [...document.querySelectorAll('.pw-done__head')].some(head => /Undone/.test(head.textContent)));
   assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'Undo restores the file');
   await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
 });
 
-story('US-117', 'ask in Japanese: サイトの色を調整したい opens the panel; Project › Theme… too; a project without the starter’s CSS says so', async t => {
+story('US-117', 'ask in Japanese: サイトの色を調整したい opens the panel; Project › Theme… and ⌃⌥K too; a project without the starter’s CSS says so', async t => {
   const { page } = t;
   await newProject(t, 'Plain');
-  await page.locator('#prompt').fill('サイトの色を調整したい');
-  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
-  await page.locator('#send').click();
-  assert.equal((await (await answered).json()).theme, 'colours');
-  await page.locator('.pw-theme', { hasText: 'This project has no theme file.' }).waitFor();
+  const panel = await askTheme(t, 'サイトの色を調整したい');
+  await page.locator('.pw-theme-none', { hasText: 'This project has no theme file' }).waitFor();
+  assert.match(await panel.textContent(), /Projects made from the web app and no-server starters have one\./);
   assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
-  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="theme"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('.pw-theme').length === 2);
-  assert.equal((await fetch(t.base + '/api/theme/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project: 'x' }) })).status, 403, 'Save is the person’s control only');
+  await page.locator('[aria-controls="menu-project"]').click();
+  assert.equal(await page.locator('#menu-project [data-command="theme"] .pw-menu__key').textContent(), '⌃⌥K');
+  await page.locator('#menu-project [data-command="theme"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-theme-panel]').length === 2);
+  await page.locator('#prompt').click(); await page.keyboard.press('Control+Alt+KeyK');
+  await page.waitForFunction(() => document.querySelectorAll('[data-theme-panel]').length === 3);
+  for (const route of ['/api/theme/save', '/api/theme/add'])
+    assert.equal((await fetch(t.base + route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project: 'x' }) })).status, 403, `${route} is the person’s control only`);
+});
+
+story('US-118', 'the theme panel in the chat: five colours and “▸ 3 more”, the tabs switch groups, and the radius slider shows its samples', async t => {
+  const { page } = t;
+  await newProject(t, 'Rows', 'static');
+  const panel = await askTheme(t, 'I want to adjust the colours');
+  await panel.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  const visible = async () => (await panel.locator('.pw-theme__row:not(.pw-theme__row--head)').evaluateAll(rows => rows.filter(row => row.offsetParent).map(row => row.dataset.token)));
+  assert.deepEqual(await visible(), ['primary', 'secondary', 'accent', 'muted', 'destructive']);
+  const more = panel.getByRole('button', { name: '▸ 3 more: Background, Card, Border · Input · Ring', exact: true });
+  await more.click();
+  assert.deepEqual(await visible(), ['primary', 'secondary', 'accent', 'muted', 'destructive', 'background', 'card', 'border']);
+  assert.equal(await more.count(), 0);
+  // Card edits the popover too; Border · Input · Ring edits border and input, the ring from the picker.
+  await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__val[data-mode="dark"] .pw-theme__hex').fill('#111827');
+  await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__val[data-mode="dark"] .pw-theme__hex').press('Enter');
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '1 change not saved: Card · the Preview shows it now');
+  assert.equal(await panel.locator('.pw-theme__row[data-token="card"] .pw-theme__reset').isDisabled(), false);
+  await panel.getByRole('tab', { name: 'Radius', exact: true }).click();
+  assert.equal(await panel.locator('.pw-card__title').textContent(), 'Theme · Radius');
+  assert.equal(await panel.locator('.pw-slider label').textContent(), 'Radius: corners of buttons, cards and fields');
+  assert.equal(await panel.locator('.pw-slider .pw-theme__reset').textContent(), 'Reset (10 px)');
+  await panel.locator('.pw-slider input[type=range]').fill('16');
+  assert.equal(await panel.locator('.pw-slider .pw-theme__value').textContent(), '1.000rem · 16 px');
+  assert.deepEqual(await panel.locator('.pw-samples .pw-sample').allTextContents(), ['Button · sm 12 px', 'Button · md 14 px', 'Card · lg 16 px', 'Dialog · xl 20 px', 'Field · md']);
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), '2 changes not saved: Card, Radius 16 px · the Preview shows it now', 'unsaved changes stay across groups');
+  await panel.getByRole('tab', { name: 'Spacing', exact: true }).click();
+  assert.deepEqual(await panel.locator('.pw-slider input[type=range]').evaluate(input => [input.min, input.max, input.step]), ['3', '6', '0.5']);
+  await panel.getByRole('tab', { name: 'Chart', exact: true }).click();
+  assert.equal(await panel.locator('.pw-theme__row--chart').count(), 5);
+  assert.match(await panel.locator('.pw-theme__warn').textContent(), /Hard to tell apart: .*Chart 3 and Chart 4/, 'Basecoat’s five blues are close');
+  await panel.getByRole('button', { name: 'Discard', exact: true }).click();
+  assert.equal(await panel.locator('.pw-theme__status').textContent(), 'No changes yet');
+});
+
+story('US-119', 'leaving with unsaved theme changes asks “Save the theme changes before going on?”: Cancel stays, Don’t Save drops them, Save saves', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Leaving', 'static');
+  const panel = await askTheme(t, 'Can I change the radius?', 'radius');
+  await panel.locator('.pw-slider input[type=range]').waitFor();
+  await panel.locator('.pw-slider input[type=range]').fill('16');
+  const dialog = page.locator('#theme-leave-dialog');
+  await page.locator('#prompt').fill('Make the buttons blue'); await page.locator('#send').click();
+  await dialog.waitFor();
+  assert.equal(await dialog.locator('.pw-alert__message').textContent(), 'Save the theme changes before going on?');
+  assert.equal(await dialog.locator('.pw-alert__detail').textContent(), 'Radius 16 px is changed in the Preview only. If you don’t save, the Preview goes back to the saved theme.');
+  assert.deepEqual(await dialog.locator('.pw-dialog__actions .pw-btn').allTextContents(), ['Don’t Save', 'Cancel', 'Save']);
+  assert.match(await dialog.locator('.pw-btn--default').textContent(), /^Save$/, 'Save is the default');
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click(); await dialog.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#prompt').inputValue(), 'Make the buttons blue', 'nothing was sent');
+  assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0);
+  assert.match(await panel.locator('.pw-theme__status').textContent(), /^1 change not saved/);
+  // Save: the theme is saved as its own change, then the message goes.
+  await page.locator('#send').click(); await dialog.waitFor();
+  const queued = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+  await queued;
+  assert.match(commits(t, root)[0], /\|Theme: radius$/);
+  await page.locator('.pw-theme-saved', { hasText: 'Theme saved: radius' }).waitFor();
+  // Don’t Save: the change goes, the message goes.
+  const again = await (async () => { await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="theme"]').click(); return page.locator('[data-theme-panel]').last(); })();
+  await again.locator('.pw-theme__row[data-token="primary"] .pw-theme__val[data-mode="light"] .pw-theme__hex').fill('#00ff00');
+  await again.locator('.pw-theme__row[data-token="primary"] .pw-theme__val[data-mode="light"] .pw-theme__hex').press('Enter');
+  await page.locator('#prompt').fill('Thanks'); await page.locator('#send').click(); await dialog.waitFor();
+  const sent = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await dialog.getByRole('button', { name: 'Don’t Save', exact: true }).click(); await sent;
+  assert.match(commits(t, root)[0], /\|Theme: radius$/, 'nothing more was saved');
+  assert.equal(await again.locator('.pw-theme__status').textContent(), 'No changes yet');
+});
+
+story('US-120', 'a project with no theme file: Add a Theme File adds Basecoat’s defaults as one change, and the panel opens', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'No theme yet');
+  const card = await askTheme(t, 'I want to adjust the site’s colours');
+  await card.getByRole('button', { name: 'Add a Theme File', exact: true }).click();
+  await card.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  assert.equal(await card.locator('.pw-card__title').textContent(), 'Theme · Colours');
+  assert.match(t.bench.read(root, 'styles', 'input.css'), /^@import "tailwindcss";\n@import "\.\.\/vendor\/basecoat\/css\/basecoat\.css";\n$/);
+  assert.ok(exists(root, 'vendor', 'basecoat', 'css', 'basecoat.css'));
+  assert.match(commits(t, root)[0], /\|Theme: added the theme file$/, 'one change of the person’s');
+  const line = page.locator('.pw-theme-saved', { hasText: 'Theme file added' }); await line.waitFor();
+  assert.equal(await line.getByRole('button', { name: 'Undo', exact: true }).count(), 1);
+});
+
+story('US-121', 'on a phone (390 px): the theme panel opens full screen with the live app on top; a row opens the picker page; Close asks before dropping changes', async t => {
+  await standInUv(t);
+  const { page } = t;
+  await newProject(t, 'Pocket theme', 'static');
+  // The Preview is closed: the full-screen panel shows the app itself (“the Preview tab isn't needed”).
+  const opened = await page.waitForFunction(() => document.querySelector('#preview-toggle').getAttribute('aria-pressed') === 'true', null, { timeout: 3000 }).then(() => true, () => false);
+  if (opened) await page.locator('#preview-toggle').click();
+  await page.setViewportSize({ width: 390, height: 844 }); await page.reload();
+  const panel = await askTheme(t, 'I want to adjust the site’s colours');
+  await page.waitForFunction(() => document.querySelector('[data-theme-panel][data-screen]'));
+  const box = await panel.boundingBox();
+  assert.deepEqual([box.x, box.y, box.width, box.height].map(Math.round), [0, 0, 390, 844], 'full screen');
+  assert.equal(await panel.locator('.pw-theme__bar-title').textContent(), 'Theme');
+  const live = page.frameLocator('[data-theme-panel] .pw-theme__live iframe');
+  await panel.locator('.pw-theme__live iframe').waitFor({ timeout: 20000 });
+  assert.equal(await panel.locator('.pw-theme__tag').textContent(), 'Live');
+  const row = panel.locator('.pw-theme__row[data-token="primary"]');
+  assert.ok(Math.round((await row.boundingBox()).height) >= 56, '56 px rows');
+  const swatch = await row.locator('.pw-theme__val[data-mode="light"] .pw-swatch').boundingBox();
+  assert.deepEqual([Math.round(swatch.width), Math.round(swatch.height)], [32, 32], '32 px swatches');
+  assert.equal(await row.locator('.pw-theme__val[data-mode="dark"]').isVisible(), false, 'one side at a time');
+  await row.locator('.pw-theme__name').click();
+  await page.waitForFunction(() => document.querySelector('[data-theme-panel][data-picking] .pw-picker'));
+  assert.equal(await panel.locator('.pw-picker__title').textContent(), 'Primary · light');
+  assert.equal(await panel.locator('.pw-theme__rows, .pw-card__body').first().isVisible(), false, 'the picker is its own page');
+  await panel.locator('.pw-picker .pw-theme__hex').fill('#ff0000'); await panel.locator('.pw-picker .pw-theme__hex').press('Enter');
+  assert.equal(await panel.locator('.pw-theme__tag').textContent(), 'Live · unsaved');
+  const end = Date.now() + 15000; let seen = '';
+  while (Date.now() < end && seen !== '#ff0000') { seen = await live.locator('html').evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()).catch(() => ''); if (seen !== '#ff0000') await new Promise(resolve => setTimeout(resolve, 200)); }
+  assert.equal(seen, '#ff0000', 'the live app on top follows the picker');
+  await panel.getByRole('button', { name: 'Done', exact: true }).click();
+  await row.waitFor();
+  await panel.getByRole('button', { name: 'Close', exact: true }).click();
+  const dialog = page.locator('#theme-leave-dialog'); await dialog.waitFor();
+  await dialog.getByRole('button', { name: 'Don’t Save', exact: true }).click();
+  await page.waitForFunction(() => !document.querySelector('[data-theme-panel][data-screen]'));
+  await panel.getByRole('button', { name: 'Open Theme', exact: true }).waitFor();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
 });
 
 // -- Recovery -----------------------------------------------------------------------------------------------------
