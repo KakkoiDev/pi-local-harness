@@ -171,4 +171,13 @@ def main():
             server.server_close()
 
 if __name__ == '__main__':
-    main()
+    try:main()
+    except OSError as error:
+        import errno
+        if error.errno != errno.EADDRINUSE:raise
+        from plh import workbench_running, already_running_message
+        port=os.getenv('PI_WEB_PORT','3000')
+        if workbench_running(port):message=already_running_message(port)
+        else:message=(f"Pi Workbench could not start: port {os.getenv('PI_GATE_PORT','8000')} (Gate) or {port} (web) is already in use. "
+                      "Another Workbench session or application may be using it. Close that session, or choose unused ports in the Workbench config, then run plh again. Nothing else was stopped.")
+        raise SystemExit(message)

@@ -72,7 +72,7 @@ class LauncherTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             home=Path(directory).resolve();fake=home/'pi'
             fake.write_text('#!'+sys.executable+'\nimport os,json\nprint(json.dumps({"data":os.environ["PI_AGENT_DATA"]}))\n');fake.chmod(0o755)
-            env={**os.environ,'HOME':str(home),'PATH':str(home)+os.pathsep+os.environ['PATH']}
+            env={**os.environ,'HOME':str(home),'PATH':str(home)+os.pathsep+os.environ['PATH'],'PI_WEB_PORT':isolation.free_port()}  # task 320: never the person's running Workbench
             env.pop('PI_AGENT_DATA',None)
             def launch():return subprocess.run([sys.executable,str(ROOT/'plh.py')],env=env,capture_output=True,text=True,check=True)
             record=json.loads(launch().stdout);data=home/'pi-local-harness-data'

@@ -133,3 +133,5 @@ include the answers and available test evidence. Regenerate the table with
 Core-library integration for Claude Code: [handoff and exact pins](docs/handoff/core-libraries.md)
 and [gaming-core inventory/report](docs/handoff/gaming-core.md). These describe future
 visual/coding/game adapters; the existing music workflow remains available.
+
+If `plh` says Pi Workbench is already running in another session, open the address it shows. A second copy is not started. To restart, exit Pi in the terminal that started the existing Workbench, then run `plh` again. An occupied port without a responding Workbench may belong to another application; choose unused ports in the Workbench config rather than stopping an unknown process.

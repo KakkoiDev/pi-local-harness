@@ -22,3 +22,11 @@ os.environ['PI_TRASH_DIR'] = tempfile.mkdtemp(prefix='pi-test-trash-')  # Move P
 
 os.environ['PI_LAYA_DATA'] = tempfile.mkdtemp(prefix='pi-test-laya-')  # tests never load the person's classifier
 os.environ['PI_AGENT_DATA'] = tempfile.mkdtemp(prefix='pi-test-data-')  # code that falls back to the data folder never reaches ~/pi-local-harness-data
+
+
+def free_port():
+    """A port nothing listens on, so a launcher under test never meets the person's running Workbench (task 320)."""
+    import socket
+    with socket.socket() as probe:
+        probe.bind(('127.0.0.1', 0))
+        return str(probe.getsockname()[1])

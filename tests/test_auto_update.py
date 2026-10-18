@@ -98,7 +98,7 @@ class AutoUpdateTest(unittest.TestCase):
 
     def test_no_update_while_a_workbench_answers_on_its_port(self):
         """Task 263 (review P2): the package was swapped under a running workbench, which then served new pages with an
-        old backend. plh starts the installed build instead and says why."""
+        old backend. A second launch explains the existing instance without starting another Pi."""
         from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
         import threading
         class Workbench(BaseHTTPRequestHandler):
@@ -115,8 +115,24 @@ class AutoUpdateTest(unittest.TestCase):
         result = self.launch()
         self.assertEqual(self.installed(), '# Pi Workbench', 'the running package is left as it is')
         self.assertEqual(self.backups(), before)
-        self.assertIn('PLH: not updated', result.stderr); self.assertIn(str(server.server_port), result.stderr)
-        self.assertIn('extension', result.stdout, 'the installed build still starts')
+        self.assertIn('already running', result.stderr); self.assertIn(str(server.server_port), result.stderr)
+        self.assertNotIn('extension', result.stdout, 'a second Pi must not start duplicate services')
+
+    def test_already_running_is_reported_even_with_auto_update_off(self):
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        import threading
+        class Workbench(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200);self.end_headers();self.wfile.write(b'{}')
+            def log_message(self,*args):pass
+        server=ThreadingHTTPServer(('127.0.0.1',0),Workbench);self.addCleanup(server.server_close)
+        threading.Thread(target=server.serve_forever,daemon=True).start();self.addCleanup(server.shutdown)
+        config=json.loads((self.data/'config.json').read_text());config.update(web_port=server.server_port,auto_update=False)
+        (self.data/'config.json').write_text(json.dumps(config))
+        result=self.launch()
+        self.assertIn('already running',result.stderr)
+        self.assertIn(f'http://127.0.0.1:{server.server_port}',result.stderr)
+        self.assertNotIn('extension',result.stdout)
 
     def test_uncommitted_edits_are_not_installed(self):
         self.commit('marker-committed\n')

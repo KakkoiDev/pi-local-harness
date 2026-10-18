@@ -355,3 +355,9 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [264-Every user story has an end-to-end test](tasks/264-user-story-e2e.md)
 - [x] [318-Repair the review findings and hand back to Claude](tasks/318-review-repairs-and-claude-handback.md)
 - [x] [319-Review OpenRig primitives for Claude](tasks/319-openrig-primitives-report.md)
+- [x] [320-Explain an already-running Workbench](tasks/320-already-running-message.md)
+- [ ] [321-Show Preview ports and open more browser windows](tasks/321-preview-address-and-browser-windows.md)
+
+- [ ] [322-Validate and repair roadmap and task structure](tasks/322-workflow-document-validation-and-repair.md)
+
+- [ ] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)

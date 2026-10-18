@@ -57,15 +57,20 @@ def workbench_running(port):
             return response.status==200 and isinstance(json.loads(response.read(65536)),dict)
     except (OSError,ValueError):return False
 
+def already_running_message(port):
+    return (f'Pi Workbench is already running in another session. Open http://127.0.0.1:{port} to use it. '
+            'No second copy was started. To restart, exit Pi in the session that started it, then run plh again.')
+
 def main():
     directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))).expanduser().resolve()
     settings=configuration(directory)
     if sys.argv[1:2]==['setup']:  # plh setup [browser]: the toolchain, fetched once (harness/setup.py)
         sys.path.insert(0,str(ROOT));from harness import setup;sys.exit(setup.main(sys.argv[2:],directory))
     port=os.getenv('PI_WEB_PORT') or settings['web_port']
-    if settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED') and workbench_running(port):
-        print(f'PLH: not updated while Pi Workbench runs on port {port}; quit it and start plh again to update',file=sys.stderr)
-    elif settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED'):
+    if workbench_running(port):
+        print('PLH: '+already_running_message(port),file=sys.stderr)
+        return
+    if settings['auto_update'] and (ROOT/'install.json').exists() and not os.getenv('PLH_UPDATED'):
         try:commit=update()
         except (OSError,ValueError,KeyError,tarfile.TarError,subprocess.CalledProcessError) as error:
             detail=getattr(error,'stderr',None) or error
