@@ -96,7 +96,10 @@ back into the composer. Activity lists waiting messages too. In terminal Pi: `/q
 
 ## Can Pi work on a long task?
 
-Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). When
+Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`), or
+if the model itself stops answering: while Pi waits for the model, two minutes with no token, thought or tool call end
+the request as failed, with what Pi wrote so far and Retry, and the next request starts (`/config set
+model_silence_seconds …`; a running command or the harness's own checks are not the model). When
 Pi stops with work open (code changed and no test passed on it, a loop, a hang), the harness wakes it to continue, at
 most `wake_ups` times per request (default 5; `/config set wake_ups …`, 0 for no limit). Stop
 ends a request at any time: in Chat, in Activity, or ⌘. .
@@ -211,6 +214,13 @@ sandbox is not there yet (Linux: bubblewrap, planned).
 ## How do I check whether my app is ready to publish?
 
 Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confirmation it runs the publication checks offline and records each command in the last roadmap task. Failed commands leave their boxes open. The full test result is logged. Other roadmap tasks must also be complete. Missing tools require a separate approved installation; the audit never downloads them. App descriptions are checked for starter leftovers and consistent README, manifest and English app names; arbitrary prose still needs human review.
+
+## Does choosing Planning start the plan?
+
+Yes, when you have discussed something in the chat: choosing Planning with the phase button asks Pi to write the plan
+from your discussion (the chat says "Harness · Planning started from your discussion"); if Pi is busy, it starts after
+the current request. On an empty chat nothing starts: write what you want planned. Choosing Implementation with an
+approved task starts that task. Pi itself never changes the phase.
 
 ## Why does Pi ask me to choose?
 

@@ -100,7 +100,7 @@ class AuditBackendTest(unittest.TestCase):
         conversation = self.chat.project_chat(self.project)
         with self.fake_pi():
             events = []; self.chat.send(conversation['id'], {'message': 'Think TEST_RECOVER'}, events.append)
-            self.assertEqual(self.chat.store.get(conversation['id'])['messages'][-1]['content'], '[CANARY] recovered answer')
+            self.assertEqual(self.chat.store.get(conversation['id'])['messages'][-1]['content'], 'recovered answer')
             with self.assertRaisesRegex(ValueError, 'One agent is already working'): self.chat.send(conversation['id'], {'message': 'Hi TEST_REFUSED'}, events.append)
 
     def test_create_with_an_unslugged_name_leaves_no_stray_project(self):

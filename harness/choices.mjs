@@ -23,7 +23,7 @@ export function installChoices(pi, {auto=()=>false, web=()=>false, record=async(
   let open=null;const busy=()=>open!==null&&(waiting?waiting():true);
   const tool={
     name:'ask_choices',label:'Ask a choice',
-    description:'Ask one decision the request, code and conventions do not answer. Offer 2–4 short options, recommended first (recommended: 0). The harness adds Something else…. Wait for the answer before using the decision.',
+    description:'Ask one decision the request, code and conventions do not answer. Offer 2–4 short options, recommended first (recommended: 0). The harness adds Something else…. Wait for the answer before using the decision. Never write a question with options (A), B), 1., 2.) in your answer text: the person answers cards, not prose. Several questions: call this tool once per question, with number and total.',
     parameters:{type:'object',properties:{question:{type:'string'},number:{type:'number',description:'This question’s number, only when the total is known.'},total:{type:'number',description:'Known total number of questions; omit both numbers if not known.'},options:{type:'array',items:{type:'object',properties:{label:{type:'string'},detail:{type:'string'}},required:['label']}},recommended:{type:'number',enum:[0]},allow_other:{type:'boolean'}},required:['question','options','recommended']},
     async execute(_id,params,_signal,_update,ctx) {
       try {

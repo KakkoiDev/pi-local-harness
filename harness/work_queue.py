@@ -11,6 +11,7 @@ import uuid
 from urllib.parse import quote
 from datetime import datetime
 from gate.sandbox import shown  # task 311: a sandboxed test run shows the command Gate allowed
+from harness.canary import strip_canary  # the owner, 2026-10-18: [CANARY] is protocol, never shown
 
 def now():return datetime.now().astimezone().isoformat(timespec='seconds')
 
@@ -20,7 +21,7 @@ def display_text(text,streaming=False):
     if streaming:
         before,mark,tail=text.rpartition('<')
         if mark and (tail.startswith('|') or 'channel|>'.startswith(tail)):text=before
-    return text
+    return strip_canary(text,streaming)
 
 class QueueRefusal(ValueError):
     """Task 325: an edit or removal the queue refused because the message moved on (it started, it was removed, or another
@@ -53,7 +54,7 @@ class WorkQueue:
         self.save()
         if legacy:self.path.rename(self.path.with_name(self.path.name+'.before-markdown-'+uuid.uuid4().hex[:8]))
         self.last_persist=0
-        self.workers=[]
+        self.workers=[];self.owners={}  # job id → the thread that runs it (reap: no job stays running without one)
         self.thread=None
         if start:self.thread=threading.Thread(target=self.run,daemon=True);self.thread.start()
     def save(self, current=None):
@@ -139,7 +140,10 @@ class WorkQueue:
             with self.condition:
                 # Task 290: a request that paused for a question or a plan waits for the person; it is not Completed.
                 plan=job.get('plan') or {}
-                if (job.get('choice') or {}).get('pending'):job.update(status='waiting',finished=now(),progress='Stopped by a question: waiting for your answer')
+                # The owner's review list (2026-10-18): the person answered the card while this worker was still
+                # shutting down; the answer is its own request, so this one is done, never left Waiting for you.
+                if job.get('resumed'):job.update(status='completed',finished=now(),progress=job.pop('resumed'))
+                elif (job.get('choice') or {}).get('pending'):job.update(status='waiting',finished=now(),progress='Stopped by a question: waiting for your answer')
                 elif plan.get('pending') and not plan.get('approved'):job.update(status='waiting',finished=now(),progress='Stopped for the plan: waiting for Start Building')
                 else:job.update(status='completed',finished=now(),progress='Completed')
         except Exception as error:
@@ -152,13 +156,25 @@ class WorkQueue:
         """Start every queued request that may run now, each in its own thread; FIFO within each lane."""
         started=[]
         with self.condition:
+            self.reap()
             if self.closed or self.busy():return 0
             for job in self.jobs:
                 if job['status']=='queued' and self.runnable(job) and self.claim(job):started.append(job)
         for job in started:
-            thread=threading.Thread(target=self.finish,args=(job,),daemon=True);thread.start();self.workers.append(thread)
+            thread=threading.Thread(target=self.finish,args=(job,),daemon=True);self.owners[job['id']]=thread;thread.start();self.workers.append(thread)
         self.workers=[thread for thread in self.workers if thread.is_alive()]
         return len(started)
+    def reap(self):
+        """The owner, 2026-10-18: a request marked running whose worker is gone must never hold its lane. finish() settles
+        every request it runs; this settles one whose thread ended anyway (call with the condition held)."""
+        for job in self.jobs:
+            owner=self.owners.get(job['id'])
+            if owner is not None and not owner.is_alive():
+                self.owners.pop(job['id'],None)
+                if job['status']=='running':
+                    job.update(status='failed',finished=now(),progress='The worker for this request ended without finishing it.')
+                    try:self.save(job)
+                    except OSError:pass
     def public(self, job):
         return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'text':display_text(job.get('text',''),streaming=job.get('status')=='running'),'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[])),'editable':self.editable(job['data'])}
     def list(self):
@@ -180,6 +196,7 @@ class WorkQueue:
         with self.condition:
             for job in self.jobs:
                 if job['chat']==chat and job['status']=='waiting':job.update(status='completed',progress=progress[:300]);self.save(job)
+                elif job['chat']==chat and job['status']=='running' and self.role(job['data'])=='chat' and ((job.get('choice') or {}).get('pending') or (job.get('plan') or {}).get('pending')):job['resumed']=progress[:300]  # finish() completes it
     def cancel(self, identifier):
         with self.condition:
             job=next((job for job in self.jobs if job['id']==identifier),None)

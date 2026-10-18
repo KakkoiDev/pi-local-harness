@@ -157,3 +157,16 @@ wrote as text into real calls. Built from existing parts; please draw if you wan
   requests. Another model may work faster." Never a card, never blocking.
 
 Question for the board: should the note offer a control (Choose Another Model…) or stay text?
+
+## The chat critical path (task 324), built from existing parts
+
+- **A request the phase button started.** Choosing Planning after a discussion queues "Write the plan from our
+  discussion." (Implementation with an approved task: "Build the approved task."). The chat shows it with the
+  existing HarnessNotice (`Harness · Planning started from your discussion`), not as a "You" message. Please draw it
+  in R12_Conversation (desk and phone) if it should look different, e.g. with the phase glyph.
+- **A refused model switch.** While Pi works, picking another model no longer shows "Loading …"; the refusal ("Pi is
+  working. Switch models when the queue is empty.") is the existing toast at the top. A "Switch after this request"
+  offer would need a drawing.
+- **Progress words.** "Starting Pi…" then "Waiting for the model (it may be loading)…" replace "Preparing
+  attachments…" when nothing is attached. The CutLine reason for a stalled model is the board's own copy.
+

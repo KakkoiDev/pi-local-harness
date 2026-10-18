@@ -697,6 +697,10 @@
   "Paused while Pi answers you": "Pi があなたに回答する間、一時停止中",
   "Resumed": "再開しました",
   "Preparing attachments…": "添付ファイルを準備中…",
+  "Starting Pi…": "Pi を起動中…",
+  "Planning started from your discussion": "話し合いから計画を始めました",
+  "Building started: the approved task": "実装を始めました：承認済みのタスク",
+  "Waiting for the model (it may be loading)…": "モデルを待っています（読み込み中かもしれません）…",
   "No projects": "プロジェクトはありません",
   "No matching projects": "一致するプロジェクトはありません",
   "Your projects will appear here.": "プロジェクトはここに表示されます。",
@@ -2307,6 +2311,14 @@
   [
    "Failed before Pi finished: {reason}",
    "Pi が終える前に失敗しました：{reason}"
+  ],
+  [
+   "the model stopped answering (no reply in {n} s).",
+   "モデルが応答しなくなりました（{n} 秒間応答なし）。"
+  ],
+  [
+   "Ollama is not answering ({error}). Start Ollama (open the Ollama app, or run `ollama serve`), then Retry.",
+   "Ollama が応答しません（{error}）。Ollama を起動して（Ollama アプリを開くか `ollama serve` を実行）、再試行してください。"
   ],
   [
    "Queued again in {project}.",

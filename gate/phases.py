@@ -145,7 +145,7 @@ def refusal(phase, root, tool, args, *, cwd, pi_tool=None, task='', approved=Fal
         if path == 'ROADMAP.md' or path and path.startswith('tasks/') and path.endswith('.md'): return None
         return PLANNING_COMMAND_REFUSAL if command else PLANNING_REFUSAL
     if phase != 'implementation': raise ValueError('The saved project phase could not be read.')
-    if not approved: return NO_TASK_COMMAND_REFUSAL if command else 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'
+    if not approved: return NO_TASK_COMMAND_REFUSAL if command or pi_tool not in (None, 'write', 'edit') else 'Not written: No approved task is in progress. Choose Planning, then Start Building on the plan.'  # task 324: a tool that writes nothing is "Not run"
     if tool == 'execute_command' and test_run(args.get('command')): return None
     if tool == 'execute_command':
         title = re.search(r'^#\s+(.+)', task, re.M)  # task 263: say which task this phase serves

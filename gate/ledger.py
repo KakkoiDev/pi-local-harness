@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+from harness.judgements import NO_CARD
 from pathlib import Path
 import threading
 import time
@@ -154,7 +155,14 @@ class ProposalLedger:
         if text.startswith('Choice: '):return None  # task 290 (review item 5): an answer is never read as a new request
         waiting=self.paperwork.waiting_choice(item['root'])
         if waiting:advice=self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
-        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):advice=self.judgements.decide(request,'phase_intent',[text])
+        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):
+            # Task 324 (live finding 8): no notice when the phase the words name is the phase the project is in.
+            try:current=self.paperwork.phases.get(item['root'])['phase']
+            except Exception:current=None
+            named={phase for phase,words in (('discussion',r'\bdiscuss(?:ion)?\b|議論'),('planning',r'\bplan(?:ning)?\b|計画'),('implementation',r'\bimplement(?:ation)?\b|\bbuild\b|実装')) if re.search(words,text,re.I)}
+            if current and named=={current}:return None
+            advice=self.judgements.decide(request,'phase_intent',[text])
+            if current and not advice.get('abstained') and advice.get('answer')==current:return None
         else:return None
         # Task 290 (review item 4): a card raised before Pi read the message keeps it; Pi gets it after the answer.
         if advice.get('choice'):self.paperwork.hold(request,text)
@@ -164,8 +172,8 @@ class ProposalLedger:
         """The person's messages a question interrupted, for the request that answers it (once)."""
         return list((self.paperwork.requests.get(request) or {}).get('held') or [])
 
-    def end_request(self, request, review=True):
-        result = self.paperwork.end(request,review=review)
+    def end_request(self, request, review=True, stopped=False):
+        result = self.paperwork.end(request,review=review,stopped=stopped)
         if result and result.get('outcome') not in ('committed', 'nothing changed', 'continue'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
         return result
 
@@ -244,6 +252,10 @@ class ProposalLedger:
                     audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
                 except (ValueError,KeyError,IndexError):pass
             reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            if reason and 'No approved task is in progress' in reason and self.paperwork.plan_state(root).get('check_in'):
+                # Task 324: the task waits for the person's check-in; say so, and the one control that goes on.
+                number=(self.paperwork.plan_state(root).get('card') or {}).get('number')
+                reason=f"{reason.split(':',1)[0]}: task {number or ''} waits for the person's check-in. Stop here: the person chooses Retry Task (or Accept) on its card, then the task goes on.".replace('task  ','the task ')
             if reason and phase=='implementation' and task and pi_tool in ('write','edit') and request in self.paperwork.requests:
                 from .scope import widen  # round 12 (task 261): a file outside the task is the person's question
                 asked=widen(self.paperwork,request,root,args,cwd,task,assistant_text)
@@ -258,7 +270,12 @@ class ProposalLedger:
                     if not read_only(command) and not test_run(command):
                         judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
                 return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
-            if tool_name == 'write_file' and self.paperwork.waiting_choice(root):
+            waiting=self.paperwork.waiting_choice(root) if tool_name == 'write_file' else None
+            if waiting and waiting.get('system_owned') and ((waiting.get('judgement') or {}).get('kind') in NO_CARD or (waiting.get('request')!=request and waiting.get('request') not in self.paperwork.requests)):
+                # Task 324 (live: a never-shown "Which guide should Pi use?" blocked every write of later requests): a
+                # question System 1 raised for a request that has ended, or one System 1 decides itself, never blocks work.
+                self.paperwork.settle_waiting(root,'its request ended');waiting=None
+            if waiting:
                 return refuse('G-017','A choice is waiting for the person. Ask with ask_choices and wait for the answer before changing content.')
             if tool_name == 'write_file' and phase == 'implementation':
                 rejected=rules.planning_refusal(task,assistant_text,required=False,recorded=self.paperwork.active_decisions(root))

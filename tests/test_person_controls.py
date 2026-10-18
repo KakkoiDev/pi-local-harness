@@ -238,6 +238,20 @@ class ModelDecisionsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'harness records'):
             self.paper.propose_plan('r', {'goal': 'Count clicks (chosen by you).', 'tasks': [{'title': 'Counter', 'files': ['app.py'], 'done_when': 'Counts.', 'content': 'Count.'}]})
 
+    def test_a_system_question_of_an_ended_request_never_blocks_the_next_requests_writes(self):
+        # Task 324 (live: a "Which guide should Pi use?" that was never shown blocked every write with G-017).
+        question = {'question': 'Pi wants to change a file outside task 1', 'options': [{'label': 'Add to Task 1'}, {'label': 'Keep Out'}], 'recommended': 0, 'allow_other': True, 'system_owned': True}
+        self.paper.choice_pending('r', question, system=True)
+        self.assertEqual(self.write(self.task, self.task.read_text() + 'x\n').get('rule'), 'G-017', 'its own request waits')
+        self.paper.end('r', review=False); self.paper.start('next', str(self.root), 'Go on')
+        result = self.ledger.propose('write_file', {'path': str(self.task), 'content': self.task.read_text() + 'y\n'}, 'admin', pi_tool='write', cwd=str(self.root), request='next')
+        self.assertNotEqual(result.get('rule'), 'G-017', result)
+        self.assertIsNone(self.paper.waiting_choice(self.root), 'settled: its request ended')
+        guide = {'question': 'Which guide should Pi use?', 'options': [{'label': 'Continue without a guide'}, {'label': 'Use the planning guide'}], 'recommended': 0, 'allow_other': True, 'system_owned': True, 'judgement': {'kind': 'applicable_guide', 'digest': 'x'}}
+        self.paper.choice_pending('next', guide, system=True)
+        result = self.ledger.propose('write_file', {'path': str(self.task), 'content': self.task.read_text() + 'z\n'}, 'admin', pi_tool='write', cwd=str(self.root), request='next')
+        self.assertNotEqual(result.get('rule'), 'G-017', 'a judgement System 1 decides itself never blocks')
+
     def test_gate_refuses_plan_writes_that_add_decisions(self):
         for content in [self.task.read_text() + '- Colour: Blue (chosen 2026-10-18T10:00:00+09:00)\n', self.task.read_text() + '- Size: big (auto)\n']:
             result = self.write(self.task, content)

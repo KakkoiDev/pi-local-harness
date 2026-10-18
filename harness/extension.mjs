@@ -14,6 +14,7 @@ import { loadTerminalLanguage, requestLanguage, tr } from './language.mjs';
 import { fileURLToPath } from 'node:url';
 import { ThoughtWatch } from './watch.mjs';
 import { loadMemory, missingCanary, recordLesson } from './memory.mjs';
+import { pseudoToolCalls } from './pseudo-tools.mjs';
 import { installConsole } from './console.mjs';
 import { installFooter } from './footer.mjs';
 import { harnessNotice, renderNotice } from './notices.mjs';
@@ -143,7 +144,7 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
-  let noActionWoken=false, textualToolSeen=false;
+  let noActionWoken=false, textualToolSeen=false, toolRan=false;
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -296,6 +297,11 @@ export default function harness(pi, dependencies = {}) {
       let count=0;
       const content=[...(message.content||[])];
       for(let i=0;i<content.length;i++)if(content[i].type==='text')content[i]={...content[i],text:(message.content[i].text||'').replace(/<channel\|>|<\|[^<>\n]*\|>/g,()=>{count++;return '';})};
+      // Task 324 (live: gemma4 wrote "<execute_tool>read{path:…}</execute_tool>" and the next model imitated it on every
+      // turn): a tool call written as text never stays in the session Pi reads back, nor in the answer the person sees.
+      let pseudo=0;
+      for(let i=0;i<content.length;i++)if(content[i].type==='text'){const found=pseudoToolCalls(content[i].text||'');if(found.count){pseudo+=found.count;content[i]={...content[i],text:found.text};}}
+      if(pseudo){textualToolSeen=true;message={...message,content};replacement={message};incident('pseudo-tool-call',`Replaced ${pseudo} tool calls written as text.`,{count:pseudo});}
       if(count){
         message={...message,content};replacement={message};
         incident('template-tokens',`Removed ${count} leaked template tokens.`,{count});
@@ -313,7 +319,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension' && !chain) { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;
+    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
@@ -377,7 +383,7 @@ export default function harness(pi, dependencies = {}) {
     if (stream.type === 'thinking_end') { watch.feed('\n'); watch.thinking = false; }
     if (stream.type === 'text_start' || stream.type === 'text_delta' || stream.type === 'toolcall_start') watch.thinking = false;
   });
-  pi.on('tool_execution_start', () => { watch.thinking = false; watch.touch(); });
+  pi.on('tool_execution_start', () => { toolRan = true; watch.thinking = false; watch.touch(); });
   pi.on('tool_execution_update', () => watch.touch());
   pi.on('tool_execution_end', () => watch.touch());
   // Task 116: compact a long chat after the turn that passes 60% of the window, once per turn, before Pi's own
@@ -532,9 +538,13 @@ export default function harness(pi, dependencies = {}) {
     const changing=/\b(?:fix|add|build|create|make|implement|write|document|refactor|rename|repair|do task|next task)\b|修正|追加|作って|作成|書いて|文書化/.test(lastQuestion.toLowerCase());
     const textualTool=textualToolSeen || /(?:\b(?:bash|read|write|edit)\s*[{(]|<\|tool_call\|>|^\s*call:)/mi.test(assistantText);
     const announced=lastAnswer.match(/(?:\b(?:I will|I'll start|Let me|Next, I)\b|\bFirst,)[^\n]*/i);
-    if(typeof before?.state==='string' && before.state===after?.state && changing && !noActionWoken && (textualTool||announced) && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing){
+    // Task 324 (live: a small model thought "I will proceed with the propose_plan call" and ended with no tool call and
+    // no answer): a turn with no answer and no tool that ran, or a tool call written as text, is nudged once whatever
+    // the request's words; System 1 decides it (recorded as the wake-up incident).
+    const silentTurn=!lastAnswer.trim() && !toolRan && !waitingChoice && /\b(?:tool|call|propose_plan|ask_choices|I will|I'll|let me|proceed)\b/i.test(assistantText);
+    if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
       noActionWoken=true;recovering=true;retries++;
-      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':silentTurn?'Call the tool you described now; do not describe it.':`You said: '${announced[0]}'. Do it now with a tool call.`;
       incident('wake-up',instruction,{trigger:'no-action',round:retries});
       say('wake-up',instruction,'warning');
       pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);return;

@@ -173,6 +173,14 @@ class SystemQuestionTest(unittest.TestCase):
         self.assertRegex(advice['notice'], r'phase button')
         self.assertIsNone(self.ledger.paperwork.waiting_choice(self.bench.folder), 'nothing waits for the person')
 
+    def test_no_phase_notice_when_the_words_name_the_phase_the_project_is_in(self):
+        # Task 324 (live finding 8): "plan" in Planning is not a request to change the phase.
+        self.ledger.paperwork.phase(self.folder, 'planning')
+        self.ledger.start_request('same', self.folder, 'Start the planning of the icons')
+        self.assertIsNone(self.ledger.request_advice('same'))
+        self.ledger.start_request('other', self.folder, 'Move to implementation now')
+        self.assertIn('notice', self.ledger.request_advice('other'), 'another phase still gets the notice')
+
     def test_a_message_sent_while_a_question_waits_reaches_pi_after_the_answer(self):
         self.bench.ask()
         self.ledger.start_request('plain', self.folder, 'Also add a footer')

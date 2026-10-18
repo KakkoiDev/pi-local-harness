@@ -15,7 +15,9 @@ QUESTIONS={
  'app_block':('Which App Block card should Pi use?',['Continue without a card']),
 }
 # Plan 266 item 7: a card is help, never a question for the person: an abstained pick attaches nothing.
-NO_CARD=('app_block',)
+# Task 324 (the coordinator's live finding 13): which guide Pi reads is System 1's own judgement, like a card; an
+# abstained pick means no guide, decided by code and recorded, never a question for the person.
+NO_CARD=('app_block','applicable_guide')
 
 PHASE_NOTICE='Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'
 # Round 12 (R12_Conversation, HarnessNotice): without Laya the harness says so once, in its own voice, with how to install it.
@@ -39,6 +41,7 @@ class Judgements:
         result=getattr(laya,kind)(*args,classifier=self.classifier)
         if isinstance(self.paperwork.data,(str,Path)):
             record(self.paperwork.data,request,kind,'laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'],abstained=bool(result['abstained']))
+        if kind in NO_CARD and result['abstained'] and isinstance(self.paperwork.data,(str,Path)):record(self.paperwork.data,request,kind,'code','none',rule='judgement.no_card')
         if kind in NO_CARD:return {**result,'answer':None if result['abstained'] or result['answer']=='none' else result['answer'],'who':'laya','advisory':True}
         if kind=='phase_intent':
             # Task 290 (review P2): the phase is the person's button; a phase word, read by Laya or by a keyword alone

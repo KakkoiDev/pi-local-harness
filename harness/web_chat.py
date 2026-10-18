@@ -12,6 +12,7 @@ from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
 from harness.work_queue import WorkQueue, QueueRefusal, display_text
+from harness.canary import strip_canary
 from harness.preview import Previews
 from harness import undo as undoing
 from harness import laya, theme
@@ -50,6 +51,15 @@ def serve_link(problem):
 # Task 165: a request has no time limit. It fails only when Pi has sent nothing (no step, no output, no tool event) for
 # this long; a long command that reports nothing for an hour is stopped. PI_HARNESS_SILENCE_SECONDS changes it.
 SILENCE=float(os.getenv('PI_HARNESS_SILENCE_SECONDS','3600'))
+# The owner, 2026-10-18: a model stream that stalls (Ollama's runner restarted under an open connection) left a request
+# "running" for half an hour and every later request queued behind it. While Pi waits for the MODEL (not for a tool, not
+# for the harness's own paperwork or compaction, not paused for the chat), this much silence ends the request as failed:
+# "the model stopped answering (no reply in 120 s)". A thinking model streams tokens, so it is never silent this long.
+MODEL_SILENCE=float(os.getenv('PI_HARNESS_MODEL_SILENCE_SECONDS','120'))
+
+
+def model_silence_reason(seconds):
+    return f'the model stopped answering (no reply in {seconds:g} s).'
 
 
 def silence_words(seconds):
@@ -120,6 +130,7 @@ class ConversationStore:
             return self.save(value)
     def upsert_assistant(self, identifier, message):
         """Publish live controls before displaying them; final text never reopens a resolved card."""
+        if isinstance(message.get('content'),str):message={**message,'content':strip_canary(message['content'])}  # protocol, never shown (2026-10-18)
         with self.lock:
             value=self.get(identifier)
             previous=next((row for row in value['messages'] if row.get('role')=='assistant' and row.get('request')==message.get('request') and row.get('_live_choice')),None)
@@ -197,6 +208,9 @@ def readable_error(text):
     """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
     missing=re.search(r"model '([^']+)' not found",str(text))
     if missing:return f'The model “{missing.group(1)}” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull {missing.group(1)}`.'
+    if str(text).startswith('Ollama is not answering'):return str(text)  # already said (the failure path says it once more)
+    if re.search(r'ECONNREFUSED|Connection error|fetch failed|connect ECONN|socket hang up|other side closed',str(text),re.I):
+        return f'Ollama is not answering ({str(text).strip()[:200]}). Start Ollama (open the Ollama app, or run `ollama serve`), then Retry.'
     return str(text)
 
 def pi_command(session, choice=None):
@@ -533,7 +547,7 @@ class WebChat:
         wake-ups). Returns Gate's result, or None when the request had already ended or paused."""
         ledger=getattr(self,'ledger',None)
         if not ledger or request not in ledger.paperwork.requests:return None
-        try:return ledger.end_request(request,review=False)
+        try:return ledger.end_request(request,review=False,stopped=True)  # task 324: the task stays in progress
         except Exception as error:
             print(f'Could not end the request {request}: {error!r}',flush=True);ledger.paperwork.requests.pop(request,None);return None
     def execute_job(self, job, emit):
@@ -673,7 +687,7 @@ class WebChat:
         # Task 290: what a crash or a stop leaves in the chat (the partial answer, the control it raised), saved once.
         reply='';partial='';pending_choice=None;pending_plan=None;check_in=None;notices=[];started=False;answered=False;detached=True
         try:
-            emit({'type':'status','text':'Preparing attachments…'})
+            emit({'type':'status','text':'Preparing attachments…' if data.get('attachments') else 'Starting Pi…'})  # task 324: never claim files that are not there
             folder=self.store.folder(identifier)
             conversation=self.store.get(identifier)
             project=conversation.get('project')
@@ -710,7 +724,7 @@ class WebChat:
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             if not detached:
-                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
+                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {}),**({'harness':str(data['harness'])[:200]} if data.get('harness') else {})})  # task 324: the phase started it, not the person
                 started=True
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
@@ -736,7 +750,11 @@ class WebChat:
             threading.Thread(target=read,daemon=True).start()
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
+            emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
             heard=time.monotonic();settled=False;thought=''
+            # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
+            # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
+            tools_running=set();harness_turn=False;compacting=False
             # Task 136: files Pi opened with its read tool beyond the chosen context ("Also read:" after the answer).
             opened=[];folder_root=self.documents.project_path(project) if project else None
             # The extension recovers from a loop, hang or drift by aborting the turn, compacting and re-asking.
@@ -747,6 +765,8 @@ class WebChat:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
+                if not settled and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>MODEL_SILENCE:
+                    raise ValueError(model_silence_reason(MODEL_SILENCE))
                 if cancelled.is_set():raise ValueError('Stopped')
                 if settled and harness_done:break
                 try:event=events.get(timeout=2 if settled else .5)  # plan 184: room for the harness to wake Pi after it settles (a fallback: it says "Harness settled")
@@ -754,6 +774,15 @@ class WebChat:
                     if settled:break
                     continue
                 heard=time.monotonic()
+                kind=event.get('type') if isinstance(event,dict) else None
+                if kind=='tool_execution_start':tools_running.add(event.get('toolCallId') or f'tool-{len(tools_running)}')
+                elif kind=='tool_execution_end':
+                    if event.get('toolCallId') in tools_running:tools_running.discard(event.get('toolCallId'))
+                    elif tools_running:tools_running.pop()
+                elif kind=='agent_end':harness_turn=True;tools_running.clear()
+                elif kind=='agent_start':harness_turn=False
+                elif kind=='compaction_start':compacting=True
+                elif kind=='compaction_end':compacting=False
                 if event is None:
                     if cancelled.is_set():raise ValueError('Stopped')
                     diagnostics.seek(0);raise ValueError('Pi exited unexpectedly: '+diagnostics.read()[-1000:])
@@ -815,6 +844,7 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
+            reply=strip_canary(reply)  # the drift detector read the raw text in the extension; people never see the marker
             if pending_plan and not pending_plan.get('approved') and not reply:reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nStart Building?'
             if pending_choice and not reply:reply=pending_choice['question']
             if not reply:raise ValueError('Pi completed without an assistant answer')
@@ -840,7 +870,7 @@ class WebChat:
             ended=self.abandon(key)
             if started and not answered:
                 answered=True;stopped=str(error)=='Stopped'
-                text=reply or display_text(partial).strip();check_in=check_in or (ended or {}).get('check_in')
+                text=strip_canary(reply) or display_text(partial).strip();check_in=check_in or (ended or {}).get('check_in')
                 # Review P2: the chat says so even when Pi wrote nothing yet; the line offers Retry (the request, queued
                 # again) and Undo This Request for the commit Gate made of what it changed.
                 how={'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]}
@@ -1047,7 +1077,12 @@ class WebHandler(BaseHTTPRequestHandler):
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
-            if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
+            if path=='/api/phase':
+                root=self.chat.documents.project_path(data['project']);paperwork=self.chat.ledger.paperwork
+                before=paperwork.phases.get(root)['phase'];result=paperwork.phase(root,data.get('phase'),action='phase button')
+                from harness.phase_start import after_phase_change  # task 324: the phase's work starts by itself
+                started=after_phase_change(self.chat,data['project'],before,result.get('phase'))
+                self.reply({**result,**({'started':started['id']} if started else {})});return
             if path=='/api/theme/open':self.reply(self.chat.open_theme(data['project'],data.get('group','colours')));return  # task 312: Project › Theme…
             if path=='/api/theme/save':self.reply(self.chat.theme_save(data['project'],data));return
             if path=='/api/theme/add':self.reply(self.chat.theme_add(data['project']));return  # round 12: Add a Theme File
