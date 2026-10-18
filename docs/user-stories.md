@@ -252,14 +252,30 @@ marker") when the fix merges.
 | US-084 | have long work never time out, only silence | Steady progress past the limit completes; silence fails with “Pi sent nothing for …” (the limit is 2 s in the scratch workbench) | desk | stories.cjs US-084; tests/test_web_chat.py |
 | US-085 | find out what is wrong | `/doctor` checks and says what to do | terminal | stories.test.mjs US-085; tests/test_admin.py |
 
+## The chat critical path (task 324)
+
+The owner, 2026-10-18: "the critical path of user chatting with agent is completely broken. audit it." The audit is
+[2026-10-18-chat-critical-path-audit.md](reviews/2026-10-18-chat-critical-path-audit.md).
+
+| ID | As a person I… | Acceptance | Surfaces | Test |
+|---|---|---|---|---|
+| US-200 | never have my next message stuck behind a model that stopped answering | While Pi waits for the model, `model_silence_seconds` (120 s; 3 s in the scratch workbench) of silence fails the request: the CutLine says “Failed before Pi finished: the model stopped answering (no reply in … s).” with Retry; its Pi is stopped; my Planning message starts next | desk | stories.cjs US-200; tests/test_chat_critical_path.py |
+| US-201 | send a message after choosing Planning and have it start | With nothing in flight, after a question card, after a reload | desk | stories.cjs US-201 |
+| US-202 | never see the [CANARY] marker | Bare, `code` or **bold**: never in the chat (live, after a reload, in answers saved before the fix) nor in Activity | desk | stories.cjs US-202; tests/test_chat_critical_path.py; tests/harness/message-markdown.test.mjs |
+| US-203 | chat with Pi from start to end | Streaming thoughts, a tool call with Stop, a reload mid-request, a second tab, Stop keeps the partial answer, Retry, messages sent while Pi works join and run in order, a phase change between messages, a check-in, and the chat goes on; no page errors | desk | stories.cjs US-203 |
+| US-204 | be told plainly what went wrong, and go on | Ollama down (“Ollama is not answering … Start Ollama, then Retry.”), a model error (partial answer kept), Pi crashing, Gate refusing a command: each ends its request and the next message runs | desk | stories.cjs US-204 |
+| US-205 | answer a card while Pi is still finishing | The answer runs as its own request after the worker; the worker ends Completed, not “Waiting for you”; one card, answered once, after a reload; another tab's phase change shows after a refresh | desk | stories.cjs US-205; conversation.cjs |
+| US-206 | start the plan by choosing Planning | After a discussion, choosing Planning queues “Write the plan from our discussion.” (shown as “Harness · Planning started from your discussion”, never as my words) and a plan card arrives without typing; an empty chat starts nothing; choosing Implementation with an approved task starts it | desk | stories.cjs US-206 |
+| US-207 | name a project with spaces and capitals | “Habit Tracker”: plan, build, sandboxed test runs, Gate's commit and the Preview all work | desk | stories.cjs US-207 |
+
 ## Coverage
 
-Counted from the tables above: 132 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). Browser journeys in stories.cjs: 63 (39 from task 264, 6 from task 312, 4 from round 12's task 273, 7 from round 12's check-ins and fixes, 4 from round 12's Project Start, 2 from the security hardening, tasks 304, 305 and 311, plus task 318’s keyboard/filter regression) and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 140 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 71 (8 from task 324, the chat critical path, 39 from task 264, 6 from task 312, 4 from round 12's task 273, 7 from round 12's check-ins and fixes, 4 from round 12's Project Start, 2 from the security hardening, tasks 304, 305 and 311, plus task 318’s keyboard/filter regression) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 118 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117, US-118, US-119, US-120, US-121, US-122, US-123, US-124, US-125, US-126, US-127, US-128, US-129, US-130, US-131, US-132, US-133, US-134, US-135, US-136, US-140, US-141 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 126 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117, US-118, US-119, US-120, US-121, US-122, US-123, US-124, US-125, US-126, US-127, US-128, US-129, US-130, US-131, US-132, US-133, US-134, US-135, US-136, US-140, US-141, US-200, US-201, US-202, US-203, US-204, US-205, US-206, US-207 |
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |

@@ -649,6 +649,8 @@
   "Resumed": "再開しました",
   "Preparing attachments…": "添付ファイルを準備中…",
   "Starting Pi…": "Pi を起動中…",
+  "Planning started from your discussion": "話し合いから計画を始めました",
+  "Building started: the approved task": "実装を始めました：承認済みのタスク",
   "Waiting for the model (it may be loading)…": "モデルを待っています（読み込み中かもしれません）…",
   "No projects": "プロジェクトはありません",
   "No matching projects": "一致するプロジェクトはありません",

@@ -23,20 +23,23 @@ is docs/reviews/2026-10-18-chat-critical-path-audit.md; stories US-200 to US-219
   "Waiting for you" forever: fixed), a refresh across a phase change (US-205).
 
 ## Coordinator's live findings (gemma4:e4b, qwen3.8:27b)
-- [ ] 1. Backtick/bold [CANARY]: covered by the item above.
-- [ ] 2. "Preparing attachments…" without attachments while the model loads.
-- [ ] 3. A refused model switch must not say "Loading …"; the refusal shows by the menu.
-- [ ] 4. Stop → the page updates at once.
-- [ ] 5. Discussion: ask_choices offered to small models; nested lists on one line render.
-- [ ] 6. Folder names with spaces (Project Start).
-- [ ] 7. A turn that describes a tool call and ends without it is nudged once (automatic decision).
-- [ ] 8. No phase notice when the phase word equals the current phase.
-- [ ] 9. Intraword underscores never start emphasis.
-- [ ] 10. Numbered plan steps on one line become a list in the task file.
-- [ ] 11. propose_plan keeps the person's roadmap Goal.
-- [ ] 12. Textual pseudo tool calls are nudged once and never shown as the answer.
-- [ ] 13. Guide selection never asks the person.
-- [ ] 14. Choosing Planning with a discussion in the chat starts a planning request; an empty chat starts nothing.
+- [x] 1. Backtick/bold [CANARY]: covered by the item above.
+- [x] 2. "Preparing attachments…" without attachments while the model loads.
+- [x] 3. A refused model switch never says "Loading …"; the refusal is the toast at the top (no journey: Ollama is
+  closed in the scratch workbench).
+- [x] 4. Stop → the page updates at once.
+- [x] 5. Discussion: ask_choices is always offered (its description now forbids option questions in prose); nested
+  lists render. Not done: converting a prose multi-question answer into cards (needs Laya and a design).
+- [x] 6. Folder names with spaces: plan, build, sandboxed tests, commit and Preview work (US-207); no slug needed.
+- [x] 7. A turn that describes a tool call and ends without it is nudged once (System 1; recorded as a wake-up incident in reports, not in decisions.jsonl).
+- [x] 8. No phase notice when the phase word equals the current phase.
+- [x] 9. Intraword underscores never start emphasis.
+- [x] 10. Numbered plan steps on one line become a list in the task file.
+- [x] 11. propose_plan keeps the person's roadmap Goal.
+- [x] 12. Textual pseudo tool calls become a note in the answer and the session, and are nudged once (the rewrite
+  into real tool calls is task 326).
+- [x] 13. Guide selection never asks the person.
+- [x] 14. Choosing Planning with a discussion in the chat starts a planning request; an empty chat starts nothing.
 
 ## Checks
 - [ ] Workflow verification and all browser suites pass; the audit is written.

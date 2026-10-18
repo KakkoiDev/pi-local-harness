@@ -193,6 +193,13 @@ sandbox is not there yet (Linux: bubblewrap, planned).
 
 Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confirmation it runs the publication checks offline and records each command in the last roadmap task. Failed commands leave their boxes open. The full test result is logged. Other roadmap tasks must also be complete. Missing tools require a separate approved installation; the audit never downloads them. App descriptions are checked for starter leftovers and consistent README, manifest and English app names; arbitrary prose still needs human review.
 
+## Does choosing Planning start the plan?
+
+Yes, when you have discussed something in the chat: choosing Planning with the phase button asks Pi to write the plan
+from your discussion (the chat says "Harness · Planning started from your discussion"); if Pi is busy, it starts after
+the current request. On an empty chat nothing starts: write what you want planned. Choosing Implementation with an
+approved task starts that task. Pi itself never changes the phase.
+
 ## Why does Pi ask me to choose?
 
 When a project decision is missing from your request, its code and its conventions, Pi uses `ask_choices`: one question, two to four options, recommended first, and Something else… for your own words. Gate can quote an assumption in Pi’s text or reasoning and require a choice before further content changes. A pending or cancelled choice does not count as approval. During Discussion, answers stay in harness data without changing the project. During Planning and Implementation, the harness records each answer and shows it in the task’s Decisions section with its source and time. Pi cannot write a decision itself: a “(chosen …)” line it wrote is refused, and a line the harness did not record asks again before code changes.
