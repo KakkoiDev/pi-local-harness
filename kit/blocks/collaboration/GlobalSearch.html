@@ -1,0 +1,32 @@
+<section class="mx-auto grid w-full max-w-3xl gap-4" aria-labelledby="search-title">
+  <h1 id="search-title" class="sr-only" data-t="search.title">Search</h1>
+  <form role="search" hx-get="/search" hx-target="#search-results" hx-trigger="input changed delay:250ms from:#search-q, change" hx-push-url="true">
+    <div class="input-group h-11 rounded-lg border">
+      <span data-align="inline-start" aria-hidden="true">⌕</span>
+      <input id="search-q" type="search" name="q" value="museum" aria-label="Search everything" data-t-label="search.label" autocomplete="off">
+      <kbd class="kbd" data-align="inline-end">/</kbd>
+    </div>
+    <nav class="mt-3 flex flex-wrap gap-1" aria-label="Kind of result">
+      <a class="btn" data-variant="secondary" data-size="sm" href="?q=museum&kind=all" aria-current="page"><span data-t="search.all">All</span> <span class="tabular-nums">14</span></a>
+      <a class="btn" data-variant="ghost" data-size="sm" href="?q=museum&kind=pages"><span data-t="search.pages">Pages</span> <span class="tabular-nums">3</span></a>
+      <a class="btn" data-variant="ghost" data-size="sm" href="?q=museum&kind=messages"><span data-t="search.messages">Messages</span> <span class="tabular-nums">8</span></a>
+      <a class="btn" data-variant="ghost" data-size="sm" href="?q=museum&kind=issues"><span data-t="search.issues">Issues</span> <span class="tabular-nums">2</span></a>
+      <a class="btn" data-variant="ghost" data-size="sm" href="?q=museum&kind=people"><span data-t="search.people">People</span> <span class="tabular-nums">1</span></a>
+    </nav>
+  </form>
+  <p id="search-status" role="status" class="text-muted-foreground text-sm" data-t="search.count">14 results for “museum”</p>
+  <div id="search-results" class="grid gap-6">
+    <section aria-labelledby="res-pages" class="grid gap-2">
+      <h2 id="res-pages" class="text-muted-foreground text-xs font-medium uppercase tracking-wide" data-t="search.pages">Pages</h2>
+      <div class="item-group gap-1">
+        <a class="item gap-3 rounded-md border-transparent px-3 py-2" href="/pages/pg_7f2">
+          <figure class="text-muted-foreground" aria-hidden="true">▤</figure>
+          <section><h3 class="text-sm font-medium">Field trip plan</h3>
+            <p class="text-sm">…take the 8:52 train to the <mark class="rounded-sm bg-yellow-200 px-0.5 text-foreground dark:bg-yellow-500/40">museum</mark> and meet at the north gate…</p></section>
+          <aside class="text-muted-foreground text-xs">Class 3-B · 9:12</aside>
+        </a>
+      </div>
+      <a href="?q=museum&kind=pages" class="text-sm underline-offset-4 hover:underline" data-t="search.more">See all 3 pages</a>
+    </section>
+  </div>
+</section>

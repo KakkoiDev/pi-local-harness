@@ -1,0 +1,22 @@
+<div class="dropdown-menu" id="account-menu">
+  <button type="button" id="account-menu-trigger" aria-haspopup="menu" aria-controls="account-menu-menu" aria-expanded="false" class="btn" data-variant="ghost" data-size="icon" aria-label="Account" data-t-label="account.menu">
+    <span class="avatar" data-size="sm"><span>AT</span></span>
+  </button>
+  <div id="account-menu-popover" data-popover aria-hidden="true" data-align="end">
+    <div role="menu" id="account-menu-menu" aria-labelledby="account-menu-trigger">
+      <div role="heading" class="px-2 py-1.5">
+        <div class="grid">
+          <span class="text-sm font-medium">Aiko Tanaka</span>
+          <span class="text-muted-foreground text-xs">aiko@example.com</span>
+        </div>
+      </div>
+      <hr role="separator">
+      <a role="menuitem" href="/profile" data-t="account.profile">Profile</a>
+      <a role="menuitem" href="/settings" data-t="account.settings">Settings</a>
+      <hr role="separator">
+      <form method="post" action="/logout" class="contents">
+        <button type="submit" role="menuitem" data-t="logout.action">Log Out</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<section class="grid gap-6 @3xl:grid-cols-[1fr_20rem]" aria-labelledby="cart-title">
+<div class="grid content-start gap-4">
+  <h1 id="cart-title" class="text-2xl font-semibold" data-t="cart.title">Your cart</h1>
+  <ul class="item-group gap-3" role="list">
+<li class="item" data-variant="outline">
+  <figure><img src="/static/products/mug.webp" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
+    <p class="text-muted-foreground text-sm">Blue · M</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Ceramic Mug">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" data-t-label="product.less" >−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="qty-mug" name="quantity" type="number" min="1" max="10" value="2" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" data-t-label="product.more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥3,300</aside>
+</li><li class="item" data-variant="outline">
+  <figure><img src="/static/products/notebook.webp" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">Grid Notebook A5</a></h3>
+    <p class="text-muted-foreground text-sm">Green</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Grid Notebook A5">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" data-t-label="product.less" disabled>−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="qty-notebook" name="quantity" type="number" min="1" max="10" value="1" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" data-t-label="product.more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥880</aside>
+</li>
+  </ul>
+  <a href="#coupon" class="text-sm underline-offset-4 hover:underline" data-t="cart.have_coupon">Have a coupon code?</a>
+</div>
+<aside class="card" aria-labelledby="cart-summary-title">
+  <header><h2 id="cart-summary-title" data-t="cart.summary">Order summary</h2></header>
+  <section>
+    <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm">
+      <dt data-t="cart.subtotal">Subtotal (3 items)</dt><dd class="text-right tabular-nums">¥4,950</dd>
+      <dt data-t="cart.shipping">Shipping</dt><dd class="text-right tabular-nums">¥550</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.free_from">Add ¥50 more for free shipping.</dt>
+      <dt class="border-t pt-2 text-base font-semibold" data-t="cart.total">Total</dt><dd class="border-t pt-2 text-right text-base font-semibold tabular-nums">¥5,500</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.tax_note">Includes ¥500 tax (10 %)</dt>
+    </dl>
+  </section>
+  <footer class="grid gap-2">
+    <a class="btn w-full " data-size="lg" href="/checkout"  data-t="cart.checkout">Check Out</a>
+    <a class="btn w-full" data-variant="ghost" href="/shop" data-t="cart.continue">Continue Shopping</a>
+  </footer>
+</aside>
+</section>

@@ -1,0 +1,51 @@
+<main class="app mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+  <header class="grid gap-3">
+    <h1 class="text-2xl font-semibold" data-t="help.title">Help</h1>
+    <div class="input-group @max-3xl:h-11">
+      <span data-align="inline-start"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input type="search" id="help-search" placeholder="Search help" data-t-placeholder="help.search" aria-label="Search help" data-t-label="help.search" aria-controls="help-list">
+    </div>
+  </header>
+
+  <section aria-labelledby="help-notes">
+    <h2 id="help-notes" class="text-muted-foreground mb-1 text-sm font-medium" data-t="help.section.notes">Notes</h2>
+    <div class="accordion" id="help-list">
+      <details id="furigana">
+        <summary>
+          <span data-t="help.q.furigana">How do I add furigana?</span>
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p data-t="help.a.furigana">Select the kanji, then press Furigana in the toolbar and type the reading. It shows above the kanji.</p>
+      </details>
+      <details id="offline">
+        <summary>
+          <span data-t="help.q.offline">Does it work without internet?</span>
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p data-t="help.a.offline">Yes. Notes are saved on your device and sync when you’re back online.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="help-keys">
+    <header><h2 id="help-keys" class="font-semibold" data-t="help.keys">Keyboard shortcuts</h2></header>
+    <section>
+      <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm">
+        <dt data-t="help.key.new">New note</dt><dd><kbd class="kbd">N</kbd></dd>
+        <dt data-t="help.key.search">Search</dt><dd><kbd class="kbd">/</kbd></dd>
+        <dt data-t="help.key.all">All shortcuts</dt><dd><kbd class="kbd">?</kbd></dd>
+      </dl>
+    </section>
+  </section>
+
+  <section class="card" aria-labelledby="help-contact">
+    <header>
+      <h2 id="help-contact" class="font-semibold" data-t="help.contact.title">Still stuck?</h2>
+      <p class="text-muted-foreground text-sm" data-t="help.contact.body">Write to us and say what you tried. We answer within two working days.</p>
+    </header>
+    <footer class="flex flex-wrap items-center gap-3">
+      <span class="font-mono text-sm select-all">help@classnotes.example</span>
+      <button class="btn" data-variant="outline" data-size="sm" type="button" id="help-copy" data-t="help.contact.copy">Copy Address</button>
+    </footer>
+  </section>
+</main>

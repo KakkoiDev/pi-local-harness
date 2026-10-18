@@ -1,0 +1,24 @@
+<nav class="grid grid-cols-1 gap-1 text-sm" aria-label="Pages" data-t-label="tree.title">
+  <div class="flex items-center justify-between px-2">
+    <h3 class="text-muted-foreground text-xs font-medium" id="tree-label" data-t="tree.title">Pages</h3>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="New page">+</button>
+  </div>
+  <ul role="tree" aria-labelledby="tree-label" class="grid grid-cols-1 gap-0.5">
+    <li role="treeitem" aria-expanded="true" aria-level="1" aria-selected="false">
+      <div class="group flex items-center gap-1 rounded-md pr-1 hover:bg-accent">
+        <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Close Class 3-B">▾</button>
+        <a href="/pages/pg_1" class="min-w-0 flex-1 truncate py-1.5">Class 3-B</a>
+        <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-label="Page options" data-t-label="tree.options">⋯</button>
+      </div>
+      <ul role="group" class="ml-4 grid grid-cols-1 gap-0.5 border-l pl-1">
+        <li role="treeitem" aria-level="2" aria-selected="true">
+          <div class="group flex items-center gap-1 rounded-md bg-accent pr-1 font-medium">
+            <span class="w-6"></span>
+            <a href="/pages/pg_7f2" aria-current="page" class="min-w-0 flex-1 truncate py-1.5">Field trip plan</a>
+            <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-label="Page options" data-t-label="tree.options">⋯</button>
+          </div>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>

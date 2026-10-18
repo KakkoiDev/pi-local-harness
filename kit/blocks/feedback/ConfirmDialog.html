@@ -1,0 +1,16 @@
+<button class="btn" data-variant="outline" type="button" onclick="document.getElementById('confirm-leave').showModal()" data-t="class.leave">Leave Class…</button>
+
+<dialog id="confirm-leave" class="alert-dialog" aria-labelledby="confirm-leave-title" aria-describedby="confirm-leave-desc">
+  <div>
+    <header>
+      <h2 id="confirm-leave-title" data-t="confirm.leave.title">Leave “Class 3B”?</h2>
+      <p id="confirm-leave-desc" data-t="confirm.leave.body">You’ll lose access to its 42 shared notes. A teacher can invite you again.</p>
+    </header>
+    <footer>
+      <button class="btn" data-variant="outline" type="button" autofocus onclick="this.closest('dialog').close()" data-t="common.cancel">Cancel</button>
+      <form method="post" action="/classes/c_3b/leave" class="contents">
+        <button class="btn" data-variant="destructive" type="submit" data-t="confirm.leave.confirm">Leave Class</button>
+      </form>
+    </footer>
+  </div>
+</dialog>

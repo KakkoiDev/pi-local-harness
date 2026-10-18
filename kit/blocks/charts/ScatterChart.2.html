@@ -1,0 +1,9 @@
+<script>
+basecoat.chart(document.getElementById('study-chart'), {
+  chartData: {datasets: [
+    {label: 'Class A', data: [{"x":1,"y":41},{"x":2,"y":44},{"x":2,"y":49},{"x":3,"y":50},{"x":4,"y":54},{"x":4,"y":60},{"x":5,"y":75},{"x":6,"y":78},{"x":6,"y":78},{"x":7,"y":73},{"x":8,"y":85},{"x":9,"y":85}], backgroundColor: 'var(--chart-1)', borderColor: 'var(--chart-1)', pointStyle: 'circle', pointRadius: 5},
+    {label: 'Class B', data: [{"x":1,"y":33},{"x":1,"y":32},{"x":2,"y":38},{"x":3,"y":57},{"x":3,"y":55},{"x":5,"y":64},{"x":5,"y":64},{"x":6,"y":56},{"x":7,"y":63},{"x":7,"y":69},{"x":8,"y":76},{"x":10,"y":87}], backgroundColor: 'var(--chart-2)', borderColor: 'var(--chart-2)', pointStyle: 'triangle', pointRadius: 6}
+  ]},
+  options: {scales: {x: {title: {display: true, text: 'Hours a week', color: 'var(--muted-foreground)'}, ticks: {color: 'var(--muted-foreground)'}}, y: {min: 0, max: 100, title: {display: true, text: 'Score', color: 'var(--muted-foreground)'}, ticks: {display: true, color: 'var(--muted-foreground)'}}}}
+});
+</script>

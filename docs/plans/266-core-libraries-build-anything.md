@@ -50,6 +50,17 @@ grids, SVG path data, engine APIs or chart code from scratch: it fills a schema 
    collaboration, charts…) and whole-app archetypes (online shop, admin dashboard, portfolio and blog, Notion-like, Slack-
    like, GitHub-like, booking, forum, course, CRM, kanban) as copyable, tested templates, from the designer's round 12
    boards.
+   **Status (task 317, 2026-10-18): cards done.** The designer delivered them as App Blocks (design/app-blocks, 137
+   cards). `kit/blocks/build.py` turns each README into a compact card plus its copyable code files (kit/blocks/<group>/
+   <Name>.md, .html, .css, .js) and kit/blocks/index.json (name, group, kind, purpose, EN/JA keywords, paths, libraries,
+   the foundation it assumes, the blocks an archetype or genre uses); a test fails when a re-sync is not rebuilt.
+   Routing (harness/blocks.mjs): code attaches at most two cards whose words the request names, plus AppFoundations or
+   GameKit, within 14,000 characters; common or shared words go to the classifier (judgement `app_block`, never a
+   question to the person); both are logged in decisions.jsonl. Pi loads one more card by exact name with the
+   `app_block` tool. `kit/blocks/add.py` vendors Basecoat's script, Chart.js and Basecoat's chart wrapper with licences
+   and merges texts; `kit/blocks/check.py` checks generated pages. Still to do: Gate's end of request does not run
+   check.py yet (it is a command Pi and the person run); the starters are not yet assembled from blocks (item 9); the
+   designer's open items are in design/briefs/round-13.md.
 
 ### Pi Workbench (this repository)
 

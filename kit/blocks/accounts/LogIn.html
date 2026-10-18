@@ -1,0 +1,36 @@
+<main class="app grid min-h-dvh place-items-center bg-muted/40 p-4">
+  <form id="login-form" class="card w-full max-w-sm" method="post" action="/login" novalidate>
+    <header>
+      <h1 class="text-xl font-semibold" data-t="login.title">Log In</h1>
+      <p class="text-muted-foreground text-sm" data-t="login.lede">Welcome back. Log in to see your notes.</p>
+    </header>
+    <section class="grid gap-4">
+      <div id="login-error" class="alert" data-variant="destructive" role="alert" hidden>
+        <h2 data-t="login.error.title">Couldn’t log you in</h2>
+        <section data-t="login.error.wrong">The email or password is wrong. Check both and try again.</section>
+      </div>
+      <div class="field">
+        <label class="label" for="login-email" data-t="login.email">Email</label>
+        <input class="input" id="login-email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <div class="flex items-center justify-between gap-2">
+          <label class="label" for="login-password" data-t="login.password">Password</label>
+          <a class="text-sm underline-offset-4 hover:underline" href="/forgot-password" data-t="login.forgot">Forgot your password?</a>
+        </div>
+        <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <label class="label gap-2 font-normal">
+        <input class="input" type="checkbox" name="remember" value="1" checked>
+        <span data-t="login.remember">Keep me logged in on this device</span>
+      </label>
+    </section>
+    <footer class="grid gap-3">
+      <button class="btn w-full" type="submit" data-t="login.submit">Log In</button>
+      <p class="text-muted-foreground text-center text-sm">
+        <span data-t="login.no_account">No account yet?</span>
+        <a class="text-foreground underline underline-offset-4" href="/signup" data-t="login.signup">Sign Up</a>
+      </p>
+    </footer>
+  </form>
+</main>

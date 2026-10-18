@@ -1,0 +1,36 @@
+<div class="app flex h-dvh">
+  <nav class="w-64 shrink-0 border-r bg-sidebar @max-3xl:hidden" aria-label="Channels and messages">
+    <h3 class="text-muted-foreground px-3 pt-3 text-xs font-medium" id="ch-label" data-t="chat.channels">Channels</h3>
+    <ul class="grid gap-0.5 p-2" aria-labelledby="ch-label">
+      <li><a href="/c/field-trip" aria-current="page" class="flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 font-medium"># field-trip</a></li>
+      <li><a href="/c/homework" class="flex items-center gap-2 rounded-md px-2 py-1.5 font-semibold hover:bg-accent"># homework <span class="badge ml-auto" aria-label="5 unread">5</span></a></li>
+      <li><a href="/c/random" class="text-muted-foreground flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"># random</a></li>
+    </ul>
+    <h3 class="text-muted-foreground px-3 text-xs font-medium" id="dm-label" data-t="chat.dms">Direct messages</h3>
+    <ul class="grid gap-0.5 p-2" aria-labelledby="dm-label">
+      <li><a href="/dm/u_31" class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span><span class="avatar-badge bg-green-600 ring-sidebar" aria-label="Online" data-t-label="chat.online"></span></span>Kana Abe</a></li>
+    </ul>
+  </nav>
+  <main class="flex min-w-0 flex-1 flex-col" aria-labelledby="chan-title">
+    <header class="flex items-center gap-2 border-b px-4 py-2">
+      <h1 id="chan-title" class="font-semibold"># field-trip</h1>
+      <p class="text-muted-foreground truncate text-sm">Plans for Friday’s museum visit</p>
+      <span class="ml-auto text-muted-foreground text-sm" data-t="chat.members">28 members</span>
+    </header>
+    <ol id="messages" class="flex-1 overflow-y-auto px-4 py-3 grid content-start gap-3" aria-label="Messages" aria-live="polite">
+      <li role="separator" class="text-muted-foreground flex items-center gap-2 text-xs"><hr class="flex-1"><span data-t="chat.today">Today</span><hr class="flex-1"></li>
+      <li class="grid grid-cols-[auto_1fr] gap-x-3">
+        <span class="avatar"><span class="bg-muted">RS</span></span>
+        <div><p class="text-sm"><b>Ren Sato</b> <time class="text-muted-foreground text-xs" datetime="2026-10-18T10:04">10:04</time></p><p>The museum confirmed our booking.</p></div>
+      </li>
+      <li role="separator" class="flex items-center gap-2 text-xs text-destructive"><hr class="flex-1 border-destructive"><span data-t="chat.new">New</span></li>
+    </ol>
+    <p id="typing" class="text-muted-foreground h-5 px-4 text-xs" aria-live="polite" data-t="chat.typing_one">Kana Abe is typing…</p>
+    <form class="flex items-end gap-2 border-t p-3" hx-post="/c/field-trip/messages" hx-target="#messages" hx-swap="beforeend">
+      <button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Attach a file" data-t-label="chat.attach">＋</button>
+      <label class="sr-only" for="msg" data-t="chat.message_label">Message #field-trip</label>
+      <textarea id="msg" name="text" class="textarea min-h-10 flex-1" rows="1" placeholder="Message #field-trip"></textarea>
+      <button class="btn" type="submit" data-t="chat.send">Send</button>
+    </form>
+  </main>
+</div>

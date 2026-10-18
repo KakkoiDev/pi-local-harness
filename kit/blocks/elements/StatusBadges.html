@@ -1,0 +1,24 @@
+<!-- Neutral states: secondary -->
+<span class="badge" data-variant="secondary" data-t="status.draft">Draft</span>
+
+<!-- Attention (the one thing to look at): primary -->
+<span class="badge" data-t="status.new">New</span>
+
+<!-- A state with a meaning colour: outline + a dot. The word carries the meaning; the dot only helps scanning. -->
+<span class="badge" data-variant="outline">
+  <span class="size-1.5 rounded-full bg-green-600" aria-hidden="true"></span>
+  <span data-t="status.paid">Paid</span>
+</span>
+<span class="badge" data-variant="outline">
+  <span class="size-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+  <span data-t="status.pending">Pending</span>
+</span>
+
+<!-- Problems: destructive -->
+<span class="badge" data-variant="destructive" data-t="status.overdue">Overdue</span>
+
+<!-- A count on a button or nav item -->
+<a href="/notifications" class="btn" data-variant="ghost">
+  <span data-t="nav.notifications">Notifications</span>
+  <span class="badge" aria-label="3 unread" data-t-label="status.unread_count">3</span>
+</a>

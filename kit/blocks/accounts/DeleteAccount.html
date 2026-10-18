@@ -1,0 +1,32 @@
+<main class="app mx-auto grid w-full max-w-xl gap-6 p-4 @3xl:p-8">
+  <a class="btn w-fit" data-variant="ghost" href="/settings/account" data-t="delete.back">Back to Account</a>
+  <form id="delete-form" class="card" method="post" action="/account/delete" novalidate>
+    <header>
+      <h1 class="text-xl font-semibold" data-t="delete.title">Delete your account?</h1>
+      <p class="text-muted-foreground text-sm" data-t="delete.lede">Here is what happens. Read it before you decide.</p>
+    </header>
+    <section class="grid gap-4">
+      <ul class="grid gap-2 text-sm list-disc pl-5">
+        <li data-t="delete.what.now">You’re logged out everywhere now, and nobody can see your profile.</li>
+        <li data-t="delete.what.wait">For 30 days, until 17 November 2026, you can log in and cancel. Nothing is lost yet.</li>
+        <li data-t="delete.what.after">After that, your notes, pictures and comments are deleted for good. They can’t be brought back.</li>
+        <li data-t="delete.what.shared">Pages you shared with others are deleted too. Copies they made stay theirs.</li>
+        <li data-t="delete.what.kept">We keep invoices for 7 years because the law requires it. Nothing else.</li>
+      </ul>
+      <div class="alert">
+        <h2 data-t="delete.export.title">Want a copy first?</h2>
+        <section data-t="delete.export.body">Download everything as a ZIP of JSON and your original files.
+          <div class="mt-2"><a class="btn" data-variant="outline" data-size="sm" href="/account/export" data-t="delete.export.action">Download My Data</a></div>
+</section>
+      </div>
+      <div class="field">
+        <label class="label" for="delete-password" data-t="delete.password">Enter your password to confirm</label>
+        <input class="input" id="delete-password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+    </section>
+    <footer class="flex flex-wrap justify-end gap-2">
+      <a class="btn" data-variant="outline" href="/settings/account" data-t="common.cancel">Cancel</a>
+      <button class="btn" data-variant="destructive" type="submit" data-t="delete.submit">Delete My Account</button>
+    </footer>
+  </form>
+</main>

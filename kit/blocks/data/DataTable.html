@@ -1,0 +1,46 @@
+<form id="words" class="grid gap-3" method="post" hx-target="#words" hx-select="#words" hx-swap="outerHTML">
+  <div class="table-container">
+    <table class="table">
+      <caption class="sr-only">Your vocabulary words, 1–5 of 48</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="w-8"><input class="input" type="checkbox" aria-label="Select all on this page" data-t-label="table.select_all"></th>
+          <th scope="col" aria-sort="none"><button type="button" class="btn -ms-2.5" data-variant="ghost" data-size="sm" name="sort" value="word" aria-label="Sort by Word"><span data-t="table.word">Word</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-3.5 opacity-60"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button></th>
+          <th scope="col" class="@max-3xl:hidden" data-t="table.reading">Reading</th>
+          <th scope="col" data-t="table.meaning">Meaning</th>
+          <th scope="col" class="@max-3xl:hidden text-end" data-t="table.lesson">Lesson</th>
+          <th scope="col" class="@max-3xl:hidden" aria-sort="descending"><button type="button" class="btn -ms-2.5" data-variant="ghost" data-size="sm" name="sort" value="added" aria-label="Sort by Added"><span data-t="table.added">Added</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-3.5 opacity-60"><path d="m6 9 6 6 6-6"/></svg></button></th>
+          <th scope="col" class="text-end"><span class="sr-only" data-t="table.actions">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><input class="input" type="checkbox" name="ids" value="100" aria-label="Select 駅"></td>
+        <td class="font-medium" lang="ja">駅</td>
+        <td class="@max-3xl:hidden" lang="ja">えき</td>
+        <td>station</td>
+        <td class="@max-3xl:hidden text-end tabular-nums">3</td>
+        <td class="@max-3xl:hidden text-muted-foreground">12 Oct</td>
+        <td class="text-end"><a href="/words/100/edit" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Actions for 駅"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></a></td>
+      </tr>
+      <tr>
+        <td><input class="input" type="checkbox" name="ids" value="101" aria-label="Select 電車"></td>
+        <td class="font-medium" lang="ja">電車</td>
+        <td class="@max-3xl:hidden" lang="ja">でんしゃ</td>
+        <td>train</td>
+        <td class="@max-3xl:hidden text-end tabular-nums">3</td>
+        <td class="@max-3xl:hidden text-muted-foreground">12 Oct</td>
+        <td class="text-end"><a href="/words/101/edit" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Actions for 電車"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></a></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <nav class="flex items-center justify-between gap-2" aria-label="Pages" data-t-label="table.pages">
+    <p class="text-sm text-muted-foreground" aria-hidden="true">1–5 / 48</p>
+    <div class="flex items-center gap-1">
+      <a href="?page=0" class="btn aria-disabled:pointer-events-none aria-disabled:opacity-50" data-variant="outline" data-size="sm" aria-disabled="true" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span data-t="table.prev">Previous</span></a>
+      <a href="?page=1" class="btn @max-3xl:hidden" data-size="icon-sm" aria-current="page" data-variant="outline" aria-label="Page 1">1</a><a href="?page=2" class="btn @max-3xl:hidden" data-size="icon-sm" data-variant="ghost" aria-label="Page 2">2</a><a href="?page=3" class="btn @max-3xl:hidden" data-size="icon-sm" data-variant="ghost" aria-label="Page 3">3</a><span class="px-1 text-muted-foreground @max-3xl:hidden" aria-hidden="true">…</span><a href="?page=10" class="btn @max-3xl:hidden" data-size="icon-sm" data-variant="ghost" aria-label="Page 10">10</a>
+      <a href="?page=2" class="btn" data-variant="outline" data-size="sm"><span data-t="table.next">Next</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+    </div>
+  </nav>
+</form>

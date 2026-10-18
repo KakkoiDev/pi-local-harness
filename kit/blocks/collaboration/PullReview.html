@@ -1,0 +1,43 @@
+<section class="grid gap-3" aria-labelledby="pr-title">
+  <header class="grid gap-1">
+    <h1 id="pr-title" class="text-xl font-semibold">Use Monday as week start <span class="text-muted-foreground font-normal">#45</span></h1>
+    <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600" data-t="pr.open">Open</span>
+      <span class="text-muted-foreground" data-t="pr.wants">Ren Sato wants to merge 2 commits into main from week-start</span></p>
+  </header>
+  <div class="tabs" id="pr-tabs">
+    <nav role="tablist" aria-orientation="horizontal" class="w-full justify-start">
+      <button type="button" role="tab" id="pr-tab-1" aria-controls="pr-panel-1" aria-selected="false" tabindex="-1" data-t="pr.conversation">Conversation</button>
+      <button type="button" role="tab" id="pr-tab-2" aria-controls="pr-panel-2" aria-selected="true" tabindex="0"><span data-t="pr.files">Files</span> <span class="badge" data-variant="secondary">3</span></button>
+    </nav>
+    <div role="tabpanel" id="pr-panel-2" aria-labelledby="pr-tab-2" class="grid gap-3">
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-muted-foreground" data-t="pr.viewed">1 of 3 files viewed</span>
+        <button class="btn ml-auto" type="button" aria-haspopup="dialog" aria-controls="review-dialog" onclick="document.getElementById('review-dialog').showModal()" data-t="pr.finish">Finish Review</button>
+      </div>
+      <!-- one CodeDiff section per file; a line comment is a row under its line: -->
+      <table class="w-full font-mono text-[13px]"><tbody>
+        <tr class="bg-green-500/10"><td class="w-12 px-2 text-right text-muted-foreground">3</td><td class="px-3 whitespace-pre"><span class="text-green-700 dark:text-green-400">+</span>WEEK_START = 0  # Monday</td></tr>
+        <tr><td colspan="2" class="p-3 font-sans">
+          <div class="card gap-2 py-3">
+            <header class="flex items-center gap-2 text-sm"><b>Kana Abe</b><span class="badge" data-variant="outline" data-t="pr.pending">Pending</span></header>
+            <section><p class="text-sm">Can we read this from the term settings instead of hard-coding it?</p></section>
+          </div>
+        </td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <dialog id="review-dialog" class="dialog" aria-labelledby="review-title">
+    <div>
+      <header><h2 id="review-title" data-t="pr.finish">Finish Review</h2></header>
+      <section class="grid gap-3">
+        <textarea class="textarea min-h-24" name="text" aria-label="Summary" placeholder="Leave a summary (optional)" data-t-placeholder="pr.summary"></textarea>
+        <fieldset class="grid gap-2" role="radiogroup">
+          <label class="label gap-2 font-normal"><input class="input" type="radio" name="verdict" value="comment" checked><span><b data-t="pr.v.comment">Comment</b> <span class="text-muted-foreground text-sm" data-t="pr.v.comment_hint">Feedback without approving.</span></span></label>
+          <label class="label gap-2 font-normal"><input class="input" type="radio" name="verdict" value="approve"><span><b data-t="pr.v.approve">Approve</b> <span class="text-muted-foreground text-sm" data-t="pr.v.approve_hint">Ready to merge.</span></span></label>
+          <label class="label gap-2 font-normal"><input class="input" type="radio" name="verdict" value="changes"><span><b data-t="pr.v.changes">Request Changes</b> <span class="text-muted-foreground text-sm" data-t="pr.v.changes_hint">Must be fixed before merging.</span></span></label>
+        </fieldset>
+      </section>
+      <footer><button class="btn" data-variant="outline" type="button" data-t="pr.cancel">Cancel</button><button class="btn" type="submit" data-t="pr.submit">Submit Review</button></footer>
+    </div>
+  </dialog>
+</section>

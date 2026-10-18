@@ -1,0 +1,23 @@
+<!-- One person: picture, with the name for screen readers -->
+<span class="avatar" data-size="lg">
+  <img src="/avatars/u1.webp" alt="Aiko Tanaka" width="40" height="40" loading="lazy">
+</span>
+
+<!-- No picture: initials on muted, the name in aria-label -->
+<span class="avatar" role="img" aria-label="Kenji Sato"><span>KS</span></span>
+
+<!-- With a status dot (online) -->
+<span class="avatar" role="img" aria-label="Mei Wong, online" data-t-label="people.online_label">
+  <span>MW</span><span class="avatar-badge bg-green-600"></span>
+</span>
+
+<!-- A group: at most 4 faces, then the count -->
+<div class="avatar-group" role="group" aria-label="5 members" data-t-label="people.members">
+  <span class="avatar" data-tooltip="Aiko Tanaka"><img src="/avatars/u1.webp" alt="Aiko Tanaka"></span>
+  <span class="avatar" role="img" aria-label="Kenji Sato" data-tooltip="Kenji Sato"><span>KS</span></span>
+  <span class="avatar" role="img" aria-label="Mei Wong" data-tooltip="Mei Wong"><span>MW</span></span>
+  <span data-count aria-label="and 2 more" data-t-label="people.more">+2</span>
+</div>
+
+<!-- A group that opens the full list: the whole group is one button -->
+<button type="button" class="avatar-group rounded-full" aria-haspopup="dialog" aria-controls="members-dialog" data-t-label="people.show_all">…same children…</button>

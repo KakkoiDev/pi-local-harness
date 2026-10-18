@@ -1,0 +1,10 @@
+<section class="card w-full max-w-sm" aria-labelledby="pending-title">
+  <header>
+    <h1 id="pending-title" class="text-xl font-semibold" data-t="delete.pending.title">Your account will be deleted on 17 November 2026</h1>
+    <p class="text-muted-foreground text-sm" data-t="delete.pending.body">Cancel now to keep everything as it was.</p>
+  </header>
+  <footer class="grid gap-2">
+    <form method="post" action="/account/delete/cancel" class="contents"><button class="btn w-full" type="submit" data-t="delete.pending.cancel">Keep My Account</button></form>
+    <form method="post" action="/logout" class="contents"><button class="btn w-full" data-variant="ghost" type="submit" data-t="logout.action">Log Out</button></form>
+  </footer>
+</section>

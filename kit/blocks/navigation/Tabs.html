@@ -1,0 +1,12 @@
+<div class="tabs" id="note-tabs">
+  <nav role="tablist" aria-orientation="horizontal" aria-label="Note sections" data-t-label="tabs.label" class="@max-3xl:w-full @max-3xl:justify-start @max-3xl:overflow-x-auto">
+    <button type="button" role="tab" id="note-tabs-tab-1" aria-controls="note-tabs-panel-1" aria-selected="true" tabindex="0"><span data-t="tabs.note">Note</span></button>
+    <button type="button" role="tab" id="note-tabs-tab-2" aria-controls="note-tabs-panel-2" aria-selected="false" tabindex="-1"><span data-t="tabs.details">Details</span></button>
+    <button type="button" role="tab" id="note-tabs-tab-3" aria-controls="note-tabs-panel-3" aria-selected="false" tabindex="-1"><span data-t="tabs.history">History</span></button>
+    <button type="button" role="tab" id="note-tabs-tab-4" aria-controls="note-tabs-panel-4" aria-selected="false" tabindex="-1"><span data-t="tabs.sharing">Sharing</span><span class="badge ms-1.5" data-variant="secondary">2</span></button>
+  </nav>
+  <div role="tabpanel" id="note-tabs-panel-1" aria-labelledby="note-tabs-tab-1" tabindex="-1"><div class="py-4 text-sm">駅 (eki) station · 電車 (densha) train · 切符 (kippu) ticket</div></div>
+  <div role="tabpanel" id="note-tabs-panel-2" aria-labelledby="note-tabs-tab-2" tabindex="-1" hidden><!-- details --></div>
+  <div role="tabpanel" id="note-tabs-panel-3" aria-labelledby="note-tabs-tab-3" tabindex="-1" hidden><div class="py-4" hx-get="/notes/42/history" hx-trigger="intersect once" hx-swap="innerHTML"><p class="text-muted-foreground text-sm" data-t="tabs.loading">Loading history…</p></div></div>
+  <div role="tabpanel" id="note-tabs-panel-4" aria-labelledby="note-tabs-tab-4" tabindex="-1" hidden><!-- sharing --></div>
+</div>

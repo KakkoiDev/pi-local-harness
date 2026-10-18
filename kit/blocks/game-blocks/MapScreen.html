@@ -1,0 +1,19 @@
+<section id="map" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="map-title" hidden>
+  <div class="game-panel" style="width:min(820px,100%);display:grid;gap:10px">
+    <div class="game-row" style="justify-content:space-between">
+      <h2 id="map-title" class="game-h" data-t="place.willow_field">Willow Field</h2>
+      <span class="game-small" data-t="map.found">7 of 12 places found</span>
+    </div>
+    <div class="game-row" style="align-items:flex-start;gap:14px">
+      <canvas id="map-canvas" width="160" height="96" style="flex:1;min-width:0;aspect-ratio:5/3;image-rendering:pixelated"
+              role="img" aria-label="Map of Willow Field. You are at the crossroads. The tracked quest marker is north, at the old well."></canvas>
+      <ul class="game-list" aria-label="Places" style="width:200px">
+        <li tabindex="0" aria-selected="true"><span style="color:var(--g-accent)">▲</span><span data-t="map.you">You are here</span></li>
+        <li tabindex="-1"><span style="color:var(--g-accent)">◆</span><span data-t="place.old_well">Old Well</span></li>
+        <li tabindex="-1"><span>⌂</span><span data-t="place.village">Village</span></li>
+        <li tabindex="-1" aria-disabled="true"><span>?</span><span data-t="map.unknown">Not found yet</span></li>
+      </ul>
+    </div>
+    <p class="game-hint"><!-- arrows/left stick: Pan · +/− or triggers: Zoom · Enter/south: Travel · Esc/east: Back --></p>
+  </div>
+</section>

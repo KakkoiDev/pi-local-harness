@@ -1,0 +1,20 @@
+<div class="popover relative grid">
+  <div id="msg-input" class="textarea min-h-20" contenteditable="true" role="textbox" aria-multiline="true"
+       aria-label="Message" aria-autocomplete="list" aria-controls="mention-list" aria-expanded="true" aria-activedescendant="mention-p2">
+    Can <span class="badge" data-variant="secondary" data-mention="u_12" contenteditable="false">@Ren Sato</span> bring the map? @ka
+  </div>
+  <div id="mention-popover" data-popover aria-hidden="false" class="w-72 min-w-0 p-1">
+    <p class="text-muted-foreground px-2 py-1 text-xs" data-t="mention.people">People</p>
+    <ul id="mention-list" role="listbox" aria-label="People to mention" data-t-label="mention.list_label" class="grid">
+      <li id="mention-p1" role="option" aria-selected="false" class="flex items-center gap-2 rounded-sm px-2 py-1.5">
+        <span class="avatar" data-size="sm"><span class="bg-muted">KM</span></span>
+        <span class="flex-1 truncate">Kaito Mori</span><span class="text-muted-foreground text-xs">kaito</span>
+      </li>
+      <li id="mention-p2" role="option" aria-selected="true" class="flex items-center gap-2 rounded-sm bg-accent px-2 py-1.5">
+        <span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span>
+        <span class="flex-1 truncate">Kana Abe</span><span class="text-muted-foreground text-xs">kana</span>
+      </li>
+    </ul>
+    <p class="text-muted-foreground border-t px-2 py-1 text-xs" data-t="mention.hint">↑↓ to choose · Return to mention · Esc to close</p>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<script>
+// grouped
+basecoat.chart(document.getElementById('orders-chart'), {
+  options: {scales: {y: {beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}
+});
+// stacked: x and y both stacked
+basecoat.chart(document.getElementById('orders-chart'), {
+  options: {scales: {x: {stacked: true}, y: {stacked: true, beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}
+});
+</script>

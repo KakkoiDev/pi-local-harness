@@ -1,0 +1,55 @@
+<section class="grid gap-4" aria-labelledby="notes-title">
+  <h1 id="notes-title" class="text-2xl font-semibold" data-t="list.title">Notes</h1>
+  <form id="notes-filter" role="search" class="flex flex-wrap items-end gap-3" action="/notes" hx-get="/notes" hx-trigger="input changed delay:250ms from:#notes-q, change" hx-target="#notes-results" hx-push-url="true">
+    <label class="input-group w-full @3xl:w-72">
+      <span data-align="start"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input id="notes-q" type="search" name="q" value="" placeholder="Search titles and text…" data-t-placeholder="list.search_hint" aria-label="Search notes" data-t-label="list.search" class="@max-3xl:min-h-11">
+    </label>
+    <div class="grid gap-1.5">
+      <label class="label" for="notes-subject" data-t="list.subject">Subject</label>
+      <select id="notes-subject" name="subject" class="select">
+        <option value="" selected data-t="list.subject_all">All subjects</option>
+        <option value="vocabulary" data-t="subject.Vocabulary">Vocabulary</option>
+        <option value="grammar" data-t="subject.Grammar">Grammar</option>
+        <option value="kanji" data-t="subject.Kanji">Kanji</option>
+      </select>
+    </div>
+    <div class="grid gap-1.5">
+      <label class="label" for="notes-sort" data-t="list.sort">Sort</label>
+      <select id="notes-sort" name="sort" class="select">
+        <option value="recent" data-t="list.sort_recent">Recently edited</option>
+        <option value="title" data-t="list.sort_title">Title A–Z</option>
+      </select>
+    </div>
+    <label class="label h-9 gap-2 font-normal @max-3xl:h-11"><input class="input" type="checkbox" name="mine" value="1"><span data-t="list.only_mine">Only mine</span></label>
+  </form>
+  <div id="notes-results" class="grid gap-3" aria-live="polite">
+    <p class="text-sm text-muted-foreground" data-t="list.count">2 notes</p>
+    <ul class="grid gap-2">
+    <li>
+      <a href="/notes/40" class="item" data-variant="outline">
+        <section>
+          <h3>Week 3 · Vocabulary</h3>
+          <p class="line-clamp-1">駅 (eki) station, 電車 (densha) train, 切符 (kippu) ticket</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Vocabulary</span>
+          <span>Edited 2 hours ago</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/41" class="item" data-variant="outline">
+        <section>
+          <h3>Te-form practice</h3>
+          <p class="line-clamp-1">Verbs: 食べる → 食べて, 行く → 行って, する → して</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Grammar</span>
+          <span>Edited Yesterday</span>
+        </aside>
+      </a>
+    </li>
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,16 @@
+<section id="dialogue" class="game-dialogue" role="dialog" aria-labelledby="dlg-speaker" aria-describedby="dlg-line">
+  <canvas class="game-portrait" width="16" height="16" role="img" aria-label="Old Mira, smiling"></canvas>
+  <div class="game-panel" data-tone="light">
+    <span id="dlg-speaker" class="game-speaker" style="color:var(--g-bad)">Old Mira</span>
+    <p id="dlg-line" class="game-line" data-t="dlg.mira.1">The well dried up the summer you left. Will you help me find out why?</p>
+    <ul class="game-menu" style="margin-top:8px" aria-label="Your answer">
+      <li><button class="game-btn" data-choice="help" data-t="dlg.mira.help" autofocus>I’ll look into it.</button></li>
+      <li><button class="game-btn" data-choice="ask" data-t="dlg.mira.ask">What happened that summer?</button></li>
+      <li><button class="game-btn" data-choice="later" data-t="dlg.mira.later">Not now.</button></li>
+    </ul>
+    <p class="game-hint" style="justify-content:flex-end">
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button"></span></span><span data-for="touch" data-t="dlg.tap">Tap</span><span data-t="dlg.next">Next</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">L</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="north" aria-label="North button"></span></span><span data-t="dlg.log">Log</span></span>
+    </p>
+  </div>
+</section>
