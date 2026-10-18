@@ -28,6 +28,14 @@ and draft race, generic-crash partial replies, "repetitive blocking questions"),
 
 Built as the smallest version with existing classes; the designer has not drawn these yet.
 
+Round 12 (boards R12_Conversation, Ph12_Cut, the HarnessNotice card) drew them, and they are now built that way:
+`js/notices.mjs` `harnessNotice()` (the dotted `.pw-notice`, role note, “Harness”; without Laya the phase word reads
+“Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.” with How to Install),
+`cutLine()` (`.pw-cut`, role status, Retry default, Undo This Request… only when files changed), the settled question
+“<question>: not answered · settled by <what>” with Change…, and Activity's words “Waiting for you”, “Stopped by a
+question”, “Stopped by you” (`relabelState()`). The old classes `message-notice` and `message-ended` stay on the new
+markup for the suites that find them.
+
 - The inline harness notice under an answer (`p.pw-help.message-notice` with the note icon), used for a phase word
   ("Pi cannot change the phase…"). Today it is plain help text.
 - A question settled without an answer (approval or a new plan replaced it): an old-style settled line, “Park or drop? ·

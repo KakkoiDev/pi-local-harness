@@ -592,3 +592,9 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  .pw-picker--popover{left:8px!important;right:8px;width:auto}
  html.pw-theme-screen-open,html.pw-theme-screen-open body{overflow:hidden}
 }
+/* Round 12 (tasks 290, 273): HarnessNotice, CutLine and DecisionRow sit inside the answer's article here, not between
+   transcript items as on the boards, so they keep the answer's spacing and the decision row has no box of its own. */
+.pw-msg .pw-notice,.pw-msg .pw-cut,.pw-msg .pw-decisions{margin:0}
+.pw-msg details.pw-decisions{border:0;padding:0;font-size:13px}
+.pw-decisions small{font-size:12px}
+.pw-decisions li .pw-link[aria-disabled="true"]{color:var(--ink-disabled)}

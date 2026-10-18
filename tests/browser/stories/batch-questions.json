@@ -1,0 +1,55 @@
+{
+ "steps": [
+  {
+   "choice": {
+    "number": 1,
+    "total": 3,
+    "question": "Who writes the notes?",
+    "options": [
+     {
+      "label": "Only me"
+     },
+     {
+      "label": "The whole class"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "choice": {
+    "number": 2,
+    "total": 3,
+    "question": "How should notes be sorted?",
+    "options": [
+     {
+      "label": "Newest first"
+     },
+     {
+      "label": "By subject"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "choice": {
+    "number": 3,
+    "total": 3,
+    "question": "Should deleted notes go to a Trash first?",
+    "options": [
+     {
+      "label": "Yes, keep them 30 days"
+     },
+     {
+      "label": "No, delete at once"
+     }
+    ],
+    "recommended": 0
+   }
+  },
+  {
+   "say": "[CANARY] Noted all three answers."
+  }
+ ]
+}

@@ -77,13 +77,14 @@ def scripted_story():
         if result.get('report'):notify('Harness report: '+json.dumps(result['report']))
         check=result.get('check_in');more=False
         if check and check.get('verified') and automatic():
-            gate('/phase/accept',{'cwd':check['root'],'state':'auto'});check['accepted']=True;more=bool(check.get('next'))
+            gate('/phase/accept',{'cwd':check['root'],'state':'auto','request':job});check['accepted']=True;more=bool(check.get('next'))
         if check and not more:notify('Harness check-in: '+json.dumps(check))
         if result.get('commit'):
             label={'committed':'','not verified':' (not verified)','plan incomplete':' (plan incomplete)'}.get(result.get('outcome'),'')
             notify(f"Harness note: “{result.get('message')}”{label} · committed as {result['commit']}")
         return more
-    gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    started=gate('/request',{'request':job,'cwd':os.getcwd(),'text':request['message']})
+    if (started.get('advice') or {}).get('notice'):notify('Harness notice: '+started['advice']['notice'])  # like the extension (task 290)
     while index<len(steps):
         step=steps[index];index+=1
         if 'think' in step:emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':step['think']}})
