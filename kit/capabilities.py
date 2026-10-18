@@ -19,6 +19,11 @@ import time
 import uuid
 from pathlib import Path
 
+try:
+    from .project_paths import project_path
+except ImportError:
+    from project_paths import project_path
+
 KIT = Path(__file__).resolve().parent
 ROOT = KIT.parent
 BASES = ('web', 'static', 'tui')
@@ -202,6 +207,7 @@ def planned(capability, base, folder=None):
 def install(folder, capability, base):
     """Copy one capability's files into the project and add its files to the offline shell. Returns the files added."""
     folder = Path(folder); spec = capability['install'][base]; added, _ = planned(capability, base, folder)
+    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', WORKER.get(base, 'sw.js')]: project_path(folder, name)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"{capability['name']}: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''} in the project.")
     if spec.get('files'):
@@ -431,12 +437,19 @@ def add(folder, identifier, data=None, request=None, full_suite=None):
     if missing: raise ValueError(f"{item['name']} needs {', '.join(_by_id(catalogue()['capabilities'], need, 'capability')['name'] for need in missing)} first.")
     if not (folder / '.git').exists(): raise ValueError('This project has no history, so the change could not be undone. Nothing was changed.')
     added, changed = planned(item, base, folder)
+    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', WORKER.get(base, 'sw.js')]: project_path(folder, name)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"Not added: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''}. Nothing was changed.")
     edited = [line[3:] for line in _git(folder, 'status', '--porcelain', '--', *changed).stdout.splitlines()]
     if edited: raise ValueError(f"Not added: {', '.join(edited)} {'has' if len(edited) == 1 else 'have'} changes that are not saved in history yet. Nothing was changed.")
     tracked = {name for name in changed if _git(folder, 'ls-files', '--error-unmatch', '--', name, check=False).returncode == 0}
     before = full_suite(folder) if full_suite else None
+    if before is not None and not before.get('passed'):
+        reason = f"Not added: the project's tests did not pass before the change (`{before.get('command', 'tests')}`). Nothing was changed."
+        return {'added': False, 'name': item['name'], 'suite': before,
+                'check': {'passed': False, 'tests': 0, 'counts': {}, 'failing': [], 'commands': [before.get('command', '')], 'output': before.get('output', ''), 'reason': reason},
+                'message': reason}
+
     capabilities = [*present, identifier]
     try:
         install(folder, item, base)

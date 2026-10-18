@@ -4,6 +4,7 @@ The list is Google's public metadata (no key), cached in the data folder and ref
 the cache answers. The app itself never points at a CDN: when the person Saves a font, its woff2 files for the needed
 weights and its licence come into the project's static/fonts/<family>/ (that click is the approval), from three hosts
 only, each file checked to be woff2 and capped in size."""
+from kit.project_paths import project_path
 import json
 from pathlib import Path
 import re
@@ -93,7 +94,7 @@ class Fonts:
     def download(self, name, root):
         """Bring a family into root/static/fonts/<family>/: woff2 files, licence and font-face.css. Returns {'family',
         'category', 'faces' (for the theme block), 'files' (project paths to commit)}. All or nothing."""
-        root = Path(root); folder = root / 'static' / 'fonts' / slug(name); entry = self.entry(name)
+        root = Path(root); folder = project_path(root, Path('static/fonts') / slug(name)); entry = self.entry(name)
         if not entry: raise ValueError(f'“{name}” is not in the Google Fonts list (or the list is not available offline yet).')
         if (folder / 'font-face.css').is_file():  # chosen before: its files are already here
             return {'family': name, 'category': entry['category'], 'faces': faces_of((folder / 'font-face.css').read_text(encoding='utf-8')), 'files': []}

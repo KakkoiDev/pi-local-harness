@@ -223,7 +223,7 @@ class WebRoutesTest(unittest.TestCase):
         status, created = self.call('/api/projects/start', start, secret)
         self.assertEqual(status, 200, created); self.assertTrue(created['created']); self.assertEqual(created['check']['tests'], facts['tests'])
         self.assertEqual(self.call('/api/projects/capability', {'project': created['project'], 'capability': 'charts'})[0], 403)
-        with mock.patch('harness.project_start.full_suite', lambda folder: {'passed': False, 'command': 'uv run pytest'}):  # no uv in unit tests
+        with mock.patch('harness.project_start.full_suite', lambda folder, **kwargs: {'passed': True, 'command': 'uv run pytest'}):  # no uv in unit tests
             status, added = self.call('/api/projects/capability', {'project': created['project'], 'capability': 'charts'}, secret)
         self.assertEqual(status, 200, added); self.assertTrue(added['added'])
         last = added['conversation']['messages'][-1]

@@ -186,7 +186,7 @@ class SystemQuestionTest(unittest.TestCase):
         self.ledger.start_request('later', self.folder, 'Thanks')
         self.assertEqual(self.ledger.held('later'), [], 'held words are delivered once')
 
-    def test_a_system_card_raised_at_the_start_keeps_the_message_it_interrupted(self):
+    def test_uncertain_phase_intent_is_advisory_and_does_not_interrupt_the_message(self):
         from harness.judgements import Judgements
         class Unsure:  # an installed Laya that abstains: the card is the person's to answer
             def ask(self, *args, **kwargs): return {'answer': None, 'confidence': .4, 'abstained': True}
@@ -194,12 +194,10 @@ class SystemQuestionTest(unittest.TestCase):
         self.ledger.judgements = Judgements(self.ledger.paperwork, classifier=Unsure())
         self.ledger.start_request('first', self.folder, 'Move to implementation and add a footer')
         advice = self.ledger.request_advice('first')
-        self.assertIn('choice', advice)
-        identifier = self.ledger.paperwork.choice_pending('first', advice['choice'])['id']  # the extension shows it
-        self.ledger.paperwork.pause('first')
-        self.ledger.start_request('answer', self.folder, f"Choice: {advice['choice']['question']} → Implementation")
-        self.assertEqual(self.ledger.held('answer'), ['Move to implementation and add a footer'])
-        del identifier
+        self.assertNotIn('choice', advice)
+        self.assertIn('notice', advice)
+        self.assertIsNone(self.ledger.paperwork.waiting_choice(self.folder))
+
 
 
 def fake_pi(case, root):

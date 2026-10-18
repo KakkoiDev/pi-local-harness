@@ -46,7 +46,7 @@ def create(chat, data):
     if data.get('empty'):
         project = chat.documents.create_project(data['name'], data.get('parent'), 'empty')
         return {'created': True, 'project': project, 'chat': chat.project_chat(project)['id']}
-    start = {'packages': data.get('packages') or [], 'capabilities': data.get('capabilities') or []}
+    start = {'packages': data.get('packages') or [], 'capabilities': data.get('capabilities') or [], 'sentence': data.get('sentence') or ''}
     try:
         project = chat.documents.create_project(data['name'], data.get('parent'), 'start', start=start)
     except kit.BaseFailed as error:
@@ -58,7 +58,7 @@ def _shown(check):
     return {key: check.get(key) for key in ('passed', 'counts', 'tests', 'failing', 'commands', 'reason')} | {'output': (check.get('output') or '')[-4000:]}
 
 
-def full_suite(folder):
+def full_suite(folder, data=None):
     """The project's own tests, offline, as /audit runs them (harness/audit.py): {'passed', 'command'}."""
     from harness.audit import commands
     import shlex
@@ -66,7 +66,7 @@ def full_suite(folder):
     environment = {**os.environ, 'UV_OFFLINE': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
     try:
         from gate import sandbox  # task 311: the project's own code runs in the test sandbox
-        ran = subprocess.run(sandbox.argv(argv, folder), cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
+        ran = subprocess.run(sandbox.argv(argv, folder, data, sandbox.widened(data, folder)['network']), cwd=folder, env=environment, capture_output=True, text=True, timeout=300)
         from gate.test_runs import counts
         passed = ran.returncode == 0 and bool(counts(ran.stdout + ran.stderr).get('pass'))
     except (OSError, subprocess.TimeoutExpired):
@@ -82,7 +82,7 @@ def add(chat, data):
     busy = [job for job in chat.queue.list() if job['status'] in ('running', 'queued') and job.get('project') == project]
     if busy: raise ProjectBusy(busy[0]['id'])
     started = time.monotonic()
-    result = kit.add(root, data['capability'], data=chat.documents.root, request='capability-' + uuid.uuid4().hex[:12], full_suite=full_suite)
+    result = kit.add(root, data['capability'], data=chat.documents.root, request='capability-' + uuid.uuid4().hex[:12], full_suite=lambda folder: full_suite(folder, data=chat.documents.root))
     reply = {**{key: value for key, value in result.items() if key != 'check'}, 'check': _shown(result['check']), 'seconds': round(time.monotonic() - started, 1)}
     if not result.get('commit'): return reply  # nothing was kept: the dialog says why, the chat has nothing to undo
     chat.changed(project, root, result['commit'], 'You')

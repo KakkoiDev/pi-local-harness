@@ -91,7 +91,7 @@ marker") when the fix merges.
 | US-123 | see who made each decision behind an answer, and change my answer (task 273) | “▸ 2 decisions · 1 automatic” under the answer; each row has its source tag (you · auto · Laya · code · model; auto and model dotted); Change… on my answer opens a card that names what it redoes; Change and Redo records my new answer (person, `decision.change`) and queues one request to redo what depended on it; a decision that cannot be changed here keeps Change… disabled with the reason | desk | stories.cjs US-119; tests/test_decision_rows.py |
 | US-124 | answer a batch of questions at once (task 273) | “Question 1 of 3” with Take All Recommendations: the rest of the batch takes each recommendation as my answer, nothing is left waiting | desk | stories.cjs US-120; tests/test_decision_rows.py |
 | US-043 | type my own answer | Something else… opens a field; typing in the composer answers the card | desk, phone | design.cjs (Round 10: A study group) |
-| US-044 | get exactly one answer per question, even if I answer quickly | No merged or lost answers | desk | none (item 8, task 290: answers merge or are lost; a race needing two queued answers is not scripted yet) |
+| US-044 | get exactly one answer per question, even if I answer quickly | No merged or lost answers | desk | `conversation.cjs` (live answer, double click, concurrent conflicting tabs, reload and draft preservation) |
 
 ## Plans, Start Building, check-ins, Accept, Stop Here
 
@@ -254,8 +254,8 @@ marker") when the fix merges.
 
 ## Coverage
 
-Counted from the tables above: 131 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). Browser journeys in stories.cjs: 62 (39 from task 264, 6 from task 312, 4 from round 12's task 273, 7 from round 12's check-ins and fixes, 4 from round 12's Project Start, 2 from the security hardening, tasks 304, 305 and 311) and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 132 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 63 (39 from task 264, 6 from task 312, 4 from round 12's task 273, 7 from round 12's check-ins and fixes, 4 from round 12's Project Start, 2 from the security hardening, tasks 304, 305 and 311, plus task 318’s keyboard/filter regression) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
@@ -263,7 +263,7 @@ unit test counts as a journey). Browser journeys in stories.cjs: 62 (39 from tas
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |
-| No test | 1 | US-044 (item 8, task 290: two quick answers; the race is not scripted yet) |
+| Conversation regression | 1 | US-044: live question and concurrent tabs (`conversation.cjs`) |
 
 The browser journeys run in about two minutes (`python3 tests/browser/run.py stories`), the terminal ones in about two
 seconds (`node --test tests/harness/stories.test.mjs`).
@@ -285,3 +285,5 @@ services use, as design.cjs does.
 
 Web POSTs from Node send the page's person secret (`X-Pi-Person`, read from the page as js/ui.mjs `personHeaders`
 does), like the person's own page; US-081 checks that a POST without it is refused.
+
+US-142: Project Start capability filtering and keyboard focus survive selection (`stories.cjs`).

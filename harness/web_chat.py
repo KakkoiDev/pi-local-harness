@@ -117,6 +117,18 @@ class ConversationStore:
             value=self.get(identifier);message.setdefault('timestamp',timestamp());value['messages'].append(message)
             if value['title']=='New conversation' and message['role']=='user':value['title']=(message['content'] or 'Attached files')[:60]
             return self.save(value)
+    def upsert_assistant(self, identifier, message):
+        """Publish live controls before displaying them; final text never reopens a resolved card."""
+        with self.lock:
+            value=self.get(identifier)
+            previous=next((row for row in value['messages'] if row.get('role')=='assistant' and row.get('request')==message.get('request') and row.get('_live_choice')),None)
+            if previous is None:return self.append(identifier,message)
+            choice=previous.get('choice')
+            if choice and choice.get('id')==(message.get('choice') or {}).get('id'):
+                message={**message,'choice':{**message['choice'],**choice}}
+            previous.update(message)
+            if not message.get('_live_choice'):previous.pop('_live_choice',None)
+            return self.save(value)
     def rename(self, identifier, title):
         with self.lock:
             value=self.get(identifier);value['title']=str(title).strip()[:120] or 'New conversation';return self.save(value)
@@ -746,7 +758,9 @@ class WebChat:
                     if notice.startswith('Harness choice: '):
                         pending_choice=json.loads(notice.removeprefix('Harness choice: '))
                         pending_choice.setdefault('id',uuid.uuid4().hex[:16])  # task 290: the card's answer names its question
+                        if not detached:self.store.upsert_assistant(identifier,{'role':'assistant','request':key,'content':reply or display_text(partial).strip(),'choice':pending_choice,'_live_choice':True})
                         emit({'type':'choice',**pending_choice})
+                        continue  # protocol payload is rendered as a card, never raw JSON
                     if notice.startswith('Harness notice: ') and len(notices)<5:notices.append(notice.removeprefix('Harness notice: ')[:500])  # task 290: shown under the answer
                     if notice=='Harness settled':harness_done=True
                     committed=committed_commit(notice) or committed
@@ -804,7 +818,7 @@ class WebChat:
             emit({'type':'assistant_final','text':reply})  # Activity keeps the finalized answer, including extension replacements.
             if pending_plan and not detached:self.store.settle_choices(identifier,'Start Building' if pending_plan.get('approved') else 'a new plan')
             answered=True
-            if not detached:self.store.append(identifier,{'role':'assistant','content':reply,'request':key,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {}),**({'theme_hint':data['theme_hint']} if data.get('theme_hint') in theme.GROUPS else {})})
+            if not detached:self.store.upsert_assistant(identifier,{'role':'assistant','content':reply,'request':key,'thinking':thought[-50000:],'attachments':[file for files in artifact_sets.values() for file in files],**({'decisions':decisions} if decisions else {}),**({'choice':pending_choice} if pending_choice else {}),**({'report':run_report} if run_report else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'also_read':opened} if opened else {}),**({'commit':committed} if committed else {}),**({'notices':notices} if notices else {}),**({'theme_hint':data['theme_hint']} if data.get('theme_hint') in theme.GROUPS else {})})
             if pending_choice and not detached and project:decision_rows.take_next(self,project,identifier,pending_choice,emit)  # task 273: Take All Recommendations
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
@@ -820,7 +834,7 @@ class WebChat:
                 how={'state':'stopped'} if stopped else {'state':'failed','reason':readable_error(error)[:1000]}
                 how.update({**({'job':job} if job else {}),**({'commit':ended['commit']} if (ended or {}).get('commit') else {})})
                 try:
-                    self.store.append(identifier,{'role':'assistant','content':text,'ended':how,'request':key,
+                    self.store.upsert_assistant(identifier,{'role':'assistant','content':text,'ended':how,'request':key,
                         **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
                     emit({'type':'conversation','conversation':self.store.get(identifier)})
                 except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)

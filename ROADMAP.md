@@ -353,3 +353,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [261-Only the person's controls can approve, accept, change the phase or turn on Run on its own](tasks/261-person-only-controls.md)
 - [x] [263-Tests never touch the live data; secrets stay out of context; Gate never crashes on refusals](tasks/263-isolation-context-and-small-fixes.md)
 - [ ] [264-Every user story has an end-to-end test](tasks/264-user-story-e2e.md)
+- [x] [318-Repair the review findings and hand back to Claude](tasks/318-review-repairs-and-claude-handback.md)
+- [x] [319-Review OpenRig primitives for Claude](tasks/319-openrig-primitives-report.md)

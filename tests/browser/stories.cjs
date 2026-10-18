@@ -29,7 +29,8 @@ async function pickWhere(t) {
 async function startProject(t, name, sentence = '', { where = true } = {}) {
   const { page } = t;
   await page.goto(t.base + '/projects');
-  if (!await page.locator('#new-project').isVisible()) await page.locator('#open-menu').click();  // the phone: in the π sheet
+  await page.waitForFunction(() => Boolean(document.getElementById('new-project')?.onclick));
+  if (await page.locator('#sidebar').getAttribute('aria-hidden') === 'true') await page.locator('#open-menu').click();  // the phone: in the π sheet
   await page.locator('#new-project').click();
   await page.locator('#start-dialog').waitFor();
   await page.locator('#start-name').fill(name);
@@ -177,7 +178,7 @@ for (const [id, kind, label, identify, check] of [['US-002', 'web', 'Web app', '
 // -- Project Start (round 12, plan 253) ------------------------------------------------------------------------------
 /** Stand-ins for uv and uvx on the services' PATH, so a Preview or a whole-suite run never downloads (as US-116 does). */
 async function offlineUv(t, extra = {}) {
-  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nexit 0\n', { mode: 0o755 });
+  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nprintf "# pass 1\\n# fail 0\\n"\nexit 0\n', { mode: 0o755 });
   await t.bench.restart(extra); await t.reopen();
 }
 const EXTRA = join(__dirname, '../fixtures/capabilities/extra.json');
@@ -216,6 +217,7 @@ story('US-133', 'create with capabilities: the sentence’s suggestions are mark
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
   await page.locator('#toast-text').filter({ hasText: `Created “Class Notes”: all ${tests} tests of the base pass.` }).waitFor();
   const root = join(t.directory, 'Class Notes');
+  assert.match(t.bench.read(root, 'ROADMAP.md'), /A notes app for my class that works offline on a phone/);
   for (const name of ['vendor/chart.js-4.5.1/chart.umd.min.js', 'vendor/chart.js-4.5.1/LICENSE.md', 'vendor/basecoat/chart.min.js', 'tests/cap-charts.test.mjs', 'tests/cap-offline.test.mjs', 'tests/cap-install.test.mjs']) assert.ok(exists(root, name), name);
   assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')), { packages: ['static', 'phone'], capabilities: ['offline', 'charts', 'install'] });
   assert.match(t.bench.read(root, 'sw.js'), /'vendor\/chart\.js-4\.5\.1\/chart\.umd\.min\.js'/, 'the offline shell caches the library');
@@ -918,6 +920,16 @@ story('US-121', 'on a phone (390 px): the theme panel opens full screen with the
   await page.waitForFunction(() => !document.querySelector('[data-theme-panel][data-screen]'));
   await panel.getByRole('button', { name: 'Open Theme', exact: true }).waitFor();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
+});
+
+story('US-142', 'filtered capability selection preserves keyboard focus and search results', async t => {
+  const {page}=t; await startProject(t,'Keyboard');await page.locator('#start-next').click();await step(t,'Capabilities');
+  const search=page.getByRole('searchbox',{name:'Find a capability'});await search.fill('QR');
+  const chosen=page.locator('#start-body .pw-cap[data-id="qrcode"] input');await chosen.focus();await page.keyboard.press('Space');
+  assert.equal(await chosen.isChecked(),true);
+  assert.equal(await page.locator('#start-body .pw-cap:visible').count(),1);
+  assert.equal(await search.inputValue(),'QR');assert.equal(await chosen.evaluate(input=>input===document.activeElement),true);
+  await page.keyboard.press('Space');assert.equal(await chosen.isChecked(),false);
 });
 
 // -- Recovery -----------------------------------------------------------------------------------------------------

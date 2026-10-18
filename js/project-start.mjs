@@ -144,10 +144,14 @@ export function installProjectStart({ api, workspace, project, showConversation,
       container.append(set);
     }
   }
+  function filterRows(container, words) {
+    for (const label of container.querySelectorAll('.pw-cap')) label.hidden = Boolean(words) && !label.textContent.toLowerCase().includes(words);
+    for (const set of container.querySelectorAll('.pw-capgroup')) set.hidden = ![...set.querySelectorAll('.pw-cap')].some(label => !label.hidden);
+  }
   function search(container) {
     const field = el('label', 'pw-search'), input = el('input'); input.placeholder = 'Find a capability'; input.setAttribute('aria-label', 'Find a capability'); input.type = 'search';
     field.append(icon('search'), input);
-    input.oninput = () => { const words = input.value.trim().toLowerCase(); for (const label of container.querySelectorAll('.pw-cap')) label.hidden = Boolean(words) && !label.textContent.toLowerCase().includes(words); for (const set of container.querySelectorAll('.pw-capgroup')) set.hidden = ![...set.querySelectorAll('.pw-cap')].some(label => !label.hidden); };
+    input.oninput = () => filterRows(container, input.value.trim().toLowerCase());
     return field;
   }
   function capabilitiesStep() {
@@ -156,14 +160,17 @@ export function installProjectStart({ api, workspace, project, showConversation,
       body.append(notice);
     }
     const groups = el('div', 'pw-start__groups');
-    body.append(search(groups), groups);
+    const finder = search(groups);
+    body.append(finder, groups);
     const render = () => {
-      const scroll = body.scrollTop; groups.replaceChildren();
+      const scroll = body.scrollTop, focused = groups.contains(document.activeElement) ? document.activeElement.closest('.pw-cap')?.dataset.id : null; groups.replaceChildren();
       capabilityGroups(groups, item => {
         const label = row({ id: item.id, name: item.name, small: item.small, meta: capabilityMeta(item), disabled: !item.available, checked: choice.capabilities.has(item.id), suggested: choice.suggested.includes(item.id), warnings: item.available ? warningsFor(item) : [] });
         label.querySelector('input').onchange = event => { if (event.target.checked) choice.capabilities.add(item.id); else choice.capabilities.delete(item.id); render(); };
         return label;
       });
+      filterRows(groups, finder.querySelector('input').value.trim().toLowerCase());
+      if (focused) [...groups.querySelectorAll('.pw-cap')].find(row => row.dataset.id === focused)?.querySelector('input')?.focus({preventScroll:true});
       body.scrollTop = scroll;
       const problem = problems(); next.disabled = Boolean(problem);
       status.textContent = problem || (choice.capabilities.size ? `${choice.capabilities.size} chosen` : 'None chosen: the package’s base only');

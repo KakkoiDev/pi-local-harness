@@ -41,6 +41,23 @@ const readline = require('node:readline');
     const created = await post('/api/projects/create', { name: 'Choices', parent: directory, kind: 'empty' });
     const conversation = () => page.evaluate(id => fetch('/api/conversations/' + id).then(response => response.json()), created.chat);
 
+    // A question is answerable before its worker settles, and finalization cannot reopen it.
+    const liveJob = await post('/api/jobs/create', { project: created.project, message: 'Discuss TEST_LIVE_CHOICE' });
+    await page.goto(`${base}/p/${created.project}/chat`);
+    const liveCard = page.locator('.pw-card[aria-label="Who uses it?"]'); await liveCard.waitFor();
+    assert.equal((await workspace()).jobs.find(job => job.id === liveJob.id).status, 'running');
+    await liveCard.getByRole('button', { name: 'Answer', exact: true }).click();
+    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).last().waitFor({timeout:3000});
+    await page.locator('#prompt').fill('Continue normally after the answer');
+    const continued=page.waitForResponse(response=>response.url().endsWith('/api/jobs/create'));
+    await page.locator('#composer').evaluate(form=>form.requestSubmit()); await continued;
+    await settled(liveJob.id);
+    for (let i=0;i<100 && (await workspace()).jobs.some(job=>['queued','running'].includes(job.status));i++) await page.waitForTimeout(200);
+    await page.reload();
+    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).last().waitFor();
+    assert.equal((await conversation()).messages.filter(message=>message.choice).length, 1);
+    assert.doesNotMatch(await page.locator('#messages').innerText(), /Harness choice:/);
+
     // 1. A choice click answers through its own route, once, and never touches the draft or its attachments.
     const paused = await settled((await post('/api/jobs/create', { project: created.project, message: 'Discuss the app TEST_ERROR_CHOICE' })).id);
     assert.deepEqual([paused.status, paused.progress], ['waiting', 'Stopped by a question: waiting for your answer'], 'a pause waits for the person, not Completed');
@@ -54,7 +71,7 @@ const readline = require('node:readline');
     await page.locator('#attachments .attachment-chip').waitFor();
     const answer = card.getByRole('button', { name: 'Answer', exact: true });
     await answer.click(); await answer.click({ timeout: 300 }).catch(() => {}); // a double click
-    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).waitFor();
+    await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).last().waitFor();
     await page.waitForTimeout(800);
     assert.deepEqual(sent.map(item => item.path), ['/api/choices/answer'], JSON.stringify(sent));
     assert.equal(sent[0].body.option, 0); assert.ok(sent[0].body.id && sent[0].body.key, 'the answer names its question and carries a key');
@@ -62,8 +79,8 @@ const readline = require('node:readline');
     assert.equal(await page.locator('#attachments .attachment-chip').count(), 1, 'the attachment stays');
     for (let i = 0; i < 50 && !(await workspace()).jobs.every(job => !['queued', 'running'].includes(job.status)); i++) await page.waitForTimeout(200);
     const after = (await conversation()).messages.filter(message => message.role === 'user').map(message => [message.content, (message.attachments || []).length]);
-    assert.deepEqual(after, [['Discuss the app TEST_ERROR_CHOICE', 0], ['Choice: Who uses it? → Only me', 0]], 'one answer, without the draft’s files');
-    await page.reload(); await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).waitFor();
+    assert.deepEqual(after.slice(-2), [['Discuss the app TEST_ERROR_CHOICE', 0], ['Choice: Who uses it? → Only me', 0]], 'one answer, without the draft’s files');
+    await page.reload(); await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).last().waitFor();
     assert.equal(await page.locator('#prompt').inputValue(), 'MY UNFINISHED DRAFT about something else');
     assert.deepEqual((await workspace()).jobs.find(job => job.id === paused.id).progress, 'Answered: Only me');
 
@@ -72,14 +89,15 @@ const readline = require('node:readline');
     const first = await open(`/p/${created.project}/chat`), second = await open(`/p/${created.project}/chat`);
     const busy = await post('/api/jobs/create', { project: created.project, message: 'Something long TEST_WAIT' });
     for (const tab of [first, second]) await tab.locator('.pw-card[aria-label="Who uses it?"] .pw-option').first().waitFor();
-    await first.locator('.pw-card[aria-label="Who uses it?"]').getByRole('button', { name: 'Answer', exact: true }).click();
-    await first.locator('.pw-card--settled').filter({ hasText: 'Only me' }).last().waitFor();
-    const other = second.locator('.pw-card[aria-label="Who uses it?"]');
-    await other.locator('.pw-option').nth(2).click(); await other.locator('input.pw-field').fill('Archive it');
-    await other.getByRole('button', { name: 'Answer', exact: true }).click();
-    await second.locator('.pw-card--settled').filter({ hasText: 'Only me' }).last().waitFor();
+    const firstCard=first.locator('.pw-card[aria-label="Who uses it?"]');
+    const other=second.locator('.pw-card[aria-label="Who uses it?"]');
+    await other.locator('.pw-option').nth(1).click();
+    await Promise.all([firstCard.getByRole('button',{name:'Answer',exact:true}).click(),other.getByRole('button',{name:'Answer',exact:true}).click()]);
+    const winner=(await conversation()).messages.filter(message=>message.choice).at(-1).choice.answer;
+    assert.ok(['Only me','A team'].includes(winner));
+    for(const tab of [first,second]) await tab.locator('.pw-card--settled').filter({hasText:`Who uses it?: ${winner}`}).last().waitFor();
     const queued = (await workspace()).jobs.filter(job => job.status === 'queued').map(job => job.message);
-    assert.deepEqual(queued, ['Choice: Who uses it? → Only me'], JSON.stringify(queued));
+    assert.deepEqual(queued, [`Choice: Who uses it? → ${winner}`], JSON.stringify(queued));
     await post('/api/jobs/stop', { id: busy.id });
     await first.close(); await second.close();
 

@@ -425,6 +425,8 @@ class DocumentStore:
         with self.lock:
             if path.exists():raise ValueError('Project already exists; add its existing folder instead')
             plan=starter.initial_plan(name)
+            sentence=str((start or {}).get('sentence') or '').strip()
+            if sentence:plan['ROADMAP.md']=plan['ROADMAP.md'].replace('Describe what we are building.',sentence,1)
             if kind=='empty':
                 path.mkdir();(path/'tasks').mkdir()
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')

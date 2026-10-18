@@ -2,6 +2,7 @@
 Basecoat's defaults plus one marked block in the project's styles/input.css, and written back as that block only. The
 block holds just the tokens the person changed; every other line of the file stays as it was, and a file this reader
 cannot follow is refused with a plain message (no guessing at arbitrary CSS)."""
+from kit.project_paths import project_path
 from datetime import datetime
 from pathlib import Path
 import re
@@ -108,7 +109,7 @@ DECLARATION = re.compile(r'^\s*--([a-z0-9-]+):\s*(.+?);\s*(?:/\*.*\*/)?\s*$')
 
 def defaults(root=None):
     """{'light': …, 'dark': …} for the allowed tokens: the project's own copy of Basecoat's base.css, else the kit's."""
-    own = Path(root) / 'vendor/basecoat/css/base/base.css' if root else None
+    own = project_path(root, 'vendor/basecoat/css/base/base.css') if root else None
     source = own if own and own.is_file() else KIT_BASE
     light, dark, current = {}, {}, None
     for line in source.read_text(encoding='utf-8').splitlines():
@@ -267,7 +268,7 @@ def font_value(name, category=''):
 
 # -- the project -------------------------------------------------------------------------------------------------
 def has_theme(root):
-    css = Path(root) / FILE
+    css = project_path(root, FILE)
     try: text = css.read_text(encoding='utf-8') if css.is_file() else ''
     except (OSError, UnicodeError): return False
     return '@import "tailwindcss"' in text.replace("'", '"') and 'basecoat' in text
@@ -324,6 +325,7 @@ def add_file(root):
     back. The Preview's Tailwind watch builds it into static/app.css, which the app's pages load. A project whose
     styles/input.css is its own CSS is refused: nothing is overwritten."""
     root = Path(root)
+    project_path(root, FILE); project_path(root, 'vendor/basecoat')
     if has_theme(root): raise ValueError('This project already has a theme file.')
     if (root / FILE).exists(): raise ValueError(f'{FILE} is the project’s own CSS, so no theme file was added. Nothing was changed.')
     vendor, files = root / 'vendor/basecoat', [FILE]
@@ -345,7 +347,7 @@ def save(root, light=None, dark=None, fonts=None, download=None):
     change with the theme mark (so Undo can take it back) and returns {'message', 'commit', 'names', 'files'}."""
     root = Path(root)
     if not has_theme(root): raise ValueError(NO_FILE + '.')
-    css = root / FILE
+    css = project_path(root, FILE)
     text = css.read_text(encoding='utf-8'); block = read_block(text); base = defaults(root)
     new = {'light': dict(block['light']), 'dark': dict(block['dark'])}
     for mode, changes in (('light', light or {}), ('dark', dark or {})):

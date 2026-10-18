@@ -40,7 +40,7 @@ class Judgements:
         if isinstance(self.paperwork.data,(str,Path)):
             record(self.paperwork.data,request,kind,'laya','abstained' if result['abstained'] else result['answer'],confidence=result['confidence'],abstained=bool(result['abstained']))
         if kind in NO_CARD:return {**result,'answer':None if result['abstained'] or result['answer']=='none' else result['answer'],'who':'laya','advisory':True}
-        if kind=='phase_intent' and (not result['abstained'] or not getattr(self.classifier,'available',lambda:True)()):
+        if kind=='phase_intent':
             # Task 290 (review P2): the phase is the person's button; a phase word, read by Laya or by a keyword alone
             # (no Laya), gets an inline notice that says where the button is, never a blocking card.
             missing=result['abstained'] and not getattr(self.classifier,'available',lambda:True)()
