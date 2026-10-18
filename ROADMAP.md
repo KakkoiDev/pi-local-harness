@@ -361,3 +361,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [322-Validate and repair roadmap and task structure](tasks/322-workflow-document-validation-and-repair.md)
 
 - [ ] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)
+
+- [ ] [324-Repair the chat critical path](tasks/324-chat-critical-path.md)

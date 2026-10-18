@@ -1392,6 +1392,174 @@ story('US-125', 'Settings › Pi › Detail: Beginner hides decisions made by co
   assert.equal(await settings.locator('input[name="detail"][value="expert"]').isChecked(), true, 'kept in config.json');
 });
 
+// -- Task 324: the chat critical path (the owner, 2026-10-18: "the critical path of user chatting with agent is completely
+// broken. audit it."; docs/reviews/2026-10-18-chat-critical-path-audit.md) ---------------------------------------------
+/** The chat's request rows as the server has them, oldest first. */
+const chatJobs = async (t, project) => (await t.bench.api('/api/workspace')).jobs.filter(job => job.project === project && job.role === 'chat');
+/** The last answer of Pi in the chat, as the person sees it. */
+const lastAnswer = t => t.page.locator('#messages .pw-msg.assistant:not([data-live])').last();
+
+story('US-200', 'the model stops answering after a tool: the request fails with why and Retry, and my Planning message starts next', async t => {
+  await t.bench.restart({ PI_HARNESS_MODEL_SILENCE_SECONDS: '3' }); const page = await t.reopen();  // three seconds instead of two minutes, for this scratch workbench only
+  const { project } = await newProject(t, 'Pong');
+  const stuck = await say(t, 'Look at the roadmap TEST_SCRIPT=hang-after-tool');
+  await t.bench.job(stuck, ['running']);
+  await choosePhase(t, 'Planning');
+  const next = await say(t, "let's plan the icons now");
+  assert.equal((await chatJobs(t, project)).find(job => job.id === next).status, 'queued', 'it waits behind the stalled request');
+  const failed = await answered(t, stuck, ['failed', 'completed', 'stopped'], 20000);
+  assert.equal(failed.status, 'failed'); assert.equal(failed.progress, 'the model stopped answering (no reply in 3 s).');
+  const done = await answered(t, next, ['completed', 'failed', 'stopped'], 20000);
+  assert.equal(done.status, 'completed', 'the Planning request starts and finishes');
+  await page.locator('#messages').getByText(/^reply \d+$/).waitFor({ timeout: 10000 });
+  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last();
+  await cut.locator('.pw-cut__text').filter({ hasText: 'Failed before Pi finished: the model stopped answering (no reply in 3 s).' }).waitFor();
+  assert.equal(await cut.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).count(), 1, 'Retry under the cut answer');
+  assert.match(await page.locator('#phase-button').textContent(), /Planning/, 'the phase I chose stays');
+  assert.equal((await chatJobs(t, project)).filter(job => ['queued', 'running'].includes(job.status)).length, 0, 'nothing is left running or waiting');
+});
+
+story('US-201', 'Planning with the phase button, then a message: it starts with nothing in flight, after a question card, and after a reload', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Icons');
+  await choosePhase(t, 'Planning');
+  assert.equal((await answered(t, await say(t, 'Plan the icons'))).status, 'completed', 'nothing in flight');
+  // A question card waits for me; I change the phase and write a message.
+  await choosePhase(t, 'Discussion');
+  const asked = await say(t, 'Which colours? TEST_SCRIPT=discuss-choice'); assert.equal((await answered(t, asked)).status, 'waiting');
+  await page.locator('.pw-card[aria-label="Which colours?"]').waitFor();
+  await choosePhase(t, 'Planning');
+  const sent = page.waitForResponse(response => /\/api\/(jobs\/create|choices\/answer)$/.test(response.url()) && response.request().method() === 'POST');
+  await page.locator('#prompt').fill('Plan the icons now'); await page.locator('#send').click();
+  const response = await sent; const body = await response.json(); assert.ok(response.ok(), body.error);
+  const id = body.job || body.id; assert.ok(id, 'a request was made: ' + JSON.stringify(body));
+  assert.equal((await answered(t, id)).status, 'completed', 'after a question card');
+  // After a reload, still in Planning.
+  await page.reload(); await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent || '').includes('Planning'));
+  const after = await say(t, 'And the score icons'); assert.equal((await answered(t, after)).status, 'completed', 'after a reload');
+  await page.locator('#messages').getByText(/^reply \d+$/).last().waitFor();
+  assert.equal((await chatJobs(t, project)).filter(job => ['queued', 'running'].includes(job.status)).length, 0);
+});
+
+story('US-202', '[CANARY] is never shown: live, after a reload, in Activity, and in an answer saved before the fix', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Marker');
+  const id = await say(t, 'Say hello TEST_CANARY_CODE');
+  const job = await answered(t, id); assert.equal(job.status, 'completed'); assert.doesNotMatch(job.text, /\[CANARY\]/);
+  await lastAnswer(t).getByText(/^reply \d+$/).waitFor();
+  assert.doesNotMatch(await page.locator('#messages').innerText(), /\[CANARY\]/, 'live');
+  await answered(t, await say(t, 'Again TEST_CANARY_BOLD'));
+  // An answer saved before the fix still carries the marker on disk: the page hides it.
+  const chat = (await t.bench.api('/api/workspace')).projects.find(item => item.id === project).chat;
+  const file = join(t.bench.directory, 'data', chat, 'conversation.json'), saved = JSON.parse(fs.readFileSync(file, 'utf8'));
+  saved.messages.push({ role: 'assistant', content: '`[CANARY]` An old answer, saved before.', timestamp: new Date().toISOString() });
+  fs.writeFileSync(file, JSON.stringify(saved));
+  await page.reload(); await page.locator('#messages').getByText('An old answer, saved before.').waitFor();
+  assert.doesNotMatch(await page.locator('#messages').innerText(), /\[CANARY\]/, 'after a reload, old answers too');
+  assert.equal(saved.messages.filter(message => message.role === 'assistant' && /\[CANARY\]/.test(message.content)).length, 1, 'only the old one was saved with it');
+  await page.goto(t.base + '/activity');
+  await page.locator('.activity-task').filter({ hasText: 'Say hello' }).first().locator('.activity-request').click();
+  await page.locator('#activity-detail').filter({ hasText: /reply \d+/ }).waitFor();
+  assert.doesNotMatch(await page.locator('#activity-detail').textContent(), /\[CANARY\]/, 'Activity');
+});
+
+story('US-203', 'the whole chat path: streaming thoughts, a tool call, reload mid-request, a second tab, Stop, Retry, three messages in order, a phase change, a check-in, and on', async t => {
+  let { page } = t;
+  const { project } = await newProject(t, 'Path');
+  // Streaming: the thoughts show while Pi thinks; a reload mid-request still gets the answer.
+  const thinking = await say(t, 'Think it through TEST_THINK');
+  await page.locator('#messages [data-live]').getByText('Reasoning').waitFor({ timeout: 10000 });
+  await page.reload();
+  await lastAnswer(t).getByText(/^reply \d+$/).waitFor({ timeout: 30000 });
+  assert.equal((await answered(t, thinking)).status, 'completed');
+  // A tool call shows while it runs, with Stop; a second tab sees the same answer.
+  const second = await page.context().newPage(); await second.goto(page.url());
+  const tool = await say(t, 'Read the readme TEST_TOOL');
+  await page.locator('.pw-tool--live').first().waitFor({ timeout: 10000 });
+  assert.equal(await page.locator('#stop').isVisible(), true, 'Stop while Pi works');
+  assert.equal((await answered(t, tool)).status, 'completed');
+  await second.locator('#messages').getByText(/^reply \d+$/).last().waitFor({ timeout: 10000 });
+  assert.equal(await second.locator('#messages .pw-msg.user').count(), await page.locator('#messages .pw-msg.user').count(), 'both tabs show the same chat');
+  await second.close();
+  // Stop keeps the partial answer, marked; Retry queues it again.
+  const long = await say(t, 'Explain at length TEST_STREAM_WAIT');
+  for (let i = 0; i < 50 && !(await chatJobs(t, project)).find(job => job.id === long && job.text); i++) await page.waitForTimeout(100);
+  await page.locator('#stop').click();
+  assert.equal((await answered(t, long)).status, 'stopped');
+  const cut = page.locator('#messages .pw-msg').filter({ has: page.locator('.pw-cut[role="status"]') }).last();
+  await cut.locator('.pw-cut__text').filter({ hasText: 'Stopped by you before Pi finished.' }).waitFor();
+  await cut.getByText('PARTIAL before the stop').waitFor();
+  const again = page.waitForResponse(response => /\/api\/jobs\/[0-9a-f]{32}\/retry$/.test(response.url()));
+  await cut.locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).click();
+  const retried = await (await again).json(); assert.equal(retried.retry_of, long);
+  await page.waitForFunction(() => document.querySelector('#stop') && !document.querySelector('#stop').hidden, null, { timeout: 10000 });
+  await page.locator('#stop').click(); assert.equal((await answered(t, retried.id)).status, 'stopped');
+  // Three messages while Pi works: the first runs, the two waiting ones become one request after it (by design), in order.
+  const first = await say(t, 'First, slowly TEST_THINK');
+  await t.bench.job(first, ['running']);
+  const secondMessage = await say(t, 'Second'); const third = await say(t, 'Third');
+  assert.equal(third, secondMessage, 'a message sent while the earlier one waits joins it');
+  await choosePhase(t, 'Planning');  // a phase change between messages
+  assert.equal((await answered(t, first)).status, 'completed');
+  const joined = await answered(t, secondMessage); assert.equal(joined.status, 'completed'); assert.equal(joined.message, 'Second\n\nThird');
+  assert.ok(new Date(joined.started) >= new Date((await chatJobs(t, project)).find(job => job.id === first).finished), 'in order');
+  await settledAll(t); page = t.page;
+  await page.locator('#messages .pw-msg.user').filter({ hasText: 'Third' }).waitFor();
+  const users = await page.locator('#messages .pw-msg.user .pw-msg__body').allInnerTexts();
+  assert.deepEqual(users.slice(-2), ['First, slowly TEST_THINK', 'Second\n\nThird']);
+  // A check-in, then I keep chatting.
+  assert.equal((await answered(t, await say(t, 'Move the ball TEST_CHECK_IN'))).status, 'completed');
+  await page.locator('#messages').getByText('The ball moves.').first().waitFor();
+  const on = await say(t, 'And now the score?'); assert.equal((await answered(t, on)).status, 'completed');
+  await lastAnswer(t).getByText(/^reply \d+$/).waitFor();
+  assert.equal((await chatJobs(t, project)).filter(job => ['queued', 'running'].includes(job.status)).length, 0);
+  assert.deepEqual(t.errors, [], 'no page errors');
+});
+
+story('US-204', 'when things go wrong the chat says why and goes on: Ollama down, a model error, Pi crashing, Gate refusing a command', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Trouble');
+  const cutText = () => page.locator('#messages .pw-cut[role="status"] .pw-cut__text').last();
+  const down = await say(t, 'Hello TEST_OLLAMA_DOWN'); assert.equal((await answered(t, down)).status, 'failed');
+  await cutText().filter({ hasText: /^Failed before Pi finished: Ollama is not answering \(Connection error\.\)\. Start Ollama/ }).waitFor({ timeout: 10000 });
+  const error = await say(t, 'Hello TEST_MODEL_ERROR'); assert.equal((await answered(t, error)).status, 'failed');
+  await cutText().filter({ hasText: /model runner has unexpectedly stopped/ }).waitFor({ timeout: 10000 });
+  await page.locator('#messages').getByText('Starting the answer').waitFor();
+  const crash = await say(t, 'Hello TEST_CRASH'); assert.equal((await answered(t, crash)).status, 'failed');
+  await cutText().filter({ hasText: /Pi exited unexpectedly: segfault in model runner/ }).waitFor({ timeout: 10000 });
+  const refused = await say(t, 'Run it TEST_SCRIPT=unknown-command'); assert.equal((await answered(t, refused)).status, 'completed', 'a refusal never wedges the request');
+  await page.locator('#messages').getByText('Tried a command.').waitFor({ timeout: 10000 });
+  const fine = await say(t, 'Are we fine?'); assert.equal((await answered(t, fine)).status, 'completed', 'the chat goes on');
+  assert.equal((await chatJobs(t, project)).filter(job => ['queued', 'running'].includes(job.status)).length, 0);
+});
+
+story('US-205', 'controls stay owned once: an answer accepted while the worker shuts down runs next; a refresh across a phase change shows the saved phase', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Owners');
+  // The live card appears while the worker still runs (TEST_LIVE_CHOICE waits 5 s); I answer at once.
+  const live = await say(t, 'Discuss TEST_LIVE_CHOICE');
+  const card = page.locator('.pw-card[aria-label="Who uses it?"]'); await card.waitFor({ timeout: 10000 });
+  assert.equal((await chatJobs(t, project)).find(job => job.id === live).status, 'running');
+  const answering = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Answer', exact: true }).click();
+  const answer = await (await answering).json(); assert.ok(answer.job, JSON.stringify(answer));
+  await page.reload();  // mid-request: the saved card is the answered one, once
+  await page.locator('.pw-card--settled').filter({ hasText: 'Who uses it?: Only me' }).last().waitFor();
+  assert.equal((await answered(t, live)).status, 'completed', 'the worker finished after the answer');
+  assert.equal((await answered(t, answer.job)).status, 'completed', 'the accepted answer ran next');
+  await settledAll(t);
+  assert.equal(await page.locator('.pw-card[aria-label="Who uses it?"] .pw-option').count(), 0, 'final text never reopens it');
+  const chat = (await t.bench.api('/api/workspace')).projects.find(item => item.id === project).chat;
+  const saved = (await t.bench.api('/api/conversations/' + chat)).messages.filter(message => message.choice);
+  assert.deepEqual(saved.map(message => message.choice.answer), ['Only me'], 'one card, answered once');
+  // Another tab changes the phase; this tab refreshes and shows it, and my next message runs.
+  const other = await page.context().newPage(); await other.goto(page.url());
+  await other.locator('#phase-button').waitFor();
+  await choosePhase({ page: other }, 'Planning'); await other.close();
+  await page.reload(); await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent || '').includes('Planning'));
+  assert.equal((await answered(t, await say(t, 'Plan it'))).status, 'completed');
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

@@ -4,7 +4,9 @@ export function missingCanary(message) {
   // Only the final answer must start with [CANARY]; a short preamble before a tool call (stopReason toolUse) is not an answer.
   if (message.role !== 'assistant' || ['toolUse', 'aborted', 'error'].includes(message.stopReason)) return false;
   const text = (message.content || []).filter(block => block.type === 'text').map(block => block.text).join('').trimStart();
-  return Boolean(text) && !text.startsWith('[CANARY]');
+  // The marker in code or bold (`[CANARY]`, **[CANARY]**) is still the marker: the model followed its instructions, and
+  // treating it as drift made the harness compact and re-ask every answer (the owner's session.log, 2026-10-18).
+  return Boolean(text) && !/^(?:\[CANARY\]|`{1,3}\[CANARY\]`{1,3}|\*\*\[CANARY\]\*\*|\*\[CANARY\]\*|__\[CANARY\]__|_\[CANARY\]_)/.test(text);
 }
 export function recordLesson(path, kind) {
   const lessons = {

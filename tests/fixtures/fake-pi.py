@@ -192,6 +192,21 @@ if request['message'].rstrip().endswith('TEST_ABORTED_CHOICE'):  # an abort text
     sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_NOTICE'):  # task 290: the extension's inline notice (a phase word)
     emit({'type':'extension_ui_request','method':'notify','message':'Harness notice: Pi cannot change the phase. To move the work, use the phase button: Discussion, Planning or Implementation.'})
+if 'TEST_HANG_AFTER_TOOL' in request['message']:  # 2026-10-18: a tool finishes, then the model stream stalls silently
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'Reading the roadmap first.'}})
+    emit({'type':'tool_execution_start','toolCallId':'call-stall','toolName':'read','args':{'path':'ROADMAP.md'}})
+    emit({'type':'tool_execution_end','toolCallId':'call-stall','toolName':'read','isError':False})
+    session.with_suffix('.pid').write_text(str(os.getpid()))
+    time.sleep(600)
+if 'TEST_OLLAMA_DOWN' in request['message']:  # what Pi says when Ollama does not answer at all
+    emit({'type':'message_end','message':{'role':'assistant','content':[],'stopReason':'error','errorMessage':'Connection error.'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
+if 'TEST_MODEL_ERROR' in request['message']:  # the model answers with an error (Ollama 500)
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'Starting the answer'}})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Starting the answer'}],'stopReason':'error','errorMessage':'500: {"error":"model runner has unexpectedly stopped"}'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})
+    sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_FAIL'):
     sys.stderr.write('Model crashed\n');sys.exit(3)
 if request['message'].rstrip().endswith('TEST_PHASE_PLAN'):
@@ -264,6 +279,8 @@ if request['message'].rstrip().endswith('TEST_WAIT'):
 else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'thinking_delta','delta':'Reviewing the current project and its request.'}})
     text=f'[CANARY] reply {count}'
+    if 'TEST_CANARY_CODE' in request['message']:text=f'`[CANARY]` reply {count}'  # the owner's model, 2026-10-18
+    if 'TEST_CANARY_BOLD' in request['message']:text=f'**[CANARY]**\n\nreply {count}'
     if 'TEST_ASK' in request['message']:text='[CANARY] I can do that two ways. Should I keep the old name too?'  # the bench's scripted user answers it
     if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.\n\n| If you are… | Action | A very long example column that should scroll on a phone |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう and a much longer cell to push the width |'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})

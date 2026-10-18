@@ -2253,6 +2253,14 @@
    "Pi が終える前に失敗しました：{reason}"
   ],
   [
+   "the model stopped answering (no reply in {n} s).",
+   "モデルが応答しなくなりました（{n} 秒間応答なし）。"
+  ],
+  [
+   "Ollama is not answering ({error}). Start Ollama (open the Ollama app, or run `ollama serve`), then Retry.",
+   "Ollama が応答しません（{error}）。Ollama を起動して（Ollama アプリを開くか `ollama serve` を実行）、再試行してください。"
+  ],
+  [
    "Queued again in {project}.",
    "{project} のキューにもう一度追加しました。"
   ],

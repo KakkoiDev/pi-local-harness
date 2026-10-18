@@ -10,6 +10,15 @@ test('the reply marker is the harness’s, not the reader’s', () => {
   assert.equal(spoken(''), '');
 });
 
+test('the marker in code or bold is hidden too, and never flashes while a reply streams (task 324)', () => {
+  assert.equal(spoken('`[CANARY]` Done.'), 'Done.');
+  assert.equal(spoken('**[CANARY]**\n\nDone.'), 'Done.');
+  assert.equal(spoken('[CANARY]\n- one\n- two'), '- one\n- two', 'a list after the marker keeps its first bullet');
+  assert.equal(spoken('[CANARY]\n**Bold** start'), '**Bold** start');
+  for (const head of ['[', '[CAN', '`[CANARY', '**[CANARY]']) assert.equal(spoken(head, true), '', head);
+  assert.equal(spoken('[CAN'), '[CAN', 'only while streaming');
+});
+
 test('inline marks become tokens, never HTML', () => {
   assert.deepEqual(inlineTokens('a **b** `c` *d* [e](https://x.test/y) <b>f</b>'), [
     { type: 'text', text: 'a ' }, { type: 'strong', text: 'b' }, { type: 'text', text: ' ' }, { type: 'code', text: 'c' },

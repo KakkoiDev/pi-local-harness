@@ -35,6 +35,9 @@ test('canary checks completed text, not tools or aborted output', () => {
  assert.equal(missingCanary({...message('Oops'),stopReason:'aborted'}),false);
  assert.equal(missingCanary({role:'assistant',content:[{type:'toolCall'}]}),false);
  assert.equal(missingCanary({...message('Let me read the file.'),stopReason:'toolUse'}),false,'a preamble before a tool call is not the answer');
+ // Task 324: the marker in code or bold is the marker (the owner's model wrote `[CANARY]` and was "recovered" every answer)
+ for (const text of ['`[CANARY]` Done.','**[CANARY]** Done.','  `[CANARY]`\n\nDone.']) assert.equal(missingCanary(message(text)),false,text);
+ assert.equal(missingCanary(message('Done. [CANARY]')),true,'only at the start');
 });
 test('memory reloads edits and incident lessons are deduplicated', () => {
  const dir = mkdtempSync(join(tmpdir(),'pi-memory-'));

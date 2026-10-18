@@ -87,7 +87,10 @@ command check, allowed or blocked, and why.
 
 ## Can Pi work on a long task?
 
-Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). When
+Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`), or
+if the model itself stops answering: while Pi waits for the model, two minutes with no token, thought or tool call end
+the request as failed, with what Pi wrote so far and Retry, and the next request starts (`/config set
+model_silence_seconds …`; a running command or the harness's own checks are not the model). When
 Pi stops with work open (code changed and no test passed on it, a loop, a hang), the harness wakes it to continue, at
 most `wake_ups` times per request (default 5; `/config set wake_ups …`, 0 for no limit). Stop
 ends a request at any time: in Chat, in Activity, or ⌘. .

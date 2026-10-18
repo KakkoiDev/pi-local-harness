@@ -2,8 +2,16 @@
 // Everything becomes DOM nodes with textContent; model text never reaches innerHTML.
 import { parseMarkdown } from './markdown-blocks.mjs';
 
-// The harness checks every reply starts with [CANARY] (harness/memory.mjs); people never need to see it.
-export const spoken = text => (text || '').replace(/^\s*\[CANARY\]\s*/, '');
+// The harness checks every reply starts with [CANARY] (harness/memory.mjs); people never need to see it, bare or
+// wrapped in code or bold (`[CANARY]`, **[CANARY]**). The server strips it too (harness/canary.py); this covers answers
+// saved before that, and a reply still streaming shows nothing while it is only the start of the marker.
+const CANARY = /^\s*(?:\[CANARY\]|`{1,3}\[CANARY\]`{1,3}|\*\*\[CANARY\]\*\*|\*\[CANARY\]\*|__\[CANARY\]__|_\[CANARY\]_)[ \t]*:?\s*/;
+const CANARY_FORMS = ['[CANARY]', '`[CANARY]`', '**[CANARY]**', '*[CANARY]*', '__[CANARY]__', '_[CANARY]_'];
+export const spoken = (text, streaming = false) => {
+  const value = text || '', stripped = value.replace(CANARY, '');
+  if (streaming && stripped === value) { const head = value.trimStart(); if (head && CANARY_FORMS.some(form => form.startsWith(head))) return ''; }
+  return stripped;
+};
 
 const INLINE = /(\*\*([^*\n]+)\*\*|`([^`\n]+)`|\*([^*\s][^*\n]*?)\*|_([^_\s][^_\n]*?)_|\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\))/g;
 export function inlineTokens(text) {
