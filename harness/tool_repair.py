@@ -26,7 +26,8 @@ TAGS = ('execute_tool', 'function_call', 'tool_call', 'tool_code', 'tool_use', '
 TOOL_FENCES = ('tool_code', 'tool_call', 'tool_use', 'function_call', 'tool')
 END_FENCES = ('json', 'python', 'py', '')  # only when the fence ends the answer
 GEMMA_QUOTE = '<|"|>'
-_OPEN = re.compile(r'<\|?(' + '|'.join(TAGS) + r')\|?>')
+_OPEN = re.compile(r'<(?:\|(' + '|'.join(TAGS) + r')\|?|(' + '|'.join(TAGS) + r'))>')
+_CLOSE_ONLY = re.compile(r'<(' + '|'.join(TAGS) + r')\|>|</(' + '|'.join(TAGS) + r')>|<\|/(' + '|'.join(TAGS) + r')\|>')
 _FENCE = re.compile(r'```([\w-]*)[ \t]*\n(.*?)\n?[ \t]*```', re.S)
 _IDENT = re.compile(r'[A-Za-z_][\w.-]*')
 _KEY = re.compile(r'\s*(?:"[^"\\]*"|\'[^\'\\]*\'|[A-Za-z_][\w-]*)\s*[:=]')
@@ -230,16 +231,130 @@ def _one_call(text, index, names):
     if cursor < len(text) and text[cursor] in ':=' and text[cursor + 1:].lstrip().startswith('{'):
         cursor = text.index('{', cursor)
     if cursor >= len(text) or text[cursor] not in '({': raise ParseError('not a call')
-    end = _balanced_end(text, cursor)
-    inner = text[cursor + 1:end - 1]
     if text[cursor] == '(':
-        return {'name': name, 'arguments': _python_arguments(name, inner, names[name]), 'style': 'python'}, end
-    if inner.strip().startswith('"') or not inner.strip():
+        end = _balanced_end(text, cursor)
+        return {'name': name, 'arguments': _python_arguments(name, text[cursor + 1:end - 1], names[name]), 'style': 'python'}, end
+    # A brace call. Quotes may be real strings, or prose (an apostrophe) once Gemma's <|"|> tokens are lost: try both ends.
+    ends, error = [], ParseError('unclosed brackets')
+    for finder in (_balanced_end, _plain_end):
+        try: ends.append(finder(text, cursor))
+        except ParseError as problem: error = problem
+    for end in dict.fromkeys(ends):
+        inner = text[cursor + 1:end - 1]
+        if inner.strip().startswith('"') or not inner.strip():
+            try: return {'name': name, 'arguments': json.loads('{' + inner + '}'), 'style': 'brace'}, end
+            except ValueError: pass
+        if (names[name] or {}).get('properties'):  # the schema says where values end; its reason is the one to keep
+            try: return {'name': name, 'arguments': _guided_object(inner, names[name]), 'style': 'brace'}, end
+            except ParseError as problem: error = problem; continue
+        try: return {'name': name, 'arguments': _pairs(inner, ':='), 'style': 'brace'}, end
+        except ParseError as problem: error = problem
+    raise error
+
+
+# -- schema-guided values (Gemma's native calls without their quote tokens) -----------------------------------------
+def _plain_end(text, start):
+    """The close of the bracket at `start`, counting only [] and {} and skipping Gemma's <|"|> strings: once the quote
+    tokens are lost, a quote or an apostrophe in a value is prose, not a string."""
+    pairs, stack, index = {'{': '}', '[': ']'}, [], start
+    while index < len(text):
+        if text.startswith(GEMMA_QUOTE, index):
+            index = _string_end(text, index); continue
+        char = text[index]
+        if char in pairs: stack.append(pairs[char])
+        elif char in '}]':
+            if not stack or stack.pop() != char: raise ParseError('unbalanced brackets')
+            if not stack: return index + 1
+        index += 1
+    raise ParseError('unclosed brackets')
+
+
+def _key_pattern(schema):
+    keys = sorted((schema.get('properties') or {}), key=len, reverse=True)  # the longest known key wins (done_when, not done)
+    return re.compile(r'\s*["\']?(' + '|'.join(map(re.escape, keys)) + r')["\']?\s*[:=]') if keys else None
+
+
+def _guided_object(text, schema):
+    """The inside of `{…}` read with the tool's schema: a value without quotes runs to the next `,<known key>:` of this
+    object (a key not set yet), so its newlines, commas and colons stay; arrays and objects follow their item schemas."""
+    properties, known = schema.get('properties') or {}, _key_pattern(schema)
+    if not known: raise ParseError('no schema')
+    result, index = {}, 0
+    while True:
+        while index < len(text) and (text[index].isspace() or text[index] == ','): index += 1
+        if index >= len(text): return result
+        found = known.match(text, index)
+        if found: key, index = found.group(1), found.end()
+        else:  # a key the tool does not have: read its value too, so the check can name it
+            other = re.compile(r'\s*["\']?([A-Za-z_][\w-]*)["\']?\s*[:=]').match(text, index)
+            if not other: raise ParseError('no key')
+            key, index = other.group(1), other.end()
+        if key in result: raise ParseError('a key twice')
+        while index < len(text) and text[index] in ' \t': index += 1
+        result[key], index = _guided_value(text, index, properties.get(key) or {}, known, set(result) | {key})
+
+
+def _guided_value(text, index, schema, known, seen):
+    kind = schema.get('type')
+    if text.startswith(GEMMA_QUOTE, index) or text[index:index + 1] in ('"', "'"):
         try:
-            value = json.loads('{' + inner + '}')
-            return {'name': name, 'arguments': value, 'style': 'brace'}, end
-        except ValueError: pass
-    return {'name': name, 'arguments': _pairs(inner, ':='), 'style': 'brace'}, end
+            end = _string_end(text, index)
+            rest = text[end:].lstrip()
+            if not rest or rest[0] == ',': return _decode_string(text[index:end]), end
+        except ParseError: pass  # an apostrophe that begins prose: a bare value
+    if text[index:index + 1] in ('[', '{') and kind in ('array', 'object', None):
+        end = _plain_end(text, index)
+        inner = text[index + 1:end - 1]
+        if text[index] == '[' and kind == 'array': return _guided_array(inner, schema.get('items') or {}), end
+        if text[index] == '{' and schema.get('properties'): return _guided_object(inner, schema), end
+        return _literal(text[index:end]), end
+    last, cursor = {}, index
+    while True:  # each known key not set yet: its last `,<key>:` boundary after this value starts
+        comma = text.find(',', cursor)
+        if comma < 0: break
+        found = known.match(text, comma + 1)
+        if found and found.group(1) not in seen: last[found.group(1)] = comma
+        cursor = comma + 1
+    end = min(last.values(), default=len(text))
+    raw = text[index:end]
+    raw = raw.strip() if '\n' not in raw.strip() else raw.strip(' \t')  # file content keeps its line breaks, the last one too
+    if '\n' not in raw:
+        other = re.search(r',\s*["\']?([A-Za-z_][\w-]*)["\']?\s*[:=]', raw)
+        if other: raise ParseError(f'unknown argument {other.group(1)}')  # `path:a,colour:red`: a key or a comma? Leave it.
+    return _scalar(raw, schema), end
+
+
+def _guided_array(inner, items):
+    if not inner.strip(): return []
+    if items.get('type') == 'object' or items.get('properties'):
+        values, index = [], 0
+        while True:
+            while index < len(inner) and (inner[index].isspace() or inner[index] == ','): index += 1
+            if index >= len(inner): return values
+            if inner[index] != '{': raise ParseError('not a list of objects')
+            end = _plain_end(inner, index)
+            values.append(_guided_object(inner[index + 1:end - 1], items) if items.get('properties') else _literal(inner[index:end])); index = end
+    try: return _literal('[' + inner + ']')  # quoted items, numbers
+    except ParseError: pass
+    # [app/db.py,migrations/002-habits.sql]: plain items, split at commas outside Gemma strings
+    values, piece, index = [], '', 0
+    while index < len(inner):
+        if inner.startswith(GEMMA_QUOTE, index):
+            end = _string_end(inner, index); piece += inner[index:end]; index = end; continue
+        if inner[index] == ',': values.append(piece); piece = ''
+        else: piece += inner[index]
+        index += 1
+    values.append(piece)
+    return [_scalar(_decode_string(value.strip()) if value.strip().startswith(GEMMA_QUOTE) else value.strip(), items) for value in values]
+
+
+def _scalar(raw, schema):
+    """A bare value: kept as text for a string, else a literal (true, 12) when it reads as one; the check coerces."""
+    if raw.startswith(GEMMA_QUOTE) and raw.endswith(GEMMA_QUOTE) and len(raw) > 2 * len(GEMMA_QUOTE): raw = raw[len(GEMMA_QUOTE):-len(GEMMA_QUOTE)]
+    if schema.get('type') == 'string' or 'enum' in schema: return raw
+    if raw in _LITERALS: return _LITERALS[raw]
+    if _NUMBER.fullmatch(raw): return float(raw) if any(c in raw for c in '.eE') else int(raw)
+    return raw
 
 
 def _python_arguments(name, inner, schema):
@@ -285,8 +400,20 @@ def _calls(body, names):
 
 # -- schema ----------------------------------------------------------------------------------------------------------
 def _coerce(value, schema, where):
+    value = _coerce_one(value, schema, where)
+    if isinstance(value, dict) and isinstance(schema.get('properties'), dict):
+        return validate(where, value, schema, where + '.')
+    if isinstance(value, list) and isinstance(schema.get('items'), dict):
+        return [_coerce(item, schema['items'], f'{where}[{number}]') for number, item in enumerate(value)]
+    return value
+
+
+def _coerce_one(value, schema, where):
     kinds = schema.get('type')
     kinds = kinds if isinstance(kinds, list) else [kinds] if kinds else []
+    if 'enum' in schema and value not in schema['enum'] and isinstance(value, str):
+        same = [item for item in schema['enum'] if isinstance(item, str) and item.lower() == value.strip().lower()]
+        if len(same) == 1: value = same[0]
     if 'enum' in schema and value not in schema['enum']:
         if not (isinstance(value, (int, float)) and str(value) in schema['enum']): raise ParseError(f'{where} is not one of its values')
         value = str(value)
@@ -311,17 +438,17 @@ def _coerce(value, schema, where):
     raise ParseError(f'{where} has the wrong type')
 
 
-def validate(name, arguments, schema):
+def validate(name, arguments, schema, prefix=''):
     """The arguments, checked against the tool's JSON schema: no unknown keys, every required key, types coerced only
     when unambiguous. ParseError says what does not fit."""
     if not isinstance(arguments, dict): raise ParseError('arguments are not an object')
     properties = schema.get('properties') if isinstance(schema.get('properties'), dict) else {}
     unknown = [key for key in arguments if key not in properties]
-    if properties and unknown: raise ParseError(f'unknown argument {unknown[0]}')
+    if properties and unknown: raise ParseError(f'unknown argument {prefix}{unknown[0]}')
     if not properties and arguments and schema.get('additionalProperties') is False: raise ParseError('the tool takes no arguments')
     missing = [key for key in schema.get('required') or [] if key not in arguments]
-    if missing: raise ParseError(f'missing argument {missing[0]}')
-    return {key: _coerce(value, properties.get(key) or {}, key) for key, value in arguments.items()}
+    if missing: raise ParseError(f'missing argument {prefix}{missing[0]}')
+    return {key: _coerce(value, properties.get(key) or {}, prefix + key) for key, value in arguments.items()}
 
 
 # -- finding ---------------------------------------------------------------------------------------------------------
@@ -331,7 +458,7 @@ def _tag_spans(content):
     while True:
         found = _OPEN.search(content, index)
         if not found: return spans
-        tag = found.group(1)
+        tag = found.group(1) or found.group(2)
         close = re.compile(r'<\|?/' + tag + r'\|?>|<' + tag + r'\|>')
         ended = close.search(content, found.end())
         if ended: spans.append((found.start(), ended.end(), tag, content[found.end():ended.start()])); index = ended.end()
@@ -400,6 +527,17 @@ def repair(content, tools):
         pattern, failure = _check(found, names, f'{tag}-tag')
         if failure: return failure
         calls += found; spans.append((start, end)); patterns.append(pattern)
+    for close in _CLOSE_ONLY.finditer(content):  # Ollama dropped the opening token: `…call:name{…}<tool_call|>`
+        if any(start <= close.start() < end for start, end in spans) or any(begin <= close.start() < stop for begin, stop in fenced): continue
+        begin = content.rfind('call:', max([end for _, end in spans if end <= close.start()], default=0), close.start())
+        if begin < 0: continue
+        try: found = _calls(content[begin:close.start()], names)
+        except ParseError as error:
+            tool = error.args[1] if len(error.args) > 1 else None
+            return Failure('unknown tool' if tool else f'unreadable call: {error.args[0]}', 'call-close', tool)
+        pattern, failure = _check(found, names, 'call-close')
+        if failure: return failure
+        calls += found; spans.append((begin, close.end())); patterns.append(pattern)
     # 2. Fences: tool fences anywhere; json/python/plain fences only when they end the answer.
     trailing_end = len(content.rstrip())
     for fence in _FENCE.finditer(content):
@@ -421,6 +559,8 @@ def repair(content, tools):
         tail_from = max([end for _, end in spans], default=0)
         fenced = [(start, end if end is not None else len(content)) for start, end, _ in _fences(content)]
         starts = [begin for begin, line in _lines(content) if begin >= tail_from and not any(start <= begin < end for start, end in fenced) and _starts_call(line, names)]
+        starts = sorted(set(starts) | {found.start() for found in re.finditer(r'call:(' + '|'.join(map(re.escape, names)) + r')\s*\{', content)
+                                        if found.start() >= tail_from and not any(start <= found.start() < end for start, end in fenced)})
         for start in starts:
             body = content[start:trailing_end].strip().strip('`').strip()
             try: _one_call(body[5:].lstrip() if body.startswith('call:') else body, 0, names)
@@ -452,6 +592,10 @@ def hold_from(content, tools):
         if language in TOOL_FENCES or language in END_FENCES or (partial and any(name.startswith(language) for name in TOOL_FENCES + END_FENCES)):
             candidates.append(start); break
     if content.endswith('`') and not any(end == len(content) for _, end, _ in _fences(content)): candidates.append(len(content.rstrip('`')))
+    found = re.search(r'call:', content)
+    if found: candidates.append(found.start())
+    for size in range(4, 0, -1):
+        if content.endswith('call:'[:size]): candidates.append(len(content) - size); break
     for start, line in _lines(content):
         last = start + len(line) == len(content)
         stripped = line.lstrip(' \t`')
