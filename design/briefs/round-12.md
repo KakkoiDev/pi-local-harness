@@ -178,3 +178,13 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - **The radius and spacing panels**: one slider each, with the derived sizes shown on sample buttons, cards and inputs.
 - **No theme file**: the message for a project that has none.
 - Entry points: the request in the chat, Project › Theme…, and a hint when Pi is asked something the panel could do.
+
+**Built before your drawing; please revisit**
+- The panel is built (2026-10-18) from existing parts (pw-card, pw-btn, pw-seg, pw-field) with `.pw-theme__*` classes and `data-group` / `data-mode` / `data-token` hooks, so your drawing can restyle it without code changes.
+- At 480 px the colour rows squeeze the value fields (swatch, value and Reset side by side; light and dark columns on desk). On the phone: one column at a time with a Light/Dark switch.
+- Contrast reads "✓ AA 19.0:1" or "✗ AA … · text may be hard to read"; charts are checked at 3:1.
+- Closing collapses the panel to a "closed · Open Again" line.
+- The saved line is "Theme saved: primary." with the standard Done row, whose "Undo This Request…" reads oddly for a theme: please name it.
+- The Preview reloads after Save ("You changed 1 file. Reloaded.").
+- Token labels ("Primary: buttons and links"), font weights (400 and 700 only) and the fonts panel's search and sample: please review.
+- A font not yet saved shows in the panel's sample only; the live Preview uses a system font until Save downloads it into the project.
