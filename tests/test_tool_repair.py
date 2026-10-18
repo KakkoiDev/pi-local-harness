@@ -182,11 +182,17 @@ LIVE = ('Here is the plan.call:propose_plan{goal:…,tasks:[{steps:' + STEPS + '
 class GemmaNativeWithoutQuotes(unittest.TestCase):
     """Gemma's own `call:name{…}` with its quote tokens lost: the offered tool's schema says where each value ends."""
 
-    def test_the_live_sample_is_read_and_its_wrong_key_keeps_it_text(self):
-        failure = repair(LIVE, TOOLS + [PROPOSE_PLAN])
+    def test_the_live_sample_is_repaired_with_the_known_synonym_steps_for_content(self):
+        """2026-10-19: the model named propose_plan's task `content` `steps`; System 1's fixed synonym list maps it."""
+        result = repair(LIVE, TOOLS + [PROPOSE_PLAN])
+        task = calls(result)[0][1]['tasks'][0]
+        self.assertEqual((task['content'], task['kind'], task['files']), (STEPS, 'code', ['app/db.py', 'migrations/002-habits.sql']))
+        self.assertNotIn('steps', task)
+
+    def test_an_unknown_key_that_is_no_known_synonym_still_keeps_it_text(self):
+        failure = repair(LIVE.replace('{steps:', '{bullets:'), TOOLS + [PROPOSE_PLAN])
         self.assertIsInstance(failure, Failure)
-        self.assertEqual(failure.tool, 'propose_plan')
-        self.assertIn('unknown argument tasks[0].steps', failure.reason, 'read completely; the model named a key the tool does not have')
+        self.assertIn('unknown argument tasks[0].bullets', failure.reason)
 
     def test_the_live_sample_splits_exactly_at_known_keys(self):
         schema = json.loads(json.dumps(PROPOSE_PLAN))

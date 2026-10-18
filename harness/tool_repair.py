@@ -438,11 +438,20 @@ def _coerce_one(value, schema, where):
     raise ParseError(f'{where} has the wrong type')
 
 
+# Names small models give an argument of the harness's own tools, and the argument they mean: a fixed list System 1
+# keeps, not a guess. Live 2026-10-19: gemma4:e4b-mlx wrote propose_plan's task `content` as `steps`. A synonym is used
+# only when the schema has its target and the call does not set the target itself.
+ARGUMENT_SYNONYMS = {'steps': 'content'}
+
+
 def validate(name, arguments, schema, prefix=''):
     """The arguments, checked against the tool's JSON schema: no unknown keys, every required key, types coerced only
     when unambiguous. ParseError says what does not fit."""
     if not isinstance(arguments, dict): raise ParseError('arguments are not an object')
     properties = schema.get('properties') if isinstance(schema.get('properties'), dict) else {}
+    for alias, target in ARGUMENT_SYNONYMS.items():
+        if alias in arguments and alias not in properties and target in properties and target not in arguments:
+            arguments = {(target if key == alias else key): value for key, value in arguments.items()}
     unknown = [key for key in arguments if key not in properties]
     if properties and unknown: raise ParseError(f'unknown argument {prefix}{unknown[0]}')
     if not properties and arguments and schema.get('additionalProperties') is False: raise ParseError('the tool takes no arguments')
