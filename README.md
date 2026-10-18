@@ -11,6 +11,10 @@ Preview next to the chat, and you can undo any change with one click. Everything
 It is made for people who are learning to build things. It explains what it does in plain words and checks
 Pi's work. When the local model makes a mistake, the workbench catches it.
 
+The workbench takes care of the basics: tested starters, a theme, charts, fonts, phone access, safe undo. Pi knows how
+every one of them works, so you start from working parts. Then you, or Pi at your request, push further for your own
+needs: everything is plain, editable code in your project.
+
 ## What you can do
 
 - **Chat with Pi about a project.** Each project is a normal folder on your computer, with one chat, a plan

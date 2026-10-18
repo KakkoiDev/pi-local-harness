@@ -6,6 +6,8 @@ Written for any model working on this repository, including small local ones. Fo
 
 Pi Workbench is a local web app for **one person, one local AI agent (Pi), one chat per project, and real Markdown files**. `plh` starts Pi in a terminal, Gate (a command checker) on port 8000 and the web workbench on port 3000. The web server is standard-library Python. The page is plain HTML, CSS and ES modules, designed as a Pi Workbench 1-bit Macintosh-style interface by a separate designer.
 
+The product rule for every feature: **the workbench takes care of the basics, Pi knows how all of it works, and the person can push further for their particular need.** So a feature ships as a working default, a card or guide that teaches Pi exactly how it works, and plain editable code in the person's project (no lock-in, nothing Pi cannot explain or extend).
+
 ## 2. Where things live
 
 | Path | What it is | Touch it when |
