@@ -44,7 +44,8 @@ grids, SVG path data, engine APIs or chart code from scratch: it fills a schema 
    ask for "the same sword, blue, bigger" and get a deterministic revision.
 6. **Charts for apps:** a pinned, vendored chart library (recommended: Chart.js 4, MIT; alternative uPlot) behind a recipe
    that takes data and a chart kind and writes the chart markup and script, with the accessible table alternative.
-   Needs the person's choice and a download approval.
+   The person chose Chart.js 4 (2026-10-18): 4.5.1 is vendored in kit/vendor/chartjs-4.5.1 (checksum from npm) with
+   kit/cards/charts.md; the recipe tool is still to do.
 7. **App blocks and archetypes:** Basecoat blocks (accounts, navigation, data, feedback, content, commerce,
    collaboration, charts…) and whole-app archetypes (online shop, admin dashboard, portfolio and blog, Notion-like, Slack-
    like, GitHub-like, booking, forum, course, CRM, kanban) as copyable, tested templates, from the designer's round 12
@@ -64,7 +65,7 @@ grids, SVG path data, engine APIs or chart code from scratch: it fills a schema 
 
 Repairs first (tasks 260-265: verification, person-only controls, rename, isolation, conversation, generated media). Then
 gaming-core input (done as a PR), visual-core pixel art and SVG (3-5), the adapters (8) for music, visual and games, the
-genre starters (2) and app blocks (7) as the designer's boards arrive, charts (6) after the person's choice, Project
+genre starters (2) and app blocks (7) as the designer's boards arrive, charts (6, library chosen and vendored), Project
 Start (9) last. Each step: tests that run the generated thing (play the game, open the page, render the image), and the
 weak-model trials in docs/handoff/core-libraries.md before calling an integration done.
 

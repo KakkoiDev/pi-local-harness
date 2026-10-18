@@ -57,6 +57,16 @@
    "main": "qrcode.mjs",
    "card": "cards/qrcode.md",
    "sha256": "ea91d7118a5395289170da848b7c6758b996163bfbccf312591ab65a4911b7c0"
+  },
+  {
+   "name": "chart.js",
+   "version": "4.5.1",
+   "license": "MIT",
+   "source": "https://www.npmjs.com/package/chart.js/v/4.5.1",
+   "folder": "vendor/chartjs-4.5.1",
+   "main": "chart.umd.min.js",
+   "card": "cards/charts.md",
+   "sha256": "48444a82d4edcb5bec0f1965faacdde18d9c17db3063d042abada2f705c9f54a"
   }
  ]
 }
