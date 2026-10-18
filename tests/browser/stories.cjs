@@ -1400,7 +1400,7 @@ const chatJobs = async (t, project) => (await t.bench.api('/api/workspace')).job
 const lastAnswer = t => t.page.locator('#messages .pw-msg.assistant:not([data-live])').last();
 
 story('US-200', 'the model stops answering after a tool: the request fails with why and Retry, and my Planning message starts next', async t => {
-  await t.bench.restart({ PI_HARNESS_MODEL_SILENCE_SECONDS: '3' }); const page = await t.reopen();  // three seconds instead of two minutes, for this scratch workbench only
+  await t.bench.restart({ PI_HARNESS_MODEL_SILENCE_SECONDS: '3', PI_HARNESS_MODEL_START_SECONDS: '3' }); const page = await t.reopen();  // three seconds instead of two minutes, for this scratch workbench only
   const { project } = await newProject(t, 'Pong');
   const stuck = await say(t, 'Look at the roadmap TEST_SCRIPT=hang-after-tool');
   await t.bench.job(stuck, ['running']);

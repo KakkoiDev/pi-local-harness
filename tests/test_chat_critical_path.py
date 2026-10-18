@@ -50,13 +50,14 @@ class ReadableErrorTest(unittest.TestCase):
 class FakePi(unittest.TestCase):
     """A WebChat with the fake Pi on PATH, in a scratch folder."""
     model_silence = 1.5
+    model_start = 1.5  # each model turn's wait for its first output (a stall after a tool is one)
     silence = 3600
 
     def setUp(self):
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.root = root = Path(temp.name)
         executable = root / 'pi'; executable.write_text('#!' + sys.executable + '\n' + Path('tests/fixtures/fake-pi.py').read_text()); executable.chmod(0o755)
         for patcher in [patch.dict(os.environ, {'PATH': str(root) + os.pathsep + os.environ['PATH']}),
-                        patch.object(web_chat, 'MODEL_SILENCE', self.model_silence), patch.object(web_chat, 'SILENCE', self.silence)]:
+                        patch.object(web_chat, 'MODEL_SILENCE', self.model_silence), patch.object(web_chat, 'MODEL_START', self.model_start), patch.object(web_chat, 'SILENCE', self.silence)]:
             patcher.start(); self.addCleanup(patcher.stop)
         self.chat = WebChat(root / 'chats', 12345, 3000, data_root=root / 'workspace'); self.addCleanup(self.chat.close)
         self.project = self.chat.documents.create_project('Pong')
@@ -113,6 +114,14 @@ class StalledModelTest(FakePi):
         with patch.object(web_chat, 'MODEL_START', 2), self.assertRaisesRegex(ValueError, r'^the model did not start answering \(no reply in 2 s\)\.$'):
             self.chat.send(self.conversation, {'message': 'Start slowly TEST_SLOW_START'}, lambda event: None)
 
+    def test_the_turn_after_a_tool_has_the_long_first_output_limit(self):
+        """2026-10-19 (live): qwen3.8:27b read its context plus a tool result for over 120 s; the request was healthy."""
+        with patch.object(web_chat, 'MODEL_START', 10):
+            started = time.monotonic()
+            with self.assertRaisesRegex(ValueError, r'^the model stopped answering \(no reply in 10 s\)\.$'):
+                self.chat.send(self.conversation, {'message': 'Plan the icons TEST_HANG_AFTER_TOOL'}, lambda event: None)
+        self.assertGreater(time.monotonic() - started, 9, 'the short limit does not apply to a turn that has not started')
+
     def test_long_work_that_keeps_reporting_is_not_stalled(self):
         self.chat.send(self.conversation, {'message': 'Long work TEST_TICK'}, lambda event: None)
         self.assertNotIn('ended', self.messages()[-1])
@@ -129,6 +138,7 @@ class ProgressTextTest(FakePi):
 
 class RunningToolTest(FakePi):
     model_silence = 1
+    model_start = 1
     silence = 3
 
     def test_a_running_command_has_the_long_limit_not_the_model_limit(self):
