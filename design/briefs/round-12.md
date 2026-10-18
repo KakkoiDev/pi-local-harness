@@ -188,3 +188,12 @@ Please draw, in the workbench's 1-bit design (the panel is workbench UI; the col
 - The Preview reloads after Save ("You changed 1 file. Reloaded.").
 - Token labels ("Primary: buttons and links"), font weights (400 and 700 only) and the fonts panel's search and sample: please review.
 - A font not yet saved shows in the panel's sample only; the live Preview uses a system font until Save downloads it into the project.
+
+**Project Start, built from R12_NP1–NP4, Ph12_NP2–NP4 and R12_AddCap (2026-10-18); please revisit**
+- Step 1's “Create in” is a row (“Create in ~/code ›”) that opens the folder browser in a pick mode, as on the phone (Ph8_ChooseFolder), not a popup: the browser already has New Folder… and 44 px rows.
+- The help under the sentence says “The workbench reads the sentence…”: the suggestions are code (keywords per capability, English and Japanese), not Pi.
+- A suggested row carries a bold “Suggested” at the start of its meta line, besides the notice.
+- One project has one base package for now (Web app, App with no server or Terminal app), plus Phone app on a page package: choosing a second base package is disabled with “Not available yet together with …: one source for several packages needs the browser adapter (plan 253, task 277).” The boards show three packages checked at once.
+- Available now: Database, Works offline, Dashboard and charts, Multiplayer, Game loop and collision, Installs on a phone, and a new row, Share by QR code (Publish). The rest are listed, disabled, with “Not available yet: …”.
+- Create's failure: a `.pw-cap__warn` naming the failing test and capability, a “Failing test: … (file), from …” line and the test output (dotted box) in the Summary; the dialog stays open.
+- Add a Capability… rows are radios (one capability per request); “What changes” fills in when one is chosen. Its result is the standard done row: “Added …: … Tried it: all N tests of the base pass, M of them new.”

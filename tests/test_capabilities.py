@@ -5,9 +5,13 @@ try:
     import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
+import http.client
+import http.server
 import json
 import os
+import re
 import subprocess
+import threading
 import tempfile
 import unittest
 from pathlib import Path
@@ -180,6 +184,50 @@ class AddTest(unittest.TestCase):
     def test_a_capability_the_package_cannot_carry_is_refused(self):
         with self.assertRaisesRegex(ValueError, "the App with no server can't carry it"):
             kit.add(self.folder, 'database')
+
+
+class WebRoutesTest(unittest.TestCase):
+    """Create and Add a Capability… are the person's controls (task 261): a local process without the page's secret
+    cannot start a project or change one; the catalogue and step 4's facts are plain reads."""
+    def setUp(self):
+        from harness.web_chat import WebChat, WebHandler
+        directory = tempfile.TemporaryDirectory(); self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name); (self.root / 'code').mkdir()
+        self.chat = WebChat(self.root / 'chats', 9, 0, data_root=self.root / 'data'); self.addCleanup(self.chat.close)
+        class Handler(WebHandler): pass
+        Handler.chat = self.chat; Handler.log_message = lambda *args: None
+        self.server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.addCleanup(self.server.server_close); self.addCleanup(self.server.shutdown)
+
+    def call(self, path, body=None, secret=None):
+        connection = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=30); self.addCleanup(connection.close)
+        headers = {'Content-Type': 'application/json', 'Host': f'127.0.0.1:{self.server.server_port}', **({'X-Pi-Person': secret} if secret else {})}
+        connection.request('GET' if body is None else 'POST', path, body=None if body is None else json.dumps(body), headers=headers)
+        response = connection.getresponse(); return response.status, json.loads(response.read() or b'null')
+
+    def secret(self):
+        connection = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=5); self.addCleanup(connection.close)
+        connection.request('GET', '/', headers={'Host': f'127.0.0.1:{self.server.server_port}'})
+        return re.search(rb'<meta name="pi-person" content="([^"]+)">', connection.getresponse().read())[1].decode()
+
+    def test_create_and_add_need_the_person_and_reads_do_not(self):
+        start = {'name': 'Shop', 'parent': str(self.root / 'code'), 'packages': ['web'], 'capabilities': ['database']}
+        self.assertEqual(self.call('/api/projects/start', start)[0], 403)
+        self.assertFalse((self.root / 'code/Shop').exists())
+        status, found = self.call('/api/project-start?text=' + 'charts%20on%20my%20phone')
+        self.assertEqual(status, 200); self.assertEqual(found['suggested'], ['charts', 'install'])
+        status, facts = self.call('/api/project-start/plan', {'name': 'Shop', 'packages': ['web'], 'capabilities': ['database']})
+        self.assertEqual(status, 200); self.assertEqual(facts['problems'], [])
+        secret = self.secret()
+        status, created = self.call('/api/projects/start', start, secret)
+        self.assertEqual(status, 200, created); self.assertTrue(created['created']); self.assertEqual(created['check']['tests'], facts['tests'])
+        self.assertEqual(self.call('/api/projects/capability', {'project': created['project'], 'capability': 'charts'})[0], 403)
+        with mock.patch('harness.project_start.full_suite', lambda folder: {'passed': False, 'command': 'uv run pytest'}):  # no uv in unit tests
+            status, added = self.call('/api/projects/capability', {'project': created['project'], 'capability': 'charts'}, secret)
+        self.assertEqual(status, 200, added); self.assertTrue(added['added'])
+        last = added['conversation']['messages'][-1]
+        self.assertEqual((last['author'], last['commit']), ('workbench', added['commit']), 'a done row with Undo This Request…')
 
 
 if __name__ == '__main__':

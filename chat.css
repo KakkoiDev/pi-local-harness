@@ -550,6 +550,7 @@ dialog.pw-start--add[open]{width:720px;height:720px}
 .pw-cap__suggested{font-weight:600}
 .pw-cap .pw-radio{margin:3px 0 0}
 .pw-cap[hidden],.pw-capgroup[hidden]{display:none}
+@media (min-width:761px){#folder-dialog{width:520px;box-sizing:border-box}} /* the folder browser keeps its width now that New Project's kinds left it */
 @media (max-width:760px){
  dialog.pw-start[open],dialog.pw-start--add[open]{width:100%;max-width:none;height:100dvh;max-height:none;margin:0;border:0;padding:0 0 env(safe-area-inset-bottom,0px)}
  .pw-start__head,.pw-start__main>.pw-steps{display:none}
