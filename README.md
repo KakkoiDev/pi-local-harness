@@ -22,7 +22,7 @@ needs: everything is plain, editable code in your project.
 - **Start from a ready-made project.** Choose a web app (Python, FastAPI, htmx), an app that needs no server, a
   terminal app, or an empty folder. Pi knows each starter well, so it gets things right more often.
 - **Build from ready-made parts.** Ask for a login page, a side panel, a chart, a cart, a kanban board, a whole online
-  shop or an RPG, in English or Japanese: Pi gets the designer's card for exactly that part (137 App Blocks) and copies
+  shop or an RPG, in English or Japanese: Pi gets the designer's card for exactly that part (151 App Blocks) and copies
   its markup, texts and states instead of inventing them.
 - **See your app as you build it.** The Preview runs your app beside the chat. It can show phone, tablet and full
   sizes, in English or Japanese, and open the app on your phone.

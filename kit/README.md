@@ -14,7 +14,7 @@ reason and `available: false`.
 
 ## App Blocks (`blocks/`, plan 266 item 7)
 
-The designer's ready-made app and game parts (`design/app-blocks`, 137 cards), as cards Pi gets one at a time:
+The designer's ready-made app and game parts (`design/app-blocks`, 151 cards), as cards Pi gets one at a time:
 `blocks/<group>/<Name>.md` (the card: facts, states, English and Japanese texts, keyboard and focus, phone, data, what
 not to invent) beside its code (`<Name>.html`, `.css`, `.js`; a second block of one language is `<Name>.2.html`), so Pi
 copies exact markup instead of re-typing it. `blocks/index.json` lists every card: name, group, kind (foundation,
