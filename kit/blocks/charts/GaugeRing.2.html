@@ -1,0 +1,9 @@
+<script>
+// gauge: 270° arc opening at the bottom
+basecoat.chart(document.getElementById('storage-gauge'), {
+  chartData: {labels: ['Used', 'Free'], datasets: [{data: [72, 28], backgroundColor: ['var(--chart-1)', 'var(--border)'], borderWidth: 0}]},
+  options: {circumference: 270, rotation: -135, cutout: '80%', animation: false}
+});
+// ring: a full circle
+basecoat.chart(document.getElementById('goal-ring'), {chartData: {labels: ['Used', 'Free'], datasets: [{data: [80, 20], backgroundColor: ['var(--chart-1)', 'var(--border)'], borderWidth: 0}]}, options: {cutout: '78%', animation: false}});
+</script>

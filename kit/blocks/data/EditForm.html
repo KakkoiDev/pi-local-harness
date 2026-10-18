@@ -1,0 +1,42 @@
+<form id="note-form" class="grid max-w-2xl gap-6" method="post" action="/notes/42" novalidate hx-post="/notes/42" hx-target="this" hx-swap="outerHTML">
+  <h1 class="text-2xl font-semibold" data-t="form.edit_title">Edit Note</h1>
+
+  <div class="grid gap-5">
+    <div class="field">
+      <label for="note-title" data-t="form.title">Title</label>
+      <input type="text" id="note-title" name="title" value="Week 3 · Vocabulary" maxlength="200" required aria-describedby="note-title-help">
+      <p id="note-title-help" class="text-muted-foreground" data-t="form.title_help">Up to 120 characters.</p>
+    </div>
+    <div class="grid gap-5 @3xl:grid-cols-2">
+      <div class="field">
+        <label for="note-subject" data-t="form.subject">Subject</label>
+        <select id="note-subject" name="subject" required>
+          <option value="" disabled data-t="form.subject_choose">Choose a subject</option>
+          <option value="vocabulary" selected>Vocabulary</option>
+          <option value="grammar">Grammar</option>
+          <option value="kanji">Kanji</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="note-due"><span data-t="form.due">Review on</span> <span class="font-normal text-muted-foreground" data-t="form.optional">(optional)</span></label>
+        <input type="date" id="note-due" name="review_on" value="2026-10-25" min="2026-10-18">
+      </div>
+    </div>
+    <div class="field">
+      <label for="note-body" data-t="form.body">Note</label>
+      <textarea id="note-body" name="body" rows="5" aria-describedby="note-body-help">駅 (えき) — station</textarea>
+      <p id="note-body-help" class="text-muted-foreground" data-t="form.body_help">Markdown works: **bold**, lists, links.</p>
+    </div>
+    <fieldset class="fieldset">
+      <legend class="label mb-2" data-t="form.visibility">Who can see it</legend>
+      <div role="radiogroup" class="grid gap-2">
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="private" checked><span data-t="form.private">Only me</span></label>
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="class"><span data-t="form.class">My class</span></label>
+      </div>
+    </fieldset>
+  </div>
+  <footer class="flex flex-wrap items-center gap-2 @max-3xl:flex-col-reverse @max-3xl:items-stretch">
+    <button type="submit" class="btn" data-t="form.save">Save Note</button>
+    <a href="/notes/42" class="btn" data-variant="ghost" data-t="form.cancel">Cancel</a>
+  </footer>
+</form>

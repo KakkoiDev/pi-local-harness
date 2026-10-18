@@ -1,0 +1,42 @@
+<!-- Rich select -->
+<div class="field">
+  <label class="label" id="assignee-label" for="assignee-trigger" data-t="combo.assignee">Assignee</label>
+  <div id="assignee" class="select">
+    <button type="button" id="assignee-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="assignee-listbox" aria-labelledby="assignee-label assignee-trigger">
+      <span class="truncate">Aiko Tanaka</span>
+      <svg class="text-muted-foreground opacity-50 shrink-0" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="assignee-popover" data-popover aria-hidden="true">
+      <div role="listbox" id="assignee-listbox" aria-orientation="vertical" aria-labelledby="assignee-trigger">
+        <div role="group" aria-labelledby="assignee-g1">
+          <div role="heading" id="assignee-g1" data-t="combo.team">Team</div>
+          <div id="assignee-1" role="option" data-value="u1" aria-selected="true">
+            <span class="avatar" data-size="sm"><span>AT</span></span> Aiko Tanaka
+          </div>
+          <div id="assignee-2" role="option" data-value="u2"><span class="avatar" data-size="sm"><span>KS</span></span> Kenji Sato</div>
+        </div>
+        <hr role="separator">
+        <div id="assignee-3" role="option" data-value="" data-t="combo.nobody">No one</div>
+      </div>
+    </div>
+    <input type="hidden" name="assignee" value="u1">
+  </div>
+</div>
+
+<!-- Combobox: type to filter -->
+<div class="field">
+  <label class="label" for="country-input" data-t="combo.country">Country or region</label>
+  <div id="country" class="combobox">
+    <input type="text" id="country-input" role="combobox" placeholder="Search countries" data-t-placeholder="combo.country_ph"
+           autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false" aria-controls="country-listbox">
+    <svg class="combobox-trigger-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    <div id="country-popover" data-popover aria-hidden="true">
+      <div role="listbox" id="country-listbox" aria-orientation="vertical" data-empty="No country matches." data-t-empty="combo.no_match">
+        <div id="country-1" role="option" data-value="JP">Japan · 日本</div>
+        <div id="country-2" role="option" data-value="KR">South Korea · 대한민국</div>
+        <div id="country-3" role="option" data-value="TW">Taiwan · 台灣</div>
+      </div>
+    </div>
+    <input type="hidden" name="country" value="">
+  </div>
+</div>

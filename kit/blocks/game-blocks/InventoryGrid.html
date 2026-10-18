@@ -1,0 +1,34 @@
+<section id="inventory" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="inv-title" hidden>
+  <div class="game-panel" style="width:min(640px,100%);display:grid;gap:12px">
+    <div class="game-row" style="justify-content:space-between">
+      <h2 id="inv-title" class="game-h" data-t="inv.title">Bag</h2>
+      <span class="game-small"><span data-t="inv.slots_used">18 of 24 slots</span></span>
+    </div>
+    <div class="game-tabs" role="tablist" aria-label="Item kind">
+      <button class="game-tab" role="tab" aria-selected="true" data-t="inv.all">All</button>
+      <button class="game-tab" role="tab" aria-selected="false" tabindex="-1" data-t="inv.consumables">Use</button>
+      <button class="game-tab" role="tab" aria-selected="false" tabindex="-1" data-t="inv.materials">Materials</button>
+      <button class="game-tab" role="tab" aria-selected="false" tabindex="-1" data-t="inv.key_items">Key Items</button>
+    </div>
+    <div class="game-row" style="align-items:flex-start;gap:16px">
+      <div class="game-slots" role="grid" aria-label="Bag" data-t-label="inv.title" style="--cols:6">
+        <button class="game-slot" role="gridcell" aria-selected="true" aria-label="Apple, 5"><img src="assets/items/apple.png" alt="" width="32" height="32"><span class="game-count">5</span></button>
+        <button class="game-slot" role="gridcell" aria-selected="false" aria-label="Rope, 1"><img src="assets/items/rope.png" alt="" width="32" height="32"></button>
+        <!-- … one button per slot; empty slots: <span class="game-slot" role="gridcell" aria-label="Empty"></span> -->
+      </div>
+      <div style="flex:1;min-width:160px;display:grid;gap:6px" aria-live="polite">
+        <span class="game-speaker" data-t="item.apple">Apple</span>
+        <p class="game-line" style="font-size:13px;margin:0" data-t="item.apple.desc">Crisp and sweet. Restores 2 health.</p>
+        <ul class="game-menu">
+          <li><button class="game-btn" data-t="inv.use">Use</button></li>
+          <li><button class="game-btn" data-t="inv.drop">Drop</button></li>
+        </ul>
+      </div>
+    </div>
+    <p class="game-hint">
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button"></span></span><span data-t="inv.use">Use</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">S</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="north" aria-label="North button"></span></span><span data-t="inv.sort">Sort</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">I</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button"></span></span><span data-t="game.back">Back</span></span>
+    </p>
+  </div>
+</section>

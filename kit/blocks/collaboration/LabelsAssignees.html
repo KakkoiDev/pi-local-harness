@@ -1,0 +1,19 @@
+<section class="grid gap-1 text-sm">
+  <div class="popover">
+    <button id="labels-trigger" class="btn w-full justify-between" data-variant="ghost" data-size="sm" type="button"
+            aria-expanded="false" aria-controls="labels-popover" data-t="labels.title">Labels <span aria-hidden="true">⚙</span></button>
+    <div id="labels-popover" data-popover aria-hidden="true" class="w-72 p-0">
+      <header class="border-b p-2"><p class="text-xs font-medium" data-t="labels.apply">Apply labels to this issue</p>
+        <div class="input-group mt-2"><span data-align="inline-start" aria-hidden="true">⌕</span><input type="search" aria-label="Filter labels" data-t-label="labels.filter" placeholder="Filter labels" data-t-placeholder="labels.filter"></div>
+      </header>
+      <ul class="grid max-h-64 overflow-y-auto p-1" role="group" aria-label="Labels" data-t-label="labels.title">
+        <li><label class="label gap-2 rounded-sm px-2 py-1.5 font-normal hover:bg-accent"><input class="input" type="checkbox" name="labels" value="bug" checked>
+          <span class="size-3 rounded-full bg-destructive" aria-hidden="true"></span><span class="flex-1"><span>bug</span><small class="text-muted-foreground block text-xs">Something isn’t working</small></span></label></li>
+        <li><label class="label gap-2 rounded-sm px-2 py-1.5 font-normal hover:bg-accent"><input class="input" type="checkbox" name="labels" value="timetable" checked>
+          <span class="size-3 rounded-full" style="background: var(--chart-1)" aria-hidden="true"></span><span class="flex-1">timetable</span></label></li>
+      </ul>
+      <footer class="border-t p-2"><a class="text-sm underline-offset-4 hover:underline" href="/r/class-site/labels" data-t="labels.manage">Edit Labels</a></footer>
+    </div>
+  </div>
+  <p class="flex flex-wrap gap-1 px-2"><span class="badge" data-variant="destructive">bug</span><span class="badge" data-variant="outline"><span class="size-2 rounded-full" style="background: var(--chart-1)" aria-hidden="true"></span>timetable</span></p>
+</section>

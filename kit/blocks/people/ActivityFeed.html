@@ -1,0 +1,41 @@
+<section class="app grid gap-4 p-4 @3xl:p-8" aria-labelledby="activity-title">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <h1 id="activity-title" class="text-xl font-semibold @3xl:text-2xl" data-t="activity.title">Activity</h1>
+    <form class="flex flex-wrap gap-2" hx-get="/projects/12/activity" hx-trigger="change" hx-target="#activity-list" hx-push-url="true">
+      <label class="sr-only" for="activity-who" data-t="activity.filter_who">Person</label>
+      <select class="select w-40" id="activity-who" name="who">
+        <option value="" data-t="activity.everyone">Everyone</option>
+        <option value="3">Aiko Kato</option>
+      </select>
+      <label class="sr-only" for="activity-kind" data-t="activity.filter_kind">Kind</label>
+      <select class="select w-40" id="activity-kind" name="kind">
+        <option value="" data-t="activity.all_kinds">All changes</option>
+        <option value="created" data-t="activity.kind.created">Created</option>
+        <option value="edited" data-t="activity.kind.edited">Edited</option>
+        <option value="commented" data-t="activity.kind.commented">Commented</option>
+        <option value="moved" data-t="activity.kind.moved">Moved</option>
+        <option value="deleted" data-t="activity.kind.deleted">Deleted</option>
+        <option value="members" data-t="activity.kind.members">Members</option>
+      </select>
+    </form>
+  </header>
+
+  <div id="activity-list" class="grid gap-6">
+    <section aria-labelledby="day-2026-10-18">
+      <h2 id="day-2026-10-18" class="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide" data-t="activity.today">Today</h2>
+      <ol class="relative grid gap-4 border-l pl-6">
+        <li class="relative">
+          <span class="avatar absolute -left-[2.45rem] top-0 ring-4 ring-background" data-size="sm"><span>RS</span></span>
+          <p class="text-sm" data-t-line="activity.line.moved"><span class="font-medium">Ren Sato</span> <span>moved</span> <a class="font-medium underline-offset-4 hover:underline" href="/cards/17">Poster layout</a> <span>to</span> <span class="badge" data-variant="secondary">Done</span></p>
+          <p class="text-muted-foreground text-xs"><time datetime="2026-10-18T10:02+09:00">10:02</time></p>
+        </li>
+        <li class="relative">
+          <span class="avatar absolute -left-[2.45rem] top-0 ring-4 ring-background" data-size="sm"><span>AK</span></span>
+          <p class="text-sm" data-t-line="activity.line.edited"><span class="font-medium">Aiko Kato</span> <span>edited</span> <a class="font-medium underline-offset-4 hover:underline" href="/notes/42">Week 3 · Vocabulary</a></p>
+          <p class="text-muted-foreground text-xs"><time datetime="2026-10-18T09:41+09:00">09:41</time> · <span data-t="activity.changes">3 changes</span></p>
+        </li>
+      </ol>
+    </section>
+  </div>
+  <button class="btn justify-self-center" data-variant="outline" type="button" hx-get="/projects/12/activity?before=8812" hx-target="#activity-list" hx-swap="beforeend" data-t="activity.older">Show Older</button>
+</section>

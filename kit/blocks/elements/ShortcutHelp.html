@@ -1,0 +1,38 @@
+<dialog id="shortcuts" class="dialog" aria-labelledby="shortcuts-title" onclick="if (event.target === this) this.close()">
+  <div class="sm:max-w-2xl">
+    <header>
+      <h2 id="shortcuts-title" data-t="keys.title">Keyboard shortcuts</h2>
+      <p data-t="keys.lede">Press ? anywhere to see this list.</p>
+    </header>
+    <section class="grid gap-6 overflow-y-auto sm:grid-cols-2">
+      <input class="input sm:col-span-2" type="search" id="shortcuts-filter" placeholder="Filter shortcuts" data-t-placeholder="keys.filter" aria-controls="shortcuts-list">
+      <div id="shortcuts-list" class="contents">
+        <section aria-labelledby="keys-g1">
+          <h3 id="keys-g1" class="mb-2 text-sm font-medium text-muted-foreground" data-t="keys.group.general">General</h3>
+          <dl class="grid gap-2 text-sm">
+            <div class="flex items-center justify-between gap-4">
+              <dt data-t="keys.search">Search</dt>
+              <dd class="flex items-center gap-1"><kbd class="kbd">⌘</kbd><kbd class="kbd">K</kbd></dd>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <dt data-t="keys.help">Show shortcuts</dt>
+              <dd><kbd class="kbd">?</kbd></dd>
+            </div>
+          </dl>
+        </section>
+        <section aria-labelledby="keys-g2">
+          <h3 id="keys-g2" class="mb-2 text-sm font-medium text-muted-foreground" data-t="keys.group.notes">Notes</h3>
+          <dl class="grid gap-2 text-sm">
+            <div class="flex items-center justify-between gap-4"><dt data-t="keys.new_note">New note</dt><dd><kbd class="kbd">N</kbd></dd></div>
+            <div class="flex items-center justify-between gap-4"><dt data-t="keys.next">Next / previous</dt><dd class="flex items-center gap-1"><kbd class="kbd">J</kbd><span class="text-muted-foreground">/</span><kbd class="kbd">K</kbd></dd></div>
+          </dl>
+        </section>
+      </div>
+      <p id="shortcuts-none" class="text-sm text-muted-foreground" hidden data-t="keys.none">No shortcut matches.</p>
+    </section>
+    <footer><button class="btn" type="button" onclick="this.closest('dialog').close()" data-t="keys.close">Close</button></footer>
+    <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close" data-t-label="keys.close" onclick="this.closest('dialog').close()">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</dialog>

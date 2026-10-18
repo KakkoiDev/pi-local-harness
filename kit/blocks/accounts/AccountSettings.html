@@ -1,0 +1,73 @@
+<main class="app mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+  <h1 class="text-2xl font-semibold" data-t="account.title">Account</h1>
+
+  <form id="account-email" class="card" method="post" action="/account/email" novalidate>
+    <header>
+      <h2 class="font-semibold" data-t="account.email.title">Email</h2>
+      <p class="text-muted-foreground text-sm" data-t="account.email.lede">We’ll send a link to the new address. The change happens when you open it.</p>
+    </header>
+    <section class="grid gap-4">
+      <div class="field">
+        <label class="label" for="account-email-new" data-t="account.email.new">New email</label>
+        <input class="input" id="account-email-new" name="email" type="email" autocomplete="email" placeholder="aiko@example.com">
+      </div>
+    </section>
+    <footer class="flex justify-end"><button class="btn" type="submit" data-t="account.email.submit">Send Confirmation Link</button></footer>
+  </form>
+
+  <form id="account-password" class="card" method="post" action="/account/password" novalidate>
+    <header><h2 class="font-semibold" data-t="account.password.title">Password</h2></header>
+    <section class="grid gap-4">
+      <div class="field">
+        <label class="label" for="account-password-current" data-t="account.password.current">Current password</label>
+        <input class="input" id="account-password-current" name="current" type="password" autocomplete="current-password">
+      </div>
+      <div class="field">
+        <label class="label" for="account-password-new" data-t="account.password.new">New password</label>
+        <input class="input" id="account-password-new" name="password" type="password" autocomplete="new-password" minlength="10" aria-describedby="account-password-help">
+        <p class="text-muted-foreground text-sm" id="account-password-help" data-t="signup.password_help">At least 10 characters. A short sentence is easy to remember.</p>
+      </div>
+    </section>
+    <footer class="flex justify-end"><button class="btn" type="submit" data-t="account.password.submit">Change Password</button></footer>
+  </form>
+
+  <section class="card" aria-labelledby="account-sessions-title">
+    <header>
+      <h2 class="font-semibold" id="account-sessions-title" data-t="account.sessions.title">Where you’re logged in</h2>
+    </header>
+    <section class="item-group gap-2" role="list">
+      <div class="item" role="listitem" data-variant="outline">
+        <section>
+          <h3 class="text-sm font-medium">Safari on iPhone <span class="badge ml-2" data-variant="secondary" data-t="account.sessions.this">This device</span></h3>
+          <p>Osaka · <span data-t="account.sessions.active">Active now</span></p>
+        </section>
+      </div>
+      <div class="item" role="listitem" data-variant="outline">
+        <section>
+          <h3 class="text-sm font-medium">Chrome on Mac</h3>
+          <p>Kyoto · <time datetime="2026-10-17T21:04">Yesterday, 21:04</time></p>
+        </section>
+        <aside>
+          <form method="post" action="/logout?session=s_92f" class="contents">
+            <button class="btn" data-variant="outline" data-size="sm" type="submit" data-t="account.sessions.end">Log Out</button>
+          </form>
+        </aside>
+      </div>
+    </section>
+    <footer class="flex justify-end">
+      <form method="post" action="/logout?all=1" class="contents">
+        <button class="btn" data-variant="outline" type="submit" data-t="account.sessions.end_all">Log Out Everywhere Else</button>
+      </form>
+    </footer>
+  </section>
+
+  <section class="card border-destructive/40" aria-labelledby="account-delete-title">
+    <header>
+      <h2 class="font-semibold" id="account-delete-title" data-t="account.delete.title">Delete account</h2>
+      <p class="text-muted-foreground text-sm" data-t="account.delete.lede">Deletes your account and everything in it after 30 days. You can cancel until then.</p>
+    </header>
+    <footer class="flex justify-end">
+      <a class="btn" data-variant="destructive" href="/settings/account/delete" data-t="account.delete.open">Delete Account…</a>
+    </footer>
+  </section>
+</main>

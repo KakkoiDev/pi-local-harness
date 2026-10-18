@@ -1,0 +1,24 @@
+<section class="card" aria-labelledby="lessons-title">
+  <header>
+    <h2 id="lessons-title" data-t="chart.lessons.title">Lessons per day</h2>
+    <p data-t="chart.lessons.lede">The last 12 weeks</p>
+  </header>
+  <section>
+    <div role="img" aria-label="Lessons per day over 12 weeks: most active on weekdays, 4 days with 4 or more lessons.">
+      <div class="flex gap-2" aria-hidden="true">
+        <div class="grid grid-rows-7 gap-1 text-muted-foreground">
+          <span class="h-3.5 text-[10px] leading-[14px]" data-t="chart.day.mon">Mon</span><span class="h-3.5"></span><span class="h-3.5 text-[10px] leading-[14px]" data-t="chart.day.wed">Wed</span><span class="h-3.5"></span><span class="h-3.5 text-[10px] leading-[14px]" data-t="chart.day.fri">Fri</span><span class="h-3.5"></span><span class="h-3.5"></span>
+        </div>
+        <div class="grid grid-flow-col grid-rows-7 gap-1">
+          <!-- 7 × weeks cells, Monday first, oldest week first; class from the level (States) -->
+          <span class="size-3.5 rounded-[3px] bg-border" data-tooltip="0 lessons · Mon 21 Jul"></span>
+          <span class="size-3.5 rounded-[3px] bg-[color-mix(in_oklab,var(--chart-1)_55%,var(--muted))]" data-tooltip="2 lessons · Tue 22 Jul"></span>
+          <!-- … -->
+          <span class="size-3.5"></span><!-- a day still to come: empty, no colour -->
+        </div>
+      </div>
+      <div class="text-muted-foreground mt-3 flex items-center gap-1 text-xs" aria-hidden="true"><span data-t="chart.lessons.less">Less</span><span class="size-3.5 rounded-[3px] bg-border"></span><span class="size-3.5 rounded-[3px] bg-[color-mix(in_oklab,var(--chart-1)_30%,var(--muted))]"></span><span class="size-3.5 rounded-[3px] bg-[color-mix(in_oklab,var(--chart-1)_55%,var(--muted))]"></span><span class="size-3.5 rounded-[3px] bg-[color-mix(in_oklab,var(--chart-1)_80%,var(--muted))]"></span><span class="size-3.5 rounded-[3px] bg-[var(--chart-1)]"></span><span data-t="chart.lessons.more">More</span></div>
+    </div>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Week</th><th>Lessons</th><th>Active days</th></tr></thead><tbody><tr><th scope="row">Week 9</th><td class="text-right tabular-nums">14</td><td class="text-right tabular-nums">6</td></tr><tr><th scope="row">Week 10</th><td class="text-right tabular-nums">14</td><td class="text-right tabular-nums">5</td></tr><tr><th scope="row">Week 11</th><td class="text-right tabular-nums">8</td><td class="text-right tabular-nums">3</td></tr><tr><th scope="row">Week 12</th><td class="text-right tabular-nums">11</td><td class="text-right tabular-nums">4</td></tr></tbody></table></div></details>
+  </section>
+</section>

@@ -1,0 +1,14 @@
+<!-- The container says it is busy; the shapes are hidden from screen readers -->
+<section id="notes" aria-busy="true" aria-describedby="notes-loading">
+  <p id="notes-loading" class="sr-only" data-t="loading.notes">Loading notes…</p>
+  <ul class="grid gap-3" aria-hidden="true">
+    <li class="card flex-row items-center gap-4 p-4">
+      <div class="skeleton size-10 shrink-0 rounded-full bg-muted"></div>
+      <div class="grid flex-1 gap-2">
+        <div class="skeleton h-4 w-2/5 rounded bg-muted"></div>
+        <div class="skeleton h-3 w-4/5 rounded bg-muted"></div>
+      </div>
+    </li>
+    <!-- 3 to 5 items, varying the widths: w-2/5, w-1/2, w-1/3 -->
+  </ul>
+</section>

@@ -1,0 +1,11 @@
+<div class="empty border @max-3xl:p-8">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg></figure>
+    <h2 data-t="empty.first_title">No notes yet</h2>
+    <p data-t="empty.first_text">Write your first note: a word list, a grammar rule, anything from class.</p>
+  </header>
+  <footer class="flex-row flex-wrap justify-center gap-2 @max-3xl:flex-col @max-3xl:items-stretch">
+    <a href="/notes/new" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="empty.first_action">New Note</span></a>
+    <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('import-file').click()" data-t="empty.first_secondary">Import from a File…</button>
+  </footer>
+</div>

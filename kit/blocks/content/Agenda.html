@@ -1,0 +1,45 @@
+<main class="app grid gap-4 p-4 @3xl:grid-cols-[minmax(0,1fr)_20rem] @3xl:p-8">
+  <section class="card gap-4 p-4" aria-labelledby="agenda-month">
+    <header class="flex items-center justify-between gap-2">
+      <h1 id="agenda-month" class="text-lg font-semibold">October 2026</h1>
+      <div class="button-group">
+        <a class="btn" data-variant="outline" data-size="icon" href="?month=2026-09" aria-label="Previous month" data-t-label="agenda.prev">‹</a>
+        <a class="btn" data-variant="outline" href="?month=2026-10&day=2026-10-18" data-t="agenda.today">Today</a>
+        <a class="btn" data-variant="outline" data-size="icon" href="?month=2026-11" aria-label="Next month" data-t-label="agenda.next">›</a>
+      </div>
+    </header>
+    <table class="w-full table-fixed text-center text-sm" role="grid" aria-labelledby="agenda-month">
+      <thead class="text-muted-foreground">
+        <tr><th scope="col" abbr="Monday">Mon</th><!-- … Sun; week starts Monday in ja and en-GB, Sunday in en-US --></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="btn w-full flex-col gap-0" data-variant="ghost" href="?day=2026-10-12" aria-label="12 October, 2 events">12<span class="flex h-1.5 gap-0.5" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary"></span><span class="size-1.5 rounded-full bg-primary"></span></span></a></td>
+          <!-- the chosen day: data-variant="primary" aria-current="date" on today, aria-selected="true" on the chosen day -->
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card gap-3 p-4" aria-labelledby="agenda-day">
+    <header class="flex items-center justify-between gap-2">
+      <h2 id="agenda-day" class="font-semibold">Sunday, 18 October</h2>
+      <button class="btn" data-size="sm" type="button" onclick="document.getElementById('event-dialog').showModal()" data-t="agenda.new">New Event</button>
+    </header>
+    <ol class="grid gap-2" id="agenda-list">
+      <li>
+        <a class="item" data-variant="outline" href="/events/41">
+          <figure class="w-14 text-sm tabular-nums text-muted-foreground"><time datetime="2026-10-18T10:00">10:00</time></figure>
+          <section><h3>Kanji study group</h3><p>Library, room 3 · 1 h</p></section>
+        </a>
+      </li>
+      <li>
+        <a class="item" data-variant="outline" href="/events/42">
+          <figure class="w-14 text-sm text-muted-foreground" data-t="agenda.all_day">All day</figure>
+          <section><h3>Culture festival</h3><p>School grounds</p></section>
+          <aside><span class="badge" data-variant="secondary">School</span></aside>
+        </a>
+      </li>
+    </ol>
+  </section>
+</main>

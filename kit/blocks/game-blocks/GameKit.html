@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-t="game.name">Meadow Quest</title>
+<link rel="stylesheet" href="styles/game.css">
+</head>
+<body style="margin:0;background:#000">
+  <div id="game" class="game" data-device="keyboard" style="width:100vw;height:100dvh">
+    <!-- LittleJS puts its canvases here: engineInit(..., rootElement = #game) -->
+    <div id="ui" class="game-layer">
+      <!-- one screen at a time: TitleScreen, HudPieces, PauseMenu… each a direct child with hidden on the others -->
+      <section id="hud" class="game-hud" aria-label="Status" hidden></section>
+      <section id="pause" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden></section>
+      <p id="live" class="sr-only" aria-live="polite"></p>
+    </div>
+  </div>
+  <script src="js/littlejs.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

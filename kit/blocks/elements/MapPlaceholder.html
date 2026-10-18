@@ -1,0 +1,25 @@
+<section class="card gap-0 overflow-hidden p-0" aria-labelledby="place-name">
+  <div class="relative aspect-[16/9] bg-muted" aria-hidden="true">
+    <svg class="absolute inset-0 size-full text-border" preserveAspectRatio="none" viewBox="0 0 160 90">
+      <defs><pattern id="map-grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="currentColor" stroke-width="0.6"/></pattern></defs>
+      <rect width="160" height="90" fill="url(#map-grid)"/>
+      <path d="M0 62 C40 50 70 70 160 44" fill="none" stroke="currentColor" stroke-width="5"/>
+    </svg>
+    <svg class="absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-full text-primary drop-shadow" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+  </div>
+  <div class="grid gap-3 p-4">
+    <div>
+      <h3 id="place-name" class="font-medium">Kissa Hoshi</h3>
+      <address class="text-sm not-italic text-muted-foreground">
+        <span translate="no">〒150-0001</span> 東京都渋谷区神宮前 1-2-3<br>
+        <span lang="en">1-2-3 Jingumae, Shibuya, Tokyo 150-0001</span>
+      </address>
+    </div>
+    <p class="text-sm" data-t="place.directions_text">5 minutes from Harajuku Station, Omotesando exit.</p>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=35.6702%2C139.7027" target="_blank" rel="noopener" data-t="place.open_maps">Open in Maps</a>
+      <a class="btn" data-variant="outline" href="https://www.google.com/maps/dir/?api=1&amp;destination=35.6702%2C139.7027" target="_blank" rel="noopener" data-t="place.directions">Directions</a>
+      <button class="btn" data-variant="ghost" type="button" data-copy="東京都渋谷区神宮前 1-2-3" data-t="place.copy">Copy Address</button>
+    </div>
+  </div>
+</section>

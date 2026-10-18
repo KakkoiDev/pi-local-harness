@@ -136,6 +136,13 @@ def applicable_guide(request,guides,*,classifier=None):
     return (classifier.ask if classifier else ask)('choice',{'request':request},'Choose the guide most relevant to the request, or none when no guide applies.',options=names+(['none'] if 'none' not in names else []),min_confidence=.95)
 
 
+def app_block(request,candidates,*,classifier=None):
+    """Plan 266 item 7: only after code was unsure (common or shared words). One App Block card of these few, or none."""
+    names=list(dict.fromkeys(candidates))
+    if not names:return {'answer':None,'confidence':0.0,'abstained':True}
+    return (classifier.ask if classifier else ask)('choice',{'request':request},'Choose the ready-made app part the request asks to build or change, or none when the request is about something else.',options=names+(['none'] if 'none' not in names else []),min_confidence=.95)
+
+
 def theme_panel(message,*,classifier=None):
     """Task 312: only after code was unsure. A yes opens the theme panel in the chat; it never changes the theme."""
     return (classifier.ask if classifier else ask)('noul',{'message':message},'The person asks to adjust the app’s look themselves (its colours, corner radius, spacing or fonts), rather than asking for a specific change to the code.',min_confidence=.95)

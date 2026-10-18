@@ -1,0 +1,35 @@
+<main class="app mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+  <h1 class="text-2xl font-semibold" data-t="profile.title">Profile</h1>
+  <form id="profile-form" class="card" method="post" action="/profile" novalidate>
+    <section class="grid gap-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <span class="avatar size-20 text-xl" id="profile-avatar">
+          <img src="/media/avatars/aiko.webp" alt="" width="80" height="80">
+        </span>
+        <div class="grid gap-2">
+          <div class="flex flex-wrap gap-2">
+            <label class="btn" data-variant="outline" for="profile-avatar-file">
+              <span data-t="profile.avatar.upload">Upload a Picture</span>
+            </label>
+            <input id="profile-avatar-file" name="avatar" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" aria-describedby="profile-avatar-help">
+            <button class="btn" data-variant="ghost" type="button" id="profile-avatar-remove" data-t="profile.avatar.remove">Remove</button>
+          </div>
+          <p class="text-muted-foreground text-sm" id="profile-avatar-help" data-t="profile.avatar.help">PNG, JPEG or WebP, up to 5 MB. It’s cropped to a square.</p>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="profile-name" data-t="profile.name">Display name</label>
+        <input class="input" id="profile-name" name="name" type="text" autocomplete="nickname" maxlength="40" required value="Aiko Tanaka">
+      </div>
+      <div class="field">
+        <label class="label" for="profile-bio" data-t="profile.bio">About you</label>
+        <textarea class="textarea" id="profile-bio" name="bio" rows="3" maxlength="200" aria-describedby="profile-bio-count">Learning Japanese with my class on Tuesdays.</textarea>
+        <p class="text-muted-foreground text-sm text-right" id="profile-bio-count" aria-live="polite">43 / 200</p>
+      </div>
+    </section>
+    <footer class="flex items-center justify-end gap-3">
+      <span id="profile-saved" class="text-muted-foreground text-sm" role="status"></span>
+      <button class="btn" type="submit" data-t="profile.save">Save Profile</button>
+    </footer>
+  </form>
+</main>

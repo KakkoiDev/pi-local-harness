@@ -1,0 +1,23 @@
+<section id="equipment" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="eq-title" hidden>
+  <div class="game-panel" style="width:min(640px,100%);display:grid;gap:12px">
+    <h2 id="eq-title" class="game-h"><span data-t="eq.title">Equipment</span> · Rin</h2>
+    <div class="game-row" style="align-items:flex-start;gap:20px">
+      <ul class="game-list" aria-label="Slots" style="flex:1;min-width:200px">
+        <li tabindex="0" aria-selected="true" data-slot="weapon">
+          <span class="game-slot" aria-hidden="true"><img src="assets/items/sword.png" alt="" width="32" height="32"></span>
+          <span style="flex:1"><span class="game-small" data-t="eq.weapon">Weapon</span><br><span data-t="item.bronze_sword">Bronze Sword</span></span>
+        </li>
+        <li tabindex="-1" data-slot="armor"><span class="game-slot" aria-hidden="true"></span><span style="flex:1"><span class="game-small" data-t="eq.armor">Armor</span><br><span data-t="eq.none">Nothing</span></span></li>
+        <li tabindex="-1" data-slot="shield">…</li>
+        <li tabindex="-1" data-slot="feet">…</li>
+        <li tabindex="-1" data-slot="charm">…</li>
+      </ul>
+      <dl class="grid" style="grid-template-columns:auto auto auto;gap:4px 12px;margin:0;min-width:180px" aria-label="Stats">
+        <dt data-t="stat.attack">Attack</dt><dd class="game-num" style="margin:0">12</dd><dd class="game-num" style="margin:0;color:var(--g-good)">▲ 15</dd>
+        <dt data-t="stat.defence">Defence</dt><dd class="game-num" style="margin:0">8</dd><dd class="game-num" style="margin:0">8</dd>
+        <dt data-t="stat.speed">Speed</dt><dd class="game-num" style="margin:0">6</dd><dd class="game-num" style="margin:0;color:var(--g-bad)">▼ 5</dd>
+      </dl>
+    </div>
+    <p class="game-hint"><!-- Enter/south: Change · X/west: Remove · Esc/east: Back --></p>
+  </div>
+</section>
