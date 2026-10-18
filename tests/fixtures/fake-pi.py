@@ -111,6 +111,16 @@ def scripted_story():
             def bash():
                 done=subprocess.run(running.get('command') or step['bash'],shell=True,capture_output=True,text=True,timeout=120);return done.stdout+done.stderr,done.returncode
             tool(index,'bash','execute_command',{'command':step['bash']},bash)
+        if 'model' in step:  # task 326: ask "the model" through the workbench's tool-call repair proxy, as Pi's provider does, and run the calls it returns
+            import urllib.request
+            offered=[{'type':'function','function':{'name':'read','description':'Read a file','parameters':{'type':'object','properties':{'path':{'type':'string'}},'required':['path']}}}]
+            body={'model':'gemma4:e4b-mlx','stream':False,'messages':[{'role':'user','content':request['message']}],'tools':offered,'_pi_harness_request':job}
+            asked=urllib.request.Request(os.environ['PI_HARNESS_TOOL_REPAIR_URL']+'/chat/completions',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
+            with urllib.request.urlopen(asked,timeout=30) as response:message=json.load(response)['choices'][0]['message']
+            for number,call in enumerate(message.get('tool_calls') or []):
+                args=json.loads(call['function']['arguments'])
+                tool(f'{index}{number}',call['function']['name'],'read_file',args,lambda args=args:(Path(args['path']).read_text(errors='replace'),0) if Path(args['path']).is_file() else ('No such file',1))
+            if not message.get('tool_calls'):text='[CANARY] '+(message.get('content') or '')
         if 'hang' in step:time.sleep(step['hang'])
         if 'crash' in step:sys.stderr.write(step['crash']+'\n');sys.exit(3)
         if ('plan' in step or 'choice' in step) and automatic():

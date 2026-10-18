@@ -1,5 +1,23 @@
 {
  "exact": {
+  "tools · thinks · parallel": "ツール · 思考する · 並行",
+  "tools · thinks · one at a time": "ツール · 思考する · 一度にひとつ",
+  "tools · thinks · checking…": "ツール · 思考する · 確認中…",
+  "tools · thinks · sees · parallel": "ツール · 思考する · 画像を見る · 並行",
+  "tools · thinks · sees · one at a time": "ツール · 思考する · 画像を見る · 一度にひとつ",
+  "tools · thinks · sees · checking…": "ツール · 思考する · 画像を見る · 確認中…",
+  "tools · no thinking · parallel": "ツール · 思考なし · 並行",
+  "tools · no thinking · one at a time": "ツール · 思考なし · 一度にひとつ",
+  "tools · no thinking · checking…": "ツール · 思考なし · 確認中…",
+  "tools · no thinking": "ツール · 思考なし",
+  "tools · thinks": "ツール · 思考する",
+  "tools · thinks · sees": "ツール · 思考する · 画像を見る",
+  "tools · no thinking · sees": "ツール · 思考なし · 画像を見る",
+  "tools · no thinking · sees · parallel": "ツール · 思考なし · 画像を見る · 並行",
+  "tools · no thinking · sees · one at a time": "ツール · 思考なし · 画像を見る · 一度にひとつ",
+  "tools · no thinking · sees · checking…": "ツール · 思考なし · 画像を見る · 確認中…",
+  "tools": "ツール",
+  "Tool calls fixed": "直したツール呼び出し",
   "Save the edited message?": "編集したメッセージを保存しますか？",
   "Usage: /queue edit <id> <the new words> (the id’s first 8 characters, from /queue waiting)": "使い方：/queue edit <id> <新しい文章>（id は /queue waiting に出る先頭 8 文字）",
   "Usage: /queue remove <id> (the id’s first 8 characters, from /queue waiting)": "使い方：/queue remove <id>（id は /queue waiting に出る先頭 8 文字）",
@@ -3381,6 +3399,8 @@
   ["adds {a} file · changes {n} ({files}) · adds {m} test", "ファイル {a} 個を追加 · {n} 個を変更（{files}）· テスト {m} 件を追加"],
   ["Adding {name} and running every test…", "{name} を追加して、すべてのテストを実行しています…"],
   ["Not added: {detail}. Nothing was changed.", "追加していません：{detail}。何も変更していません。"],
-  ["The project's folder goes in {where}.", "プロジェクトのフォルダは {where} に作られます。"]
+  ["The project's folder goes in {where}.", "プロジェクトのフォルダは {where} に作られます。"],
+  ["{count} written as text by {model}, run as real calls ({tools})", "{model} が文章として書いた {count} 件を、本物の呼び出しとして実行しました（{tools}）"],
+  ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"]
  ]
 }

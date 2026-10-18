@@ -180,8 +180,9 @@ flowchart TD
     Queue --> Worker[Pi RPC worker: project cwd + own session]
     Docs[Current roadmap, tasks, selected document] --> Worker
     Worker --> Extension[Same harness: shared services]
-    Pi --> Model[Configured local model]
-    Worker --> Model
+    Pi --> Repair[Tool-call repair proxy]
+    Worker --> Repair
+    Repair --> Model[Configured local model]
     Model --> Proposal[Proposed tool call]
     Proposal --> Gate[Gate: check before execution]
     Gate -->|ALLOW| Tool[Pi executes tool]
@@ -189,6 +190,14 @@ flowchart TD
     Tool --> Audit[Gate: audit actual result]
     Audit --> Model
 ```
+
+**Tool-call repair (task 326).** Pi's `ollama` provider talks to a small proxy the services start in front of
+Ollama's OpenAI-compatible endpoint (`harness/tool_repair_proxy.py`, `tool_repair` and `tool_repair_port` in
+config.json; the extension points the provider at it, `harness/tool-repair.mjs`, without touching `~/.pi`). When a
+request offered tools and the model wrote a call as text instead of `tool_calls`, the proxy turns it into a real call
+by fixed rules (`harness/tool_repair.py`): offered tools only, arguments checked against the tool's schema, never from
+prose or examples; streams keep flowing (thinking and prose at once, only a possible call is held). Each repair is a
+`tool_call_repaired` decision by code; a call left as text is a `tool-repair-failed` report.
 
 **The model proposes. Gate checks. Pi executes.** Browser workers reuse existing
 services; they never launch a second web/Gate pair. A shared process lock prevents

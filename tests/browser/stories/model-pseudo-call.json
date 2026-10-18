@@ -1,0 +1,10 @@
+{
+ "steps": [
+  {
+   "model": true
+  },
+  {
+   "say": "[CANARY] notes.md says hello."
+  }
+ ]
+}

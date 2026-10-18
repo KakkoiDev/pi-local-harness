@@ -143,6 +143,21 @@ so the transcript reads as "what I said, what waits"? Should the menu bar's "1 w
 the italic "Edited" acceptable in the 1-bit system, or should it be a glyph? Reorder (drag or Move Up/Down) was left out;
 draw it only if you think it is worth it.
 
+## Tool calls fixed, and "tools" in the model menu (task 326), not drawn yet
+
+The owner asked that small models (gemma4:e4b-mlx) really use their tools; the workbench now turns tool calls a model
+wrote as text into real calls. Built from existing parts; please draw if you want something else.
+
+- **Model menu:** each item's key now starts with "tools" for a model that can call tools ("tools · thinks · sees",
+  "tools · no thinking"); a model without tools still says "no tools" and is disabled. Same in the phone sheet.
+- **Activity › a request's facts:** a "Tool calls fixed" row: "1 written as text by gemma4:e4b-mlx, run as real calls
+  (read)". Shown only when it happened.
+- **Activity › above the list:** a `pw-help` note (`#activity-repairs`, role note) when a model needed fixes in 3
+  requests within 14 days: "gemma4:e4b-mlx often writes tool calls as text: the workbench fixed them in 4 recent
+  requests. Another model may work faster." Never a card, never blocking.
+
+Question for the board: should the note offer a control (Choose Another Model…) or stay text?
+
 ## The chat critical path (task 324), built from existing parts
 
 - **A request the phase button started.** Choosing Planning after a discussion queues "Write the plan from our
