@@ -1860,6 +1860,54 @@ story('US-209', 'Stop during an approved task, then go on: the task is still in 
   assert.equal((await chatJobs(t, project)).filter(item => ['queued', 'running'].includes(item.status)).length, 0);
 });
 
+// -- Task 324, live 2026-10-19 ("Habit Tracker"): the paperwork belongs to the approved task in progress -------------
+story('US-270', 'Start Building commits the approval; “Continue task 1: …” where Pi only reruns a test that already passed ends “not verified” for task 1 of the plan, never “Done” on the planning task', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Habit Tracker', 'web');
+  await choosePhase(t, 'Planning');
+  const planned = await say(t, 'Plan a habit tracker TEST_SCRIPT=plan-habits');
+  await answered(t, planned);
+  const card = page.locator('.pw-card[aria-label="Plan"]').last(); await card.waitFor();
+  const build = await startBuilding(t, card);
+  await t.bench.job(build, ['running']);
+  assert.equal(t.bench.git(root, 'status', '--porcelain', '--untracked-files=all').trim(), '', 'Start Building left no paperwork uncommitted');
+  assert.equal(commits(t, root)[0], 'Pi Workbench|Plan approved: 3 tasks');
+  await page.locator('#stop').click();
+  assert.equal((await answered(t, build)).status, 'stopped');
+  const first = t.bench.read(root, 'tasks/001-first-task.md'); const head = commits(t, root);
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /data-model/.test(name));
+  const id = await say(t, 'Continue task 1: add the habits and daily_logs tables and their functions to app/db.py, with a test in tests/. TEST_SCRIPT=old-test-done');
+  const job = await answered(t, id);
+  assert.notEqual(job.status, 'failed', job.progress);
+  const check = checkIn(t); await check.waitFor();
+  assert.equal(await check.locator('.pw-card__title').textContent(), 'Task 1 of 3 not verified: Data model and database schema');
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task');
+  assert.match(await check.textContent(), /already passed before any change/);
+  assert.doesNotMatch(await page.evaluate(() => document.body.innerText), /Done · \d+ file/, 'never “Done”');
+  assert.equal(t.bench.read(root, 'tasks/001-first-task.md'), first, 'the planning task is untouched');
+  assert.doesNotMatch(t.bench.read(root, 'tasks/' + task), /Green: `python3 -m unittest tests\.test_base` passed/, 'a test that already passed is not written as Green');
+  assert.deepEqual(commits(t, root), head, 'nothing was committed');
+  assert.equal(t.bench.git(root, 'status', '--porcelain', '--untracked-files=all').trim(), '', 'and nothing is left behind');
+  assert.ok(!commits(t, root).some(line => /, plan\)$/.test(line)), commits(t, root).join(' / '));
+  assert.equal((await chatJobs(t, project)).filter(item => ['queued', 'running'].includes(item.status)).length, 0);
+});
+
+story('US-271', 'Run on its own: the automatic approval is committed, and a task where Pi only reruns a test that already passed stops “not verified” for the person, the planning task untouched', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Habit Tracker', 'web');
+  const first = t.bench.read(root, 'tasks/001-first-task.md');
+  await turnOnRunOnItsOwn(t);
+  await choosePhase(t, 'Planning');
+  const id = await say(t, 'Plan a habit tracker TEST_SCRIPT=auto-old-test-done'); await answered(t, id);
+  const check = checkIn(t); await check.waitFor();
+  assert.equal(await check.locator('.pw-card__title').textContent(), 'Task 1 of 3 not verified: Data model and database schema');
+  assert.equal(await check.locator('.pw-btn--default').textContent(), 'Retry Task', 'an unverified task waits for the person');
+  assert.equal(commits(t, root)[0], 'Pi Workbench|Plan approved: 3 tasks', 'the approval is the last commit: nothing after it');
+  assert.equal(t.bench.git(root, 'status', '--porcelain', '--untracked-files=all').trim(), '');
+  assert.equal(t.bench.read(root, 'tasks/001-first-task.md').replace(/- \[x\]/g, '- [ ]'), first, 'the planning task only got its boxes ticked by the approval');
+  assert.ok(!decisions(t).some(row => row.kind === 'task_acceptance' && row.automatic), 'never accepted automatically');
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

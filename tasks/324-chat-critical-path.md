@@ -50,3 +50,30 @@ is docs/reviews/2026-10-18-chat-critical-path-audit.md; stories US-200 to US-219
 
 ## Checks
 - [x] Workflow verification and all browser suites pass; the audit is written.
+
+## Live 2026-10-19 (owner's Workbench, project "Habit Tracker"; reproduced in scratch, stories US-270 and US-271)
+Start Building stamped and ticked the plan but committed nothing, so a later request's commit swept the approval in.
+Then "Continue task 1: add the habits and daily_logs tables …" named tasks/001 (the done planning task: "task 1" by
+number, in harness/context.py `mentioned`, not the candidate the coordinator's note assumed), Pi only reran a capability
+test that already passed, and the harness wrote "Green" into task 001, ticked it, committed "Plan this app (task 001,
+plan)" and showed "Done · 1 file"; task 003, the approved task in progress, got no check-in.
+- [x] Red (unit, tests/test_task_attribution.py, a scratch Project Start project with the live sequence; browser US-270,
+  US-271): each failed on the old code for the reason above.
+- [x] Start Building (and Run on its own's automatic approval) commits the approval paperwork itself: "Plan approved: N
+  tasks" with the approved and waiting task files, the planning task it completes and ROADMAP.md (`commit_approval`).
+- [x] While an approved task is in progress, a request never takes a planning task (Kind: planning) or a task outside the
+  plan as its own, by number or path; a test run makes the task in progress the request's task (a question that runs
+  nothing still raises no check-in, task 260); its commit holds only its own changes and its task's paperwork.
+- [x] A test that passed before the request changed any file is not written as Green; a request that changes no
+  implementation file ends "not verified" for the task in progress with the Retry Task check-in, and its reason says
+  the test "already passed before any change, so it is not evidence". Nothing is committed.
+- [x] Commit titles: a plan proposal is "Plan proposed: N tasks"; a request that only edits a task's file is "<title>
+  (task NNN, <its Kind>)", never "(task NNN, plan)" for a code task. In Implementation, notes on a planned task that is
+  not the one in progress complete nothing and are not committed as done.
+- [x] The same flow under Run on its own (unit and US-271): the automatic approval is committed; the unverified task
+  waits for the person.
+- Not done (left for the person; an open box would reopen task 324): Pi's context still lists tasks/001 when the person writes "task 1" (harness/context.py `mentioned`), so
+  a model can still read the planning task as its job. The harness no longer records or commits anything there; whether
+  "task N" in Implementation means the plan's Nth task (as the check-in card numbers it) is the person's decision.
+- Note, not translated: the new not-verified reason and commit titles, like the existing paperwork reasons, are English
+  only (none of them is in messages/ja.json today).
