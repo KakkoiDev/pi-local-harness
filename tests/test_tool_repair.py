@@ -127,6 +127,10 @@ class NeverACall(unittest.TestCase):
         javascript = '```js\nread({path: "x"})\n```'
         self.assertIsNone(repair(javascript, TOOLS))
 
+    def test_a_wrapper_shown_as_an_example(self):
+        self.assertIsNone(repair('Some models answer like this:\n```xml\n<tool_call>{"name": "read", "arguments": {"path": "a"}}</tool_call>\n```\nPi does not.', TOOLS))
+        self.assertIsNone(repair('They write `<call>read(path="a")</call>` instead of a real call.', TOOLS))
+
     def test_a_line_that_starts_with_a_call_but_goes_on_as_prose(self):
         self.assertIsNone(repair('Done.\nread(path="a") is what I used, and it worked.', TOOLS))
 

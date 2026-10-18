@@ -213,7 +213,8 @@ class _Handler(http.server.BaseHTTPRequestHandler):
             template = value
             piece = delta.get('content') if isinstance(delta.get('content'), str) else ''
             content += piece
-            safe = max(emitted, min(hold_from(content, tools), len(content)))
+            base = content.rfind('\n', 0, emitted) + 1  # nothing before what was shown can start a call: scan from its line
+            safe = max(emitted, min(base + hold_from(content[base:], tools), len(content)))
             shown, emitted = content[emitted:safe], safe
             out = {**value, 'choices': [{**choice, 'delta': {**{key: item for key, item in delta.items() if key != 'content'}, **({'content': shown} if shown else {})}}]}
             if choice.get('finish_reason'):

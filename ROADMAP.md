@@ -364,4 +364,4 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [x] [325-Read, edit and remove the messages waiting for Pi](tasks/325-queue-editing.md)
 
-- [ ] [326-Fix the tool calls small models write as text, and terse answers](tasks/326-tool-call-repair-and-terse-answers.md)
+- [x] [326-Fix the tool calls small models write as text, and terse answers](tasks/326-tool-call-repair-and-terse-answers.md)

@@ -349,6 +349,14 @@ def _fences(content):
     return blocks
 
 
+def _lines(content):
+    """(offset, line) for every line, in one pass."""
+    offset = 0
+    for line in content.split('\n'):
+        yield offset, line
+        offset += len(line) + 1
+
+
 def _clean(content, spans):
     pieces, index = [], 0
     for start, end in sorted(spans):
@@ -381,8 +389,10 @@ def repair(content, tools):
     names = offered(tools)
     if not names or not isinstance(content, str) or not content.strip(): return None
     calls, spans, patterns = [], [], []
-    # 1. Tool wrappers, anywhere.
+    # 1. Tool wrappers, anywhere but inside a code block or `inline code` (an example of the format, not a call).
+    fenced = [(start, end if end is not None else len(content)) for start, end, _ in _fences(content)]
     for start, end, tag, body in _tag_spans(content):
+        if any(begin <= start < stop for begin, stop in fenced) or content[start - 1:start] == '`': continue
         try: found = _calls(body, names)
         except ParseError as error:
             tool = error.args[1] if len(error.args) > 1 else None
@@ -410,8 +420,7 @@ def repair(content, tools):
     if not spans or max(end for _, end in spans) < trailing_end:
         tail_from = max([end for _, end in spans], default=0)
         fenced = [(start, end if end is not None else len(content)) for start, end, _ in _fences(content)]
-        starts = [match.start() for match in re.finditer(r'(?m)^', content) if match.start() >= tail_from and not any(start <= match.start() < end for start, end in fenced)
-                  and _starts_call(content[match.start():].split('\n', 1)[0], names)]
+        starts = [begin for begin, line in _lines(content) if begin >= tail_from and not any(start <= begin < end for start, end in fenced) and _starts_call(line, names)]
         for start in starts:
             body = content[start:trailing_end].strip().strip('`').strip()
             try: _one_call(body[5:].lstrip() if body.startswith('call:') else body, 0, names)
@@ -435,7 +444,7 @@ def hold_from(content, tools):
     if not names: return len(content)
     candidates = [len(content), len(content.rstrip())]  # trailing blank lines wait: they may sit before a call
     for found in re.finditer(r'<', content):  # a wrapper, or the beginning of one
-        rest = content[found.start() + 1:].lstrip('|')
+        rest = content[found.start() + 1:found.start() + 24].lstrip('|')
         if any(rest.startswith(tag) or (len(rest) < len(tag) + 1 and (tag + '>').startswith(rest)) for tag in TAGS) or rest == '':
             candidates.append(found.start()); break
     for start, end, language in _fences(content):
@@ -443,13 +452,12 @@ def hold_from(content, tools):
         if language in TOOL_FENCES or language in END_FENCES or (partial and any(name.startswith(language) for name in TOOL_FENCES + END_FENCES)):
             candidates.append(start); break
     if content.endswith('`') and not any(end == len(content) for _, end, _ in _fences(content)): candidates.append(len(content.rstrip('`')))
-    for found in re.finditer(r'(?m)^', content):
-        line = content[found.start():].split('\n', 1)[0]
-        last = found.start() + len(line) == len(content)
+    for start, line in _lines(content):
+        last = start + len(line) == len(content)
         stripped = line.lstrip(' \t`')
-        if _starts_call(line, names): candidates.append(found.start()); break
+        if _starts_call(line, names): candidates.append(start); break
         if last and stripped and any(name.startswith(stripped) or 'call:'.startswith(stripped) or stripped.startswith('call:') or
                                      (stripped.startswith(name) and not stripped[len(name):].strip(' \t:=')) for name in names):
-            candidates.append(found.start()); break
+            candidates.append(start); break
     hold = min(candidates)
     return len(content[:hold].rstrip())  # the blank space before a held call waits with it
