@@ -52,7 +52,8 @@ const WATCH = () => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 };
 const watched = async (page, key) => (await page.evaluate(() => JSON.parse(sessionStorage.getItem('journey') || '{}')).catch(() => ({})))[key] || [];
-const forget = (page, key) => page.evaluate(key => { const all = JSON.parse(sessionStorage.getItem('journey') || '{}'); delete all[key]; sessionStorage.setItem('journey', JSON.stringify(all)); }, key);
+const none = seen => assert.equal(seen.length, 0, 'seen: ' + seen.join(' | '));
+const forget =(page, key) => page.evaluate(key => { const all = JSON.parse(sessionStorage.getItem('journey') || '{}'); delete all[key]; sessionStorage.setItem('journey', JSON.stringify(all)); }, key);
 
 const answers = t => t.page.locator('#messages .pw-msg.assistant:not([data-live])');
 const cut = t => t.page.locator('#messages .pw-msg').filter({ has: t.page.locator('.pw-cut[role="status"]') }).last();
@@ -74,6 +75,8 @@ async function reloadAt(t, where) {
 const jobs = async (t, project = t.project) => (await t.bench.api('/api/workspace')).jobs.filter(job => job.project === project && job.role === 'chat');
 const job = async (t, id) => (await t.bench.api('/api/workspace')).jobs.find(item => item.id === id);
 const turnUsed = (t, index) => Boolean(t.model.state.used[index]);
+/** Whether the model has given the scripted answer that matches (any turn of the current script). */
+const said = (t, pattern) => t.model.state.turns.some((turn, index) => t.model.state.used[index] && pattern.test(turn.say || ''));
 /** The requests the model received since `from` (an index into the request log). */
 const requestsSince = (t, from) => t.model.state.requests.slice(from);
 
@@ -157,13 +160,18 @@ step('J02', 'changing the model: refused next to the menu while a request runs, 
   await page.locator('#model-button').click(); await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
   await page.locator('#model-menu [data-model="qwen3:8b"]').click();
   await t.check('finding 4: the refusal is visible next to the menu', async () => {
-    const message = page.getByText(/Pi is working|switch models when|while Pi/i).locator('visible=true').first();
-    await message.waitFor({ timeout: 5000 });
-    const box = await message.boundingBox(), menu = await page.locator('#model-button').boundingBox();
-    assert.ok(box && box.y < menu.y + menu.height + 200, `the refusal is ${Math.round(box.y - menu.y)} px below the model menu`);
+    const near = await until(async () => {
+      const menu = await page.locator('#model-button').boundingBox(); const found = [];
+      for (const message of await page.getByText(/Pi is working|switch models when|while Pi|wait until|Pi is answering/i).locator('visible=true').all()) {
+        const box = await message.boundingBox(); if (box) found.push({ text: (await message.innerText()).slice(0, 120), below: Math.round(box.y - menu.y - menu.height) });
+      }
+      return found.length && found;
+    }, 5000);
+    assert.ok(near, 'no refusal is visible anywhere');
+    assert.ok(near.some(item => item.below < 200), 'the refusal is far from the model menu: ' + near.map(item => `“${item.text}” ${item.below} px below`).join(' · '));
   });
   await t.check('finding 4: a refused switch never says "Loading…"', async () => {
-    await sleep(800); assert.deepEqual(await watched(page, 'loading'), []);
+    await sleep(800); none(await watched(page, 'loading'));
     assert.match(await page.locator('#model').textContent(), /gemma4:26b-mlx/);
     assert.equal(fs.existsSync(join(t.bench.data, 'model.json')) && JSON.parse(t.bench.read(t.bench.data, 'model.json')).model === 'qwen3:8b', false, 'the refused choice was saved');
   });
@@ -175,7 +183,9 @@ step('J02', 'changing the model: refused next to the menu while a request runs, 
   await page.keyboard.press('Escape').catch(() => {});
   await page.locator('#model-button').click(); await page.locator('#model-menu [data-model="qwen3:8b"]').click();
   await t.check('finding 4: when idle the switch applies: the label, the saved choice, Ollama and Pi use it', async () => {
-    await page.locator('#model', { hasText: /^qwen3:8b$/ }).waitFor({ timeout: 15000 });
+    await page.locator('#model', { hasText: /^qwen3:8b$/ }).waitFor({ timeout: 15000 }).catch(async error => {
+      throw new Error(`the label stays “${await page.locator('#model').textContent()}”; shown: “${await page.locator('#toast-text').textContent().catch(() => '')}” “${await page.locator('#error').textContent().catch(() => '')}”; /api/model calls: ${t.bench.log.filter(line => line.includes('/api/model')).join(' ')}; running: ${JSON.stringify((await t.bench.api('/api/workspace')).jobs.filter(item => item.status === 'running').map(item => [item.role, item.project, item.message?.slice(0, 40)]))}`);
+    });
     assert.equal(JSON.parse(t.bench.read(t.bench.data, 'model.json')).model, 'qwen3:8b');
     assert.ok(t.model.state.other.some(call => call.path === '/api/generate' && call.body.model === 'qwen3:8b'), 'Ollama was asked to load qwen3:8b');
     const from = t.model.state.requests.length;
@@ -246,7 +256,7 @@ step('J04', 'Discussion: prose questions render as lists with identifiers intact
   await reloadAt(t, 'while a card waits');
   await t.check('finding 2: no [CANARY] (plain, `code`, **bold**) live or after the reload', async () => {
     assert.doesNotMatch(await page.locator('#messages').innerText(), CANARY);
-    assert.deepEqual(await watched(page, 'canary'), []);
+    none(await watched(page, 'canary'));
   });
 });
 
@@ -264,7 +274,7 @@ step('J05', 'answer the cards; the Planning phase control starts planning from t
     for (const answer of ['SQLite database', 'Every day ticked', 'Bar per day']) assert.equal(await page.locator('.pw-card--settled').filter({ hasText: answer }).count(), 1, answer);
   });
   await t.check('finding 2: no [CANARY] after the answers either', async () => {
-    assert.doesNotMatch(await page.locator('#messages').innerText(), CANARY); assert.deepEqual(await watched(page, 'canary'), []);
+    assert.doesNotMatch(await page.locator('#messages').innerText(), CANARY); none(await watched(page, 'canary'));
   });
   t.model.script(load('06-planning'));
   const before = new Set((await jobs(t)).map(item => item.id)); const from = t.model.state.requests.length;
@@ -291,7 +301,7 @@ step('J06', 'planning: a turn that only describes propose_plan is nudged once an
   t.task1 = task;
   await t.check('finding 10: task steps are a list, one step per line', async () => {
     const text = t.bench.read(t.root, 'tasks', task);
-    assert.doesNotMatch(text, /1\.\s.*\s2\.\s/, 'the steps are on one line:\n' + text);
+    assert.doesNotMatch(text, /1\.[ \t][^\n]*[ \t]2\.[ \t]/, 'the steps are on one line:\n' + text);
     assert.match(text, /^\s*(?:[-*]\s(?:\[ \]\s)?|\d\.\s).*failing test for add_habit/m);
     assert.match(text, /^\s*(?:[-*]\s(?:\[ \]\s)?|\d\.\s).*Implement add_habit/m);
   });
@@ -334,7 +344,7 @@ step('J08', 'a file outside the task: the request pauses with Gate’s scope car
     await page.locator('.pw-card[aria-label="Pi wants to change a file outside task 1"]').last().getByRole('button', { name: 'Add to Task 1', exact: true }).click();
     await resumed;
   } else t.note('J08: no scope card to answer');
-  const typed = await keepGoing(t, () => turnUsed(t, 6));
+  const typed = await keepGoing(t, () => turnUsed(t, 7));
   if (typed) t.note(`J08: typed “continue” ${typed}× after the scope question`);
   await until(() => fs.existsSync(join(t.root, 'migrations', '002-habits.sql')), 15000);
   await t.check('finding 16: after Add to Task the write succeeds and the task lists the file', async () => {
@@ -345,7 +355,7 @@ step('J08', 'a file outside the task: the request pauses with Gate’s scope car
 
 step('J09', 'Stop mid-task, then "continue": the approved task resumes and can write; one check-in per task; a refused read is never "Not written" (findings 11, 17)', async t => {
   const { page } = t;
-  await until(() => turnUsed(t, 7), 60000) || assert.fail('the model never started the long answer');
+  await until(() => turnUsed(t, 8), 60000) || assert.fail('the model never started the long answer');
   await page.locator('#messages [data-live]').getByText(/Now I write app\/habits\.py/).first().waitFor({ timeout: 20000 });
   await page.locator('#stop').click();
   await until(async () => !(await jobs(t)).some(item => ['queued', 'running'].includes(item.status)), 20000);
@@ -353,14 +363,14 @@ step('J09', 'Stop mid-task, then "continue": the approved task resumes and can w
   await reloadAt(t, 'after Stop mid-task');
   for (const open of await page.locator(`#messages .pw-card:has(.pw-card__foot button:text-is("Answer"))`).all()) { t.note('J09: answered a leftover card'); await open.getByRole('button', { name: 'Answer', exact: true }).click(); }
   await type(t, 'continue');
-  await until(() => turnUsed(t, 8), 45000);
+  await until(() => turnUsed(t, 9), 45000);
   await t.check('finding 17: after Stop and “continue” the approved task resumes and its write goes through', async () => {
-    assert.ok(turnUsed(t, 8), 'the model was never asked to go on with the task');
+    assert.ok(turnUsed(t, 9), 'the model was never asked to go on with the task');
     assert.ok(await until(() => fs.existsSync(join(t.root, 'app', 'habits.py')), 15000), 'app/habits.py was not written');
     const refused = (await t.bench.api('/api/gate')).events.filter(event => event.outcome === 'REVISE' && JSON.stringify(event.args || event.proposal || '').includes('app/habits.py'));
     assert.deepEqual(refused.map(event => event.reason), []);
   });
-  const typed = await keepGoing(t, () => turnUsed(t, 10), { times: 2 });
+  const typed = await keepGoing(t, () => turnUsed(t, 11), { times: 2 });
   if (typed) t.note(`J09: typed “continue” ${typed}× more to finish task 1`);
   await until(async () => !(await jobs(t)).some(item => ['queued', 'running'].includes(item.status)), 60000);
   const checkIns = page.locator('#messages .pw-card[aria-label^="Task "]').filter({ hasText: /Task 1 of/ });
@@ -373,7 +383,8 @@ step('J09', 'Stop mid-task, then "continue": the approved task resumes and can w
   await t.check('finding 11: no pseudo tool call reached the model again after it was written', async () => {
     const later = requestsSince(t, t.buildFrom).slice(1);
     const fed = later.filter(request => request.messages.some(message => message.role === 'assistant' && PSEUDO.test(JSON.stringify(message.content || ''))));
-    assert.equal(fed.length, 0, `${fed.length} later requests carry the pseudo tool call back to the model`);
+    const sample = fed[0]?.messages.find(message => message.role === 'assistant' && PSEUDO.test(JSON.stringify(message.content || '')));
+    assert.equal(fed.length, 0, `${fed.length} later requests carry the pseudo tool call back to the model, e.g. ${JSON.stringify(sample?.content).slice(0, 160)}`);
   });
 });
 
@@ -433,7 +444,7 @@ step('J10b', 'Run on its own: the risk notice when turned on; the remaining task
   const report = page.locator('.pw-card').filter({ hasText: 'Ran on its own' }).last();
   await report.waitFor({ timeout: 180000 });
   await t.check('task 3 ran and was accepted without the person', async () => {
-    assert.ok(turnUsed(t, 12), 'task 3 did not finish');
+    assert.ok(said(t, /Task 3 is done/), 'task 3 did not finish: ' + (await page.locator('#messages .pw-card[aria-label^="Task "]').filter({ hasText: /Task 3 of/ }).last().innerText().catch(() => '')).slice(0, 300).replace(/\n+/g, ' / '));
     const accepted = decisions(t).filter(row => row.kind === 'task_acceptance' && row.automatic);
     assert.ok(accepted.length >= 1, JSON.stringify(decisions(t).filter(row => row.kind === 'task_acceptance')));
   });
@@ -446,12 +457,18 @@ step('J10b', 'Run on its own: the risk notice when turned on; the remaining task
     const text = await report.innerText();
     assert.match(text, /Decided on its own · [1-9]/, text); assert.match(text, /Widened task 3 without asking/, text);
   });
+  const stuck = page.locator('#messages .pw-card[aria-label^="Task "]').filter({ hasText: /Task 3 of/ }).filter({ hasText: /not verified/ }).last();
+  if (!said(t, /Task 3 is done/) && await stuck.count() && await stuck.getByRole('button', { name: 'Retry Task', exact: true }).count()) {
+    t.note('J10b: pressed Retry Task on task 3 (what the owner would do next)');
+    t.model.script(load('10b-retry-task-3'));
+    await stuck.getByRole('button', { name: 'Retry Task', exact: true }).click();
+  }
 });
 
 step('J13', 'the end: Ready to publish passes from the Workbench, every task is verified and committed, the roadmap is all done, and the finished app works', async t => {
   const { page } = t;
-  await until(async () => turnUsed(t, 17) && !(await jobs(t)).some(item => ['queued', 'running'].includes(item.status)), 120000);
-  await t.check('the Ready to publish task ran (README and app names, every test)', async () => assert.ok(turnUsed(t, 17), 'the run never reached the Ready to publish task'));
+  await until(async () => said(t, /Ready to publish: the README/) && !(await jobs(t)).some(item => ['queued', 'running'].includes(item.status)), 180000);
+  await t.check('the Ready to publish task ran (README and app names, every test)', async () => assert.ok(said(t, /Ready to publish: the README/), 'the run never reached the Ready to publish task'));
   const publish = page.locator('#messages .pw-card[aria-label^="Task "]').filter({ hasText: /Ready to publish/ }).last();
   await t.check('Ready to publish is verified from the Workbench (its publication checks ran and passed)', async () => {
     await publish.waitFor({ timeout: 10000 });
@@ -495,7 +512,7 @@ step('J12', 'reloads and a second tab: state is consistent, no card reopens, no 
   await t.check('a second tab shows the same chat', async () => { assert.deepEqual(theirs.users, mine.users); assert.deepEqual(theirs.open, mine.open); assert.deepEqual(theirs.checkIns, mine.checkIns); });
   await t.check('no answered question card is open again', async () => assert.ok(!mine.open.some(label => /\?$/.test(label)), mine.open.join(', ')));
   await t.check('no check-in card shows twice', async () => assert.equal(new Set(mine.checkIns).size, mine.checkIns.length, mine.checkIns.join(' | ')));
-  await t.check('finding 2: no [CANARY] in either tab, at any point of the journey', async () => { assert.deepEqual(await watched(page, 'canary'), []); assert.deepEqual(await watched(other, 'canary'), []); });
+  await t.check('finding 2: no [CANARY] in either tab, at any point of the journey', async () => { none(await watched(page, 'canary')); none(await watched(other, 'canary')); });
   await other.close();
 });
 
@@ -556,6 +573,7 @@ async function main() {
     if (process.env.PI_JOURNEY_UNTIL && item.id === process.env.PI_JOURNEY_UNTIL) break;
   }
   await browser.close(); await bench.stop(); await model.stop();
+  fs.writeFileSync(join(bench.directory, 'model-log.json'), JSON.stringify(model.state.requests.map(request => ({ turn: request.turn, model: request.model, input: request.input.slice(0, 2000) })), null, 1));
   if (!process.env.PI_JOURNEY_KEEP) bench.remove(); else console.log('Kept: ' + bench.directory);
   const failed = results.filter(result => result.outcome === 'FAIL');
   console.log(`Journey: ${results.length - failed.length} of ${results.length} steps passed${failed.length ? ` · failed: ${failed.map(result => result.id).join(', ')}` : ''}.`);

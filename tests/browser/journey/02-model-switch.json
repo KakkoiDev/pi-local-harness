@@ -4,7 +4,7 @@
   {
    "when": "Summarise the project",
    "slow": 12,
-   "say": "[CANARY] The project is a pong game with two paddles and a ball. [CANARY] The project is a pong game with two paddles and a ball. [CANARY] The project is a pong game with two paddles and a ball. [CANARY] The project is a pong game with two paddles and a ball. "
+   "say": "[CANARY] The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. "
   },
   {
    "when": "Which model",

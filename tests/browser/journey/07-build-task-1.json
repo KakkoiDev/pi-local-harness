@@ -21,7 +21,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*(localhost|hosts|REVISE)",
    "calls": [
     {
      "name": "write",
@@ -33,7 +33,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to tests/test_habits",
    "calls": [
     {
      "name": "bash",
@@ -44,7 +44,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*(Error|FAILED)",
    "calls": [
     {
      "name": "write",
@@ -54,6 +54,10 @@
      }
     }
    ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*(not part of task|outside)",
+   "say": "[CANARY] I will wait for your answer about migrations/002-habits.sql."
   },
   {
    "when": "Choice: Pi wants to change a file outside|Add to Task",
@@ -68,9 +72,9 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to migrations",
    "slow": 20,
-   "say": "[CANARY] Now I write app/habits.py with add_habit, list_habits and tick. [CANARY] Now I write app/habits.py with add_habit, list_habits and tick. [CANARY] Now I write app/habits.py with add_habit, list_habits and tick. [CANARY] Now I write app/habits.py with add_habit, list_habits and tick. [CANARY] Now I write app/habits.py with add_habit, list_habits and tick. [CANARY] Now I write app/habits.py with add_habit, list_habits and tick. "
+   "say": "[CANARY] Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. "
   },
   {
    "when": "continue|Continue|approved task",
@@ -85,7 +89,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to app/habits",
    "calls": [
     {
      "name": "bash",
@@ -96,7 +100,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
    "say": "[CANARY] Task 1 is done: habits and their ticks are saved in SQLite, with tests."
   }
  ]

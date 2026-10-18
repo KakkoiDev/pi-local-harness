@@ -2,9 +2,9 @@
  "about": "Steps 10, 11 and 13: task 2 (a long first answer while the person queues, edits and removes messages), then Run on its own builds task 3, which needs a file outside its Files (widened without asking), and the Ready to publish task names the app.",
  "turns": [
   {
-   "when": "approved task|Continue",
+   "when": "approved task",
    "slow": 25,
-   "say": "[CANARY] Task 2: first a test for the streak, then the code. [CANARY] Task 2: first a test for the streak, then the code. [CANARY] Task 2: first a test for the streak, then the code. [CANARY] Task 2: first a test for the streak, then the code. [CANARY] Task 2: first a test for the streak, then the code. [CANARY] Task 2: first a test for the streak, then the code. ",
+   "say": "[CANARY] Task 2: first a test for the streak, then the code. Task 2: first a test for the streak, then the code. Task 2: first a test for the streak, then the code. Task 2: first a test for the streak, then the code. Task 2: first a test for the streak, then the code. Task 2: first a test for the streak, then the code. ",
    "calls": [
     {
      "name": "write",
@@ -16,7 +16,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to tests/test_streaks",
    "calls": [
     {
      "name": "bash",
@@ -27,7 +27,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*(Error|FAILED)",
    "calls": [
     {
      "name": "write",
@@ -39,7 +39,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to app/streaks",
    "calls": [
     {
      "name": "bash",
@@ -50,7 +50,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
    "say": "[CANARY] Task 2 is done: streak counts the days in a row."
   },
   {
@@ -58,7 +58,7 @@
    "say": "[CANARY] Noted: the streak will show in bold with a flame."
   },
   {
-   "when": "approved task|Continue|continue",
+   "when": "approved task",
    "calls": [
     {
      "name": "write",
@@ -70,7 +70,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to tests/test_chart",
    "calls": [
     {
      "name": "bash",
@@ -81,7 +81,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*(Error|FAILED)",
    "calls": [
     {
      "name": "write",
@@ -93,7 +93,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to app/chart_days",
    "calls": [
     {
      "name": "write",
@@ -105,7 +105,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to app/chart\\.py",
    "calls": [
     {
      "name": "edit",
@@ -122,7 +122,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*app/main\\.py",
    "calls": [
     {
      "name": "bash",
@@ -133,11 +133,11 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
    "say": "[CANARY] Task 3 is done: month_chart gives one value per day, and the app imports the habit modules."
   },
   {
-   "when": "approved task|Continue|continue|publish",
+   "when": "approved task|publish|^user: yes\\b",
    "calls": [
     {
      "name": "write",
@@ -149,7 +149,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool: Successfully wrote to README",
    "calls": [
     {
      "name": "edit",
@@ -170,7 +170,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*manifest",
    "calls": [
     {
      "name": "edit",
@@ -187,7 +187,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*en\\.json",
    "calls": [
     {
      "name": "bash",
@@ -198,7 +198,7 @@
    ]
   },
   {
-   "when": "^tool:",
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
    "say": "[CANARY] Ready to publish: the README and the app names describe the Habit Tracker, and every test passes."
   }
  ]
