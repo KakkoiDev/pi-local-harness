@@ -229,7 +229,7 @@
           <div id="onboarding-actions" class="pw-dialog__actions"><button id="welcome-folder" class="pw-btn">Use an Existing Folder…</button><button id="welcome-create" class="pw-btn pw-btn--default">Create Your First Project…</button></div>
           <div class="suggestions" hidden><button class="pw-btn" data-prompt="Help me understand a piece of code">Understand some code</button><button class="pw-btn" data-prompt="Describe the image I attach">Explore an image</button><button class="pw-btn" data-prompt="Transcribe and summarize the audio I attach">Listen to a recording</button></div>
         </div>
-        <div id="messages" class="pw-transcript"></div><p id="chat-announce" class="pw-sr-only" role="status"></p><!-- the transcript is rebuilt on updates, so it is not a live region; this line announces new answers -->
+        <div id="messages" class="pw-transcript"></div><section id="queue" class="pw-queue" hidden aria-label="Waiting messages"></section><p id="chat-announce" class="pw-sr-only" role="status"></p><!-- the transcript is rebuilt on updates, so it is not a live region; this line announces new answers -->
       </section>
       <div class="composer-wrap">
         <div id="error" class="pw-alert-line" role="alert" hidden></div>

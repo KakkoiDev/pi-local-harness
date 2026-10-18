@@ -363,3 +363,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)
 
 - [ ] [324-Repair the chat critical path](tasks/324-chat-critical-path.md)
+
+- [x] [325-Read, edit and remove the messages waiting for Pi](tasks/325-queue-editing.md)

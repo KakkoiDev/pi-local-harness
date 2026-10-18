@@ -31,7 +31,7 @@ function terminal(bench, cwd, answers = []) {
   const tools = {};
   const pi = { registerCommand: (name, value) => { commands[name] = value; }, registerTool: tool => { tools[tool.name] = tool; }, sendMessage: message => notices.push(message.content) };
   installPhases(pi, { call: bench.gate });
-  installConsole(pi, { ports: () => ({ web: bench.ports.web }) });
+  installConsole(pi, { ports: () => ({ web: bench.ports.web, person: bench.ports.person }) });  // the person's own terminal (task 261)
   const editor = { text: '' };
   const ctx = { cwd, ui: { notify: text => notices.push(text), setEditorText: text => { editor.text = text; }, getEditorText: () => editor.text, setWidget() {},
     select: async (title, options) => { asked.push({ title, options }); const answer = answers.shift(); return typeof answer === 'function' ? answer(options) : answer; } } };
@@ -157,6 +157,34 @@ test('US-107 terminal: /queue, /job and /gate show a request the web ran and the
   assert.match(person.notices.at(-1), /Write it TEST_SCRIPT=write-in-discussion/);
   await person.type('gate');
   assert.match(person.notices.at(-1), /app\.py/); assert.match(person.notices.at(-1), /Revise|Blocked|✗|■/);
+});
+
+test('US-226 terminal: /queue edit and /queue remove change a waiting message after asking; Pi’s own harness tool cannot', async t => {
+  const bench = await workbench(t);
+  const { project } = await bench.api('/api/projects/create', { name: 'Waiting', parent: bench.directory, kind: 'empty' });
+  const running = await bench.api('/api/jobs/create', { project, message: 'Work for a while TEST_WAIT' });
+  await bench.job(running.id, ['running']);
+  const waiting = await bench.api('/api/jobs/create', { project, message: 'Make it blue' });
+  const id = waiting.id.slice(0, 8), job = async () => (await bench.api('/api/workspace')).jobs.find(item => item.id === waiting.id);
+  const person = terminal(bench, bench.directory, ['Save', 'Cancel', 'Remove Message']);
+  await person.type('queue', `edit ${id} Make it red`);
+  assert.match(person.asked[0].title, /Save the edited message\?[\s\S]*Before\s+“Make it blue”[\s\S]*After\s+“Make it red”/);
+  assert.deepEqual(person.asked[0].options, ['Save', 'Cancel']);
+  assert.match(person.notices.at(-1), /✓ Saved\. Pi gets the edited message in the same place\. “Make it red”/);
+  assert.deepEqual([(await job()).message, (await job()).version], ['Make it red', 2]);
+  await person.pi('queue', `remove ${id}`);  // the model's tool runs harness/admin.py, which only reads
+  assert.equal((await job()).status, 'queued', 'Pi cannot remove its own work');
+  await person.type('queue', `remove ${id}`);
+  assert.deepEqual(person.asked[1].options, ['Cancel', 'Remove Message'], 'Cancel first: removing is destructive');
+  assert.match(person.notices.at(-1), /Not changed/); assert.equal((await job()).status, 'queued');
+  await person.type('queue', `remove ${id}`);
+  assert.match(person.notices.at(-1), /✓ Removed\. Pi will never receive that message\./);
+  assert.equal((await job()).status, 'cancelled');
+  await person.type('queue', `edit ${id} too late`);
+  assert.match(person.notices.at(-1), /✗ No waiting message/);
+  const kinds = bench.lines(join(bench.data, 'decisions.jsonl')).filter(row => row.kind.startsWith('queue_')).map(row => [row.kind, row.who]);
+  assert.deepEqual(kinds, [['queue_edit', 'person'], ['queue_remove', 'person']]);
+  await bench.api('/api/jobs/stop', { id: running.id }); await bench.job(running.id);
 });
 
 test('US-110 terminal: a phase command outside a project offers the registered projects and applies to the chosen one', async t => {

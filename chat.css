@@ -648,3 +648,24 @@ dialog.pw-start--add[open]{width:720px;height:720px}
  .pw-cap .pw-radio{width:22px;height:22px;margin:0}
  .pw-start__where,.pw-start .pw-field{min-height:44px}
 }
+
+/* Task 325, the waiting messages under the transcript (js/queue-list.mjs). Not drawn yet: design/briefs/round-13.md,
+   "Waiting messages". Built from pw-card, pw-btn, pw-chip and pw-field; restyle here when the board exists. */
+.pw-queue{display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 32px 24px;font-family:var(--font-chrome)}
+.pw-queue__toggle{background:var(--paper);color:var(--ink);cursor:pointer;border-left:0;border-right:0}
+.pw-queue__toggle::before{content:'▾ '}
+.pw-queue__toggle[aria-expanded="false"]::before{content:'▸ '}
+.pw-queue__list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;align-self:stretch;align-items:center}
+.pw-queue__item{width:100%;box-shadow:none;border-style:dashed}
+.pw-queue__item--editing{border-style:solid;box-shadow:2px 2px 0 var(--ink)}
+.pw-queue__position{font-weight:600;min-width:1.5em}
+.pw-queue__when{flex:1}
+.pw-queue__edited{font-style:italic}
+.pw-queue__text{font-family:var(--font-text);font-size:16px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-queue__field{font-size:16px}
+.pw-queue__notice{margin:0;font-size:14px;text-align:center;max-width:640px}
+@media (max-width:760px){
+ .pw-queue{padding:0 16px 18px}
+ .pw-queue__actions .pw-btn,.pw-queue__toggle{min-height:44px}
+ .pw-queue__file button{width:44px;height:44px}
+}

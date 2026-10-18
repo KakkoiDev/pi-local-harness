@@ -5,6 +5,7 @@ import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { renderView, ansiStyle } from './terminal-render.mjs';
 import { translateView, tr } from './language.mjs';
+import { queueChange } from './queue-console.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -12,7 +13,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 export const CONSOLE_COMMANDS = {
   harness: 'What the harness is and the commands it offers.',
   status: 'Services, model, queue and Gate counts, data folder, build.',
-  queue: 'Requests in Activity: /queue [all|running|waiting|failed|…].',
+  queue: 'Requests in Activity: /queue [all|running|waiting|failed|…] · /queue edit <id> <words> · /queue remove <id>.',
   job: 'The Markdown record of one request: /job <id> (its first 8 characters).',
   gate: 'Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.',
   models: 'Installed models; /models use · check · pull · remove <name> (changes ask first).',
@@ -129,6 +130,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
         const target = name === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words;
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
         const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${tr(line)}`)) }], hint: '/harness lists the commands' });
+        if (name === 'queue' && ['edit', 'remove'].includes(words[0])) { show(name, words, await queueChange(words, { ports, ask: ctx?.ui?.select ? (question, choices) => ctx.ui.select(question, choices) : null })); return; }  // task 325: the person's terminal only
         let { ok, code, text } = await run(name, [...target, '--view'], options);
         if (code === 3) { // a change: what changes from what to what; it runs only after the person's yes (plan 158, C1)
           const shape = parse(text), preview = shape?.preview || {};

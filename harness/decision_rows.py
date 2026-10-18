@@ -23,7 +23,7 @@ NAMES = {
     'task_reopen': 'Task reopened', 'box_ticked': 'Boxes ticked', 'step_done': 'Task done', 'guide_chosen': 'Guide',
     'applicable_guide': 'Guide', 'waiting_reply': 'Your reply', 'phase_intent': 'Phase asked for',
     'assumed_value': 'Stated value', 'shell_risk': 'Command risk', 'command_allowed': 'Command', 'tool_permission': 'Tool',
-    'tool_audit': 'Tool check', 'theme_panel': 'Theme panel', 'phase_start': 'Started by the phase', 'nudge': 'Nudged Pi',
+    'tool_audit': 'Tool check', 'theme_panel': 'Theme panel', 'queue_edit': 'Waiting message', 'queue_remove': 'Waiting message', 'phase_start': 'Started by the phase', 'nudge': 'Nudged Pi',
 }
 OUTCOMES = {'BLOCK': 'refused', 'REVISE': 'sent back', 'ESCALATE': 'asked you', 'EXECUTION_FAILED': 'failed',
             'DRIFT_DETECTED': 'changed after approval', 'POSTCONDITION_FAILED': 'check failed', 'UNAVAILABLE': 'not checked'}

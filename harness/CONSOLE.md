@@ -9,7 +9,7 @@ by hand: they read live data.
 | `/harness` | A list to choose from (the choice goes on the input line); `/harness list` prints what the harness is and this list. Tab completes each command's words. |
 | `/discuss` · `/plan` · `/build` | Choose the project’s shared phase. `/build` reviews the planned tasks and asks before starting; with none planned, use `/plan` first. |
 | `/status` | Services, model, queue and Gate counts, data folder, build. |
-| `/queue [all\|running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). |
+| `/queue [all\|running\|waiting\|failed\|stopped\|interrupted\|completed]` | Requests in Activity (the one queue of the one agent). `/queue edit <id> <new words>` and `/queue remove <id>` change a message that still waits (asks first; only the person's terminal, never Pi's harness tool; refused once Pi started it). |
 | `/job <id>` | The Markdown record of one request (the first 8 characters of its id are enough). |
 | (tool) `browser` | Pi opens a page (a scratch workbench by default) at a chosen size, clicks and types, and measures: scrolled and scrollable elements, positioned elements, boxes, styles, console errors, a screenshot. |
 | `/bench` | The bench: fixed scenarios run with the real model through the harness (`python3 -m bench run`); solved, verified, time, wake-ups and refusals per model and harness build, and the latest runs. |
