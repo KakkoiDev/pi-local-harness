@@ -72,11 +72,14 @@ export function blocksPrompt(names, index, budget = BUDGET, others = []) {
   const push = name => { if (index.byName.has(name) && !order.includes(name)) order.push(name); };
   push(names[0]); for (const required of index.byName.get(names[0])?.requires || []) push(required);
   for (const name of names.slice(1)) { push(name); for (const required of index.byName.get(name)?.requires || []) push(required); }
+  // The first card and the cards it assumes always go in (an archetype without AppFoundations is half a card); the budget
+  // decides the rest.
+  const always = new Set([names[0], ...(index.byName.get(names[0])?.requires || [])]);
   const parts = [], left = [];
   let used = 0;
   for (const name of order) {
     const text = cardText(name, index);
-    if (!parts.length || used + text.length <= budget) { parts.push(text); used += text.length; } else left.push(name);
+    if (always.has(name) || used + text.length <= budget) { parts.push(text); used += text.length; } else left.push(name);
   }
   left.push(...others.filter(name => index.byName.has(name) && !order.includes(name)));
   const more = left.length ? `\n\nAlso relevant (load with app_block when you need it): ${left.join(', ')}.` : '';
