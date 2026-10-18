@@ -1,0 +1,106 @@
+<!-- @dsCard group="Charts" height=959 width=1250 subtitle="One value against a limit" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>GaugeRing — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · gauge (270°)</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid grid-cols-2 gap-4"><section class="card" aria-labelledby="d-storage-title">
+  <header>
+    <h2 id="d-storage-title" data-t="chart.storage.title">Storage used</h2>
+    <p data-t="chart.storage.lede">7.2 GB of 10 GB</p>
+  </header>
+  <section>
+    <div class="relative mx-auto w-56">
+      <canvas id="d-storage-gauge" class="chart aspect-square" role="img" aria-label="Storage used: 72 percent, 7.2 GB of 10 GB." data-chart-type="doughnut" data-chart-label-key="part" data-chart-legend="false" data-chart-tooltip="false"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-3xl font-semibold tabular-nums">72 %</span></div>
+    </div>
+    <p class="text-muted-foreground mt-2 text-center text-xs" data-t="chart.storage.scale">0 GB · 10 GB</p>
+    
+  </section>
+</section></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-storage-title">
+  <header>
+    <h2 id="p-storage-title" data-t="chart.storage.title">使用中の容量</h2>
+    <p data-t="chart.storage.lede">10 GB中 7.2 GB</p>
+  </header>
+  <section>
+    <div class="relative mx-auto w-56">
+      <canvas id="p-storage-gauge" class="chart aspect-square" role="img" aria-label="使用中の容量：72%、10 GB中 7.2 GB。" data-chart-type="doughnut" data-chart-label-key="part" data-chart-legend="false" data-chart-tooltip="false"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-3xl font-semibold tabular-nums">72%</span></div>
+    </div>
+    <p class="text-muted-foreground mt-2 text-center text-xs">0 GB · 10 GB</p>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Progress ring (360°), small</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="flex items-center gap-4"><div class="relative size-24"><canvas id="s1-goal-ring" class="chart aspect-square" role="img" aria-label="Lessons this week: 4 of 5 done." data-chart-type="doughnut" data-chart-label-key="part" data-chart-legend="false" data-chart-tooltip="false"></canvas><div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-lg font-semibold tabular-nums">4/5</span></div></div><div><h3 class="text-sm font-medium">Lessons this week</h3><p class="text-muted-foreground text-sm">4 of 5 done</p></div></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Over the warning line (90 %)</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-storage-title">
+  <header>
+    <h2 id="s2-storage-title" data-t="chart.storage.title">Storage used</h2>
+    <p data-t="chart.storage.lede">9.6 GB of 10 GB</p>
+  </header>
+  <section>
+    <div class="relative mx-auto w-56">
+      <canvas id="s2-storage-gauge" class="chart aspect-square" role="img" aria-label="Storage used: 96 percent, almost full." data-chart-type="doughnut" data-chart-label-key="part" data-chart-legend="false" data-chart-tooltip="false"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-3xl font-semibold tabular-nums">96 %</span></div>
+    </div>
+    <p class="text-destructive mt-2 text-center text-sm" role="status">Almost full. Delete files or upgrade to keep uploading.</p>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s3-storage-title">
+  <header>
+    <h2 id="s3-storage-title" data-t="chart.storage.title">Storage used</h2>
+    <p data-t="chart.storage.lede"></p>
+  </header>
+  <section>
+    <div class="skeleton mx-auto size-56 rounded-full" role="status" aria-busy="true"><span class="sr-only">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-storage-gauge'), {chartData: {labels: ['Used', 'Free'], datasets: [{data: [72, 28], backgroundColor: ['var(--chart-1)', 'var(--border)'], borderWidth: 0}]}, options: {circumference: 270, rotation: -135, cutout: '80%', animation: false}});
+basecoat.chart(document.getElementById('p-storage-gauge'), {chartData: {labels: ['Used', 'Free'], datasets: [{data: [72, 28], backgroundColor: ['var(--chart-1)', 'var(--border)'], borderWidth: 0}]}, options: {circumference: 270, rotation: -135, cutout: '80%', animation: false}});
+basecoat.chart(document.getElementById('s2-storage-gauge'), {chartData: {labels: ['Used', 'Free'], datasets: [{data: [96, 4], backgroundColor: ['var(--chart-5)', 'var(--border)'], borderWidth: 0}]}, options: {circumference: 270, rotation: -135, cutout: '80%', animation: false}});
+basecoat.chart(document.getElementById('s1-goal-ring'), {chartData: {labels: ['Used', 'Free'], datasets: [{data: [80, 20], backgroundColor: ['var(--chart-1)', 'var(--border)'], borderWidth: 0}]}, options: {cutout: '78%', animation: false}});
+</script>
+</body>
+</html>

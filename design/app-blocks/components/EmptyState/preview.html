@@ -1,0 +1,67 @@
+<!-- @dsCard group="Data" height=750 width=1250 subtitle="First run, no match, all done" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>EmptyState — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · first run</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-6"><div class="empty border @max-3xl:p-8">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg></figure>
+    <h2 data-t="empty.first_title">No notes yet</h2>
+    <p data-t="empty.first_text">Write your first note: a word list, a grammar rule, anything from class.</p>
+  </header>
+  <footer class="flex-row flex-wrap justify-center gap-2 @max-3xl:flex-col @max-3xl:items-stretch">
+    <a href="/notes/new" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="empty.first_action">New Note</span></a>
+    <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('f1-import-file').click()" data-t="empty.first_secondary">Import from a File…</button>
+  </footer>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · first run</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="empty border @max-3xl:p-8">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg></figure>
+    <h2 data-t="empty.first_title">ノートはまだありません</h2>
+    <p data-t="empty.first_text">最初のノートを書きましょう。単語リスト、文法のルールなど、授業の内容なら何でも。</p>
+  </header>
+  <footer class="flex-row flex-wrap justify-center gap-2 @max-3xl:flex-col @max-3xl:items-stretch">
+    <a href="/notes/new" class="btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="empty.first_action">新しいノート</span></a>
+    <button type="button" class="btn" data-variant="outline" onclick="document.getElementById('f2-import-file').click()" data-t="empty.first_secondary">ファイルから読み込む…</button>
+  </footer>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No match</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="empty border @max-3xl:p-8">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></figure>
+    <h2 data-t="empty.search_title">No notes match “hiragana”</h2>
+    <p data-t="empty.search_text">Check the spelling or clear the filters.</p>
+  </header>
+  <footer><a href="/notes" class="btn" data-variant="outline" data-t="empty.search_action">Clear Filters</a></footer>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>All done</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="empty border @max-3xl:p-8">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></figure>
+    <h2 data-t="empty.done_title">Nothing to review today</h2>
+    <p data-t="empty.done_text">Notes you mark for review show up here on their day.</p>
+  </header>
+
+</div></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

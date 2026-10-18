@@ -1,0 +1,61 @@
+<!-- @dsCard group="App shell" height=987 width=1250 subtitle="Search, questions, shortcuts, contact" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Help — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · one answer open</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <header class="grid gap-3">
+          <h1 class="text-2xl font-semibold">Help</h1>
+          <div class="input-group @max-3xl:h-11"><span data-align="inline-start"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><input type="search" placeholder="Search help" aria-label="Search help"></div>
+        </header>
+        <section>
+          <h2 class="text-muted-foreground mb-1 text-sm font-medium">Notes</h2>
+          <div class="accordion">
+            <details open><summary><span>How do I add furigana?</span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>Select the kanji, then press Furigana in the toolbar and type the reading. It shows above the kanji.</p></details>
+            <details><summary><span>Does it work without internet?</span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>Yes.</p></details>
+            <details><summary><span>How do I share a note with my class?</span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>…</p></details>
+          </div>
+        </section>
+        <section class="card @max-3xl:hidden"><header><h2 class="font-semibold">Keyboard shortcuts</h2></header><section>
+          <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm"><dt>New note</dt><dd><kbd class="kbd">N</kbd></dd><dt>Search</dt><dd><kbd class="kbd">/</kbd></dd><dt>All shortcuts</dt><dd><kbd class="kbd">?</kbd></dd></dl>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">Still stuck?</h2><p class="text-muted-foreground text-sm">Write to us and say what you tried. We answer within two working days.</p></header>
+          <footer class="flex flex-wrap items-center gap-3"><span class="font-mono text-sm select-all">help@classnotes.example</span><button class="btn" data-variant="outline" data-size="sm" type="button">Copy Address</button></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · searching, no shortcuts card</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <header class="grid gap-3">
+          <h1 class="text-2xl font-semibold">ヘルプ</h1>
+          <div class="input-group @max-3xl:h-11"><span data-align="inline-start"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><input type="search" value="オフライン" aria-label="ヘルプを検索"></div>
+        </header>
+        <section>
+          <h2 class="text-muted-foreground mb-1 text-sm font-medium">ノート</h2>
+          <div class="accordion"><details open><summary><span>インターネットなしでも使えますか？</span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>はい。ノートはデバイスに保存され、オンラインに戻ると同期されます。</p></details></div>
+        </section>
+        <section class="card @max-3xl:hidden"><header><h2 class="font-semibold">キーボードショートカット</h2></header></section>
+        <section class="card"><header><h2 class="font-semibold">解決しませんか？</h2><p class="text-muted-foreground text-sm">試したことを書いてお送りください。2営業日以内にお返事します。</p></header>
+          <footer class="flex flex-wrap items-center gap-3"><span class="font-mono text-sm select-all">help@classnotes.example</span><button class="btn" data-variant="outline" data-size="sm" type="button">アドレスをコピー</button></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No match</figcaption>
+    <div class="ab-screen app p-4"><p class="text-muted-foreground text-sm" role="status">Nothing matches “refund”. Try other words, or write to us.</p></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Address copied</figcaption>
+    <div class="ab-screen app p-4 flex flex-wrap items-center gap-3"><span class="font-mono text-sm">help@classnotes.example</span><button class="btn" data-variant="outline" data-size="sm" type="button">Copied</button></div>
+  </figure>
+</div>
+</body>
+</html>

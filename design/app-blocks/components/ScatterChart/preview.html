@@ -1,0 +1,95 @@
+<!-- @dsCard group="Charts" height=992 width=1250 subtitle="Two numbers together" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ScatterChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · two groups, different point shapes</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-study-title">
+  <header>
+    <h2 id="d-study-title" data-t="chart.study.title">Study hours and scores</h2>
+    <p data-t="chart.study.lede">Each point is one student, last test</p>
+  </header>
+  <section>
+    <canvas id="d-study-chart" class="chart aspect-video max-h-80" role="img" aria-label="Study hours against test score: more hours, higher scores, in both classes." data-chart-type="scatter" data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Class</th><th>Hours a week</th><th>Score</th></tr></thead><tbody><tr><th scope="row">Class A</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">41</td></tr><tr><th scope="row">Class A</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">44</td></tr><tr><th scope="row">Class A</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">49</td></tr><tr><th scope="row">Class A</th><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">50</td></tr><tr><th scope="row">Class B</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">33</td></tr><tr><th scope="row">Class B</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">32</td></tr><tr><th scope="row">Class B</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">38</td></tr><tr><th scope="row">Class B</th><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">57</td></tr></tbody></table></div><p class="text-muted-foreground text-xs mt-2">…</p></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-study-title">
+  <header>
+    <h2 id="p-study-title" data-t="chart.study.title">勉強時間と点数</h2>
+    <p data-t="chart.study.lede">1点が生徒1人、前回のテスト</p>
+  </header>
+  <section>
+    <canvas id="p-study-chart" class="chart aspect-video max-h-80" role="img" aria-label="勉強時間と点数：どちらのクラスも、勉強時間が長いほど点数が高くなっています。" data-chart-type="scatter" data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>クラス</th><th>週の勉強時間</th><th>点数</th></tr></thead><tbody><tr><th scope="row">Aクラス</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">41</td></tr><tr><th scope="row">Aクラス</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">44</td></tr><tr><th scope="row">Aクラス</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">49</td></tr><tr><th scope="row">Aクラス</th><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">50</td></tr><tr><th scope="row">Bクラス</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">33</td></tr><tr><th scope="row">Bクラス</th><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">32</td></tr><tr><th scope="row">Bクラス</th><td class="text-right tabular-nums">2</td><td class="text-right tabular-nums">38</td></tr><tr><th scope="row">Bクラス</th><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">57</td></tr></tbody></table></div><p class="text-muted-foreground text-xs mt-2">…</p></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-study-title">
+  <header>
+    <h2 id="s1-study-title" data-t="chart.study.title">Study hours and scores</h2>
+    <p data-t="chart.study.lede">Last test</p>
+  </header>
+  <section>
+    <div class="skeleton aspect-video w-full" role="status" aria-busy="true"><span class="sr-only" data-t="chart.loading">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-study-title">
+  <header>
+    <h2 id="s2-study-title" data-t="chart.study.title">Study hours and scores</h2>
+    <p data-t="chart.study.lede">Last test</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.study.empty_title">No scores yet</h3>
+    <p data-t="chart.study.empty">Points appear when the first test is marked.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-study-chart'), {chartData: {datasets: [
+    {label: 'Class A', data: [{"x":1,"y":41},{"x":2,"y":44},{"x":2,"y":49},{"x":3,"y":50},{"x":4,"y":54},{"x":4,"y":60},{"x":5,"y":75},{"x":6,"y":78},{"x":6,"y":78},{"x":7,"y":73},{"x":8,"y":85},{"x":9,"y":85}], backgroundColor: 'var(--chart-1)', borderColor: 'var(--chart-1)', pointStyle: 'circle', pointRadius: 5},
+    {label: 'Class B', data: [{"x":1,"y":33},{"x":1,"y":32},{"x":2,"y":38},{"x":3,"y":57},{"x":3,"y":55},{"x":5,"y":64},{"x":5,"y":64},{"x":6,"y":56},{"x":7,"y":63},{"x":7,"y":69},{"x":8,"y":76},{"x":10,"y":87}], backgroundColor: 'var(--chart-2)', borderColor: 'var(--chart-2)', pointStyle: 'triangle', pointRadius: 6}
+  ]}, options: {scales: {x: {title: {display: true, text: 'Hours a week', color: 'var(--muted-foreground)'}, ticks: {color: 'var(--muted-foreground)'}}, y: {min: 0, max: 100, title: {display: true, text: 'Score', color: 'var(--muted-foreground)'}, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+basecoat.chart(document.getElementById('p-study-chart'), {chartData: {datasets: [
+    {label: 'Aクラス', data: [{"x":1,"y":41},{"x":2,"y":44},{"x":2,"y":49},{"x":3,"y":50},{"x":4,"y":54},{"x":4,"y":60},{"x":5,"y":75},{"x":6,"y":78},{"x":6,"y":78},{"x":7,"y":73},{"x":8,"y":85},{"x":9,"y":85}], backgroundColor: 'var(--chart-1)', borderColor: 'var(--chart-1)', pointStyle: 'circle', pointRadius: 5},
+    {label: 'Bクラス', data: [{"x":1,"y":33},{"x":1,"y":32},{"x":2,"y":38},{"x":3,"y":57},{"x":3,"y":55},{"x":5,"y":64},{"x":5,"y":64},{"x":6,"y":56},{"x":7,"y":63},{"x":7,"y":69},{"x":8,"y":76},{"x":10,"y":87}], backgroundColor: 'var(--chart-2)', borderColor: 'var(--chart-2)', pointStyle: 'triangle', pointRadius: 6}
+  ]}, options: {scales: {x: {title: {display: true, text: '週の勉強時間', color: 'var(--muted-foreground)'}, ticks: {color: 'var(--muted-foreground)'}}, y: {min: 0, max: 100, title: {display: true, text: '点数', color: 'var(--muted-foreground)'}, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+</script>
+</body>
+</html>

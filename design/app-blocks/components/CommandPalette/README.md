@@ -1,0 +1,118 @@
+# CommandPalette
+
+One search box for everything: go to a place, find a note, or run an action, opened with ⌘K (Mac) or Ctrl K anywhere.
+
+| | |
+| --- | --- |
+| Group | Navigation |
+| Basecoat | `command-dialog` and `command` (with `js/basecoat.min.js`) |
+| Needs | Web: `GET /search/command?q=` returning the Notes group; no server: `store.search(q)` |
+| Used in | AppNotes, AppCode, AppAdmin, AppCrm, AppChat; opened by TopBar's search on the phone |
+| Links to | GlobalSearch (the full results page), ShortcutHelp (lists ⌘K) |
+
+## Markup
+
+```html
+<dialog id="command" class="command-dialog" aria-label="Search and commands" data-t-label="command.label" onclick="if (event.target === this) this.close()">
+  <div class="command">
+    <header>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="command-input" placeholder="Search notes or type a command…" data-t-placeholder="command.placeholder" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+    </header>
+    <div role="menu" id="command-menu" aria-orientation="vertical" data-empty="Nothing found for that. Try fewer words.">
+      <div id="command-results">
+      <div role="group" aria-labelledby="command-notes">
+        <span role="heading" id="command-notes" data-t="command.notes">Notes</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-n1" href="/notes/42" data-force><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span>Week 3 · Vocabulary</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-n2" href="/notes/57" data-force><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span>Vocabulary quiz answers</span></a>
+      </div>
+      <hr role="separator">
+      </div>
+      <div role="group" aria-labelledby="command-goto">
+        <span role="heading" id="command-goto" data-t="command.goto">Go To</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-home" href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="command.home">Home</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-inbox" href="/inbox" data-keywords="messages mail 受信"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span data-t="command.inbox">Inbox</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-settings" href="/settings" data-keywords="preferences options 設定"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.settings">Settings</span></a>
+      </div>
+      <hr role="separator">
+      <div role="group" aria-labelledby="command-actions">
+        <span role="heading" id="command-actions" data-t="command.actions">Actions</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="command-new" href="/notes/new" data-keywords="create add 作成"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="command.new_note">New Note</span></a>
+        <div role="menuitem" class="@max-3xl:min-h-11" id="command-theme" onclick="toggleTheme()" data-keywords="dark light theme ダーク"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.theme">Switch Light or Dark</span></div>
+      </div>
+    </div>
+    <footer class="flex justify-end border-t px-3 py-2 text-xs text-muted-foreground" data-t="command.hint">↑↓ Move · ↵ Open · Esc Close</footer>
+  </div>
+</dialog>
+<script>
+  document.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      const palette = document.getElementById('command');
+      palette.open ? palette.close() : palette.showModal();
+    }
+  });
+</script>
+```
+
+- Put it once, at the end of `<body>`, outside `.app`. TopBar's search icon calls `document.getElementById('command').showModal()`.
+- Basecoat filters the fixed items as you type (their text and `data-keywords`, which should include the other language's words). Search results come from the server into `#command-results` and carry `data-force` so the filter keeps them.
+- An item is a link (`<a role="menuitem" href>`) when it goes somewhere, a `div role="menuitem"` with `onclick` when it acts. Return or a click runs it.
+
+## States
+
+| State | What changes |
+| --- | --- |
+| Opened, empty query | Recent notes (last 5 opened), Go To and Actions. The first item is highlighted (`.active`). |
+| Typing | Fixed items filter at once; after 200 ms the Notes group is replaced by the server's results. |
+| Searching | While the request runs and nothing else matches, set the menu's `data-empty` to `command.searching`; put `command.empty` back when the answer arrives. |
+| No match | Every item hidden: the menu shows `data-empty` (`command.empty`). |
+| Error | The Notes group shows “Couldn’t search right now.” (InlineAlert keys) with the fixed items still usable. |
+| Offline (web app) | Only Go To and Actions; the search request isn't sent. |
+| Closed | Esc, a click outside, or running an item. Focus returns to what had it before. |
+
+## Texts
+
+| Key | English | 日本語 |
+| --- | --- | --- |
+| `command.label` | Search and commands | 検索とコマンド |
+| `command.placeholder` | Search notes or type a command… | ノートを検索、またはコマンドを入力… |
+| `command.empty` | Nothing found for that. Try fewer words. | 見つかりませんでした。言葉を減らしてお試しください。 |
+| `command.goto` | Go To | 移動 |
+| `command.actions` | Actions | 操作 |
+| `command.notes` | Notes | ノート |
+| `command.home` | Home | ホーム |
+| `command.inbox` | Inbox | 受信箱 |
+| `command.settings` | Settings | 設定 |
+| `command.new_note` | New Note | 新しいノート |
+| `command.theme` | Switch Light or Dark | ライト／ダークを切り替え |
+| `command.hint` | ↑↓ Move · ↵ Open · Esc Close | ↑↓ 移動 · ↵ 開く · Esc 閉じる |
+| `command.searching` | Searching… | 検索中… |
+
+## Keyboard and focus
+
+1. Focus starts in the input when it opens.
+- ↑ ↓ move the highlight (Home, End jump), Return runs the highlighted item, Esc closes.
+- ⌘K / Ctrl K toggles it from anywhere, also while typing in a field.
+- Tab does not leave the dialog (it is modal).
+
+## Phone
+
+- It opens near the top of the screen, as wide as the screen allows, so the keyboard doesn't cover it. Items get `@max-3xl:min-h-11` (Basecoat's are 32 px; App foundations doesn't cover command items).
+- The footer hint is hidden (`@max-3xl:hidden`): there is no keyboard to hint at.
+- Opened by TopBar's search icon; there is no shortcut.
+
+## Data
+
+```json
+{"q": "vocab", "results": [{"type": "note", "id": 42, "title": "Week 3 · Vocabulary", "href": "/notes/42"}]}
+```
+
+- Web: `GET /search/command?q=vocab` → a fragment of `<div role="group">` with up to 8 `<a role="menuitem" data-force>` (200); empty query → recent notes.
+- No server: `store.search(q, {limit: 8})` then render the same items into `#command-results`.
+
+## Don't
+
+- Don't use it as the only way to reach a place; everything in it also exists in the visible navigation.
+- Don't bind ⌘N, ⌘T or ⌘W: the browser keeps them.
+- Don't run destructive actions from it without ConfirmDialog.

@@ -1,0 +1,91 @@
+<!-- @dsCard group="Charts" height=1066 width=1250 subtitle="Steps people go through" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>FunnelChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · horizontal bars</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-funnel-title">
+  <header>
+    <h2 id="d-funnel-title" data-t="chart.funnel.title">Shop funnel</h2>
+    <p data-t="chart.funnel.lede">October, from visit to payment</p>
+  </header>
+  <section>
+    <canvas id="d-funnel-chart" class="chart aspect-auto h-64" role="img" aria-label="Shop funnel: 12,400 visits, 986 paid, 8 % overall. The biggest drop is from viewing a product to adding to cart (31 % carry on)." data-chart-type="bar" data-chart-label-key="stage" data-chart-data='[{"stage":"Visited the shop","people":12400},{"stage":"Viewed a product","people":6820},{"stage":"Added to cart","people":2140},{"stage":"Started checkout","people":1310},{"stage":"Paid","people":986}]' data-chart-series='{"people":{"label":"People","color":"var(--chart-1)"}}' data-chart-legend="false"></canvas>
+    <p class="text-muted-foreground mt-2 text-sm">Overall: <b class="text-foreground">8 %</b> of visitors paid. Biggest drop: Viewed a product → Added to cart (31 % carry on).</p>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Stage</th><th>People</th><th>Carried on</th></tr></thead><tbody><tr><th scope="row">Visited the shop</th><td class="text-right tabular-nums">12,400</td><td class="text-right tabular-nums">100 %</td></tr><tr><th scope="row">Viewed a product</th><td class="text-right tabular-nums">6,820</td><td class="text-right tabular-nums">55 %</td></tr><tr><th scope="row">Added to cart</th><td class="text-right tabular-nums">2,140</td><td class="text-right tabular-nums">31 %</td></tr><tr><th scope="row">Started checkout</th><td class="text-right tabular-nums">1,310</td><td class="text-right tabular-nums">61 %</td></tr><tr><th scope="row">Paid</th><td class="text-right tabular-nums">986</td><td class="text-right tabular-nums">75 %</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-funnel-title">
+  <header>
+    <h2 id="p-funnel-title" data-t="chart.funnel.title">ショップのファネル</h2>
+    <p data-t="chart.funnel.lede">10月、訪問から支払いまで</p>
+  </header>
+  <section>
+    <canvas id="p-funnel-chart" class="chart aspect-auto h-64" role="img" aria-label="ショップのファネル：訪問12,400、支払い986、全体で8%。" data-chart-type="bar" data-chart-label-key="stage" data-chart-data='[{"stage":"ショップを訪問","people":12400},{"stage":"商品を表示","people":6820},{"stage":"カートに追加","people":2140},{"stage":"購入手続きを開始","people":1310},{"stage":"支払い完了","people":986}]' data-chart-series='{"people":{"label":"人数","color":"var(--chart-1)"}}' data-chart-legend="false"></canvas>
+    <p class="text-muted-foreground mt-2 text-sm">全体：訪問者の<b class="text-foreground">8%</b>が支払いまで進みました。最大の離脱：商品を表示 → カートに追加（31%が次へ）。</p>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>段階</th><th>人数</th><th>次へ進んだ割合</th></tr></thead><tbody><tr><th scope="row">ショップを訪問</th><td class="text-right tabular-nums">12,400</td><td class="text-right tabular-nums">100 %</td></tr><tr><th scope="row">商品を表示</th><td class="text-right tabular-nums">6,820</td><td class="text-right tabular-nums">55 %</td></tr><tr><th scope="row">カートに追加</th><td class="text-right tabular-nums">2,140</td><td class="text-right tabular-nums">31 %</td></tr><tr><th scope="row">購入手続きを開始</th><td class="text-right tabular-nums">1,310</td><td class="text-right tabular-nums">61 %</td></tr><tr><th scope="row">支払い完了</th><td class="text-right tabular-nums">986</td><td class="text-right tabular-nums">75 %</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-funnel-title">
+  <header>
+    <h2 id="s1-funnel-title" data-t="chart.funnel.title">Shop funnel</h2>
+    <p data-t="chart.funnel.lede">October</p>
+  </header>
+  <section>
+    <div class="skeleton h-64 w-full" role="status" aria-busy="true"><span class="sr-only">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-funnel-title">
+  <header>
+    <h2 id="s2-funnel-title" data-t="chart.funnel.title">Shop funnel</h2>
+    <p data-t="chart.funnel.lede">October</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.funnel.empty_title">No visits in October</h3>
+    <p data-t="chart.funnel.empty">The funnel fills in as people visit the shop.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-funnel-chart'), {options: {indexAxis: 'y', scales: {x: {ticks: {display: false}, grid: {display: true}}, y: {grid: {display: false}, ticks: {display: true, color: 'var(--foreground)'}}}}});
+basecoat.chart(document.getElementById('p-funnel-chart'), {options: {indexAxis: 'y', scales: {x: {ticks: {display: false}, grid: {display: true}}, y: {grid: {display: false}, ticks: {display: true, color: 'var(--foreground)'}}}}});
+</script>
+</body>
+</html>

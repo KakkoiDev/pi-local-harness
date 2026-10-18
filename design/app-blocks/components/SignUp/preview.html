@@ -1,0 +1,74 @@
+<!-- @dsCard group="Accounts" height=923 width=1250 subtitle="Name, email, password, terms" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SignUp — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · filled in</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[600px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">Create an Account</h1>
+            <p class="text-muted-foreground text-sm">It takes a minute. We’ll send you an email to confirm it’s you.</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="field"><label class="label" for="d-name">Your name</label><input class="input" id="d-name" type="text" value="Aiko Tanaka"></div>
+            <div class="field"><label class="label" for="d-email">Email</label><input class="input" id="d-email" type="email" value="aiko@example.com"></div>
+            <div class="field"><label class="label" for="d-pass">Password</label><input class="input" id="d-pass" type="password" value="a quiet morning" aria-describedby="d-pass-help"><p class="text-muted-foreground text-sm" id="d-pass-help">At least 10 characters. A short sentence is easy to remember.</p></div>
+            <label class="label gap-2 font-normal items-start"><input class="input mt-0.5" type="checkbox" checked><span><span>I agree to the</span> <a class="underline underline-offset-4" href="#">terms of use</a></span></label>
+          </section>
+          <footer class="grid gap-3">
+            <button class="btn w-full" type="button">Create Account</button>
+            <p class="text-muted-foreground text-center text-sm"><span>Already have an account?</span> <a class="text-foreground underline underline-offset-4" href="#">Log In</a></p>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · empty</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[600px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">アカウントを作成</h1>
+            <p class="text-muted-foreground text-sm">1分ほどで終わります。ご本人確認のためメールをお送りします。</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="field"><label class="label" for="p-name">お名前</label><input class="input" id="p-name" type="text"></div>
+            <div class="field"><label class="label" for="p-email">メールアドレス</label><input class="input" id="p-email" type="email"></div>
+            <div class="field"><label class="label" for="p-pass">パスワード</label><input class="input" id="p-pass" type="password"><p class="text-muted-foreground text-sm">10文字以上。短い文にすると覚えやすくなります。</p></div>
+            <label class="label gap-2 font-normal items-start"><input class="input mt-0.5" type="checkbox"><span><span>同意します：</span> <a class="underline underline-offset-4" href="#">利用規約</a></span></label>
+          </section>
+          <footer class="grid gap-3">
+            <button class="btn w-full" type="button">アカウントを作成</button>
+            <p class="text-muted-foreground text-center text-sm"><span>すでにアカウントをお持ちの場合</span> <a class="text-foreground underline underline-offset-4" href="#">ログイン</a></p>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Email taken</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" data-variant="destructive" role="alert"><h2>Couldn’t create your account</h2><section>That email already has an account. Log in instead, or reset your password.</section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Password too short</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="field"><label class="label" for="s-pass">Password</label><input class="input" id="s-pass" type="password" value="short" aria-invalid="true" aria-describedby="s-pass-err"><p class="text-destructive text-sm" id="s-pass-err">Use at least 10 characters.</p></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Terms not checked</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <label class="label gap-2 font-normal items-start"><input class="input mt-0.5" type="checkbox" aria-invalid="true"><span><span>I agree to the</span> <a class="underline underline-offset-4" href="#">terms of use</a></span></label>
+      <p class="text-destructive text-sm">Check this box to continue.</p>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

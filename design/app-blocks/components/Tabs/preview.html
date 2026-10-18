@@ -1,0 +1,73 @@
+<!-- @dsCard group="Navigation" height=420 width=1250 subtitle="Views of one thing, two styles" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Tabs — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · default style</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-6"><div class="tabs" id="f1-note-tabs">
+  <nav role="tablist" aria-orientation="horizontal" aria-label="Note sections" class="@max-3xl:w-full @max-3xl:justify-start @max-3xl:overflow-x-auto">
+    <button type="button" role="tab" id="f1-note-tabs-tab-1" aria-controls="f1-note-tabs-panel-1" aria-selected="true" tabindex="0"><span data-t="tabs.note">Note</span></button>
+    <button type="button" role="tab" id="f1-note-tabs-tab-2" aria-controls="f1-note-tabs-panel-2" aria-selected="false" tabindex="-1"><span data-t="tabs.details">Details</span></button>
+    <button type="button" role="tab" id="f1-note-tabs-tab-3" aria-controls="f1-note-tabs-panel-3" aria-selected="false" tabindex="-1"><span data-t="tabs.history">History</span></button>
+    <button type="button" role="tab" id="f1-note-tabs-tab-4" aria-controls="f1-note-tabs-panel-4" aria-selected="false" tabindex="-1"><span data-t="tabs.sharing">Sharing</span><span class="badge ms-1.5" data-variant="secondary">2</span></button>
+  </nav>
+  <div role="tabpanel" id="f1-note-tabs-panel-1" aria-labelledby="f1-note-tabs-tab-1" tabindex="-1"><div class="py-4 text-sm">駅 (eki) station · 電車 (densha) train · 切符 (kippu) ticket</div></div>
+  <div role="tabpanel" id="f1-note-tabs-panel-2" aria-labelledby="f1-note-tabs-tab-2" tabindex="-1" hidden><!-- details --></div>
+  <div role="tabpanel" id="f1-note-tabs-panel-3" aria-labelledby="f1-note-tabs-tab-3" tabindex="-1" hidden><div class="py-4" hx-get="/notes/42/history" hx-trigger="intersect once" hx-swap="innerHTML"><p class="text-muted-foreground text-sm" data-t="tabs.loading">Loading history…</p></div></div>
+  <div role="tabpanel" id="f1-note-tabs-panel-4" aria-labelledby="f1-note-tabs-tab-4" tabindex="-1" hidden><!-- sharing --></div>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · the line style, scrolling</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="tabs" id="f2-note-tabs">
+  <nav role="tablist" aria-orientation="horizontal" aria-label="ノートの項目" data-variant="line" class="@max-3xl:w-full @max-3xl:justify-start @max-3xl:overflow-x-auto">
+    <button type="button" role="tab" id="f2-note-tabs-tab-1" aria-controls="f2-note-tabs-panel-1" aria-selected="true" tabindex="0"><span data-t="tabs.note">ノート</span></button>
+    <button type="button" role="tab" id="f2-note-tabs-tab-2" aria-controls="f2-note-tabs-panel-2" aria-selected="false" tabindex="-1"><span data-t="tabs.details">詳細</span></button>
+    <button type="button" role="tab" id="f2-note-tabs-tab-3" aria-controls="f2-note-tabs-panel-3" aria-selected="false" tabindex="-1"><span data-t="tabs.history">履歴</span></button>
+    <button type="button" role="tab" id="f2-note-tabs-tab-4" aria-controls="f2-note-tabs-panel-4" aria-selected="false" tabindex="-1"><span data-t="tabs.sharing">共有</span><span class="badge ms-1.5" data-variant="secondary">2</span></button>
+  </nav>
+  <div role="tabpanel" id="f2-note-tabs-panel-1" aria-labelledby="f2-note-tabs-tab-1" tabindex="-1"><div class="py-4 text-sm">駅 (eki) station · 電車 (densha) train · 切符 (kippu) ticket</div></div>
+  <div role="tabpanel" id="f2-note-tabs-panel-2" aria-labelledby="f2-note-tabs-tab-2" tabindex="-1" hidden><!-- details --></div>
+  <div role="tabpanel" id="f2-note-tabs-panel-3" aria-labelledby="f2-note-tabs-tab-3" tabindex="-1" hidden><div class="py-4" hx-get="/notes/42/history" hx-trigger="intersect once" hx-swap="innerHTML"><p class="text-muted-foreground text-sm" data-t="tabs.loading">履歴を読み込み中…</p></div></div>
+  <div role="tabpanel" id="f2-note-tabs-panel-4" aria-labelledby="f2-note-tabs-tab-4" tabindex="-1" hidden><!-- sharing --></div>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Line style · History selected, loading</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="tabs" id="f3-note-tabs">
+  <nav role="tablist" aria-orientation="horizontal" aria-label="Note sections" data-variant="line" class="@max-3xl:w-full @max-3xl:justify-start @max-3xl:overflow-x-auto">
+    <button type="button" role="tab" id="f3-note-tabs-tab-1" aria-controls="f3-note-tabs-panel-1" aria-selected="false" tabindex="-1"><span data-t="tabs.note">Note</span></button>
+    <button type="button" role="tab" id="f3-note-tabs-tab-2" aria-controls="f3-note-tabs-panel-2" aria-selected="false" tabindex="-1"><span data-t="tabs.details">Details</span></button>
+    <button type="button" role="tab" id="f3-note-tabs-tab-3" aria-controls="f3-note-tabs-panel-3" aria-selected="true" tabindex="0"><span data-t="tabs.history">History</span></button>
+    <button type="button" role="tab" id="f3-note-tabs-tab-4" aria-controls="f3-note-tabs-panel-4" aria-selected="false" tabindex="-1"><span data-t="tabs.sharing">Sharing</span><span class="badge ms-1.5" data-variant="secondary">2</span></button>
+  </nav>
+  <div role="tabpanel" id="f3-note-tabs-panel-1" aria-labelledby="f3-note-tabs-tab-1" tabindex="-1" hidden><div class="py-4 text-sm">駅 (eki) station · 電車 (densha) train · 切符 (kippu) ticket</div></div>
+  <div role="tabpanel" id="f3-note-tabs-panel-2" aria-labelledby="f3-note-tabs-tab-2" tabindex="-1" hidden><!-- details --></div>
+  <div role="tabpanel" id="f3-note-tabs-panel-3" aria-labelledby="f3-note-tabs-tab-3" tabindex="-1"><div class="py-4" hx-get="/notes/42/history" hx-trigger="intersect once" hx-swap="innerHTML"><p class="text-muted-foreground text-sm" data-t="tabs.loading">Loading history…</p></div></div>
+  <div role="tabpanel" id="f3-note-tabs-panel-4" aria-labelledby="f3-note-tabs-tab-4" tabindex="-1" hidden><!-- sharing --></div>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Panel error</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="alert" data-variant="destructive" role="alert"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><h2>Couldn’t load the history.</h2><section><button type="button" class="btn mt-2" data-variant="outline" data-size="sm">Try Again</button></section></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Disabled tab</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="tabs"><nav role="tablist" aria-orientation="horizontal"><button type="button" role="tab" aria-selected="true">Note</button><button type="button" role="tab" aria-selected="false">History</button><button type="button" role="tab" aria-selected="false" aria-disabled="true" title="Only the owner can see Sharing">Sharing</button></nav></div></div>
+    </div>
+  </figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

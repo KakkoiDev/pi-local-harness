@@ -1,0 +1,80 @@
+<!-- @dsCard group="Accounts" height=1492 width=1250 subtitle="Email, password, sessions, delete" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>AccountSettings — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <h1 class="text-2xl font-semibold">Account</h1>
+        <form class="card" novalidate>
+          <header><h2 class="font-semibold">Email</h2><p class="text-muted-foreground text-sm">We’ll send a link to the new address. The change happens when you open it.</p></header>
+          <section class="grid gap-4"><div class="field"><label class="label" for="d-em">New email</label><input class="input" id="d-em" type="email" placeholder="aiko@example.com"></div></section>
+          <footer class="flex justify-end"><button class="btn" type="button">Send Confirmation Link</button></footer>
+        </form>
+        <form class="card" novalidate>
+          <header><h2 class="font-semibold">Password</h2></header>
+          <section class="grid gap-4">
+            <div class="field"><label class="label" for="d-cur">Current password</label><input class="input" id="d-cur" type="password"></div>
+            <div class="field"><label class="label" for="d-new">New password</label><input class="input" id="d-new" type="password"><p class="text-muted-foreground text-sm">At least 10 characters. A short sentence is easy to remember.</p></div>
+          </section>
+          <footer class="flex justify-end"><button class="btn" type="button">Change Password</button></footer>
+        </form>
+        <section class="card">
+          <header><h2 class="font-semibold">Where you’re logged in</h2></header>
+          <section class="item-group gap-2" role="list">
+            <div class="item" role="listitem" data-variant="outline"><section><h3 class="text-sm font-medium">Safari on iPhone <span class="badge ml-2" data-variant="secondary">This device</span></h3><p>Osaka · Active now</p></section></div>
+            <div class="item" role="listitem" data-variant="outline"><section><h3 class="text-sm font-medium">Chrome on Mac</h3><p>Kyoto · Yesterday, 21:04</p></section><aside><button class="btn" data-variant="outline" data-size="sm" type="button">Log Out</button></aside></div>
+          </section>
+          <footer class="flex justify-end"><button class="btn" data-variant="outline" type="button">Log Out Everywhere Else</button></footer>
+        </section>
+        <section class="card border-destructive/40">
+          <header><h2 class="font-semibold">Delete account</h2><p class="text-muted-foreground text-sm">Deletes your account and everything in it after 30 days. You can cancel until then.</p></header>
+          <footer class="flex justify-end"><a class="btn" data-variant="destructive" href="#">Delete Account…</a></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · sessions and delete</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <h1 class="text-2xl font-semibold">アカウント</h1>
+        <section class="card">
+          <header><h2 class="font-semibold">ログイン中のデバイス</h2></header>
+          <section class="item-group gap-2" role="list">
+            <div class="item" role="listitem" data-variant="outline"><section><h3 class="text-sm font-medium">Safari（iPhone） <span class="badge ml-2" data-variant="secondary">このデバイス</span></h3><p>大阪 · 使用中</p></section></div>
+            <div class="item" role="listitem" data-variant="outline"><section><h3 class="text-sm font-medium">Chrome（Mac）</h3><p>京都 · 昨日 21:04</p></section><aside><button class="btn" data-variant="outline" data-size="sm" type="button">ログアウト</button></aside></div>
+          </section>
+          <footer class="flex justify-end"><button class="btn w-full" data-variant="outline" type="button">他のすべてのデバイスからログアウト</button></footer>
+        </section>
+        <section class="card border-destructive/40">
+          <header><h2 class="font-semibold">アカウントの削除</h2><p class="text-muted-foreground text-sm">30日後にアカウントとすべてのデータを削除します。それまではキャンセルできます。</p></header>
+          <footer class="flex justify-end"><a class="btn w-full" data-variant="destructive" href="#">アカウントを削除…</a></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Email link sent</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" role="status"><h2>Check your new email</h2><section>Link sent to aiko.t@example.jp. Your email changes when you open it.</section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Wrong current password</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="field"><label class="label" for="s-cur">Current password</label><input class="input" id="s-cur" type="password" value="wrongpass" aria-invalid="true" aria-describedby="s-cur-e"><p class="text-destructive text-sm" id="s-cur-e">That isn’t your current password.</p></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Sessions loading</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <div class="skeleton h-12"></div><div class="skeleton h-12"></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!-- @dsCard group="Commerce" height=1124 width=1250 subtitle="Thanks, next steps, pay code" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>OrderConfirmation — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · paid by card</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<main class="mx-auto grid max-w-xl gap-6">
+  <header class="grid gap-2 text-center">
+    <svg aria-hidden="true" class="mx-auto size-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    <h1 id="d-thanks-title" class="text-2xl font-semibold" tabindex="-1" data-t="order.thanks">Thank you, Aiko. Your order is placed.</h1>
+    <p class="text-muted-foreground" data-t="order.email_sent">Order 2026-1042. A receipt is on its way to aiko@example.com.</p>
+  </header>
+
+  <section class="card" aria-labelledby="d-order-sum">
+    <header><h2 id="d-order-sum">What happens next</h2></header>
+    <section>
+      <dl class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="text-muted-foreground">Arrives</dt><dd>Sat 24 Oct, 14:00–16:00</dd>
+        <dt class="text-muted-foreground">Ship to</dt><dd>〒150-0001 東京都渋谷区神宮前1-2-3</dd>
+        <dt class="text-muted-foreground">Items</dt><dd>Ceramic Mug × 2, Grid Notebook A5</dd>
+        <dt class="text-muted-foreground">Paid</dt><dd class="tabular-nums">¥4,730 · Card ending 4242</dd>
+      </dl>
+    </section>
+    <footer class="flex flex-wrap gap-2">
+      <a class="btn" href="/orders/2026-1042" data-t="order.view">View Order</a>
+      <a class="btn" data-variant="outline" href="/shop" data-t="order.continue">Continue Shopping</a>
+    </footer>
+  </section>
+</main>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · convenience store, payment pending</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<main class="mx-auto grid max-w-xl gap-6">
+  <header class="grid gap-2 text-center">
+    <svg aria-hidden="true" class="mx-auto size-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    <h1 id="p-thanks-title" class="text-2xl font-semibold" tabindex="-1" data-t="order.thanks">愛子さま、ご注文ありがとうございます。</h1>
+    <p class="text-muted-foreground" data-t="order.email_sent">注文番号 2026-1042。確認メールを aiko@example.com にお送りしました。</p>
+  </header>
+<div class="alert"><h2>10月21日（水）23:59までにコンビニでお支払いください</h2><section><p>お支払い番号: <b class="font-mono text-base tracking-wider">1234-5678-9012</b> <button class="btn" data-variant="outline" data-size="xs" type="button">コピー</button></p><p>入金確認後に発送します。期限を過ぎると注文はキャンセルされます。</p></section></div>
+  <section class="card" aria-labelledby="p-order-sum">
+    <header><h2 id="p-order-sum">このあとの流れ</h2></header>
+    <section>
+      <dl class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="text-muted-foreground">お届け予定</dt><dd>10月24日（土）14:00〜16:00</dd>
+        <dt class="text-muted-foreground">お届け先</dt><dd>〒150-0001 東京都渋谷区神宮前1-2-3</dd>
+        <dt class="text-muted-foreground">商品</dt><dd>陶器のマグカップ × 2、方眼ノート A5</dd>
+        <dt class="text-muted-foreground">お支払い</dt><dd class="tabular-nums">4,730円 · コンビニ払い（未入金）</dd>
+      </dl>
+    </section>
+    <footer class="flex flex-wrap gap-2">
+      <a class="btn" href="/orders/2026-1042" data-t="order.view">注文を見る</a>
+      <a class="btn" data-variant="outline" href="/shop" data-t="order.continue">買い物を続ける</a>
+    </footer>
+  </section>
+</main>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Email didn’t send</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="alert" data-variant="destructive" role="alert"><h2>We couldn’t email your receipt</h2><section>Your order is placed. Check the address, aiko@example,com, and send it again.<div class="mt-2 flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button">Send Again</button></div></section></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Reloaded or opened later</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<p class="text-sm">The page stays the same for this order: it reads <code class="font-mono break-all">/orders/2026-1042/thanks</code> and never places the order again.</p>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

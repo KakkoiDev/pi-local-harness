@@ -1,0 +1,56 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>Blocks Playground</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen&display=swap">
+<header class="pg-bar">
+  <div class="pg-name"><i aria-hidden="true"><b></b><b></b><b></b><b></b></i>Blocks Playground</div>
+  <div class="pg-seg" id="pg-apps" role="group" aria-label="App"></div>
+  <span class="pg-spacer"></span>
+  <div class="pg-seg" id="pg-device" role="group" aria-label="Device">
+    <button type="button" data-v="desktop" aria-pressed="true">Desktop</button>
+    <button type="button" data-v="phone" aria-pressed="false">Phone</button>
+  </div>
+  <div class="pg-seg" id="pg-lang" role="group" aria-label="Language">
+    <button type="button" data-v="en" aria-pressed="true">English</button>
+    <button type="button" data-v="ja" aria-pressed="false" lang="ja">日本語</button>
+  </div>
+  <div class="pg-seg" id="pg-theme" role="group" aria-label="Theme">
+    <button type="button" data-v="system" aria-pressed="true">Auto</button>
+    <button type="button" data-v="light" aria-pressed="false">Light</button>
+    <button type="button" data-v="dark" aria-pressed="false">Dark</button>
+  </div>
+  <label class="label gap-2 font-normal text-sm"><input class="input" type="checkbox" role="switch" id="pg-show"> Show blocks</label>
+</header>
+<div class="pg-main">
+  <div class="pg-stagewrap">
+    <div class="pg-device" id="pg-device-frame" data-device="desktop">
+      <div class="pg-chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url" id="pg-url">localhost</span></div>
+      <div id="stage" class="app bg-background text-foreground"></div>
+    </div>
+  </div>
+  <aside class="pg-side">
+    <section class="pg-panel">
+      <h2 id="pg-app-title">App</h2>
+      <p id="pg-app-desc"></p>
+    </section>
+    <section class="pg-panel">
+      <h2>On this screen</h2>
+      <div class="pg-chips" id="pg-blocks"></div>
+      <p class="mt-2">Every region is an App Blocks card. Pick one to find it, or turn on Show blocks.</p>
+    </section>
+    <section class="pg-panel">
+      <h2>Try</h2>
+      <p id="pg-try"></p>
+      <button class="btn mt-3" data-variant="outline" data-size="sm" type="button" id="pg-reset">Reset This App</button>
+    </section>
+  </aside>
+</div>
+<div id="toaster" class="toaster"></div>
+<script src="lib/chart.umd.min.js"></script>
+<script src="lib/basecoat.all.min.js"></script>
+<script src="lib/basecoat.chart.min.js"></script>
+<script type="module" src="js/main.js"></script>
+
+</body></html>

@@ -1,0 +1,74 @@
+<!-- @dsCard group="Accounts" height=836 width=1250 subtitle="Ask for the email, then reset" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ForgotPassword — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · step 1, ask for the email</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[440px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">Reset Your Password</h1>
+            <p class="text-muted-foreground text-sm">Enter the email you signed up with. We’ll send you a link to set a new password.</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="field"><label class="label" for="d-email">Email</label><input class="input" id="d-email" type="email" value="aiko@example.com"></div>
+          </section>
+          <footer class="grid gap-3">
+            <button class="btn w-full" type="button">Send Reset Link</button>
+            <a class="btn w-full" data-variant="ghost" href="#">Back to Log In</a>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · step 2, from the email</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[440px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">新しいパスワードを設定</h1>
+            <p class="text-muted-foreground text-sm">aiko@example.com のパスワードです。他のデバイスではログアウトされます。</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="field"><label class="label" for="p-pass">新しいパスワード</label><input class="input" id="p-pass" type="password"><p class="text-muted-foreground text-sm">10文字以上。短い文にすると覚えやすくなります。</p></div>
+          </section>
+          <footer><button class="btn w-full" type="button">新しいパスワードを保存</button></footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Sent</figcaption>
+    <div class="ab-screen app p-4">
+      <section class="card w-full" role="status">
+        <header>
+          <h1 class="text-xl font-semibold">Check your email</h1>
+          <p class="text-muted-foreground text-sm">If aiko@example.com has an account, a reset link is on its way. It works for 1 hour.</p>
+        </header>
+        <footer class="grid gap-2">
+          <button class="btn w-full" data-variant="outline" type="button" disabled>Send Again in 42 s</button>
+          <a class="btn w-full" data-variant="ghost" href="#">Back to Log In</a>
+        </footer>
+      </section>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Link expired</figcaption>
+    <div class="ab-screen app p-4 grid gap-3">
+      <div class="alert" data-variant="destructive" role="alert"><h2>Couldn’t reset your password</h2><section>This link has expired or was already used. Ask for a new one.</section></div>
+      <a class="btn w-full" href="#">Send a New Link</a>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Done (on LogIn)</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" role="status"><h2>Password changed</h2><section>Your password is changed. Log in with the new one.</section></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

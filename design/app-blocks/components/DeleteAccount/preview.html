@@ -1,0 +1,64 @@
+<!-- @dsCard group="Accounts" height=1118 width=1250 subtitle="What happens, export, confirm" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>DeleteAccount — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-xl gap-6 p-4 @3xl:p-8">
+        <a class="btn w-fit" data-variant="ghost" href="#">Back to Account</a>
+        <form class="card" novalidate>
+          <header><h1 class="text-xl font-semibold">Delete your account?</h1><p class="text-muted-foreground text-sm">Here is what happens. Read it before you decide.</p></header>
+          <section class="grid gap-4">
+            <ul class="grid gap-2 text-sm list-disc pl-5">
+              <li>You’re logged out everywhere now, and nobody can see your profile.</li>
+              <li>For 30 days, until 17 November 2026, you can log in and cancel. Nothing is lost yet.</li>
+              <li>After that, your notes, pictures and comments are deleted for good. They can’t be brought back.</li>
+              <li>Pages you shared with others are deleted too. Copies they made stay theirs.</li>
+              <li>We keep invoices for 7 years because the law requires it. Nothing else.</li>
+            </ul>
+            <div class="alert"><h2>Want a copy first?</h2><section>Download everything as a ZIP of JSON and your original files.<div class="mt-2"><a class="btn" data-variant="outline" data-size="sm" href="#">Download My Data</a></div></section></div>
+            <div class="field"><label class="label" for="d-pw">Enter your password to confirm</label><input class="input" id="d-pw" type="password"></div>
+          </section>
+          <footer class="flex flex-wrap justify-end gap-2"><a class="btn" data-variant="outline" href="#">Cancel</a><button class="btn" data-variant="destructive" type="button">Delete My Account</button></footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · logged in during the 30 days</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[520px] place-items-center bg-muted/40 p-4">
+        <section class="card w-full max-w-sm">
+          <header><h1 class="text-xl font-semibold">アカウントは 2026年11月17日 に削除されます</h1><p class="text-muted-foreground text-sm">今キャンセルすると、すべてそのまま残ります。</p></header>
+          <footer class="grid gap-2"><button class="btn w-full" type="button">アカウントを残す</button><button class="btn w-full" data-variant="ghost" type="button">ログアウト</button></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Owner of a shared space</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" data-variant="destructive" role="alert"><h2>Pass on ownership first</h2><section>You own “Class 3B”. Make someone else its owner before deleting your account.</section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Done (goodbye page)</figcaption>
+    <div class="ab-screen app p-4">
+      <section class="card">
+        <header><h1 class="text-lg font-semibold">Your account is scheduled for deletion</h1><p class="text-muted-foreground text-sm">It will be deleted on 17 November 2026. Log in before then to cancel.</p></header>
+        <footer><a class="btn w-full" data-variant="outline" href="#">Log In to Cancel</a></footer>
+      </section>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Wrong password</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="field"><label class="label" for="s-pw">Enter your password to confirm</label><input class="input" id="s-pw" type="password" aria-invalid="true" aria-describedby="s-pw-e"><p class="text-destructive text-sm" id="s-pw-e">Enter your current password.</p></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

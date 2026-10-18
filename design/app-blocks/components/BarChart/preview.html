@@ -1,0 +1,89 @@
+<!-- @dsCard group="Charts" height=992 width=1250 subtitle="Grouped and stacked" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>BarChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · grouped</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-orders-title">
+  <header>
+    <h2 id="d-orders-title" data-t="chart.orders.title">Orders per day</h2>
+    <p data-t="chart.orders.lede">This week, grouped</p>
+  </header>
+  <section>
+    <canvas id="d-orders-chart" class="chart aspect-video max-h-80" role="img" aria-label="Orders per day: Saturday is busiest with 83 orders, 31 from new customers." data-chart-type="bar" data-chart-label-key="day" data-chart-data='[{"day":"Mon","new":12,"returning":30},{"day":"Tue","new":18,"returning":34},{"day":"Wed","new":15,"returning":29},{"day":"Thu","new":22,"returning":40},{"day":"Fri","new":19,"returning":38},{"day":"Sat","new":31,"returning":52},{"day":"Sun","new":27,"returning":47}]' data-chart-series='{"new":{"label":"New customers","color":"var(--chart-1)"},"returning":{"label":"Returning","color":"var(--chart-2)"}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Day</th><th>New customers</th><th>Returning</th><th>Total</th></tr></thead><tbody><tr><th scope="row">Mon</th><td class="text-right tabular-nums">12</td><td class="text-right tabular-nums">30</td><td class="text-right tabular-nums">42</td></tr><tr><th scope="row">Tue</th><td class="text-right tabular-nums">18</td><td class="text-right tabular-nums">34</td><td class="text-right tabular-nums">52</td></tr><tr><th scope="row">Wed</th><td class="text-right tabular-nums">15</td><td class="text-right tabular-nums">29</td><td class="text-right tabular-nums">44</td></tr><tr><th scope="row">Thu</th><td class="text-right tabular-nums">22</td><td class="text-right tabular-nums">40</td><td class="text-right tabular-nums">62</td></tr><tr><th scope="row">Fri</th><td class="text-right tabular-nums">19</td><td class="text-right tabular-nums">38</td><td class="text-right tabular-nums">57</td></tr><tr><th scope="row">Sat</th><td class="text-right tabular-nums">31</td><td class="text-right tabular-nums">52</td><td class="text-right tabular-nums">83</td></tr><tr><th scope="row">Sun</th><td class="text-right tabular-nums">27</td><td class="text-right tabular-nums">47</td><td class="text-right tabular-nums">74</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · stacked</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-orders-title">
+  <header>
+    <h2 id="p-orders-title" data-t="chart.orders.title">曜日別の注文数</h2>
+    <p data-t="chart.orders.lede">今週、積み上げ</p>
+  </header>
+  <section>
+    <canvas id="p-orders-chart" class="chart aspect-video max-h-80" role="img" aria-label="曜日別の注文数：土曜日が最も多く83件、そのうち31件が新規のお客さまです。" data-chart-type="bar" data-chart-label-key="day" data-chart-data='[{"day":"月","new":12,"returning":30},{"day":"火","new":18,"returning":34},{"day":"水","new":15,"returning":29},{"day":"木","new":22,"returning":40},{"day":"金","new":19,"returning":38},{"day":"土","new":31,"returning":52},{"day":"日","new":27,"returning":47}]' data-chart-series='{"new":{"label":"新規のお客さま","color":"var(--chart-1)"},"returning":{"label":"リピーター","color":"var(--chart-2)"}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>曜日</th><th>新規のお客さま</th><th>リピーター</th><th>合計</th></tr></thead><tbody><tr><th scope="row">月</th><td class="text-right tabular-nums">12</td><td class="text-right tabular-nums">30</td><td class="text-right tabular-nums">42</td></tr><tr><th scope="row">火</th><td class="text-right tabular-nums">18</td><td class="text-right tabular-nums">34</td><td class="text-right tabular-nums">52</td></tr><tr><th scope="row">水</th><td class="text-right tabular-nums">15</td><td class="text-right tabular-nums">29</td><td class="text-right tabular-nums">44</td></tr><tr><th scope="row">木</th><td class="text-right tabular-nums">22</td><td class="text-right tabular-nums">40</td><td class="text-right tabular-nums">62</td></tr><tr><th scope="row">金</th><td class="text-right tabular-nums">19</td><td class="text-right tabular-nums">38</td><td class="text-right tabular-nums">57</td></tr><tr><th scope="row">土</th><td class="text-right tabular-nums">31</td><td class="text-right tabular-nums">52</td><td class="text-right tabular-nums">83</td></tr><tr><th scope="row">日</th><td class="text-right tabular-nums">27</td><td class="text-right tabular-nums">47</td><td class="text-right tabular-nums">74</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-orders-title">
+  <header>
+    <h2 id="s1-orders-title" data-t="chart.orders.title">Orders per day</h2>
+    <p data-t="chart.orders.lede">This week</p>
+  </header>
+  <section>
+    <div class="skeleton aspect-video w-full" role="status" aria-busy="true"><span class="sr-only" data-t="chart.loading">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-orders-title">
+  <header>
+    <h2 id="s2-orders-title" data-t="chart.orders.title">Orders per day</h2>
+    <p data-t="chart.orders.lede">This week</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.orders.empty_title">No orders this week</h3>
+    <p data-t="chart.orders.empty">Orders appear here as soon as someone buys.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-orders-chart'), {options: {scales: {y: {beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+basecoat.chart(document.getElementById('p-orders-chart'), {options: {scales: {x: {stacked: true, ticks: {color: 'var(--muted-foreground)'}}, y: {stacked: true, beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+</script>
+</body>
+</html>

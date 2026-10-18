@@ -1,0 +1,113 @@
+<!-- @dsCard group="Charts" height=1116 width=1250 subtitle="Parts of a whole" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>DonutChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · donut with the total in the middle</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-payments-title">
+  <header>
+    <h2 id="d-payments-title" data-t="chart.payments.title">Payment methods</h2>
+    <p data-t="chart.payments.lede">Share of 1,284 orders in October</p>
+  </header>
+  <section>
+    <div class="relative">
+      <canvas id="d-payments-chart" class="chart aspect-square max-h-72 mx-auto" role="img" aria-label="Payment methods: card 48 %, convenience store 21 %, bank transfer 14 %, QR code payment 12 %, other 5 %." data-chart-type="doughnut" data-chart-label-key="method" data-chart-data='[{"method":"Card","share":48},{"method":"Convenience store","share":21},{"method":"Bank transfer","share":14},{"method":"QR code payment","share":12},{"method":"Other","share":5}]' data-chart-series='{"share":{"label":"Share"}}' data-chart-legend="true"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-2xl font-semibold tabular-nums">1,284</span><span class="text-muted-foreground text-xs">orders</span></div>
+    </div>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Method</th><th>Share</th></tr></thead><tbody><tr><th scope="row">Card</th><td class="text-right tabular-nums">48 %</td></tr><tr><th scope="row">Convenience store</th><td class="text-right tabular-nums">21 %</td></tr><tr><th scope="row">Bank transfer</th><td class="text-right tabular-nums">14 %</td></tr><tr><th scope="row">QR code payment</th><td class="text-right tabular-nums">12 %</td></tr><tr><th scope="row">Other</th><td class="text-right tabular-nums">5 %</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-payments-title">
+  <header>
+    <h2 id="p-payments-title" data-t="chart.payments.title">支払い方法</h2>
+    <p data-t="chart.payments.lede">10月の注文1,284件の内訳</p>
+  </header>
+  <section>
+    <div class="relative">
+      <canvas id="p-payments-chart" class="chart aspect-square max-h-72 mx-auto" role="img" aria-label="支払い方法：カード48%、コンビニ21%、銀行振込14%、QRコード決済12%、その他5%。" data-chart-type="doughnut" data-chart-label-key="method" data-chart-data='[{"method":"カード","share":48},{"method":"コンビニ","share":21},{"method":"銀行振込","share":14},{"method":"QRコード決済","share":12},{"method":"その他","share":5}]' data-chart-series='{"share":{"label":"割合"}}' data-chart-legend="true"></canvas>
+      <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-2xl font-semibold tabular-nums">1,284</span><span class="text-muted-foreground text-xs">件</span></div>
+    </div>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>支払い方法</th><th>割合</th></tr></thead><tbody><tr><th scope="row">カード</th><td class="text-right tabular-nums">48 %</td></tr><tr><th scope="row">コンビニ</th><td class="text-right tabular-nums">21 %</td></tr><tr><th scope="row">銀行振込</th><td class="text-right tabular-nums">14 %</td></tr><tr><th scope="row">QRコード決済</th><td class="text-right tabular-nums">12 %</td></tr><tr><th scope="row">その他</th><td class="text-right tabular-nums">5 %</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Pie (no hole)</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s3-payments-title">
+  <header>
+    <h2 id="s3-payments-title" data-t="chart.payments.title">Payment methods</h2>
+    <p data-t="chart.payments.lede">Pie: the same data</p>
+  </header>
+  <section>
+    <canvas id="s3-payments-chart" class="chart aspect-square max-h-56 mx-auto" role="img" aria-label="Payment methods: card 48 %, convenience store 21 %, bank transfer 14 %, QR code payment 12 %, other 5 %." data-chart-type="pie" data-chart-label-key="method" data-chart-data='[{"method":"Card","share":48},{"method":"Convenience store","share":21},{"method":"Bank transfer","share":14},{"method":"QR code payment","share":12},{"method":"Other","share":5}]' data-chart-series='{"share":{"label":"Share"}}' data-chart-legend="true"></canvas>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-payments-title">
+  <header>
+    <h2 id="s1-payments-title" data-t="chart.payments.title">Payment methods</h2>
+    <p data-t="chart.payments.lede">October</p>
+  </header>
+  <section>
+    <div class="skeleton aspect-square max-h-56 mx-auto rounded-full" role="status" aria-busy="true"><span class="sr-only">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-payments-title">
+  <header>
+    <h2 id="s2-payments-title" data-t="chart.payments.title">Payment methods</h2>
+    <p data-t="chart.payments.lede">October</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.payments.empty_title">No orders in October</h3>
+    <p data-t="chart.payments.empty">The split appears after the first order.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-payments-chart'), {options: {cutout: '68%'}});
+basecoat.chart(document.getElementById('p-payments-chart'), {options: {cutout: '68%'}});
+basecoat.chart(document.getElementById('s3-payments-chart'));
+</script>
+</body>
+</html>

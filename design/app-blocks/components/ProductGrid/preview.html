@@ -1,0 +1,177 @@
+<!-- @dsCard group="Commerce" height=1470 width=1250 subtitle="Cards with price and stock" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ProductGrid — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · sale, low stock, sold out</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="grid gap-4"><h1 class="text-2xl font-semibold">Kitchen and Home</h1><div class="flex flex-wrap items-center justify-between gap-3">
+  <p class="text-muted-foreground text-sm" role="status" data-t="shop.count">4 products</p>
+  <label class="flex items-center gap-2 text-sm"><span data-t="shop.sort">Sort by</span>
+    <select class="select w-44" name="sort" id="sort"><option value="popular" data-t="shop.sort.popular">Most popular</option><option value="new" data-t="shop.sort.new">Newest</option><option value="price_asc" data-t="shop.sort.price_asc">Price: low to high</option><option value="price_desc" data-t="shop.sort.price_desc">Price: high to low</option></select>
+  </label>
+</div><ul class="grid grid-cols-2 @3xl:grid-cols-4 gap-4" role="list">
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/tote" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23e9e2d4%22/%3E%3Cpath%20d%3D%22M38%2046h44l6%2052H32z%22%20fill%3D%22%23c9b48f%22/%3E%3Cpath%20d%3D%22M48%2046c0-14%2024-14%2024%200%22%20fill%3D%22none%22%20stroke%3D%22%238a7350%22%20stroke-width%3D%224%22/%3E%3C/svg%3E" alt="Canvas Tote" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"></div>
+    <h3 class="font-medium"><a href="/products/tote" class="hover:underline">Canvas Tote</a></h3>
+    <p class="font-semibold tabular-nums">¥2,800 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="tote"><button class="btn w-full" type="submit" data-t="shop.add">Add to Cart</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/mug" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23dfe8ee%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%2240%22%20height%3D%2246%22%20rx%3D%226%22%20fill%3D%22%234f7fa3%22/%3E%3Cpath%20d%3D%22M76%2052h8a10%2010%200%200%201%200%2020h-8%22%20fill%3D%22none%22%20stroke%3D%22%234f7fa3%22%20stroke-width%3D%226%22/%3E%3C/svg%3E" alt="Ceramic Mug" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="destructive" data-t="shop.off">25 % off</span></div>
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
+    <p class="font-semibold tabular-nums">¥1,650 <s class="text-muted-foreground text-sm font-normal" aria-label="Was ¥2,200">¥2,200</s> <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="mug"><button class="btn w-full" type="submit" data-t="shop.add">Add to Cart</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/notebook" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23efe9df%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2228%22%20width%3D%2246%22%20height%3D%2264%22%20rx%3D%223%22%20fill%3D%22%232f5d50%22/%3E%3Cpath%20d%3D%22M46%2028v64%22%20stroke%3D%22%231d3d34%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2240%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22%23efe9df%22/%3E%3C/svg%3E" alt="Grid Notebook A5" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="outline" data-t="shop.low_stock">Only 3 left</span></div>
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">Grid Notebook A5</a></h3>
+    <p class="font-semibold tabular-nums">¥880 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="notebook"><button class="btn w-full" type="submit" data-t="shop.add">Add to Cart</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/apron" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23ece4e6%22/%3E%3Cpath%20d%3D%22M46%2030h28v14l10%206v42H36V50l10-6z%22%20fill%3D%22%23a8686f%22/%3E%3Cpath%20d%3D%22M46%2030c-6-10%2034-10%2028%200%22%20fill%3D%22none%22%20stroke%3D%22%237a454b%22%20stroke-width%3D%223%22/%3E%3C/svg%3E" alt="Linen Apron" class="aspect-square w-full object-cover opacity-60" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="secondary" data-t="shop.sold_out">Sold Out</span></div>
+    <h3 class="font-medium"><a href="/products/apron" class="hover:underline">Linen Apron</a></h3>
+    <p class="font-semibold tabular-nums">¥4,400 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="apron"><button class="btn h-auto min-h-9 w-full whitespace-normal py-2" type="button" data-variant="outline" data-t="shop.notify">Email Me When It’s Back</button></form>
+  </footer>
+</li>
+</ul></section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · two columns</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="grid gap-4"><h1 class="text-2xl font-semibold">キッチンと暮らし</h1><div class="flex flex-wrap items-center justify-between gap-3">
+  <p class="text-muted-foreground text-sm" role="status">4件の商品</p>
+  <label class="flex items-center gap-2 text-sm"><span>並び替え</span>
+    <select class="select w-36" name="sort"><option>人気順</option><option>新着順</option><option>価格の安い順</option><option>価格の高い順</option></select>
+  </label>
+</div><ul class="grid grid-cols-2 @3xl:grid-cols-4 gap-4" role="list">
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/tote" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23e9e2d4%22/%3E%3Cpath%20d%3D%22M38%2046h44l6%2052H32z%22%20fill%3D%22%23c9b48f%22/%3E%3Cpath%20d%3D%22M48%2046c0-14%2024-14%2024%200%22%20fill%3D%22none%22%20stroke%3D%22%238a7350%22%20stroke-width%3D%224%22/%3E%3C/svg%3E" alt="キャンバストート" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"></div>
+    <h3 class="font-medium"><a href="/products/tote" class="hover:underline">キャンバストート</a></h3>
+    <p class="font-semibold tabular-nums">2,800円 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">税込</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="tote"><button class="btn w-full" type="submit" data-t="shop.add">カートに入れる</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/mug" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23dfe8ee%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%2240%22%20height%3D%2246%22%20rx%3D%226%22%20fill%3D%22%234f7fa3%22/%3E%3Cpath%20d%3D%22M76%2052h8a10%2010%200%200%201%200%2020h-8%22%20fill%3D%22none%22%20stroke%3D%22%234f7fa3%22%20stroke-width%3D%226%22/%3E%3C/svg%3E" alt="陶器のマグカップ" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="destructive" data-t="shop.off">25%オフ</span></div>
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">陶器のマグカップ</a></h3>
+    <p class="font-semibold tabular-nums">1,650円 <s class="text-muted-foreground text-sm font-normal" aria-label="通常価格 2,200円">2,200円</s> <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">税込</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="mug"><button class="btn w-full" type="submit" data-t="shop.add">カートに入れる</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/notebook" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23efe9df%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2228%22%20width%3D%2246%22%20height%3D%2264%22%20rx%3D%223%22%20fill%3D%22%232f5d50%22/%3E%3Cpath%20d%3D%22M46%2028v64%22%20stroke%3D%22%231d3d34%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2240%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22%23efe9df%22/%3E%3C/svg%3E" alt="方眼ノート A5" class="aspect-square w-full object-cover" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="outline" data-t="shop.low_stock">残り3点</span></div>
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">方眼ノート A5</a></h3>
+    <p class="font-semibold tabular-nums">880円 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">税込</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="notebook"><button class="btn w-full" type="submit" data-t="shop.add">カートに入れる</button></form>
+  </footer>
+</li>
+<li class="card gap-0 py-0" data-size="sm">
+  <a href="/products/apron" class="block">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23ece4e6%22/%3E%3Cpath%20d%3D%22M46%2030h28v14l10%206v42H36V50l10-6z%22%20fill%3D%22%23a8686f%22/%3E%3Cpath%20d%3D%22M46%2030c-6-10%2034-10%2028%200%22%20fill%3D%22none%22%20stroke%3D%22%237a454b%22%20stroke-width%3D%223%22/%3E%3C/svg%3E" alt="リネンのエプロン" class="aspect-square w-full object-cover opacity-60" width="600" height="600" loading="lazy">
+  </a>
+  <section class="grid gap-1 py-3">
+    <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="secondary" data-t="shop.sold_out">売り切れ</span></div>
+    <h3 class="font-medium"><a href="/products/apron" class="hover:underline">リネンのエプロン</a></h3>
+    <p class="font-semibold tabular-nums">4,400円 <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">税込</span></p>
+  </section>
+  <footer class="pb-4">
+    <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="apron"><button class="btn h-auto min-h-9 w-full whitespace-normal py-2" type="button" data-variant="outline" data-t="shop.notify">再入荷のお知らせを受け取る</button></form>
+  </footer>
+</li>
+</ul></section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<ul class="grid grid-cols-2 gap-4" aria-busy="true"><li class="grid gap-2"><div class="skeleton aspect-square w-full"></div><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-4 w-1/3"></div></li><li class="grid gap-2"><div class="skeleton aspect-square w-full"></div><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-4 w-1/3"></div></li></ul><span class="sr-only" role="status">Loading products…</span>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty after filtering</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="empty border">
+<header><h3 data-t="shop.empty_title">No products match</h3><p data-t="shop.empty">Nothing in Kitchen and Home under ¥500. Clear the price filter to see all 4 products.</p></header>
+<footer><button class="btn" data-variant="outline" type="button" data-t="shop.clear_filters">Clear Filters</button></footer>
+</div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Error</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="alert" data-variant="destructive" role="alert"><h2>Couldn’t load the products</h2><section>Check your connection and try again.<div class="mt-2 flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button">Try Again</button></div></section></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Added (toast)</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div id="toaster" class="toaster relative! inset-auto!"><div class="toast" role="status" aria-atomic="true" aria-hidden="false" data-category="success"><div class="toast-content"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><section><h2>Added to your cart</h2><p>Canvas Tote · ¥2,800</p></section><footer><a class="btn" data-size="sm" href="#">View Cart</a></footer></div></div></div>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!-- @dsCard group="Charts" height=992 width=1250 subtitle="Over time, legend, table" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>LineChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · two series, the second dashed</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-visits-title">
+  <header>
+    <h2 id="d-visits-title" data-t="chart.visits.title">Visits</h2>
+    <p data-t="chart.visits.lede">January to June, this year and last year</p>
+  </header>
+  <section>
+    <canvas id="d-visits-chart" class="chart aspect-video max-h-80" role="img" aria-label="Visits rose from 1,820 in January to 3,240 in June, above last year every month." data-chart-type="line" data-chart-label-key="month" data-chart-data='[{"month":"Jan","this_year":1820,"last_year":1510},{"month":"Feb","this_year":2140,"last_year":1600},{"month":"Mar","this_year":2010,"last_year":1720},{"month":"Apr","this_year":2630,"last_year":1930},{"month":"May","this_year":2890,"last_year":2050},{"month":"Jun","this_year":3240,"last_year":2210}]' data-chart-series='{"this_year":{"label":"This year","color":"var(--chart-1)"},"last_year":{"label":"Last year","color":"var(--chart-2)","dataset":{"borderDash":[6,4]}}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Month</th><th>This year</th><th>Last year</th></tr></thead><tbody><tr><th scope="row">Jan</th><td class="text-right tabular-nums">1,820</td><td class="text-right tabular-nums">1,510</td></tr><tr><th scope="row">Feb</th><td class="text-right tabular-nums">2,140</td><td class="text-right tabular-nums">1,600</td></tr><tr><th scope="row">Mar</th><td class="text-right tabular-nums">2,010</td><td class="text-right tabular-nums">1,720</td></tr><tr><th scope="row">Apr</th><td class="text-right tabular-nums">2,630</td><td class="text-right tabular-nums">1,930</td></tr><tr><th scope="row">May</th><td class="text-right tabular-nums">2,890</td><td class="text-right tabular-nums">2,050</td></tr><tr><th scope="row">Jun</th><td class="text-right tabular-nums">3,240</td><td class="text-right tabular-nums">2,210</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-visits-title">
+  <header>
+    <h2 id="p-visits-title" data-t="chart.visits.title">訪問数</h2>
+    <p data-t="chart.visits.lede">1月〜6月、今年と昨年</p>
+  </header>
+  <section>
+    <canvas id="p-visits-chart" class="chart aspect-video max-h-80" role="img" aria-label="訪問数は1月の1,820から6月の3,240に増え、毎月昨年を上回りました。" data-chart-type="line" data-chart-label-key="month" data-chart-data='[{"month":"1月","this_year":1820,"last_year":1510},{"month":"2月","this_year":2140,"last_year":1600},{"month":"3月","this_year":2010,"last_year":1720},{"month":"4月","this_year":2630,"last_year":1930},{"month":"5月","this_year":2890,"last_year":2050},{"month":"6月","this_year":3240,"last_year":2210}]' data-chart-series='{"this_year":{"label":"今年","color":"var(--chart-1)"},"last_year":{"label":"昨年","color":"var(--chart-2)","dataset":{"borderDash":[6,4]}}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>月</th><th>今年</th><th>昨年</th></tr></thead><tbody><tr><th scope="row">1月</th><td class="text-right tabular-nums">1,820</td><td class="text-right tabular-nums">1,510</td></tr><tr><th scope="row">2月</th><td class="text-right tabular-nums">2,140</td><td class="text-right tabular-nums">1,600</td></tr><tr><th scope="row">3月</th><td class="text-right tabular-nums">2,010</td><td class="text-right tabular-nums">1,720</td></tr><tr><th scope="row">4月</th><td class="text-right tabular-nums">2,630</td><td class="text-right tabular-nums">1,930</td></tr><tr><th scope="row">5月</th><td class="text-right tabular-nums">2,890</td><td class="text-right tabular-nums">2,050</td></tr><tr><th scope="row">6月</th><td class="text-right tabular-nums">3,240</td><td class="text-right tabular-nums">2,210</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-visits-title">
+  <header>
+    <h2 id="s1-visits-title" data-t="chart.visits.title">Visits</h2>
+    <p data-t="chart.visits.lede">January to June</p>
+  </header>
+  <section>
+    <div class="skeleton aspect-video w-full" role="status" aria-busy="true"><span class="sr-only" data-t="chart.loading">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-visits-title">
+  <header>
+    <h2 id="s2-visits-title" data-t="chart.visits.title">Visits</h2>
+    <p data-t="chart.visits.lede">January to June</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.visits.empty_title">No visits yet</h3>
+    <p data-t="chart.visits.empty">Visits appear here the day after someone opens your site.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Error</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s3-visits-title">
+  <header>
+    <h2 id="s3-visits-title" data-t="chart.visits.title">Visits</h2>
+    <p data-t="chart.visits.lede">January to June</p>
+  </header>
+  <section>
+    <div class="alert" data-variant="destructive" role="alert">
+  <h2 data-t="chart.error_title">Couldn’t load the chart</h2>
+  <section data-t="chart.error">Check your connection and try again.<div class="mt-2 flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button" data-t="chart.retry">Try Again</button></div></section></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-visits-chart'), {options: {scales: {y: {beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+basecoat.chart(document.getElementById('p-visits-chart'), {options: {scales: {x: {ticks: {maxTicksLimit: 6, color: 'var(--muted-foreground)'}}, y: {beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+</script>
+</body>
+</html>

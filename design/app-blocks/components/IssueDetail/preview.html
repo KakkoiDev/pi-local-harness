@@ -1,0 +1,57 @@
+<!-- @dsCard group="Collaboration" height=1030 width=1250 subtitle="One issue and its conversation" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>IssueDetail — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · open issue</figcaption>
+    <div class="ab-screen app" style="height:660px">
+      <article class="grid gap-6 p-6 @3xl:grid-cols-[1fr_14rem]">
+        <header class="grid gap-2 @3xl:col-span-2">
+          <h1 class="text-2xl font-semibold">Timetable page shows Saturday twice <span class="text-muted-foreground font-normal">#42</span></h1>
+          <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600">Open</span><span class="text-muted-foreground">Kana Abe opened this 2 days ago · 3 comments</span><button class="btn ml-auto" data-variant="outline" data-size="sm" type="button">Edit Title</button></p>
+        </header>
+        <div class="grid content-start gap-4">
+          <ol class="grid content-start gap-4">
+            <li class="card gap-2 py-4"><header class="flex items-center gap-2 text-sm"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><b>Kana Abe</b><time class="text-muted-foreground">16 Oct, 14:20</time><span class="badge ml-auto" data-variant="outline">Author</span></header><section><p>On the timetable page, Saturday appears twice in the week view. It started after the term dates changed.</p></section></li>
+            <li class="text-muted-foreground flex items-center gap-2 pl-4 text-sm"><span aria-hidden="true">🏷</span><span><b class="text-foreground">Ren Sato</b> added <span class="badge" data-variant="destructive">bug</span> yesterday</span></li>
+            <li class="card gap-2 py-4"><header class="flex items-center gap-2 text-sm"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span><b>Ren Sato</b><time class="text-muted-foreground">17 Oct, 09:10</time></header><section><p>Found it: the week starts on Sunday in the new term file. Fixing now.</p></section></li>
+          </ol>
+          <form class="grid gap-2"><label class="label" for="d-comment">Add a comment</label><textarea id="d-comment" class="textarea min-h-20"></textarea><div class="flex flex-wrap justify-end gap-2"><button class="btn" data-variant="outline" type="button">Close Issue</button><button class="btn" type="button" disabled>Comment</button></div></form>
+        </div>
+        <aside class="grid content-start gap-4 text-sm" aria-label="Details">
+          <section class="grid gap-1 border-b pb-3"><h2 class="text-muted-foreground text-xs font-medium">Assignees</h2><p class="flex items-center gap-2"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span>Ren Sato</p></section>
+          <section class="grid gap-1 border-b pb-3"><h2 class="text-muted-foreground text-xs font-medium">Labels</h2><p class="flex flex-wrap gap-1"><span class="badge" data-variant="destructive">bug</span><span class="badge" data-variant="outline">timetable</span></p></section>
+          <section class="grid gap-1"><h2 class="text-muted-foreground text-xs font-medium">Linked</h2><a href="#" class="underline-offset-4 hover:underline">#45 Use Monday as week start</a></section>
+        </aside>
+      </article>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · details as chips</figcaption>
+    <div class="ab-screen app p-4" style="height:660px">
+      <article class="grid gap-4">
+        <header class="grid gap-2"><h1 class="text-xl font-semibold">時間割ページで土曜日が2回表示される <span class="text-muted-foreground font-normal">#42</span></h1>
+          <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600">未完了</span><span class="text-muted-foreground">2日前に阿部 かなさんが作成</span></p>
+          <p class="flex flex-wrap gap-1"><span class="badge" data-variant="secondary">担当：佐藤 蓮</span><span class="badge" data-variant="destructive">バグ</span><span class="badge" data-variant="outline">時間割</span><button class="btn" data-variant="ghost" data-size="sm" type="button">＋ 編集</button></p></header>
+        <ol class="grid gap-3"><li class="card gap-2 py-3"><header class="flex items-center gap-2 text-sm"><span class="avatar" data-size="sm"><span class="bg-muted">阿</span></span><b>阿部 かな</b><time class="text-muted-foreground">10月16日 14:20</time></header><section><p>時間割ページの週表示で、土曜日が2回表示されます。学期の日程を変えてから起きています。</p></section></li></ol>
+        <form class="grid gap-2"><label class="label" for="p-comment">コメントを追加</label><textarea id="p-comment" class="textarea"></textarea><button class="btn" type="button">コメント</button></form>
+      </article>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Closed</figcaption>
+    <div class="ab-screen app p-4 grid gap-2 text-sm"><p class="flex flex-wrap items-center gap-2"><span class="badge bg-purple-700 text-white">Closed</span><span class="text-muted-foreground">Ren Sato closed this yesterday</span></p><button class="btn w-fit" data-variant="outline" type="button">Reopen Issue</button></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Locked</figcaption>
+    <div class="ab-screen app p-4 text-sm text-muted-foreground">This conversation is locked.</div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Not found</figcaption>
+    <div class="ab-screen app p-4"><div class="empty"><header><h3>This issue doesn’t exist or was deleted.</h3></header><footer><a class="btn" data-variant="outline" href="#">Back to Issues</a></footer></div></div>
+  </figure>
+</div>
+</body>
+</html>

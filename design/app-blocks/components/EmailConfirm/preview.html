@@ -1,0 +1,57 @@
+<!-- @dsCard group="Accounts" height=740 width=1250 subtitle="Waiting for the link, confirmed" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>EmailConfirm — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · waiting</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[440px] place-items-center bg-muted/40 p-4">
+        <section class="card w-full max-w-sm">
+          <div class="empty">
+            <header>
+              <figure class="bg-muted text-foreground mb-2 size-12 rounded-full"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></figure>
+              <h1 class="text-xl font-semibold">Confirm your email</h1>
+              <p class="text-muted-foreground text-sm"><span>We sent a link to</span> <b class="text-foreground font-medium">aiko@example.com</b>. <span>Open it on any device to finish.</span></p>
+            </header>
+            <footer class="grid gap-2 mt-4">
+              <button class="btn w-full" data-variant="outline" type="button">Send the Email Again</button>
+              <a class="btn w-full" data-variant="ghost" href="#">Wrong Email? Start Over</a>
+            </footer>
+          </div>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · confirmed</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[440px] place-items-center bg-muted/40 p-4">
+        <section class="card w-full max-w-sm">
+          <header>
+            <h1 class="text-xl font-semibold">確認が完了しました</h1>
+            <p class="text-muted-foreground text-sm">アカウントの準備ができました。</p>
+          </header>
+          <footer><a class="btn w-full" href="#">続ける</a></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Resent</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <button class="btn w-full" data-variant="outline" type="button" disabled>Send Again in 58 s</button>
+      <p class="text-muted-foreground text-center text-sm" role="status">Sent. Check your spam folder too.</p>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Link expired</figcaption>
+    <div class="ab-screen app p-4 grid gap-3">
+      <div class="alert" data-variant="destructive" role="alert"><h2>This link no longer works</h2><section>It expired after 24 hours or was already used. Send a new one.</section></div>
+      <button class="btn w-full" type="button">Send the Email Again</button>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

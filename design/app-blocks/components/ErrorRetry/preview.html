@@ -1,0 +1,71 @@
+<!-- @dsCard group="Data" height=890 width=1250 subtitle="Section, inline and page errors" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ErrorRetry — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · page version (500)</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<main class="grid min-h-[420px] place-items-center p-6">
+  <div class="empty">
+    <header>
+      <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></figure>
+      <h1 class="text-lg font-medium" data-t="error.page_title">Something went wrong on our side</h1>
+      <p data-t="error.page_text">This page couldn’t be shown. Try again, or go back to the start.</p>
+    </header>
+    <footer class="flex-row flex-wrap justify-center gap-2 @max-3xl:flex-col @max-3xl:items-stretch">
+    <button type="button" class="btn" onclick="location.reload()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span data-t="error.retry">Try Again</span></button>
+    <a href="/" class="btn" data-variant="outline" data-t="error.home">Go Home</a>
+    </footer>
+    <p class="font-mono text-xs text-muted-foreground" data-t="error.code">Error 500 · a7f3c2</p>
+  </div>
+</main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · a section failed</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="grid gap-4 p-4"><h1 class="text-xl font-semibold">ノート</h1><div data-region><div class="alert" data-variant="destructive" role="alert">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <h2 data-t="error.section_title">ノートを読み込めませんでした</h2>
+  <section>
+    <p data-t="error.section_text">接続が切れたか、サーバーが応答しませんでした。ノートは失われていません。</p>
+    <button type="button" class="btn mt-3" data-variant="outline" data-size="sm" hx-get="/notes/list" hx-target="closest [data-region]" hx-swap="innerHTML"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span data-t="error.retry">再試行</span></button>
+  </section>
+</div></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Failed to save (inline, top of the form)</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="alert" data-variant="destructive" role="alert" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><h2>Couldn’t save</h2><section><p>Your changes are still here. Try again in a moment.</p></section></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Retrying</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><button type="button" class="btn" data-variant="outline" data-size="sm" disabled aria-busy="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="animate-spin motion-reduce:animate-none"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>Trying Again…</span></button></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>404</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<main class="grid min-h-[320px] place-items-center p-6">
+  <div class="empty">
+    <header>
+      <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></figure>
+      <h1 class="text-lg font-medium" data-t="error.not_found_title">This page doesn’t exist</h1>
+      <p data-t="error.not_found_text">The link may be old or mistyped.</p>
+    </header>
+    <footer class="flex-row flex-wrap justify-center gap-2 @max-3xl:flex-col @max-3xl:items-stretch">
+    <a href="/" class="btn" data-variant="outline" data-t="error.home">Go Home</a>
+    </footer>
+    <p class="font-mono text-xs text-muted-foreground" data-t="error.code">Error 404 · a7f3c2</p>
+  </div>
+</main>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

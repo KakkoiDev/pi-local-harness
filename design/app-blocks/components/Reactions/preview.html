@@ -1,0 +1,59 @@
+<!-- @dsCard group="Collaboration" height=520 width=1250 subtitle="Emoji counters and the quick picker" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Reactions — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · picker open</figcaption>
+    <div class="ab-screen app p-6" style="height:300px">
+      <article class="flex gap-3">
+        <span class="avatar"><span class="bg-muted">RS</span></span>
+        <div class="grid gap-1">
+          <p class="text-sm"><b>Ren Sato</b> <span class="text-muted-foreground text-xs">10:04</span></p>
+          <p>The museum confirmed our group booking for Friday.</p>
+          <div class="flex flex-wrap items-center gap-1" role="group" aria-label="Reactions">
+            <button class="btn h-7 gap-1 rounded-full px-2" data-variant="secondary" type="button" aria-pressed="true" data-tooltip="You, Ren Sato and Kana Abe"><span aria-hidden="true">👍</span><span class="text-xs font-semibold tabular-nums">3</span></button>
+            <button class="btn h-7 gap-1 rounded-full px-2" data-variant="outline" type="button" aria-pressed="false"><span aria-hidden="true">🎉</span><span class="text-xs tabular-nums">1</span></button>
+            <button class="btn h-7 rounded-full" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Add a reaction" aria-expanded="true">☺+</button>
+          </div>
+          <div class="popover ab-open"><div data-popover aria-hidden="false" class="w-auto min-w-0 p-2" role="dialog" aria-label="Choose a reaction"><div class="grid grid-cols-6 gap-1"><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Thumbs up">👍</button><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Heart">❤️</button><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Laughing">😄</button><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Party">🎉</button><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Eyes">👀</button><button class="btn" data-variant="ghost" data-size="icon" type="button" aria-label="Check">✅</button></div></div></div>
+        </div>
+      </article>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · 44 px counters</figcaption>
+    <div class="ab-screen app p-4" style="height:300px">
+      <article class="grid gap-2">
+        <p class="text-sm"><b>佐藤 蓮</b> <span class="text-muted-foreground text-xs">10:04</span></p>
+        <p>博物館から金曜日の団体予約の確認が来ました。</p>
+        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="リアクション">
+          <button class="btn h-11 gap-1 rounded-full px-3" data-variant="secondary" type="button" aria-pressed="true"><span aria-hidden="true">👍</span><span class="text-xs font-semibold">3</span></button>
+          <button class="btn h-11 gap-1 rounded-full px-3" data-variant="outline" type="button" aria-pressed="false"><span aria-hidden="true">🎉</span><span class="text-xs">1</span></button>
+          <button class="btn rounded-full" data-variant="ghost" data-size="icon" type="button" aria-label="リアクションを追加">☺+</button>
+        </div>
+      </article>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Who reacted (tooltip)</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <span class="w-fit rounded-md bg-foreground px-2 py-1 text-xs text-background">You, Ren Sato and Kana Abe</span>
+      <button class="btn h-7 w-fit gap-1 rounded-full px-2" data-variant="secondary" type="button" aria-pressed="true"><span>👍</span><span class="text-xs font-semibold">3</span></button>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Big counts · read only</figcaption>
+    <div class="ab-screen app p-4 flex flex-wrap gap-1">
+      <span class="inline-flex h-7 items-center gap-1 rounded-full border px-2 text-xs">❤️ 1.2k</span>
+      <span class="inline-flex h-7 items-center gap-1 rounded-full border px-2 text-xs">👀 48</span>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Saving failed</figcaption>
+    <div class="ab-screen app p-4 text-sm text-destructive">Couldn’t save your reaction. Try again.</div>
+  </figure>
+</div>
+</body>
+</html>

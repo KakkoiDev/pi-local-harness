@@ -1,0 +1,114 @@
+<!-- @dsCard group="Commerce" height=1976 width=1250 subtitle="Steps, address, payment" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Checkout — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · step 1 Address</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<main class="grid gap-6">
+<h1 class="text-2xl font-semibold" data-t="checkout.title">Check out</h1>
+<ol class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Checkout steps"><li class="flex items-center gap-2" aria-current="step"><span class="grid size-6 place-items-center rounded-full text-xs bg-primary text-primary-foreground" aria-hidden="true">1</span><span class="font-medium text-sm">Address</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">2</span><span class="text-muted-foreground text-sm">Delivery</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">3</span><span class="text-muted-foreground text-sm">Payment</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">4</span><span class="text-muted-foreground text-sm">Review</span></li></ol>
+<div class="grid gap-6 @3xl:grid-cols-[1fr_18rem]">
+<section aria-labelledby="d-step-title" class="grid content-start gap-4">
+<h2 id="d-step-title" class="text-lg font-semibold">Address</h2>
+<form id="d-address-form" class="grid gap-4" method="post" action="/checkout/address" novalidate>
+  <div class="grid gap-4 @3xl:grid-cols-2">
+    <div class="field"><label class="label" for="d-family">Family name</label><input class="input" id="d-family" name="family_name" autocomplete="family-name" value="Sato" required></div>
+    <div class="field"><label class="label" for="d-given">Given name</label><input class="input" id="d-given" name="given_name" autocomplete="given-name" value="Aiko" required></div>
+  </div>
+  <div class="field"><label class="label" for="d-postal">Postal code</label><input class="input w-40" id="d-postal" name="postal_code" autocomplete="postal-code" inputmode="numeric" placeholder="150-0001" value="150-0001" required><p class="text-muted-foreground text-sm">We fill in the prefecture and city from it.</p></div>
+  <div class="grid gap-4 @3xl:grid-cols-2">
+    <div class="field"><label class="label" for="d-pref">Prefecture</label><select class="select" id="d-pref" name="prefecture" autocomplete="address-level1"><option>東京都</option><option>神奈川県</option><option>大阪府</option><option>京都府</option><option>北海道</option><option>福岡県</option></select></div>
+    <div class="field"><label class="label" for="d-city">City, ward, town</label><input class="input" id="d-city" name="city" autocomplete="address-level2" value="渋谷区神宮前" required></div>
+  </div>
+  <div class="field"><label class="label" for="d-line1">Street and number</label><input class="input" id="d-line1" name="line1" autocomplete="address-line1" value="1-2-3" required></div>
+  <div class="field"><label class="label" for="d-line2">Building and room (optional)</label><input class="input" id="d-line2" name="line2" autocomplete="address-line2"></div>
+  <div class="field"><label class="label" for="d-tel">Phone (for the delivery driver)</label><input class="input" id="d-tel" name="tel" type="tel" autocomplete="tel" value="090-1234-5678" required></div>
+  <div class="flex flex-wrap justify-between gap-2"><a class="btn" data-variant="ghost" href="/cart">Back to Cart</a><button class="btn" type="submit">Continue to Delivery</button></div>
+</form>
+</section>
+<aside class="card" data-size="sm"><header><h2>Order summary</h2></header><section><dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm"><dt>Ceramic Mug × 2</dt><dd class="text-right tabular-nums">¥3,300</dd><dt>Grid Notebook A5</dt><dd class="text-right tabular-nums">¥880</dd><dt>Shipping</dt><dd class="text-right tabular-nums">¥550</dd><dt class="border-t pt-2 font-semibold">Total</dt><dd class="border-t pt-2 text-right font-semibold tabular-nums">¥4,730</dd></dl></section></aside>
+</div>
+</main>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · step 1</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<main class="grid gap-6">
+<h1 class="text-2xl font-semibold" data-t="checkout.title">購入手続き</h1>
+<ol class="flex flex-wrap gap-x-6 gap-y-2" aria-label="購入手続きの手順"><li class="flex items-center gap-2" aria-current="step"><span class="grid size-6 place-items-center rounded-full text-xs bg-primary text-primary-foreground" aria-hidden="true">1</span><span class="font-medium text-sm">お届け先</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">2</span><span class="text-muted-foreground text-sm">配送方法</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">3</span><span class="text-muted-foreground text-sm">お支払い</span></li><li class="flex items-center gap-2" ><span class="grid size-6 place-items-center rounded-full text-xs border text-muted-foreground" aria-hidden="true">4</span><span class="text-muted-foreground text-sm">確認</span></li></ol>
+<div class="grid gap-6 @3xl:grid-cols-[1fr_18rem]">
+<section aria-labelledby="p-step-title" class="grid content-start gap-4">
+<h2 id="p-step-title" class="text-lg font-semibold">お届け先</h2>
+<form id="p-address-form" class="grid gap-4" method="post" action="/checkout/address" novalidate>
+  <div class="grid gap-4 @3xl:grid-cols-2">
+    <div class="field"><label class="label" for="p-family">姓</label><input class="input" id="p-family" name="family_name" autocomplete="family-name" value="佐藤" required></div>
+    <div class="field"><label class="label" for="p-given">名</label><input class="input" id="p-given" name="given_name" autocomplete="given-name" value="愛子" required></div>
+  </div>
+  <div class="field"><label class="label" for="p-postal">郵便番号</label><input class="input w-40" id="p-postal" name="postal_code" autocomplete="postal-code" inputmode="numeric" placeholder="150-0001" value="150-0001" required><p class="text-muted-foreground text-sm">入力すると都道府県と市区町村が自動で入ります。</p></div>
+  <div class="grid gap-4 @3xl:grid-cols-2">
+    <div class="field"><label class="label" for="p-pref">都道府県</label><select class="select" id="p-pref" name="prefecture" autocomplete="address-level1"><option>東京都</option><option>神奈川県</option><option>大阪府</option><option>京都府</option><option>北海道</option><option>福岡県</option></select></div>
+    <div class="field"><label class="label" for="p-city">市区町村</label><input class="input" id="p-city" name="city" autocomplete="address-level2" value="渋谷区神宮前" required></div>
+  </div>
+  <div class="field"><label class="label" for="p-line1">番地</label><input class="input" id="p-line1" name="line1" autocomplete="address-line1" value="1-2-3" required></div>
+  <div class="field"><label class="label" for="p-line2">建物名・部屋番号（任意）</label><input class="input" id="p-line2" name="line2" autocomplete="address-line2"></div>
+  <div class="field"><label class="label" for="p-tel">電話番号（配達時の連絡用）</label><input class="input" id="p-tel" name="tel" type="tel" autocomplete="tel" value="090-1234-5678" required></div>
+  <div class="flex flex-wrap justify-between gap-2"><a class="btn" data-variant="ghost" href="/cart">カートに戻る</a><button class="btn" type="submit">配送方法へ進む</button></div>
+</form>
+</section>
+<aside class="card" data-size="sm"><header><h2>ご注文内容</h2></header><section><dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm"><dt>陶器のマグカップ × 2</dt><dd class="text-right tabular-nums">3,300円</dd><dt>方眼ノート A5</dt><dd class="text-right tabular-nums">880円</dd><dt>送料</dt><dd class="text-right tabular-nums">550円</dd><dt class="border-t pt-2 font-semibold">合計</dt><dd class="border-t pt-2 text-right font-semibold tabular-nums">4,730円</dd></dl></section></aside>
+</div>
+</main>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Field error</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="field"><label class="label" for="s0-postal">Postal code</label><input class="input w-40" id="s0-postal" inputmode="numeric" value="15-01" aria-invalid="true" aria-describedby="s0-postal-error"><p id="s0-postal-error" class="text-destructive text-sm">Enter a 7-digit postal code, like 150-0001.</p></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Step 3 Payment</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<fieldset class="grid gap-3"><legend class="label mb-2">How do you want to pay?</legend><label class="item has-[:checked]:border-primary" data-variant="outline"><input class="input" type="radio" name="s-method" value="card" checked><section><h3 class="font-medium">Credit or debit card</h3><p class="text-muted-foreground text-sm">Paid now. Card details go straight to the payment provider.</p></section></label><label class="item has-[:checked]:border-primary" data-variant="outline"><input class="input" type="radio" name="s-method" value="konbini" ><section><h3 class="font-medium">Convenience store</h3><p class="text-muted-foreground text-sm">Pay at the counter within 3 days. We ship once it’s paid.</p></section></label><label class="item has-[:checked]:border-primary" data-variant="outline"><input class="input" type="radio" name="s-method" value="bank" ><section><h3 class="font-medium">Bank transfer</h3><p class="text-muted-foreground text-sm">Transfer within 7 days. Fee paid by you.</p></section></label></fieldset><div id="s-card-element" class="input-group h-10 items-center px-3 text-muted-foreground text-sm">Card number · MM / YY · CVC  (the provider’s secure field)</div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Step 4 Review</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-3 text-sm"><dl class="grid grid-cols-[7rem_1fr] gap-2"><dt class="text-muted-foreground">Ship to</dt><dd>Aiko Sato · 〒150-0001 東京都渋谷区神宮前1-2-3 <a href="#" class="underline">Change</a></dd><dt class="text-muted-foreground">Delivery</dt><dd>Standard · arrives Sat 24 Oct <a href="#" class="underline">Change</a></dd><dt class="text-muted-foreground">Payment</dt><dd>Card ending 4242 <a href="#" class="underline">Change</a></dd></dl><button class="btn w-full" data-size="lg" type="button">Place Order · ¥4,730</button><p class="text-muted-foreground text-xs">By placing your order you agree to the terms of sale.</p></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Payment declined</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="alert" data-variant="destructive" role="alert"><h2>Your card was declined</h2><section>The card issuer said no. Nothing was charged. Try another card or choose convenience store payment.</section></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Placing the order</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-3"><button class="btn w-full" data-size="lg" type="button" disabled aria-busy="true">Placing Your Order…</button><p class="text-muted-foreground text-sm" role="status">Don’t close this page. It takes a few seconds.</p></div>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

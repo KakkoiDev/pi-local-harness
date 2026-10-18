@@ -1,0 +1,56 @@
+<!-- @dsCard group="Feedback" height=450 width=1250 subtitle="Offline, waiting changes, back online" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>OfflineBanner — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · offline with waiting changes</figcaption>
+    <div class="ab-screen app flex min-h-[260px] flex-col">
+      <div class="flex items-center justify-center gap-2 bg-muted px-4 py-2 text-sm" role="status">
+        <svg class="size-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M8.5 16.43a5 5 0 0 1 7 0"/><path d="M5 12.86a10 10 0 0 1 5.17-2.69"/><path d="M19 12.86a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg>
+        <span>You’re offline. Changes are saved on this device and sync when you’re back.</span>
+        <span class="text-muted-foreground">3 changes waiting</span>
+      </div>
+      <header class="flex items-center border-b px-4 h-14 font-semibold">Class Notes</header>
+      <main class="p-6 grid gap-2 text-sm text-muted-foreground"><p>Week 3 · Vocabulary</p><p>Homework</p></main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · offline</figcaption>
+    <div class="ab-screen app flex min-h-[260px] flex-col">
+      <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-muted px-4 py-2 text-sm" role="status">
+        <svg class="size-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M8.5 16.43a5 5 0 0 1 7 0"/><path d="M5 12.86a10 10 0 0 1 5.17-2.69"/><path d="m2 2 20 20"/></svg>
+        <span>オフラインです。変更はこのデバイスに保存され、接続が戻ると同期されます。</span>
+        <span class="text-muted-foreground">1 件の変更が同期待ち</span>
+      </div>
+      <header class="flex items-center border-b px-4 h-14 font-semibold">クラスノート</header>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Back online (3 s)</figcaption>
+    <div class="ab-screen app">
+      <div class="flex items-center justify-center gap-2 bg-muted px-4 py-2 text-sm" role="status">
+        <svg class="size-4 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span>Back online. Everything is synced.</span>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Sync failed</figcaption>
+    <div class="ab-screen app">
+      <div class="flex flex-wrap items-center justify-center gap-2 bg-muted px-4 py-2 text-sm" role="status">
+        <span>Back online, but 2 changes couldn’t sync.</span>
+        <button class="btn" data-variant="outline" data-size="xs" type="button">Try Again</button>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Read-only app</figcaption>
+    <div class="ab-screen app">
+      <div class="flex items-center justify-center gap-2 bg-muted px-4 py-2 text-sm" role="status"><span>You’re offline. You can read, but changes need a connection.</span></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

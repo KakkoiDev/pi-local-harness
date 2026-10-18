@@ -1,0 +1,131 @@
+<!-- @dsCard group="Data" height=1350 width=1250 subtitle="Create and edit, validation" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>EditForm — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · edit</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-6"><form id="f5-note-form" class="grid max-w-2xl gap-6" method="post" action="/notes/42" novalidate hx-post="/notes/42" hx-target="this" hx-swap="outerHTML">
+  <h1 class="text-2xl font-semibold" data-t="form.edit_title">Edit Note</h1>
+
+  <div class="grid gap-5">
+    <div class="field">
+      <label for="f5-note-title" data-t="form.title">Title</label>
+      <input type="text" id="f5-note-title" name="title" value="Week 3 · Vocabulary" maxlength="200" required aria-describedby="f5-note-title-help">
+      <p id="f5-note-title-help" class="text-muted-foreground" data-t="form.title_help">Up to 120 characters.</p>
+    </div>
+    <div class="grid gap-5 @3xl:grid-cols-2">
+      <div class="field">
+        <label for="f5-note-subject" data-t="form.subject">Subject</label>
+        <select id="f5-note-subject" name="subject" required>
+          <option value="" disabled data-t="form.subject_choose">Choose a subject</option>
+          <option value="vocabulary" selected>Vocabulary</option>
+          <option value="grammar">Grammar</option>
+          <option value="kanji">Kanji</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f5-note-due"><span data-t="form.due">Review on</span> <span class="font-normal text-muted-foreground" data-t="form.optional">(optional)</span></label>
+        <input type="date" id="f5-note-due" name="review_on" value="2026-10-25" min="2026-10-18">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f5-note-body" data-t="form.body">Note</label>
+      <textarea id="f5-note-body" name="body" rows="5" aria-describedby="f5-note-body-help">駅 (えき) — station</textarea>
+      <p id="f5-note-body-help" class="text-muted-foreground" data-t="form.body_help">Markdown works: **bold**, lists, links.</p>
+    </div>
+    <fieldset class="fieldset">
+      <legend class="label mb-2" data-t="form.visibility">Who can see it</legend>
+      <div role="radiogroup" class="grid gap-2">
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="private" checked><span data-t="form.private">Only me</span></label>
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="class"><span data-t="form.class">My class</span></label>
+      </div>
+    </fieldset>
+  </div>
+  <footer class="flex flex-wrap items-center gap-2 @max-3xl:flex-col-reverse @max-3xl:items-stretch">
+    <button type="submit" class="btn" data-t="form.save">Save Note</button>
+    <a href="/notes/42" class="btn" data-variant="ghost" data-t="form.cancel">Cancel</a>
+  </footer>
+</form></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · new, two errors</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><form id="f6-note-form" class="grid max-w-2xl gap-6" method="post" action="/notes" novalidate hx-post="/notes" hx-target="this" hx-swap="outerHTML">
+  <h1 class="text-2xl font-semibold" data-t="form.new_title">新しいノート</h1>
+  <div id="f6-form-errors" class="alert" data-variant="destructive" role="alert" tabindex="-1">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <h2>保存するには 2 件の修正が必要です</h2>
+    <section>
+      <ul>
+        <li><a href="#note-title" class="underline">タイトル: タイトルを入力してください。</a></li>
+        <li><a href="#note-subject" class="underline">科目: 科目を選んでください。</a></li>
+      </ul>
+    </section>
+  </div>
+  <div class="grid gap-5">
+    <div class="field" data-invalid="true">
+      <label for="f6-note-title" data-t="form.title">タイトル</label>
+      <input type="text" id="f6-note-title" name="title" value="" maxlength="200" required aria-describedby="f6-note-title-error f6-note-title-help" aria-invalid="true">
+      <p id="f6-note-title-error" role="alert" data-t="error.title_empty">タイトルを入力してください。</p>
+      <p id="f6-note-title-help" class="text-muted-foreground" data-t="form.title_help">120文字以内。</p>
+    </div>
+    <div class="grid gap-5 @3xl:grid-cols-2">
+      <div class="field" data-invalid="true">
+        <label for="f6-note-subject" data-t="form.subject">科目</label>
+        <select id="f6-note-subject" name="subject" required aria-describedby="f6-note-subject-error" aria-invalid="true">
+          <option value="" selected disabled data-t="form.subject_choose">科目を選択</option>
+          <option value="vocabulary">語彙</option>
+          <option value="grammar">文法</option>
+          <option value="kanji">漢字</option>
+        </select>
+      <p id="f6-note-subject-error" role="alert" data-t="error.subject_empty">科目を選んでください。</p>
+      </div>
+      <div class="field">
+        <label for="f6-note-due"><span data-t="form.due">復習日</span> <span class="font-normal text-muted-foreground" data-t="form.optional">（任意）</span></label>
+        <input type="date" id="f6-note-due" name="review_on" value="2026-10-25" min="2026-10-18">
+      </div>
+    </div>
+    <div class="field">
+      <label for="f6-note-body" data-t="form.body">本文</label>
+      <textarea id="f6-note-body" name="body" rows="5" aria-describedby="f6-note-body-help"></textarea>
+      <p id="f6-note-body-help" class="text-muted-foreground" data-t="form.body_help">Markdown が使えます（**太字**、リスト、リンク）。</p>
+    </div>
+    <fieldset class="fieldset">
+      <legend class="label mb-2" data-t="form.visibility">公開範囲</legend>
+      <div role="radiogroup" class="grid gap-2">
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="private" checked><span data-t="form.private">自分のみ</span></label>
+        <label class="label gap-2 font-normal"><input class="input" type="radio" name="visibility" value="class"><span data-t="form.class">クラスのメンバー</span></label>
+      </div>
+    </fieldset>
+  </div>
+  <footer class="flex flex-wrap items-center gap-2 @max-3xl:flex-col-reverse @max-3xl:items-stretch">
+    <button type="submit" class="btn" data-t="form.create">ノートを作成</button>
+    <a href="/notes" class="btn" data-variant="ghost" data-t="form.cancel">キャンセル</a>
+  </footer>
+</form></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Saving</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><button type="submit" class="btn w-full" disabled aria-busy="true">Saving…</button></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Leaving with changes (ConfirmDialog)</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="bg-black/40" style="height:240px"><dialog id="f8-leave-dialog" class="alert-dialog" open aria-labelledby="f8-leave-title" aria-describedby="f8-leave-text">
+  <div>
+    <header><h2 id="f8-leave-title" data-t="form.leave_title">Leave without saving?</h2><p id="f8-leave-text" data-t="form.leave_text">Your changes to this note will be lost.</p></header>
+    <footer><button type="button" class="btn" data-variant="outline" autofocus data-t="form.stay">Keep Editing</button><button type="button" class="btn" data-variant="destructive" data-t="form.leave">Leave</button></footer>
+  </div>
+</dialog></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!-- @dsCard group="Navigation" height=780 width=1250 subtitle="Go, find, act with ⌘K" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>CommandPalette — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · opened with ⌘K, “vocab” typed</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="grid place-items-start justify-center bg-black/10 p-6" style="min-height:520px"><div class="w-full max-w-lg"><div class="command">
+    <header>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="f9-command-input" placeholder="Search notes or type a command…" value="vocab" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f9-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+    </header>
+    <div role="menu" id="f9-command-menu" aria-orientation="vertical" data-empty="Nothing found for that. Try fewer words.">
+      <div id="f9-command-results">
+      <div role="group" aria-labelledby="f9-command-notes">
+        <span role="heading" id="f9-command-notes" data-t="command.notes">Notes</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-n1" href="/notes/42" data-force><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span>Week 3 · Vocabulary</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-n2" href="/notes/57" data-force><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span>Vocabulary quiz answers</span></a>
+      </div>
+      <hr role="separator">
+      </div>
+      <div role="group" aria-labelledby="f9-command-goto">
+        <span role="heading" id="f9-command-goto" data-t="command.goto">Go To</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-home" href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="command.home">Home</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-inbox" href="/inbox" data-keywords="messages mail 受信"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span data-t="command.inbox">Inbox</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-settings" href="/settings" data-keywords="preferences options 設定"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.settings">Settings</span></a>
+      </div>
+      <hr role="separator">
+      <div role="group" aria-labelledby="f9-command-actions">
+        <span role="heading" id="f9-command-actions" data-t="command.actions">Actions</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f9-command-new" href="/notes/new" data-keywords="create add 作成"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="command.new_note">New Note</span></a>
+        <div role="menuitem" class="@max-3xl:min-h-11" id="f9-command-theme" onclick="toggleTheme()" data-keywords="dark light theme ダーク"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.theme">Switch Light or Dark</span></div>
+      </div>
+    </div>
+    <footer class="flex justify-end border-t px-3 py-2 text-xs text-muted-foreground" data-t="command.hint">↑↓ Move · ↵ Open · Esc Close</footer>
+  </div></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · opened from the search icon</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="grid place-items-start justify-center bg-black/10 p-6 p-3" style="min-height:520px"><div class="w-full"><div class="command">
+    <header>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="f10-command-input" placeholder="ノートを検索、またはコマンドを入力…" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f10-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+    </header>
+    <div role="menu" id="f10-command-menu" aria-orientation="vertical" data-empty="見つかりませんでした。言葉を減らしてお試しください。">
+      <div id="f10-command-results">
+
+      </div>
+      <div role="group" aria-labelledby="f10-command-goto">
+        <span role="heading" id="f10-command-goto" data-t="command.goto">移動</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f10-command-home" href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="command.home">ホーム</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f10-command-inbox" href="/inbox" data-keywords="messages mail 受信"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span data-t="command.inbox">受信箱</span></a>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f10-command-settings" href="/settings" data-keywords="preferences options 設定"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.settings">設定</span></a>
+      </div>
+      <hr role="separator">
+      <div role="group" aria-labelledby="f10-command-actions">
+        <span role="heading" id="f10-command-actions" data-t="command.actions">操作</span>
+        <a role="menuitem" class="@max-3xl:min-h-11" id="f10-command-new" href="/notes/new" data-keywords="create add 作成"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="command.new_note">新しいノート</span></a>
+        <div role="menuitem" class="@max-3xl:min-h-11" id="f10-command-theme" onclick="toggleTheme()" data-keywords="dark light theme ダーク"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="command.theme">ライト／ダークを切り替え</span></div>
+      </div>
+    </div>
+    <footer hidden class="flex justify-end border-t px-3 py-2 text-xs text-muted-foreground" data-t="command.hint">↑↓ 移動 · ↵ 開く · Esc 閉じる</footer>
+  </div></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No match</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-3"><div class="command"><header><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" value="xyzzy" aria-label="Search"></header><div role="menu" data-empty="Nothing found for that. Try fewer words."></div></div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Searching</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-3"><div class="command"><header><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" value="kanj" aria-label="Search"></header><div role="menu" data-empty="Searching…"></div></div></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

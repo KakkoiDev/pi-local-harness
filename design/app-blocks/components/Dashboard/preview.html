@@ -1,0 +1,111 @@
+<!-- @dsCard group="Content" height=1460 width=1250 subtitle="Stat tiles, trend chart, attention list" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Dashboard — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · loaded</figcaption>
+    <div class="ab-screen app">
+      <main class="grid gap-6 p-4 @3xl:p-8">
+        <header class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-semibold">Overview</h1>
+            <p class="text-muted-foreground text-sm">Updated at 09:41</p>
+          </div>
+          <div class="field w-40">
+            <label class="label sr-only" for="d-period">Period</label>
+            <select class="select" id="d-period"><option>Last 7 days</option><option selected>Last 30 days</option><option>Last 12 months</option></select>
+          </div>
+        </header>
+        <section class="grid grid-cols-2 gap-4 @3xl:grid-cols-4">
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">Revenue</p><p class="text-2xl font-semibold tabular-nums">¥1,284,000</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="secondary">+12.4%</span><span class="text-muted-foreground">vs previous period</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">Orders</p><p class="text-2xl font-semibold tabular-nums">312</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="secondary">+3.1%</span><span class="text-muted-foreground">vs previous period</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">New customers</p><p class="text-2xl font-semibold tabular-nums">87</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="outline">−5.2%</span><span class="text-muted-foreground">vs previous period</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">Refunds</p><p class="text-2xl font-semibold tabular-nums">4</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="destructive">+33%</span><span class="text-muted-foreground">vs previous period</span></p></article>
+        </section>
+        <section class="card">
+          <header><h2 class="font-semibold">Revenue by week</h2><p class="text-muted-foreground text-sm">This period against the one before</p></header>
+          <section>
+            <canvas id="d-chart" class="chart aspect-[5/2]" role="img" aria-label="Revenue by week, this period against the one before"
+              data-chart-type="line" data-chart-label-key="week" data-chart-legend="true"
+              data-chart-data='[{"week":"W1","now":280,"before":240},{"week":"W2","now":310,"before":262},{"week":"W3","now":296,"before":270},{"week":"W4","now":352,"before":281},{"week":"W5","now":398,"before":290}]'
+              data-chart-series='{"now":{"label":"This period","color":"var(--chart-1)","surface":"gradient"},"before":{"label":"Previous period","color":"var(--chart-2)"}}'></canvas>
+            <details class="mt-2 text-sm"><summary>Show as a table</summary></details>
+          </section>
+        </section>
+        <section class="card">
+          <header><h2 class="font-semibold">Needs attention</h2></header>
+          <section class="grid gap-2">
+            <a class="item" data-variant="outline" href="#"><section><h3>3 orders are late</h3><p>Shipped more than 5 days after ordering</p></section><aside><span class="badge" data-variant="destructive">3</span></aside></a>
+            <a class="item" data-variant="outline" href="#"><section><h3>2 products are out of stock</h3><p>Hidden from the shop until restocked</p></section><aside><span class="badge" data-variant="secondary">2</span></aside></a>
+          </section>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · loaded</figcaption>
+    <div class="ab-screen app">
+      <main class="grid gap-6 p-4 @3xl:p-8">
+        <header class="flex flex-wrap items-end justify-between gap-4">
+          <div><h1 class="text-2xl font-semibold">概要</h1><p class="text-muted-foreground text-sm">09:41 に更新</p></div>
+          <div class="field w-40"><label class="label sr-only" for="p-period">期間</label><select class="select" id="p-period"><option selected>過去 30 日間</option></select></div>
+        </header>
+        <section class="grid grid-cols-2 gap-4 @3xl:grid-cols-4">
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">売上</p><p class="text-xl font-semibold tabular-nums">¥1,284,000</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="secondary">+12.4%</span><span class="text-muted-foreground">前期間比</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">注文数</p><p class="text-xl font-semibold tabular-nums">312</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="secondary">+3.1%</span><span class="text-muted-foreground">前期間比</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">新規顧客</p><p class="text-xl font-semibold tabular-nums">87</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="outline">−5.2%</span><span class="text-muted-foreground">前期間比</span></p></article>
+          <article class="card gap-2 p-4"><p class="text-muted-foreground text-sm">返金</p><p class="text-xl font-semibold tabular-nums">4</p><p class="flex flex-wrap items-center gap-1 text-sm"><span class="badge" data-variant="destructive">+33%</span><span class="text-muted-foreground">前期間比</span></p></article>
+        </section>
+        <section class="card">
+          <header><h2 class="font-semibold">週ごとの売上</h2><p class="text-muted-foreground text-sm">今期間と前期間の比較</p></header>
+          <section>
+            <canvas id="p-chart" class="chart aspect-[4/3]" role="img" aria-label="週ごとの売上"
+              data-chart-type="line" data-chart-label-key="week" data-chart-legend="true"
+              data-chart-data='[{"week":"W1","now":280,"before":240},{"week":"W2","now":310,"before":262},{"week":"W3","now":296,"before":270},{"week":"W4","now":352,"before":281},{"week":"W5","now":398,"before":290}]'
+              data-chart-series='{"now":{"label":"今期間","color":"var(--chart-1)","surface":"gradient"},"before":{"label":"前期間","color":"var(--chart-2)"}}'></canvas>
+          </section>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Loading</figcaption>
+    <div class="ab-screen app p-4 grid gap-4" aria-busy="true">
+      <div class="grid grid-cols-2 gap-4">
+        <article class="card gap-2 p-4"><div class="skeleton h-4 w-16"></div><div class="skeleton h-8 w-24"></div><div class="skeleton h-5 w-16"></div></article>
+        <article class="card gap-2 p-4"><div class="skeleton h-4 w-16"></div><div class="skeleton h-8 w-24"></div><div class="skeleton h-5 w-16"></div></article>
+      </div>
+      <div class="skeleton aspect-[5/2] w-full"></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No data yet</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="empty border">
+        <header>
+          <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></figure>
+          <h3>No numbers yet</h3>
+          <p>Numbers appear after the first order.</p>
+        </header>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Chart failed to load</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" data-variant="destructive" role="alert">
+        <h2>The chart couldn’t load</h2>
+        <section>Check your connection and try again.</section>
+      </div>
+      <button class="btn mt-3" data-variant="outline" type="button">Try Again</button>
+    </div>
+  </figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>basecoat.chart('#d-chart'); basecoat.chart('#p-chart');</script>
+</body>
+</html>

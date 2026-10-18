@@ -1,0 +1,60 @@
+<!-- @dsCard group="App shell" height=960 width=1250 subtitle="Install button or two steps" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>InstallApp — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · no card; a menu item after the browser offers it</figcaption>
+    <div class="ab-screen app min-h-[300px]">
+      <header class="flex items-center justify-between gap-4 border-b px-4 h-14"><span class="font-semibold">Class Notes</span>
+        <div class="dropdown-menu"><button type="button" aria-haspopup="menu" aria-expanded="true" class="btn" data-variant="ghost" data-size="icon" aria-label="Account"><span class="avatar" data-size="sm"><span>AT</span></span></button>
+          <div data-popover aria-hidden="false" data-align="end" class="w-56"><div role="menu"><a role="menuitem" href="#">Profile</a><a role="menuitem" href="#">Settings</a><hr role="separator"><button type="button" role="menuitem" class="w-full">Install App…</button><hr role="separator"><button type="button" role="menuitem" class="w-full">Log Out</button></div></div>
+        </div>
+      </header>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone">
+    <figcaption>Phone · English · Chrome (can install)</figcaption>
+    <div class="ab-screen app min-h-[420px]">
+      <header class="flex items-center border-b px-4 h-14 font-semibold">Class Notes</header>
+      <main class="grid gap-4 p-4">
+        <section class="card gap-4 py-4">
+          <div class="flex items-start gap-3 px-4">
+            <svg width="48" height="48" viewBox="0 0 72 72" class="rounded-xl shrink-0" aria-hidden="true"><rect width="72" height="72" fill="var(--primary)"/><path d="M22 18h22l8 8v28H22z" fill="var(--primary-foreground)"/></svg>
+            <div class="grid flex-1 gap-1"><h2 class="font-semibold">Put Class Notes on your home screen</h2><p class="text-muted-foreground text-sm">It opens full screen and works offline, like an app.</p></div>
+          </div>
+          <footer class="flex justify-end gap-2 px-4"><button class="btn" data-variant="ghost" type="button">Not Now</button><button class="btn" type="button">Install</button></footer>
+        </section>
+        <p class="text-muted-foreground text-sm">Week 3 · Vocabulary</p>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · Safari on iPhone (steps)</figcaption>
+    <div class="ab-screen app min-h-[420px]">
+      <header class="flex items-center border-b px-4 h-14 font-semibold">クラスノート</header>
+      <main class="grid gap-4 p-4">
+        <section class="card gap-4 py-4">
+          <div class="flex items-start gap-3 px-4">
+            <svg width="48" height="48" viewBox="0 0 72 72" class="rounded-xl shrink-0" aria-hidden="true"><rect width="72" height="72" fill="var(--primary)"/><path d="M22 18h22l8 8v28H22z" fill="var(--primary-foreground)"/></svg>
+            <div class="grid flex-1 gap-1"><h2 class="font-semibold">クラスノート をホーム画面に追加</h2><p class="text-muted-foreground text-sm">アプリのように全画面で開き、オフラインでも使えます。</p></div>
+          </div>
+          <ol class="grid gap-2 px-4 text-sm">
+            <li class="flex flex-wrap items-center gap-2"><span class="bg-muted grid size-6 place-items-center rounded-full text-xs">1</span><span>共有ボタン</span><svg class="size-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/></svg><span>をタップ（ブラウザのバー）</span></li>
+            <li class="flex items-center gap-2"><span class="bg-muted grid size-6 place-items-center rounded-full text-xs">2</span><span>「ホーム画面に追加」を選択</span></li>
+          </ol>
+          <footer class="flex justify-end px-4"><button class="btn" data-variant="ghost" type="button">今はしない</button></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Installed (SettingsPage row)</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="item" data-variant="outline"><section><h3>Install the app</h3><p>Installed on this device</p></section></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

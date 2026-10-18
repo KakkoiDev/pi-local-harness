@@ -1,0 +1,24 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-18T04:49:06Z"
+ },
+ "title": "App Blocks",
+ "namespace": "AppBlocks",
+ "libraries": [],
+ "sections": {},
+ "groups": [],
+ "assetGroups": {},
+ "blobs": {},
+ "docs": {
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Cyril",
+  "at": "2026-10-18T04:49:06Z",
+  "via": "Claude (Cowork)",
+  "note": "Round 12 part A: 137 cards — foundations, 108 blocks in 12 groups, 11 app archetypes, 13 game genres, 4 art direction cards."
+ }
+}

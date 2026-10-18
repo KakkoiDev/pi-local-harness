@@ -1,0 +1,54 @@
+<!-- @dsCard group="Collaboration" height=830 width=1250 subtitle="Issues with filters and tabs" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>IssueList — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · open issues</figcaption>
+    <div class="ab-screen app p-5" style="height:520px">
+      <section class="grid gap-3">
+        <div class="flex flex-wrap items-center gap-2"><h1 class="mr-auto text-xl font-semibold">Issues</h1><a class="btn" href="#">New Issue</a></div>
+        <form class="flex flex-wrap items-center gap-2" role="search">
+          <div class="input-group min-w-0 flex-1"><span data-align="inline-start" aria-hidden="true">⌕</span><input type="search" value="is:open" aria-label="Search issues"></div>
+          <button class="btn" data-variant="outline" type="button">Label ▾</button><button class="btn" data-variant="outline" type="button">Assignee ▾</button><button class="btn" data-variant="outline" type="button">Sort: Newest ▾</button>
+        </form>
+        <div class="overflow-hidden rounded-lg border">
+          <nav class="flex gap-4 border-b bg-muted/40 px-4 py-2 text-sm"><a href="#" aria-current="page" class="font-semibold">Open 12</a><a href="#" class="text-muted-foreground">Closed 48</a></nav>
+          <ul class="divide-y text-sm">
+            <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3"><span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open">◉</span><div class="min-w-0"><a href="#" class="font-medium">Timetable page shows Saturday twice</a> <span class="badge" data-variant="destructive">bug</span> <span class="badge" data-variant="outline">timetable</span><p class="text-muted-foreground text-xs">#42 · opened 2 days ago by Kana Abe</p></div><div class="flex items-center gap-3 text-muted-foreground text-xs"><span class="avatar-group"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span></span><span>💬 3</span></div></li>
+            <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3"><span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open">◉</span><div class="min-w-0"><a href="#" class="font-medium">Add the museum trip to the calendar</a> <span class="badge" data-variant="secondary">events</span><p class="text-muted-foreground text-xs">#41 · opened 3 days ago by Ren Sato</p></div><div class="flex items-center gap-3 text-muted-foreground text-xs"><span class="avatar-group"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><span class="avatar" data-size="sm"><span class="bg-muted">KM</span></span></span><span>💬 7</span></div></li>
+            <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3"><span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open">◉</span><div class="min-w-0"><a href="#" class="font-medium">Japanese page titles are cut off on phones</a> <span class="badge" data-variant="destructive">bug</span> <span class="badge" data-variant="outline">i18n</span><p class="text-muted-foreground text-xs">#39 · opened last week by Kaito Mori</p></div><div class="flex items-center gap-3 text-muted-foreground text-xs"><span>💬 1</span></div></li>
+            <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3"><span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open">◉</span><div class="min-w-0"><a href="#" class="font-medium">Parents can’t find the homework page</a><p class="text-muted-foreground text-xs">#37 · opened 2 weeks ago by Aiko Tanaka</p></div><div class="flex items-center gap-3 text-muted-foreground text-xs"><span>💬 0</span></div></li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · one Filters button</figcaption>
+    <div class="ab-screen app" style="height:520px">
+      <header class="flex items-center justify-between border-b px-4 py-2"><h1 class="text-lg font-semibold">課題</h1><a class="btn" data-size="icon" href="#" aria-label="新しい課題">＋</a></header>
+      <div class="grid gap-2 p-3"><div class="input-group"><span data-align="inline-start" aria-hidden="true">⌕</span><input type="search" value="is:open" aria-label="課題を検索"></div><button class="btn" data-variant="outline" type="button">絞り込み（2）</button></div>
+      <nav class="flex gap-4 border-y bg-muted/40 px-4 py-2 text-sm"><a href="#" aria-current="page" class="font-semibold">未完了 12</a><a href="#" class="text-muted-foreground">完了 48</a></nav>
+      <ul class="divide-y text-sm">
+        <li><a href="#" class="grid grid-cols-[auto_1fr] gap-3 px-4 py-3"><span class="text-green-700 dark:text-green-400" aria-label="未完了">◉</span><span class="grid gap-1"><span class="font-medium">時間割ページで土曜日が2回表示される</span><span class="flex flex-wrap gap-1"><span class="badge" data-variant="destructive">バグ</span><span class="badge" data-variant="outline">時間割</span></span><span class="text-muted-foreground text-xs">#42 · 2日前に阿部 かなさんが作成 · 💬 3</span></span></a></li>
+        <li><a href="#" class="grid grid-cols-[auto_1fr] gap-3 px-4 py-3"><span class="text-green-700 dark:text-green-400" aria-label="未完了">◉</span><span class="grid gap-1"><span class="font-medium">博物館見学をカレンダーに追加</span><span class="flex flex-wrap gap-1"><span class="badge" data-variant="secondary">行事</span></span><span class="text-muted-foreground text-xs">#41 · 3日前に佐藤 蓮さんが作成 · 💬 7</span></span></a></li>
+      </ul>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Filtered · no results</figcaption>
+    <div class="ab-screen app p-4 grid gap-3 text-sm"><p role="status" class="flex justify-between gap-2"><span>0 results for label:bug author:aiko</span><a href="#" class="underline">Clear Filters</a></p><div class="empty"><header><h3>No issues match these filters.</h3></header></div></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Bulk selection</figcaption>
+    <div class="ab-screen app p-3 flex flex-wrap items-center gap-2 text-sm"><span class="mr-auto font-medium">3 selected</span><button class="btn" data-variant="outline" data-size="sm" type="button">Close</button><button class="btn" data-variant="outline" data-size="sm" type="button">Label</button><button class="btn" data-variant="outline" data-size="sm" type="button">Assign</button></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Closed issue row</figcaption>
+    <div class="ab-screen app"><div class="grid grid-cols-[auto_1fr] gap-3 px-4 py-3 text-sm"><span class="text-purple-700 dark:text-purple-400" aria-label="Closed">✓</span><div><a href="#" class="text-muted-foreground font-medium">Footer link to the PTA page is broken</a><p class="text-muted-foreground text-xs">#35 · closed yesterday by Ren Sato</p></div></div></div>
+  </figure>
+</div>
+</body>
+</html>

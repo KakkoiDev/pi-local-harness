@@ -1,0 +1,88 @@
+<!-- @dsCard group="Accounts" height=994 width=1250 subtitle="Picture, name, bio" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Profile — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · with a picture, saved</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <h1 class="text-2xl font-semibold">Profile</h1>
+        <form class="card" novalidate>
+          <section class="grid gap-6">
+            <div class="flex flex-wrap items-center gap-4">
+              <span class="avatar size-20 text-xl"><img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23c9d6c3'/%3E%3Ccircle cx='40' cy='32' r='14' fill='%235d7a57'/%3E%3Cellipse cx='40' cy='72' rx='26' ry='20' fill='%235d7a57'/%3E%3C/svg%3E" alt="" width="80" height="80"></span>
+              <div class="grid gap-2">
+                <div class="flex flex-wrap gap-2">
+                  <label class="btn" data-variant="outline" for="d-file"><span>Upload a Picture</span></label>
+                  <input id="d-file" type="file" class="sr-only">
+                  <button class="btn" data-variant="ghost" type="button">Remove</button>
+                </div>
+                <p class="text-muted-foreground text-sm">PNG, JPEG or WebP, up to 5 MB. It’s cropped to a square.</p>
+              </div>
+            </div>
+            <div class="field"><label class="label" for="d-name">Display name</label><input class="input" id="d-name" type="text" value="Aiko Tanaka"></div>
+            <div class="field"><label class="label" for="d-bio">About you</label><textarea class="textarea" id="d-bio" rows="3">Learning Japanese with my class on Tuesdays.</textarea><p class="text-muted-foreground text-sm text-right">43 / 200</p></div>
+          </section>
+          <footer class="flex items-center justify-end gap-3">
+            <span class="text-muted-foreground text-sm" role="status">Saved at 14:32</span>
+            <button class="btn" type="button">Save Profile</button>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · no picture</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <h1 class="text-2xl font-semibold">プロフィール</h1>
+        <form class="card" novalidate>
+          <section class="grid gap-6">
+            <div class="flex flex-wrap items-center gap-4">
+              <span class="avatar size-20 text-xl"><span>AT</span></span>
+              <div class="grid gap-2">
+                <div class="flex flex-wrap gap-2">
+                  <label class="btn" data-variant="outline" for="p-file"><span>画像をアップロード</span></label>
+                  <input id="p-file" type="file" class="sr-only">
+                </div>
+                <p class="text-muted-foreground text-sm">PNG・JPEG・WebP、5 MB まで。正方形に切り抜かれます。</p>
+              </div>
+            </div>
+            <div class="field"><label class="label" for="p-name">表示名</label><input class="input" id="p-name" type="text" value="田中 愛子"></div>
+            <div class="field"><label class="label" for="p-bio">自己紹介</label><textarea class="textarea" id="p-bio" rows="3">火曜日のクラスで日本語を勉強しています。</textarea><p class="text-muted-foreground text-sm text-right">20 / 200</p></div>
+          </section>
+          <footer class="flex items-center justify-end gap-3"><button class="btn" type="button">プロフィールを保存</button></footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Picture too big</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <p class="text-muted-foreground text-sm">PNG, JPEG or WebP, up to 5 MB. It’s cropped to a square.</p>
+      <p class="text-destructive text-sm" role="alert">That picture is over 5 MB. Choose a smaller one.</p>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Save failed</figcaption>
+    <div class="ab-screen app p-4 flex flex-wrap items-center justify-end gap-3">
+      <span class="text-destructive text-sm" role="status">Couldn’t save. Check your connection and try again.</span>
+      <button class="btn" data-variant="outline" type="button">Try Again</button>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Remove the picture</figcaption>
+    <div class="ab-screen app min-h-[220px] bg-muted/40 transform-gpu">
+      <dialog class="alert-dialog" data-size="sm" open aria-labelledby="s3-t" aria-describedby="s3-d">
+        <div>
+          <header><h2 id="s3-t">Remove your picture?</h2><p id="s3-d">Your initials will show instead.</p></header>
+          <footer><button class="btn" data-variant="outline" type="button">Cancel</button><button class="btn" data-variant="destructive" type="button">Remove Picture</button></footer>
+        </div>
+      </dialog>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

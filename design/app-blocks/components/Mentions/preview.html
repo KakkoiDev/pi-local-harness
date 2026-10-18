@@ -1,0 +1,55 @@
+<!-- @dsCard group="Collaboration" height=670 width=1250 subtitle="@ picker and mention chips" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Mentions — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · filtering “ka”</figcaption>
+    <div class="ab-screen app p-6" style="height:400px">
+      <p class="mb-3 text-sm"><a class="badge" data-variant="secondary" href="#">@Ren Sato</a> is bringing the snacks. Thanks <a class="badge" href="#">@you</a></p>
+      <div class="popover ab-open relative grid max-w-xl gap-1">
+        <div class="textarea min-h-20" role="textbox" aria-multiline="true" aria-label="Message" aria-expanded="true">Can <span class="badge" data-variant="secondary">@Ren Sato</span> bring the map? @ka<span class="inline-block h-4 w-px bg-foreground align-middle"></span></div>
+        <div data-popover aria-hidden="false" class="w-72 min-w-0 justify-self-start p-1">
+          <p class="text-muted-foreground px-2 py-1 text-xs">People</p>
+          <ul role="listbox" aria-label="People to mention" class="grid">
+            <li role="option" aria-selected="false" class="flex items-center gap-2 rounded-sm px-2 py-1.5"><span class="avatar" data-size="sm"><span class="bg-muted">KM</span></span><span class="flex-1 truncate"><b>Ka</b>ito Mori</span><span class="text-muted-foreground text-xs">kaito</span></li>
+            <li role="option" aria-selected="true" class="flex items-center gap-2 rounded-sm bg-accent px-2 py-1.5"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><span class="flex-1 truncate"><b>Ka</b>na Abe</span><span class="text-muted-foreground text-xs">kana</span></li>
+            <li role="option" aria-selected="false" class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-muted-foreground"><span class="avatar" data-size="sm"><span class="bg-muted">TK</span></span><span class="flex-1 truncate">Takumi <b>Ka</b>to</span><span class="text-xs">Not in this channel</span></li>
+          </ul>
+          <p class="text-muted-foreground border-t px-2 py-1 text-xs">↑↓ to choose · Return to mention · Esc to close</p>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · list above the keyboard</figcaption>
+    <div class="ab-screen app flex flex-col" style="height:400px">
+      <div class="flex-1 p-4 text-sm"><p><a class="badge" data-variant="secondary" href="#">@佐藤 蓮</a> さん、おやつをお願いします。</p></div>
+      <ul role="listbox" aria-label="メンションする相手" class="grid border-t bg-popover">
+        <li role="option" aria-selected="true" class="flex min-h-11 items-center gap-3 bg-accent px-4"><span class="avatar" data-size="sm"><span class="bg-muted">阿</span></span><span class="flex-1">阿部 かな</span><span class="text-muted-foreground text-xs">kana</span></li>
+        <li role="option" aria-selected="false" class="flex min-h-11 items-center gap-3 px-4"><span class="avatar" data-size="sm"><span class="bg-muted">森</span></span><span class="flex-1">森 海斗</span><span class="text-muted-foreground text-xs">kaito</span></li>
+      </ul>
+      <div class="border-t p-3"><div class="textarea min-h-11" role="textbox">地図は <span class="badge" data-variant="secondary">@佐藤 蓮</span> さん？ @か</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No match</figcaption>
+    <div class="ab-screen app p-3"><div class="rounded-md border bg-popover p-2 text-sm text-muted-foreground shadow-md">No one called “kenji”</div></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Mentioning someone not in the channel</figcaption>
+    <div class="ab-screen app p-3">
+      <div class="alert" role="alert"><h2>Takumi Kato isn’t in this channel, so they won’t see the message.</h2><section><div class="mt-2 flex gap-2"><button class="btn" data-size="sm" type="button">Invite to Channel</button><button class="btn" data-variant="outline" data-size="sm" type="button">Mention Anyway</button></div></section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Group mention · removed user</figcaption>
+    <div class="ab-screen app p-3 grid gap-2 text-sm">
+      <div class="flex items-center gap-2 rounded-md bg-accent px-2 py-1.5"><b>@everyone</b><span class="text-muted-foreground ml-auto text-xs">Notifies 28 people</span></div>
+      <p>Thanks <span class="badge" data-variant="outline">Removed user</span> for the photos.</p>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

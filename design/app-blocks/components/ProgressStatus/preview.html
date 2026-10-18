@@ -1,0 +1,45 @@
+<!-- @dsCard group="Feedback" height=480 width=1250 subtitle="Bar, spinner, paused, failed" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ProgressStatus — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · known amount</figcaption>
+    <div class="ab-screen app p-6 grid gap-6">
+      <div class="grid gap-2">
+        <div class="flex items-baseline justify-between gap-4 text-sm"><span id="d-l">Importing notes</span><span class="text-muted-foreground tabular-nums">36 of 120</span></div>
+        <div class="progress" role="progressbar" aria-labelledby="d-l" aria-valuemin="0" aria-valuemax="120" aria-valuenow="36" aria-valuetext="36 of 120"><span style="width: 30%"></span></div>
+        <div class="flex items-center justify-between gap-4"><span class="text-muted-foreground text-sm">About 1 minute left</span><button class="btn" data-variant="ghost" data-size="sm" type="button">Cancel</button></div>
+      </div>
+      <p class="flex items-center gap-2 text-sm" role="status"><svg class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Preparing your file…</span></p>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · paused offline</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <div class="flex items-baseline justify-between gap-4 text-sm"><span id="p-l">一時停止中：オフラインです</span><span class="text-muted-foreground tabular-nums">120 件中 36 件</span></div>
+      <div class="progress" role="progressbar" aria-labelledby="p-l" aria-valuemin="0" aria-valuemax="120" aria-valuenow="36"><span style="width: 30%"></span></div>
+      <div class="flex items-center justify-between gap-4"><span class="text-muted-foreground text-sm">オンラインに戻ると再開します。</span><button class="btn" data-variant="ghost" data-size="sm" type="button">キャンセル</button></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Still working (after 10 s)</figcaption>
+    <div class="ab-screen app p-4 grid gap-1">
+      <p class="flex items-center gap-2 text-sm" role="status"><svg class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Preparing your file…</span></p>
+      <p class="text-muted-foreground text-sm">Still working. Large files take longer.</p>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Failed</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" data-variant="destructive" role="alert"><h2>Import stopped at 36 of 120</h2><section>The file has a row we can’t read (row 37). 36 notes were imported.<div class="mt-2"><button class="btn" data-variant="outline" data-size="sm" type="button">Try Again</button></div></section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Cancelled</figcaption>
+    <div class="ab-screen app p-4"><p class="text-sm" role="status">Stopped. 36 notes were imported.</p></div>
+  </figure>
+</div>
+</body>
+</html>

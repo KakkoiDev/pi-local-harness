@@ -1,0 +1,65 @@
+<!-- @dsCard group="Accounts" height=782 width=1250 subtitle="Account menu, logged-out page" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>LogOut — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · account menu open</figcaption>
+    <div class="ab-screen app min-h-[360px]">
+      <header class="flex items-center justify-between gap-4 border-b px-4 h-14">
+        <span class="font-semibold">Class Notes</span>
+        <div class="dropdown-menu">
+          <button type="button" aria-haspopup="menu" aria-expanded="true" class="btn" data-variant="ghost" data-size="icon" aria-label="Account"><span class="avatar" data-size="sm"><span>AT</span></span></button>
+          <div data-popover aria-hidden="false" data-align="end" class="w-56">
+            <div role="menu">
+              <div role="heading" class="px-2 py-1.5"><div class="grid"><span class="text-sm font-medium">Aiko Tanaka</span><span class="text-muted-foreground text-xs">aiko@example.com</span></div></div>
+              <hr role="separator">
+              <a role="menuitem" href="#">Profile</a>
+              <a role="menuitem" href="#">Settings</a>
+              <hr role="separator">
+              <button type="button" role="menuitem" class="w-full">Log Out</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="p-6 text-muted-foreground text-sm">Week 3 · Vocabulary …</main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · logged out</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[360px] place-items-center bg-muted/40 p-4">
+        <section class="card w-full max-w-sm text-center">
+          <header class="items-center">
+            <h1 class="text-xl font-semibold">ログアウトしました</h1>
+            <p class="text-muted-foreground text-sm">ノートは保存されています。もう一度ログインすると表示されます。</p>
+          </header>
+          <footer class="grid gap-2">
+            <a class="btn w-full" href="#">もう一度ログイン</a>
+            <a class="btn w-full" data-variant="ghost" href="#">ホームへ</a>
+          </footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Unsaved changes · English</figcaption>
+    <div class="ab-screen app min-h-[300px] bg-muted/40 transform-gpu">
+      <dialog class="alert-dialog" open aria-labelledby="s-t" aria-describedby="s-d">
+        <div>
+          <header>
+            <h2 id="s-t">Log out with unsaved changes?</h2>
+            <p id="s-d">Your edits to “Week 3 · Vocabulary” haven’t been saved and will be lost.</p>
+          </header>
+          <footer>
+            <button class="btn" data-variant="outline" type="button">Cancel</button>
+            <button class="btn" data-variant="destructive" type="button">Log Out Anyway</button>
+          </footer>
+        </div>
+      </dialog>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

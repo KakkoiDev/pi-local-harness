@@ -1,0 +1,123 @@
+<!-- @dsCard group="Collaboration" height=1070 width=1250 subtitle="Blocks, handles, slash menu" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>BlockEditor — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · slash menu open</figcaption>
+    <div class="ab-screen app" style="height:620px">
+      <article class="mx-auto grid w-full max-w-3xl gap-1 px-4 py-8 @3xl:px-12">
+        <header class="mb-4 grid gap-2">
+          <h1 class="text-3xl font-semibold">Field trip plan</h1>
+          <p class="text-muted-foreground text-sm">Edited <time>9:12</time> · <span role="status">Saved</span></p>
+        </header>
+        <div class="grid gap-0.5" role="list">
+          <div class="group relative flex items-start gap-1" role="listitem">
+            <button class="btn opacity-0" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block">⋮⋮</button>
+            <p class="min-h-7 flex-1 py-0.5">We leave the school at 8:30 and take the <b>8:52</b> train.</p>
+          </div>
+          <div class="group relative flex items-start gap-1" role="listitem">
+            <button class="btn opacity-0" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block">⋮⋮</button>
+            <h2 class="flex-1 py-1 text-xl font-semibold">What to bring</h2>
+          </div>
+          <div class="group relative flex items-start gap-1" role="listitem">
+            <button class="btn opacity-0" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block">⋮⋮</button>
+            <label class="flex flex-1 items-start gap-2 py-0.5"><input class="input mt-1" type="checkbox" checked><span class="text-muted-foreground line-through">Book the group ticket</span></label>
+          </div>
+          <div class="group relative flex items-start gap-1" role="listitem">
+            <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block">⋮⋮</button>
+            <label class="flex flex-1 items-start gap-2 py-0.5"><input class="input mt-1" type="checkbox"><span>Lunch and a water bottle</span></label>
+          </div>
+          <div class="group relative flex items-start gap-1" role="listitem">
+            <button class="btn opacity-0" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Move or change block">⋮⋮</button>
+            <p class="min-h-7 flex-1 py-0.5">/hea<span class="inline-block w-px h-5 align-middle bg-foreground"></span></p>
+          </div>
+        </div>
+        <div class="dropdown-menu ab-open ml-9">
+          <div data-popover aria-hidden="false" class="w-72">
+            <div role="menu" aria-label="Add a block">
+              <div role="group" aria-labelledby="d-basic">
+                <div role="heading" id="d-basic">Basic blocks</div>
+                <div role="menuitem" class="active">Heading 1<kbd class="kbd">#</kbd></div>
+                <div role="menuitem">Heading 2<kbd class="kbd">##</kbd></div>
+                <div role="menuitem">Heading 3<kbd class="kbd">###</kbd></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · handles always shown</figcaption>
+    <div class="ab-screen app" style="height:620px">
+      <article class="grid w-full gap-1 px-4 py-6">
+        <header class="mb-3 grid gap-1">
+          <h1 class="text-2xl font-semibold">遠足の計画</h1>
+          <p class="text-muted-foreground text-sm">編集 <time>9:12</time> · <span role="status">保存済み</span></p>
+        </header>
+        <div class="grid gap-1" role="list">
+          <div class="flex items-start gap-1" role="listitem">
+            <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ブロックを移動・変更">⋮⋮</button>
+            <p class="flex-1 py-2">8時30分に学校を出て、8時52分の電車に乗ります。</p>
+          </div>
+          <div class="flex items-start gap-1" role="listitem">
+            <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ブロックを移動・変更">⋮⋮</button>
+            <h2 class="flex-1 py-2 text-lg font-semibold">持ち物</h2>
+          </div>
+          <div class="flex items-start gap-1" role="listitem">
+            <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ブロックを移動・変更">⋮⋮</button>
+            <label class="flex flex-1 items-start gap-2 py-2"><input class="input mt-0.5" type="checkbox" checked><span class="text-muted-foreground line-through">団体乗車券を予約する</span></label>
+          </div>
+        </div>
+        <div class="mt-auto"></div>
+      </article>
+      <div class="absolute inset-x-0 bottom-0 grid gap-2 rounded-t-2xl border-t bg-popover p-4 shadow-lg">
+        <p class="text-sm font-medium">ブロックを追加</p>
+        <div class="grid">
+          <button class="btn justify-start" data-variant="ghost" type="button">テキスト</button>
+          <button class="btn justify-start" data-variant="ghost" type="button">見出し1</button>
+          <button class="btn justify-start" data-variant="ghost" type="button">箇条書き</button>
+          <button class="btn justify-start" data-variant="ghost" type="button">ToDo</button>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Empty page</figcaption>
+    <div class="ab-screen app p-6 grid gap-3">
+      <h1 class="text-2xl font-semibold text-muted-foreground">Untitled</h1>
+      <p class="text-muted-foreground">Type / for blocks, or just start writing</p>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Block selected (Esc) · handle menu</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <div class="flex items-start gap-1 rounded-md bg-accent" aria-selected="true">
+        <button class="btn" data-variant="ghost" data-size="icon-sm" type="button">⋮⋮</button>
+        <p class="flex-1 py-0.5">Lunch and a water bottle</p>
+      </div>
+      <div class="dropdown-menu ab-open">
+        <div data-popover aria-hidden="false" class="w-56">
+          <div role="menu">
+            <div role="menuitem">Turn Into</div>
+            <div role="menuitem">Duplicate</div>
+            <div role="menuitem">Move Up<kbd class="kbd">Ctrl ⇧ ↑</kbd></div>
+            <div role="menuitem">Move Down<kbd class="kbd">Ctrl ⇧ ↓</kbd></div>
+            <hr role="separator">
+            <div role="menuitem" class="text-destructive">Delete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Save failed</figcaption>
+    <div class="ab-screen app p-4">
+      <p class="text-sm flex flex-wrap items-center gap-2"><span class="text-destructive">Couldn’t save. Your changes are kept on this device.</span><button class="btn" data-variant="outline" data-size="sm" type="button">Try Again</button></p>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

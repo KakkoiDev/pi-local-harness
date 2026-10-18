@@ -1,0 +1,78 @@
+<!-- @dsCard group="Commerce" height=974 width=1250 subtitle="Codes, price and stock rules" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Coupons — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · every price and stock state</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-6"><div class="grid gap-6 grid-cols-2"><form id="d-coupon" class="grid gap-2" method="post" action="/cart/coupon">
+  <label class="label" for="d-coupon-code" data-t="coupon.label">Coupon code</label>
+  <div class="flex gap-2">
+    <input class="input font-mono uppercase" id="d-coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
+    <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">Apply</button>
+  </div>
+  
+</form><form id="d2-coupon" class="grid gap-2" method="post" action="/cart/coupon">
+  <label class="label" for="d2-coupon-code" data-t="coupon.label">Coupon code</label>
+  <div class="flex gap-2">
+    <input class="input font-mono uppercase" id="d2-coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
+    <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">Apply</button>
+  </div>
+  <div class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed p-3"><span class="flex items-center gap-2"><span class="badge font-mono" data-variant="secondary">WELCOME500</span><span class="text-sm">¥500 off your first order</span></span><button class="btn" data-variant="link" data-size="sm" type="button" aria-label="Remove code WELCOME500">Remove</button></div>
+</form></div><div class="table-container"><table class="table"><thead><tr><th scope="col">State</th><th scope="col">Shows</th><th scope="col">Rule</th></tr></thead><tbody><tr><th scope="row">Regular</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">¥2,800</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">Price only.</td></tr><tr><th scope="row">Sale</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">¥1,650</span> <s class="text-muted-foreground" aria-label="Was ¥2,200">¥2,200</s> <span class="badge" data-variant="destructive">25 % off</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">Old price struck through with a spoken label; badge in percent.</td></tr><tr><th scope="row">Low stock</th><td class="whitespace-normal"><span class="badge" data-variant="outline">Only 3 left</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">1–5 left. Never a countdown.</td></tr><tr><th scope="row">Sold out</th><td class="whitespace-normal"><span class="badge" data-variant="secondary">Sold Out</span> <button class="btn" data-variant="outline" data-size="xs" type="button">Email Me When It’s Back</button></td><td class="text-muted-foreground min-w-48 whitespace-normal">Stays listed, sorted last, button becomes the notify button.</td></tr><tr><th scope="row">Pre-order</th><td class="whitespace-normal"><span class="badge" data-variant="outline">Ships from 10 Nov</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">Button reads Pre-order; the date is always shown.</td></tr><tr><th scope="row">Coupon applied</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">¥4,450</span> <s class="text-muted-foreground">¥4,950</s> <span class="text-sm">WELCOME500</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">In the summary only: a “Coupon” line with the minus amount.</td></tr><tr><th scope="row">Price changed</th><td class="whitespace-normal"><span class="text-sm">Now ¥1,980 (was ¥1,650 when added)</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">Cart line note; the new price is used.</td></tr></tbody></table></div></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-6"><form id="p-coupon" class="grid gap-2" method="post" action="/cart/coupon">
+  <label class="label" for="p-coupon-code" data-t="coupon.label">クーポンコード</label>
+  <div class="flex gap-2">
+    <input class="input font-mono uppercase" id="p-coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="AUTUMN10" aria-invalid="true" aria-describedby="p-coupon-error">
+    <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">適用</button>
+  </div>
+  <p id="p-coupon-error" class="text-destructive text-sm" role="alert">AUTUMN10 は9月30日で終了しました。終了したコードは使えません。</p>
+</form><div class="table-container"><table class="table"><thead><tr><th scope="col">状態</th><th scope="col">表示</th><th scope="col">ルール</th></tr></thead><tbody><tr><th scope="row">通常</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">2,800円</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">価格のみ。</td></tr><tr><th scope="row">セール</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">1,650円</span> <s class="text-muted-foreground" aria-label="通常価格 2,200円">2,200円</s> <span class="badge" data-variant="destructive">25%オフ</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">元の価格に取り消し線（読み上げ用ラベル付き）、割引率のバッジ。</td></tr><tr><th scope="row">残りわずか</th><td class="whitespace-normal"><span class="badge" data-variant="outline">残り3点</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">残り1〜5点のとき。カウントダウンはしない。</td></tr><tr><th scope="row">売り切れ</th><td class="whitespace-normal"><span class="badge" data-variant="secondary">売り切れ</span> <button class="btn" data-variant="outline" data-size="xs" type="button">再入荷のお知らせを受け取る</button></td><td class="text-muted-foreground min-w-48 whitespace-normal">一覧に残し末尾へ。ボタンは再入荷のお知らせに。</td></tr><tr><th scope="row">予約</th><td class="whitespace-normal"><span class="badge" data-variant="outline">11月10日から発送</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">ボタンは「予約する」。発送日を必ず表示。</td></tr><tr><th scope="row">クーポン適用</th><td class="whitespace-normal"><span class="font-semibold tabular-nums">4,450円</span> <s class="text-muted-foreground">4,950円</s> <span class="text-sm">WELCOME500</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">注文内容にのみ「クーポン」行として値引き額を表示。</td></tr><tr><th scope="row">価格変更</th><td class="whitespace-normal"><span class="text-sm">現在 1,980円（追加時 1,650円）</span></td><td class="text-muted-foreground min-w-48 whitespace-normal">カートの行に注記。新しい価格を使う。</td></tr></tbody></table></div></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Code ended</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<form id="s1-coupon" class="grid gap-2" method="post" action="/cart/coupon">
+  <label class="label" for="s1-coupon-code" data-t="coupon.label">Coupon code</label>
+  <div class="flex gap-2">
+    <input class="input font-mono uppercase" id="s1-coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="AUTUMN10" aria-invalid="true" aria-describedby="s1-coupon-error">
+    <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">Apply</button>
+  </div>
+  <p id="s1-coupon-error" class="text-destructive text-sm" role="alert">AUTUMN10 ended on 30 Sep. Codes can’t be used after they end.</p>
+</form>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Applied: the summary line</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm"><dt>Subtotal</dt><dd class="text-right tabular-nums">¥4,950</dd><dt>Coupon WELCOME500</dt><dd class="text-right tabular-nums">−¥500</dd><dt>Shipping</dt><dd class="text-right tabular-nums">¥550</dd><dt class="border-t pt-2 font-semibold">Total</dt><dd class="border-t pt-2 text-right font-semibold tabular-nums">¥5,000</dd></dl>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Checking</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="flex gap-2"><input class="input font-mono uppercase" value="WELCOME500" disabled><button class="btn" data-variant="outline" type="button" disabled aria-busy="true">Checking…</button></div>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

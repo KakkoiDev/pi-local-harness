@@ -1,0 +1,206 @@
+<!-- @dsCard group="Data" height=1010 width=1250 subtitle="Search and filter a list" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ListSearch — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-6"><section class="grid gap-4" aria-labelledby="f1-notes-title">
+  <h1 id="f1-notes-title" class="text-2xl font-semibold" data-t="list.title">Notes</h1>
+  <form id="f1-notes-filter" role="search" class="flex flex-wrap items-end gap-3" action="/notes" hx-get="/notes" hx-trigger="input changed delay:250ms from:#notes-q, change" hx-target="#notes-results" hx-push-url="true">
+    <label class="input-group w-full @3xl:w-72">
+      <span data-align="start"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input id="f1-notes-q" type="search" name="q" value="" placeholder="Search titles and text…" aria-label="Search notes" class="@max-3xl:min-h-11">
+    </label>
+    <div class="grid gap-1.5">
+      <label class="label" for="f1-notes-subject" data-t="list.subject">Subject</label>
+      <select id="f1-notes-subject" name="subject" class="select">
+        <option value="" selected data-t="list.subject_all">All subjects</option>
+        <option value="vocabulary" data-t="subject.Vocabulary">Vocabulary</option>
+        <option value="grammar" data-t="subject.Grammar">Grammar</option>
+        <option value="kanji" data-t="subject.Kanji">Kanji</option>
+      </select>
+    </div>
+    <div class="grid gap-1.5">
+      <label class="label" for="f1-notes-sort" data-t="list.sort">Sort</label>
+      <select id="f1-notes-sort" name="sort" class="select">
+        <option value="recent" data-t="list.sort_recent">Recently edited</option>
+        <option value="title" data-t="list.sort_title">Title A–Z</option>
+      </select>
+    </div>
+    <label class="label h-9 gap-2 font-normal @max-3xl:h-11"><input class="input" type="checkbox" name="mine" value="1"><span data-t="list.only_mine">Only mine</span></label>
+  </form>
+  <div id="f1-notes-results" class="grid gap-3" aria-live="polite">
+    <p class="text-sm text-muted-foreground" data-t="list.count">4 notes</p>
+    <ul class="grid gap-2">
+    <li>
+      <a href="/notes/40" class="item" data-variant="outline">
+        <section>
+          <h3>Week 3 · Vocabulary</h3>
+          <p class="line-clamp-1">駅 (eki) station, 電車 (densha) train, 切符 (kippu) ticket</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Vocabulary</span>
+          <span>Edited 2 hours ago</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/41" class="item" data-variant="outline">
+        <section>
+          <h3>Te-form practice</h3>
+          <p class="line-clamp-1">Verbs: 食べる → 食べて, 行く → 行って, する → して</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Grammar</span>
+          <span>Edited Yesterday</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/42" class="item" data-variant="outline">
+        <section>
+          <h3>Kanji quiz: lessons 4–6</h3>
+          <p class="line-clamp-1">18 kanji, readings and one example word each</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Kanji</span>
+          <span>Edited 12 Oct</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/43" class="item" data-variant="outline">
+        <section>
+          <h3>Listening notes, unit 2</h3>
+          <p class="line-clamp-1">At the station: announcements and platform numbers</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Vocabulary</span>
+          <span>Edited 9 Oct</span>
+        </aside>
+      </a>
+    </li>
+    </ul>
+  </div>
+</section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><section class="grid gap-4" aria-labelledby="f2-notes-title">
+  <h1 id="f2-notes-title" class="text-2xl font-semibold" data-t="list.title">ノート</h1>
+  <form id="f2-notes-filter" role="search" class="flex flex-wrap items-end gap-3" action="/notes" hx-get="/notes" hx-trigger="input changed delay:250ms from:#notes-q, change" hx-target="#notes-results" hx-push-url="true">
+    <label class="input-group w-full @3xl:w-72">
+      <span data-align="start"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input id="f2-notes-q" type="search" name="q" value="" placeholder="タイトルと本文を検索…" aria-label="ノートを検索" class="@max-3xl:min-h-11">
+    </label>
+    <div class="grid gap-1.5">
+      <label class="label" for="f2-notes-subject" data-t="list.subject">科目</label>
+      <select id="f2-notes-subject" name="subject" class="select">
+        <option value="" selected data-t="list.subject_all">すべての科目</option>
+        <option value="vocabulary" data-t="subject.Vocabulary">語彙</option>
+        <option value="grammar" data-t="subject.Grammar">文法</option>
+        <option value="kanji" data-t="subject.Kanji">漢字</option>
+      </select>
+    </div>
+    <div class="grid gap-1.5">
+      <label class="label" for="f2-notes-sort" data-t="list.sort">並べ替え</label>
+      <select id="f2-notes-sort" name="sort" class="select">
+        <option value="recent" data-t="list.sort_recent">最近の編集順</option>
+        <option value="title" data-t="list.sort_title">タイトル順</option>
+      </select>
+    </div>
+    <label class="label h-9 gap-2 font-normal @max-3xl:h-11"><input class="input" type="checkbox" name="mine" value="1"><span data-t="list.only_mine">自分のノートのみ</span></label>
+  </form>
+  <div id="f2-notes-results" class="grid gap-3" aria-live="polite">
+    <p class="text-sm text-muted-foreground" data-t="list.count">3 件のノート</p>
+    <ul class="grid gap-2">
+    <li>
+      <a href="/notes/40" class="item" data-variant="outline">
+        <section>
+          <h3>第3週・語彙</h3>
+          <p class="line-clamp-1">駅 (eki) station, 電車 (densha) train, 切符 (kippu) ticket</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">語彙</span>
+          <span>2時間前に編集</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/41" class="item" data-variant="outline">
+        <section>
+          <h3>て形の練習</h3>
+          <p class="line-clamp-1">Verbs: 食べる → 食べて, 行く → 行って, する → して</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">文法</span>
+          <span>昨日に編集</span>
+        </aside>
+      </a>
+    </li>
+    <li>
+      <a href="/notes/42" class="item" data-variant="outline">
+        <section>
+          <h3>漢字クイズ：4〜6課</h3>
+          <p class="line-clamp-1">18 kanji, readings and one example word each</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">漢字</span>
+          <span>10月12日に編集</span>
+        </aside>
+      </a>
+    </li>
+    </ul>
+  </div>
+</section></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No match</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="empty border">
+  <header>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></figure>
+    <h2>No notes match “hiragana”.</h2>
+    <p>Check the spelling or clear the filters.</p>
+  </header>
+  <footer><a href="/notes" class="btn" data-variant="outline" data-t="list.clear">Clear Filters</a></footer>
+</div></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Loading (after a filter change)</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] ">
+<div class="p-4"><div class="grid gap-2 opacity-60" aria-busy="true"><p class="text-sm text-muted-foreground">4 notes</p>    <div>
+      <a href="/notes/40" class="item" data-variant="outline">
+        <section>
+          <h3>Week 3 · Vocabulary</h3>
+          <p class="line-clamp-1">駅 (eki) station, 電車 (densha) train, 切符 (kippu) ticket</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Vocabulary</span>
+          <span>Edited 2 hours ago</span>
+        </aside>
+      </a>
+    </div>    <div>
+      <a href="/notes/41" class="item" data-variant="outline">
+        <section>
+          <h3>Te-form practice</h3>
+          <p class="line-clamp-1">Verbs: 食べる → 食べて, 行く → 行って, する → して</p>
+        </section>
+        <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+          <span class="badge" data-variant="secondary">Grammar</span>
+          <span>Edited Yesterday</span>
+        </aside>
+      </a>
+    </div></div></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

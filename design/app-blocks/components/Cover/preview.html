@@ -1,0 +1,48 @@
+<!-- @dsCard height=288 width=960 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>App Blocks — cover</title>
+<style>
+  body { margin: 0; background: var(--background); }
+  .cover { position: relative; width: 960px; height: 288px; background: var(--background); overflow: hidden; }
+  .cover svg { position: absolute; inset: 0; }
+  .t { rx: var(--radius-xl); }
+  .ink { fill: var(--foreground); } .muted { fill: var(--ring); opacity: .55; }
+  .c1 { fill: var(--chart-1); } .c2 { fill: var(--chart-2); } .c3 { fill: var(--chart-3); } .c4 { fill: var(--chart-4); } .c5 { fill: var(--chart-5); }
+  .name { position: absolute; left: 40px; bottom: 64px; margin: 0; max-width: 440px; font: 600 96px/0.92 var(--font-sans, ui-sans-serif, system-ui, sans-serif); letter-spacing: -0.03em; color: var(--foreground); }
+  .tag { position: absolute; left: 40px; bottom: 32px; margin: 0; max-width: 440px; font: 14px/20px var(--font-sans, ui-sans-serif, system-ui, sans-serif); color: var(--muted-foreground); }
+</style></head>
+<body>
+<div class="cover">
+<svg viewBox="0 0 960 288" width="960" height="288" aria-hidden="true">
+<!--
+  blocks: foreground (ink) 2×2 and 2×1 slabs; chart-1…chart-5 (Okabe–Ito series) single and two-wide tiles; ring (grey) for relief
+  arrangement: a modular grid right of x=496, tiles merged two-wide or two-tall like blocks in a layout, bleeding off the bottom-right
+  pattern row: "geometric, modular, dense UI → tiles cut by the radius tokens, some merged two-wide" — the catalogue is blocks that compose into screens
+  steps and radii: pitch 56 = 48 tile (space-6 ×2) + 8 gap (space-2); corners radius-xl (14px)
+-->
+<rect class="t ink" x="496" y="24" width="104" height="104"/>
+<rect class="t c1" x="608" y="24" width="48" height="48"/>
+<rect class="t muted" x="664" y="24" width="104" height="48"/>
+<rect class="t c2" x="776" y="24" width="48" height="48"/>
+<rect class="t c3" x="832" y="24" width="104" height="48"/>
+<rect class="t muted" x="608" y="80" width="48" height="48"/>
+<rect class="t c2" x="664" y="80" width="48" height="104"/>
+<rect class="t c3" x="720" y="80" width="48" height="48"/>
+<rect class="t ink" x="776" y="80" width="104" height="48"/>
+<rect class="t c1" x="888" y="80" width="48" height="48"/>
+<rect class="t c3" x="496" y="136" width="48" height="48"/>
+<rect class="t c1" x="552" y="136" width="104" height="48"/>
+<rect class="t muted" x="720" y="136" width="48" height="48"/>
+<rect class="t c4" x="776" y="136" width="48" height="48"/>
+<rect class="t muted" x="832" y="136" width="104" height="104"/>
+<rect class="t muted" x="496" y="192" width="104" height="48"/>
+<rect class="t c4" x="608" y="192" width="48" height="48"/>
+<rect class="t ink" x="664" y="192" width="48" height="48"/>
+<rect class="t c5" x="720" y="192" width="104" height="48"/>
+</svg>
+<h1 class="name">App<br>Blocks</h1>
+<p class="tag">Copyable Basecoat blocks, apps, games and art direction for Pi.</p>
+</div>
+</body>
+</html>

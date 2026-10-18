@@ -1,0 +1,87 @@
+<!-- @dsCard group="Collaboration" height=700 width=1250 subtitle="Nested pages in the side panel" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>PageTree — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · current page open, options menu</figcaption>
+    <div class="ab-screen app flex" style="height:440px">
+      <aside class="w-64 shrink-0 overflow-hidden border-r bg-sidebar p-2">
+        <nav class="grid grid-cols-1 gap-1 text-sm" aria-label="Pages">
+          <h3 class="text-muted-foreground px-2 pt-1 text-xs font-medium">Favourites</h3>
+          <a href="#" class="rounded-md px-2 py-1.5 hover:bg-accent">★ Reading list</a>
+          <div class="mt-2 flex items-center justify-between px-2">
+            <h3 class="text-muted-foreground text-xs font-medium" id="d-tree">Pages</h3>
+            <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="New page">+</button>
+          </div>
+          <ul role="tree" aria-labelledby="d-tree" class="grid grid-cols-1 gap-0.5">
+            <li role="treeitem" aria-expanded="true" aria-level="1">
+              <div class="flex items-center gap-1 rounded-md pr-1 hover:bg-accent"><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Close Class 3-B">▾</button><a href="#" class="min-w-0 flex-1 truncate py-1.5">Class 3-B</a></div>
+              <ul role="group" class="ml-4 grid grid-cols-1 gap-0.5 border-l pl-1">
+                <li role="treeitem" aria-level="2" aria-selected="true"><div class="flex items-center gap-1 rounded-md bg-accent pr-1 font-medium"><span class="w-6"></span><a href="#" aria-current="page" class="min-w-0 flex-1 truncate py-1.5">Field trip plan</a><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Page options" aria-expanded="true">⋯</button></div></li>
+                <li role="treeitem" aria-level="2" aria-expanded="false"><div class="flex items-center gap-1 rounded-md pr-1 hover:bg-accent"><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Open Lessons">▸</button><a href="#" class="min-w-0 flex-1 truncate py-1.5">Lessons</a></div></li>
+                <li role="treeitem" aria-level="2"><div class="flex items-center gap-1 rounded-md pr-1 hover:bg-accent"><span class="w-6"></span><a href="#" class="min-w-0 flex-1 truncate py-1.5">Parents’ evening, Thursday 23 October, notes and questions</a></div></li>
+              </ul>
+            </li>
+            <li role="treeitem" aria-level="1" aria-expanded="false"><div class="flex items-center gap-1 rounded-md pr-1 hover:bg-accent"><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Open Staff room">▸</button><a href="#" class="min-w-0 flex-1 truncate py-1.5">Staff room</a></div></li>
+          </ul>
+        </nav>
+      </aside>
+      <div class="relative flex-1 p-8">
+        <div class="dropdown-menu ab-open absolute left-0 top-24">
+          <div data-popover aria-hidden="false" class="w-56">
+            <div role="menu" aria-label="Page options">
+              <div role="menuitem">Add Page Inside</div>
+              <div role="menuitem">Rename<kbd class="kbd">F2</kbd></div>
+              <div role="menuitem">Duplicate</div>
+              <div role="menuitem">Add to Favourites</div>
+              <div role="menuitem">Move To…</div>
+              <div role="menuitem">Copy Link</div>
+              <hr role="separator">
+              <div role="menuitem" class="text-destructive">Delete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · in the side panel drawer</figcaption>
+    <div class="ab-screen app" style="height:440px">
+      <nav class="grid grid-cols-1 gap-1 p-3 text-sm" aria-label="ページ">
+        <div class="flex items-center justify-between px-2"><h3 class="text-muted-foreground text-xs font-medium">ページ</h3><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="新しいページ">+</button></div>
+        <ul role="tree" class="grid grid-cols-1 gap-0.5">
+          <li role="treeitem" aria-expanded="true"><div class="flex items-center gap-1 rounded-md"><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="3年B組 を閉じる">▾</button><a href="#" class="min-w-0 flex-1 truncate py-3">3年B組</a><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ページのオプション">⋯</button></div>
+            <ul role="group" class="ml-5 grid grid-cols-1 gap-0.5 border-l pl-1">
+              <li role="treeitem" aria-selected="true"><div class="flex items-center gap-1 rounded-md bg-accent font-medium"><span class="w-11"></span><a href="#" aria-current="page" class="min-w-0 flex-1 truncate py-3">遠足の計画</a><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ページのオプション">⋯</button></div></li>
+              <li role="treeitem" aria-expanded="false"><div class="flex items-center gap-1 rounded-md"><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="授業 を開く">▸</button><a href="#" class="min-w-0 flex-1 truncate py-3">授業</a><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ページのオプション">⋯</button></div></li>
+            </ul>
+          </li>
+          <li role="treeitem" aria-expanded="false"><div class="flex items-center gap-1 rounded-md"><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="職員室 を開く">▸</button><a href="#" class="min-w-0 flex-1 truncate py-3">職員室</a><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="ページのオプション">⋯</button></div></li>
+        </ul>
+      </nav>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>No pages</figcaption>
+    <div class="ab-screen app p-4 grid gap-3 text-sm">
+      <p class="text-muted-foreground">No pages yet.</p>
+      <button class="btn" type="button">Write the First Page</button>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Renaming in place</figcaption>
+    <div class="ab-screen app p-4 text-sm">
+      <div class="flex items-center gap-1"><span class="w-6"></span><input class="input h-8 flex-1" value="Field trip plan (draft)" aria-label="Page name"></div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Loading</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <div class="skeleton h-5 w-40"></div><div class="skeleton ml-6 h-5 w-32"></div><div class="skeleton ml-6 h-5 w-48"></div><div class="skeleton h-5 w-28"></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

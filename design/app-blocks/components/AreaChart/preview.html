@@ -1,0 +1,89 @@
+<!-- @dsCard group="Charts" height=992 width=1250 subtitle="Stacked totals over time" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>AreaChart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · stacked areas</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="d-sessions-title">
+  <header>
+    <h2 id="d-sessions-title" data-t="chart.sessions.title">Sessions by device</h2>
+    <p data-t="chart.sessions.lede">Stacked, January to June</p>
+  </header>
+  <section>
+    <canvas id="d-sessions-chart" class="chart aspect-video max-h-80" role="img" aria-label="Sessions by device, stacked: phones are about two thirds of 4,550 sessions in June." data-chart-type="line" data-chart-label-key="month" data-chart-data='[{"month":"Jan","phone":1640,"computer":980},{"month":"Feb","phone":1880,"computer":1100},{"month":"Mar","phone":1900,"computer":1060},{"month":"Apr","phone":2350,"computer":1310},{"month":"May","phone":2610,"computer":1420},{"month":"Jun","phone":2950,"computer":1600}]' data-chart-series='{"phone":{"label":"Phone","color":"var(--chart-1)","surface":"gradient","dataset":{"fill":true}},"computer":{"label":"Computer","color":"var(--chart-2)","surface":"gradient","dataset":{"fill":true}}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th>Month</th><th>Phone</th><th>Computer</th><th>Total</th></tr></thead><tbody><tr><th scope="row">Jan</th><td class="text-right tabular-nums">1,640</td><td class="text-right tabular-nums">980</td><td class="text-right tabular-nums">2,620</td></tr><tr><th scope="row">Feb</th><td class="text-right tabular-nums">1,880</td><td class="text-right tabular-nums">1,100</td><td class="text-right tabular-nums">2,980</td></tr><tr><th scope="row">Mar</th><td class="text-right tabular-nums">1,900</td><td class="text-right tabular-nums">1,060</td><td class="text-right tabular-nums">2,960</td></tr><tr><th scope="row">Apr</th><td class="text-right tabular-nums">2,350</td><td class="text-right tabular-nums">1,310</td><td class="text-right tabular-nums">3,660</td></tr><tr><th scope="row">May</th><td class="text-right tabular-nums">2,610</td><td class="text-right tabular-nums">1,420</td><td class="text-right tabular-nums">4,030</td></tr><tr><th scope="row">Jun</th><td class="text-right tabular-nums">2,950</td><td class="text-right tabular-nums">1,600</td><td class="text-right tabular-nums">4,550</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="p-sessions-title">
+  <header>
+    <h2 id="p-sessions-title" data-t="chart.sessions.title">デバイス別のセッション</h2>
+    <p data-t="chart.sessions.lede">積み上げ、1月〜6月</p>
+  </header>
+  <section>
+    <canvas id="p-sessions-chart" class="chart aspect-video max-h-80" role="img" aria-label="デバイス別のセッション（積み上げ）：6月の4,550のうち約3分の2がスマートフォンです。" data-chart-type="line" data-chart-label-key="month" data-chart-data='[{"month":"1月","phone":1640,"computer":980},{"month":"2月","phone":1880,"computer":1100},{"month":"3月","phone":1900,"computer":1060},{"month":"4月","phone":2350,"computer":1310},{"month":"5月","phone":2610,"computer":1420},{"month":"6月","phone":2950,"computer":1600}]' data-chart-series='{"phone":{"label":"スマートフォン","color":"var(--chart-1)","surface":"gradient","dataset":{"fill":true}},"computer":{"label":"パソコン","color":"var(--chart-2)","surface":"gradient","dataset":{"fill":true}}}' data-chart-legend="true"></canvas>
+    <details class="mt-4"><summary class="text-sm" data-t="chart.show_table">表で表示</summary><div class="table-container"><table class="table"><thead><tr><th>月</th><th>スマートフォン</th><th>パソコン</th><th>合計</th></tr></thead><tbody><tr><th scope="row">1月</th><td class="text-right tabular-nums">1,640</td><td class="text-right tabular-nums">980</td><td class="text-right tabular-nums">2,620</td></tr><tr><th scope="row">2月</th><td class="text-right tabular-nums">1,880</td><td class="text-right tabular-nums">1,100</td><td class="text-right tabular-nums">2,980</td></tr><tr><th scope="row">3月</th><td class="text-right tabular-nums">1,900</td><td class="text-right tabular-nums">1,060</td><td class="text-right tabular-nums">2,960</td></tr><tr><th scope="row">4月</th><td class="text-right tabular-nums">2,350</td><td class="text-right tabular-nums">1,310</td><td class="text-right tabular-nums">3,660</td></tr><tr><th scope="row">5月</th><td class="text-right tabular-nums">2,610</td><td class="text-right tabular-nums">1,420</td><td class="text-right tabular-nums">4,030</td></tr><tr><th scope="row">6月</th><td class="text-right tabular-nums">2,950</td><td class="text-right tabular-nums">1,600</td><td class="text-right tabular-nums">4,550</td></tr></tbody></table></div></details>
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s1-sessions-title">
+  <header>
+    <h2 id="s1-sessions-title" data-t="chart.sessions.title">Sessions by device</h2>
+    <p data-t="chart.sessions.lede">January to June</p>
+  </header>
+  <section>
+    <div class="skeleton aspect-video w-full" role="status" aria-busy="true"><span class="sr-only" data-t="chart.loading">Loading the chart…</span></div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="card" aria-labelledby="s2-sessions-title">
+  <header>
+    <h2 id="s2-sessions-title" data-t="chart.sessions.title">Sessions by device</h2>
+    <p data-t="chart.sessions.lede">January to June</p>
+  </header>
+  <section>
+    <div class="empty border aspect-video grid place-content-center text-center">
+  <header>
+    <h3 data-t="chart.sessions.empty_title">No sessions yet</h3>
+    <p data-t="chart.sessions.empty">Sessions appear here once people use the app.</p>
+  </header>
+</div>
+    
+  </section>
+</section>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/chart.umd.min.js"></script>
+<script src="../lib/basecoat.all.min.js"></script>
+<script src="../lib/basecoat.chart.min.js"></script>
+<script>
+basecoat.chart(document.getElementById('d-sessions-chart'), {options: {scales: {x: {ticks: {maxTicksLimit: 6, color: 'var(--muted-foreground)'}}, y: {stacked: true, beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+basecoat.chart(document.getElementById('p-sessions-chart'), {options: {scales: {x: {ticks: {maxTicksLimit: 6, color: 'var(--muted-foreground)'}}, y: {stacked: true, beginAtZero: true, ticks: {display: true, color: 'var(--muted-foreground)'}}}}});
+</script>
+</body>
+</html>

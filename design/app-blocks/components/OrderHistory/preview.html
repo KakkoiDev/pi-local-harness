@@ -1,0 +1,56 @@
+<!-- @dsCard group="Commerce" height=836 width=1250 subtitle="Past orders, table and list" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>OrderHistory — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · table</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-4"><div class="flex flex-wrap items-center justify-between gap-2"><h1 class="text-2xl font-semibold">Your orders</h1><select class="select w-40" aria-label="Show"><option>All orders</option><option>Last 3 months</option><option>2026</option><option>2025</option></select></div><div class="table-container">
+  <table class="table">
+    <caption class="sr-only" data-t="orders.caption">Your orders, newest first</caption>
+    <thead><tr><th scope="col" data-t="orders.number">Order</th><th scope="col" data-t="orders.date">Date</th><th scope="col" data-t="orders.status">Status</th><th scope="col" class="text-right" data-t="orders.items">Items</th><th scope="col" class="text-right" data-t="orders.total">Total</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody><tr><td class="font-mono"><a href="/orders/2026-1042" class="hover:underline">2026-1042</a></td><td>18 Oct 2026</td><td><span class="badge" data-variant="outline" data-t="orders.status.pending">Awaiting payment</span></td><td class="text-right tabular-nums">3</td><td class="text-right tabular-nums">¥4,730</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-1042" aria-label="View order 2026-1042" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0987" class="hover:underline">2026-0987</a></td><td>2 Oct 2026</td><td><span class="badge" data-variant="secondary" data-t="orders.status.shipped">Shipped</span></td><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">¥2,800</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0987" aria-label="View order 2026-0987" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0911" class="hover:underline">2026-0911</a></td><td>14 Sep 2026</td><td><span class="badge" data-variant="primary" data-t="orders.status.delivered">Delivered</span></td><td class="text-right tabular-nums">4</td><td class="text-right tabular-nums">¥7,150</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0911" aria-label="View order 2026-0911" data-t="orders.view">View</a></td></tr><tr><td class="font-mono"><a href="/orders/2026-0850" class="hover:underline">2026-0850</a></td><td>30 Aug 2026</td><td><span class="badge" data-variant="destructive" data-t="orders.status.cancelled">Cancelled</span></td><td class="text-right tabular-nums">1</td><td class="text-right tabular-nums">¥1,650</td><td class="text-right"><a class="btn" data-variant="outline" data-size="sm" href="/orders/2026-0850" aria-label="View order 2026-0850" data-t="orders.view">View</a></td></tr></tbody>
+  </table>
+</div></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · list</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-4"><div class="flex flex-wrap items-center justify-between gap-2"><h1 class="text-2xl font-semibold">ご注文履歴</h1><select class="select w-40" aria-label="表示"><option>すべての注文</option><option>過去3か月</option><option>2026年</option><option>2025年</option></select></div><ul class="item-group gap-2" role="list"><li class="item" data-variant="outline"><section class="grid gap-1"><h3 class="font-mono text-sm"><a href="/orders/2026-1042" class="hover:underline">2026-1042</a></h3><p class="text-muted-foreground text-sm">10月18日・3点</p></section><aside class="grid justify-items-end gap-1"><span class="badge" data-variant="outline">入金待ち</span><span class="font-semibold tabular-nums">4,730円</span></aside></li><li class="item" data-variant="outline"><section class="grid gap-1"><h3 class="font-mono text-sm"><a href="/orders/2026-0987" class="hover:underline">2026-0987</a></h3><p class="text-muted-foreground text-sm">10月2日・1点</p></section><aside class="grid justify-items-end gap-1"><span class="badge" data-variant="secondary">発送済み</span><span class="font-semibold tabular-nums">2,800円</span></aside></li><li class="item" data-variant="outline"><section class="grid gap-1"><h3 class="font-mono text-sm"><a href="/orders/2026-0911" class="hover:underline">2026-0911</a></h3><p class="text-muted-foreground text-sm">9月14日・4点</p></section><aside class="grid justify-items-end gap-1"><span class="badge" data-variant="primary">配達済み</span><span class="font-semibold tabular-nums">7,150円</span></aside></li><li class="item" data-variant="outline"><section class="grid gap-1"><h3 class="font-mono text-sm"><a href="/orders/2026-0850" class="hover:underline">2026-0850</a></h3><p class="text-muted-foreground text-sm">8月30日・1点</p></section><aside class="grid justify-items-end gap-1"><span class="badge" data-variant="destructive">キャンセル</span><span class="font-semibold tabular-nums">1,650円</span></aside></li></ul></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="empty"><header><h3 data-t="orders.empty_title">No orders yet</h3><p data-t="orders.empty">When you buy something, it shows up here with its status.</p></header><footer><a class="btn" href="/shop">Go to the Shop</a></footer></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="grid gap-2" aria-busy="true"><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div></div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Logged out</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="alert"><h2>Log in to see your orders</h2><section>Ordered as a guest? Use the link in your receipt email.<div class="mt-2 flex flex-wrap gap-2"><a class="btn" data-size="sm" href="#">Log In</a></div></section></div>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

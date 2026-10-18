@@ -1,0 +1,184 @@
+<!-- @dsCard group="Navigation" height=1000 width=1250 subtitle="Sections, groups, badges" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SidePanel — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · open, Notes current</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] " style="height:520px">
+<aside id="f1-sidebar" class="sidebar" data-side="left" aria-hidden="false">
+  <nav aria-label="Main">
+    <header>
+      <a href="/" class="flex h-10 items-center gap-2 px-2 font-semibold">
+        <span class="grid size-7 place-items-center rounded-md bg-primary text-xs text-primary-foreground" aria-hidden="true">CN</span>
+        <span data-t="app.name">Class Notes</span>
+      </a>
+    </header>
+    <section>
+      <div role="group" aria-labelledby="f1-sidebar-workspace">
+        <h3 id="f1-sidebar-workspace" data-t="nav.workspace">Workspace</h3>
+        <ul>
+          <li><a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="nav.home">Home</span></a></li>
+          <li><a href="/notes" aria-current="page"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span class="truncate" data-t="nav.notes">Notes</span><span class="badge ms-auto" data-variant="secondary">12</span></a></li>
+          <li><a href="/shared"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-t="nav.shared">Shared with Me</span></a></li>
+          <li><a href="/inbox" aria-describedby="f1-sidebar-inbox-count"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="truncate" data-t="nav.inbox">Inbox</span><span class="badge ms-auto" id="f1-sidebar-inbox-count" aria-label="3 unread">3</span></a></li>
+        </ul>
+      </div>
+      <div role="group" aria-labelledby="f1-sidebar-collections">
+        <h3 id="f1-sidebar-collections" data-t="nav.collections">Collections</h3>
+        <ul>
+          <li>
+            <details id="f1-sidebar-japanese" open>
+              <summary aria-controls="f1-sidebar-japanese-list" class="@max-3xl:min-h-11"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span>Japanese 1</span></summary>
+              <ul id="f1-sidebar-japanese-list">
+                <li><a href="/c/grammar"><span data-t="nav.grammar">Grammar</span></a></li>
+                <li><a href="/c/vocabulary"><span data-t="nav.vocabulary">Vocabulary</span></a></li>
+                <li><a href="/c/kanji"><span data-t="nav.kanji">Kanji</span></a></li>
+              </ul>
+            </details>
+          </li>
+          <li><button type="button" onclick="newCollection()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="nav.new_collection">New Collection</span></button></li>
+        </ul>
+      </div>
+    </section>
+    <footer>
+      <ul>
+        <li><a href="/settings" class="flex w-full items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="nav.settings">Settings</span></a></li>
+      </ul>
+    </footer>
+  </nav>
+</aside>
+<main class="flex h-full min-w-0 flex-col">
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+    <button type="button" class="btn" data-variant="ghost" data-size="icon" aria-controls="f1-sidebar" aria-expanded="true" aria-label="Show or hide the side panel" onclick="const s = document.getElementById('f1-sidebar'); s.toggle(); this.setAttribute('aria-expanded', s.getAttribute('aria-hidden') === 'false')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    <h1 class="text-base font-semibold">Notes</h1>
+  </header>
+  <div class="min-h-0 flex-1 overflow-y-auto p-4"><p class="text-muted-foreground text-sm">The page content scrolls here; the side panel stays put.</p></div>
+</main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · opened from the toggle</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] " style="height:620px">
+<aside id="f2-sidebar" style="--sidebar-width:18rem" class="sidebar absolute inset-0 z-40 bg-black/50" data-side="left" aria-hidden="false">
+  <nav aria-label="メイン">
+    <header>
+      <a href="/" class="flex h-10 items-center gap-2 px-2 font-semibold">
+        <span class="grid size-7 place-items-center rounded-md bg-primary text-xs text-primary-foreground" aria-hidden="true">CN</span>
+        <span data-t="app.name">クラスノート</span>
+      </a>
+    </header>
+    <section>
+      <div role="group" aria-labelledby="f2-sidebar-workspace">
+        <h3 id="f2-sidebar-workspace" data-t="nav.workspace">ワークスペース</h3>
+        <ul>
+          <li><a href="/" aria-current="page"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="nav.home">ホーム</span></a></li>
+          <li><a href="/notes"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span class="truncate" data-t="nav.notes">ノート</span><span class="badge ms-auto" data-variant="secondary">12</span></a></li>
+          <li><a href="/shared"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-t="nav.shared">共有されたノート</span></a></li>
+          <li><a href="/inbox" aria-describedby="f2-sidebar-inbox-count"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="truncate" data-t="nav.inbox">受信箱</span><span class="badge ms-auto" id="f2-sidebar-inbox-count" aria-label="未読 3 件">3</span></a></li>
+        </ul>
+      </div>
+      <div role="group" aria-labelledby="f2-sidebar-collections">
+        <h3 id="f2-sidebar-collections" data-t="nav.collections">コレクション</h3>
+        <ul>
+          <li>
+            <details id="f2-sidebar-japanese" open>
+              <summary aria-controls="f2-sidebar-japanese-list" class="@max-3xl:min-h-11"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span>Japanese 1</span></summary>
+              <ul id="f2-sidebar-japanese-list">
+                <li><a href="/c/grammar"><span data-t="nav.grammar">文法</span></a></li>
+                <li><a href="/c/vocabulary"><span data-t="nav.vocabulary">語彙</span></a></li>
+                <li><a href="/c/kanji"><span data-t="nav.kanji">漢字</span></a></li>
+              </ul>
+            </details>
+          </li>
+          <li><button type="button" onclick="newCollection()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="nav.new_collection">新しいコレクション</span></button></li>
+        </ul>
+      </div>
+    </section>
+    <footer>
+      <ul>
+        <li><a href="/settings" class="flex w-full items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="nav.settings">設定</span></a></li>
+      </ul>
+    </footer>
+  </nav>
+</aside>
+<main class="!ml-0 flex h-full min-w-0 flex-col">
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+    <button type="button" class="btn" data-variant="ghost" data-size="icon" aria-controls="f2-sidebar" aria-expanded="true" aria-label="サイドパネルの表示を切り替え" onclick="const s = document.getElementById('f2-sidebar'); s.toggle(); this.setAttribute('aria-expanded', s.getAttribute('aria-hidden') === 'false')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    <h1 class="text-base font-semibold">ホーム</h1>
+  </header>
+  <div class="min-h-0 flex-1 overflow-y-auto p-4"><p class="text-muted-foreground text-sm">ページの内容</p></div>
+</main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Collapsed (desktop): the page takes the full width</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] " style="height:260px">
+<aside id="f3-sidebar" class="sidebar" data-side="left" aria-hidden="true" inert data-initial-open="false">
+  <nav aria-label="Main">
+    <header>
+      <a href="/" class="flex h-10 items-center gap-2 px-2 font-semibold">
+        <span class="grid size-7 place-items-center rounded-md bg-primary text-xs text-primary-foreground" aria-hidden="true">CN</span>
+        <span data-t="app.name">Class Notes</span>
+      </a>
+    </header>
+    <section>
+      <div role="group" aria-labelledby="f3-sidebar-workspace">
+        <h3 id="f3-sidebar-workspace" data-t="nav.workspace">Workspace</h3>
+        <ul>
+          <li><a href="/" aria-current="page"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span data-t="nav.home">Home</span></a></li>
+          <li><a href="/notes"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span class="truncate" data-t="nav.notes">Notes</span><span class="badge ms-auto" data-variant="secondary">12</span></a></li>
+          <li><a href="/shared"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-t="nav.shared">Shared with Me</span></a></li>
+          <li><a href="/inbox" aria-describedby="f3-sidebar-inbox-count"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="truncate" data-t="nav.inbox">Inbox</span><span class="badge ms-auto" id="f3-sidebar-inbox-count" aria-label="3 unread">3</span></a></li>
+        </ul>
+      </div>
+      <div role="group" aria-labelledby="f3-sidebar-collections">
+        <h3 id="f3-sidebar-collections" data-t="nav.collections">Collections</h3>
+        <ul>
+          <li>
+            <details id="f3-sidebar-japanese" open>
+              <summary aria-controls="f3-sidebar-japanese-list" class="@max-3xl:min-h-11"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span>Japanese 1</span></summary>
+              <ul id="f3-sidebar-japanese-list">
+                <li><a href="/c/grammar"><span data-t="nav.grammar">Grammar</span></a></li>
+                <li><a href="/c/vocabulary"><span data-t="nav.vocabulary">Vocabulary</span></a></li>
+                <li><a href="/c/kanji"><span data-t="nav.kanji">Kanji</span></a></li>
+              </ul>
+            </details>
+          </li>
+          <li><button type="button" onclick="newCollection()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg><span data-t="nav.new_collection">New Collection</span></button></li>
+        </ul>
+      </div>
+    </section>
+    <footer>
+      <ul>
+        <li><a href="/settings" class="flex w-full items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span data-t="nav.settings">Settings</span></a></li>
+      </ul>
+    </footer>
+  </nav>
+</aside>
+<main class="flex h-full min-w-0 flex-col">
+  <header class="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+    <button type="button" class="btn" data-variant="ghost" data-size="icon" aria-controls="f3-sidebar" aria-expanded="false" aria-label="Show or hide the side panel" onclick="const s = document.getElementById('f3-sidebar'); s.toggle(); this.setAttribute('aria-expanded', s.getAttribute('aria-hidden') === 'false')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg></button>
+    <h1 class="text-base font-semibold">Home</h1>
+  </header>
+  <div class="min-h-0 flex-1 overflow-y-auto p-4"><p class="text-muted-foreground text-sm">The page content scrolls here; the side panel stays put.</p></div>
+</main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Group closed · counts at 0 and 99+</figcaption>
+    <div class="ab-screen app [transform:translateZ(0)] " style="height:220px">
+<div class="p-3"><aside class="sidebar" aria-hidden="false" style="position:relative"><nav aria-label="Main" style="position:relative;width:100%;border:0">
+<section><div role="group"><ul>
+<li><details><summary><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span>Japanese 1</span></summary><ul><li><a href="#"><span>Grammar</span></a></li></ul></details></li>
+<li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span class="truncate">Notes</span><span class="badge ms-auto" data-variant="secondary">99+</span></a></li>
+<li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>Inbox</span></a></li>
+<li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg><span class="truncate">Second-term listening practice for the spring exam</span></a></li>
+</ul></div></section></nav></aside></div>
+    </div>
+  </figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

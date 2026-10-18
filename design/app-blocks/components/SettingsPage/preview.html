@@ -1,0 +1,69 @@
+<!-- @dsCard group="App shell" height=1383 width=1250 subtitle="Language first, saves at once" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SettingsPage — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <div class="flex items-center justify-between gap-4"><h1 class="text-2xl font-semibold">Settings</h1><p class="text-muted-foreground text-sm" role="status">Saved at 14:32</p></div>
+        <section class="card"><header><h2 class="font-semibold">Language</h2></header><section>
+          <fieldset class="grid gap-3"><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-l" checked><span lang="en">English</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-l"><span lang="ja">日本語</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-l"><span>Same as this device</span></label></fieldset>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">Appearance</h2></header><section>
+          <fieldset class="grid gap-3"><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-t" checked><span>Match System</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-t"><span>Light</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="d-t"><span>Dark</span></label></fieldset>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">Notifications</h2></header><section class="grid gap-4">
+          <label class="label justify-between gap-4 font-normal"><span class="grid gap-0.5"><span>Comments on my notes</span><span class="text-muted-foreground text-sm">An email when someone comments.</span></span><input class="input" type="checkbox" role="switch" checked></label>
+          <div class="field"><label class="label" for="d-dig">Summary email</label><select class="select" id="d-dig"><option>Never</option><option>Every day</option><option selected>Every Monday</option></select></div>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">Account</h2></header>
+          <section class="item-group">
+            <a class="item" href="#"><section><h3>Profile</h3><p>Picture, name and bio</p></section><aside aria-hidden="true">›</aside></a>
+            <a class="item" href="#"><section><h3>Account</h3><p>Email, password, devices</p></section><aside aria-hidden="true">›</aside></a>
+            <a class="item" href="#"><section><h3>About Class Notes</h3><p>1.4.0</p></section><aside aria-hidden="true">›</aside></a>
+          </section>
+          <footer><button class="btn w-full @3xl:w-auto" data-variant="outline" type="button">Log Out</button></footer>
+        </section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · top of the page</figcaption>
+    <div class="ab-screen app">
+      <main class="mx-auto grid w-full max-w-2xl gap-6 p-4 @3xl:p-8">
+        <div class="flex items-center justify-between gap-4"><h1 class="text-2xl font-semibold">設定</h1><p class="text-muted-foreground text-sm" role="status">保存中…</p></div>
+        <section class="card"><header><h2 class="font-semibold">言語</h2></header><section>
+          <fieldset class="grid gap-3"><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-l"><span lang="en">English</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-l" checked><span lang="ja">日本語</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-l"><span>このデバイスと同じ</span></label></fieldset>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">表示</h2></header><section>
+          <fieldset class="grid gap-3"><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-t" checked><span>システムに合わせる</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-t"><span>ライト</span></label><label class="label gap-3 font-normal"><input class="input" type="radio" name="p-t"><span>ダーク</span></label></fieldset>
+        </section></section>
+        <section class="card"><header><h2 class="font-semibold">通知</h2></header><section class="grid gap-4">
+          <label class="label justify-between gap-4 font-normal"><span class="grid gap-0.5"><span>自分のノートへのコメント</span><span class="text-muted-foreground text-sm">コメントがあるとメールでお知らせします。</span></span><input class="input" type="checkbox" role="switch" checked></label>
+        </section></section>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Offline: server settings disabled</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <label class="label justify-between gap-4 font-normal opacity-60"><span class="grid gap-0.5"><span>Comments on my notes</span><span class="text-muted-foreground text-sm">Needs a connection</span></span><input class="input" type="checkbox" role="switch" checked disabled></label>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Save failed</figcaption>
+    <div class="ab-screen app p-4"><p class="flex items-center gap-1.5 text-destructive text-sm" role="status"><span>Not saved.</span><button class="btn" data-variant="link" data-size="xs" type="button">Try Again</button></p></div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Notifications blocked</figcaption>
+    <div class="ab-screen app p-4 grid gap-2">
+      <label class="label justify-between gap-4 font-normal"><span>Comments on my notes</span><input class="input" type="checkbox" role="switch" disabled></label>
+      <p class="text-muted-foreground text-sm">Your browser blocks notifications for this site. Allow them in the browser’s site settings.</p>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

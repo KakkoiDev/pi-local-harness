@@ -1,0 +1,230 @@
+<!-- @dsCard group="Commerce" height=1737 width=1250 subtitle="Lines, summary, undo" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Cart — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="grid gap-6 @3xl:grid-cols-[1fr_20rem]" aria-labelledby="d-cart-title">
+<div class="grid content-start gap-4">
+  <h1 id="d-cart-title" class="text-2xl font-semibold" data-t="cart.title">Your cart</h1>
+  <ul class="item-group gap-3" role="list">
+<li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23dfe8ee%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%2240%22%20height%3D%2246%22%20rx%3D%226%22%20fill%3D%22%234f7fa3%22/%3E%3Cpath%20d%3D%22M76%2052h8a10%2010%200%200%201%200%2020h-8%22%20fill%3D%22none%22%20stroke%3D%22%234f7fa3%22%20stroke-width%3D%226%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
+    <p class="text-muted-foreground text-sm">Blue · M</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Ceramic Mug">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" >−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="d-qty-mug" name="quantity" type="number" min="1" max="10" value="2" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥3,300</aside>
+</li><li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23efe9df%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2228%22%20width%3D%2246%22%20height%3D%2264%22%20rx%3D%223%22%20fill%3D%22%232f5d50%22/%3E%3Cpath%20d%3D%22M46%2028v64%22%20stroke%3D%22%231d3d34%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2240%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22%23efe9df%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">Grid Notebook A5</a></h3>
+    <p class="text-muted-foreground text-sm">Green</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Grid Notebook A5">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" disabled>−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="d-qty-notebook" name="quantity" type="number" min="1" max="10" value="1" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥880</aside>
+</li>
+  </ul>
+  <a href="#coupon" class="text-sm underline-offset-4 hover:underline" data-t="cart.have_coupon">Have a coupon code?</a>
+</div>
+<aside class="card" aria-labelledby="cart-summary-title">
+  <header><h2 id="cart-summary-title" data-t="cart.summary">Order summary</h2></header>
+  <section>
+    <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm">
+      <dt data-t="cart.subtotal">Subtotal (3 items)</dt><dd class="text-right tabular-nums">¥4,950</dd>
+      <dt data-t="cart.shipping">Shipping</dt><dd class="text-right tabular-nums">¥550</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.free_from">Add ¥50 more for free shipping.</dt>
+      <dt class="border-t pt-2 text-base font-semibold" data-t="cart.total">Total</dt><dd class="border-t pt-2 text-right text-base font-semibold tabular-nums">¥5,500</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.tax_note">Includes ¥500 tax (10 %)</dt>
+    </dl>
+  </section>
+  <footer class="grid gap-2">
+    <a class="btn w-full " data-size="lg" href="/checkout"  data-t="cart.checkout">Check Out</a>
+    <a class="btn w-full" data-variant="ghost" href="/shop" data-t="cart.continue">Continue Shopping</a>
+  </footer>
+</aside>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · summary under the items</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="grid gap-6 @3xl:grid-cols-[1fr_20rem]" aria-labelledby="p-cart-title">
+<div class="grid content-start gap-4">
+  <h1 id="p-cart-title" class="text-2xl font-semibold" data-t="cart.title">カート</h1>
+  <ul class="item-group gap-3" role="list">
+<li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23dfe8ee%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%2240%22%20height%3D%2246%22%20rx%3D%226%22%20fill%3D%22%234f7fa3%22/%3E%3Cpath%20d%3D%22M76%2052h8a10%2010%200%200%201%200%2020h-8%22%20fill%3D%22none%22%20stroke%3D%22%234f7fa3%22%20stroke-width%3D%226%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">陶器のマグカップ</a></h3>
+    <p class="text-muted-foreground text-sm">青・M</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="数量： 陶器のマグカップ">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="1つ減らす" >−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="p-qty-mug" name="quantity" type="number" min="1" max="10" value="2" aria-label="数量" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="1つ増やす" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">削除</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">3,300円</aside>
+</li><li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23efe9df%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2228%22%20width%3D%2246%22%20height%3D%2264%22%20rx%3D%223%22%20fill%3D%22%232f5d50%22/%3E%3Cpath%20d%3D%22M46%2028v64%22%20stroke%3D%22%231d3d34%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2240%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22%23efe9df%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">方眼ノート A5</a></h3>
+    <p class="text-muted-foreground text-sm">緑</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="数量： 方眼ノート A5">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="1つ減らす" disabled>−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="p-qty-notebook" name="quantity" type="number" min="1" max="10" value="1" aria-label="数量" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="1つ増やす" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">削除</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">880円</aside>
+</li>
+  </ul>
+  <a href="#coupon" class="text-sm underline-offset-4 hover:underline" data-t="cart.have_coupon">クーポンコードをお持ちですか？</a>
+</div>
+<aside class="card" aria-labelledby="cart-summary-title">
+  <header><h2 id="cart-summary-title" data-t="cart.summary">ご注文内容</h2></header>
+  <section>
+    <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm">
+      <dt data-t="cart.subtotal">小計（3点）</dt><dd class="text-right tabular-nums">4,950円</dd>
+      <dt data-t="cart.shipping">送料</dt><dd class="text-right tabular-nums">550円</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.free_from">あと50円で送料無料です。</dt>
+      <dt class="border-t pt-2 text-base font-semibold" data-t="cart.total">合計</dt><dd class="border-t pt-2 text-right text-base font-semibold tabular-nums">5,500円</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.tax_note">うち消費税 500円（10%）</dt>
+    </dl>
+  </section>
+  <footer class="grid gap-2">
+    <a class="btn w-full " data-size="lg" href="/checkout"  data-t="cart.checkout">購入手続きへ</a>
+    <a class="btn w-full" data-variant="ghost" href="/shop" data-t="cart.continue">買い物を続ける</a>
+  </footer>
+</aside>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="wide">
+<figcaption>An item sold out meanwhile: Check Out waits until it is removed</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<section class="grid gap-6 @3xl:grid-cols-[1fr_20rem]" aria-labelledby="s1-cart-title">
+<div class="grid content-start gap-4">
+  <h1 id="s1-cart-title" class="text-2xl font-semibold" data-t="cart.title">Your cart</h1>
+  <ul class="item-group gap-3" role="list">
+<li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23dfe8ee%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2242%22%20width%3D%2240%22%20height%3D%2246%22%20rx%3D%226%22%20fill%3D%22%234f7fa3%22/%3E%3Cpath%20d%3D%22M76%2052h8a10%2010%200%200%201%200%2020h-8%22%20fill%3D%22none%22%20stroke%3D%22%234f7fa3%22%20stroke-width%3D%226%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
+    <p class="text-muted-foreground text-sm">Blue · M</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Ceramic Mug">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" >−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="s1-qty-mug" name="quantity" type="number" min="1" max="10" value="2" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥3,300</aside>
+</li><li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23efe9df%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2228%22%20width%3D%2246%22%20height%3D%2264%22%20rx%3D%223%22%20fill%3D%22%232f5d50%22/%3E%3Cpath%20d%3D%22M46%2028v64%22%20stroke%3D%22%231d3d34%22%20stroke-width%3D%223%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2240%22%20width%3D%2222%22%20height%3D%228%22%20fill%3D%22%23efe9df%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">Grid Notebook A5</a></h3>
+    <p class="text-muted-foreground text-sm">Green</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Grid Notebook A5">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" disabled>−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="s1-qty-notebook" name="quantity" type="number" min="1" max="10" value="1" aria-label="Quantity" >
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" >+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥880</aside>
+</li><li class="item" data-variant="outline">
+  <figure><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23ece4e6%22/%3E%3Cpath%20d%3D%22M46%2030h28v14l10%206v42H36V50l10-6z%22%20fill%3D%22%23a8686f%22/%3E%3Cpath%20d%3D%22M46%2030c-6-10%2034-10%2028%200%22%20fill%3D%22none%22%20stroke%3D%22%237a454b%22%20stroke-width%3D%223%22/%3E%3C/svg%3E" alt="" class="size-16 rounded-md object-cover"></figure>
+  <section class="grid gap-1">
+    <h3 class="font-medium"><a href="/products/apron" class="hover:underline">Linen Apron</a></h3>
+    <p class="text-muted-foreground text-sm">Natural</p><p class="text-destructive text-sm" role="status">Sold out since you added it. Remove it to check out.</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="button-group" role="group" aria-label="Quantity of Linen Apron">
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" disabled>−</button>
+        <input class="input h-8 w-12 text-center tabular-nums" id="s1-qty-apron" name="quantity" type="number" min="1" max="10" value="1" aria-label="Quantity" disabled>
+        <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" disabled>+</button>
+      </div>
+      <button class="btn" data-variant="link" data-size="sm" type="button" data-t="cart.remove">Remove</button>
+    </div>
+  </section>
+  <aside class="text-right font-semibold tabular-nums">¥4,400</aside>
+</li>
+  </ul>
+  <a href="#coupon" class="text-sm underline-offset-4 hover:underline" data-t="cart.have_coupon">Have a coupon code?</a>
+</div>
+<aside class="card" aria-labelledby="cart-summary-title">
+  <header><h2 id="cart-summary-title" data-t="cart.summary">Order summary</h2></header>
+  <section>
+    <dl class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-sm">
+      <dt data-t="cart.subtotal">Subtotal (3 items)</dt><dd class="text-right tabular-nums">¥4,950</dd>
+      <dt data-t="cart.shipping">Shipping</dt><dd class="text-right tabular-nums">¥550</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.free_from">Add ¥50 more for free shipping.</dt>
+      <dt class="border-t pt-2 text-base font-semibold" data-t="cart.total">Total</dt><dd class="border-t pt-2 text-right text-base font-semibold tabular-nums">¥5,500</dd>
+      <dt class="text-muted-foreground col-span-2 text-xs" data-t="cart.tax_note">Includes ¥500 tax (10 %)</dt>
+    </dl>
+  </section>
+  <footer class="grid gap-2">
+    <a class="btn w-full pointer-events-none opacity-50" data-size="lg" href="/checkout" aria-disabled="true" data-t="cart.checkout">Check Out</a>
+    <a class="btn w-full" data-variant="ghost" href="/shop" data-t="cart.continue">Continue Shopping</a>
+  </footer>
+</aside>
+</section>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Empty</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div class="empty">
+<header><h3 data-t="cart.empty_title">Your cart is empty</h3><p data-t="cart.empty">Things you add from the shop wait here until you check out.</p></header>
+<footer><a class="btn" href="/shop" data-t="cart.go_shop">Go to the Shop</a></footer>
+</div>
+</div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Removed (with Undo)</figcaption>
+<div class="ab-screen app">
+<div class="p-4">
+<div id="toaster" class="toaster relative! inset-auto!"><div class="toast" role="status" aria-atomic="true" aria-hidden="false" data-category="info"><div class="toast-content"><section><h2>Removed Grid Notebook A5</h2></section><footer><button class="btn" data-size="sm" type="button">Undo</button></footer></div></div></div>
+</div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!-- @dsCard group="Accounts" height=870 width=1250 subtitle="Email and password, forgot, sign up" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>LogIn — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · empty</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[560px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">Log In</h1>
+            <p class="text-muted-foreground text-sm">Welcome back. Log in to see your notes.</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="field">
+              <label class="label" for="d-email">Email</label>
+              <input class="input" id="d-email" type="email" value="aiko@example.com">
+            </div>
+            <div class="field">
+              <div class="flex items-center justify-between gap-2">
+                <label class="label" for="d-pass">Password</label>
+                <a class="text-sm underline-offset-4 hover:underline" href="#">Forgot your password?</a>
+              </div>
+              <input class="input" id="d-pass" type="password">
+            </div>
+            <label class="label gap-2 font-normal"><input class="input" type="checkbox" checked><span>Keep me logged in on this device</span></label>
+          </section>
+          <footer class="grid gap-3">
+            <button class="btn w-full" type="button">Log In</button>
+            <p class="text-muted-foreground text-center text-sm"><span>No account yet?</span> <a class="text-foreground underline underline-offset-4" href="#">Sign Up</a></p>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · wrong email or password</figcaption>
+    <div class="ab-screen app">
+      <main class="grid min-h-[560px] place-items-center bg-muted/40 p-4">
+        <form class="card w-full max-w-sm" novalidate>
+          <header>
+            <h1 class="text-xl font-semibold">ログイン</h1>
+            <p class="text-muted-foreground text-sm">おかえりなさい。ログインしてノートを表示します。</p>
+          </header>
+          <section class="grid gap-4">
+            <div class="alert" data-variant="destructive" role="alert">
+              <h2>ログインできませんでした</h2>
+              <section>メールアドレスまたはパスワードが正しくありません。両方を確認して、もう一度お試しください。</section>
+            </div>
+            <div class="field">
+              <label class="label" for="p-email">メールアドレス</label>
+              <input class="input" id="p-email" type="email" value="aiko@example.com">
+            </div>
+            <div class="field">
+              <div class="flex items-center justify-between gap-2">
+                <label class="label" for="p-pass">パスワード</label>
+                <a class="text-sm underline-offset-4 hover:underline" href="#">パスワードをお忘れですか？</a>
+              </div>
+              <input class="input" id="p-pass" type="password">
+            </div>
+          </section>
+          <footer class="grid gap-3">
+            <button class="btn w-full" type="button">ログイン</button>
+            <p class="text-muted-foreground text-center text-sm"><span>アカウントをお持ちでない場合</span> <a class="text-foreground underline underline-offset-4" href="#">新規登録</a></p>
+          </footer>
+        </form>
+      </main>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Field error</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="field">
+        <label class="label" for="s-email">Email</label>
+        <input class="input" id="s-email" type="email" value="aiko@example" aria-invalid="true" aria-describedby="s-email-error">
+        <p class="text-destructive text-sm" id="s-email-error">Enter an email like name@example.com.</p>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Sending</figcaption>
+    <div class="ab-screen app p-4 grid gap-3">
+      <button class="btn w-full" type="button" disabled aria-busy="true">Logging In…</button>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Too many tries</figcaption>
+    <div class="ab-screen app p-4">
+      <div class="alert" data-variant="destructive" role="alert">
+        <h2>Couldn’t log you in</h2>
+        <section>Too many tries. Try again in 12 minutes.</section>
+      </div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

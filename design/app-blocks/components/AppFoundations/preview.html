@@ -1,0 +1,83 @@
+<!-- @dsCard group="Foundations" height=760 width=1250 subtitle="App root, one breakpoint, targets, keys" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>AppFoundations — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · 48 rem and wider · @3xl</figcaption>
+    <div class="ab-screen app">
+      <div class="flex h-[420px] flex-col @3xl:flex-row">
+        <aside class="hidden w-56 shrink-0 flex-col gap-1 border-r bg-sidebar p-3 text-sm @3xl:flex">
+          <p class="px-2 pb-2 font-semibold">Class Notes</p>
+          <a class="rounded-md bg-sidebar-accent px-2 py-1.5 font-medium" href="#">Notes</a>
+          <a class="rounded-md px-2 py-1.5 text-muted-foreground" href="#">Subjects</a>
+          <a class="rounded-md px-2 py-1.5 text-muted-foreground" href="#">Settings</a>
+        </aside>
+        <main class="min-h-0 flex-1 overflow-y-auto">
+          <div class="grid gap-4 p-6">
+            <div class="flex items-center justify-between gap-2"><h1 class="text-xl font-semibold">Notes</h1><button class="btn" type="button">New Note</button></div>
+            <div class="grid gap-3 @3xl:grid-cols-2">
+              <div class="card"><header><h2 class="font-medium">Week 3 · Vocabulary</h2><p class="text-muted-foreground text-sm">12 words · edited today</p></header></div>
+              <div class="card"><header><h2 class="font-medium">Kanji quiz</h2><p class="text-muted-foreground text-sm">Tuesday, lessons 4–6</p></header></div>
+            </div>
+            <p class="text-muted-foreground text-sm">The side panel shows from @3xl; below it the same places move to the bottom bar.</p>
+          </div>
+        </main>
+        <nav class="grid shrink-0 grid-cols-3 border-t text-xs @3xl:hidden"><a class="grid min-h-14 place-items-center" href="#">Notes</a><a class="grid min-h-14 place-items-center" href="#">Subjects</a><a class="grid min-h-14 place-items-center" href="#">Settings</a></nav>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · below 48 rem · 44 px targets</figcaption>
+    <div class="ab-screen app">
+      <div class="flex h-[420px] flex-col @3xl:flex-row">
+        <main class="min-h-0 flex-1 overflow-y-auto">
+          <div class="grid gap-4 p-4">
+            <div class="flex items-center justify-between gap-2"><h1 class="text-xl font-semibold">ノート</h1><button class="btn" type="button">新規ノート</button></div>
+            <div class="card"><header><h2 class="font-medium">第3週・単語</h2><p class="text-muted-foreground text-sm">12語・今日編集</p></header></div>
+            <div class="card"><header><h2 class="font-medium">漢字テスト</h2><p class="text-muted-foreground text-sm">火曜日、第4〜6課</p></header></div>
+          </div>
+        </main>
+        <nav class="grid shrink-0 grid-cols-3 border-t text-xs @3xl:hidden"><a class="grid min-h-14 place-items-center font-medium" href="#">ノート</a><a class="grid min-h-14 place-items-center text-muted-foreground" href="#">科目</a><a class="grid min-h-14 place-items-center text-muted-foreground" href="#">設定</a></nav>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Chart series · Okabe–Ito, by lightness too</figcaption>
+    <div class="ab-screen app">
+      <div class="grid gap-2 p-4 text-sm">
+        <div class="flex items-center gap-3"><span class="size-6 rounded" style="background: var(--chart-1)"></span><code>--chart-1</code><span class="text-muted-foreground">blue</span></div>
+        <div class="flex items-center gap-3"><span class="size-6 rounded" style="background: var(--chart-2)"></span><code>--chart-2</code><span class="text-muted-foreground">orange</span></div>
+        <div class="flex items-center gap-3"><span class="size-6 rounded" style="background: var(--chart-3)"></span><code>--chart-3</code><span class="text-muted-foreground">bluish green</span></div>
+        <div class="flex items-center gap-3"><span class="size-6 rounded" style="background: var(--chart-4)"></span><code>--chart-4</code><span class="text-muted-foreground">reddish purple</span></div>
+        <div class="flex items-center gap-3"><span class="size-6 rounded" style="background: var(--chart-5)"></span><code>--chart-5</code><span class="text-muted-foreground">vermilion</span></div>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Texts · one key, two languages</figcaption>
+    <div class="ab-screen app">
+      <div class="grid gap-3 p-4 text-sm">
+        <code class="block rounded bg-muted p-2 text-xs">&lt;button class="btn" data-t="notes.add"&gt;Add Note&lt;/button&gt;</code>
+        <div class="flex flex-wrap gap-2"><button class="btn" type="button">Add Note</button><button class="btn" type="button" lang="ja">ノートを追加</button></div>
+        <code class="block rounded bg-muted p-2 text-xs">&lt;input class="input" data-t-placeholder="search.placeholder"&gt;</code>
+      </div>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="state">
+    <figcaption>Basecoat variants are attributes</figcaption>
+    <div class="ab-screen app">
+      <div class="flex flex-wrap gap-2 p-4">
+        <button class="btn" type="button">Save</button>
+        <button class="btn" data-variant="secondary" type="button">Later</button>
+        <button class="btn" data-variant="outline" type="button">Cancel</button>
+        <button class="btn" data-variant="ghost" type="button">Edit</button>
+        <button class="btn" data-variant="destructive" type="button">Delete</button>
+        <span class="badge">New</span><span class="badge" data-variant="secondary">Draft</span><span class="badge" data-variant="outline">3</span>
+      </div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

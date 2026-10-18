@@ -1,0 +1,62 @@
+<!-- @dsCard group="Feedback" height=780 width=1250 subtitle="Question, consequence, two actions" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ConfirmDialog — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Desktop · English · open</figcaption>
+    <div class="ab-screen app min-h-[360px] transform-gpu">
+      <main class="p-6 grid gap-2 text-sm text-muted-foreground"><p class="text-foreground font-medium">Class 3B</p><p>42 shared notes</p></main>
+      <dialog class="alert-dialog" open aria-labelledby="d-t" aria-describedby="d-d">
+        <div>
+          <header>
+            <h2 id="d-t">Leave “Class 3B”?</h2>
+            <p id="d-d">You’ll lose access to its 42 shared notes. A teacher can invite you again.</p>
+          </header>
+          <footer>
+            <button class="btn" data-variant="outline" type="button">Cancel</button>
+            <button class="btn" data-variant="destructive" type="button">Leave Class</button>
+          </footer>
+        </div>
+      </dialog>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="phone" lang="ja">
+    <figcaption>Phone · 日本語 · small</figcaption>
+    <div class="ab-screen app min-h-[360px] transform-gpu">
+      <dialog class="alert-dialog" data-size="sm" open aria-labelledby="p-t" aria-describedby="p-d">
+        <div>
+          <header>
+            <h2 id="p-t">「第3週・単語」を削除しますか？</h2>
+            <p id="p-d">クラスの全員から削除されます。元に戻せません。</p>
+          </header>
+          <footer>
+            <button class="btn" data-variant="outline" type="button">キャンセル</button>
+            <button class="btn" data-variant="destructive" type="button">ノートを削除</button>
+          </footer>
+        </div>
+      </dialog>
+    </div>
+  </figure>
+  <figure class="ab-frame" data-device="desktop">
+    <figcaption>Failed · English</figcaption>
+    <div class="ab-screen app min-h-[300px] transform-gpu">
+      <dialog class="alert-dialog" open aria-labelledby="s-t" aria-describedby="s-d">
+        <div>
+          <header>
+            <h2 id="s-t">Leave “Class 3B”?</h2>
+            <p id="s-d">You’ll lose access to its 42 shared notes. A teacher can invite you again.</p>
+          </header>
+          <p class="text-destructive text-sm" role="alert">Couldn’t finish. Nothing was changed. Try again.</p>
+          <footer>
+            <button class="btn" data-variant="outline" type="button">Cancel</button>
+            <button class="btn" data-variant="destructive" type="button">Leave Class</button>
+          </footer>
+        </div>
+      </dialog>
+    </div>
+  </figure>
+</div>
+</body>
+</html>
