@@ -23,20 +23,20 @@ A comment thread under a page, post or item: who said what and when, one level o
         <div class="grid gap-1">
           <header class="flex flex-wrap items-baseline gap-x-2 text-sm">
             <span class="font-medium">Ren Sato</span>
-            <a class="text-muted-foreground hover:underline" href="#comment-81"><time datetime="2026-10-18T09:12+09:00">2 h ago</time></a>
+            <a class="text-muted-foreground hover:underline" href="#comment-81"><time datetime="2026-10-18T09:12+09:00" data-t="comments.time.hours">2 h ago</time></a>
           </header>
           <p class="text-sm leading-relaxed">Could we add the reading in hiragana under each kanji?</p>
           <footer class="flex items-center gap-1">
             <button class="btn" data-variant="ghost" data-size="xs" type="button" aria-expanded="false" aria-controls="reply-81" data-t="comments.reply">Reply</button>
             <div class="dropdown-menu">
-              <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="More for Ren Sato’s comment">⋯</button>
+              <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="More for Ren Sato’s comment" data-t-label="comments.more">⋯</button>
               <div data-popover aria-hidden="true"><div role="menu">
                 <button role="menuitem" data-t="comments.copy_link">Copy Link</button>
                 <button role="menuitem" data-t="comments.report">Report…</button>
               </div></div>
             </div>
           </footer>
-          <ol class="mt-2 grid gap-3 border-l pl-4" aria-label="Replies to Ren Sato">
+          <ol class="mt-2 grid gap-3 border-l pl-4" aria-label="Replies to Ren Sato" data-t-label="comments.replies_to">
             <li id="comment-82">
               <article class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
                 <span class="avatar" data-size="sm"><span>AK</span></span>
@@ -82,6 +82,7 @@ Replies are one level deep: a reply to a reply goes into the same list, starting
 | Logged out | The form is replaced by `comments.login_to_comment` with a **Log In** link (LogIn). |
 | Long thread | After 20 comments: `comments.show_more` loads older ones (button above the list). |
 | New comment from someone else | With Presence: it appears at the end with a short `bg-muted` highlight; nothing jumps above the reader's position. |
+| Times | `<time>` shows `comments.time.minutes` under an hour, `comments.time.hours` under a day, then the date (`Intl.DateTimeFormat`). |
 
 ## Texts
 

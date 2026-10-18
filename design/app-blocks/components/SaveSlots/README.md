@@ -35,10 +35,10 @@ Three save slots for saving and loading, each showing the place, play time and w
 
 | State | What changes |
 | --- | --- |
-| Saving over a slot | A game-style confirm: `saves.overwrite` with Overwrite (solid) and Cancel; Cancel is focused. |
-| Saved | The slot updates; `saves.saved` announced; focus stays. |
+| Saving over a slot | A game-style confirm `.game-panel` over the list: `saves.overwrite` (set from code, `{n}` the slot) with Overwrite (solid) and Cancel; Cancel is focused. |
+| Saved | The slot updates; a polite live region announces `saves.saved` (set from code); focus stays. |
 | Autosave | A fourth row first, `saves.autosave`, load-only. |
-| Delete | `saves.delete_confirm`; Cancel focused. |
+| Delete | The same confirm with `saves.delete_confirm` (set from code); Cancel focused. |
 | Broken save | Dim row with `saves.broken`; can be deleted, not loaded. |
 | Storage full | `saves.storage_full` under the list; nothing is lost. |
 | Newer version | A save from a newer game version: `saves.too_new`, not loadable. |

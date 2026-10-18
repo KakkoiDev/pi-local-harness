@@ -78,7 +78,7 @@ const M = {
     'settings.title': 'Settings', 'settings.sfx': 'Sound Effects', 'settings.shake': 'Screen Shake', 'settings.language': 'Language', 'settings.on': 'On', 'settings.off': 'Off', 'settings.hint': '← → change',
     'controls.title': 'Controls', 'controls.keyboard': 'Keyboard', 'controls.gamepad': 'Gamepad', 'controls.change': 'Change', 'controls.reset': 'Reset', 'controls.press_key': 'Press a key…', 'controls.press_button': 'Press a button…',
     'controls.fixed': 'Fixed', 'controls.swapped': '{a} was on that key; the two were swapped.', 'controls.cancel': 'Esc cancels',
-    'action.move': 'Move', 'action.attack': 'Swing', 'action.talk': 'Talk or Use', 'action.pause': 'Pause',
+    'action.move': 'Move', 'action.fire': 'Swing', 'action.interact': 'Talk or Use', 'action.pause': 'Pause',
     'pad.south': 'South button', 'pad.east': 'East button', 'pad.west': 'West button', 'pad.north': 'North button', 'pad.start': 'Start', 'pad.dpad': 'D-pad or left stick',
     'gameover.title': 'Game Over', 'gameover.detail': 'The slime got you. You keep the coins you found.', 'gameover.retry': 'Try Again', 'gameover.title_screen': 'Back to Title',
     'results.title': 'Quest Complete', 'results.coins': 'Coins', 'results.slimes': 'Slimes calmed', 'results.time': 'Time bonus', 'results.hearts': 'Hearts left', 'results.total': 'Total', 'results.best': 'New best!', 'results.again': 'Play Again', 'results.title_screen': 'Back to Title', 'results.stars': '{n} of 3 stars',
@@ -99,7 +99,7 @@ const M = {
     'settings.title': '設定', 'settings.sfx': '効果音', 'settings.shake': '画面のゆれ', 'settings.language': '言語', 'settings.on': 'オン', 'settings.off': 'オフ', 'settings.hint': '← → で変更',
     'controls.title': '操作', 'controls.keyboard': 'キーボード', 'controls.gamepad': 'ゲームパッド', 'controls.change': '変更', 'controls.reset': 'リセット', 'controls.press_key': 'キーを押してください…', 'controls.press_button': 'ボタンを押してください…',
     'controls.fixed': '固定', 'controls.swapped': '{a}と入れ替えました。', 'controls.cancel': 'Esc でキャンセル',
-    'action.move': '移動', 'action.attack': '振る', 'action.talk': '話す・使う', 'action.pause': 'ポーズ',
+    'action.move': '移動', 'action.fire': '振る', 'action.interact': '話す・使う', 'action.pause': 'ポーズ',
     'pad.south': '下のボタン', 'pad.east': '右のボタン', 'pad.west': '左のボタン', 'pad.north': '上のボタン', 'pad.start': 'スタート', 'pad.dpad': '十字キーまたは左スティック',
     'gameover.title': 'ゲームオーバー', 'gameover.detail': 'スライムにやられてしまった。見つけたコインはそのままです。', 'gameover.retry': 'もう一度', 'gameover.title_screen': 'タイトルに戻る',
     'results.title': 'クエスト達成', 'results.coins': 'コイン', 'results.slimes': 'しずめたスライム', 'results.time': 'タイムボーナス', 'results.hearts': '残りのハート', 'results.total': '合計', 'results.best': 'ベスト更新！', 'results.again': 'もう一度あそぶ', 'results.title_screen': 'タイトルに戻る', 'results.stars': '星 3つ中 {n}つ',
@@ -108,8 +108,8 @@ const M = {
 };
 
 // ---------------------------------------------------------------- input bindings (KeyboardEvent.code, standard gamepad indices)
-const DEF_KEYS = { attack: 'KeyJ', talk: 'KeyE' };
-const DEF_PAD = { attack: 2, talk: 0 };  // west, south
+const DEF_KEYS = { fire: 'KeyJ', interact: 'KeyE' };   // action ids as gaming-core and the cards name them
+const DEF_PAD = { fire: 2, interact: 0 };  // west, south
 const PADPOS = { 0: 'south', 1: 'east', 2: 'west', 3: 'north' };
 const keyLabel = (code) => code.replace(/^Key/, '').replace(/^Digit/, '').replace('Space', 'Space').replace('Arrow', '').replace('Enter', 'Enter');
 
@@ -208,9 +208,9 @@ function ui() {
     </section>
 
     <p data-block="TutorialPrompt" class="game-panel" id="gm-tut" role="status" style="position:absolute;left:50%;bottom:${s.device === 'touch' ? 170 : 24}px;transform:translateX(-50%);display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:13px;padding:8px 12px;margin:0" ${raw(r && s.screen === 'play' && (r.tutorial > 0 || r.near) ? '' : 'hidden')}>
-      ${r && r.near ? html`<span class="game-row">${prompt([keyLabel(s.keys.talk)], PADPOS[s.pad.talk], html`<span class="game-key">${T('tut.talk')}</span>`)}<span>${T('tut.talk')}</span></span>`
+      ${r && r.near ? html`<span class="game-row">${prompt([keyLabel(s.keys.interact)], PADPOS[s.pad.interact], html`<span class="game-key">${T('tut.talk')}</span>`)}<span>${T('tut.talk')}</span></span>`
         : html`<span class="game-row" data-for="keyboard mouse gamepad">${prompt(['W', 'A', 'S', 'D'], null, '')}<span data-for="gamepad"><span class="game-small">${T('pad.dpad')}</span></span><span>${T('tut.move')}</span></span>
-        <span class="game-row" data-for="keyboard mouse gamepad">${prompt([keyLabel(s.keys.attack)], PADPOS[s.pad.attack], '')}<span>${T('tut.attack')}</span></span>
+        <span class="game-row" data-for="keyboard mouse gamepad">${prompt([keyLabel(s.keys.fire)], PADPOS[s.pad.fire], '')}<span>${T('tut.attack')}</span></span>
         <span class="game-row" data-for="keyboard mouse gamepad">${prompt(['Esc'], null, '')}<span data-for="gamepad"><span class="game-key">${T('pad.start')}</span></span><span>${T('tut.pause')}</span></span>
         <span data-for="touch">${T('touch.move')}</span>`}
     </p>
@@ -274,7 +274,7 @@ function ui() {
         </div>
         <ul class="game-list" role="listbox" aria-label="${T('controls.title')}">
           <li role="option" aria-disabled="true"><span style="flex:1">${T('action.move')}</span>${tab === 'gamepad' ? html`<span class="game-small">${T('pad.dpad')}</span>` : html`<span class="game-key">W</span><span class="game-key">A</span><span class="game-key">S</span><span class="game-key">D</span><span class="game-small">· ↑ ← ↓ →</span>`}<span class="game-small">${T('controls.fixed')}</span></li>
-          ${bindRow('attack')}${bindRow('talk')}
+          ${bindRow('fire')}${bindRow('interact')}
           <li role="option" aria-disabled="true"><span style="flex:1">${T('action.pause')}</span>${tab === 'gamepad' ? html`<span class="game-key">${T('pad.start')}</span>` : html`<span class="game-key">Esc</span><span class="game-key">P</span>`}<span class="game-small">${T('controls.fixed')}</span></li>
         </ul>
         <p class="game-small" role="status" style="margin:8px 0 0;color:var(--g-accent);min-height:1em">${s.rebind ? T('controls.cancel') : s.note}</p>
@@ -307,8 +307,8 @@ function ui() {
     <div data-block="TouchControls" class="game-touch" data-for="touch" aria-label="${T('touch.move')}" ${raw(r && s.screen === 'play' ? '' : 'hidden')}>
       <div class="game-stick" id="gm-stick" role="application" aria-label="${T('touch.move')}" style="touch-action:none"></div>
       <div class="game-row" style="gap:14px;align-items:end">
-        <button class="game-touchbtn" data-hold="talk" aria-label="${T('action.talk')}" style="font-size:12px">${T('tut.talk')}</button>
-        <button class="game-touchbtn" data-hold="attack" aria-label="${T('action.attack')}" style="width:76px;height:76px;margin-bottom:24px;background:var(--g-accent);font-size:12px">${T('tut.attack')}</button>
+        <button class="game-touchbtn" data-hold="interact" aria-label="${T('action.interact')}" style="font-size:12px">${T('tut.talk')}</button>
+        <button class="game-touchbtn" data-hold="fire" aria-label="${T('action.fire')}" style="width:76px;height:76px;margin-bottom:24px;background:var(--g-accent);font-size:12px">${T('tut.attack')}</button>
       </div>
     </div>`.s;
   // sprites into the item slots and the portrait
@@ -569,11 +569,11 @@ function onKey(e) {
     return;
   }
   if (e.repeat) return;
-  const gameKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD', s.keys.attack, s.keys.talk, 'Space'];
+  const gameKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD', s.keys.fire, s.keys.interact, 'Space'];
   if (gameKeys.includes(e.code)) e.preventDefault();
   G.held.add(e.code);
-  if (e.code === s.keys.attack) swing();
-  if (e.code === s.keys.talk || (e.code === 'Enter' && s.run?.near)) interact();
+  if (e.code === s.keys.fire) swing();
+  if (e.code === s.keys.interact || (e.code === 'Enter' && s.run?.near)) interact();
 }
 function onKeyUp(e) { G.held.delete(e.code); }
 function activate(el) {
@@ -615,7 +615,7 @@ function bindStick() {
   });
   const end = () => { id = null; G.stick.x = 0; G.stick.y = 0; };
   st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end);
-  G.layer.querySelectorAll('[data-hold]').forEach((b) => b.addEventListener('pointerdown', (e) => { e.preventDefault(); if (b.dataset.hold === 'attack') swing(); else interact(); }));
+  G.layer.querySelectorAll('[data-hold]').forEach((b) => b.addEventListener('pointerdown', (e) => { e.preventDefault(); if (b.dataset.hold === 'fire') swing(); else interact(); }));
 }
 function pollPad() {
   const pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
@@ -629,7 +629,7 @@ function pollPad() {
   if (!(G.root.contains(document.activeElement) || document.activeElement === G.root)) { G.padPrev = now; return; } // only while the game has focus
   if (s.rebind) { const i = now.findIndex((b, k) => b && !prev[k] && k < 4); if (i >= 0) rebind(i, 'pad'); if (was(1)) { s.rebind = null; ui(); } G.padPrev = now; return; }
   if (was(9)) pausePressed();
-  if (s.screen === 'play') { if (was(s.pad.attack)) swing(); if (was(s.pad.talk)) interact(); }
+  if (s.screen === 'play') { if (was(s.pad.fire)) swing(); if (was(s.pad.interact)) interact(); }
   else {
     if (was(12)) menuMove(-1); if (was(13)) menuMove(1);
     if (was(14) || was(15)) { const el = document.activeElement; if (el?.dataset.opt) adjust(el, was(14) ? -1 : 1); }

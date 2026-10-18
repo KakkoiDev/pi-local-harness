@@ -50,7 +50,7 @@ A list of the person's things with a search field and a few filters above it; re
         </section>
         <aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground">
           <span class="badge" data-variant="secondary">Vocabulary</span>
-          <span>Edited 2 hours ago</span>
+          <span data-t="list.updated">Edited 2 hours ago</span>
         </aside>
       </a>
     </li>

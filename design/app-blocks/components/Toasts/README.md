@@ -64,6 +64,7 @@ A toast from the server (htmx): return it out of band with the response:
 | Hover or focus | The timer pauses (Basecoat), and resumes on leave. |
 | Several | They stack upward, newest at the bottom; at most 3 visible, the oldest closes. |
 | Closing | `aria-hidden="true"`; it collapses, then is removed. |
+| Invitation sent | toast: `toast.invite_sent` (“Invitation sent to ren@example.com”), category success, from code. |
 
 ## Texts
 

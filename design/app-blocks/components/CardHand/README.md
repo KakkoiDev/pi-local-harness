@@ -13,7 +13,7 @@ A hand of cards along the bottom, the deck and discard piles, card detail on foc
 
 ```html
 <section id="hand-area" aria-label="Your hand" style="position:absolute;left:0;right:0;bottom:12px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px">
-  <div class="game-pile" role="img" aria-label="Deck: 18 cards"><span class="game-num">18</span></div>
+  <div class="game-pile" role="img" aria-label="Deck: 18 cards" data-t-label="cards.deck"><span class="game-num">18</span></div>
   <div class="game-hand" role="listbox" aria-label="Hand, 5 cards" aria-orientation="horizontal" style="--mid:2">
     <button class="game-card" role="option" aria-selected="false" style="--i:0;--d:1" aria-describedby="card-1-text">
       <span class="game-cost" aria-label="Cost 1">1</span>
@@ -23,7 +23,7 @@ A hand of cards along the bottom, the deck and discard piles, card detail on foc
     </button>
     <!-- … one .game-card per card; --i its index, --d its distance from the middle (0, 1, 2) for the fan -->
   </div>
-  <div class="game-pile" role="img" aria-label="Discard: 4 cards" style="opacity:.8"><span class="game-num">4</span></div>
+  <div class="game-pile" role="img" aria-label="Discard: 4 cards" data-t-label="cards.discard" style="opacity:.8"><span class="game-num">4</span></div>
 </section>
 <p class="game-row" style="position:absolute;right:16px;top:12px"><span data-t="cards.energy">Energy</span> <b class="game-num">3/3</b></p>
 ```
@@ -34,7 +34,7 @@ The focused card rises (`aria-selected="true"`) and a larger detail of it appear
 
 | State | What changes |
 | --- | --- |
-| Can't afford | `aria-disabled="true"` (grey); detail says `cards.need_energy`. |
+| Can't afford | `aria-disabled="true"` (grey); the card's detail line gets `cards.need_energy` (set from code, `{n}` the missing energy). |
 | Targeting | The card stays raised; targets on the board are highlighted on the canvas and listed for keys (← → between targets); Esc/east cancels. |
 | Too many cards | Over 7 the fan overlaps more (`margin` −20 px); detail on focus still shows the full card. |
 | Deck view | `.game-overlay` with `.game-slots` of cards by cost, filter tabs (All · 1 · 2 · 3+), and counts “×2”. |

@@ -42,22 +42,27 @@ The rules every block assumes: the app root, one breakpoint, phone targets, dark
 2. **Nothing fixed inside `.app`.** A phone BottomBar is the last flex child of the full-height `.app`; the page scrolls in `main`. Only dialogs (top layer) and the toaster (after `.app`) float.
 3. **Padding goes inside.** Padding on `.app` itself shrinks the container below 768 px on an 800 px window and the desktop layout never shows. Put `p-4` on `main` or an inner `div`.
 4. **Phone targets are 44 px.** The App foundations CSS (below) makes buttons, inputs, selects, input groups, menu items, options, tabs and sidebar links 44 px tall under 48 rem. Anything else pressable you add gets `@max-3xl:min-h-11 @max-3xl:min-w-11`.
-5. **Dark mode** is Basecoat's `html.dark`, set by the theme script above and by SettingsPage (Match System · Light · Dark). Never write a colour: use the tokens through utilities (`bg-muted`, `text-muted-foreground`, `border`, `text-destructive`, `bg-primary text-primary-foreground`).
-6. **Every string has a key**, in `messages/en.json` and `messages/ja.json` (same keys; the harness checks). Markup marks them:
+5. **State colours** Basecoat lacks are three App foundations tokens, light and dark: `success` (done, added lines, online dots), `warning` (pending, low stock, away) and `highlight` (search matches), each with a `-foreground`. Use them as `text-success`, `bg-success/10`, `bg-warning text-warning-foreground`, `<mark class="bg-highlight text-highlight-foreground">`. Removed lines and errors stay `destructive`.
+6. **Dark mode** is Basecoat's `html.dark`, set by the theme script above and by SettingsPage (Match System · Light · Dark). Never write a colour (no `bg-green-600`, no `#000`, no `rgb()` in a style): use the tokens through utilities (`bg-muted`, `text-muted-foreground`, `border`, `text-destructive`, `bg-primary text-primary-foreground`, the state tokens of rule 5), and in games the game kit's `--g-*` roles.
+7. **Every string has a key**, in `messages/en.json` and `messages/ja.json` (same keys; the harness checks). Markup marks them:
    - `data-t="key"`: the element's text (English inside as the fallback).
    - `data-t-label="key"` → `aria-label`; `data-t-placeholder="key"` → `placeholder`; `data-t-title="key"` → `title`; `data-t-empty="key"` → Basecoat's listbox `data-empty`.
    - `data-t-line="key"`: a whole sentence with elements inside (“{name} moved {thing} to {place}”), filled by a helper so Japanese word order works.
    - Labels built from data (“Quantity of {name}”) use a key with placeholders; the card's Texts table lists it.
    - Web starter (Jinja): write `{{ t("key") }}` in the text or attribute instead; the markers are for the no-server starter's `i18n.mjs`.
-   - Dates, times, numbers and yen: `Intl.DateTimeFormat` / `Intl.NumberFormat` with the page's language (`ja-JP`: 2026年10月18日, ¥1,200). A native `<input type="date">` shows the browser's own format.
-7. **Chart series** are `var(--chart-1)`…`var(--chart-5)`: colour-blind-safe (Okabe–Ito), told apart by lightness too. Use them for marks and rings only, never as a background behind white text (most fail 4.5:1). A second series also differs by dashes or point shape.
-8. **Local files only.** Basecoat, htmx, Chart.js and fonts are vendored in the project; no CDN, no remote fonts.
+   - Text set from code (a live region, a toast, a label that changes) names its key and the element it fills in the card's States table: “`board.live.moved_by` → `#board-live`”.
+   - Dates, times, numbers and yen: `Intl.DateTimeFormat` / `Intl.NumberFormat` with the page's language (`ja-JP`: 2026年10月18日, ¥1,200). A native `<input type="date">` or `type="time"` shows the browser's own format (10/14/2026 on an English browser), so a page that is in Japanese, or can be, asks for dates with **DatePicker**'s calendar popover and for times with **TimePicker**'s list, which read 2026年10月14日 and 14:30. The native field is fine only on an English-only internal page.
+8. **Charts** always have a table of the same numbers in a `<details>` (“Show as a table”), single-value charts (a gauge, a sparkline on a KPI tile) too, and an `aria-label` that says what the chart shows. **Chart series** are `var(--chart-1)`…`var(--chart-5)`: colour-blind-safe (Okabe–Ito), told apart by lightness too. Use them for marks and rings only, never as a background behind white text (most fail 4.5:1). A second series also differs by dashes or point shape.
+9. **Local files only.** Basecoat, htmx, Chart.js and fonts are vendored in the project; no CDN, no remote fonts.
 
 ## App foundations CSS
 
 Copy to the end of `styles/input.css`:
 
 ```css
+:root { --success: oklch(0.52 0.13 150); --success-foreground: oklch(0.985 0 0); --warning: oklch(0.80 0.15 80); --warning-foreground: oklch(0.27 0.06 70); --highlight: oklch(0.93 0.11 100); --highlight-foreground: oklch(0.205 0 0); }
+.dark { --success: oklch(0.72 0.15 150); --success-foreground: oklch(0.18 0.03 150); --warning: oklch(0.80 0.14 80); --warning-foreground: oklch(0.22 0.05 70); --highlight: oklch(0.47 0.10 95); --highlight-foreground: oklch(0.985 0 0); }
+@theme inline { --color-success: var(--success); --color-success-foreground: var(--success-foreground); --color-warning: var(--warning); --color-warning-foreground: var(--warning-foreground); --color-highlight: var(--highlight); --color-highlight-foreground: var(--highlight-foreground); }
 :root { --chart-1: #0072b2; --chart-2: #e69f00; --chart-3: #009e73; --chart-4: #cc79a7; --chart-5: #d55e00; }
 .dark { --chart-1: #56b4e9; --chart-2: #e69f00; --chart-3: #2bb58f; --chart-4: #da8fba; --chart-5: #f07a2a; }
 .app { container: app / inline-size; }

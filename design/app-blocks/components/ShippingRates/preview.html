@@ -1,0 +1,98 @@
+<!-- @dsCard group="Commerce" height=920 width=1250 subtitle="Areas, speeds, free over a threshold" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ShippingRates — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · rates page and the checkout line</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="d-shipping" class="grid gap-4" aria-labelledby="d-shipping-title">
+  <h2 id="d-shipping-title" class="text-xl font-semibold" data-t="ship.title">Delivery rates</h2>
+  <p class="text-sm text-muted-foreground" data-t="ship.lede">Prices include tax. Orders over ¥5,000 ship free to every area except Okinawa and remote islands.</p>
+  <div class="table-container">
+    <table class="table">
+      <caption class="sr-only" data-t="ship.caption">Delivery rates by area</caption>
+      <thead><tr><th scope="col" data-t="ship.area">Area</th><th scope="col" data-t="ship.prefectures">Prefectures</th><th scope="col" class="text-right" data-t="ship.standard">Standard (2–4 days)</th><th scope="col" class="text-right" data-t="ship.express">Express (next day)</th></tr></thead>
+      <tbody>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.hokkaido">Hokkaido</th><td class="text-sm text-muted-foreground" data-t="ship.pref.hokkaido">Hokkaido</td><td class="text-right tabular-nums">¥1,100</td><td class="text-right tabular-nums">¥1,650</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.tohoku">Tohoku</th><td class="text-sm text-muted-foreground" data-t="ship.pref.tohoku">Aomori, Iwate, Miyagi, Akita, Yamagata, Fukushima</td><td class="text-right tabular-nums">¥770</td><td class="text-right tabular-nums">¥1,320</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kanto">Kanto</th><td class="text-sm text-muted-foreground" data-t="ship.pref.kanto">Tokyo, Kanagawa, Saitama, Chiba, Ibaraki, Tochigi, Gunma, Yamanashi</td><td class="text-right tabular-nums">¥550</td><td class="text-right tabular-nums">¥990</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.chubu">Chubu</th><td class="text-sm text-muted-foreground" data-t="ship.pref.chubu">Niigata, Toyama, Ishikawa, Fukui, Nagano, Gifu, Shizuoka, Aichi</td><td class="text-right tabular-nums">¥660</td><td class="text-right tabular-nums">¥1,100</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kansai">Kansai</th><td class="text-sm text-muted-foreground" data-t="ship.pref.kansai">Osaka, Kyoto, Hyogo, Nara, Shiga, Wakayama, Mie</td><td class="text-right tabular-nums">¥660</td><td class="text-right tabular-nums">¥1,100</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.chugoku_shikoku">Chugoku and Shikoku</th><td class="text-sm text-muted-foreground" data-t="ship.pref.chugoku_shikoku">Tottori, Shimane, Okayama, Hiroshima, Yamaguchi, Tokushima, Kagawa, Ehime, Kochi</td><td class="text-right tabular-nums">¥770</td><td class="text-right tabular-nums">¥1,320</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kyushu">Kyushu</th><td class="text-sm text-muted-foreground" data-t="ship.pref.kyushu">Fukuoka, Saga, Nagasaki, Kumamoto, Oita, Miyazaki, Kagoshima</td><td class="text-right tabular-nums">¥880</td><td class="text-right tabular-nums">¥1,430</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.okinawa">Okinawa</th><td class="text-sm text-muted-foreground" data-t="ship.pref.okinawa">Okinawa</td><td class="text-right tabular-nums">¥1,540</td><td class="text-right text-muted-foreground" data-t="ship.not_available">Not available</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="3" class="text-sm" data-t="ship.free_over">Free over ¥5,000</td><td class="text-right text-sm text-muted-foreground">—</td></tr></tfoot>
+    </table>
+  </div>
+</section><div class="mt-6 max-w-sm"><div id="d-ship-line" class="grid gap-1 border-t pt-3" aria-live="polite">
+  <div class="flex items-center justify-between gap-3 text-sm">
+    <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span data-t="ship.checkout.label">Delivery to Kanto</span></span>
+    <span class="tabular-nums">¥550</span>
+  </div>
+  <p id="d-ship-more" class="text-sm text-muted-foreground" data-t="ship.checkout.add_more">Add ¥1,200 more for free delivery.</p>
+</div></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · compact table</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="p-shipping" class="grid gap-4" aria-labelledby="p-shipping-title">
+  <h2 id="p-shipping-title" class="text-xl font-semibold" data-t="ship.title">送料</h2>
+  <p class="text-sm text-muted-foreground" data-t="ship.lede">税込価格です。¥5,000以上のご注文は、沖縄・離島を除く全地域で送料無料です。</p>
+  <div class="table-container">
+    <table class="table">
+      <caption class="sr-only" data-t="ship.caption">地域別の送料</caption>
+      <thead><tr><th scope="col" data-t="ship.area">地域</th><th scope="col" class="text-right" data-t="ship.standard">通常便（2〜4日）</th><th scope="col" class="text-right" data-t="ship.express">速達便（翌日）</th></tr></thead>
+      <tbody>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.hokkaido">北海道</th><td class="text-right tabular-nums">¥1,100</td><td class="text-right tabular-nums">¥1,650</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.tohoku">東北</th><td class="text-right tabular-nums">¥770</td><td class="text-right tabular-nums">¥1,320</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kanto">関東</th><td class="text-right tabular-nums">¥550</td><td class="text-right tabular-nums">¥990</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.chubu">中部</th><td class="text-right tabular-nums">¥660</td><td class="text-right tabular-nums">¥1,100</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kansai">関西</th><td class="text-right tabular-nums">¥660</td><td class="text-right tabular-nums">¥1,100</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.chugoku_shikoku">中国・四国</th><td class="text-right tabular-nums">¥770</td><td class="text-right tabular-nums">¥1,320</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.kyushu">九州</th><td class="text-right tabular-nums">¥880</td><td class="text-right tabular-nums">¥1,430</td></tr>
+      <tr><th scope="row" class="font-medium" data-t="ship.zone.okinawa">沖縄</th><td class="text-right tabular-nums">¥1,540</td><td class="text-right text-muted-foreground" data-t="ship.not_available">対象外</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2" class="text-sm" data-t="ship.free_over">¥5,000以上で無料</td><td class="text-right text-sm text-muted-foreground">—</td></tr></tfoot>
+    </table>
+  </div>
+</section><div class="mt-6"><div id="p-ship-line" class="grid gap-1 border-t pt-3" aria-live="polite">
+  <div class="flex items-center justify-between gap-3 text-sm">
+    <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span data-t="ship.checkout.label">関東への配送</span></span>
+    <span class="tabular-nums">¥550</span>
+  </div>
+  <p id="p-ship-more" class="text-sm text-muted-foreground" data-t="ship.checkout.add_more">あと¥1,200で送料無料です。</p>
+</div></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Free delivery</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div id="s1-ship-line" class="grid gap-1 border-t pt-3" aria-live="polite">
+  <div class="flex items-center justify-between gap-3 text-sm">
+    <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span data-t="ship.checkout.label">Delivery to Kanto</span></span>
+    <span class="font-medium" data-t="ship.checkout.free">Free</span>
+  </div>
+  
+</div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Express not available</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="alert" role="status"><h2 data-t="ship.checkout.unavailable">Express isn’t available to Okinawa. Choose Standard.</h2></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Couldn’t load</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="alert" data-variant="destructive" role="alert"><h2 data-t="ship.error.load">Couldn’t load the delivery rates. Try again, or see the price at checkout.</h2><section><div class="mt-2 flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button" data-t="ship.retry">Try Again</button></div></section></div></div>
+</div>
+</figure>
+</div>
+
+</body>
+</html>

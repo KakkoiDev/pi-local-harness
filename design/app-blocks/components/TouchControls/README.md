@@ -6,7 +6,7 @@ On-screen controls for phones: a movement stick under the left thumb and one to 
 | --- | --- |
 | Group | Game blocks |
 | Basecoat | none (game kit: `game-touch`, `game-stick`, `game-touchbtn`) |
-| Needs | GameKit (`data-device="touch"`); pointer events; the bindings (each button fires an action, not a key) |
+| Needs | GameKit (`data-device="touch"`); pointer events; gaming-core's action names (each button presses an action through GameKit's `touchState`, merged into `inputUpdate()`, not a key) |
 | Used in | every genre with real-time movement; tap-only genres (GameCards, GamePuzzle, GameIdle, GameVisualNovel) don't need it |
 
 ## Markup
@@ -15,7 +15,7 @@ On-screen controls for phones: a movement stick under the left thumb and one to 
 <div class="game-touch" data-for="touch" aria-label="Touch controls">
   <div class="game-stick" id="stick" role="application" aria-label="Move: drag in any direction" data-t-label="touch.move"></div>
   <div class="game-row" style="gap:16px;align-items:end">
-    <button class="game-touchbtn" data-action="attack" aria-label="Attack" data-t-label="action.attack" data-t="action.attack">Attack</button>
+    <button class="game-touchbtn" data-action="fire" aria-label="Attack" data-t-label="action.fire" data-t="action.fire">Attack</button>
     <button class="game-touchbtn" data-action="jump" aria-label="Jump" data-t-label="action.jump" style="width:76px;height:76px;margin-bottom:28px">⤒</button>
   </div>
 </div>
@@ -55,7 +55,7 @@ document.querySelectorAll('.game-touchbtn[data-action]').forEach(b => {
 | --- | --- | --- |
 | `touch.move` | Move: drag in any direction | 移動：好きな方向にドラッグ |
 | `touch.left_handed` | Left-Handed Layout | 左利き用レイアウト |
-| `action.attack` | Attack | 攻撃 |
+| `action.fire` | Attack | 攻撃 |
 | `action.jump` | Jump | ジャンプ |
 | `game.pause` | Pause | ポーズ |
 
@@ -71,7 +71,7 @@ document.querySelectorAll('.game-touchbtn[data-action]').forEach(b => {
 ## Data
 
 ```json
-{"touch": {"move": {"x": 0.62, "y": 0}, "pressed": {"jump": false, "attack": true}, "leftHanded": false}}
+{"touch": {"move": {"x": 0.62, "y": 0}, "pressed": {"jump": false, "fire": true}, "leftHanded": false}}
 ```
 
 ## Don't

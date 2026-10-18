@@ -35,7 +35,9 @@ The form that creates a record or edits one: labelled fields, help under them, e
       </div>
       <div class="field">
         <label for="note-due"><span data-t="form.due">Review on</span> <span class="font-normal text-muted-foreground" data-t="form.optional">(optional)</span></label>
-        <input type="date" id="note-due" name="review_on" value="2026-10-25" min="2026-10-18">
+        <!-- DatePicker's calendar popover (the page can be Japanese): the trigger shows 25 Oct 2026 / 2026年10月25日（日） -->
+        <button type="button" class="btn w-full justify-start font-normal" data-variant="outline" id="note-due" aria-haspopup="dialog" aria-expanded="false" aria-controls="note-due-popover"><span id="note-due-text">25 Oct 2026</span></button>
+        <input type="hidden" name="review_on" id="note-due-value" value="2026-10-25">
       </div>
     </div>
     <div class="field">
@@ -75,6 +77,7 @@ The form that creates a record or edits one: labelled fields, help under them, e
 | Server error | ErrorRetry's inline alert at the top; nothing is lost; Save works again. |
 | Changed elsewhere (409) | An alert with `form.saved_elsewhere`; keep the person's text in the fields. |
 | Leaving with changes | Cancel, Back or a link: ConfirmDialog with `form.leave_title` (Keep Editing is the default). Closing the tab: the browser's own `beforeunload` prompt. |
+| Error texts with numbers | `form.errors_title` → the error summary’s heading when there is more than one problem; `error.title_long` → the title field’s error line, with the current count. |
 
 ## Texts
 
@@ -118,7 +121,7 @@ The form that creates a record or edits one: labelled fields, help under them, e
 ## Phone
 
 - One column; the two short fields stack. Buttons take the full width, Save on top (`@max-3xl:flex-col-reverse`).
-- Inputs are 44 px; date uses the phone's own picker (`type="date"`); the right keyboard per field (`type="email"`, `inputmode="numeric"`).
+- Inputs are 44 px; the date uses DatePicker's calendar popover (full width, 44 px days) so a Japanese page reads 2026年10月25日; the right keyboard per field (`type="email"`, `inputmode="numeric"`).
 - The page scrolls; the buttons are at the end, not fixed.
 
 ## Data

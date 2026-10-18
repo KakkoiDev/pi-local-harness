@@ -23,7 +23,7 @@ The cart: each item with its picture, variant, quantity and line price, a Remove
     <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
     <p class="text-muted-foreground text-sm">Blue · M</p>
     <div class="flex flex-wrap items-center gap-3">
-      <div class="button-group" role="group" aria-label="Quantity of Ceramic Mug">
+      <div class="button-group" role="group" aria-label="Quantity of Ceramic Mug" data-t-label="cart.quantity_of">
         <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" data-t-label="product.less" >−</button>
         <input class="input h-8 w-12 text-center tabular-nums" id="qty-mug" name="quantity" type="number" min="1" max="10" value="2" aria-label="Quantity" >
         <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" data-t-label="product.more" >+</button>
@@ -38,7 +38,7 @@ The cart: each item with its picture, variant, quantity and line price, a Remove
     <h3 class="font-medium"><a href="/products/notebook" class="hover:underline">Grid Notebook A5</a></h3>
     <p class="text-muted-foreground text-sm">Green</p>
     <div class="flex flex-wrap items-center gap-3">
-      <div class="button-group" role="group" aria-label="Quantity of Grid Notebook A5">
+      <div class="button-group" role="group" aria-label="Quantity of Grid Notebook A5" data-t-label="cart.quantity_of">
         <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One less" data-t-label="product.less" disabled>−</button>
         <input class="input h-8 w-12 text-center tabular-nums" id="qty-notebook" name="quantity" type="number" min="1" max="10" value="1" aria-label="Quantity" >
         <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="One more" data-t-label="product.more" >+</button>

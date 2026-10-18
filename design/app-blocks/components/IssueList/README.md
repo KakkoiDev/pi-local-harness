@@ -34,7 +34,7 @@ The list of issues (or tasks, tickets, requests): open and closed tabs, search a
     </nav>
     <ul id="issue-rows" class="divide-y" aria-label="Open issues">
       <li class="grid grid-cols-[auto_1fr_auto] items-start gap-3 px-4 py-3 hover:bg-muted/40">
-        <span class="mt-0.5 text-green-700 dark:text-green-400" aria-label="Open" data-t-label="issues.open">◉</span>
+        <span class="mt-0.5 text-success" aria-label="Open" data-t-label="issues.open">◉</span>
         <div class="min-w-0">
           <a href="/r/class-site/issues/42" class="font-medium hover:underline">Timetable page shows Saturday twice</a>
           <span class="badge ml-1" data-variant="destructive">bug</span>
@@ -43,7 +43,7 @@ The list of issues (or tasks, tickets, requests): open and closed tabs, search a
         </div>
         <div class="flex items-center gap-3 text-muted-foreground text-xs">
           <span class="avatar-group"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span></span>
-          <span aria-label="3 comments">💬 3</span>
+          <span aria-label="3 comments" data-t-label="issues.comments">💬 3</span>
         </div>
       </li>
     </ul>
@@ -61,10 +61,11 @@ The filter buttons open `dropdown-menu`s of `menuitemcheckbox` items with a sear
 | Filtered | Above the list `issues.filtered` (“3 results for label:bug”) with a Clear Filters link. |
 | No results | EmptyState: `issues.none_match` + Clear Filters. |
 | No issues at all | EmptyState: `issues.empty` + New Issue. |
-| Closed issue | The dot is `✓` (`text-purple-700 dark:text-purple-400`, label “Closed”), title `text-muted-foreground`. |
+| Closed issue | The dot is `✓` (`text-muted-foreground`, label “Closed”), title `text-muted-foreground`. |
 | Selected (bulk) | A checkbox column appears when one row is checked; a bar above: `issues.selected` with Close, Label, Assign. |
 | Many | 25 per page with InfiniteScroll (or Previous/Next on web). |
 | Error | ErrorRetry in place of the rows. |
+| Closed issues | In the Closed tab each row’s meta line ends with `issues.closed_by` (“closed 2 days ago by Ren Sato”) in a `<span data-t="issues.closed_by">` instead of the opened line. |
 
 ## Texts
 

@@ -17,7 +17,7 @@ A file viewer for code with line numbers, and the same viewer showing a change: 
   <header class="flex flex-wrap items-center gap-2 border-b bg-muted/50 px-3 py-2 text-sm">
     <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-expanded="true" aria-controls="diff-body" aria-label="Fold file" data-t-label="diff.fold">▾</button>
     <h3 id="diff-file" class="font-mono text-sm">app/trips.py</h3>
-    <span class="text-xs"><span class="text-green-700 dark:text-green-400">+6</span> <span class="text-red-700 dark:text-red-400">−2</span></span>
+    <span class="text-xs" aria-label="6 additions, 2 deletions" data-t-label="diff.stats"><span class="text-success" aria-hidden="true">+6</span> <span class="text-destructive" aria-hidden="true">−2</span></span>
     <div class="button-group ml-auto" role="group" aria-label="View">
       <button class="btn" data-variant="secondary" data-size="sm" type="button" aria-pressed="true" data-t="diff.unified">Unified</button>
       <button class="btn" data-variant="outline" data-size="sm" type="button" aria-pressed="false" data-t="diff.split">Split</button>
@@ -30,10 +30,10 @@ A file viewer for code with line numbers, and the same viewer showing a change: 
           <button class="btn h-6" data-variant="ghost" data-size="sm" type="button" data-t="diff.expand">Show 12 hidden lines</button> @@ def book_trip @@</td></tr>
         <tr><td class="w-12 select-none px-2 text-right text-muted-foreground">14</td><td class="w-12 select-none px-2 text-right text-muted-foreground">14</td>
             <td class="whitespace-pre px-3"><span class="select-none"> </span>    seats = trip.seats</td></tr>
-        <tr class="bg-red-500/10"><td class="px-2 text-right text-muted-foreground">15</td><td></td>
-            <td class="whitespace-pre px-3"><span class="select-none text-red-700 dark:text-red-400" aria-label="Removed" data-t-label="diff.removed">−</span>    if len(people) > seats:</td></tr>
-        <tr class="bg-green-500/10"><td></td><td class="px-2 text-right text-muted-foreground">15</td>
-            <td class="whitespace-pre px-3"><span class="select-none text-green-700 dark:text-green-400" aria-label="Added" data-t-label="diff.added">+</span>    if len(people) + len(staff) > seats:</td></tr>
+        <tr class="bg-destructive/10"><td class="px-2 text-right text-muted-foreground">15</td><td></td>
+            <td class="whitespace-pre px-3"><span class="select-none text-destructive" aria-label="Removed" data-t-label="diff.removed">−</span>    if len(people) > seats:</td></tr>
+        <tr class="bg-success/10"><td></td><td class="px-2 text-right text-muted-foreground">15</td>
+            <td class="whitespace-pre px-3"><span class="select-none text-success" aria-label="Added" data-t-label="diff.added">+</span>    if len(people) + len(staff) > seats:</td></tr>
       </tbody>
     </table>
   </div>
@@ -55,6 +55,7 @@ Plain file view: the same table with one line-number column, no colours, and a h
 | Selected line | Clicking a number highlights the line (`bg-primary/10`) and puts `#L15` in the address; Shift-click selects a range. |
 | Comment on a line | A `+` button appears on hover of a line in PullReview; comments render as a full-width row under the line. |
 | Loading | Header plus 8 `skeleton` lines. Error: ErrorRetry inside the body. |
+| Large change | `diff.large` → the folded file’s body row (`#diff-body`), replacing the table until **Show** is pressed. |
 
 ## Texts
 

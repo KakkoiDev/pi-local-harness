@@ -29,7 +29,7 @@ A drop zone and file button that uploads one or more files, shows each with a pr
         <h3 class="truncate">trip-kyoto.jpg</h3>
         <p data-t="upload.done">2.4 MB · Uploaded</p>
       </section>
-      <aside><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Remove trip-kyoto.jpg">×</button></aside>
+      <aside><button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Remove trip-kyoto.jpg" data-t-label="upload.remove">×</button></aside>
     </li>
     <li class="item" data-variant="outline" data-state="uploading">
       <figure><span class="grid size-10 place-items-center rounded bg-muted text-xs">PDF</span></figure>
@@ -59,6 +59,7 @@ The `label` wrapping the hidden input makes the whole zone a click target and ke
 | Limit reached | Over `max` files: the zone is `aria-disabled="true"`, the hint becomes `upload.error.count`. |
 | Removing | ConfirmDialog only for files already saved with the record; new uploads are removed at once with an Undo toast (DeleteUndo). |
 | Offline (no server) | Nothing changes: files are stored on the device. |
+| Finished | `upload.live.done` → the `aria-live` line `#upload-live` (“trip-kyoto.jpg uploaded.”). |
 
 ## Texts
 

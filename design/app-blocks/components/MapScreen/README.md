@@ -40,7 +40,7 @@ Draw the map at 1 canvas pixel per tile from the same data as the world, using t
 | State | What changes |
 | --- | --- |
 | Fog | Areas not visited are `--g-ink`; their places read `map.unknown`. |
-| Travel | Places with a waystone: Enter/south asks `map.travel_confirm`; not offered during battle or in dungeons (`map.no_travel`). |
+| Travel | Places with a waystone: Enter/south opens a small `.game-panel` confirm with `map.travel_confirm` (set from code, `{place}` filled), Travel and Cancel (Cancel focused); not offered during battle or in dungeons (`map.no_travel`). |
 | Zoomed | +/− or triggers zoom ×1, ×2, ×4 around the focused place; arrows pan. |
 | Interior | Dungeons show their floor map; a floor switcher (`.game-tabs`, B1 B2…) above the canvas. |
 

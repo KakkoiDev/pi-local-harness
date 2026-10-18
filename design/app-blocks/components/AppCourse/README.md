@@ -6,7 +6,7 @@ A course or learning app: courses made of lessons (video or text), quizzes, prog
 | --- | --- |
 | Group | Apps |
 | Example product | Sakura Steps (a course and learning app) |
-| Blocks | BarChart, Breadcrumbs, Dashboard, DataTable, DocEditor, EditForm, EmptyState, Gallery, GaugeRing, HeatmapCalendar, InlineAlert, InstallApp, Invite, KpiTile, ProductGrid, ProgressStatus, SavedState, SettingsPage, Stepper, Timeline, Toasts, TopBar |
+| Blocks | BarChart, Breadcrumbs, Dashboard, DataTable, DocEditor, EmptyState, Flashcards, Gallery, GaugeRing, HeatmapCalendar, InstallApp, Invite, KpiTile, ProductGrid, ProgressStatus, QuizQuestion, SavedState, SettingsPage, Stepper, Timeline, Toasts, TopBar |
 | Packages | App with no server (frontend only) with Works offline for one learner; Web app (full stack) when progress follows the learner across devices or a teacher sees a class. |
 | Related | AppForum (questions about a lesson), AppNotes (lesson pages) |
 
@@ -17,7 +17,8 @@ A course or learning app: courses made of lessons (video or text), quizzes, prog
 | My courses | `/` | TopBar, ProductGrid, ProgressStatus, EmptyState |
 | Course | `/c/{slug}` | Breadcrumbs, Stepper, Timeline, ProgressStatus |
 | Lesson | `/c/{slug}/{lesson}` | DocEditor, Gallery, ProgressStatus, SavedState |
-| Quiz | `/c/{slug}/{lesson}/quiz` | EditForm, Stepper, InlineAlert, ProgressStatus |
+| Quiz | `/c/{slug}/{lesson}/quiz` | QuizQuestion, ProgressStatus |
+| Flashcards | `/c/{slug}/cards` | Flashcards, ProgressStatus, EmptyState |
 | Results | `/c/{slug}/{lesson}/quiz/result` | KpiTile, GaugeRing, Toasts |
 | Progress | `/progress` | Dashboard, HeatmapCalendar, KpiTile |
 | Class (teacher) | `/teach/{class}` | DataTable, Invite, BarChart |
@@ -36,8 +37,13 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 1. My courses: pick "Japanese for travellers"
 2. Lesson: read or watch, Mark as Done; SavedState
-3. Quiz: 5 questions (EditForm radios), InlineAlert explains each wrong answer
+3. Quiz: 5 questions (QuizQuestion), Check shows right or wrong and the explanation
 4. Results: GaugeRing score; Toasts "Lesson 3 done"
+
+**Learn the words**
+
+1. Flashcards: today's due cards from the lesson's word list; Again or I Knew It
+2. Flashcards: Done for today, the next due date
 
 **Keep a streak**
 
@@ -83,5 +89,5 @@ App-level keys only; each block brings its own.
 
 ## Adding to it
 
-- **Proposed block: QuizQuestion** (one question with choices, check, explanation, next) is not in the catalogue as its own card; EditForm + InlineAlert stand in.
-- **Proposed block: Flashcards** (flip, know / again, spaced repetition) for vocabulary courses.
+- Quizzes are **QuizQuestion** (single, multiple, short answer; explanation after Check); vocabulary is **Flashcards** (flip, Again / I Knew It, spaced repetition).
+- A graded test keeps the right answers on the server (QuizQuestion's web path); practice quizzes may carry them in the page.

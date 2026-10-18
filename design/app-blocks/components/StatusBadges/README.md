@@ -20,11 +20,11 @@ Short labels that say what state a thing is in (Paid, Draft, Overdue, In stock),
 
 <!-- A state with a meaning colour: outline + a dot. The word carries the meaning; the dot only helps scanning. -->
 <span class="badge" data-variant="outline">
-  <span class="size-1.5 rounded-full bg-green-600" aria-hidden="true"></span>
+  <span class="size-1.5 rounded-full bg-success" aria-hidden="true"></span>
   <span data-t="status.paid">Paid</span>
 </span>
 <span class="badge" data-variant="outline">
-  <span class="size-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+  <span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span>
   <span data-t="status.pending">Pending</span>
 </span>
 
@@ -44,9 +44,9 @@ Short labels that say what state a thing is in (Paid, Draft, Overdue, In stock),
 | --- | --- | --- |
 | Neutral, not started, archived | `secondary` | `status.draft`, `status.archived`, `status.closed` |
 | Needs attention, new | `primary` (no variant) | `status.new`, `status.open`, counts |
-| Good, done | `outline` + green dot `bg-green-600` | `status.paid`, `status.done`, `status.in_stock`, `status.merged` |
-| Waiting, in progress | `outline` + amber dot `bg-amber-500` | `status.pending`, `status.in_progress`, `status.low_stock` |
-| Info, scheduled | `outline` + blue dot `bg-sky-600` | `status.scheduled`, `status.shipped` |
+| Good, done | `outline` + success dot `bg-success` | `status.paid`, `status.done`, `status.in_stock`, `status.merged` |
+| Waiting, in progress | `outline` + warning dot `bg-warning` | `status.pending`, `status.in_progress`, `status.low_stock` |
+| Info, scheduled | `outline` + series-1 dot `bg-chart-1` | `status.scheduled`, `status.shipped` |
 | Problem, failed, overdue | `destructive` | `status.overdue`, `status.failed`, `status.out_of_stock` |
 
 Map each status of a record to one row of this table in one place (a dict in Python, an object in JS) and render from it. One badge per status per item.
@@ -60,6 +60,7 @@ Map each status of a record to one row of this table in one place (a dict in Pyt
 | Zero count | No badge at all. |
 | Clickable filter | A badge is never a button; use a `btn data-size="xs" data-variant="outline"` with the dot, `aria-pressed` when active. |
 | Loading | `skeleton h-5 w-14 rounded-full bg-muted`. |
+| Few left | A warning badge `<span class="badge" data-variant="outline"><span class="size-1.5 rounded-full bg-warning" aria-hidden="true"></span><span data-t="status.low_stock">Only 2 left</span></span>`. |
 
 ## Texts
 

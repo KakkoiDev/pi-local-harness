@@ -48,7 +48,7 @@ The player's quests: active, done and failed, each with its giver, steps checked
 | Tracked | ◆ before the name (and `aria-label="Tracked"`); its current step is the HUD objective. One quest at a time. |
 | New | A dot `•` and `quests.new` until opened once. |
 | Step done | ☑ and strikethrough; `hud.new_objective` announces the next step. |
-| Done | Under the Done tab with `quests.completed_on` (in-game day). |
+| Done | Under the Done tab; the detail's “From” line is followed by `quests.completed_on` (set from code, `{day}` the in-game day). |
 | Failed | Under Done, in dim text with `quests.failed` and the reason. |
 | No quests | `quests.none` in the list area. |
 

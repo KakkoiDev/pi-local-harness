@@ -23,7 +23,12 @@ A gauge or progress ring for one value against a limit or goal (storage used, le
       <div class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-3xl font-semibold tabular-nums">72 %</span></div>
     </div>
     <p class="text-muted-foreground mt-2 text-center text-xs" data-t="chart.storage.scale">0 GB · 10 GB</p>
-    
+    <details class="mt-3 text-sm"><summary data-t="chart.show_table">Show as a table</summary>
+      <div class="table-container mt-2"><table class="table">
+        <thead><tr><th data-t="chart.storage.used">Used</th><th data-t="chart.storage.free">Free</th><th data-t="chart.storage.total">Total</th></tr></thead>
+        <tbody><tr><td class="tabular-nums">7.2 GB (72 %)</td><td class="tabular-nums">2.8 GB</td><td class="tabular-nums">10 GB</td></tr></tbody>
+      </table></div>
+    </details>
   </section>
 </section>
 ```
@@ -52,6 +57,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 | Ring | Small progress (lessons, steps): `size-24` ring, label beside it. Use `ProgressStatus` (a bar) when space is a line. |
 | Loading | A round `skeleton` the size of the gauge. |
 | Theme change | The wrapper redraws; the free part is `var(--border)`. |
+| Goal variant | `chart.goal.title` and `chart.goal.lede` (“3 of 5 done”) replace the storage title and lede when the gauge shows a goal. |
 
 ## Texts
 
@@ -65,6 +71,9 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 | `chart.goal.title` | Lessons this week | 今週のレッスン |
 | `chart.goal.lede` | {done} of {goal} done | {goal}件中{done}件完了 |
 | `chart.show_table` | Show as a table | 表で表示 |
+| `chart.storage.used` | Used | 使用中 |
+| `chart.storage.free` | Free | 空き |
+| `chart.storage.total` | Total | 合計 |
 | `chart.loading` | Loading the chart… | グラフを読み込み中… |
 | `chart.error` | Couldn’t load the chart. Check your connection and try again. | グラフを読み込めませんでした。接続を確認して、もう一度お試しください。 |
 | `chart.retry` | Try Again | 再試行 |

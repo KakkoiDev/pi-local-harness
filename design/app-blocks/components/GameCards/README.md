@@ -35,7 +35,7 @@ A trading card game: build a deck from a collection, then play turns of draw, sp
 
 ## Controls
 
-Actions are named once (`select`, `play`, `inspect`, `end_turn`, `cancel`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`select`, `play`, `inspect`, `end_turn`, `cancel`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `pause` is gaming-core's own (`move` is its `moveX`/`moveY` axes); `select`, `play`, `inspect`, `end_turn`, `cancel` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 | Action | Keyboard | Mouse | Gamepad | Touch |
 | --- | --- | --- | --- | --- |
@@ -83,6 +83,9 @@ Game-level keys only; each block's own keys are on its card.
 | `hud.energy` | Energy {n} / {max} | エネルギー {n} / {max} |
 | `deck.invalid` | A deck needs 30 cards ({n} now) | デッキは 30 枚必要です（現在 {n} 枚） |
 | `card.inspect` | Inspect | くわしく |
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.energy`, `deck.invalid` (into the HUD slots of HudPieces and the panels named above).
+
 
 ## Adding to it
 

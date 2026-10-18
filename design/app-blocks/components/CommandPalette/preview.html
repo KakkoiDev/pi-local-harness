@@ -10,7 +10,7 @@
 <div class="grid place-items-start justify-center bg-black/10 p-6" style="min-height:520px"><div class="w-full max-w-lg"><div class="command">
     <header>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="f9-command-input" placeholder="Search notes or type a command…" value="vocab" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f9-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+      <input type="text" id="f9-command-input" aria-label="Search notes or run a command" placeholder="Search notes or type a command…" value="vocab" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f9-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
     </header>
     <div role="menu" id="f9-command-menu" aria-orientation="vertical" data-empty="Nothing found for that. Try fewer words.">
       <div id="f9-command-results">
@@ -44,7 +44,7 @@
 <div class="grid place-items-start justify-center bg-black/10 p-6 p-3" style="min-height:520px"><div class="w-full"><div class="command">
     <header>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="f10-command-input" placeholder="ノートを検索、またはコマンドを入力…" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f10-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+      <input type="text" id="f10-command-input" aria-label="ノートを検索、またはコマンドを実行" placeholder="ノートを検索、またはコマンドを入力…" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="f10-command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
     </header>
     <div role="menu" id="f10-command-menu" aria-orientation="vertical" data-empty="見つかりませんでした。言葉を減らしてお試しください。">
       <div id="f10-command-results">

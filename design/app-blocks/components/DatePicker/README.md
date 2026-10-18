@@ -1,27 +1,27 @@
 # DatePicker
 
-Pick one date: the browser's own date field first, and a calendar popover when people need to see the month (bookings, due dates).
+Pick one date with a calendar popover that reads the page's language (2026年10月14日 in Japanese), or the browser's own date field on an English-only internal page.
 
 | | |
 | --- | --- |
 | Group | Other elements |
-| Basecoat | `field`, `label`, `input` (`type="date"`), `popover`, `btn`, `button-group` |
+| Basecoat | `field`, `label`, `popover`, `btn`, `button-group`; `input` (`type="date"`) only for the native form |
 | Needs | Nothing: the value is an ISO date `YYYY-MM-DD` in a form field. The calendar version needs `js/basecoat.min.js` (popover) and the small script below |
 | Used in | EditForm, Agenda, Checkout, AppBooking, IssueDetail (due date) |
 
-Two forms, one value. **Use the native field** unless the person must compare days (free/busy days, a range of nights): then use the calendar popover. Both submit the same hidden or native `name` with `YYYY-MM-DD`.
+Two forms, one value. **Use the calendar popover** on every page that is in Japanese or can be (any page with the language switch): a native `<input type="date">` shows the browser's own format, so a Japanese page on an English browser reads 10/14/2026. **The native field is still fine** only on an English-only internal page (an admin screen for the shop's own staff) where nobody needs the month in view. Both submit the same hidden or native `name` with `YYYY-MM-DD`.
 
 ## Markup
 
 ```html
-<!-- 1. Native date field (default) -->
+<!-- 1. Native date field: English-only internal pages only -->
 <div class="field">
   <label class="label" for="due-date" data-t="date.due">Due date</label>
   <input class="input" id="due-date" name="due" type="date" min="2026-01-01" max="2027-12-31" aria-describedby="due-date-help">
   <p class="text-muted-foreground text-sm" id="due-date-help" data-t="date.due_help">The day the task should be done.</p>
 </div>
 
-<!-- 2. Calendar popover -->
+<!-- 2. Calendar popover: the default (any page in Japanese, or with the language switch) -->
 <div class="field">
   <label class="label" id="visit-label" for="visit-trigger" data-t="date.visit">Visit date</label>
   <div id="visit" class="popover">
@@ -65,6 +65,8 @@ Day buttons: the chosen day gets `data-variant="primary"` (remove `ghost`) and `
 | Out of range / invalid | The field gets `aria-invalid="true"` and an error `<p class="text-destructive text-sm">` with `date.error.range` (“Choose a date between {min} and {max}.”). |
 | Required, empty on submit | `date.error.required`. |
 | Disabled | `disabled` on the input or trigger; never hide the field. |
+| Month heading and range | `date.month_title` → the popover’s month heading (“October 2026” / 2026年10月); `date.error.range` → the field’s error line under it. |
+| Japanese page | The trigger shows the chosen date as `2026年10月14日（水）` (`Intl.DateTimeFormat('ja-JP', {year:'numeric', month:'long', day:'numeric', weekday:'short'})`), the month heading `2026年10月`, weekday headers 月 火 水 木 金 土 日. |
 
 ## Texts
 
@@ -88,13 +90,13 @@ Japanese dates read year, month, day: `2026年10月14日（水）`; the month ti
 
 ## Keyboard and focus
 
-1. The date field (native) or the trigger button (calendar) → 2. the next field.
+1. The trigger button (calendar) or the date field (native) → 2. the next field.
 - Calendar open (Return, Space or ↓ on the trigger): focus on the chosen day. ← → move a day, ↑ ↓ a week, Page Up / Page Down a month, Home / End the start / end of the week, Return or Space chooses and closes, Esc closes without change. Focus returns to the trigger.
 - Inside the popover Tab moves: day grid → Previous / Next month → Today → Clear (roving tabindex inside the grid).
 
 ## Phone
 
-- Prefer the native field on the phone: it opens the system wheel or calendar and is 44 px tall.
+- The calendar is the phone's form too on Japanese pages (the system wheel would show the browser's format); on an English-only internal page the native field is fine and opens the system picker at 44 px.
 - The calendar popover becomes full width under the trigger (`w-[calc(100cqi-2rem)]`), day buttons `@max-3xl:size-11` so every day is a 44 px target.
 
 ## Data
@@ -109,6 +111,6 @@ Japanese dates read year, month, day: `2026年10月14日（水）`; the month ti
 
 ## Don't
 
-- Don't build a calendar where the native field works.
+- Don't use the native field on a page that is, or can be, in Japanese.
 - Don't parse `new Date("2026-10-14")` for display (it is UTC and can show the previous day); split the parts or use `Temporal.PlainDate` when available.
 - Don't write Japanese dates as `10/14/2026` or `14/10/2026`.

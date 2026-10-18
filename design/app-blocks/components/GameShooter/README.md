@@ -34,7 +34,7 @@ A vertical shoot ’em up: fly through waves of enemies, pick up power-ups, beat
 
 ## Controls
 
-Actions are named once (`move`, `fire`, `bomb`, `focus`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`move`, `fire`, `bomb`, `focus`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `move`, `fire`, `pause` are gaming-core's own (`move` is its `moveX`/`moveY` axes); `bomb`, `focus` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 | Action | Keyboard | Mouse | Gamepad | Touch |
 | --- | --- | --- | --- | --- |

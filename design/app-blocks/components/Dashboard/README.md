@@ -52,7 +52,10 @@ A summary page: four stat tiles with their change since the last period, one cha
         data-chart-series='{"now":{"label":"This period","color":"var(--chart-1)","surface":"gradient"},"before":{"label":"Previous period","color":"var(--chart-2)"}}'></canvas>
       <details class="mt-2 text-sm">
         <summary data-t="dashboard.chart.table">Show as a table</summary>
-        <!-- the same numbers in a <table class="table"> (see LineChart) -->
+        <div class="table-container mt-2"><table class="table">
+          <thead><tr><th data-t="dashboard.chart.week">Week</th><th class="text-right" data-t="dashboard.chart.now">This period</th><th class="text-right" data-t="dashboard.chart.before">Previous period</th></tr></thead>
+          <tbody><tr><td>W1</td><td class="text-right tabular-nums">¥280,000</td><td class="text-right tabular-nums">¥240,000</td></tr><tr><td>W2</td><td class="text-right tabular-nums">¥310,000</td><td class="text-right tabular-nums">¥260,000</td></tr></tbody>
+        </table></div>
       </details>
     </section>
   </section>
@@ -108,6 +111,9 @@ Texts with `{…}` are filled before they are shown (web: `t("dashboard.updated"
 | `dashboard.chart.now` | This period | 今期間 |
 | `dashboard.chart.before` | Previous period | 前期間 |
 | `dashboard.chart.table` | Show as a table | 表で表示 |
+| `dashboard.chart.week` | Week | 週 |
+| `dashboard.chart.now` | This period | 今期 |
+| `dashboard.chart.before` | Previous period | 前期 |
 | `dashboard.attention` | Needs attention | 要対応 |
 | `dashboard.attention.late` | {count} orders are late | {count} 件の注文が遅れています |
 | `dashboard.attention.late_hint` | Shipped more than 5 days after ordering | 注文から 5 日以上経って発送 |

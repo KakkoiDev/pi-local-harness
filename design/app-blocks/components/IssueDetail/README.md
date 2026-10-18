@@ -17,7 +17,7 @@ One issue: its title and state, the description, the conversation and events in 
   <header class="grid gap-2 @3xl:col-span-2">
     <h1 id="issue-title" class="text-2xl font-semibold">Timetable page shows Saturday twice <span class="text-muted-foreground font-normal">#42</span></h1>
     <p class="flex flex-wrap items-center gap-2 text-sm">
-      <span class="badge bg-green-700 text-white dark:bg-green-600" data-t="issue.open">Open</span>
+      <span class="badge bg-success text-success-foreground" data-t="issue.open">Open</span>
       <span class="text-muted-foreground" data-t="issue.opened">Kana Abe opened this 2 days ago · 3 comments</span>
       <button class="btn ml-auto" data-variant="outline" data-size="sm" type="button" data-t="issue.edit_title">Edit Title</button>
     </p>
@@ -27,7 +27,8 @@ One issue: its title and state, the description, the conversation and events in 
       <header class="flex items-center gap-2 text-sm"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><b>Kana Abe</b><time class="text-muted-foreground" datetime="2026-10-16T14:20">16 Oct, 14:20</time><span class="badge ml-auto" data-variant="outline" data-t="issue.author">Author</span></header>
       <section class="grid gap-2"><p>On the timetable page, Saturday appears twice in the week view. It started after the term dates changed.</p></section>
     </li>
-    <li class="text-muted-foreground flex items-center gap-2 pl-4 text-sm"><span aria-hidden="true">🏷</span><span><b class="text-foreground">Ren Sato</b> added <span class="badge" data-variant="destructive">bug</span> yesterday</span></li>
+    <li class="text-muted-foreground flex items-center gap-2 pl-4 text-sm"><span aria-hidden="true">🏷</span><span data-t-line="issue.added_label"><b class="text-foreground">Ren Sato</b> added <span class="badge" data-variant="destructive">bug</span> yesterday</span></li>
+    <li class="text-muted-foreground flex items-center gap-2 pl-4 text-sm"><span aria-hidden="true">↗</span><span data-t-line="issue.mentioned_in"><b class="text-foreground">Mina Takahashi</b> mentioned this in <a class="underline-offset-4 hover:underline" href="/issues/39">#39</a></span></li>
   </ol>
   <aside class="grid content-start gap-4 text-sm" aria-label="Details">
     <section class="grid gap-1 border-b pb-3"><h2 class="text-muted-foreground text-xs font-medium" data-t="issue.assignees">Assignees</h2><p class="flex items-center gap-2"><span class="avatar" data-size="sm"><span class="bg-muted">RS</span></span>Ren Sato</p></section>
@@ -50,8 +51,8 @@ The side column's headings are buttons in an editable view: each opens LabelsAss
 
 | State | What changes |
 | --- | --- |
-| Open | Green `badge` `issue.open`. |
-| Closed | `badge` `issue.closed` (`bg-purple-700 text-white`); a timeline event “closed this”; the button becomes Reopen Issue (`issue.reopen`). |
+| Open | `badge` `issue.open` in `bg-success text-success-foreground`. |
+| Closed | `badge` `issue.closed` (`bg-primary text-primary-foreground`); a timeline event “closed this”; the button becomes Reopen Issue (`issue.reopen`). |
 | Empty reply box | Comment is disabled; the outline button reads Close Issue (`issue.close`) instead of Close with Comment. |
 | Editing title | The `h1` becomes an `input` with Save / Cancel. |
 | Editing a comment | Its section becomes a `textarea` with Save / Cancel; edited comments show `issue.edited`. |
@@ -59,6 +60,7 @@ The side column's headings are buttons in an editable view: each opens LabelsAss
 | Locked | Reply box replaced by `issue.locked`. |
 | Read only (no permission) | No edit buttons, no reply box: `issue.sign_in` for visitors. |
 | Not found / deleted | EmptyState `issue.not_found` with Back to Issues. |
+| Closed by someone | The timeline gets a line `<span data-t-line="issue.closed_event">` (“Ren Sato closed this yesterday”), like the label line. |
 
 ## Texts
 

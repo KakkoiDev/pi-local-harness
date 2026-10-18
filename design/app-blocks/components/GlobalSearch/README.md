@@ -37,7 +37,7 @@ One search across everything in the app (pages, messages, issues, files, people)
         <a class="item gap-3 rounded-md border-transparent px-3 py-2" href="/pages/pg_7f2">
           <figure class="text-muted-foreground" aria-hidden="true">▤</figure>
           <section><h3 class="text-sm font-medium">Field trip plan</h3>
-            <p class="text-sm">…take the 8:52 train to the <mark class="rounded-sm bg-yellow-200 px-0.5 text-foreground dark:bg-yellow-500/40">museum</mark> and meet at the north gate…</p></section>
+            <p class="text-sm">…take the 8:52 train to the <mark class="rounded-sm bg-highlight text-highlight-foreground px-0.5">museum</mark> and meet at the north gate…</p></section>
           <aside class="text-muted-foreground text-xs">Class 3-B · 9:12</aside>
         </a>
       </div>
@@ -61,6 +61,7 @@ Each kind has the same row: an icon in `figure`, a title, one snippet with `<mar
 | Too short | Fewer than 2 characters: `search.too_short` (Japanese: 1 character is enough). |
 | Operators | `from:kana`, `in:#field-trip`, `is:open`, `"exact words"`; the tips are in `search.tips` under the field when it has focus and is empty. |
 | Error | ErrorRetry in the results area; the field stays usable. |
+| Where a result is | `search.in` → a visually hidden span before the result’s place in its `aside` (“in Class 3-B”). |
 
 ## Texts
 

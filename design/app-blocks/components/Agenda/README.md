@@ -29,7 +29,7 @@ A month calendar beside the list of events for the chosen day, with a way to add
       </thead>
       <tbody>
         <tr>
-          <td><a class="btn w-full flex-col gap-0" data-variant="ghost" href="?day=2026-10-12" aria-label="12 October, 2 events">12<span class="flex h-1.5 gap-0.5" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary"></span><span class="size-1.5 rounded-full bg-primary"></span></span></a></td>
+          <td><a class="btn w-full flex-col gap-0" data-variant="ghost" href="?day=2026-10-12" aria-label="12 October, 2 events" data-t-label="agenda.day_label">12<span class="flex h-1.5 gap-0.5" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary"></span><span class="size-1.5 rounded-full bg-primary"></span></span></a></td>
           <!-- the chosen day: data-variant="primary" aria-current="date" on today, aria-selected="true" on the chosen day -->
         </tr>
       </tbody>
@@ -45,7 +45,7 @@ A month calendar beside the list of events for the chosen day, with a way to add
       <li>
         <a class="item" data-variant="outline" href="/events/41">
           <figure class="w-14 text-sm tabular-nums text-muted-foreground"><time datetime="2026-10-18T10:00">10:00</time></figure>
-          <section><h3>Kanji study group</h3><p>Library, room 3 · 1 h</p></section>
+          <section><h3>Kanji study group</h3><p>Library, room 3 · <span data-t="agenda.duration_h">1 h</span></p></section>
         </a>
       </li>
       <li>

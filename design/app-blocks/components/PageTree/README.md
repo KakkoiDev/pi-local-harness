@@ -21,7 +21,7 @@ The nested list of pages in a workspace, in the side panel: open and close branc
   <ul role="tree" aria-labelledby="tree-label" class="grid grid-cols-1 gap-0.5">
     <li role="treeitem" aria-expanded="true" aria-level="1" aria-selected="false">
       <div class="group flex items-center gap-1 rounded-md pr-1 hover:bg-accent">
-        <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Close Class 3-B">▾</button>
+        <button class="btn" data-variant="ghost" data-size="icon-xs" type="button" tabindex="-1" aria-label="Close Class 3-B" data-t-label="tree.close">▾</button>
         <a href="/pages/pg_1" class="min-w-0 flex-1 truncate py-1.5">Class 3-B</a>
         <button class="btn opacity-0 group-hover:opacity-100 group-focus-within:opacity-100" data-variant="ghost" data-size="icon-xs" type="button" aria-haspopup="menu" aria-label="Page options" data-t-label="tree.options">⋯</button>
       </div>
@@ -48,7 +48,7 @@ The `⋯` menu (`dropdown-menu`): Add Page Inside, Rename, Duplicate, Add to Fav
 | Loading | Five `skeleton` rows of different widths (Skeletons). |
 | No pages | `tree.empty` and a `btn` `tree.first` that creates “Untitled” and opens it. |
 | Current page | `aria-current="page"` on its link, `aria-selected="true"`, `bg-accent font-medium`; its ancestors are open. |
-| Closed branch | `aria-expanded="false"`, the child `ul` is `hidden`, the toggle shows ▸ and its label is `tree.open`. |
+| Closed branch | `aria-expanded="false"`, the child `ul` is `hidden`, the toggle shows ▸ and its label is `tree.open`: `aria-label="Open Grammar" data-t-label="tree.open"` (and back to `tree.close` when opened). |
 | Renaming | The link is replaced by `<input class="input h-7" value="…" aria-label="Page name">`; empty name on Return keeps the old name. |
 | Dragging | The row under the pointer gets `ring-2 ring-primary` (drop inside) or a 2 px line above/below (drop beside). |
 | Deleted | The row disappears; a toast `tree.deleted` with Undo (DeleteUndo); child pages go with it and are named in the toast count. |

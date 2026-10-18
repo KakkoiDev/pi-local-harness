@@ -22,8 +22,8 @@ Stops the world and offers Resume, Settings, Controls and Quit to Title; opens o
       <li><button class="game-btn" id="pause-controls" data-t="pause.controls">Controls</button></li>
       <li><button class="game-btn" id="pause-quit" data-t="pause.quit">Quit to Title</button></li>
     </ul>
-    <p class="game-hint" style="margin-top:12px">
-      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button"></span></span><span data-t="pause.resume">Resume</span></span>
+    <p id="pause-hint" class="game-hint" style="margin-top:12px">
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button" data-t-label="game.pad.east"></span></span><span data-t="pause.resume">Resume</span></span>
     </p>
   </div>
 </section>
@@ -41,7 +41,7 @@ function resume() { closeScreen(document.getElementById('pause')); setPaused(fal
 | Open | The world freezes (`setPaused(true)`), music ducks to 30 %, the overlay dims the scene. |
 | Paused by focus loss | A `.game-small` line under the title: `game.paused_on_blur`. |
 | Nothing to save here | Save is `disabled` with `aria-describedby` → `pause.save_blocked` (e.g. during a boss fight); games that only autosave leave Save out. |
-| Saved | A line `pause.saved` replaces the hint for 3 s; focus stays on Save. |
+| Saved | `#pause-hint` shows `pause.saved` for 3 s (set from code, `{slot}` filled), then the hint again; focus stays on Save. |
 | Quit with unsaved progress | A game-style confirm: `pause.quit_confirm` with Quit (east/back is Cancel). |
 
 ## Texts

@@ -1,0 +1,226 @@
+<!-- @dsCard group="Collaboration" height=1450 width=1250 subtitle="Table, board and list views" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>DatabaseView — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · Table view, filtered</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="d-database" class="grid gap-4" aria-labelledby="d-db-title">
+  <h1 id="d-db-title" class="text-2xl font-semibold">Trip planning</h1>
+  <div class="tabs" id="d-db-tabs">
+    <nav role="tablist" aria-orientation="horizontal" aria-label="Views" data-t-label="db.views"><button type="button" role="tab" id="d-db-tab-table" aria-controls="d-db-panel-table" aria-selected="true" tabindex="0" data-t="db.view.table"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18"/></svg>Table</button><button type="button" role="tab" id="d-db-tab-board" aria-controls="d-db-panel-board" aria-selected="false" tabindex="-1" data-t="db.view.board"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></svg>Board</button><button type="button" role="tab" id="d-db-tab-list" aria-controls="d-db-panel-list" aria-selected="false" tabindex="-1" data-t="db.view.list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>List</button></nav>
+    <div class="flex flex-wrap items-center gap-2">
+      <button class="btn" data-variant="outline" data-size="sm" type="button" aria-haspopup="dialog" data-t="db.filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>Filter</button>
+      <span class="badge gap-1" data-variant="secondary"><span data-t="db.filter_chip">Status: Done</span><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Remove filter Status: Done" data-t-label="db.remove_filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+      <span class="flex-1"></span>
+      <label class="sr-only" for="d-db-sort" data-t="db.sort">Sort</label>
+      <select class="select" id="d-db-sort" name="sort"><option value="due" data-t="db.sort.due">Due date</option><option value="name" data-t="db.sort.name">Name</option><option value="edited" data-t="db.sort.edited">Last edited</option></select>
+      <button class="btn" data-size="sm" type="button" data-t="db.new"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>New Page</button>
+    </div>
+    <div role="tabpanel" id="d-db-panel-table" aria-labelledby="d-db-tab-table" tabindex="-1" aria-selected="true" class="grid gap-3">
+      <div class="table-container">
+        <table class="table">
+          <thead><tr><th scope="col" data-t="db.prop.name">Name</th><th scope="col" data-t="db.prop.status">Status</th><th scope="col" data-t="db.prop.tags">Tags</th><th scope="col" data-t="db.prop.due">Due</th><th scope="col" data-t="db.prop.owner">Owner</th></tr></thead>
+          <tbody>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/510">Book the hostel in Kyoto</a></th>
+            <td><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Stay</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-24">24 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>AK</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/511">Rail pass: 7 or 14 days?</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Travel</span><span class="badge" data-variant="outline">Money</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-27">27 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>RS</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/512">Temple list for day 2</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Plans</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-30">30 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>MT</span></span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-muted-foreground" data-t="db.count">3 pages</p>
+    </div>
+    <div role="tabpanel" id="d-db-panel-board" aria-labelledby="d-db-tab-board" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <div class="grid gap-3 @3xl:grid-cols-3"><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="d-col-todo">
+          <h3 id="d-col-todo" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Rail pass: 7 or 14 days?</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Travel</span><span class="badge" data-variant="outline">Money</span><time datetime="2026-10-27">27 Oct</time></span></a></li><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Temple list for day 2</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Plans</span><time datetime="2026-10-30">30 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to To do" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="d-col-doing">
+          <h3 id="d-col-doing" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Book the hostel in Kyoto</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Stay</span><time datetime="2026-10-24">24 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to Doing" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="d-col-done">
+          <h3 id="d-col-done" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-t="db.status.done">Done</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Passport photos</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Papers</span><time datetime="2026-10-15">15 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to Done" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section></div>
+    </div>
+    <div role="tabpanel" id="d-db-panel-list" aria-labelledby="d-db-tab-list" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <ul class="grid gap-2"><li><a href="#" class="item" data-variant="outline"><section><h3>Book the hostel in Kyoto</h3><p>Stay</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span><time datetime="2026-10-24">24 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Rail pass: 7 or 14 days?</h3><p>Travel · Money</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span><time datetime="2026-10-27">27 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Temple list for day 2</h3><p>Plans</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span><time datetime="2026-10-30">30 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Passport photos</h3><p>Papers</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-t="db.status.done">Done</span><time datetime="2026-10-15">15 Oct</time></aside></a></li></ul>
+    </div>
+  </div>
+</section></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · List view</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="p-database" class="grid gap-4" aria-labelledby="p-db-title">
+  <h1 id="p-db-title" class="text-2xl font-semibold">旅行の計画</h1>
+  <div class="tabs" id="p-db-tabs">
+    <nav role="tablist" aria-orientation="horizontal" aria-label="ビュー" data-t-label="db.views"><button type="button" role="tab" id="p-db-tab-table" aria-controls="p-db-panel-table" aria-selected="false" tabindex="-1" data-t="db.view.table"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18"/></svg>表</button><button type="button" role="tab" id="p-db-tab-board" aria-controls="p-db-panel-board" aria-selected="false" tabindex="-1" data-t="db.view.board"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></svg>ボード</button><button type="button" role="tab" id="p-db-tab-list" aria-controls="p-db-panel-list" aria-selected="true" tabindex="0" data-t="db.view.list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>リスト</button></nav>
+    <div class="flex flex-wrap items-center gap-2">
+      <button class="btn" data-variant="outline" data-size="sm" type="button" aria-haspopup="dialog" data-t="db.filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>絞り込み</button>
+      <span class="badge gap-1" data-variant="secondary"><span data-t="db.filter_chip">状態：完了</span><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="絞り込み「状態：完了」を外す" data-t-label="db.remove_filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+      <span class="flex-1"></span>
+      <label class="sr-only" for="p-db-sort" data-t="db.sort">並べ替え</label>
+      <select class="select" id="p-db-sort" name="sort"><option value="due" data-t="db.sort.due">期限</option><option value="name" data-t="db.sort.name">名前</option><option value="edited" data-t="db.sort.edited">最終編集</option></select>
+      <button class="btn" data-size="sm" type="button" data-t="db.new"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>新規ページ</button>
+    </div>
+    <div role="tabpanel" id="p-db-panel-table" aria-labelledby="p-db-tab-table" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <div class="table-container">
+        <table class="table">
+          <thead><tr><th scope="col" data-t="db.prop.name">名前</th><th scope="col" data-t="db.prop.status">状態</th><th scope="col" data-t="db.prop.tags">タグ</th><th scope="col" data-t="db.prop.due">期限</th><th scope="col" data-t="db.prop.owner">担当</th></tr></thead>
+          <tbody>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/510">京都のホステルを予約</a></th>
+            <td><span class="badge" data-variant="secondary" data-t="db.status.doing">進行中</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">宿泊</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-24">10月24日</time></td>
+            <td><span class="avatar" data-size="sm"><span>AK</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/511">JRパスは7日か14日か</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">未着手</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">移動</span><span class="badge" data-variant="outline">お金</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-27">10月27日</time></td>
+            <td><span class="avatar" data-size="sm"><span>RS</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/512">2日目の寺めぐりリスト</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">未着手</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">計画</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-30">10月30日</time></td>
+            <td><span class="avatar" data-size="sm"><span>MT</span></span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-muted-foreground" data-t="db.count">3ページ</p>
+    </div>
+    <div role="tabpanel" id="p-db-panel-board" aria-labelledby="p-db-tab-board" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <div class="grid gap-3 @3xl:grid-cols-3"><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="p-col-todo">
+          <h3 id="p-col-todo" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="outline" data-t="db.status.todo">未着手</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">JRパスは7日か14日か</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">移動</span><span class="badge" data-variant="outline">お金</span><time datetime="2026-10-27">10月27日</time></span></a></li><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">2日目の寺めぐりリスト</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">計画</span><time datetime="2026-10-30">10月30日</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="「未着手」にページを追加" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="p-col-doing">
+          <h3 id="p-col-doing" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="secondary" data-t="db.status.doing">進行中</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">京都のホステルを予約</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">宿泊</span><time datetime="2026-10-24">10月24日</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="「進行中」にページを追加" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="p-col-done">
+          <h3 id="p-col-done" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-t="db.status.done">完了</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">パスポート写真</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">書類</span><time datetime="2026-10-15">10月15日</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="「完了」にページを追加" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section></div>
+    </div>
+    <div role="tabpanel" id="p-db-panel-list" aria-labelledby="p-db-tab-list" tabindex="-1" aria-selected="true" class="grid gap-3">
+      <ul class="grid gap-2"><li><a href="#" class="item" data-variant="outline"><section><h3>京都のホステルを予約</h3><p>宿泊</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="secondary" data-t="db.status.doing">進行中</span><time datetime="2026-10-24">10月24日</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>JRパスは7日か14日か</h3><p>移動 · お金</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">未着手</span><time datetime="2026-10-27">10月27日</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>2日目の寺めぐりリスト</h3><p>計画</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">未着手</span><time datetime="2026-10-30">10月30日</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>パスポート写真</h3><p>書類</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-t="db.status.done">完了</span><time datetime="2026-10-15">10月15日</time></aside></a></li></ul>
+    </div>
+  </div>
+</section></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="wide">
+<figcaption>Board view</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="w-database" class="grid gap-4" aria-labelledby="w-db-title">
+  <h1 id="w-db-title" class="text-2xl font-semibold">Trip planning</h1>
+  <div class="tabs" id="w-db-tabs">
+    <nav role="tablist" aria-orientation="horizontal" aria-label="Views" data-t-label="db.views"><button type="button" role="tab" id="w-db-tab-table" aria-controls="w-db-panel-table" aria-selected="false" tabindex="-1" data-t="db.view.table"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18"/></svg>Table</button><button type="button" role="tab" id="w-db-tab-board" aria-controls="w-db-panel-board" aria-selected="true" tabindex="0" data-t="db.view.board"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></svg>Board</button><button type="button" role="tab" id="w-db-tab-list" aria-controls="w-db-panel-list" aria-selected="false" tabindex="-1" data-t="db.view.list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></svg>List</button></nav>
+    <div class="flex flex-wrap items-center gap-2">
+      <button class="btn" data-variant="outline" data-size="sm" type="button" aria-haspopup="dialog" data-t="db.filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>Filter</button>
+      <span class="badge gap-1" data-variant="secondary"><span data-t="db.filter_chip">Status: Done</span><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Remove filter Status: Done" data-t-label="db.remove_filter"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+      <span class="flex-1"></span>
+      <label class="sr-only" for="w-db-sort" data-t="db.sort">Sort</label>
+      <select class="select" id="w-db-sort" name="sort"><option value="due" data-t="db.sort.due">Due date</option><option value="name" data-t="db.sort.name">Name</option><option value="edited" data-t="db.sort.edited">Last edited</option></select>
+      <button class="btn" data-size="sm" type="button" data-t="db.new"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>New Page</button>
+    </div>
+    <div role="tabpanel" id="w-db-panel-table" aria-labelledby="w-db-tab-table" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <div class="table-container">
+        <table class="table">
+          <thead><tr><th scope="col" data-t="db.prop.name">Name</th><th scope="col" data-t="db.prop.status">Status</th><th scope="col" data-t="db.prop.tags">Tags</th><th scope="col" data-t="db.prop.due">Due</th><th scope="col" data-t="db.prop.owner">Owner</th></tr></thead>
+          <tbody>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/510">Book the hostel in Kyoto</a></th>
+            <td><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Stay</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-24">24 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>AK</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/511">Rail pass: 7 or 14 days?</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Travel</span><span class="badge" data-variant="outline">Money</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-27">27 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>RS</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-medium"><a class="hover:underline" href="/pages/512">Temple list for day 2</a></th>
+            <td><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></td>
+            <td><span class="flex flex-wrap gap-1"><span class="badge" data-variant="outline">Plans</span></span></td>
+            <td class="tabular-nums"><time datetime="2026-10-30">30 Oct</time></td>
+            <td><span class="avatar" data-size="sm"><span>MT</span></span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-muted-foreground" data-t="db.count">3 pages</p>
+    </div>
+    <div role="tabpanel" id="w-db-panel-board" aria-labelledby="w-db-tab-board" tabindex="-1" aria-selected="true" class="grid gap-3">
+      <div class="grid gap-3 @3xl:grid-cols-3"><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="w-col-todo">
+          <h3 id="w-col-todo" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Rail pass: 7 or 14 days?</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Travel</span><span class="badge" data-variant="outline">Money</span><time datetime="2026-10-27">27 Oct</time></span></a></li><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Temple list for day 2</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Plans</span><time datetime="2026-10-30">30 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to To do" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="w-col-doing">
+          <h3 id="w-col-doing" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Book the hostel in Kyoto</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Stay</span><time datetime="2026-10-24">24 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to Doing" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section><section class="grid content-start gap-2 rounded-lg bg-muted/50 p-2" aria-labelledby="w-col-done">
+          <h3 id="w-col-done" class="flex items-center gap-2 px-1 text-sm font-medium"><span class="badge" data-t="db.status.done">Done</span></h3>
+          <ul class="grid gap-2"><li><a href="#" class="card gap-2 p-3 text-sm"><span class="font-medium">Passport photos</span><span class="flex flex-wrap items-center gap-1 text-muted-foreground"><span class="badge" data-variant="outline">Papers</span><time datetime="2026-10-15">15 Oct</time></span></a></li></ul>
+          <button class="btn justify-start" data-variant="ghost" data-size="sm" type="button" aria-label="Add a page to Done" data-t-label="db.add_in"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </section></div>
+    </div>
+    <div role="tabpanel" id="w-db-panel-list" aria-labelledby="w-db-tab-list" tabindex="-1" aria-selected="false" class="grid gap-3" hidden>
+      <ul class="grid gap-2"><li><a href="#" class="item" data-variant="outline"><section><h3>Book the hostel in Kyoto</h3><p>Stay</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="secondary" data-t="db.status.doing">Doing</span><time datetime="2026-10-24">24 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Rail pass: 7 or 14 days?</h3><p>Travel · Money</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span><time datetime="2026-10-27">27 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Temple list for day 2</h3><p>Plans</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-variant="outline" data-t="db.status.todo">To do</span><time datetime="2026-10-30">30 Oct</time></aside></a></li><li><a href="#" class="item" data-variant="outline"><section><h3>Passport photos</h3><p>Papers</p></section><aside class="flex flex-col items-end gap-1 text-xs text-muted-foreground"><span class="badge" data-t="db.status.done">Done</span><time datetime="2026-10-15">15 Oct</time></aside></a></li></ul>
+    </div>
+  </div>
+</section></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>No pages</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="empty rounded-lg border border-dashed"><header><h3 data-t="db.empty_title">No pages yet</h3><p data-t="db.empty_text">Each page is a row here. Add the first one, or import a CSV.</p></header><footer class="flex-row"><button class="btn" type="button" data-t="db.new">New Page</button></footer></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>No match</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="empty rounded-lg border border-dashed"><header><p data-t="db.no_match">No pages match these filters.</p></header><footer class="flex-row"><button class="btn" data-variant="outline" type="button" data-t="db.clear_filters">Clear Filters</button></footer></div></div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

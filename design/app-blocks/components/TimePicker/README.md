@@ -1,6 +1,6 @@
 # TimePicker
 
-Pick a time of day: the browser's own time field for any time, or a list of free slots when only some times can be booked.
+Pick a time of day: a list of times that reads right in both languages, free slots when only some times can be booked, and the browser's own time field only on English-only pages.
 
 | | |
 | --- | --- |
@@ -9,27 +9,39 @@ Pick a time of day: the browser's own time field for any time, or a list of free
 | Needs | Nothing for the native field. Slots need the free times (`GET /slots?date=` or the store) |
 | Used in | EditForm, Agenda, AppBooking, SettingsPage (quiet hours) |
 
-Times are stored as `HH:MM` in 24 hours, with the time zone named once per form (`Asia/Tokyo`). Display follows the language: English “2:30 PM”, Japanese “14:30”.
+Times are stored as `HH:MM` in 24 hours, with the time zone named once per form (`Asia/Tokyo`). Display follows the language through `Intl.DateTimeFormat(lang, {hour: 'numeric', minute: '2-digit'})`: English “2:30 PM”, Japanese “14:30” (24-hour, the usual form in Japan). An app whose settings choose a 12-hour clock passes `hour12: true`, which reads 午後2:30 in Japanese. The browser's own `type="time"` field ignores the page's language (an English browser shows 02:30 PM on a Japanese page), so it is used only where the page is English-only.
 
 ## Markup
 
 ```html
-<!-- 1. Native time field: any time, in 5-minute steps -->
+<!-- 1. Time list (the default; any page that is in Japanese or can be): option labels from Intl in the page's language -->
 <div class="field">
   <label class="label" for="start-time" data-t="time.start">Start time</label>
-  <input class="input" id="start-time" name="start" type="time" step="300" min="08:00" max="22:00" aria-describedby="start-time-help">
+  <select class="select" id="start-time" name="start" aria-describedby="start-time-help">
+    <option value="14:00">14:00</option>
+    <option value="14:15">14:15</option>
+    <option value="14:30" selected>14:30</option>
+    <option value="14:45">14:45</option>
+    <!-- … every 15 minutes between min and max, labels from Intl.DateTimeFormat(lang): “2:30 PM” in English, “14:30” in Japanese -->
+  </select>
   <p class="text-muted-foreground text-sm" id="start-time-help" data-t="time.zone_help">Times are in Japan time (JST).</p>
 </div>
 
-<!-- 2. Native select of fixed times (short lists, up to ~30) -->
+<!-- 1b. A short fixed list (up to ~30 times) -->
 <div class="field">
   <label class="label" for="reminder" data-t="time.reminder">Daily reminder</label>
   <select class="select" id="reminder" name="reminder">
     <option value="" data-t="time.none">No reminder</option>
-    <option value="07:00">7:00 AM</option>
-    <option value="08:00" selected>8:00 AM</option>
-    <option value="21:00">9:00 PM</option>
+    <option value="07:00">7:00</option>
+    <option value="08:00" selected>8:00</option>
+    <option value="21:00">21:00</option>
   </select>
+</div>
+
+<!-- 2. Native time field: English-only internal pages (an admin tool used only in English) -->
+<div class="field">
+  <label class="label" for="start-time-native" data-t="time.start">Start time</label>
+  <input class="input" id="start-time-native" name="start" type="time" step="300" min="08:00" max="22:00">
 </div>
 
 <!-- 3. Free slots: radio buttons that look like buttons -->
@@ -52,13 +64,14 @@ Times are stored as `HH:MM` in 24 hours, with the time zone named once per form 
 
 | State | What changes |
 | --- | --- |
-| Empty | Native: the browser's `--:--`. Slots: nothing checked; the submit button stays enabled and the error explains on submit. |
-| Chosen | Native value `14:30`. Slot label gets the primary fill through `:has(:checked)`. |
+| Empty | List: no option chosen (a first `<option value="">` with `time.choose`). Native: the browser's `--:--`. Slots: nothing checked; the submit button stays enabled and the error explains on submit. |
+| Chosen | Value `14:30` (24-hour `HH:MM`) in every variant; the list shows it as “2:30 PM” or “14:30”. Slot label gets the primary fill through `:has(:checked)`. |
 | Taken slot | The radio is `disabled`, the label `aria-disabled="true"`, `opacity-50`, the time struck through; screen readers hear `time.taken` (add `<span class="sr-only" data-t="time.taken">taken</span>`). |
 | No free slots | Replace the grid with `<p class="text-muted-foreground" data-t="time.no_slots">` and a button `time.next_day` (“Show the next free day”). |
 | Loading slots | Six `skeleton` boxes the size of a slot (`<div class="skeleton h-9 rounded-md bg-muted"></div>`). |
-| Error | `aria-invalid="true"` on the input or the fieldset, `<p class="text-destructive text-sm">` with `time.error.range` or `time.error.required`. |
-| Slot taken meanwhile | On submit the server answers 409; the slot becomes Taken, focus moves to the slot grid, the alert says `time.error.gone`. |
+| Error | `aria-invalid="true"` on the input or the fieldset, `<p class="text-destructive text-sm">` with `time.error.range` (“Choose a time between 8:00 AM and 10:00 PM.”, `min`/`max` formatted like the options) or `time.error.required`, set from code into `#start-time-error`, which the field's `aria-describedby` then names. |
+| Which variant | A page that is in Japanese, or that a person can switch to Japanese, uses the list (1) or the slots (3). The native field (2) is fine only on an English-only internal page, or when any minute must be typed and the page is English-only. |
+| Slot taken meanwhile | On submit the server answers 409; the slot becomes Taken, focus moves to the slot grid, the `alert` above the grid (`<div class="alert" data-variant="destructive" role="alert">`) shows `time.error.gone_title` and `time.error.gone`, set from code. |
 
 ## Texts
 
@@ -68,6 +81,7 @@ Times are stored as `HH:MM` in 24 hours, with the time zone named once per form 
 | `time.zone_help` | Times are in Japan time (JST). | 時刻は日本時間（JST）です。 |
 | `time.reminder` | Daily reminder | 毎日のリマインダー |
 | `time.none` | No reminder | リマインダーなし |
+| `time.choose` | Choose a time | 時間を選択 |
 | `time.slots` | Choose a time | 時間を選択 |
 | `time.slots_help` | {minutes} minutes · {date} | {minutes}分 · {date} |
 | `time.taken` | taken | 予約済み |

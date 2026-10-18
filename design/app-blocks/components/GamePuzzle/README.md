@@ -32,7 +32,7 @@ Puzzle games on a grid — match-3, sliding tiles and Sokoban — sharing one sh
 
 ## Controls
 
-Actions are named once (`cursor`, `select`, `swap`, `undo`, `restart`, `hint`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`cursor`, `select`, `swap`, `undo`, `restart`, `hint`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `pause` is gaming-core's own (`move` is its `moveX`/`moveY` axes); `cursor`, `select`, `swap`, `undo`, `restart`, `hint` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 | Action | Keyboard | Mouse | Gamepad | Touch |
 | --- | --- | --- | --- | --- |
@@ -80,6 +80,9 @@ Game-level keys only; each block's own keys are on its card.
 | `action.restart` | Restart | やり直し |
 | `action.hint` | Hint | ヒント |
 | `over.more_moves` | +5 Moves | +5 手 |
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.goal`, `hud.moves_left`, `hud.moves` (into the HUD slots of HudPieces and the panels named above).
+
 
 ## Adding to it
 

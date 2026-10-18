@@ -18,8 +18,9 @@ A tile with one key number, its change from the last period in words and an arro
   </header>
   <section class="grid gap-2">
     <p class="text-3xl font-semibold tabular-nums">¥420,000</p>
-    <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge" data-variant="secondary">▲ 9 %</span><span class="text-muted-foreground" data-t="kpi.revenue.period">vs last week</span></p>
+    <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge" data-variant="secondary" data-t="kpi.change_up">▲ 9 %</span><span class="text-muted-foreground" data-t="kpi.revenue.period">vs last week</span></p>
     <canvas id="revenue-spark" class="chart aspect-auto h-10 w-full" role="img" aria-label="Revenue over 8 weeks, rising from ¥310,000 to ¥420,000." data-chart-type="line" data-chart-label-key="w" data-chart-data='[{"w":0,"v":310},{"w":1,"v":342},{"w":2,"v":330},{"w":3,"v":365},{"w":4,"v":391},{"w":5,"v":402},{"w":6,"v":388},{"w":7,"v":420}]' data-chart-series='{"v":{"label":"Revenue","color":"var(--chart-1)","surface":true}}' data-chart-legend="false" data-chart-tooltip="false"></canvas>
+    <details><summary class="text-sm" data-t="chart.show_table">Show as a table</summary><div class="table-container"><table class="table"><thead><tr><th data-t="kpi.week">Week</th><th class="text-right" data-t="kpi.revenue.title">Revenue</th></tr></thead><tbody><tr><th scope="row">1</th><td class="text-right tabular-nums">¥310,000</td></tr><tr><th scope="row">2</th><td class="text-right tabular-nums">¥342,000</td></tr><tr><th scope="row">3</th><td class="text-right tabular-nums">¥330,000</td></tr><tr><th scope="row">4</th><td class="text-right tabular-nums">¥365,000</td></tr><tr><th scope="row">5</th><td class="text-right tabular-nums">¥391,000</td></tr><tr><th scope="row">6</th><td class="text-right tabular-nums">¥402,000</td></tr><tr><th scope="row">7</th><td class="text-right tabular-nums">¥388,000</td></tr><tr><th scope="row">8</th><td class="text-right tabular-nums">¥420,000</td></tr></tbody></table></div></details>
   </section>
   <footer><a class="text-sm underline-offset-4 hover:underline" href="#" data-t="kpi.revenue.link">View report</a></footer>
 </section>
@@ -45,6 +46,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 | Loading | `skeleton` for label, value and badge; `aria-busy="true"` on the card. |
 | Error | Value `—`, `kpi.error` and a link-style **Try Again**. |
 | Long numbers | `tabular-nums`, compact above a million (`Intl.NumberFormat(lang, {notation: "compact"})`: 1.2M / 120万). |
+| Going down | The badge shows `kpi.change_down` (“▼ 4 %”) instead of `kpi.change_up`; same colour, the arrow carries the direction. |
 
 ## Texts
 
@@ -57,6 +59,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 | `kpi.refunds.title` | Refunds | 返金 |
 | `kpi.change_up` | ▲ {percent} % | ▲ {percent}% |
 | `kpi.change_down` | ▼ {percent} % | ▼ {percent}% |
+| `kpi.week` | Week | 週 |
 | `kpi.better` | better | 改善 |
 | `kpi.worse` | worse | 悪化 |
 | `kpi.no_comparison` | First week: a comparison appears next week. | 初週のため、比較は来週から表示されます。 |

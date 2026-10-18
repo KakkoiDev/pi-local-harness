@@ -74,6 +74,7 @@ export function tagInput(root, {max = 10, maxLength = 30} = {}) {
 | Too long | Cut at 30 characters while typing (`maxlength="30"` on the input). |
 | Invalid characters | Only letters, numbers, spaces, `-` and `_`; others are dropped silently on add. |
 | Disabled | Badges stay, remove buttons and input `disabled`. |
+| Added or removed | A `<p id="tags-live" class="sr-only" aria-live="polite"></p>` after the field says `tags.added` (“Added kanji”) or `tags.removed` (“Removed kanji”), set from code. |
 
 ## Texts
 

@@ -6,7 +6,7 @@ A team chat: workspaces with channels and direct messages, threads under message
 | --- | --- |
 | Group | Apps |
 | Example product | Tsuru Chat (team chat) |
-| Blocks | AccountSettings, ActivityFeed, AvatarGroup, Channels, CommandPalette, DataTable, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, Invite, ListSearch, LogIn, Mentions, Notifications, Onboarding, Presence, Profile, Reactions, Roles, SettingsPage, SidePanel, SignUp, Threads |
+| Blocks | AccountSettings, ActivityFeed, AvatarGroup, Channels, CommandPalette, DataTable, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, Invite, ListSearch, LogIn, Mentions, MessageComposer, Notifications, Onboarding, Presence, Profile, Reactions, Roles, SettingsPage, SidePanel, SignUp, Threads |
 | Packages | Web app (full stack) with Multiplayer, real time. Messages are shared by everyone in the workspace, so there is no no-server version. |
 | Related | AppNotes (links and mentions), AppForum (slower, public discussion) |
 
@@ -14,9 +14,9 @@ A team chat: workspaces with channels and direct messages, threads under message
 
 | Screen | Route | Blocks |
 | --- | --- | --- |
-| Channel | `/w/{ws}/c/{channel}` | SidePanel, Channels, Threads, Reactions, Mentions, Presence, FileUpload |
-| Direct message | `/w/{ws}/dm/{user}` | Channels, Presence, Threads |
-| Thread | `(side panel on a channel)` | Threads, Reactions, Mentions |
+| Channel | `/w/{ws}/c/{channel}` | SidePanel, Channels, MessageComposer, Threads, Reactions, Mentions, Presence, FileUpload |
+| Direct message | `/w/{ws}/dm/{user}` | Channels, MessageComposer, Presence, Threads |
+| Thread | `(side panel on a channel)` | Threads, MessageComposer, Reactions, Mentions |
 | Activity | `/w/{ws}/activity` | Notifications, ActivityFeed, EmptyState |
 | Search | `/w/{ws}/search` | GlobalSearch, ListSearch, CommandPalette |
 | New channel | `(dialog)` | EditForm, Invite, Roles |
@@ -38,7 +38,7 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 **Post and reply**
 
-1. Channel: Channels, type in the composer, Return sends (Shift+Return for a new line)
+1. Channel: Channels, type in MessageComposer, Return sends (Shift+Return for a new line, ↑ edits your last message)
 2. Channel: Reactions on a message; Mentions @Kenji in a reply
 3. Thread: Threads panel; Kenji replies there; the channel shows "2 replies"
 
@@ -98,4 +98,4 @@ App-level keys only; each block brings its own.
 ## Adding to it
 
 - Calls, huddles and screen sharing are not covered by any block and need WebRTC, which the kit doesn't carry; leave them out.
-- **Proposed block: MessageComposer** (Markdown shortcuts, attachments, mentions, emoji, Return to send, edit last with ↑) is not in the catalogue as its own card; until it exists, Threads' reply box is the composer.
+- Every place that sends a message (channel, DM, thread) uses **MessageComposer**: Markdown shortcuts, attachments, Mentions, emoji, Return to send, ↑ to edit the last message.

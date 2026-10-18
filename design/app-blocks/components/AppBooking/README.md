@@ -6,7 +6,7 @@ A booking app: people pick a service, a person and a free time, book and get a c
 | --- | --- |
 | Group | Apps |
 | Example product | Lantern Salon bookings (appointments with a calendar) |
-| Blocks | ActivityFeed, Agenda, AvatarGroup, ConfirmDialog, DataTable, DatePicker, DetailView, EditForm, EmptyState, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, SettingsPage, SidePanel, Stepper, Tabs, TimePicker, Toasts, TopBar |
+| Blocks | ActivityFeed, Agenda, AvatarGroup, ConfirmDialog, DataTable, DatePicker, DetailView, EditForm, EmptyState, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, SettingsPage, SidePanel, Stepper, Tabs, TimePicker, Toasts, TopBar, WeekCalendar |
 | Packages | Web app (full stack). Free times are shared between everyone booking, so it needs a server. |
 | Related | AppCrm (clients), AppAdmin (the business side shell) |
 
@@ -19,7 +19,7 @@ A booking app: people pick a service, a person and a free time, book and get a c
 | Your details | `/book/{service}/details` | EditForm, Stepper, LogIn |
 | Booked | `/bookings/{id}` | OrderConfirmation, Toasts |
 | My bookings | `/me/bookings` | OrderHistory, ConfirmDialog, EmptyState |
-| Calendar (staff) | `/admin/calendar` | SidePanel, Agenda, Tabs, DetailView |
+| Calendar (staff) | `/admin/calendar` | SidePanel, WeekCalendar, Agenda, Tabs, DetailView |
 | Hours and services (staff) | `/admin/settings` | SettingsPage, EditForm, TimePicker, DataTable |
 | Clients (staff) | `/admin/clients` | DataTable, DetailView, ActivityFeed |
 
@@ -47,7 +47,7 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 **Staff day**
 
-1. Calendar (staff): Agenda Day view of bookings by staff member
+1. Calendar (staff): WeekCalendar of the week (Tabs Day · Week · List; the List view is Agenda); drag a booking to another slot or use Move… on it
 2. Calendar (staff): DetailView of a booking, Mark as Done or No-show
 
 ## Phone
@@ -90,4 +90,4 @@ App-level keys only; each block brings its own.
 ## Adding to it
 
 - Classes with several seats (yoga, lessons) are the same flow with `capacity` on a slot and "3 seats left".
-- **Proposed block: WeekCalendar** (a staff week grid with drag to move a booking) is not in the catalogue; Agenda's Day and List views cover the first version.
+- The staff calendar is **WeekCalendar** (hours, bookings, now line, drag or Move… to change a time); days and times people choose use DatePicker and TimePicker, so Japanese pages read 2026年10月14日 and 14:30.

@@ -22,7 +22,7 @@ A person's picture or initials, alone or as an overlapping group with a “+N”
 
 <!-- With a status dot (online) -->
 <span class="avatar" role="img" aria-label="Mei Wong, online" data-t-label="people.online_label">
-  <span>MW</span><span class="avatar-badge bg-green-600"></span>
+  <span>MW</span><span class="avatar-badge bg-success"></span>
 </span>
 
 <!-- A group: at most 4 faces, then the count -->
@@ -49,11 +49,12 @@ A person's picture or initials, alone or as an overlapping group with a “+N”
 | --- | --- |
 | Picture | `img` with `alt` = the name; if the image fails to load (`onerror`), swap to the initials `span`. |
 | No picture | Initials. |
-| Online / away / busy | `.avatar-badge` with `bg-green-600` / `bg-amber-500` / `bg-destructive`; the state goes into `aria-label` (“Mei Wong, online”). Don't rely on the colour alone in lists: the Presence card adds the word. |
+| Online / away / busy | `.avatar-badge` with `bg-success` / `bg-warning` / `bg-destructive`; the state goes into `aria-label` (“Mei Wong, online”). Don't rely on the colour alone in lists: the Presence card adds the word. |
 | Many people | Group shows 4 faces + `+N`; N over 99 shows `99+`. With `sm` faces the count circle is 24 px: show at most `+9`, then `9+`. |
 | Nobody | No group; text `people.none` (“No members yet”). |
 | Removed account | Initials `?` and the name `people.removed` (“Deleted account”), muted. |
 | Loading | `skeleton size-8 rounded-full bg-muted` per face. |
+| Away or busy | The badge is `bg-warning` (away) or `bg-destructive` (busy) and the avatar’s `aria-label` uses `people.away_label` / `people.busy_label` (“Mei Wong, away”), with `data-t-label`. |
 
 ## Texts
 

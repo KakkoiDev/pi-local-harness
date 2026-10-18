@@ -49,6 +49,7 @@ Label colours: `destructive` for bugs, otherwise one of `var(--chart-1)` … `va
 | Many | Badges wrap; more than 6 people collapse to an `avatar-group` with `+N`. |
 | Saving failed | The previous set comes back; toast `labels.failed`. |
 | Labels page | A `table`: Label (badge preview), Description, Issues (count), Edit / Delete; New Label opens a `dialog` (name, description, colour radio of six). Delete asks ConfirmDialog `labels.delete_q`. |
+| Managing labels | Each label row in Edit Labels shows `labels.count` (“12 issues”) in `<span class="text-muted-foreground" data-t="labels.count">`. |
 
 ## Texts
 

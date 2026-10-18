@@ -1,0 +1,113 @@
+<!-- @dsCard group="Content" height=1725 width=1250 subtitle="Headings, images, code, footnotes" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ArticleBody — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · with “On this page”</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="grid gap-8 @3xl:grid-cols-[minmax(0,1fr)_12rem]"><article id="d-post" class="mx-auto grid w-full min-w-0 max-w-[68ch] grid-cols-[minmax(0,1fr)] gap-5 text-base leading-7" aria-labelledby="d-post-title">
+  <header class="grid gap-3">
+    <h1 id="d-post-title" class="text-3xl font-semibold leading-tight tracking-tight text-balance">Designing a timetable you can read at a glance</h1>
+    <p class="text-lg text-muted-foreground">Three things we changed after watching people use the trip planner on a crowded platform.</p>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      <span data-t="article.by">By Hana Ito</span>
+      <time datetime="2026-10-18">18 Oct 2026</time>
+      <span data-t="article.reading_time">6 min read</span>
+      <span data-t="article.updated">Updated 19 Oct 2026</span>
+    </p>
+  </header>
+  <h2 class="mt-4 text-xl font-semibold" id="d-big-times">Big times, small words</h2>
+  <p>People read the departure time first and the platform second. So the time is the largest thing on the row, and the platform number sits right beside it.<sup><a class="underline underline-offset-2" href="#d-fn-1" id="d-fnref-1" aria-describedby="d-notes-title">1</a></sup></p>
+  <ol class="list-decimal pl-6"><li>Departure time, large</li><li>Platform, beside the time</li><li>Line and stops, small</li></ol>
+  <figure class="grid gap-2">
+    <div role="img" aria-label="A timetable row with the time 9:52 in large type and platform 3 beside it" class="overflow-hidden rounded-md border"><svg viewBox="0 0 640 260" role="presentation" class="h-auto w-full"><rect width="640" height="260" fill="var(--muted)"/><rect x="40" y="70" width="560" height="120" rx="10" fill="var(--card)" stroke="var(--border)"/><text x="70" y="148" font-size="64" font-weight="600" fill="var(--foreground)" font-family="ui-sans-serif, system-ui">9:52</text><rect x="250" y="104" width="64" height="48" rx="8" fill="var(--chart-1)"/><text x="282" y="138" font-size="28" font-weight="600" fill="var(--background)" text-anchor="middle" font-family="ui-sans-serif, system-ui">3</text><rect x="340" y="112" width="200" height="12" rx="6" fill="var(--border)"/><rect x="340" y="134" width="140" height="10" rx="5" fill="var(--border)"/></svg></div>
+    <figcaption class="text-sm text-muted-foreground">The new row: time first, platform next to it, the rest smaller.</figcaption>
+  </figure>
+  <blockquote class="border-l-2 pl-4 italic">
+    <p>“I only look for two things: when, and which platform.”</p>
+    <footer class="mt-1 text-sm not-italic text-muted-foreground">— A commuter at Kyoto Station</footer>
+  </blockquote>
+  <h2 class="mt-4 text-xl font-semibold" id="d-times-in-data">Times in the data, not in the view</h2>
+  <p>We store times with their time zone and format them only when we show them: <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm">Intl.DateTimeFormat</code>.</p>
+  <div class="grid gap-1">
+    <div class="flex justify-end"><button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="article.copy_code">Copy</button></div>
+    <pre class="overflow-x-auto rounded-md border bg-muted p-4 font-mono text-sm leading-6"><code>const fmt = new Intl.DateTimeFormat("ja-JP", { hour: "2-digit", minute: "2-digit" });
+fmt.format(new Date("2026-10-18T09:52:00+09:00")); // "09:52"</code></pre>
+  </div>
+  <section aria-labelledby="d-notes-title" class="mt-4 grid gap-2 border-t pt-4 text-sm text-muted-foreground">
+    <h2 id="d-notes-title" class="font-medium text-foreground" data-t="article.notes">Notes</h2>
+    <ol class="list-decimal pl-5">
+      <li id="d-fn-1">Measured with 12 people in September 2026; see the study notes. <a class="underline underline-offset-2" href="#d-fnref-1" aria-label="Back to the text" data-t-label="article.back_to_ref">↩</a></li>
+    </ol>
+  </section>
+</article><aside class="hidden @3xl:block"><nav aria-labelledby="d-toc-title" class="grid gap-2 text-sm">
+  <h2 id="d-toc-title" class="font-medium" data-t="article.contents">On this page</h2>
+  <ul class="grid gap-1 border-l pl-3 text-muted-foreground"><li><a class="hover:text-foreground" href="#d-big-times">Big times, small words</a></li><li><a class="hover:text-foreground" href="#d-times-in-data">Times in the data, not in the view</a></li></ul>
+</nav></aside></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><article id="p-post" class="mx-auto grid w-full min-w-0 max-w-[68ch] grid-cols-[minmax(0,1fr)] gap-5 text-base leading-7" aria-labelledby="p-post-title">
+  <header class="grid gap-3">
+    <h1 id="p-post-title" class="text-3xl font-semibold leading-tight tracking-tight text-balance">ひと目で読める時刻表のつくり方</h1>
+    <p class="text-lg text-muted-foreground">混雑したホームで乗り換え案内を使う様子を見て、変えた3つのこと。</p>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      <span data-t="article.by">伊藤 花</span>
+      <time datetime="2026-10-18">2026年10月18日</time>
+      <span data-t="article.reading_time">約6分で読めます</span>
+      <span data-t="article.updated">2026年10月19日更新</span>
+    </p>
+  </header>
+  <h2 class="mt-4 text-xl font-semibold" id="p-big-times">時刻は大きく、言葉は小さく</h2>
+  <p>人はまず発車時刻を読み、次にホームを見ます。そこで時刻を行のいちばん大きな要素にし、番線をそのすぐ横に置きました。<sup><a class="underline underline-offset-2" href="#p-fn-1" id="p-fnref-1" aria-describedby="p-notes-title">1</a></sup></p>
+  <ol class="list-decimal pl-6"><li>発車時刻（大きく）</li><li>番線（時刻の横に）</li><li>路線と停車駅（小さく）</li></ol>
+  <figure class="grid gap-2">
+    <div role="img" aria-label="発車時刻9:52を大きく、3番線をその横に表示した時刻表の行" class="overflow-hidden rounded-md border"><svg viewBox="0 0 640 260" role="presentation" class="h-auto w-full"><rect width="640" height="260" fill="var(--muted)"/><rect x="40" y="70" width="560" height="120" rx="10" fill="var(--card)" stroke="var(--border)"/><text x="70" y="148" font-size="64" font-weight="600" fill="var(--foreground)" font-family="ui-sans-serif, system-ui">9:52</text><rect x="250" y="104" width="64" height="48" rx="8" fill="var(--chart-1)"/><text x="282" y="138" font-size="28" font-weight="600" fill="var(--background)" text-anchor="middle" font-family="ui-sans-serif, system-ui">3</text><rect x="340" y="112" width="200" height="12" rx="6" fill="var(--border)"/><rect x="340" y="134" width="140" height="10" rx="5" fill="var(--border)"/></svg></div>
+    <figcaption class="text-sm text-muted-foreground">新しい行：まず時刻、その横に番線、ほかは小さく。</figcaption>
+  </figure>
+  <blockquote class="border-l-2 pl-4 italic">
+    <p>「見るのは2つだけ。いつ出るか、何番線か。」</p>
+    <footer class="mt-1 text-sm not-italic text-muted-foreground">— 京都駅の通勤客</footer>
+  </blockquote>
+  <h2 class="mt-4 text-xl font-semibold" id="p-times-in-data">時刻はデータに、表示は最後に</h2>
+  <p>時刻はタイムゾーン付きで保存し、表示するときにだけ整形します: <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm">Intl.DateTimeFormat</code>.</p>
+  <div class="grid gap-1">
+    <div class="flex justify-end"><button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="article.copy_code">コピー</button></div>
+    <pre class="overflow-x-auto rounded-md border bg-muted p-4 font-mono text-sm leading-6"><code>const fmt = new Intl.DateTimeFormat("ja-JP", { hour: "2-digit", minute: "2-digit" });
+fmt.format(new Date("2026-10-18T09:52:00+09:00")); // "09:52"</code></pre>
+  </div>
+  <section aria-labelledby="p-notes-title" class="mt-4 grid gap-2 border-t pt-4 text-sm text-muted-foreground">
+    <h2 id="p-notes-title" class="font-medium text-foreground" data-t="article.notes">注</h2>
+    <ol class="list-decimal pl-5">
+      <li id="p-fn-1">2026年9月に12人を対象に計測。調査メモを参照。 <a class="underline underline-offset-2" href="#p-fnref-1" aria-label="本文に戻る" data-t-label="article.back_to_ref">↩</a></li>
+    </ol>
+  </section>
+</article></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Loading</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="grid gap-3"><div class="skeleton h-8 w-4/5"></div><div class="skeleton h-4 w-2/5"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-3/4"></div><div class="skeleton aspect-[16/6.5] w-full"></div></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Image fails</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><figure class="grid gap-2"><div class="grid aspect-[16/6.5] place-items-center rounded-md border border-dashed bg-muted p-4 text-center text-sm text-muted-foreground" role="img" aria-label="A timetable row with the time 9:52 in large type and platform 3 beside it">Image not available: A timetable row with the time 9:52 in large type and platform 3 beside it</div><figcaption class="text-sm text-muted-foreground">The new row: time first, platform next to it, the rest smaller.</figcaption></figure></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Not found</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="empty rounded-lg border border-dashed"><header><h3 data-t="article.not_found">This post doesn’t exist or was removed.</h3></header></div></div>
+</div>
+</figure>
+</div>
+
+</body>
+</html>

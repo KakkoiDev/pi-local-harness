@@ -6,7 +6,7 @@ Code collaboration: repositories with their files and history, issues to track w
 | --- | --- |
 | Group | Apps |
 | Example product | Kiln (code collaboration) |
-| Blocks | AvatarGroup, Breadcrumbs, CodeDiff, CommandPalette, Comments, ConfirmDialog, DataTable, DeleteAccount, DocEditor, EmptyState, FileTree, GlobalSearch, Invite, IssueDetail, IssueList, LabelsAssignees, ListSearch, Mentions, PullReview, Reactions, Roles, SettingsPage, StatusBadges, Tabs, Threads, Timeline |
+| Blocks | ArticleBody, AvatarGroup, Breadcrumbs, CodeDiff, CodeView, CommandPalette, Comments, ConfirmDialog, DataTable, DeleteAccount, EmptyState, FileTree, GlobalSearch, Invite, IssueDetail, IssueList, LabelsAssignees, ListSearch, Mentions, PullReview, Reactions, Roles, RunStatus, SettingsPage, StatusBadges, Tabs, Threads, Timeline |
 | Packages | Web app (full stack). It stores repositories (git on the server) and is shared by a team. |
 | Related | AppBoard (issues on a board), AppChat (notifications to a channel) |
 
@@ -15,13 +15,14 @@ Code collaboration: repositories with their files and history, issues to track w
 | Screen | Route | Blocks |
 | --- | --- | --- |
 | Repositories | `/` | ListSearch, DataTable, EmptyState |
-| Code | `/{owner}/{repo}` | Tabs, FileTree, Breadcrumbs, CodeDiff, DocEditor |
-| File | `/{owner}/{repo}/blob/{ref}/{path}` | FileTree, Breadcrumbs, CodeDiff |
+| Code | `/{owner}/{repo}` | Tabs, FileTree, Breadcrumbs, CodeView, ArticleBody |
+| File | `/{owner}/{repo}/blob/{ref}/{path}` | FileTree, Breadcrumbs, CodeView |
 | History | `/{owner}/{repo}/commits` | Timeline, AvatarGroup, CodeDiff |
 | Issues | `/{owner}/{repo}/issues` | Tabs, IssueList, ListSearch, LabelsAssignees |
 | Issue | `/{owner}/{repo}/issues/{n}` | IssueDetail, Comments, Reactions, Mentions, LabelsAssignees |
 | Reviews | `/{owner}/{repo}/reviews` | IssueList, StatusBadges |
-| Review | `/{owner}/{repo}/reviews/{n}` | PullReview, CodeDiff, Threads, ConfirmDialog |
+| Review | `/{owner}/{repo}/reviews/{n}` | PullReview, CodeDiff, RunStatus, Threads, ConfirmDialog |
+| Checks | `/{owner}/{repo}/checks` | RunStatus, StatusBadges, EmptyState |
 | Search | `/search` | GlobalSearch, CommandPalette |
 | Settings | `/{owner}/{repo}/settings` | SettingsPage, Invite, Roles, DeleteAccount |
 
@@ -45,12 +46,12 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 1. Reviews: IssueList of open reviews, open #12
 2. Review: PullReview with CodeDiff by file; comment on a line (Threads)
-3. Review: Approve or Ask for Changes (ConfirmDialog for Merge)
+3. Review: RunStatus shows the checks passed; Approve or Ask for Changes (ConfirmDialog for Merge, disabled while a check fails)
 
 **Read the code**
 
 1. Code: FileTree, open app/timetable.js
-2. File: CodeDiff in view mode with line numbers; copy a link to line 42
+2. File: CodeView with line numbers; Shift-click 42 and 48 to copy a link to that range
 
 ## Phone
 
@@ -90,5 +91,5 @@ App-level keys only; each block brings its own.
 
 ## Adding to it
 
-- Releases, CI runs and a wiki are not covered: a wiki can reuse AppNotes; **proposed block: RunStatus** (a list of checks with passed/failed and logs) for CI.
-- **Proposed block: CodeView** (syntax-highlighted file with line numbers and line links, no diff) if CodeDiff's view mode proves too heavy.
+- Releases and a wiki are not covered: a wiki can reuse AppNotes. CI results are **RunStatus** (checks with passed/failed and their logs), on a review and on Checks.
+- Files are read with **CodeView** (line numbers, wrap, line links); changes with CodeDiff; a README is ArticleBody.

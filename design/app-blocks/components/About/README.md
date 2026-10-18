@@ -66,6 +66,7 @@ What this app is, its version, who made it, and the licences of what it is built
 | Update available | UpdateAvailable's banner appears at the top of the app; the row reads `about.update_ready` with Update Now. |
 | Licences open | `details[open]`; the list shows every library the app ships, from the notices file. |
 | No author set | The Made by row is left out. |
+| Page title | `about.title` → the page’s `<title>` and the menu item that opens About (“About Class Notes”). |
 
 ## Texts
 

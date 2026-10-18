@@ -8,19 +8,19 @@
     <figcaption>Desktop · English · Files tab with a pending line comment</figcaption>
     <div class="ab-screen app p-5" style="height:600px">
       <section class="grid gap-3">
-        <header class="grid gap-1"><h1 class="text-xl font-semibold">Use Monday as week start <span class="text-muted-foreground font-normal">#45</span></h1><p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600">Open</span><span class="text-muted-foreground">Ren Sato wants to merge 2 commits into main from week-start</span></p></header>
+        <header class="grid gap-1"><h1 class="text-xl font-semibold">Use Monday as week start <span class="text-muted-foreground font-normal">#45</span></h1><p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-success text-success-foreground">Open</span><span class="text-muted-foreground">Ren Sato wants to merge 2 commits into main from week-start</span></p></header>
         <div class="tabs">
           <nav role="tablist" class="w-full justify-start"><button type="button" role="tab" aria-selected="false" tabindex="-1">Conversation</button><button type="button" role="tab" aria-selected="true">Files <span class="badge" data-variant="secondary">3</span></button></nav>
           <div role="tabpanel" class="grid gap-3">
             <div class="flex flex-wrap items-center gap-2 text-sm"><span class="text-muted-foreground">1 of 3 files viewed</span><button class="btn ml-auto" type="button">Finish Review <span class="badge" data-variant="secondary">1</span></button></div>
             <section class="overflow-hidden rounded-lg border">
-              <header class="flex items-center gap-2 border-b bg-muted/50 px-3 py-2 text-sm"><h3 class="font-mono text-sm">app/calendar.py</h3><span class="text-xs"><span class="text-green-700 dark:text-green-400">+3</span> <span class="text-red-700 dark:text-red-400">−1</span></span><label class="label ml-auto gap-2 text-sm font-normal"><input class="input" type="checkbox">Viewed</label></header>
+              <header class="flex items-center gap-2 border-b bg-muted/50 px-3 py-2 text-sm"><h3 class="font-mono text-sm">app/calendar.py</h3><span class="text-xs"><span class="text-success">+3</span> <span class="text-destructive">−1</span></span><label class="label ml-auto gap-2 text-sm font-normal"><input class="input" type="checkbox">Viewed</label></header>
               <table class="w-full border-collapse font-mono text-[13px] leading-5"><tbody>
                 <tr><td class="w-12 px-2 text-right text-muted-foreground">1</td><td class="whitespace-pre px-3"> import datetime</td></tr>
-                <tr class="bg-red-500/10"><td class="px-2 text-right text-muted-foreground">2</td><td class="whitespace-pre px-3"><span class="text-red-700 dark:text-red-400">−</span>WEEK_START = 6  # Sunday</td></tr>
-                <tr class="bg-green-500/10"><td class="px-2 text-right text-muted-foreground"><span class="mr-1 inline-grid size-4 place-items-center rounded bg-primary text-primary-foreground">+</span>3</td><td class="whitespace-pre px-3"><span class="text-green-700 dark:text-green-400">+</span>WEEK_START = 0  # Monday</td></tr>
+                <tr class="bg-destructive/10"><td class="px-2 text-right text-muted-foreground">2</td><td class="whitespace-pre px-3"><span class="text-destructive">−</span>WEEK_START = 6  # Sunday</td></tr>
+                <tr class="bg-success/10"><td class="px-2 text-right text-muted-foreground"><span class="mr-1 inline-grid size-4 place-items-center rounded bg-primary text-primary-foreground">+</span>3</td><td class="whitespace-pre px-3"><span class="text-success">+</span>WEEK_START = 0  # Monday</td></tr>
                 <tr><td colspan="2" class="p-3 font-sans"><div class="card gap-2 py-3"><header class="flex items-center gap-2 text-sm"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span></span><b>Kana Abe</b><span class="badge" data-variant="outline">Pending</span></header><section><p class="text-sm">Can we read this from the term settings instead of hard-coding it?</p></section></div></td></tr>
-                <tr class="bg-green-500/10"><td class="px-2 text-right text-muted-foreground">4</td><td class="whitespace-pre px-3"><span class="text-green-700 dark:text-green-400">+</span>def week_days(start=WEEK_START):</td></tr>
+                <tr class="bg-success/10"><td class="px-2 text-right text-muted-foreground">4</td><td class="whitespace-pre px-3"><span class="text-success">+</span>def week_days(start=WEEK_START):</td></tr>
               </tbody></table>
             </section>
           </div>
@@ -50,11 +50,11 @@
   </figure>
   <figure class="ab-frame" data-device="state">
     <figcaption>Ready to merge</figcaption>
-    <div class="ab-screen app p-4 flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600">Approved</span><span class="flex-1">All checks passed and it was approved.</span><button class="btn" type="button">Merge</button></div>
+    <div class="ab-screen app p-4 flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-success text-success-foreground">Approved</span><span class="flex-1">All checks passed and it was approved.</span><button class="btn" type="button">Merge</button></div>
   </figure>
   <figure class="ab-frame" data-device="state">
     <figcaption>Conflicts · merged</figcaption>
-    <div class="ab-screen app p-4 grid gap-2 text-sm"><p class="text-muted-foreground">This change conflicts with main. Update the branch first.</p><p class="flex items-center gap-2"><span class="badge bg-purple-700 text-white">Merged</span><span class="text-muted-foreground">Ren Sato merged into main · 10:58</span></p></div>
+    <div class="ab-screen app p-4 grid gap-2 text-sm"><p class="text-muted-foreground">This change conflicts with main. Update the branch first.</p><p class="flex items-center gap-2"><span class="badge bg-primary text-primary-foreground">Merged</span><span class="text-muted-foreground">Ren Sato merged into main · 10:58</span></p></div>
   </figure>
 </div>
 </body>

@@ -6,7 +6,7 @@ A kanban project board: boards with columns, cards that move across them, card d
 | --- | --- |
 | Group | Apps |
 | Example product | Pinwheel (a kanban project board) |
-| Blocks | AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar |
+| Blocks | AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar, WipLimit |
 | Packages | App with no server (frontend only) with Works offline for one person; Web app (full stack) with Multiplayer, real time for a team. |
 | Related | AppCrm (the same board for deals), AppCode (issues on a board) |
 
@@ -15,7 +15,7 @@ A kanban project board: boards with columns, cards that move across them, card d
 | Screen | Route | Blocks |
 | --- | --- | --- |
 | Boards | `/` | ProductGrid, ListSearch, EmptyState |
-| Board | `/b/{id}` | TopBar, Kanban, DragList, Presence, LabelsAssignees |
+| Board | `/b/{id}` | TopBar, Kanban, WipLimit, DragList, Presence, LabelsAssignees |
 | Card | `(dialog on a board)` | DetailView, DocEditor, DatePicker, Comments, LabelsAssignees |
 | Filter | `(popover on a board)` | ListSearch, LabelsAssignees, ComboboxField |
 | Members | `/b/{id}/members` | Invite, Roles, AvatarGroup |
@@ -40,7 +40,8 @@ The first word of each step is the screen; the blocks named are the cards to cop
 **Move work**
 
 1. Board: drag a card to Doing, or its ⋯ → Move to Doing
-2. Board: Presence shows Kenji watching; his moves appear live
+2. Board: Doing shows WipLimit 4 / 3 and a warning; finish a card first
+3. Board: Presence shows Kenji watching; his moves appear live
 
 **Clean up**
 
@@ -85,4 +86,4 @@ App-level keys only; each block brings its own.
 ## Adding to it
 
 - Timelines and calendars of cards reuse Timeline and Agenda over `cards.due_on`.
-- **Proposed block: WipLimit** (a column header warning when a column holds more than its limit) if teams ask for it; until then show the count in StatusBadges.
+- Column limits are **WipLimit** (count against the limit, a warning over it, set from the column's ⋯), stored in `columns.wip_limit`.

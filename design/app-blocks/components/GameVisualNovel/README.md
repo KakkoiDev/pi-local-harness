@@ -33,7 +33,7 @@ A visual novel: a story told in scenes of backgrounds, characters and lines of d
 
 ## Controls
 
-Actions are named once (`next`, `choose`, `log`, `auto`, `skip`, `quick_save`, `hide_box`, `menu`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`next`, `choose`, `log`, `auto`, `skip`, `quick_save`, `hide_box`, `menu`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `next`, `choose`, `log`, `auto`, `skip`, `quick_save`, `hide_box`, `menu` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 | Action | Keyboard | Mouse | Gamepad | Touch |
 | --- | --- | --- | --- | --- |
@@ -81,6 +81,9 @@ Game-level keys only; each block's own keys are on its card.
 | `box.skip` | Skip | スキップ |
 | `box.save` | Save | セーブ |
 | `ending.card` | Ending {n} of {total}: {name} | エンディング {n} / {total}：{name} |
+
+Keys with `{…}` are filled from code, never typed into the markup: `ending.card` (into the HUD slots of HudPieces and the panels named above).
+
 
 ## Adding to it
 

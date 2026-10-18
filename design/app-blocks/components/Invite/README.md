@@ -89,6 +89,7 @@ The accept page (`/invites/{token}`) is a `card` like LogIn's: `invite.accept.ti
 | Reset link | ConfirmDialog: `invite.reset.title` / `invite.reset.body`; the old link stops working. |
 | Not allowed | Members and viewers see the list read-only and `invite.only_owners`; no form. |
 | Expired / used invite (accept page) | `invite.accept.expired` with **Ask for a New Invitation** (mailto to the inviter is not used; it notifies the owner). |
+| Opening an invitation | The invitee’s page shows `invite.accept.title` (“Aiko Kato invited you to Class 3-B”) as its `h1`, then Accept Invitation and Decline. |
 
 ## Texts
 

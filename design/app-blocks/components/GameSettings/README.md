@@ -47,7 +47,7 @@ The game's own settings, in three tabs: Audio, Language and Display; every chang
       <div class="game-option" tabindex="0" role="switch" aria-checked="false"><span data-t="settings.reduce_motion">Reduce Motion</span><span class="game-value" data-t="settings.off">Off</span></div>
       <div class="game-option" tabindex="0" role="button"><span data-t="settings.text_size">Text Size</span><span class="game-value" data-t="settings.text_normal">Normal</span></div>
     </div>
-    <p class="game-hint" style="margin-top:12px"><span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button"></span></span><span data-t="game.back">Back</span></span></p>
+    <p class="game-hint" style="margin-top:12px"><span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button" data-t-label="game.pad.east"></span></span><span data-t="game.back">Back</span></span></p>
   </div>
 </section>
 ```
@@ -105,6 +105,7 @@ Each option is one row: the name, then a value changed with ← → (d-pad left/
 ```
 
 - `localStorage["<game-id>.settings"]`; read before the title screen so the first frame is already in the right language.
+- Bindings are not here: the Controls tab is ControlsRemap, which keeps them in gaming-core (`gcInput.save()`, `<game-id>.input`).
 
 ## Don't
 

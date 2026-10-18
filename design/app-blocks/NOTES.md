@@ -1,17 +1,17 @@
 # App Blocks: in this repo
 
-This folder is the backup of two claude.ai artifacts by the designer (round 12 part A, plan 266 item 7). It is reference for the apps Pi generates; the workbench does not serve it. `README.md` here is the designer's own text, copied unchanged.
+This folder is the backup of two claude.ai artifacts by the designer (round 12 part A, plan 266 item 7; re-synced after round 13). It is reference for the apps Pi generates; the workbench does not serve it. `README.md` here is the designer's own text, copied unchanged.
 
 ## Where the files come from
 
-- Design system "App Blocks", https://claude.ai/artifact/YJF3Sy1VXEuREgWLxskKwP: its `project/` folder, copied to this folder (`project/README.md` is `README.md`, then `tokens.json`, `design-system.json` and `components/`, 137 cards plus `Cover`, `bundle.css` and `lib/`). Not copied: `index.html`, `SKILL.md` and `artifact-type/`, which are the Design System type's runtime, not the designer's work (`SKILL.md` describes itself as part of that runtime and is byte for byte the same file the Pi Workbench system artifact carries).
+- Design system "App Blocks", https://claude.ai/artifact/YJF3Sy1VXEuREgWLxskKwP: its `project/` folder, copied to this folder (`project/README.md` is `README.md`, then `tokens.json`, `design-system.json` and `components/`, 151 cards plus `Cover`, `bundle.css` and `lib/`). Not copied: `index.html`, `SKILL.md` and `artifact-type/`, which are the Design System type's runtime, not the designer's work (`SKILL.md` describes itself as part of that runtime and is byte for byte the same file the Pi Workbench system artifact carries).
 - "Blocks Playground", https://claude.ai/artifact/W4WRB3B7tPMYv3VxN8Rpqa: all 15 files, copied to `demo/` (`index.html`, `app.css`, `js/main.js`, `js/kit.js`, `js/apps/{notes,shop,admin,chat,board,game}.js`, `lib/`). It is the designer's own page, not an artifact type, so its `index.html` is kept. The page loads Silkscreen and DotGothic16 from Google Fonts; everything else is local.
 
-Synced on 2026-10-18 (design system version 1792299069-363e, playground version 1792301240-089b).
+Synced on 2026-10-18 (design system version 1792299069-363e, playground version 1792301240-089b); re-synced the same day after round 13 (design system version 1792321009-44b5, playground version 1792321033-4784): 14 new cards (Reviews, ShippingRates, ExportCsv, ArticleBody, DatabaseView, MessageComposer, RunStatus, CodeView, WeekCalendar, ReportContent, QuizQuestion, Flashcards, CsvImport, WipLimit), the state colour tokens `success`, `warning` and `highlight` (each with `-foreground`, light and dark) in `tokens.json`, translation markers (`data-t-label` and the other `data-t-*` attributes) on the attribute labels that lacked them, Japanese dates through DatePicker and TimePicker, game fonts and position-named gamepad bindings through gaming-core; `README.md`, `tokens.json`, `design-system.json`, `bundle.css` and 118 files of existing cards changed; in the demo, `app.css` and `js/apps/game.js`. Nothing was deleted upstream.
 
 ## The vendored libraries in `components/lib/` and `demo/lib/`
 
-Both `lib/` folders hold the same five files (same sha256).
+Both `lib/` folders hold the same five files (same sha256), unchanged by round 13 (checked again on the re-sync).
 
 | File | sha256 | Matches the kit's copy |
 | --- | --- | --- |

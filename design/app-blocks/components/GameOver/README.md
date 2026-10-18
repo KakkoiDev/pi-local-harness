@@ -12,7 +12,7 @@ When the player is out of lives or health: what happened, what was kept, and Try
 ## Markup
 
 ```html
-<section id="gameover" class="game-center" role="alertdialog" aria-labelledby="go-title" aria-describedby="go-detail" style="background:rgb(10 10 20 / 0.7)" hidden>
+<section id="gameover" class="game-center game-scrim" role="alertdialog" aria-labelledby="go-title" aria-describedby="go-detail" hidden>
   <h2 id="go-title" class="game-title" style="color:var(--g-bad)" data-t="gameover.title">Game Over</h2>
   <p id="go-detail" class="game-line" data-t="gameover.detail">The slime got you in Willow Field. You keep the coins you found.</p>
   <ul class="game-menu">
@@ -31,7 +31,7 @@ Show it after a short beat (0.8 s, the world fading to grey on the canvas), neve
 | --- | --- |
 | Checkpoint game | As above. |
 | Arcade (score) | Detail shows the score; if it's a high score, ResultsScores name entry comes first. Try Again restarts the level. |
-| Roguelike (permadeath) | Title `gameover.run_over`; detail with floor reached and time; a short run summary list; first option `gameover.new_run`; no Load. |
+| Roguelike (permadeath) | Title `gameover.run_over`; `#go-detail` shows `gameover.floor` (set from code, floor and time); a short run summary list; first option `gameover.new_run`; no Load. |
 | Tips | After the second game over at the same spot, one TutorialPrompt-style tip line under the detail. |
 | Continue with coins | Only if the genre uses it: `gameover.continue_cost` with the cost; never the first option. |
 

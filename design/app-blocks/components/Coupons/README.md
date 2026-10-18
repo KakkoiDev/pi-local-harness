@@ -15,14 +15,14 @@ The coupon code field in the cart with its applied and error states, and the sho
 <form id="coupon" class="grid gap-2" method="post" action="/cart/coupon">
   <label class="label" for="coupon-code" data-t="coupon.label">Coupon code</label>
   <div class="flex gap-2">
-    <input class="input font-mono uppercase" id="coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
+    <input class="input font-mono uppercase" id="coupon-code" aria-describedby="coupon-error" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
     <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">Apply</button>
   </div>
-  
+  <p id="coupon-error" class="text-destructive text-sm" role="alert" hidden data-t="coupon.error.unknown">There’s no code WELCOM500. Check the spelling.</p>
 </form>
 
 <!-- applied -->
-<div class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed p-3"><span class="flex items-center gap-2"><span class="badge font-mono" data-variant="secondary">WELCOME500</span><span class="text-sm">¥500 off your first order</span></span><button class="btn" data-variant="link" data-size="sm" type="button" aria-label="Remove code WELCOME500">Remove</button></div>
+<div class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed p-3"><span class="flex items-center gap-2"><span class="badge font-mono" data-variant="secondary">WELCOME500</span><span class="text-sm" data-t="coupon.applied">¥500 off your first order</span></span><button class="btn" data-variant="link" data-size="sm" type="button" aria-label="Remove code WELCOME500" data-t-label="coupon.remove_label">Remove</button></div>
 ```
 
 ## States
@@ -35,6 +35,8 @@ The coupon code field in the cart with its applied and error states, and the sho
 | Errors | Under the field, `role="alert"`, the input `aria-invalid="true"`; the typed code stays. One message per reason: `unknown`, `ended`, `minimum` (says how much more), `items`, `used`. |
 | A second code | One code per order: applying another shows `coupon.one_only` before replacing. |
 | Price and stock states | The table in the preview is the rule for every block that shows a price: regular, sale, low stock (1–5), sold out, pre-order, coupon applied, price changed. |
+| Error texts | `#coupon-error` loses `hidden` and shows one of `coupon.error.unknown`, `coupon.error.ended`, `coupon.error.minimum`, `coupon.error.items`, `coupon.error.used`; `coupon.one_only` is its help line when a code is already applied. |
+| Texts other cards show | `coupon.summary_line` is the summary row in Cart and Checkout (“Coupon WELCOME500 −¥500”); `shop.ships_from`, `shop.off`, `shop.low_stock`, `shop.was` and `cart.price_changed` are the price and stock lines of ProductGrid, ProductPage and Cart. |
 
 ## Texts
 

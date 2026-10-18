@@ -15,11 +15,11 @@ A row of small emoji counters under a message or comment, plus a button to add o
 ```html
 <div class="flex flex-wrap items-center gap-1" role="group" aria-label="Reactions" data-t-label="react.label">
   <button class="btn h-7 gap-1 rounded-full px-2" data-variant="secondary" type="button" aria-pressed="true"
-          data-tooltip="You, Ren Sato and Kana Abe" aria-label="👍 3 reactions, including yours. Remove yours">
+          data-tooltip="You, Ren Sato and Kana Abe" aria-label="👍 3 reactions, including yours. Remove yours" data-t-label="react.count_mine">
     <span aria-hidden="true">👍</span><span class="text-xs font-semibold tabular-nums">3</span>
   </button>
   <button class="btn h-7 gap-1 rounded-full px-2" data-variant="outline" type="button" aria-pressed="false"
-          data-tooltip="Kaito Mori" aria-label="🎉 1 reaction. Add yours">
+          data-tooltip="Kaito Mori" aria-label="🎉 1 reaction. Add yours" data-t-label="react.count">
     <span aria-hidden="true">🎉</span><span class="text-xs tabular-nums">1</span>
   </button>
   <div class="popover">

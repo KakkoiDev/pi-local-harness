@@ -18,12 +18,12 @@ The chat itself: a list of channels and direct messages with unread marks, the o
     <h3 class="text-muted-foreground px-3 pt-3 text-xs font-medium" id="ch-label" data-t="chat.channels">Channels</h3>
     <ul class="grid gap-0.5 p-2" aria-labelledby="ch-label">
       <li><a href="/c/field-trip" aria-current="page" class="flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 font-medium"># field-trip</a></li>
-      <li><a href="/c/homework" class="flex items-center gap-2 rounded-md px-2 py-1.5 font-semibold hover:bg-accent"># homework <span class="badge ml-auto" aria-label="5 unread">5</span></a></li>
+      <li><a href="/c/homework" class="flex items-center gap-2 rounded-md px-2 py-1.5 font-semibold hover:bg-accent"># homework <span class="badge ml-auto" aria-label="5 unread" data-t-label="chat.unread">5</span></a></li>
       <li><a href="/c/random" class="text-muted-foreground flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"># random</a></li>
     </ul>
     <h3 class="text-muted-foreground px-3 text-xs font-medium" id="dm-label" data-t="chat.dms">Direct messages</h3>
     <ul class="grid gap-0.5 p-2" aria-labelledby="dm-label">
-      <li><a href="/dm/u_31" class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span><span class="avatar-badge bg-green-600 ring-sidebar" aria-label="Online" data-t-label="chat.online"></span></span>Kana Abe</a></li>
+      <li><a href="/dm/u_31" class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"><span class="avatar" data-size="sm"><span class="bg-muted">KA</span><span class="avatar-badge bg-success ring-sidebar" aria-label="Online" data-t-label="chat.online"></span></span>Kana Abe</a></li>
     </ul>
   </nav>
   <main class="flex min-w-0 flex-1 flex-col" aria-labelledby="chan-title">

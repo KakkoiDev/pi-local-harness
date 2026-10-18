@@ -21,7 +21,7 @@ A grid of images that opens each one large in a viewer, with previous/next, its 
   <ul class="grid grid-cols-3 gap-1 @3xl:grid-cols-5 @3xl:gap-2" id="gallery-grid">
     <li>
       <button class="block aspect-square w-full overflow-hidden rounded-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none" type="button"
-        data-photo="51" aria-label="Open photo: Fushimi Inari gates, 1 of 24" onclick="openPhoto(51)">
+        data-photo="51" aria-label="Open photo: Fushimi Inari gates, 1 of 24" data-t-label="gallery.open" onclick="openPhoto(51)">
         <img class="size-full object-cover" src="/photos/51/thumb.jpg" alt="" loading="lazy" decoding="async" width="400" height="400">
       </button>
     </li>
@@ -38,7 +38,7 @@ A grid of images that opens each one large in a viewer, with previous/next, its 
         <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Close" data-t-label="gallery.close" onclick="this.closest('dialog').close()">×</button>
       </div>
     </header>
-    <figure class="relative grid place-items-center bg-black">
+    <figure class="relative grid place-items-center bg-muted">
       <img id="photo-large" class="max-h-[75dvh] w-auto object-contain" src="/photos/51/large.jpg" alt="Orange torii gates along a path at Fushimi Inari">
       <button class="btn absolute left-2 top-1/2 -translate-y-1/2" data-variant="secondary" data-size="icon" type="button" aria-label="Previous photo" data-t-label="gallery.previous">‹</button>
       <button class="btn absolute right-2 top-1/2 -translate-y-1/2" data-variant="secondary" data-size="icon" type="button" aria-label="Next photo" data-t-label="gallery.next">›</button>

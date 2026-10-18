@@ -42,7 +42,7 @@ A grid of product cards with picture, name, price and an Add to Cart button, sho
   <section class="grid gap-1 py-3">
     <div class="flex min-h-5 flex-wrap gap-1"><span class="badge" data-variant="destructive" data-t="shop.off">25 % off</span></div>
     <h3 class="font-medium"><a href="/products/mug" class="hover:underline">Ceramic Mug</a></h3>
-    <p class="font-semibold tabular-nums">¥1,650 <s class="text-muted-foreground text-sm font-normal" aria-label="Was ¥2,200">¥2,200</s> <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
+    <p class="font-semibold tabular-nums">¥1,650 <s class="text-muted-foreground text-sm font-normal" aria-label="Was ¥2,200" data-t-label="shop.was">¥2,200</s> <span class="text-muted-foreground text-xs font-normal" data-t="shop.tax_included">tax included</span></p>
   </section>
   <footer class="pb-4">
     <form method="post" action="/cart" class="w-full"><input type="hidden" name="product" value="mug"><button class="btn w-full" type="submit" data-t="shop.add">Add to Cart</button></form>
@@ -66,6 +66,7 @@ A grid of product cards with picture, name, price and an Add to Cart button, sho
 | Empty after filtering | `div.empty` with `shop.empty` naming the filter, and **Clear Filters**. |
 | Error | An `alert` (destructive) with **Try Again**. |
 | Long names | Names wrap to two lines then clip with `line-clamp-2`; the full name is on the ProductPage. |
+| Few left | The card shows `shop.low_stock` (“Only 2 left”) as `<span class="badge" data-variant="outline" data-t="shop.low_stock">`. |
 
 ## Texts
 

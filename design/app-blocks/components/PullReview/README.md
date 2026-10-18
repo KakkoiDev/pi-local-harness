@@ -16,7 +16,7 @@ Reviewing a proposed change: the files it touches, comments on lines, and finish
 <section class="grid gap-3" aria-labelledby="pr-title">
   <header class="grid gap-1">
     <h1 id="pr-title" class="text-xl font-semibold">Use Monday as week start <span class="text-muted-foreground font-normal">#45</span></h1>
-    <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-green-700 text-white dark:bg-green-600" data-t="pr.open">Open</span>
+    <p class="flex flex-wrap items-center gap-2 text-sm"><span class="badge bg-success text-success-foreground" data-t="pr.open">Open</span>
       <span class="text-muted-foreground" data-t="pr.wants">Ren Sato wants to merge 2 commits into main from week-start</span></p>
   </header>
   <div class="tabs" id="pr-tabs">
@@ -31,7 +31,7 @@ Reviewing a proposed change: the files it touches, comments on lines, and finish
       </div>
       <!-- one CodeDiff section per file; a line comment is a row under its line: -->
       <table class="w-full font-mono text-[13px]"><tbody>
-        <tr class="bg-green-500/10"><td class="w-12 px-2 text-right text-muted-foreground">3</td><td class="px-3 whitespace-pre"><span class="text-green-700 dark:text-green-400">+</span>WEEK_START = 0  # Monday</td></tr>
+        <tr class="group bg-success/10"><td class="w-16 px-2 text-right text-muted-foreground"><button class="btn invisible group-hover:visible focus-visible:visible" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Comment on line 3" data-t-label="pr.comment_line">+</button> 3</td><td class="px-3 whitespace-pre"><span class="text-success">+</span>WEEK_START = 0  # Monday</td></tr>
         <tr><td colspan="2" class="p-3 font-sans">
           <div class="card gap-2 py-3">
             <header class="flex items-center gap-2 text-sm"><b>Kana Abe</b><span class="badge" data-variant="outline" data-t="pr.pending">Pending</span></header>
@@ -65,12 +65,12 @@ Each file header has a Viewed checkbox (`pr.mark_viewed`): checking it folds the
 | State | What changes |
 | --- | --- |
 | Draft comments | Comments added during a review show `pr.pending` until Submit Review; the Finish Review button shows their count. |
-| Approved / changes requested | The Conversation tab lists the review with a `badge`: `pr.approved` (green) or `pr.changes_requested` (destructive). |
+| Approved / changes requested | The Conversation tab lists the review with a `badge`: `pr.approved` (`bg-success text-success-foreground`) or `pr.changes_requested` (destructive). |
 | Checks running | A merge box at the end of Conversation: `pr.checks_running` with a spinner glyph; Merge disabled. |
 | Checks failed | `alert data-variant="destructive"` `pr.checks_failed` with Show Details; Merge disabled. |
 | Ready to merge | `pr.ready` and a Merge button (ConfirmDialog: `pr.merge_q`). |
 | Conflicts | `pr.conflicts`; Merge disabled with the reason. |
-| Merged / closed | `badge` `pr.merged` (purple) or `pr.closed`; reply box stays for comments. |
+| Merged / closed | `badge` `pr.merged` (`bg-primary text-primary-foreground`) or `pr.closed`; reply box stays for comments. |
 | Outdated comment | A comment on a line that changed since shows `pr.outdated` and folds. |
 | Your own change | Approve and Request Changes are disabled with `pr.own` (you can comment). |
 

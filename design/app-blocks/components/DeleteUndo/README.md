@@ -18,7 +18,7 @@ The delete button on a row:
 <ul id="notes-results" class="grid gap-2">
     <li id="note-42" class="item" data-variant="outline">
       <section><h3>Week 3 · Vocabulary</h3></section>
-      <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Delete “Week 3 · Vocabulary”" hx-delete="/notes/42" hx-target="#note-42" hx-swap="delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></aside>
+      <aside><button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Delete “Week 3 · Vocabulary”" data-t-label="delete.row_label" hx-delete="/notes/42" hx-target="#note-42" hx-swap="delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></aside>
     </li>
   </ul>
 ```
@@ -32,7 +32,7 @@ The toast, added to the toaster (one per page, at the end of `<body>`, outside `
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       <section>
         <h2>Note deleted</h2>
-        <p class="break-normal">“Week 3 · Vocabulary” is in Trash for 30 days.</p>
+        <p class="break-normal" data-t="delete.done_text">“Week 3 · Vocabulary” is in Trash for 30 days.</p>
       </section>
     <footer>
       <button type="button" class="btn" data-size="sm" data-toast-action hx-post="/notes/42/restore" hx-target="#notes-results" data-t="delete.undo">Undo</button>

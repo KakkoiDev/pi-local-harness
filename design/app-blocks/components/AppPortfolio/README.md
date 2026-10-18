@@ -6,7 +6,7 @@ A personal site: a short introduction, selected work with case studies, a blog, 
 | --- | --- |
 | Group | Apps |
 | Example product | Hana Ito · design (a personal site with a blog) |
-| Blocks | About, AvatarGroup, Breadcrumbs, Comments, EditForm, Gallery, InfiniteScroll, InlineAlert, ListSearch, Reactions, SavedState, StatusBadges, Timeline, TopBar |
+| Blocks | About, ArticleBody, AvatarGroup, Breadcrumbs, Comments, EditForm, Gallery, InfiniteScroll, InlineAlert, ListSearch, Reactions, SavedState, StatusBadges, Timeline, TopBar |
 | Packages | App with no server (frontend only), published on GitHub Pages. The contact form needs a form service or the Web app package. |
 | Related | AppCourse (its lesson pages reuse the article layout) |
 
@@ -16,9 +16,9 @@ A personal site: a short introduction, selected work with case studies, a blog, 
 | --- | --- | --- |
 | Home | `/` | TopBar, Gallery, Timeline |
 | Work | `/work` | Gallery, ListSearch, StatusBadges |
-| Case study | `/work/{slug}` | Breadcrumbs, Gallery, Timeline |
+| Case study | `/work/{slug}` | Breadcrumbs, ArticleBody, Gallery, Timeline |
 | Blog | `/blog` | ListSearch, InfiniteScroll, StatusBadges |
-| Post | `/blog/{slug}` | Breadcrumbs, Comments, Reactions |
+| Post | `/blog/{slug}` | Breadcrumbs, ArticleBody, Comments, Reactions |
 | About | `/about` | About, Timeline, AvatarGroup |
 | Contact | `/contact` | EditForm, InlineAlert, SavedState |
 
@@ -34,13 +34,13 @@ The first word of each step is the screen; the blocks named are the cards to cop
 **A recruiter looks**
 
 1. Home: the introduction and three works (Gallery)
-2. Case study: Gallery of the screens, Timeline of the project
+2. Case study: ArticleBody for the story, Gallery of the screens, Timeline of the project
 3. Contact: EditForm (name, email, message); SavedState "Message sent"
 
 **A reader follows the blog**
 
 1. Blog: ListSearch by tag, InfiniteScroll for older posts
-2. Post: the article, Reactions, Comments (if a server is added)
+2. Post: ArticleBody (headings, images, code, footnotes), Reactions, Comments (if a server is added)
 
 **The owner adds a post**
 
@@ -82,4 +82,4 @@ App-level keys only; each block brings its own.
 ## Adding to it
 
 - A new page type (talks, a photo diary) is a `content/<kind>/` folder plus a list page (Gallery or ListSearch) and a detail page.
-- **Proposed block: ArticleBody** (the reading layout for Markdown: headings, images, code, quotes, footnotes) is not in the catalogue; Post and Case study need it. Until then use DocEditor's read-only view.
+- Posts and case studies are Markdown rendered with **ArticleBody** (the reading layout: headings, images, code, quotes, footnotes, the reading time).

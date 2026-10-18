@@ -1,0 +1,93 @@
+<!-- @dsCard group="Collaboration" height=880 width=1250 subtitle="Queued, running, passed, failed" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>RunStatus — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · a failed run</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="d-run" class="card gap-4" aria-labelledby="d-run-title">
+  <header class="grid gap-1">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 id="d-run-title" class="text-lg font-semibold" data-t="run.title">Checks</h2>
+      <span class="flex items-center gap-1.5 text-sm"><span class="text-destructive"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></span><span data-t="run.status.failed">Failed</span></span>
+    </div>
+    <p class="text-sm" role="status" aria-live="polite" data-t="run.summary">2 of 4 checks passed</p>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      <span class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span data-t-line="run.commit">Commit <code class="font-mono">a91f3c2</code> on <code class="font-mono">departure-times</code></span></span>
+      <span data-t="run.triggered">Started by Ren Sato · 3 min ago</span>
+    </p>
+  </header>
+  <section>
+    <ol class="grid gap-2">
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Lint</span><span class="flex items-center gap-1.5 text-sm"><span class="text-success"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span><span data-t="run.status.passed">Passed</span></span><span class="text-xs tabular-nums text-muted-foreground" data-t="run.duration">8 s</span></li>
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Type check</span><span class="flex items-center gap-1.5 text-sm"><span class="text-success"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span><span data-t="run.status.passed">Passed</span></span><span class="text-xs tabular-nums text-muted-foreground" data-t="run.duration">14 s</span></li>
+      <li>
+        <details class="rounded-md border" open>
+          <summary class="flex cursor-pointer items-center gap-3 p-3"><span class="flex-1 font-medium">Unit tests</span><span class="flex items-center gap-1.5 text-sm"><span class="text-destructive"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></span><span data-t="run.status.failed">Failed</span></span><span class="text-xs tabular-nums text-muted-foreground" data-t="run.duration">41 s</span></summary>
+          <div class="grid gap-2 border-t p-3">
+            <pre class="overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs leading-5" aria-label="Last lines of the log for Unit tests" data-t-label="run.log_excerpt"><code>tests/test_trips.py::test_departure_time_format FAILED
+    assert fmt(dep) == "09:52"
+E   AssertionError: assert '9:52' == '09:52'
+==== 1 failed, 47 passed in 3.82s ====</code></pre>
+            <a class="text-sm underline underline-offset-4" href="/runs/2214/steps/3/log" data-t="run.full_log">View Full Log</a>
+          </div>
+        </details>
+      </li>
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Build</span><span class="flex items-center gap-1.5 text-sm"><span class="text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg></span><span data-t="run.status.skipped">Skipped</span></span></li>
+    </ol>
+  </section>
+  <footer class="flex flex-wrap gap-2"><button class="btn" data-size="sm" type="button" data-t="run.rerun_failed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Re-run Failed</button><button class="btn" data-variant="outline" data-size="sm" type="button" data-t="run.rerun_all">Re-run All</button></footer>
+</section></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · running</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><section id="p-run" class="card gap-4" aria-labelledby="p-run-title">
+  <header class="grid gap-1">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 id="p-run-title" class="text-lg font-semibold" data-t="run.title">チェック</h2>
+      <span class="flex items-center gap-1.5 text-sm"><span class="animate-spin text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg></span><span data-t="run.status.running">実行中</span></span>
+    </div>
+    <p class="text-sm" role="status" aria-live="polite" data-t="run.summary_running">4件中1件のチェックが完了</p>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      <span class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span data-t-line="run.commit"><code class="font-mono">departure-times</code>のコミット <code class="font-mono">a91f3c2</code></span></span>
+      <span data-t="run.triggered">佐藤 蓮が実行・3分前</span>
+    </p>
+  </header>
+  <section>
+    <ol class="grid gap-2">
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Lint</span><span class="flex items-center gap-1.5 text-sm"><span class="text-success"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span><span data-t="run.status.passed">合格</span></span><span class="text-xs tabular-nums text-muted-foreground" data-t="run.duration">8秒</span></li>
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Type check</span><span class="flex items-center gap-1.5 text-sm"><span class="animate-spin text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg></span><span data-t="run.status.running">実行中</span></span></li>
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Unit tests</span><span class="flex items-center gap-1.5 text-sm"><span class="text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/></svg></span><span data-t="run.status.queued">待機中</span></span></li>
+      <li class="flex items-center gap-3 rounded-md border p-3"><span class="flex-1 font-medium">Build</span><span class="flex items-center gap-1.5 text-sm"><span class="text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><circle cx="12" cy="12" r="10"/></svg></span><span data-t="run.status.queued">待機中</span></span></li>
+    </ol>
+  </section>
+  <footer class="flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button" data-t="run.cancel">実行をキャンセル</button></footer>
+</section></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>In a list of pull requests</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><p class="flex flex-wrap items-center gap-2 text-sm"><a class="font-medium hover:underline" href="#run">#42 Show times with two digits</a><span class="badge" data-variant="destructive"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg><span data-t="run.status.failed">Failed</span></span><span class="badge" data-variant="outline"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg><span data-t="run.status.queued">Queued</span></span></p></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>No checks</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="empty rounded-lg border border-dashed"><header><p data-t="run.none">No checks ran for this commit.</p></header></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Couldn’t load</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="alert" data-variant="destructive" role="alert"><h2 data-t="run.error.load">Couldn’t load the checks. Try again in a moment.</h2><section><div class="mt-2 flex flex-wrap gap-2"><button class="btn" data-variant="outline" data-size="sm" type="button" data-t="run.retry">Try Again</button></div></section></div></div>
+</div>
+</figure>
+</div>
+
+</body>
+</html>

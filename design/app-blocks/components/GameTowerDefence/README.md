@@ -34,7 +34,7 @@ A tower defence game: enemies walk a path in waves; place and upgrade towers bes
 
 ## Controls
 
-Actions are named once (`cursor`, `place`, `select`, `upgrade`, `sell`, `start_wave`, `speed`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`cursor`, `place`, `select`, `upgrade`, `sell`, `start_wave`, `speed`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `pause` is gaming-core's own (`move` is its `moveX`/`moveY` axes); `cursor`, `place`, `select`, `upgrade`, `sell`, `start_wave`, `speed` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 | Action | Keyboard | Mouse | Gamepad | Touch |
 | --- | --- | --- | --- | --- |
@@ -83,6 +83,9 @@ Game-level keys only; each block's own keys are on its card.
 | `tower.sell` | Sell ({price} g) | 売る（{price} G） |
 | `place.on_path` | Not on the path | 道の上には置けません |
 | `place.no_gold` | Not enough gold | ゴールドが足りません |
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.wave`, `tower.upgrade`, `tower.sell` (into the HUD slots of HudPieces and the panels named above).
+
 
 ## Adding to it
 

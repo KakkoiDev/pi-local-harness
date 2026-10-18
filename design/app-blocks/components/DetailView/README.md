@@ -46,7 +46,7 @@ One record on its own page: its title, its few facts, its content and the action
     </div>
   </header>
   <div class="grid gap-6 @3xl:grid-cols-[1fr_16rem]">
-    <div class="prose-sm grid content-start gap-3 text-sm leading-relaxed">
+    <div class="grid content-start gap-3 text-sm leading-relaxed">
       <p>Words for getting around by train.</p>
       <ul class="ms-5 list-disc">
         <li lang="ja">駅 (えき) — station</li>

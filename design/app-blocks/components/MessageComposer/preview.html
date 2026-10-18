@@ -1,0 +1,130 @@
+<!-- @dsCard group="Collaboration" height=950 width=1250 subtitle="Grow, mention, attach, send, edit" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>MessageComposer — preview</title></head>
+<body class="bg-background text-foreground">
+<div class="ab-stage">
+<figure class="ab-frame" data-device="desktop">
+<figcaption>Desktop · English · with a file, ready to send</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="grid gap-3"><div class="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">(the channel’s messages)</div><form id="d-composer" class="relative grid gap-2 rounded-lg border bg-background p-2 focus-within:ring-[3px] focus-within:ring-ring/50" method="post" action="/channels/field-trip/messages" novalidate>
+  <ul class="flex flex-wrap gap-2 px-1" aria-label="Attachments" data-t-label="composer.files"><li class="badge gap-1" data-variant="secondary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>route.png</span><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Remove route.png" data-t-label="composer.remove_file"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></li></ul>
+  <label class="sr-only" for="d-composer-text" data-t="composer.label">Message #field-trip</label>
+  <textarea id="d-composer-text" name="text" rows="1" maxlength="8000" class="field-sizing-content max-h-48 min-h-10 resize-none bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Message #field-trip" data-t-placeholder="composer.placeholder" aria-describedby="d-composer-hint">Bring the worksheet, @Ren — we meet at the north gate.</textarea>
+  
+  <div class="flex items-center gap-1">
+    <label class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Attach a file" data-t-label="composer.attach"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><input class="sr-only" type="file" name="files" multiple tabindex="-1"></label>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Add an emoji" data-t-label="composer.emoji" aria-haspopup="dialog"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Mention someone" data-t-label="composer.mention" aria-haspopup="listbox" aria-controls="d-mention-list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></button>
+    <span class="flex-1"></span>
+    <span id="d-composer-hint" class="hidden text-xs text-muted-foreground @3xl:inline" data-t="composer.hint">Return to send · Shift+Return for a new line</span>
+    <div class="button-group">
+      <button class="btn" data-size="sm" type="submit" data-t="composer.send"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>Send</button>
+      <div class="dropdown-menu" id="d-send-menu">
+        <button class="btn" data-size="icon-sm" type="button" id="d-send-menu-trigger" aria-haspopup="menu" aria-controls="d-send-menu-menu" aria-expanded="false" aria-label="More send options" data-t-label="composer.more"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="d-send-menu-popover" data-popover aria-hidden="true">
+          <div role="menu" id="d-send-menu-menu" aria-labelledby="d-send-menu-trigger">
+            <div role="menuitem" data-t="composer.schedule"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Schedule for Later…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="phone" lang="ja">
+<figcaption>Phone · 日本語 · mention list open</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="grid h-[380px] content-end"><form id="p-composer" class="relative grid gap-2 rounded-lg border bg-background p-2 focus-within:ring-[3px] focus-within:ring-ring/50" method="post" action="/channels/field-trip/messages" novalidate>
+  <div id="p-mention-list" role="listbox" aria-label="#遠足のメンバー" data-t-label="composer.mention_list" class="grid gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"><div role="option" id="p-mention-ren" aria-selected="true" class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent"><span class="avatar" data-size="sm"><span>RS</span></span><span class="font-medium">佐藤 蓮</span><span class="text-muted-foreground">@ren</span></div><div role="option" id="p-mention-rena" aria-selected="false" class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent"><span class="avatar" data-size="sm"><span>RM</span></span><span class="font-medium">森 れな</span><span class="text-muted-foreground">@rena</span></div></div>
+  <label class="sr-only" for="p-composer-text" data-t="composer.label">#遠足にメッセージを送信</label>
+  <textarea id="p-composer-text" name="text" rows="1" maxlength="8000" class="field-sizing-content max-h-48 min-h-10 resize-none bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="#遠足にメッセージを送信" data-t-placeholder="composer.placeholder" aria-describedby="p-composer-hint">@れ</textarea>
+  
+  <div class="flex items-center gap-1">
+    <label class="btn" data-variant="ghost" data-size="icon-sm" aria-label="ファイルを添付" data-t-label="composer.attach"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><input class="sr-only" type="file" name="files" multiple tabindex="-1"></label>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="絵文字を追加" data-t-label="composer.emoji" aria-haspopup="dialog"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="メンション" data-t-label="composer.mention" aria-haspopup="listbox" aria-controls="p-mention-list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></button>
+    <span class="flex-1"></span>
+    <span id="p-composer-hint" class="hidden text-xs text-muted-foreground @3xl:inline" data-t="composer.hint">Returnで送信・Shift+Returnで改行</span>
+    <div class="button-group">
+      <button class="btn" data-size="sm" type="submit" data-t="composer.send"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>送信</button>
+      <div class="dropdown-menu" id="p-send-menu">
+        <button class="btn" data-size="icon-sm" type="button" id="p-send-menu-trigger" aria-haspopup="menu" aria-controls="p-send-menu-menu" aria-expanded="false" aria-label="送信オプション" data-t-label="composer.more"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="p-send-menu-popover" data-popover aria-hidden="true">
+          <div role="menu" id="p-send-menu-menu" aria-labelledby="p-send-menu-trigger">
+            <div role="menuitem" data-t="composer.schedule"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>送信日時を指定…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form></div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Editing a message</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><form id="s1-composer" class="relative grid gap-2 rounded-lg border bg-background p-2 focus-within:ring-[3px] focus-within:ring-ring/50" method="post" action="/channels/field-trip/messages" novalidate>
+  <div class="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted px-2 py-1 text-sm"><span class="font-medium" data-t="composer.editing">Editing your message</span><span class="text-muted-foreground" data-t="composer.edit_hint">Esc to cancel · Return to save</span></div>
+  <label class="sr-only" for="s1-composer-text" data-t="composer.label">Message #field-trip</label>
+  <textarea id="s1-composer-text" name="text" rows="1" maxlength="8000" class="field-sizing-content max-h-48 min-h-10 resize-none bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Message #field-trip" data-t-placeholder="composer.placeholder" aria-describedby="s1-composer-hint">See you at 8:40 at the north gate.</textarea>
+  
+  <div class="flex items-center gap-1">
+    
+    <span class="flex-1"></span>
+    <span id="s1-composer-hint" class="hidden text-xs text-muted-foreground @3xl:inline" data-t="composer.edit_hint">Esc to cancel · Return to save</span>
+    <button class="btn" data-variant="outline" data-size="sm" type="button" data-t="composer.cancel">Cancel</button>
+    <button class="btn" data-size="sm" type="submit" data-t="composer.save">Save</button>
+  </div>
+</form></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Too long</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><form id="s2-composer" class="relative grid gap-2 rounded-lg border bg-background p-2 focus-within:ring-[3px] focus-within:ring-ring/50" method="post" action="/channels/field-trip/messages" novalidate>
+  
+  <label class="sr-only" for="s2-composer-text" data-t="composer.label">Message #field-trip</label>
+  <textarea id="s2-composer-text" name="text" rows="1" maxlength="8000" class="field-sizing-content max-h-48 min-h-10 resize-none bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Message #field-trip" data-t-placeholder="composer.placeholder" aria-invalid="true" aria-describedby="s2-composer-count">(a very long message…)</textarea>
+  <p id="s2-composer-count" class="px-1 text-sm text-destructive" data-t="composer.too_long">4,012 / 4,000 characters: shorten it to send.</p>
+  <div class="flex items-center gap-1">
+    <label class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Attach a file" data-t-label="composer.attach"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><input class="sr-only" type="file" name="files" multiple tabindex="-1"></label>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Add an emoji" data-t-label="composer.emoji" aria-haspopup="dialog"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Mention someone" data-t-label="composer.mention" aria-haspopup="listbox" aria-controls="s2-mention-list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></button>
+    <span class="flex-1"></span>
+    <span id="s2-composer-hint" class="hidden text-xs text-muted-foreground @3xl:inline" data-t="composer.hint">Return to send · Shift+Return for a new line</span>
+    <div class="button-group">
+      <button class="btn" data-size="sm" type="submit" disabled data-t="composer.send"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>Send</button>
+      <div class="dropdown-menu" id="s2-send-menu">
+        <button class="btn" data-size="icon-sm" type="button" id="s2-send-menu-trigger" aria-haspopup="menu" aria-controls="s2-send-menu-menu" aria-expanded="false" aria-label="More send options" data-t-label="composer.more" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="s2-send-menu-popover" data-popover aria-hidden="true">
+          <div role="menu" id="s2-send-menu-menu" aria-labelledby="s2-send-menu-trigger">
+            <div role="menuitem" data-t="composer.schedule"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Schedule for Later…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Offline</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="grid gap-2">
+  <ul class="grid gap-1 text-sm"><li class="flex items-center justify-between gap-2 rounded-md border border-dashed px-3 py-2"><span>See you at the north gate at 8:40.</span><span class="text-xs text-muted-foreground" data-t="composer.queued">Waiting to send</span></li></ul>
+  <p class="text-sm text-muted-foreground" role="status" data-t="composer.offline">You’re offline. Messages send when you’re back.</p>
+</div></div>
+</div>
+</figure>
+<figure class="ab-frame" data-device="state">
+<figcaption>Can’t post here</figcaption>
+<div class="ab-screen app">
+<div class="p-4 @3xl:p-6"><div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm"><span data-t="composer.no_permission">Only members can post in #announcements.</span><button class="btn" data-size="sm" type="button" data-t="composer.join">Join Channel</button></div><div class="mt-3"><p class="flex items-center gap-2 text-sm text-muted-foreground" role="status"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span data-t="composer.scheduled">Scheduled for Fri 23 Oct, 07:30</span></p></div></div>
+</div>
+</figure>
+</div>
+<script src="../lib/basecoat.all.min.js"></script>
+</body>
+</html>

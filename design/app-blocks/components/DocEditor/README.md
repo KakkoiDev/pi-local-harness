@@ -66,6 +66,7 @@ Icons are Lucide-style inline SVGs (24 px viewBox, `stroke="currentColor"`, `ari
 | New note | Title empty with the `doc.untitled` placeholder; focus in the title. Nothing is saved until something is typed. |
 | Read-only | Toolbar hidden, `readonly` on both fields, a `badge` `doc.read_only` next to the status. |
 | Leaving with unsaved changes | Only if a save is still pending or failed: `beforeunload` prompt (browser text). |
+| Character count | `doc.characters` → the status line beside SavedState (`#doc-count`), updated as you type. |
 
 ## Texts
 

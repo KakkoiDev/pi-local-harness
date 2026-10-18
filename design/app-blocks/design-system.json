@@ -17,8 +17,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-18T04:49:06Z",
+  "at": "2026-10-18T10:55:45Z",
   "via": "Claude (Cowork)",
-  "note": "Round 12 part A: 137 cards — foundations, 108 blocks in 12 groups, 11 app archetypes, 13 game genres, 4 art direction cards."
+  "note": "Round 13: 14 new blocks, success/warning/highlight tokens, translation markers, Japanese dates via DatePicker/TimePicker, game fonts and position-named bindings through gaming-core; checker clean."
  }
 }

@@ -17,14 +17,15 @@ The first screen of a game: its name over the world, Continue or New Game, and t
   <h1 id="title-name" class="game-title" data-t="game.name">Meadow Quest</h1>
   <nav aria-label="Title menu">
     <ul class="game-menu">
-      <li><button class="game-btn" id="title-continue" data-t="title.continue" autofocus>Continue</button></li>
+      <li><button class="game-btn" id="title-continue" data-t="title.continue" aria-describedby="title-continue-detail" autofocus>Continue</button></li>
       <li><button class="game-btn" id="title-new" data-t="title.new">New Game</button></li>
       <li><button class="game-btn" id="title-load" data-t="title.load">Load Game</button></li>
       <li><button class="game-btn" id="title-settings" data-t="title.settings">Settings</button></li>
     </ul>
   </nav>
+  <p id="title-continue-detail" class="game-small" data-t="title.continue_detail">Willow Field · 2:14 played</p>
   <p class="game-hint">
-    <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button"></span></span><span data-t="game.confirm">Confirm</span></span>
+    <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button" data-t-label="game.pad.south"></span></span><span data-t="game.confirm">Confirm</span></span>
     <span class="game-small" data-t="title.version">Version 1.0 · Saved on this device</span>
   </p>
 </section>
@@ -37,7 +38,7 @@ The canvas keeps drawing the world behind it (slow camera pan, no player control
 | State | What changes |
 | --- | --- |
 | No save yet | `#title-continue` and `#title-load` are removed; focus starts on New Game. |
-| A save exists | Continue is first and focused; its `aria-describedby` points to a `.game-small` line: `title.continue_detail` (place and play time). |
+| A save exists | Continue is first and focused; its `aria-describedby` points to `#title-continue-detail`: `title.continue_detail` (place and play time, filled from the latest save). No save: Continue and the line are removed. |
 | Press to start (first launch) | Before audio may play, the menu is replaced by one button `title.press_start` (any key, click, tap or button press); audio starts on that gesture. |
 | Loading | `title.loading` with a `.game-bar` (`--value` 0–1) instead of the menu; nothing is focusable. |
 | Save can't be read | Continue stays, disabled, with `title.save_broken`; New Game and Load still work. |

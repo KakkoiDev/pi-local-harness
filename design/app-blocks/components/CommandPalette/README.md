@@ -17,7 +17,7 @@ One search box for everything: go to a place, find a note, or run an action, ope
   <div class="command">
     <header>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="command-input" placeholder="Search notes or type a command…" data-t-placeholder="command.placeholder" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
+      <input type="text" id="command-input" aria-label="Search notes or run a command" data-t-label="command.input_label" placeholder="Search notes or type a command…" data-t-placeholder="command.placeholder" value="" autocomplete="off" autocorrect="off" spellcheck="false" aria-autocomplete="list" role="combobox" aria-expanded="true" aria-controls="command-menu" name="q" hx-get="/search/command" hx-trigger="input changed delay:200ms" hx-target="#command-results">
     </header>
     <div role="menu" id="command-menu" aria-orientation="vertical" data-empty="Nothing found for that. Try fewer words.">
       <div id="command-results">
@@ -76,6 +76,7 @@ One search box for everything: go to a place, find a note, or run an action, ope
 | Key | English | 日本語 |
 | --- | --- | --- |
 | `command.label` | Search and commands | 検索とコマンド |
+| `command.input_label` | Search notes or run a command | ノートを検索、またはコマンドを実行 |
 | `command.placeholder` | Search notes or type a command… | ノートを検索、またはコマンドを入力… |
 | `command.empty` | Nothing found for that. Try fewer words. | 見つかりませんでした。言葉を減らしてお試しください。 |
 | `command.goto` | Go To | 移動 |
