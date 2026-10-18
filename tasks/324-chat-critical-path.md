@@ -49,4 +49,4 @@ is docs/reviews/2026-10-18-chat-critical-path-audit.md; stories US-200 to US-219
   and a refusal while a check-in waits names Retry Task; a tool that writes nothing is refused "Not run" (US-209).
 
 ## Checks
-- [ ] Workflow verification and all browser suites pass; the audit is written.
+- [x] Workflow verification and all browser suites pass; the audit is written.
