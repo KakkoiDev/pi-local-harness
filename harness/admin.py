@@ -431,7 +431,7 @@ class Console:
 COMMANDS = {
     'harness': ('', 'What the harness is and the commands it offers.'),
     'status': ('', 'Services, model, queue and Gate counts, data folder, build.'),
-    'queue': ('[all|running|waiting|failed|stopped|interrupted|completed]', 'Requests in Activity.'),
+    'queue': ('[all|running|waiting|failed|stopped|interrupted|completed] [edit <id> <words>] [remove <id>]', 'Requests in Activity; in terminal Pi, edit or remove a waiting message (asks first).'),
     'job': ('<id>', 'The Markdown record of one request.'),
     'gate': ('[n] [blocked] [why <id>] [rules [id]]', 'Gate checks, newest first; why <id> explains one; rules lists what Gate enforces.'),
     'models': ('[use <name> [effort]] [check [name] [--all] [--force]] [pull <name>] [remove <name>]', 'Installed models; use, pull and remove ask first (remove goes to the Trash); check measures two at once.'),
@@ -536,7 +536,7 @@ def build(console, command, args, yes=False):
         table = {'kind': 'table', 'columns': ['STATE', 'WHEN', 'PROJECT', 'REQUEST', 'ID'], 'flex': 3, 'drop': [2, 4], 'dim': [4], 'caps': {'2': 16},
                  'rows': [[terminal.STATE.get(row['status'], row['status']), short_time(row.get('created')), names.get(row['project'], row['project'] or ''), (row['message'] or 'Attached files').replace('\n', ' '), str(row['id'])[:8]] for row in rows],
                  'empty': 'Nothing in the queue.'}
-        return rows, view('Queue', table, summary=summary, hint='/job <id> for one request (the first 8 characters are enough)')
+        return rows, view('Queue', table, summary=summary, hint='/job <id> for one request (the first 8 characters are enough) · /queue edit <id> <words> · /queue remove <id>')
     if command == 'job':
         if not args: raise ValueError('Usage: /job <id> (the first 8 characters, from /queue)')
         value = console.job(args[0]); return value, view(f"Request {value['id'][:8]}", {'kind': 'lines', 'lines': value['markdown'].splitlines()}, hint='/queue')
@@ -725,7 +725,9 @@ def completions(console, command):
     if command == 'config': return [[f'set {key}', EXPLAIN.get(key, '')] for key in registry.SETTINGS]
     if command == 'ollama': return [[f'set {key}', about] for key, (*_, about) in OLLAMA_KEYS.items()] + [['restart', 'Quit and reopen the Ollama app (asks first)']]
     if command == 'reports': return [[kind, ''] for kind in ('rule', 'gate-failed', 'recovery', 'wake-up', 'unverified', 'stopped')]
-    if command == 'queue': return [[state, ''] for state in ('all', 'running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')]
+    if command == 'queue':  # task 325: edit and remove take a waiting message's id (terminal Pi's own handler does them)
+        waiting = [row for row in console.queue('waiting') if row['status'] == 'queued' and row['id']]
+        return [[state, ''] for state in ('all', 'running', 'waiting', 'failed', 'stopped', 'interrupted', 'completed')] + [[f"{verb} {str(row['id'])[:8]}", str(row['message'] or 'Attached files')[:50]] for verb in ('edit', 'remove') for row in waiting[:15]]
     if command == 'gate':
         from gate import rules as gate_rules
         return [['blocked', 'Only checks that did not allow'], ['why ', 'Explain one check: why <id>'], ['rules', 'The rules Gate enforces']] + [[f'rules {rule.id}', rule.name] for rule in gate_rules.RULES]

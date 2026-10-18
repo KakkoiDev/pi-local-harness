@@ -1392,6 +1392,172 @@ story('US-125', 'Settings › Pi › Detail: Beginner hides decisions made by co
   assert.equal(await settings.locator('input[name="detail"][value="expert"]').isChecked(), true, 'kept in config.json');
 });
 
+// -- Task 325: the waiting messages (the owner: "I want to be able to read and update/remove queued messages") --------
+/** A project whose chat is busy with a request that keeps running (the fake Pi's TEST_WAIT), so what I send next waits. */
+async function busyChat(t, name = 'Queue') {
+  const made = await newProject(t, name); t.project = made.project;
+  const running = await say(t, 'Work for a while TEST_WAIT');
+  await answered(t, running, ['running']);
+  await t.page.locator('.pw-tool--live').filter({ hasText: 'Using bash' }).waitFor();
+  return { ...made, running };
+}
+const queued = (t, text) => t.page.locator('#queue .pw-queue__item').filter({ hasText: text });
+/** Stop the running request (the chat's Stop); the next waiting message then starts. */
+async function stopRunning(t, running) { await t.page.locator('#stop').click(); await answered(t, running, ['stopped', 'failed', 'interrupted']); }
+async function conversation(t) { const chats = await t.bench.api('/api/conversations'); return t.bench.api('/api/conversations/' + chats.find(chat => chat.project === t.project).id); }
+
+story('US-220', 'while Pi works, the messages I sent next wait under it: full text, attachments, when queued; “Next: 1 request waiting” folds them; Activity has them too', async t => {
+  const { page } = t;
+  await busyChat(t);
+  await page.locator('#files').setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('a note') });
+  await say(t, 'Paint the button blue.\nAnd make it round.');
+  const card = queued(t, 'Paint the button blue.'); await card.waitFor();
+  assert.equal(await card.locator('.pw-queue__text').innerText(), 'Paint the button blue.\nAnd make it round.', 'the full text, with its lines');
+  assert.match(await card.locator('.pw-queue__when').textContent(), /^Queued \d{1,2}:\d{2}/);
+  assert.equal(await card.locator('.pw-queue__file').textContent(), 'notes.txt');
+  assert.match(await page.locator('#queue .pw-queue-note').textContent(), /^Next: 1 request waiting in Queue$/);
+  assert.equal(await card.getByRole('button', { name: 'Edit', exact: true }).isVisible(), true);
+  assert.equal(await card.getByRole('button', { name: 'Remove…', exact: true }).isVisible(), true);
+  const live = await page.locator('#messages [data-live]').boundingBox(), box = await card.boundingBox();
+  assert.ok(box.y > live.y, 'below the running request');
+  await say(t, 'Also a border.');  // joins the waiting message: Pi gets both as one request
+  await card.locator('.pw-queue__text').filter({ hasText: 'Also a border.' }).waitFor();
+  assert.equal(await page.locator('#queue .pw-queue__item').count(), 1);
+  await page.locator('#queue .pw-queue-note').click();
+  await card.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#queue .pw-queue-note').getAttribute('aria-expanded'), 'false');
+  await page.reload(); await page.locator('#queue .pw-queue-note').waitFor();
+  assert.equal(await page.locator('#queue .pw-queue-note').getAttribute('aria-expanded'), 'false', 'folded stays folded');
+  await page.locator('#queue .pw-queue-note').click(); await card.waitFor();
+  await page.goto(t.base + '/activity');
+  const row = page.locator('.activity-task').filter({ hasText: 'Paint the button blue.' }); await row.waitFor();
+  assert.match(await row.textContent(), /queued \d{1,2}:\d{2}/);
+  await row.locator('.activity-request').click();
+  assert.match(await page.locator('#activity-detail').textContent(), /notes\.txt/, 'Activity names its attachment');
+});
+
+story('US-221', 'I edit a waiting message (new words, one attachment dropped); it keeps its place, and Pi receives the edited text', async t => {
+  const { page, bench } = t;
+  const { running } = await busyChat(t);
+  await page.locator('#files').setInputFiles([{ name: 'keep.txt', mimeType: 'text/plain', buffer: Buffer.from('keep') }, { name: 'drop.txt', mimeType: 'text/plain', buffer: Buffer.from('drop') }]);
+  const id = await say(t, 'Make the title blue');
+  const card = queued(t, 'Make the title blue'); await card.waitFor();
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  const field = page.locator('#queue .pw-queue__field'); await field.waitFor();
+  assert.equal(await field.inputValue(), 'Make the title blue');
+  assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('pw-queue__field')), true, 'the field has the focus');
+  await field.fill('Make the title red, please');
+  await page.locator('#queue').getByRole('button', { name: 'Remove drop.txt' }).click();
+  await page.locator('#queue .pw-queue__field').fill('Make the title red, please');  // the field stays the person's after a chip goes
+  const saved = page.waitForResponse(response => response.url().endsWith(`/api/jobs/${id}/edit`));
+  await page.locator('#queue').getByRole('button', { name: 'Save', exact: true }).click();
+  assert.equal((await saved).status(), 200);
+  const edited = queued(t, 'Make the title red, please'); await edited.waitFor();
+  assert.equal(await edited.locator('.pw-queue__edited').textContent(), 'Edited');
+  assert.deepEqual(await edited.locator('.pw-queue__file').allTextContents(), ['keep.txt']);
+  await page.locator('#queue .pw-queue__notice').filter({ hasText: 'Saved. Pi gets the edited message in the same place.' }).waitFor();
+  const job = (await bench.api('/api/workspace')).jobs.find(item => item.id === id);
+  assert.deepEqual([job.status, job.message, job.files, job.version], ['queued', 'Make the title red, please', ['keep.txt'], 2]);
+  await stopRunning(t, running);
+  await answered(t, id);
+  await page.locator('#messages .pw-msg--user').filter({ hasText: 'Make the title red, please' }).waitFor();
+  assert.equal(await page.locator('#messages .pw-msg--user').filter({ hasText: 'Make the title blue' }).count(), 0, 'Pi never saw the old words');
+  const user = (await conversation(t)).messages.filter(message => message.role === 'user').at(-1);
+  assert.equal(user.content, 'Make the title red, please');
+  assert.deepEqual((user.attachments || user.files || []).map(file => file.name), ['keep.txt'], 'only the attachment I kept reached Pi');
+  const rows = decisions(t).filter(row => row.kind === 'queue_edit');
+  assert.deepEqual(rows.map(row => [row.who, row.answer, row.request]), [['person', 'edited, 1 attachment removed', id]]);
+  assert.doesNotMatch(bench.read(bench.data, 'decisions.jsonl'), /title (blue|red)/, 'the log keeps the decision, not the words');
+});
+
+story('US-222', 'I remove a waiting message: it asks first, Pi never receives it, and its attachment is released', async t => {
+  const { page, bench } = t;
+  const { running } = await busyChat(t);
+  await page.locator('#files').setInputFiles({ name: 'gone.txt', mimeType: 'text/plain', buffer: Buffer.from('gone') });
+  const id = await say(t, 'Delete every test');
+  const card = queued(t, 'Delete every test'); await card.waitFor();
+  await card.getByRole('button', { name: 'Remove…', exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: 'Remove this waiting message?' }).waitFor();
+  await page.locator('#alert-dialog').getByRole('button', { name: 'Keep Waiting', exact: true }).click();
+  assert.equal(await card.isVisible(), true, 'the safe button keeps it');
+  await card.getByRole('button', { name: 'Remove…', exact: true }).click();
+  await page.locator('#alert-dialog').getByRole('button', { name: 'Remove Message', exact: true }).click();
+  await card.waitFor({ state: 'detached' });
+  await page.locator('#queue .pw-queue__notice').filter({ hasText: 'Removed. Pi will never receive that message.' }).waitFor();
+  assert.equal(await page.locator('#queue .pw-queue-note').isVisible(), false, 'nothing waits now');
+  const removed = (await bench.api('/api/workspace')).jobs.find(item => item.id === id);
+  assert.deepEqual([removed.status, removed.progress, removed.files], ['cancelled', 'Removed by you before it started', []]);
+  assert.equal(fs.existsSync(join(bench.data, 'activity', id + '.attachments.json')), false, 'its attachment is released');
+  await stopRunning(t, running);
+  const next = await say(t, 'Something else');
+  await answered(t, next);
+  const user = (await conversation(t)).messages.filter(message => message.role === 'user').map(message => message.content);
+  assert.equal(user.includes('Delete every test'), false, 'it never ran');
+  assert.equal((await bench.api('/api/workspace')).jobs.find(item => item.id === id).started, undefined);
+  assert.deepEqual(decisions(t).filter(row => row.kind === 'queue_remove').map(row => [row.who, row.answer, row.request]), [['person', 'removed', id]]);
+});
+
+story('US-223', 'a second window’s stale edit is refused (“changed in another window”), and my draft is back in the composer', async t => {
+  const { page, bench } = t;
+  await busyChat(t);
+  const id = await say(t, 'Use a serif font');
+  const other = await page.context().newPage();
+  await other.route('**/api/updates', route => route.fulfill({ json: { state: 'current', checked: 1 } }));
+  await other.goto(page.url()); await queued({ page: other }, 'Use a serif font').waitFor();
+  await queued(t, 'Use a serif font').getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.locator('#queue .pw-queue__field').fill('Use a mono font');
+  await queued({ page: other }, 'Use a serif font').getByRole('button', { name: 'Edit', exact: true }).click();
+  await other.locator('#queue .pw-queue__field').fill('Use a sans font');
+  await other.locator('#queue').getByRole('button', { name: 'Save', exact: true }).click();
+  await queued({ page: other }, 'Use a sans font').waitFor();
+  await page.locator('#prompt').fill('My unsent words');
+  const refused = page.waitForResponse(response => response.url().endsWith(`/api/jobs/${id}/edit`));
+  await page.locator('#queue').getByRole('button', { name: 'Save', exact: true }).click();
+  assert.equal((await refused).status(), 409);
+  await page.locator('#queue .pw-queue__notice').filter({ hasText: 'This message changed in another window; your edit was not saved. Your text is back in the composer.' }).waitFor();
+  assert.equal(await page.locator('#prompt').inputValue(), 'My unsent words\n\nUse a mono font', 'nothing I typed is lost');
+  await queued(t, 'Use a sans font').waitFor();
+  assert.equal((await bench.api('/api/workspace')).jobs.find(item => item.id === id).message, 'Use a sans font', 'the other window’s edit stands');
+  await other.close();
+});
+
+story('US-224', 'Pi starts the message while I edit it: “Pi already started this message; your edit was not sent”, my draft in the composer', async t => {
+  const { page } = t;
+  const { running } = await busyChat(t);
+  const id = await say(t, 'Add a footer');
+  await queued(t, 'Add a footer').getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.locator('#queue .pw-queue__field').fill('Add a footer with the year');
+  await bench_stop(t, running);
+  await page.locator('#queue .pw-queue__notice').filter({ hasText: 'Pi already started this message; your edit was not sent. Your text is back in the composer.' }).waitFor();
+  assert.equal(await page.locator('#prompt').inputValue(), 'Add a footer with the year');
+  await answered(t, id);
+  await page.locator('#messages .pw-msg--user').filter({ hasText: 'Add a footer' }).first().waitFor();
+  assert.equal((await conversation(t)).messages.filter(message => message.role === 'user').at(-1).content, 'Add a footer', 'Pi got the message as it was when it started');
+});
+/** Stop the running request from outside the page, so a page in the middle of an edit is not touched. */
+async function bench_stop(t, running) { await t.bench.api('/api/jobs/stop', { id: running }); await answered(t, running, ['stopped', 'failed', 'interrupted']); }
+
+story('US-225', 'on a phone (390 px) the waiting message reads in full, its buttons are 44 px, and editing fits the screen', async t => {
+  const { page } = t;
+  await t.page.setViewportSize({ width: 1440, height: 900 });  // the project is made at the desk (as US-095), then used on the phone
+  await busyChat(t);
+  await page.setViewportSize({ width: 390, height: 844 }); await page.reload();
+  const long = 'Rewrite the introduction so it says what the app does in one sentence, then list the three things a person can do with it';
+  const id = await say(t, long);
+  const card = queued(t, 'Rewrite the introduction'); await card.waitFor(); await card.scrollIntoViewIfNeeded();
+  assert.equal(await card.locator('.pw-queue__text').textContent(), long);
+  for (const name of ['Edit', 'Remove…']) assert.ok((await card.getByRole('button', { name, exact: true }).boundingBox()).height >= 44, name + ' is a 44 px target');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scrolling');
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.locator('#queue .pw-queue__field').fill('Shorter introduction');
+  const box = await page.locator('#queue .pw-queue__field').boundingBox();
+  assert.ok(box.x >= 0 && box.x + box.width <= 390, 'the field fits the screen');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  await page.locator('#queue').getByRole('button', { name: 'Save', exact: true }).click();
+  await queued(t, 'Shorter introduction').waitFor();
+  assert.equal((await t.bench.api('/api/workspace')).jobs.find(item => item.id === id).message, 'Shorter introduction');
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

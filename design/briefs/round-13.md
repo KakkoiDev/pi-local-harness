@@ -111,3 +111,34 @@ that opens it directly (today it names the menu command in words).
 The Preview frame is now sandboxed (task 304: `allow-scripts allow-same-origin allow-forms allow-modals allow-popups
 allow-downloads`, no top navigation). Nothing changes on screen; an app that tries to navigate the workbench page
 itself now stays inside the frame.
+
+## Waiting messages (task 325), not drawn yet
+
+The owner asked to "read and update/remove queued messages to the agent". Built without a board from existing parts;
+please draw it (desk and phone) so we can replace the stand-in. Code: js/queue-list.mjs (markup), chat.css (the
+`.pw-queue*` block at the end, the only styling to replace), hooks `#queue`, `data-job`, `data-version`, `data-action`
+(`toggle`, `edit`, `remove`, `save`, `cancel`, `drop-file`), `data-file`.
+
+- **Where:** a section under the transcript, below the running request's live answer (it is outside `#messages`, so the
+  editor survives the transcript being rebuilt while Pi streams). Shown only while something waits, or for a status line.
+- **Head:** the existing `pw-queue-note` line, now a button: "▾ Next: 1 request waiting in <project>"; ▸ when folded
+  (`aria-expanded`; folding is remembered per browser).
+- **Each message:** a `pw-card` with a **dashed** border and no shadow (to read as "not sent yet", unlike a settled
+  card). Head: position number (bold), "Queued 14:02", and "Edited" (italic) after an edit. Body: the full text in the
+  text face, line breaks kept; attachments as `pw-chip`s. Foot: **Edit** · **Remove…** (`pw-btn`). Only a plain chat
+  message has Edit; an answer to a question, Start Building or Continue shows Remove… only.
+- **Editing:** the card gets the solid border and the 2px shadow; the text becomes a `pw-field` textarea (focused,
+  ⌘Return saves, Esc cancels); each chip gets a close button "Remove <name>". Foot: **Save** (default ring) · Cancel.
+  While one message is edited, the other cards' Edit is disabled.
+- **Remove…:** the standard alert: "Remove this waiting message?" / "Pi will never receive it. Its attachments are
+  released." Buttons: Remove Message · **Keep Waiting** (default).
+- **Status line** under the list (`.pw-queue__notice`, `role=status`): "Saved. Pi gets the edited message in the same
+  place." and "Removed. Pi will never receive that message." fade after 8 s. A refusal stays: "Pi already started this
+  message; your edit was not sent. Your text is back in the composer." or "This message changed in another window;
+  your edit was not saved. Your text is back in the composer." (the draft is appended to the composer).
+- **Phone (≤760px):** 16px inset, Edit and Remove… grow to 44px and share the row, chip close buttons 44px.
+
+Questions for the board: should a waiting message look like a dimmed user bubble (`pw-msg--user`) instead of a card,
+so the transcript reads as "what I said, what waits"? Should the menu bar's "1 waiting" status jump to this list? Is
+the italic "Edited" acceptable in the 1-bit system, or should it be a glyph? Reorder (drag or Move Up/Down) was left out;
+draw it only if you think it is worth it.

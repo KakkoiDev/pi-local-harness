@@ -22,6 +22,17 @@ def display_text(text,streaming=False):
         if mark and (tail.startswith('|') or 'channel|>'.startswith(tail)):text=before
     return text
 
+class QueueRefusal(ValueError):
+    """Task 325: an edit or removal the queue refused because the message moved on (it started, it was removed, or another
+    window changed it). `reason` is 'started', 'removed', 'gone' or 'changed'; `job` is the message as it is now."""
+    def __init__(self, message, reason, job=None):
+        super().__init__(message);self.reason=reason;self.job=job
+
+STARTED='Pi already started this message; your edit was not sent.'
+CHANGED='This message changed in another window; your edit was not saved.'
+STARTED_REMOVE='Pi already started this message, so it was not removed. Use Stop to stop it.'
+CHANGED_REMOVE='This message changed in another window, so it was not removed. Read it again first.'
+
 class WorkQueue:
     # Task 164 (plan 156 phase 2): two lanes. The chat lane runs one chat request at a time; the work lane runs workers,
     # comments and whole-file requests, never two in one project (they edit files), and only one in all when the model
@@ -89,8 +100,9 @@ class WorkQueue:
                 joined=[part for part in (waiting['data'].get('message','').strip(),data.get('message','').strip()) if part]
                 waiting['data']['message']='\n\n'.join(joined)
                 if incoming:self.store_attachments(waiting,[*self.load_attachments(waiting),*incoming])  # earlier attachments survive a restart
+                waiting['version']=waiting.get('version',1)+1  # task 325: an edit from a window that saw the earlier text is refused
                 self.save(waiting);return {**self.public(waiting),'merged':True}
-            job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':{key:copy.deepcopy(value) for key,value in data.items() if key!='attachments'},'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':''}
+            job={'id':uuid.uuid4().hex,'order':max((item.get('order',0) for item in self.jobs),default=-1)+1,'project':project,'chat':chat,'data':{key:copy.deepcopy(value) for key,value in data.items() if key!='attachments'},'created':now(),'status':'queued','progress':'Waiting for the agent','text':'','thinking':'','version':1}
             if incoming:self.store_attachments(job,incoming)
             # Task 290: Pi waits for the answer, so it goes before the chat's other waiting messages (FIFO otherwise).
             ahead=next((index for index,item in enumerate(self.jobs) if item['status']=='queued' and item['chat']==chat and self.role(item['data'])=='chat'),None) if data.get('choice_answer') else None
@@ -148,7 +160,7 @@ class WorkQueue:
         self.workers=[thread for thread in self.workers if thread.is_alive()]
         return len(started)
     def public(self, job):
-        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'text':display_text(job.get('text',''),streaming=job.get('status')=='running'),'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[]))}
+        return {'role':self.role(job['data']),**{key:copy.deepcopy(value) for key,value in job.items() if key!='data'},'text':display_text(job.get('text',''),streaming=job.get('status')=='running'),'record':'activity/'+job['id']+'.md','document':job['data'].get('document') or (job['data'].get('document_comment') or {}).get('path'),'comment_id':(job['data'].get('document_comment') or {}).get('id'),'message':job['data'].get('message',''),**({'retry_of':job['data']['retry_of']} if job['data'].get('retry_of') else {}),'files':list(job['data'].get('attachment_names',[])),'editable':self.editable(job['data'])}
     def list(self):
         with self.condition:return [self.public(job) for job in self.jobs]
     def retry(self, identifier, note=''):
@@ -174,6 +186,44 @@ class WorkQueue:
             if not job:raise ValueError('Task not found')
             if job['status']!='queued':raise ValueError('Only queued tasks can be cancelled here; use Stop for active work')
             job.update(status='cancelled',progress='Cancelled before execution');self.drop_attachments(job);self.save(job);return self.public(job)
+    # Task 325 (the owner: "I want to be able to read and update/remove queued messages to the agent"): the person edits or
+    # removes a message that still waits. Both run with the condition held, as the worker's claim does, so a message being
+    # started cannot change, and a removed one can never start. `version` is the one the person's window showed.
+    @staticmethod
+    def editable(data):
+        return WorkQueue.role(data)=='chat' and not data.get('choice_answer') and not data.get('control')
+    def waiting(self, identifier, version, edit=True):
+        """The queued job the person's window showed at `version`, or QueueRefusal (call with the condition held)."""
+        job=next((job for job in self.jobs if job['id']==identifier),None)
+        if not job:raise QueueRefusal('This message is no longer in the queue.','gone')
+        if job['status']=='cancelled':raise QueueRefusal('This message was removed; your edit was not sent.' if edit else 'This message was already removed.','removed',self.public(job))
+        if job['status']!='queued':raise QueueRefusal(STARTED if edit else STARTED_REMOVE,'started',self.public(job))
+        if isinstance(version,bool) or not isinstance(version,int):raise ValueError('Reload the page: this window does not know which version of the message it shows.')
+        if job.get('version',1)!=version:raise QueueRefusal(CHANGED if edit else CHANGED_REMOVE,'changed',self.public(job))
+        return job
+    def edit(self, identifier, version, message, remove_files=()):
+        """Replace a waiting message's text and drop some of its attachments (their indexes); it keeps its place."""
+        if not isinstance(message,str):raise ValueError('Message must be text')
+        if len(message)>200000:raise ValueError('Message is too large')
+        if not isinstance(remove_files,(list,tuple)) or not all(isinstance(index,int) and not isinstance(index,bool) for index in remove_files):raise ValueError('Choose the attachments to remove by their place in the list.')
+        with self.condition:
+            job=self.waiting(identifier,version)
+            if not self.editable(job['data']):raise ValueError('Only a chat message can be edited; remove this request instead.')
+            attachments=self.load_attachments(job) if remove_files else None
+            if remove_files and not all(0<=index<len(attachments) for index in remove_files):raise ValueError('That attachment is no longer on this message.')
+            kept=[item for index,item in enumerate(attachments) if index not in set(remove_files)] if remove_files else None
+            if not message.strip() and not (kept if remove_files else job['data'].get('attachment_names')):raise ValueError('Write a message or keep an attachment. To drop the whole message, use Remove.')
+            job['data']['message']=message.strip()
+            if remove_files:
+                if kept:self.store_attachments(job,kept)
+                else:self.drop_attachments(job)
+            job.update(version=version+1,edited=now());self.save(job);return self.public(job)
+    def remove(self, identifier, version):
+        """The person removes a waiting message: it never runs, and its attachments are released."""
+        with self.condition:
+            job=self.waiting(identifier,version,edit=False)
+            job.update(status='cancelled',finished=now(),progress='Removed by you before it started',removed=True,version=version+1)
+            self.drop_attachments(job);self.save(job);self.condition.notify_all();return self.public(job)
     def update(self, job, event):
         with self.condition:
             kind=event.get('type')

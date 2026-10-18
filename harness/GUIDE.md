@@ -85,6 +85,15 @@ The status at the top right of the menu bar: Ready, Working, waiting, or what ne
 (⌃⌥3): every request with its state, steps and record, and a button back to where it came from. **Gate** (⌃⌥4) lists every
 command check, allowed or blocked, and why.
 
+## Can I change a message I sent while Pi was busy?
+
+Yes, until Pi starts it. Under the running request the chat lists every message that waits, in the order Pi takes them:
+its full text, its attachments and when you sent it (“Next: 1 request waiting in …” folds the list). **Edit** changes the
+words and can drop an attachment; **Save** keeps its place in the queue. **Remove…** asks first, then Pi never receives it.
+If Pi starts the message while you edit it, or you changed it in another window, your edit is not sent and your words go
+back into the composer. Activity lists waiting messages too. In terminal Pi: `/queue waiting`, then
+`/queue edit <id> <new words>` or `/queue remove <id>` (both ask first).
+
 ## Can Pi work on a long task?
 
 Yes. A request has no time limit; it stops only if Pi sends nothing for an hour (`/config set silence_seconds …`). When

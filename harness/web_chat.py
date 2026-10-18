@@ -11,7 +11,7 @@ from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
 from harness.model import PROVIDER, MODEL, EFFORTS
 from harness import model as models
-from harness.work_queue import WorkQueue, display_text
+from harness.work_queue import WorkQueue, QueueRefusal, display_text
 from harness.preview import Previews
 from harness import undo as undoing
 from harness import laya, theme
@@ -565,6 +565,17 @@ class WebChat:
                 if entry['process']:entry['process'].terminate()
             self.turns.notify_all()
         return {'stopped':bool(targets)}
+    def edit_job(self, identifier, data):
+        """Task 325: the person edits a waiting message (PERSON_ROUTES); the decision log keeps that they did, never the text."""
+        job=self.queue.edit(identifier,data.get('version'),data.get('message',''),data.get('remove_files') or [])
+        removed=len(data.get('remove_files') or [])
+        record(self.documents.root,identifier,'queue_edit','person','edited'+(f", {removed} attachment{'s' if removed>1 else ''} removed" if removed else ''),rule='queue.edit')
+        return job
+    def remove_job(self, identifier, data):
+        """Task 325: the person removes a waiting message: it never runs (PERSON_ROUTES)."""
+        job=self.queue.remove(identifier,data.get('version'))
+        record(self.documents.root,identifier,'queue_remove','person','removed',rule='queue.remove')
+        return job
     def close(self):
         with self.lock:self.closed=True; identifiers=list(self.active)
         for identifier in identifiers:self.stop(identifier)
@@ -894,6 +905,7 @@ class WebHandler(BaseHTTPRequestHandler):
     PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
+        if re.fullmatch(r'/api/jobs/[0-9a-f]{32}/(?:edit|remove)',path):return True  # task 325: only the person changes what waits for Pi
         # A message answering a waiting choice is recorded as the person's decision.
         return (path=='/api/jobs/create' or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/send',path) is not None) and str(data.get('message','')).lstrip().startswith('Choice: ')
     def person(self):
@@ -973,7 +985,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
                 allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
-                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox')})  # round 12: HarnessNotice, CutLine, DecisionRow
+                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -1078,6 +1090,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
+            waiting=re.fullmatch(r'/api/jobs/([0-9a-f]{32})/(edit|remove)',path)  # task 325: a waiting message, edited or removed
+            if waiting:self.reply((self.chat.edit_job if waiting[2]=='edit' else self.chat.remove_job)(waiting[1],data));return
             retry=re.fullmatch(r'/api/jobs/([0-9a-f]{32})/retry',path)  # plan 184, A_Retry
             if retry:self.reply(self.chat.queue.retry(retry.group(1),data.get('note','')));return
             if path.startswith('/api/documents/'):
@@ -1123,6 +1137,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if not streaming:self.reply({'error':str(error),'busy':True,'job':error.job},409)
         except TerminalBusy as error:
             if not streaming:self.reply({'error':str(error),'terminal':True,'command':error.command,'name':error.name,'since':error.since},409)
+        except QueueRefusal as error:  # task 325: the message started, was removed, or changed in another window
+            if not streaming:self.reply({'error':str(error),'refused':error.reason,'job':error.job},409)
         except (ValueError,KeyError,FileNotFoundError,FileExistsError) as error:
             if not streaming:self.reply({'error':str(error)},409 if isinstance(error,DocumentConflict) else 400)
         except (TypeError,AttributeError) as error:
