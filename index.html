@@ -88,6 +88,7 @@
         <button class="pw-menu__item" role="menuitem" data-command="ask-document">Ask Pi About This Document…</button>
         <button class="pw-menu__item" role="menuitem" data-command="copy-folder-path">Copy Folder Path</button>
         <button class="pw-menu__item" role="menuitem" data-command="theme">Theme…</button><!-- task 312: the app's colours, radius, spacing and fonts -->
+        <button class="pw-menu__item" role="menuitem" data-command="add-capability">Add a Capability…</button><!-- round 12 (R12_AddCap): js/project-start.mjs -->
         <div class="pw-menu__sep" role="separator"></div><!-- task 154 (P_Menu, P_MenuMissing): act on the open project -->
         <button class="pw-menu__item" role="menuitem" data-command="rename-project">Rename Project…</button>
         <button class="pw-menu__item" role="menuitem" data-command="move-project">Move Project…</button>
@@ -341,13 +342,6 @@
     <h2 id="folder-dialog-title" class="pw-dialog__title">Choose a folder</h2>
     <p id="folder-detail" class="pw-alert__detail" hidden></p><!-- Locate Folder… (P_Locate) -->
     <label class="pw-label window-column">Project name <input id="folder-name" class="pw-field" maxlength="80" autocomplete="off" placeholder="e.g. Japanese study app"></label>
-    <fieldset id="folder-kind" class="folder-kind" hidden><legend class="pw-label">What are you making?</legend><!-- round 7 (P_NewProject): the kind; Web app the default -->
-      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="web" checked><span>Web app</span><small>Runs on this Mac while plh is open. For data several people share, logins, payments, or a paid AI key.</small></label>
-      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="static"><span>App with no server</span><small>Runs in the browser and keeps its data on the device. Works offline; free to publish on GitHub Pages.</small></label>
-      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="tui"><span>Terminal app</span><small>Runs in a terminal window, keys and text only: a quiz, a calculator, a script. The Preview shows it here.</small></label>
-      <label class="pw-choice"><input type="radio" class="pw-radio" name="kind" value="empty"><span>Empty folder</span><small>Start from nothing.</small></label>
-      <p class="pw-help folder-kind__help">Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server. Keys and text only: Terminal app.</p>
-    </fieldset>
     <button id="folder-where" type="button" class="pw-row folder-where"><span id="folder-where-label" class="pw-row__label"></span><span aria-hidden="true">›</span></button><!-- Ph8_NewProject: "Create in ~/code ›" -->
     <div class="folder-location"><button id="folder-up" class="pw-btn">Parent</button><input id="folder-path" class="pw-field pw-mono" aria-label="Folder path"><button id="folder-go" class="pw-btn">Go</button></div>
     <nav id="folder-list" class="pw-list folder-list" aria-label="Folders"></nav><!-- rows: .pw-row with the folder icon (Dialogs2) -->

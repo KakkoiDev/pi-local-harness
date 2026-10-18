@@ -11,19 +11,54 @@ const { story, run } = runner();
 const exists = (...parts) => fs.existsSync(join(...parts));
 
 // -- helpers that act as the person ------------------------------------------------------------------------------
-async function newProject(t, name, kind = 'empty') {
+/** Project Start's “Create in”: the folder browser in its pick mode, pointed at the story's scratch folder. */
+async function pickWhere(t) {
   const { page } = t;
-  await page.goto(t.base + '/projects');
-  await page.locator('#new-project').click();
+  await page.locator('#start-where').click();
+  await page.locator('#folder-dialog').waitFor();
   await page.waitForFunction(() => document.querySelector('#folder-path').value.length > 0 && !document.querySelector('#folder-use').disabled);
   await page.locator('#folder-path').fill(t.directory);
   const browsed = page.waitForResponse(response => response.url().includes('/api/directories?path='));
   await page.locator('#folder-go').click(); await browsed;
   await page.waitForFunction(path => document.querySelector('#folder-path').value === path, t.directory);
-  await page.locator('#folder-name').fill(name);
-  await page.locator(`#folder-kind [value="${kind}"]`).check();
   await page.locator('#folder-use').click();
-  await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname));
+  await page.locator('#folder-dialog').waitFor({ state: 'hidden' });
+}
+
+/** New Project… step 1 (Name, Create in, the sentence), from the Projects page. */
+async function startProject(t, name, sentence = '', { where = true } = {}) {
+  const { page } = t;
+  await page.goto(t.base + '/projects');
+  if (!await page.locator('#new-project').isVisible()) await page.locator('#open-menu').click();  // the phone: in the π sheet
+  await page.locator('#new-project').click();
+  await page.locator('#start-dialog').waitFor();
+  await page.locator('#start-name').fill(name);
+  if (sentence) await page.locator('#start-sentence').fill(sentence);
+  if (where) await pickWhere(t);
+}
+const step = (t, name) => t.page.waitForFunction(name => document.querySelector('#start-steps [aria-current="step"]')?.textContent.endsWith(name), name);
+/** Steps 2–4 of Project Start: tick the capabilities, choose the packages (only those), and arrive at the Summary. */
+async function chooseAndSummarise(t, { capabilities = [], packages = ['web'] } = {}) {
+  const { page } = t;
+  await page.locator('#start-next').click(); await step(t, 'Capabilities');
+  for (const id of capabilities) await page.locator(`#start-body .pw-cap[data-id="${id}"] input`).check();
+  await page.locator('#start-next').click(); await step(t, 'Packages');
+  for (const id of await page.locator('#start-packages .pw-cap:has(input:checked)').evaluateAll(rows => rows.map(row => row.dataset.id))) if (!packages.includes(id)) await page.locator(`#start-packages .pw-cap[data-id="${id}"] input`).uncheck();
+  for (const id of packages) await page.locator(`#start-packages .pw-cap[data-id="${id}"] input`).check();
+  await page.locator('#start-next').click(); await step(t, 'Summary');
+  await page.locator('#start-facts').waitFor();
+}
+/** A new project, as the person makes it: kind 'empty' is “Start from an empty folder instead”; any other kind is a
+ * package (round 12: the kinds are packages), chosen in step 3, with the given capabilities, then Create. */
+async function newProject(t, name, kind = 'empty', capabilities = []) {
+  const { page } = t;
+  await startProject(t, name);
+  if (kind === 'empty') await page.locator('#start-empty').click();
+  else {
+    await chooseAndSummarise(t, { capabilities, packages: [kind] });
+    await page.locator('#start-next').click();
+  }
+  await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
   const project = await page.evaluate(() => location.pathname.split('/')[2]);
   return { project, root: join(t.directory, name) };
 }
@@ -113,31 +148,163 @@ story('US-001', 'first run: an empty workbench leads to the first project, which
   await page.goto(t.base);
   const first = page.getByRole('button', { name: 'Create Your First Project…', exact: true }); await first.waitFor();
   assert.equal(await page.locator('#prompt').isDisabled(), true, 'no chat before a project exists');
-  await first.click(); await page.locator('#folder-dialog').waitFor();
-  await page.waitForFunction(() => document.querySelector('#folder-path').value.length > 0 && !document.querySelector('#folder-use').disabled);
-  await page.locator('#folder-path').fill(t.directory);
-  const browsed = page.waitForResponse(response => response.url().includes('/api/directories?path='));
-  await page.locator('#folder-go').click(); await browsed;
-  await page.waitForFunction(path => document.querySelector('#folder-path').value === path, t.directory);
-  await page.locator('#folder-name').fill('Hello');
-  await page.locator('#folder-kind [value="empty"]').check(); await page.locator('#folder-use').click();
+  await first.click(); await page.locator('#start-dialog').waitFor();
+  await page.locator('#start-name').fill('Hello'); await pickWhere(t);
+  await page.locator('#start-empty').click();
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && !document.querySelector('#prompt').disabled);
   assert.ok(exists(t.directory, 'Hello', 'ROADMAP.md') && exists(t.directory, 'Hello', 'tasks', '001-first-task.md'));
   assert.match(commits(t, join(t.directory, 'Hello')).at(-1), /^.*\|/, 'a git repository with a first commit');
   assert.match(await page.locator('#phase-button').textContent(), /Discussion/, 'every project starts in Discussion');
 });
 
-for (const [id, kind, label, identify] of [['US-002', 'web', 'Web app', 'app/main.py'], ['US-003', 'static', 'App with no server', 'js/app.mjs'], ['US-004', 'tui', 'Terminal app', 'app/tui.py'], ['US-005', 'empty', 'Empty folder', null]]) {
-  story(id, `create a project of each kind: ${label}`, async t => {
+for (const [id, kind, label, identify, check] of [['US-002', 'web', 'Web app', 'app/main.py', 'tests.test_base'], ['US-003', 'static', 'App with no server', 'js/app.mjs', 'tests/notes.test.mjs'], ['US-004', 'tui', 'Terminal app', 'app/tui.py', 'tests.test_base'], ['US-005', 'empty', 'Empty folder', null, null]]) {
+  story(id, `create a project of each kind (round 12: a package, or the empty folder): ${label}`, async t => {
     const made = await newProject(t, label + ' project', kind);
     assert.ok(exists(made.root, 'ROADMAP.md'), 'the plan is there');
-    if (identify) assert.ok(exists(made.root, identify), `the ${label} starter's ${identify}`);
-    else assert.deepEqual(fs.readdirSync(made.root).filter(name => name !== '.git').sort(), ['ROADMAP.md', 'tasks']);
+    if (identify) {
+      assert.ok(exists(made.root, identify), `the ${label} starter's ${identify}`);
+      assert.deepEqual(JSON.parse(t.bench.read(made.root, 'packaging.json')), { packages: [kind], capabilities: [] }, 'the package the person chose, written by the harness');
+      const runs = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(run => run.cwd === made.root);
+      assert.ok(runs.length && runs.every(run => run.exit_code === 0 && run.counts.pass > 0 && !run.counts.fail), 'Create ran the base’s tests and they passed');
+      assert.ok(runs.some(run => run.command.includes(check)), runs.map(run => run.command).join(' / '));
+    } else assert.deepEqual(fs.readdirSync(made.root).filter(name => name !== '.git').sort(), ['ROADMAP.md', 'tasks']);
     assert.equal(t.bench.git(made.root, 'status', '--porcelain').trim(), '', 'everything the starter made is committed');
     await t.page.locator('#work-tab').click();
     await t.page.getByRole('button', { name: 'ROADMAP.md', exact: true }).first().waitFor();
   });
 }
+
+// -- Project Start (round 12, plan 253) ------------------------------------------------------------------------------
+/** Stand-ins for uv and uvx on the services' PATH, so a Preview or a whole-suite run never downloads (as US-116 does). */
+async function offlineUv(t, extra = {}) {
+  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nexit 0\n', { mode: 0o755 });
+  await t.bench.restart(extra); await t.reopen();
+}
+const EXTRA = join(__dirname, '../fixtures/capabilities/extra.json');
+
+story('US-118', 'create with capabilities: the sentence’s suggestions are marked, never checked; Create runs the base’s tests and they pass', async t => {
+  await offlineUv(t);
+  const { page } = t;
+  await startProject(t, 'Class Notes', 'A notes app for my class that works offline on a phone');
+  await page.locator('#start-next').click(); await step(t, 'Capabilities');
+  assert.match(await page.locator('#start-body .pw-notice').textContent(), /From your sentence: .*Works offline.*Installs on a phone.*never pre-checked/);
+  for (const id of ['offline', 'install']) {
+    const suggested = page.locator(`#start-body .pw-cap[data-id="${id}"]`);
+    assert.equal(await suggested.getAttribute('data-suggested'), '', `${id} is marked`);
+    assert.equal(await suggested.locator('input').isChecked(), false, `${id} is never checked for the person`);
+  }
+  assert.equal(await page.locator('#start-body .pw-cap:has(input:checked)').count(), 0, 'nothing is chosen for the person');
+  await page.locator('#start-body .pw-cap[data-id="offline"] input').check();
+  await page.locator('#start-body .pw-cap[data-id="charts"] input').check();
+  assert.equal(await page.locator('#start-status').textContent(), '2 chosen');
+  await page.locator('#start-next').click(); await step(t, 'Packages');
+  const web = page.locator('#start-packages .pw-cap[data-id="web"]');
+  assert.equal(await web.getAttribute('aria-disabled'), 'true');
+  assert.match(await web.textContent(), /Not with: Works offline/, 'a package lists what it can’t carry');
+  assert.equal(await page.locator('#start-packages .pw-cap[data-id="static"] input').isChecked(), true, 'the one package that carries both');
+  await page.locator('#start-packages .pw-cap[data-id="phone"] input').check();
+  assert.match(await page.locator('#start-packages .pw-cap[data-id="phone"]').textContent(), /From: Installs on a phone/);
+  await page.locator('#start-next').click(); await step(t, 'Summary');
+  const facts = page.locator('#start-facts'); await facts.waitFor();
+  const text = await facts.textContent();
+  assert.match(text, /Works offline · Dashboard and charts · Installs on a phone \(from Phone app\)/);
+  assert.match(text, /App with no server · Phone app/);
+  assert.match(text, /English and Japanese, always/); assert.match(text, /Discussion/);
+  const [, files, tests] = text.match(/(\d+) files, (\d+) tests/);
+  assert.ok(Number(files) > 10 && Number(tests) >= 10, text);
+  await page.locator('#start-next').click();
+  await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
+  await page.locator('#toast-text').filter({ hasText: `Created “Class Notes”: all ${tests} tests of the base pass.` }).waitFor();
+  const root = join(t.directory, 'Class Notes');
+  for (const name of ['vendor/chartjs/chart.umd.min.js', 'vendor/chartjs/LICENSE.md', 'tests/cap-charts.test.mjs', 'tests/cap-offline.test.mjs', 'tests/cap-install.test.mjs']) assert.ok(exists(root, name), name);
+  assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')), { packages: ['static', 'phone'], capabilities: ['offline', 'charts', 'install'] });
+  assert.match(t.bench.read(root, 'sw.js'), /'vendor\/chartjs\/chart\.umd\.min\.js'/, 'the offline shell caches the library');
+  assert.match(t.bench.read(root, 'README.md'), /## Capabilities[\s\S]*Chart\.js 4\.5\.1/);
+  const run = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(item => item.cwd === root).at(-1);
+  assert.equal(run.counts.pass, Number(tests)); assert.equal(run.counts.fail, 0);
+  assert.match(run.command, /node --test .*tests\/cap-charts\.test\.mjs/);
+  assert.deepEqual(commits(t, root), ['Pi Workbench|Start from the Pi Workbench starter'], 'one first commit, after the tests passed');
+  assert.equal(t.bench.git(root, 'status', '--porcelain').trim(), '');
+});
+
+story('US-119', 'on the phone, a capability that is not available yet shows its reason, and a conflict shows before choosing', async t => {
+  const { page } = t;
+  await startProject(t, 'Party Game', '', { where: false });  // it creates nothing; the phone's folder browser has its own check (design.cjs, Ph8_ChooseFolder)
+  await page.locator('#start-next').click();
+  await page.locator('#start-dialog .pw-start__bar', { hasText: '2 of 4' }).waitFor();
+  assert.equal(await page.locator('#start-dialog .pw-start__bar-title').textContent(), 'Capabilities');
+  assert.deepEqual(await page.locator('#start-body .pw-capgroup > legend').allTextContents(), ['Accounts', 'Data', 'Screens', 'Together', 'Games', 'Publish']);
+  const accounts = page.locator('#start-body .pw-cap[data-id="accounts"]');
+  assert.equal(await accounts.getAttribute('aria-disabled'), 'true');
+  assert.equal(await accounts.locator('input').isDisabled(), true);
+  assert.match(await accounts.textContent(), /Not available yet: signing in needs the trusted sign-in adapter/, 'its reason, never hidden');
+  for (const label of await page.locator('#start-body .pw-cap').all()) assert.ok((await label.boundingBox()).height >= 44, 'rows are 44 px or more on the phone');
+  await page.locator('#start-body .pw-cap[data-id="multiplayer"] input').check();
+  assert.match(await page.locator('#start-body .pw-cap[data-id="offline"] .pw-cap__warn').textContent(), /With Multiplayer, real time: changes from others wait until you are back online\./, 'shown before choosing');
+  assert.match(await page.locator('#start-body .pw-cap[data-id="database"] .pw-cap__warn').textContent(), /Not with Multiplayer, real time: no package carries both/);
+  await page.locator('#start-body .pw-cap[data-id="database"] input').check();
+  assert.equal(await page.locator('#start-next').isDisabled(), true, 'no package carries both: Next waits');
+  assert.match(await page.locator('#start-status').textContent(), /No package carries all of these/);
+  await page.locator('#start-body .pw-cap[data-id="database"] input').uncheck();
+  await page.locator('#start-next').click();
+  await page.locator('#start-dialog .pw-start__bar', { hasText: '3 of 4' }).waitFor();
+  assert.match(await page.locator('#start-packages .pw-cap[data-id="tui"]').textContent(), /Not with: Multiplayer, real time/);
+}, { viewport: { width: 390, height: 844 } });
+
+story('US-120', 'a failing base test creates nothing (the folder goes to the Trash, the test is named); Add a Capability… keeps nothing either', async t => {
+  await offlineUv(t, { PI_KIT_CAPABILITIES_EXTRA: EXTRA });
+  const { page } = t;
+  await startProject(t, 'Broken');
+  await chooseAndSummarise(t, { capabilities: ['broken'], packages: ['web'] });
+  await page.locator('#start-next').click();
+  await page.locator('#start-result .pw-cap__warn').filter({ hasText: 'Not created: a test of the base failed (Always fails (test): test_this_capability_always_fails). Nothing was created.' }).waitFor({ timeout: 60000 });
+  assert.match(await page.locator('#start-result .pw-start__failing').first().textContent(), /tests\/test_cap_broken\.py/);
+  assert.match(await page.locator('#start-result .pw-start__output').textContent(), /this capability is broken on purpose/);
+  assert.equal(await page.locator('#start-status').textContent(), 'Nothing was created.');
+  assert.equal(exists(t.directory, 'Broken'), false, 'no folder');
+  assert.ok(exists(t.directory, 'Trash', 'Broken'), 'the partial folder went to the Trash');
+  assert.equal((await t.bench.api('/api/workspace')).projects.length, 0, 'no project');
+  const made = await newProject(t, 'Solid', 'web');
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="add-capability"]').click();
+  await page.locator('#capability-dialog .pw-cap[data-id="broken"] input').check();
+  await page.locator('#capability-facts').filter({ hasText: /adds 1 file/ }).waitFor();
+  await page.locator('#capability-add').click();
+  await page.locator('#capability-status').filter({ hasText: 'Not added: a test failed (Always fails (test): test_this_capability_always_fails). Nothing was changed.' }).waitFor({ timeout: 60000 });
+  assert.equal(exists(made.root, 'tests', 'test_cap_broken.py'), false);
+  assert.equal(t.bench.git(made.root, 'status', '--porcelain').trim(), '', 'every file as it was');
+  assert.equal(commits(t, made.root).length, 1);
+});
+
+story('US-121', 'Add a Capability…: what changes, Safety and Undo; it is kept as one request when the tests pass, and Undo takes it back', async t => {
+  await offlineUv(t);
+  const { page } = t;
+  const { root } = await newProject(t, 'Quiz Night', 'static');
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="add-capability"]').click();
+  const dialog = page.locator('#capability-dialog'); await dialog.waitFor();
+  assert.match(await dialog.locator('.pw-cap[data-id="database"]').textContent(), /The App with no server can't carry it/);
+  assert.equal(await dialog.locator('.pw-cap[data-id="database"] input').isDisabled(), true);
+  await dialog.locator('.pw-cap[data-id="qrcode"] input').check();
+  await page.locator('#capability-facts').filter({ hasText: 'adds 3 files · changes 3 (README.md, packaging.json, sw.js) · adds 2 tests' }).waitFor();
+  const facts = await page.locator('#capability-facts').textContent();
+  assert.match(facts, /every existing test must still pass; if one fails, nothing is kept/); assert.match(facts, /it is one request: Undo This Request… takes it back/);
+  await page.locator('#capability-add').click();
+  await dialog.waitFor({ state: 'hidden', timeout: 60000 });
+  const message = page.locator('.pw-msg', { hasText: 'Added Share by QR code' }); await message.waitFor();
+  assert.match(await message.textContent(), /all \d+ tests of the base pass, 2 of them new/);
+  assert.equal(commits(t, root)[0], 'Pi Workbench|Capability: Share by QR code', 'one request, by the harness');
+  assert.ok(exists(root, 'vendor', 'qrcode', 'qrcode.mjs') && exists(root, 'tests', 'cap-qrcode.test.mjs'));
+  assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')).capabilities, ['qrcode']);
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="add-capability"]').click();
+  await page.locator('#capability-dialog[open] .pw-cap[data-id="qrcode"][aria-disabled="true"]').waitFor();
+  assert.match(await dialog.locator('.pw-cap[data-id="qrcode"]').textContent(), /Already in this project/);
+  assert.equal(await dialog.locator('.pw-cap[data-id="qrcode"] input').isDisabled(), true);
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).last().click(); await dialog.waitFor({ state: 'hidden' });
+  await message.locator('.pw-done').getByText('Undo This Request…', { exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
+  await page.waitForFunction(() => [...document.querySelectorAll('.pw-done__head')].some(head => /Undone/.test(head.textContent)));
+  assert.equal(exists(root, 'vendor', 'qrcode', 'qrcode.mjs'), false, 'Undo takes the files back');
+  assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')).capabilities, []);
+});
 
 story('US-006', 'add an existing folder: it is used in place, its files show and nothing is written', async t => {
   const { page } = t;
@@ -734,7 +901,7 @@ story('US-095', 'on a phone (390 px): plan in Planning and Start Building from t
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'no sideways scroll');
 });
 
-module.exports = { story, newProject, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
+module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------
 if (require.main === module) (async () => {
@@ -750,7 +917,7 @@ if (require.main === module) (async () => {
         t.page.on('pageerror', error => t.errors.push(error.message));
         // A guard, not a step: a project is only ever created or added inside this story's scratch folder (a folder
         // browser that answered late once pointed New Project at the home folder).
-        await t.page.route(/\/api\/projects\/(create|register)$/, route => {
+        await t.page.route(/\/api\/projects\/(create|register|start)$/, route => {
           const body = route.request().postDataJSON() || {}, where = String(body.parent || body.path || '');
           if (!where.startsWith(bench.directory + '/') && where !== bench.directory) return route.fulfill({ status: 400, json: { error: `Story guard: ${where || 'the data folder'} is outside the scratch folder` } });
           return route.continue();

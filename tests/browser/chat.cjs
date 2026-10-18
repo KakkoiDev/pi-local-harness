@@ -40,10 +40,12 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#menubar [aria-controls="menu-file"]').click();assert.equal(await page.locator('#menu-file [data-command="new-file"]').getAttribute('aria-disabled'),'true','New File needs a project');assert.equal(await page.locator('#menu-file [data-command="new-project"]').getAttribute('aria-disabled'),'false');await page.keyboard.press('Escape');
   const leaveApp=async()=>{if(['activity','gate'].includes(await page.evaluate(()=>document.body.dataset.view))){await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="close-window"]').click();}};
   async function createProject(name){
-   if(await page.locator('#new-project').isVisible())await page.locator('#new-project').click();else{await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-project"]').click();}await page.waitForFunction(()=>document.querySelector('#folder-path').value.length>0);await page.locator('#folder-path').fill(directory);
+   if(await page.locator('#new-project').isVisible())await page.locator('#new-project').click();else{await page.locator('#menubar [aria-controls="menu-file"]').click();await page.locator('#menu-file [data-command="new-project"]').click();}
+   await page.locator('#start-dialog').waitFor();await page.locator('#start-name').fill(name);/* round 12: Project Start; these tests are about chats, so the empty folder */
+   await page.locator('#start-where').click();await page.waitForFunction(()=>document.querySelector('#folder-path').value.length>0&&!document.querySelector('#folder-use').disabled);await page.locator('#folder-path').fill(directory);
    const browsed=page.waitForResponse(response=>response.url().includes('/api/directories?path='));await page.locator('#folder-go').click();await browsed;
    await page.waitForFunction(path=>document.querySelector('#folder-path').value===path,directory);
-   await page.locator('#folder-name').fill(name);await page.locator('#folder-kind [value="empty"]').check();/* round 7: these tests are about chats, not the starters */await page.locator('#folder-use').click();
+   await page.locator('#folder-use').click();await page.locator('#folder-dialog').waitFor({state:'hidden'});await page.locator('#start-empty').click();
    await page.waitForFunction(()=>document.body.dataset.view==='chat'&&/\/chat$/.test(location.pathname));/* a new project opens its Chat (F1) */
    await page.locator('#work-tab').click();await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor().catch(async error=>{console.error('DIAGNOSTIC createProject (intermittent, task 150):',JSON.stringify(await page.evaluate(()=>({url:location.pathname,view:document.body.dataset.view,level:document.body.dataset.level,path:document.querySelector('#document-path').textContent,notice:document.querySelector('#save-status')?.textContent,project:document.querySelector('#files-title').textContent,files:[...document.querySelectorAll('#file-tree .pw-row')].map(row=>row.textContent).slice(0,8),editor:document.querySelector('#document-editor').textContent.slice(0,120)}))),'\n'+chatConsole.slice(-15).join('\n'));throw error;});
   }
@@ -148,8 +150,8 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#menubar [aria-controls="menu-file"]').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('#menu-file').isVisible(),true);assert.equal(await focused(),'new-project');
   await page.keyboard.press('ArrowDown');assert.equal(await focused(),'add-folder');await page.keyboard.press('ArrowUp');await page.keyboard.press('Enter');
-  await page.locator('#folder-dialog').waitFor();assert.equal(await page.locator('#menu-file').isVisible(),false);
-  await page.locator('#folder-cancel').click();await page.locator('#folder-dialog').waitFor({state:'hidden'});
+  await page.locator('#start-dialog').waitFor();assert.equal(await page.locator('#menu-file').isVisible(),false);
+  await page.locator('#start-cancel').click();await page.locator('#start-dialog').waitFor({state:'hidden'});
   await page.locator('#menubar [aria-controls="menu-edit"]').click();
   assert.equal(await page.locator('#menu-edit [data-command="find-file"]').getAttribute('aria-disabled'),'true','Find in Files needs the Work view');
   await page.keyboard.press('ArrowRight');assert.equal(await page.locator('#menu-view').isVisible(),true);assert.equal(await page.locator('#menu-edit').isVisible(),false);

@@ -1,0 +1,9 @@
+{
+ "note": "Tests only (PI_KIT_CAPABILITIES_EXTRA): a capability whose own test fails, so Create must create nothing and Add a Capability… must keep nothing.",
+ "capabilities": [
+  {"id": "broken", "group": "data", "name": "Always fails (test)", "small": "A capability whose test fails, for the tests.", "adds": "a failing test", "needs": [],
+   "supports": ["web", "static", "tui"], "available": true, "readme": "Always fails (test).",
+   "install": {"web": {"files": "broken/python"}, "tui": {"files": "broken/python"}, "static": {"files": "broken/static"}},
+   "keywords": ["breaks"]}
+ ]
+}

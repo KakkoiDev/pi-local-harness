@@ -12,6 +12,7 @@ import uuid
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/'kit'))
 import new_project as starter  # noqa: E402  (kit/new_project.py: the starters)
+import capabilities as kit_capabilities  # noqa: E402  (kit/capabilities.py: Project Start, plan 253)
 from datetime import datetime
 
 class DocumentConflict(ValueError):pass
@@ -410,10 +411,12 @@ class DocumentStore:
             to_trash(path)
             entry['removed']=True;self.save_registry()
             return {'project':project,'path':str(path)}
-    def create_project(self, name, parent=None, kind='empty'):
+    def create_project(self, name, parent=None, kind='empty', start=None):
         """kind (round 7, P_NewProject): 'web' and 'static' are the kit's starters (kit/new_project.py); 'empty' is a
-        folder with a roadmap. Each starts with a repository: the harness commits each verified request."""
-        if kind not in ('web','static','tui','empty'):raise ValueError('Choose Web app, App with no server, Terminal app or Empty folder')
+        folder with a roadmap. Each starts with a repository: the harness commits each verified request. 'start' (round 12,
+        Project Start): start={'packages','capabilities'} assembles a base and runs its tests; if one fails, the folder
+        goes to the Trash and kit_capabilities.BaseFailed says which test (nothing is created); otherwise start['check'] has the run."""
+        if kind not in ('web','static','tui','empty','start'):raise ValueError('Choose Web app, App with no server, Terminal app or Empty folder')
         name=slug(name)
         base=Path(parent).expanduser().resolve() if parent else self.projects
         if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
@@ -426,6 +429,13 @@ class DocumentStore:
                 path.mkdir();(path/'tasks').mkdir()
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
                 starter.start_history(path,'Start the project')
+            elif kind=='start':
+                try:check=kit_capabilities.build(path,(start or {}).get('packages'),(start or {}).get('capabilities'),files=plan,data=self.root)
+                except Exception:
+                    if path.exists():to_trash(path)
+                    raise
+                if not check['passed']:to_trash(path);raise kit_capabilities.BaseFailed(check)
+                start['check']=check  # the caller shows the counts
             else:starter.new_project(path,static=kind=='static',tui=kind=='tui',files=plan)
             return self.register(str(path),name,fresh=True)  # task 262: its own uuid, never the folder name
     def directories(self, directory=None):

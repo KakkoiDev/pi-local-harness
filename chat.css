@@ -383,10 +383,6 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
 .alert-extra{margin-top:8px}
 .alert-extra details summary{font-family:var(--font-chrome);font-size:13px}
 .message.change{padding-top:0}
-.folder-kind{border:0;margin:0;padding:0;display:flex;flex-direction:column}
-.folder-kind[hidden]{display:none}
-.folder-kind legend{padding:0;margin-bottom:2px}
-.folder-kind__help{margin:6px 0 0;padding-top:8px;border-top:1px dotted var(--ink)}
 
 /* Ask Pi (Ph8_Ask, round 8 point 6): its own sheet on the phone; the quote, the question, Pi sees, Cancel / Ask */
 .ask-dialog__form{display:flex;flex-direction:column;gap:12px}
@@ -529,4 +525,43 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  .pw-theme__row{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}
  .pw-theme[data-mode=light] .pw-theme__side[data-mode=dark],.pw-theme[data-mode=dark] .pw-theme__side[data-mode=light]{display:none}
  .pw-theme__colour input[type=color]{width:44px;height:44px}
+}
+
+/* Round 12, Project Start (plan 253; R12_NP1–NP4, Ph12_NP2–NP4, R12_AddCap): the four-step New Project and Add a Capability… */
+dialog.pw-start[open]{width:860px;max-width:calc(100vw - 32px);height:760px;max-height:calc(100vh - 32px);padding:0;gap:0;box-sizing:border-box;display:flex;flex-direction:column}
+dialog.pw-start--add[open]{width:720px;height:720px}
+.pw-start__head{padding:16px 20px;border-bottom:1px solid var(--ink);display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+.pw-start__head .pw-dialog__title{margin:0}
+.pw-start__bar{display:none}
+.pw-start__main{flex:1;min-height:0;display:grid;grid-template-columns:180px minmax(0,1fr)}
+.pw-start__main>.pw-steps{border-right:1px solid var(--ink)}
+.pw-start--add .pw-start__main{grid-template-columns:minmax(0,1fr)}
+.pw-start__body{overflow:auto;padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+.pw-start__body .pw-notice{margin:0}
+.pw-start__field{display:flex;flex-direction:column;gap:4px}
+.pw-start__where{border:1px solid var(--ink);justify-content:space-between}
+.pw-start__way-out{display:flex;flex-direction:column;align-items:flex-start;gap:6px;border-top:1px dotted var(--ink);padding-top:12px;margin-top:6px}
+.pw-start__groups{display:flex;flex-direction:column}
+.pw-start__actions{padding:12px 20px;border-top:1px solid var(--ink);margin:0;align-items:center}
+.pw-start__status{flex:1;min-width:0}
+.pw-start__result:empty{display:none}
+.pw-start__result{display:flex;flex-direction:column;gap:6px}
+.pw-start__output{max-height:200px;overflow:auto;margin:0;padding:6px 8px;border:1px dotted var(--ink);font-size:12px;line-height:16px;white-space:pre-wrap}
+.pw-cap__suggested{font-weight:600}
+.pw-cap .pw-radio{margin:3px 0 0}
+.pw-cap[hidden],.pw-capgroup[hidden]{display:none}
+@media (max-width:760px){
+ dialog.pw-start[open],dialog.pw-start--add[open]{width:100%;max-width:none;height:100dvh;max-height:none;margin:0;border:0;padding:0 0 env(safe-area-inset-bottom,0px)}
+ .pw-start__head,.pw-start__main>.pw-steps{display:none}
+ .pw-start__bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:44px;padding:0 8px;border-bottom:1px solid var(--ink)}
+ .pw-start__bar>:first-child{justify-self:start}
+ .pw-start__bar>:last-child{justify-self:end}
+ .pw-start__bar-title{margin:0;font-family:var(--font-chrome);font-size:16px;font-weight:600}
+ .pw-start__main{grid-template-columns:minmax(0,1fr)}
+ .pw-start__body{padding:12px 16px}
+ .pw-start__actions{padding:10px 16px;flex-wrap:wrap}
+ .pw-start__actions>.pw-start__status{flex-basis:100%;order:-1}
+ #start-cancel{display:none}
+ .pw-cap .pw-radio{width:22px;height:22px;margin:0}
+ .pw-start__where,.pw-start .pw-field{min-height:44px}
 }

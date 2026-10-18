@@ -533,16 +533,24 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   assert.match(await missing.textContent(),/folder missing/);await missing.click();
   await page.locator('#missing-remove').click();/* task 154: it opens with a line offering Locate Folder… and Remove from List… */await page.locator('#alert-default').click();await missing.waitFor({state:'detached'});
 
-  // Audit (task 150): the folder browser lists real rows (icon and name, full height), the path field gets the room, the help says what happens.
-  await page.goto(`${base}/projects`);await page.locator('#new-project').click();await page.locator('#folder-list .pw-row').first().waitFor();
+  // Audit (task 150): the folder browser lists real rows (icon and name, full height) and the path field gets the room (Add Existing Folder…).
+  await page.goto(`${base}/projects`);await page.locator('#add-folder').click();await page.locator('#folder-list .pw-row').first().waitFor();
   const folderRows=await page.locator('#folder-list .pw-row').evaluateAll(rows=>rows.slice(0,3).map(row=>({height:Math.round(row.getBoundingClientRect().height),icon:Boolean(row.querySelector('svg')),label:row.querySelector('.pw-row__label')?.textContent})));
   assert.ok(folderRows.every(row=>row.height>=28&&row.icon&&row.label),'folder rows: '+JSON.stringify(folderRows));
   assert.ok((await page.locator('#folder-path').boundingBox()).width>=240,'the path field is not squeezed');
-  await page.locator('#folder-name').fill('Shop');assert.match(await page.locator('#folder-help').textContent(),/^Creates “.+\/Shop” from the web app starter: a small notes app in English and Japanese, with tests\. Ask Pi to turn it into yours\.$/,'round 7 (P_NewProject): Web app is the default');
-  assert.deepEqual(await page.locator('#folder-kind .pw-choice > span').allTextContents(),['Web app','App with no server','Terminal app','Empty folder']);
-  await page.locator('#folder-kind [value="static"]').check();assert.match(await page.locator('#folder-help').textContent(),/from the no-server starter/,'P_NewProjectStatic');
-  await page.locator('#folder-kind [value="empty"]').check();assert.match(await page.locator('#folder-help').textContent(),/^Creates the folder “.+\/Shop” with ROADMAP\.md and tasks\/001-first-task\.md, then opens its Chat\.$/);
+  assert.match(await page.locator('#folder-help').textContent(),/^Registers the folder in place\. Nothing is moved or created\.$/);
   await page.locator('#folder-cancel').click();
+  // Round 12 (R12_NP1, ProjectStart): New Project is four steps in an 860 × 760 dialog; step 1 keeps the way out to an empty folder.
+  await page.locator('#new-project').click();await page.locator('#start-dialog').waitFor();
+  const startBox=await page.locator('#start-dialog').boundingBox();assert.ok(Math.round(startBox.width)===860&&Math.round(startBox.height)===760,'860 × 760: '+JSON.stringify(startBox));
+  assert.deepEqual(await page.locator('#start-steps li').allTextContents(),['1 · Name','2 · Capabilities','3 · Packages','4 · Summary']);
+  assert.equal(await page.locator('#start-steps li[aria-current="step"]').textContent(),'1 · Name');
+  assert.match(await page.locator('#start-where').textContent(),/^Create in /);assert.equal(await page.locator('#start-empty').textContent(),'Start from an empty folder instead');
+  assert.deepEqual([await page.locator('#start-back').isVisible(),await page.locator('#start-cancel').isVisible(),await page.locator('#start-next').textContent()],[false,true,'Next'],'step 1: Cancel · Next');
+  await page.locator('#start-name').fill('Shop');await page.locator('#start-next').click();await page.waitForFunction(()=>document.querySelector('#start-steps [aria-current="step"]')?.textContent==='2 · Capabilities');
+  assert.equal(await page.locator('#start-steps li').first().getAttribute('data-done'),'','a finished step is ticked');
+  assert.deepEqual([await page.locator('#start-back').isVisible(),await page.locator('#start-cancel').isVisible()],[true,false],'Back · status · Next');
+  await page.locator('#start-back').click();await page.locator('#start-cancel').click();await page.locator('#start-dialog').waitFor({state:'hidden'});
 
   // Audit (task 150): at tablet width Activity keeps the request readable (Source and Started move to the detail).
   await page.setViewportSize({width:1024,height:768});await page.goto(`${base}/activity`);await page.locator('#activity-list .pw-table__row').first().waitFor();
@@ -677,10 +685,11 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   assert.equal(await page.locator('#phone-view').isVisible(),false,'only the back button');assert.equal(await page.locator('#detail-back-label').textContent(),'Activity · all');
   assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().innerText(),/^(Open in Chat|Show Comment|Show in Review)$/);
   await page.locator('#detail-back').click();
-  await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
+  await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#start-dialog').waitFor();
   assert.equal(await page.evaluate(()=>document.body.classList.contains('menu-open')),false,'the π sheet closes for a dialog');
-  const sheet=await page.locator('#folder-dialog').boundingBox();assert.ok(Math.round(sheet.y+sheet.height)>=840&&Math.round(sheet.width)===390,'a bottom sheet: '+JSON.stringify(sheet));
-  await page.locator('#folder-cancel').click();
+  const sheet=await page.locator('#start-dialog').boundingBox();assert.ok(Math.round(sheet.y)===0&&Math.round(sheet.height)>=840&&Math.round(sheet.width)===390,'Ph12_NP: one full-screen page per step: '+JSON.stringify(sheet));
+  assert.match(await page.locator('#start-dialog .pw-start__bar').innerText(),/Cancel\s+Name\s+1 of 4/);
+  await page.locator('#start-dialog .pw-start__bar button').click();await page.locator('#start-dialog').waitFor({state:'hidden'});
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#document-editor .pw-block--paragraph .pw-block__content').first().click();
   await page.locator('#phone-tool-bullet').waitFor();await page.locator('#phone-tool-bullet').click();
   await page.waitForFunction(()=>document.querySelector('#document-editor .pw-block--focused')?.classList.contains('pw-block--bullet'));
@@ -755,18 +764,17 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.waitForFunction(()=>document.body.dataset.pane==='list');
   await stopAll();
   }
-  { // Round 8 point 10 (Ph8_NewProject, Ph8_ChooseFolder): "Create in … ›" opens the folder browser as its own step; New Folder… makes one.
-  await page.goto(`${base}/p/${id}/chat`);await page.locator('#open-menu').waitFor();await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#folder-dialog').waitFor();
-  assert.equal(await page.locator('#folder-list').isVisible(),false,'one row, not the browser');assert.equal(await page.locator('#folder-where').isVisible(),true);
+  { // Round 8 point 10 (Ph8_ChooseFolder), now Project Start's “Create in … ›” (R12_NP1): it opens the folder browser as its own step; New Folder… makes one.
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#open-menu').waitFor();await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#start-dialog').waitFor();
+  await page.locator('#start-where').click();await page.locator('#folder-list').waitFor();assert.equal(await page.locator('#folder-name').isVisible(),false,'its own step');
   await page.evaluate(folder=>{document.getElementById('folder-path').value=folder;document.getElementById('folder-go').click();},directory);
-  await page.locator('#folder-where-label').filter({hasText:'Create in '}).waitFor();
-  await page.locator('#folder-where').click();await page.locator('#folder-list').waitFor();assert.equal(await page.locator('#folder-name').isVisible(),false,'its own step');
+  await page.locator('#folder-crumbs [aria-current]').filter({hasText:directory.split('/').pop()}).waitFor();
   assert.ok((await page.locator('#folder-list .pw-row').first().boundingBox()).height>=44,'44 px folder rows');
   await page.locator('#folder-new').click();await page.locator('#name-dialog-input').fill('Made here');await page.locator('#name-dialog-ok').click();
   await page.locator('#folder-crumbs [aria-current]').filter({hasText:'Made here'}).waitFor();assert.equal(fs.existsSync(join(directory,'Made here')),true,'New Folder… made it');
   assert.equal(await page.locator('#folder-choose').textContent(),'Choose “Made here”');await page.locator('#folder-choose').click();
-  await page.locator('#folder-name').waitFor();assert.match(await page.locator('#folder-where-label').textContent(),/^Create in .*Made here$/);
-  await page.locator('#folder-cancel').click();
+  await page.locator('#folder-dialog').waitFor({state:'hidden'});assert.match(await page.locator('#start-where').textContent(),/^Create in .*Made here/);
+  await page.locator('#start-dialog .pw-start__bar button').click();await page.locator('#start-dialog').waitFor({state:'hidden'});
   }
   { // Round 8 point 11 (Ph8_Details, Ph8_Toast, Ph8_Settings): 44 px targets, no ⌘ hints, the toast above the edit bar.
   await page.goto(`${base}/p/${id}/work/ROADMAP.md`);await page.locator('#phone-comments').waitFor();

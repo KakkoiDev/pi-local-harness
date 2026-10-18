@@ -8,13 +8,13 @@
   "web": {
     "identify": "app/main.py",
     "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "tests/test_logic.py", "tests/test_app.py", "app/main.py", "app/templates/pages/index.html", "app/templates/fragments/note_form.html", "app/templates/fragments/note_created.html", "app/templates/fragments/note_item.html"],
-    "skeleton": ["app/db.py", "app/i18n.py", "app/templates/base.html", "static/sw.js", "tests/test_i18n.py", "tests/test_files.py", "pyproject.toml", "styles/"],
+    "skeleton": ["app/db.py", "app/i18n.py", "app/templates/base.html", "static/sw.js", "tests/test_i18n.py", "tests/test_files.py", "tests/test_base.py", "pyproject.toml", "styles/"],
     "rename": {"static/manifest.webmanifest": ["name", "short_name"], "messages/*.json": ["app.name=Notes", "notes.*"], "README.md": ["notes text"]}
   },
   "tui": {
     "identify": "app/tui.py",
     "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "app/tui.py", "tests/test_logic.py", "tests/test_tui.py"],
-    "skeleton": ["app/db.py", "app/i18n.py", "serve.py", "tests/test_i18n.py", "pyproject.toml"],
+    "skeleton": ["app/db.py", "app/i18n.py", "serve.py", "tests/test_i18n.py", "tests/test_base.py", "pyproject.toml"],
     "rename": {"messages/*.json": ["app.name=Notes", "notes.*"], "README.md": ["notes text"]}
   }
 }

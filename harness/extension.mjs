@@ -33,6 +33,7 @@ import { StepWatch } from './stuck.mjs';
 import { harnessTools, activeTools } from './tool-choice.mjs';
 import { loadGuides, chooseGuides } from './guides.mjs';
 import { installMusic, musicAvailable } from './music.mjs';
+import { capabilityCards } from './capability-cards.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -268,8 +269,9 @@ export default function harness(pi, dependencies = {}) {
     const guideDecision=JSON.stringify([requestId,chosenGuides.map(item=>item.name)]);
     if (!bare && requestId && guideDecision!==lastGuideDecision) {recordGuides(dataDir,requestId,chosenGuides);lastGuideDecision=guideDecision;}
     const guide = chosenGuides.length ? `\n\nGuides for this request:\n${chosenGuides.map(item => item.text).join('\n\n')}` : '';
+    let cards = ''; if (!bare) try { const found = capabilityCards(context?.cwd || root); if (found) cards = `\n\n${found}`; } catch {} // round 12: the project's capabilities (packaging.json) and their cards
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
-    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${consoleGuide}` };
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${cards}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;

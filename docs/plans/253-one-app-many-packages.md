@@ -165,6 +165,20 @@ else…" last; the model never removes a feature or changes the target.
 9. **Existing no-server apps (kit/starter-static):** stay as they are (recommended, as plan 253 says) · a migration
    task later · Something else…
 
+### Project Start, built (round 12 step 1, 2026-10-18)
+
+New Project is now Name → Capabilities → Packages → Summary (js/project-start.mjs, kit/capabilities.json,
+kit/capabilities.py): the kinds are packages (Web app, App with no server, Phone app as the PWA per decision 7,
+Terminal app), chosen separately from capabilities. Create assembles the base from one starter plus each capability's
+files and tests, runs the base check offline (Python's unittest or Node's test runner, nothing installed) and creates
+nothing if a test fails; packaging.json records the choice (task 275's file, written by the harness). Until the browser
+adapter (task 277) gives one source to several packages, one project has one base package (Web app, App with no
+server or Terminal app), plus the Phone app on a page package; choosing two base packages says so instead of
+pretending. Add a Capability… keeps a capability as one harness commit only if every test still passes. Still open
+here: Gate refusing Pi's writes to packaging.json and kit/capabilities.json (tasks 275, 278), the shared layout and
+adapters (275-277), the native phone package (279). Terminal Pi has no project-creation command; capability choice is
+in the web only.
+
 ### The person's answers (2026-10-18): "do recommended"
 
 1. Pyodide. 2. Its download is approved; it happens when task 276/277 starts, pinned and checksum-checked as described,

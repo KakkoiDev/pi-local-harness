@@ -842,7 +842,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save'})  # task 312: the theme panel is the person's
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/projects/start','/api/projects/capability'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|stop)',path):return True
         # A message answering a waiting choice is recorded as the person's decision.
@@ -888,6 +888,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
+            if path=='/api/project-start':from harness import project_start;self.reply(project_start.catalogue(self.chat,parse_qs(urlparse(self.path).query)));return  # round 12, plan 253
             if path=='/api/theme/fonts':self.reply(self.chat.fonts.search(parse_qs(urlparse(self.path).query).get('q',[''])[0]));return
             if path=='/api/project-files':self.reply(self.chat.documents.files(parse_qs(urlparse(self.path).query)['project'][0]));return
             if path=='/api/document':self.reply(self.chat.documents.get(parse_qs(urlparse(self.path).query)['path'][0]));return
@@ -918,7 +919,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -992,6 +993,8 @@ class WebHandler(BaseHTTPRequestHandler):
                 self.reply(RunReports(self.chat.documents.root).mark_seen(data.get('id')));return
             if path=='/api/projects/create':
                 project=self.chat.documents.create_project(data['name'],data.get('parent'),data.get('kind','empty'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
+            if path in ('/api/projects/start','/api/projects/capability','/api/project-start/plan','/api/project-start/preview'):  # round 12, Project Start (harness/project_start.py)
+                from harness import project_start;self.reply({'/api/projects/start':project_start.create,'/api/projects/capability':project_start.add,'/api/project-start/plan':project_start.plan,'/api/project-start/preview':project_start.preview}[path](self.chat,data));return
             if path=='/api/projects/register':
                 project=self.chat.documents.register(data['path'],data.get('name'));self.reply({'project':project,'chat':self.chat.project_chat(project)['id']});return
             if path=='/api/turn':  # task 164: a work request's next model call waits while the chat answers (one-at-a-time model)

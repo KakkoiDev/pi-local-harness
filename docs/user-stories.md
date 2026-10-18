@@ -39,10 +39,14 @@ marker") when the fix merges.
 
 | ID | As a person I… | Acceptance | Surfaces | Test |
 |---|---|---|---|---|
-| US-002 | create a Web app project | The web starter (app/main.py), everything committed, its Chat opens | desk | stories.cjs US-002 |
-| US-003 | create an App with no server | The static starter (js/app.mjs), committed | desk | stories.cjs US-003 |
-| US-004 | create a Terminal app | The terminal starter (app/tui.py), committed | desk | stories.cjs US-004 |
-| US-005 | create an Empty folder project | Only ROADMAP.md and tasks/, committed | desk | stories.cjs US-005 |
+| US-002 | create a Web app project (round 12: the Web app package in Project Start) | The web starter (app/main.py) and packaging.json; Create ran the base's tests (Gate's test evidence) and they passed; everything committed, its Chat opens | desk | stories.cjs US-002; tests/test_capabilities.py |
+| US-003 | create an App with no server (the package) | The static starter (js/app.mjs); its base tests ran with Node and passed; committed | desk | stories.cjs US-003 |
+| US-004 | create a Terminal app (the package) | The terminal starter (app/tui.py); its base tests passed; committed | desk | stories.cjs US-004 |
+| US-005 | create an Empty folder project (“Start from an empty folder instead”) | Only ROADMAP.md and tasks/, committed | desk | stories.cjs US-005 |
+| US-118 | start a project with capabilities (round 12, plan 253) | Name → Capabilities → Packages → Summary; my sentence's suggestions are marked, never checked; a package lists what it can't carry; the Summary counts the base's files and tests; Create copies each capability's files and tests, runs them, and commits once they pass | desk | stories.cjs US-118; tests/test_capabilities.py |
+| US-119 | see why a capability can't be chosen, on the phone too | A capability that is not available yet stays listed, disabled, with its reason; a conflict shows under the row before I choose it; one full-screen page per step (“2 of 4”), 44 px rows | phone | stories.cjs US-119 |
+| US-120 | be sure a broken base is never created | A failing base test creates nothing: the partial folder goes to the Trash, the failing test and its capability are named; Add a Capability… keeps nothing either | desk | stories.cjs US-120; tests/test_capabilities.py |
+| US-121 | add a capability to a project later, and take it back | Project › Add a Capability…: what changes, Safety, Undo; “Already in this project” rows; kept as one request by the harness only if every test passes; Undo This Request… takes it back | desk | stories.cjs US-121; tests/test_capabilities.py |
 | US-006 | add an existing folder | Used in place, nothing written; its files show in Work | desk | stories.cjs US-006 |
 | US-010 | rename a project and keep talking with Pi | The folder is renamed, chat stays; the next request runs in the new folder | desk, phone | stories.cjs US-010 (the fake Pi stops like Pi 1.1.0 on a session folder that is gone; fixed by task 262); rename UI: design.cjs (Task 154) |
 | US-011 | create a project with the old name of a renamed one | It gets its own, empty chat | desk | stories.cjs US-011; task 262 gives every project its own id (item 16) |
@@ -233,12 +237,12 @@ marker") when the fix merges.
 
 ## Coverage
 
-Counted from the tables above: 110 stories, each once, under its best status (a story with a journey and a
-unit test counts as a journey). Browser journeys in stories.cjs: 41 (39 from task 264, 2 from task 312) and 11 terminal journeys in stories.test.mjs.
+Counted from the tables above: 114 stories, each once, under its best status (a story with a journey and a
+unit test counts as a journey). Browser journeys in stories.cjs: 45 (39 from task 264, 2 from task 312, 4 from round 12's Project Start) and 11 terminal journeys in stories.test.mjs.
 
 | Status | Count | Stories |
 |---|---|---|
-| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 97 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117 |
+| Covered by a passing journey (stories.cjs, stories.test.mjs, design.cjs, chat.cjs) | 101 | US-001, US-002, US-003, US-004, US-005, US-006, US-008, US-010, US-011, US-012, US-013, US-014, US-015, US-016, US-017, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-045, US-046, US-047, US-048, US-049, US-050, US-051, US-052, US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-062, US-063, US-064, US-067, US-070, US-071, US-072, US-073, US-074, US-075, US-076, US-077, US-078, US-079, US-080, US-081, US-082, US-083, US-084, US-085, US-086, US-087, US-088, US-089, US-090, US-091, US-092, US-095, US-096, US-097, US-100, US-101, US-102, US-103, US-104, US-105, US-106, US-107, US-110, US-111, US-113, US-116, US-117, US-118, US-119, US-120, US-121 |
 | Expected failure (xfail), with its review item | 0 | none |
 | Partial: unit or integration tests only, no journey yet | 6 | US-007, US-068, US-108, US-109, US-112, US-115 |
 | Not coverable yet | 6 | US-009 (downloads (Laya, music, browser setup)), US-065 (the first start runs uv and installs packages), US-066 (uv tool run pytailwindcss downloads), US-069 (a real tailnet), US-098 (a real tailnet), US-114 (item 17 waits for the person’s decision; the render tests skip without node_modules) |

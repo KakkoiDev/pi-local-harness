@@ -59,7 +59,12 @@ grids, SVG path data, engine APIs or chart code from scratch: it fills a schema 
    editable recipe; routing loads one recipe, never a whole library. See docs/handoff/core-libraries.md for the adapter
    contract and acceptance evidence.
 9. **Project Start** (plan 253, round 12 part B): pick capabilities (blocks) and packaging; the harness assembles the
-   tested base.
+   tested base. Done 2026-10-18 (round 12 step 1): kit/capabilities.json (the catalogue; what is not available yet stays
+   listed with its reason), kit/capabilities.py (assembly, the offline base check, Add a Capability…), the four-step
+   dialog (js/project-start.mjs) and each capability's card in Pi's context (harness/capability-cards.mjs). Available
+   now: Database, Works offline, Dashboard and charts, Multiplayer, Game loop and collision, Installs on a phone, Share by
+   QR code; the rest wait for their blocks (accounts and roles for task 276's Auth adapter, uploads and admin for item 7,
+   input for item 1, GitHub Pages for publishing).
 
 ## Order
 
