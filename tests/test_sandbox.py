@@ -154,6 +154,13 @@ class SandboxWideningTest(unittest.TestCase):
             self.assertIn('localhost', sandbox.profile(project, Path(folder) / 't', data, 'local'))
             self.assertEqual(sandbox.widen(data, project, 'none'), {'network': 'none'})
 
+    def test_activity_shows_the_command_gate_allowed(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as folder, patch('gate.sandbox.available', return_value=True):
+            wrapped = sandbox.wrap("python3 -m unittest -k 'a b'", Path(folder), Path(folder) / 'data')
+        self.assertEqual(sandbox.shown(wrapped), "python3 -m unittest -k 'a b'")
+        self.assertEqual(sandbox.shown('ls -la'), 'ls -la')
+
     def test_the_runner_keeps_only_harmless_variables(self):
         runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()
         self.assertIn('/usr/bin/env -i', runner)

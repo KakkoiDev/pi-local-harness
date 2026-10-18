@@ -142,6 +142,14 @@ def shell(command, root, data=None, network=None):
     return ['/bin/sh', str(RUNNER), str(path), str(temporary), command]
 
 
+def shown(command):
+    """The command Gate allowed, for display, when `command` is a sandboxed run (wrap); otherwise `command`."""
+    if not isinstance(command, str) or RUNNER.name not in command: return command
+    try: words = shlex.split(command)
+    except ValueError: return command
+    return words[4] if len(words) == 5 and words[:1] == ['/bin/sh'] and words[1].endswith(RUNNER.name) else command
+
+
 def refusal(output, exit_code, network='none'):
     """The sentence for Pi and the person when a failing run met the sandbox, else None."""
     if not exit_code or not REFUSED.search(str(output or '')): return None
