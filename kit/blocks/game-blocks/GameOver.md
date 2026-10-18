@@ -14,7 +14,7 @@ Show it after a short beat (0.8 s, the world fading to grey on the canvas), neve
 ## States
 - Checkpoint game: As above.
 - Arcade (score): Detail shows the score; if it's a high score, ResultsScores name entry comes first. Try Again restarts the level.
-- Roguelike (permadeath): Title `gameover.run_over`; detail with floor reached and time; a short run summary list; first option `gameover.new_run`; no Load.
+- Roguelike (permadeath): Title `gameover.run_over`; `#go-detail` shows `gameover.floor` (set from code, floor and time); a short run summary list; first option `gameover.new_run`; no Load.
 - Tips: After the second game over at the same spot, one TutorialPrompt-style tip line under the detail.
 - Continue with coins: Only if the genre uses it: `gameover.continue_cost` with the cost; never the first option.
 

@@ -1,0 +1,34 @@
+<!-- in the post's ⋯ menu -->
+<button role="menuitem" type="button" data-t="report.open" onclick="document.getElementById('report-dialog').showModal()">Report…</button>
+
+<dialog id="report-dialog" class="dialog" aria-labelledby="report-title" aria-describedby="report-desc">
+  <div class="sm:max-w-md">
+    <header>
+      <h2 id="report-title" data-t="report.title">Report this post</h2>
+      <p id="report-desc" data-t="report.lede">Moderators will look at it. The person who wrote it won’t see who reported it.</p>
+    </header>
+    <form id="report-form" class="grid gap-4" method="post" action="/reports" novalidate>
+      <input type="hidden" name="target_type" value="post">
+      <input type="hidden" name="target_id" value="812">
+      <fieldset class="fieldset grid gap-2" aria-describedby="report-reason-error">
+        <legend class="label" data-t="report.reason">Why are you reporting it?</legend>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="reason" value="spam"><span data-t="report.reason.spam">Spam or advertising</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="reason" value="harassment"><span data-t="report.reason.harassment">Harassment or hate</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="reason" value="personal"><span data-t="report.reason.personal">Shares someone’s personal information</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="reason" value="off_topic"><span data-t="report.reason.off_topic">Off topic or in the wrong place</span></label>
+        <label class="label gap-3 font-normal"><input class="input" type="radio" name="reason" value="other"><span data-t="report.reason.other">Something else</span></label>
+        <p id="report-reason-error" class="text-destructive text-sm" hidden data-t="report.error.reason">Choose a reason.</p>
+      </fieldset>
+      <div class="field">
+        <label class="label" for="report-details" data-t="report.details">Details (optional)</label>
+        <textarea class="textarea" id="report-details" name="details" rows="3" maxlength="500" aria-describedby="report-details-help"></textarea>
+        <p id="report-details-help" class="text-muted-foreground text-sm" data-t="report.details_help">Required for “Something else”. Up to 500 characters.</p>
+      </div>
+    </form>
+    <footer>
+      <button class="btn" data-variant="outline" type="button" onclick="this.closest('dialog').close()" data-t="report.cancel">Cancel</button>
+      <button class="btn" type="submit" form="report-form" data-t="report.send">Send Report</button>
+    </footer>
+    <button type="button" class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Close dialog" data-t-label="dialog.close" onclick="this.closest('dialog').close()">✕</button>
+  </div>
+</dialog>

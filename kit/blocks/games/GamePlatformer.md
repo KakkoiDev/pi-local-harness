@@ -26,7 +26,7 @@ App Block card (Games). A side-scrolling platformer: run and jump through levels
 - Assist options in GameSettings: slower game speed (90 %, 75 %), extra jump forgiveness, infinite lives; they never block stars except the time star.
 
 ## Controls
-Actions are named once (`move`, `jump`, `run`, `down`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`move`, `jump`, `run`, `down`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `move`, `jump`, `pause` are gaming-core's own (`move` is its `moveX`/`moveY` axes); `run`, `down` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 (Action | Keyboard | Mouse | Gamepad | Touch)
 - Move: ← → or A D | — | Left stick or d-pad | Left and right buttons (bottom left)
@@ -64,6 +64,8 @@ Game-level keys only; each block's own keys are on its card.
 - `level.name`: 1-2 Windy Ledge | 1-2 かぜの がけ
 - `result.next`: Next Level | つぎのレベル
 - `result.replay`: Replay | もう一度
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.coins` (into the HUD slots of HudPieces and the panels named above).
 
 ## Adding to it
 - A new level: a tile map, coins, enemies and one checkpoint; its node on the world map.

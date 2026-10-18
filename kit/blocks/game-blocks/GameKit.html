@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title data-t="game.name">Meadow Quest</title>
+<link rel="stylesheet" href="static/fonts.css">
 <link rel="stylesheet" href="styles/game.css">
 </head>
-<body style="margin:0;background:#000">
+<body class="game-page">
   <div id="game" class="game" data-device="keyboard" style="width:100vw;height:100dvh">
     <!-- LittleJS puts its canvases here: engineInit(..., rootElement = #game) -->
     <div id="ui" class="game-layer">
@@ -17,6 +18,7 @@
     </div>
   </div>
   <script src="js/littlejs.js"></script>
+  <script src="js/gc-input.js"></script><!-- gaming-core starters/input.js, copied as is -->
   <script src="js/input.js"></script>
   <script src="js/menu.js"></script>
   <script src="game.js"></script>

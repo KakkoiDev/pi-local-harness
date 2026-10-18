@@ -3,7 +3,7 @@
 App Block card (Apps). An online shop with its storefront (browse, product page, cart, checkout, orders) and the admin the owner runs it from (products, orders, stock, coupons, sales).
 
 - Example product: Komorebi Goods (a small ceramics shop)
-- Blocks: AccountSettings, BottomBar, Breadcrumbs, Cart, Checkout, ConfirmDialog, Coupons, Dashboard, DataTable, DeleteUndo, DetailView, EditForm, EmptyState, FileUpload, Gallery, InfiniteScroll, InlineAlert, KpiTile, LineChart, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, ProductPage, Profile, SidePanel, SignUp, StatusBadges, Stepper, Toasts, TopBar
+- Blocks: AccountSettings, BottomBar, Breadcrumbs, Cart, Checkout, ConfirmDialog, Coupons, CsvImport, Dashboard, DataTable, DatePicker, DeleteUndo, DetailView, EditForm, EmptyState, ExportCsv, FileUpload, Gallery, InfiniteScroll, InlineAlert, KpiTile, LineChart, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, ProductPage, Profile, Reviews, SettingsPage, ShippingRates, SidePanel, SignUp, StatusBadges, Stepper, TimePicker, Toasts, TopBar
 - Packages: Web app (full stack). Payments and stock live on the server, so there is no no-server version.
 - Related: AppAdmin (the admin side reuses its shell), AppCrm (customers)
 
@@ -11,20 +11,22 @@ App Block card (Apps). An online shop with its storefront (browse, product page,
 (Screen | Route | Blocks)
 - Shop home: `/` | TopBar, ProductGrid, ListSearch, BottomBar
 - Category: `/c/{slug}` | Breadcrumbs, ProductGrid, ListSearch, InfiniteScroll
-- Product: `/p/{slug}` | Breadcrumbs, ProductPage, Gallery, Toasts
+- Product: `/p/{slug}` | Breadcrumbs, ProductPage, Gallery, Reviews, Toasts
 - Cart: `/cart` | Cart, Coupons, EmptyState
-- Checkout: `/checkout` | Checkout, Stepper, EditForm, InlineAlert
+- Checkout: `/checkout` | Checkout, Stepper, EditForm, ShippingRates, DatePicker, TimePicker, InlineAlert
 - Order placed: `/orders/{id}/thanks` | OrderConfirmation
 - My orders: `/account/orders` | OrderHistory, DetailView, EmptyState
 - Account: `/account` | LogIn, SignUp, Profile, AccountSettings
 - Admin · Sales: `/admin` | SidePanel, Dashboard, KpiTile, LineChart
-- Admin · Products: `/admin/products` | DataTable, EditForm, FileUpload, DeleteUndo
+- Admin · Products: `/admin/products` | DataTable, EditForm, FileUpload, DeleteUndo, CsvImport, ExportCsv
 - Admin · Orders: `/admin/orders` | DataTable, DetailView, StatusBadges, ConfirmDialog
 - Admin · Coupons: `/admin/coupons` | DataTable, EditForm, Coupons
+- Admin · Shipping: `/admin/settings/shipping` | SettingsPage, ShippingRates
+- Admin · Reviews: `/admin/reviews` | DataTable, Reviews, ConfirmDialog
 
 ## Navigation
 - **Storefront**: TopBar with the shop name, search, account and the cart (with its count) on the desktop; on the phone a BottomBar with Home · Search · Cart · Account. Categories are links under the TopBar (a horizontal scroll row on the phone).
-- **Admin** (`/admin`, owners and staff only): SidePanel with Sales · Products · Orders · Coupons · Settings; on the phone the SidePanel opens from the TopBar menu button. A "View shop" link goes back to the storefront.
+- **Admin** (`/admin`, owners and staff only): SidePanel with Sales · Products · Orders · Coupons · Reviews · Settings (Shipping is a section of Settings); on the phone the SidePanel opens from the TopBar menu button. A "View shop" link goes back to the storefront.
 - The cart count updates on every Add to Cart (a Toasts message with **View Cart**).
 
 ## Journeys
@@ -33,10 +35,15 @@ The first word of each step is the screen; the blocks named are the cards to cop
 **Browse and buy**
 
 1. Shop home: ListSearch to find "mug", ProductGrid to pick one
-2. Product: ProductPage, choose a variant, Add to Cart; Toasts "Added to cart · View Cart"
+2. Product: ProductPage, Reviews to read what buyers say, choose a variant, Add to Cart; Toasts "Added to cart · View Cart"
 3. Cart: Cart, change quantity, Coupons to apply a code
-4. Checkout: Checkout steps Address → Delivery → Payment → Review (Stepper)
+4. Checkout: Checkout steps Address → Delivery (ShippingRates price for the address, DatePicker day and TimePicker window) → Payment → Review (Stepper)
 5. Order placed: OrderConfirmation with the order number and the email it was sent to
+
+**Review a purchase**
+
+1. My orders: OrderHistory, Write a Review on a delivered item
+2. Product: Reviews form with stars and text; shown after Admin · Reviews approves it
 
 **Check an order**
 
@@ -49,6 +56,11 @@ The first word of each step is the screen; the blocks named are the cards to cop
 1. Admin · Products: DataTable, New Product
 2. Admin · Products: EditForm with FileUpload for photos, price, stock and variants
 3. Admin · Products: save; SavedState; the product appears in the shop
+
+**Set shipping prices (owner)**
+
+1. Admin · Shipping: ShippingRates zones (Kanto, Kansai, Hokkaido, Okinawa…) with a price and a free-over amount
+2. Checkout: the buyer sees the price for their prefecture
 
 **Ship an order (owner)**
 
@@ -70,6 +82,8 @@ The first word of each step is the screen; the blocks named are the cards to cop
 - `orders`: id, number, user_id, email, status (pending · paid · shipped · delivered · cancelled · refunded), subtotal_yen, shipping_yen, discount_yen, total_yen, address (JSON), placed_at
 - `order_items`: order_id, variant_id, name, price_yen, quantity (copied at purchase)
 - `coupons`: code, kind (percent · fixed), value, min_total_yen, starts_at, ends_at, uses_left
+- `reviews`: id, product_id, user_id, order_id, stars (1–5), body, status (pending · shown · hidden), created_at
+- `shipping_zones`: id, name_en, name_ja, prefectures[], price_yen, free_over_yen
 
 Money is whole yen (integers); prices shown with `Intl.NumberFormat(lang, {style: "currency", currency: "JPY"})`.
 
@@ -92,14 +106,16 @@ App-level keys only; each block brings its own.
 - `admin.products`: Products | 商品
 - `admin.orders`: Orders | 注文
 - `admin.coupons`: Coupons | クーポン
+- `admin.reviews`: Reviews | レビュー
+- `admin.shipping`: Shipping | 配送
 - `admin.view_shop`: View Shop | ショップを表示
 
 ## Adding to it
 - A new storefront page (a lookbook, a gift guide) is a ProductGrid with a heading and a filter preset; add its route under the shop's TopBar.
-- **Proposed block: Reviews** (stars, a review list and a write-a-review form) is not in the catalogue; until it exists, use Comments without stars.
-- **Proposed block: ShippingRates** (zones and prices in admin settings) is not in the catalogue; until then shipping is one flat price in SettingsPage.
+- Reviews on product pages are **Reviews** (stars, the list, the write-a-review form, owner approval); shipping prices by region are **ShippingRates** in Admin · Shipping, read by Checkout's Delivery step.
+- Bulk changes to products go through **CsvImport** and **ExportCsv** (same columns both ways).
 
 ## Pi Workbench
 - Assumes AppFoundations (its card comes with this one).
-- Load a block’s card with the app_block tool and its exact name, one at a time: AccountSettings, BottomBar, Breadcrumbs, Cart, Checkout, ConfirmDialog, Coupons, Dashboard, DataTable, DeleteUndo, DetailView, EditForm, EmptyState, FileUpload, Gallery, InfiniteScroll, InlineAlert, KpiTile, LineChart, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, ProductPage, Profile, SidePanel, SignUp, StatusBadges, Stepper, Toasts, TopBar.
+- Load a block’s card with the app_block tool and its exact name, one at a time: AccountSettings, BottomBar, Breadcrumbs, Cart, Checkout, ConfirmDialog, Coupons, CsvImport, Dashboard, DataTable, DatePicker, DeleteUndo, DetailView, EditForm, EmptyState, ExportCsv, FileUpload, Gallery, InfiniteScroll, InlineAlert, KpiTile, LineChart, ListSearch, LogIn, OrderConfirmation, OrderHistory, ProductGrid, ProductPage, Profile, Reviews, SettingsPage, ShippingRates, SidePanel, SignUp, StatusBadges, Stepper, TimePicker, Toasts, TopBar.
 - Set up: `python3 {harness}/kit/blocks/add.py <project> AppShop` copies the libraries it needs (with licences) and adds its texts to messages/en.json and messages/ja.json.

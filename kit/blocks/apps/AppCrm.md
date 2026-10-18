@@ -3,7 +3,7 @@
 App Block card (Apps). A CRM: contacts and companies, deals moving through a pipeline, the history of every call and email, and the follow-up tasks that keep deals moving.
 
 - Example product: Ledgerline (a small-team CRM)
-- Blocks: ActivityFeed, AvatarGroup, BarChart, Comments, DataTable, DatePicker, DetailView, DragList, EditForm, EmptyState, FileUpload, FunnelChart, Invite, Kanban, KpiTile, LabelsAssignees, ListSearch, ProgressStatus, Roles, SettingsPage, SidePanel, StatusBadges, Stepper, Timeline
+- Blocks: ActivityFeed, AvatarGroup, BarChart, Comments, CsvImport, DataTable, DatePicker, DetailView, DragList, EditForm, EmptyState, ExportCsv, FunnelChart, Invite, Kanban, KpiTile, LabelsAssignees, ListSearch, ProgressStatus, Roles, SettingsPage, SidePanel, StatusBadges, Timeline
 - Packages: Web app (full stack). Shared by a sales team with roles.
 - Related: AppAdmin (shell), AppBoard (the same board pattern)
 
@@ -11,12 +11,12 @@ App Block card (Apps). A CRM: contacts and companies, deals moving through a pip
 (Screen | Route | Blocks)
 - Pipeline: `/deals` | SidePanel, Kanban, KpiTile, DragList
 - Deal: `/deals/{id}` | DetailView, Timeline, Comments, LabelsAssignees
-- Contacts: `/contacts` | DataTable, ListSearch, AvatarGroup
+- Contacts: `/contacts` | DataTable, ListSearch, AvatarGroup, ExportCsv
 - Contact: `/contacts/{id}` | DetailView, ActivityFeed, EditForm
 - Companies: `/companies` | DataTable, ListSearch
 - Tasks: `/tasks` | ListSearch, DatePicker, StatusBadges, EmptyState
 - Reports: `/reports` | FunnelChart, BarChart, KpiTile, DatePicker
-- Import: `/import` | FileUpload, Stepper, DataTable, ProgressStatus
+- Import: `/import` | CsvImport, ProgressStatus
 - Settings: `/settings` | SettingsPage, Invite, Roles
 
 ## Navigation
@@ -38,8 +38,8 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 **Import contacts**
 
-1. Import: FileUpload a CSV
-2. Import: Stepper map columns → check duplicates (DataTable) → import (ProgressStatus)
+1. Import: CsvImport file → match columns (氏名, Mail…) → check rows (same email updates the contact) → import
+2. Import: the report; Download Skipped Rows
 
 ## Phone
 - Deal and contact pages stack facts, then the timeline; Call and Email buttons use `tel:` and `mailto:` links shown as text too.
@@ -74,9 +74,9 @@ App-level keys only; each block brings its own.
 
 ## Adding to it
 - Email sync and calendar sync need a provider and are not covered; log emails by hand (Log an Email) first.
-- **Proposed block: CsvImport** if Import's mapping step is reused elsewhere (AppShop products, AppAdmin users).
+- Contacts come in with **CsvImport** and go out with **ExportCsv** (the same columns), as in AppShop and AppAdmin.
 
 ## Pi Workbench
 - Assumes AppFoundations (its card comes with this one).
-- Load a block’s card with the app_block tool and its exact name, one at a time: ActivityFeed, AvatarGroup, BarChart, Comments, DataTable, DatePicker, DetailView, DragList, EditForm, EmptyState, FileUpload, FunnelChart, Invite, Kanban, KpiTile, LabelsAssignees, ListSearch, ProgressStatus, Roles, SettingsPage, SidePanel, StatusBadges, Stepper, Timeline.
+- Load a block’s card with the app_block tool and its exact name, one at a time: ActivityFeed, AvatarGroup, BarChart, Comments, CsvImport, DataTable, DatePicker, DetailView, DragList, EditForm, EmptyState, ExportCsv, FunnelChart, Invite, Kanban, KpiTile, LabelsAssignees, ListSearch, ProgressStatus, Roles, SettingsPage, SidePanel, StatusBadges, Timeline.
 - Set up: `python3 {harness}/kit/blocks/add.py <project> AppCrm` copies the libraries it needs (with licences) and adds its texts to messages/en.json and messages/ja.json.

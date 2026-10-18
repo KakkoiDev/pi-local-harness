@@ -3,7 +3,7 @@
 App Block card (Apps). A notes and wiki app: pages made of blocks, nested in a page tree, shared with people who can view or edit, searchable from anywhere.
 
 - Example product: Kumo Pages (notes and a team wiki)
-- Blocks: AccountSettings, ActivityFeed, BlockEditor, Breadcrumbs, CodeDiff, CommandPalette, Comments, ConfirmDialog, DataTable, DeleteUndo, EmptyState, GlobalSearch, Invite, ListSearch, LogIn, Mentions, Onboarding, PageTree, Presence, Reactions, Roles, SavedState, SettingsPage, SidePanel, SignUp, Timeline
+- Blocks: AccountSettings, ActivityFeed, BlockEditor, Breadcrumbs, CodeDiff, CommandPalette, Comments, ConfirmDialog, DataTable, DatabaseView, DeleteUndo, EmptyState, GlobalSearch, Invite, ListSearch, LogIn, Mentions, Onboarding, PageTree, Presence, Reactions, Roles, SavedState, SettingsPage, SidePanel, SignUp, Timeline
 - Packages: Web app (full stack) for teams; App with no server (frontend only) for one person on one device, with Works offline.
 - Related: AppChat (mentions and links between them), AppCourse (lessons are pages)
 
@@ -15,6 +15,7 @@ App Block card (Apps). A notes and wiki app: pages made of blocks, nested in a p
 - Share: `(dialog on a page)` | Invite, Roles, ConfirmDialog
 - Comments: `(side panel on a page)` | Comments, Mentions, Reactions
 - History: `/p/{id}/history` | Timeline, CodeDiff, ConfirmDialog
+- Database: `/p/{id}?view=table` | SidePanel, DatabaseView, Breadcrumbs, SavedState
 - Trash: `/trash` | DataTable, DeleteUndo, EmptyState
 - Settings: `/settings` | SettingsPage, AccountSettings, Roles
 - Sign in: `/login` | LogIn, SignUp, Onboarding
@@ -42,6 +43,11 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 1. Comments: select text, Comment, Mentions @Mei
 2. Comments: Mei gets a Notifications entry and replies
+
+**Track projects**
+
+1. Page: New Page → Database; the properties are Status, Owner, Due
+2. Database: DatabaseView as a table, switch to the board view by Status, open a row as its page
 
 **Find something**
 
@@ -80,9 +86,9 @@ App-level keys only; each block brings its own.
 
 ## Adding to it
 - A new block type is a BlockEditor entry: its "/" menu item, its JSON `content` shape, its render and its Markdown export.
-- **Proposed block: DatabaseView** (a table/board view over pages with properties) is not in the catalogue; Kanban and DataTable over `pages` cover the first version.
+- Pages with properties are shown with **DatabaseView** (table, board and list views over the same pages); a new view kind is one more view in its switcher.
 
 ## Pi Workbench
 - Assumes AppFoundations (its card comes with this one).
-- Load a block’s card with the app_block tool and its exact name, one at a time: AccountSettings, ActivityFeed, BlockEditor, Breadcrumbs, CodeDiff, CommandPalette, Comments, ConfirmDialog, DataTable, DeleteUndo, EmptyState, GlobalSearch, Invite, ListSearch, LogIn, Mentions, Onboarding, PageTree, Presence, Reactions, Roles, SavedState, SettingsPage, SidePanel, SignUp, Timeline.
+- Load a block’s card with the app_block tool and its exact name, one at a time: AccountSettings, ActivityFeed, BlockEditor, Breadcrumbs, CodeDiff, CommandPalette, Comments, ConfirmDialog, DataTable, DatabaseView, DeleteUndo, EmptyState, GlobalSearch, Invite, ListSearch, LogIn, Mentions, Onboarding, PageTree, Presence, Reactions, Roles, SavedState, SettingsPage, SidePanel, SignUp, Timeline.
 - Set up: `python3 {harness}/kit/blocks/add.py <project> AppNotes` copies the libraries it needs (with licences) and adds its texts to messages/en.json and messages/ja.json.

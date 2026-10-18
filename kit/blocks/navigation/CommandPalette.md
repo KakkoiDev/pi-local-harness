@@ -26,6 +26,7 @@ Copy, never retype: `{harness}/kit/blocks/navigation/CommandPalette.html` (40 li
 ## Texts
 (Key | English | 日本語)
 - `command.label`: Search and commands | 検索とコマンド
+- `command.input_label`: Search notes or run a command | ノートを検索、またはコマンドを実行
 - `command.placeholder`: Search notes or type a command… | ノートを検索、またはコマンドを入力…
 - `command.empty`: Nothing found for that. Try fewer words. | 見つかりませんでした。言葉を減らしてお試しください。
 - `command.goto`: Go To | 移動

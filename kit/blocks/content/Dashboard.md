@@ -8,7 +8,7 @@ App Block card (Content). A summary page: four stat tiles with their change sinc
 - Links to: KpiTile, LineChart, AreaChart, BarChart, EmptyState, LoadingState, ErrorRetry, DataTable
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/content/Dashboard.html` (58 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/content/Dashboard.html` (61 lines of HTML).
 
 Texts with `{…}` are filled before they are shown (web: `t("dashboard.updated", time=…)`; no server: `t(key, {time})`).
 
@@ -40,6 +40,9 @@ Texts with `{…}` are filled before they are shown (web: `t("dashboard.updated"
 - `dashboard.chart.now`: This period | 今期間
 - `dashboard.chart.before`: Previous period | 前期間
 - `dashboard.chart.table`: Show as a table | 表で表示
+- `dashboard.chart.week`: Week | 週
+- `dashboard.chart.now`: This period | 今期
+- `dashboard.chart.before`: Previous period | 前期
 - `dashboard.attention`: Needs attention | 要対応
 - `dashboard.attention.late`: {count} orders are late | {count} 件の注文が遅れています
 - `dashboard.attention.late_hint`: Shipped more than 5 days after ordering | 注文から 5 日以上経って発送

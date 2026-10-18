@@ -13,22 +13,26 @@
       <li role="option" tabindex="-1" data-action="jump">
         <span style="flex:1" data-t="action.jump">Jump</span><span class="game-key">Space</span>
       </li>
-      <li role="option" tabindex="-1" data-action="attack">
-        <span style="flex:1" data-t="action.attack">Attack</span><span class="game-key">J</span>
-        <span class="game-mouse" data-button="left" aria-label="Left click"></span>
+      <li role="option" tabindex="-1" data-action="fire">
+        <span style="flex:1" data-t="action.fire">Attack</span><span class="game-key">J</span>
+        <span class="game-mouse" data-button="left" aria-label="Left click" data-t-label="game.mouse.left"></span>
       </li>
       <li role="option" tabindex="-1" data-action="interact">
         <span style="flex:1" data-t="action.interact">Talk or Use</span><span class="game-key">E</span>
       </li>
-      <li role="option" tabindex="-1" data-action="pause">
+      <li role="option" tabindex="-1" data-action="pause" aria-disabled="true">
         <span style="flex:1" data-t="action.pause">Pause</span><span class="game-key">Esc</span>
+        <span class="game-small" data-t="controls.fixed">Fixed</span>
+      </li>
+      <li role="option" tabindex="-1" data-action="back" aria-disabled="true">
+        <span style="flex:1" data-t="action.back">Back (menus)</span><span class="game-key">Esc</span>
         <span class="game-small" data-t="controls.fixed">Fixed</span>
       </li>
     </ul>
     <p class="game-hint" style="margin-top:12px">
-      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button"></span></span><span data-t="controls.change">Change</span></span>
-      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">R</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="north" aria-label="North button"></span></span><span data-t="controls.reset">Reset All</span></span>
-      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button"></span></span><span data-t="game.back">Back</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Enter</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="south" aria-label="South button" data-t-label="game.pad.south"></span></span><span data-t="controls.change">Change</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">R</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="north" aria-label="North button" data-t-label="game.pad.north"></span></span><span data-t="controls.reset">Reset All</span></span>
+      <span class="game-row"><span data-for="keyboard mouse"><span class="game-key">Esc</span></span><span data-for="gamepad"><span class="game-padpos" data-pos="east" aria-label="East button" data-t-label="game.pad.east"></span></span><span data-t="game.back">Back</span></span>
     </p>
     <p id="controls-live" class="sr-only" aria-live="assertive"></p>
   </div>

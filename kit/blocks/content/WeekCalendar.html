@@ -1,0 +1,31 @@
+<section class="grid gap-3" aria-labelledby="week-title">
+  <header class="flex flex-wrap items-center gap-2">
+    <h2 id="week-title" class="text-xl font-semibold" data-t="week.title">12–18 October 2026</h2>
+    <div class="button-group ml-auto" role="group" aria-label="Week" data-t-label="week.nav">
+      <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="Previous week" data-t-label="week.prev">‹</button>
+      <button class="btn" data-variant="outline" data-size="sm" type="button" data-t="week.today">Today</button>
+      <button class="btn" data-variant="outline" data-size="icon-sm" type="button" aria-label="Next week" data-t-label="week.next">›</button>
+    </div>
+    <button class="btn" data-size="sm" type="button" data-t="week.new">New Event</button>
+  </header>
+  <div class="scrollbar overflow-auto rounded-lg border" style="max-height: 32rem">
+    <div class="grid min-w-[44rem] grid-cols-[3.5rem_repeat(7,minmax(0,1fr))]" role="grid" aria-labelledby="week-title" aria-describedby="week-help">
+      <div class="sticky top-0 z-10 border-b bg-background" role="presentation"></div>
+      <div role="columnheader" class="sticky top-0 z-10 border-b border-l bg-background py-2 text-center text-sm">
+        <span class="text-muted-foreground" data-t="week.day.mon">Mon</span> <span class="font-medium">12</span>
+      </div>
+      <!-- Tue … Sun; today's header: <span class="badge">14</span> and aria-current="date" -->
+      <div class="relative col-start-1 row-span-1 h-12 pr-2 text-right text-xs text-muted-foreground" role="rowheader">9:00</div>
+      <button class="relative h-12 border-b border-l text-left hover:bg-muted/50 focus-visible:z-10" type="button" role="gridcell"
+              data-slot="2026-10-12T09:00" aria-label="Monday 12 October, 9:00, free" data-t-label="week.slot_free"></button>
+      <!-- one 30-minute slot per day and half hour; an event sits over its slots: -->
+      <a class="absolute inset-x-1 top-1 z-[5] grid rounded-md border-l-4 border-primary bg-primary/10 px-2 py-1 text-xs hover:bg-primary/15"
+         style="height: calc(3rem * 2 - 0.5rem)" href="/events/31" aria-label="Cut and colour, 10:00 to 11:00, Kei Mori" data-t-label="week.event_label">
+        <span class="truncate font-medium">Cut and colour</span><span class="truncate text-muted-foreground">10:00–11:00 · Kei Mori</span>
+      </a>
+      <div class="pointer-events-none absolute inset-x-0 z-[6] border-t-2 border-destructive" style="top: 61%" aria-hidden="true"></div>
+    </div>
+  </div>
+  <p id="week-help" class="sr-only" data-t="week.help">Arrow keys move between slots. Return on a free slot makes an event there.</p>
+  <p id="week-live" class="sr-only" aria-live="polite"></p>
+</section>

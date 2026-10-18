@@ -21,15 +21,10 @@ import add as blocks_add  # noqa: E402
 import build  # noqa: E402
 import check  # noqa: E402
 
-# What the checker finds in the designer's own markup (round 12 part A), written up for the designer in
-# design/briefs/round-13.md. A new finding fails the test until it is fixed in the catalogue or added there.
-DESIGN_FINDINGS = {
-    ('DetailView.html', 'class'), ('Dashboard.html', 'chart'), ('KpiTile.html', 'chart'), ('GaugeRing.html', 'chart'),
-    ('CommandPalette.html', 'label'), ('ShortcutHelp.html', 'label'), ('GameKit.html', 'colour'), ('GameOver.html', 'colour'),
-    ('StatusBadges.html', 'colour'), ('Gallery.html', 'colour'), ('CodeDiff.html', 'colour'), ('PullReview.html', 'colour'),
-    ('AvatarGroup.html', 'colour'), ('Channels.html', 'colour'), ('IssueDetail.html', 'colour'), ('IssueList.html', 'colour'),
-    ('GlobalSearch.html', 'colour'),
-}
+# What the checker finds in the designer's own markup. Round 12 part A had 17 errors (design/briefs/round-13.md); round 13
+# fixed them all, with the state colours (success, warning, highlight) added to the checker's tokens. A new error fails
+# the test until it is fixed in the catalogue or the checker.
+DESIGN_FINDINGS = set()
 
 
 def index():
@@ -49,7 +44,7 @@ class BuildTest(unittest.TestCase):
     def test_every_card_is_indexed_with_stable_paths_and_its_files_exist(self):
         data = index(); cards = {card['name']: card for card in data['cards']}
         catalogue = {path.parent.name for path in (ROOT / 'design/app-blocks/components').glob('*/README.md')} - {'Cover'}
-        self.assertEqual(set(cards), catalogue); self.assertEqual(data['count'], 137)
+        self.assertEqual(set(cards), catalogue); self.assertEqual(data['count'], 151)
         for card in data['cards']:
             self.assertEqual(card['card'], f"kit/blocks/{build.GROUPS[card['group']]}/{card['name']}.md", 'paths Project Start refers to')
             for path in [card['card'], *card['code']]: self.assertTrue((ROOT / path).is_file(), path)
@@ -83,12 +78,14 @@ class MarkupTest(unittest.TestCase):
         for path in sorted(BLOCKS.glob('*/*.html')):
             for name in sorted(build.classes_of(path.read_text(encoding='utf-8'))):
                 if not check.known(name): unknown.setdefault(name, []).append(path.name)
-        self.assertEqual(unknown, {'prose-sm': ['DetailView.html']}, 'prose-sm needs the Tailwind typography plugin, which the starters do not load (design/briefs/round-13.md)')
+        self.assertEqual(unknown, {}, 'every class is Basecoat, the kit or a Tailwind utility (round 13 dropped DetailView\u2019s prose-sm)')
 
-    def test_the_checker_finds_only_the_known_design_findings_in_the_catalogue(self):
+    def test_every_card_s_markup_passes_the_checker_with_no_errors(self):
         found = {(path.name, rule) for path in sorted(BLOCKS.glob('*/*.html')) for level, _line, rule, _message in check.check_file(path) if level == 'error'}
         self.assertEqual(found - DESIGN_FINDINGS, set(), 'new errors in the designer’s markup')
-        self.assertEqual(DESIGN_FINDINGS - found, set(), 'fixed upstream: remove from DESIGN_FINDINGS and the brief')
+        self.assertEqual(DESIGN_FINDINGS, set(), 'round 13: the designer’s catalogue has no known errors left')
+        for name in ('success', 'success-foreground', 'warning', 'warning-foreground', 'highlight', 'highlight-foreground'):
+            self.assertTrue(check.known(f'bg-{name}') and check.known(f'dark:text-{name}'), name)
 
     def test_the_charts_card_teaches_the_designer_s_wrapper_and_its_example_passes_the_checker(self):
         card = (ROOT / 'kit/cards/charts.md').read_text(encoding='utf-8')

@@ -1,0 +1,24 @@
+<header class="flex items-center justify-between gap-2">
+  <h2 id="col-doing" class="flex items-center gap-2 text-sm font-semibold">
+    <span data-t="board.col.doing">Doing</span>
+    <span class="badge" data-variant="secondary" aria-describedby="wip-doing-help" data-t="wip.count">3 / 4</span>
+  </h2>
+  <div class="popover">
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" id="wip-doing-trigger" aria-expanded="false" aria-controls="wip-doing-popover"
+            aria-label="Limit for Doing" data-t-label="wip.edit_label">⋯</button>
+    <div id="wip-doing-popover" data-popover aria-hidden="true" class="w-64">
+      <form class="grid gap-3" id="wip-doing-form" novalidate>
+        <div class="field">
+          <label class="label" for="wip-doing-limit" data-t="wip.limit">Work-in-progress limit</label>
+          <input class="input" id="wip-doing-limit" name="limit" type="number" min="1" max="99" inputmode="numeric" value="4" aria-describedby="wip-doing-limit-help">
+          <p id="wip-doing-limit-help" class="text-sm text-muted-foreground" data-t="wip.limit_help">Most cards this column should hold at once. Empty for no limit.</p>
+        </div>
+        <div class="flex justify-between gap-2">
+          <button class="btn" data-variant="ghost" data-size="sm" type="button" data-t="wip.remove">Remove Limit</button>
+          <button class="btn" data-size="sm" type="submit" data-t="wip.save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</header>
+<p id="wip-doing-help" class="sr-only" data-t="wip.count_label">3 cards, limit 4</p>

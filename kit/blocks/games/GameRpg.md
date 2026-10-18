@@ -28,7 +28,7 @@ App Block card (Games). A top-down role-playing game: explore a map, talk to peo
 - Shop: Buy / Sell tabs, price in gold, owned count, the stat change for equipment (+2 ATK in green, −1 DEF in red with an arrow).
 
 ## Controls
-Actions are named once (`move`, `confirm`, `back`, `attack`, `menu`, `map`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`move`, `confirm`, `back`, `fire`, `menu`, `map`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `move`, `confirm`, `back`, `fire`, `pause` are gaming-core's own (`move` is its `moveX`/`moveY` axes); `menu`, `map` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 (Action | Keyboard | Mouse | Gamepad | Touch)
 - Move: Arrow keys or WASD | — | Left stick or d-pad | Stick (left thumb)
@@ -36,8 +36,8 @@ Actions are named once (`move`, `confirm`, `back`, `attack`, `menu`, `map`, `pau
 - Back / cancel: X or Esc (in menus) | Right click | East | ✕ in the panel corner
 - Attack (action combat): C or J | Left click on empty ground | West | Attack button (right thumb)
 - Field menu: Tab or I | — | North | Menu button (top right)
-- Map: M | — | Back (left centre) | Minimap tap
-- Pause: Esc | — | Start (right centre) | Pause button (top right)
+- Map: M | — | Select button | Minimap tap
+- Pause: Esc | — | Start | Pause button (top right)
 
 ## Phone layout
 - Landscape: stick bottom left, Attack and Talk bottom right, HUD corners inset by the safe area.

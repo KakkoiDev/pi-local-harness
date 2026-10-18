@@ -10,7 +10,7 @@ App Block card (Game blocks). A grid of levels grouped by world, each showing lo
 Copy, never retype: `{harness}/kit/blocks/game-blocks/LevelSelect.html` (23 lines of HTML).
 
 ## States
-- Locked: Dim slot with a padlock, `aria-disabled="true"`, detail line `levels.unlock_hint` (“Get 3 more stars”).
+- Locked: Dim slot with a padlock, `aria-disabled="true"`, the bottom row's detail shows `levels.unlock_hint` (set from code when the slot is focused, “Get 3 more stars to open”).
 - Open, not played: Number only; detail `levels.new`.
 - Finished: 1–3 stars; detail shows the best time or score.
 - Last played: Focus starts here, not on 1-1.

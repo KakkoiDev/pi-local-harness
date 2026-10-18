@@ -8,13 +8,13 @@ App Block card (Game blocks). The first screen of a game: its name over the worl
 - Links to: SaveSlots, GameSettings, LevelSelect (games with levels)
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/game-blocks/TitleScreen.html` (15 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/game-blocks/TitleScreen.html` (16 lines of HTML).
 
 The canvas keeps drawing the world behind it (slow camera pan, no player control). On touch devices the hint row is hidden; the buttons are the targets.
 
 ## States
 - No save yet: `#title-continue` and `#title-load` are removed; focus starts on New Game.
-- A save exists: Continue is first and focused; its `aria-describedby` points to a `.game-small` line: `title.continue_detail` (place and play time).
+- A save exists: Continue is first and focused; its `aria-describedby` points to `#title-continue-detail`: `title.continue_detail` (place and play time, filled from the latest save). No save: Continue and the line are removed.
 - Press to start (first launch): Before audio may play, the menu is replaced by one button `title.press_start` (any key, click, tap or button press); audio starts on that gesture.
 - Loading: `title.loading` with a `.game-bar` (`--value` 0–1) instead of the menu; nothing is focusable.
 - Save can't be read: Continue stays, disabled, with `title.save_broken`; New Game and Load still work.

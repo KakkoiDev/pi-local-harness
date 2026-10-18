@@ -17,10 +17,11 @@ The filter buttons open `dropdown-menu`s of `menuitemcheckbox` items with a sear
 - Filtered: Above the list `issues.filtered` (“3 results for label:bug”) with a Clear Filters link.
 - No results: EmptyState: `issues.none_match` + Clear Filters.
 - No issues at all: EmptyState: `issues.empty` + New Issue.
-- Closed issue: The dot is `✓` (`text-purple-700 dark:text-purple-400`, label “Closed”), title `text-muted-foreground`.
+- Closed issue: The dot is `✓` (`text-muted-foreground`, label “Closed”), title `text-muted-foreground`.
 - Selected (bulk): A checkbox column appears when one row is checked; a bar above: `issues.selected` with Close, Label, Assign.
 - Many: 25 per page with InfiniteScroll (or Previous/Next on web).
 - Error: ErrorRetry in place of the rows.
+- Closed issues: In the Closed tab each row’s meta line ends with `issues.closed_by` (“closed 2 days ago by Ren Sato”) in a `<span data-t="issues.closed_by">` instead of the opened line.
 
 ## Texts
 (Key | English | 日本語)

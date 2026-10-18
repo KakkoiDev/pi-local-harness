@@ -22,6 +22,7 @@ Plain file view: the same table with one line-number column, no colours, and a h
 - Selected line: Clicking a number highlights the line (`bg-primary/10`) and puts `#L15` in the address; Shift-click selects a range.
 - Comment on a line: A `+` button appears on hover of a line in PullReview; comments render as a full-width row under the line.
 - Loading: Header plus 8 `skeleton` lines. Error: ErrorRetry inside the body.
+- Large change: `diff.large` → the folded file’s body row (`#diff-body`), replacing the table until **Show** is pressed.
 
 ## Texts
 (Key | English | 日本語)

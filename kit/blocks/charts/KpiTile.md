@@ -7,7 +7,7 @@ App Block card (Charts). A tile with one key number, its change from the last pe
 - Used in: Dashboard (a row of 3–4), AppAdmin, AppShop admin, AppCrm
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/charts/KpiTile.html` (11 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/charts/KpiTile.html` (12 lines of HTML).
 
 Copy, never retype: `{harness}/kit/blocks/charts/KpiTile.2.html` (5 lines of HTML).
 
@@ -20,6 +20,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 - Loading: `skeleton` for label, value and badge; `aria-busy="true"` on the card.
 - Error: Value `—`, `kpi.error` and a link-style **Try Again**.
 - Long numbers: `tabular-nums`, compact above a million (`Intl.NumberFormat(lang, {notation: "compact"})`: 1.2M / 120万).
+- Going down: The badge shows `kpi.change_down` (“▼ 4 %”) instead of `kpi.change_up`; same colour, the arrow carries the direction.
 
 ## Texts
 (Key | English | 日本語)
@@ -30,6 +31,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 - `kpi.refunds.title`: Refunds | 返金
 - `kpi.change_up`: ▲ {percent} % | ▲ {percent}%
 - `kpi.change_down`: ▼ {percent} % | ▼ {percent}%
+- `kpi.week`: Week | 週
 - `kpi.better`: better | 改善
 - `kpi.worse`: worse | 悪化
 - `kpi.no_comparison`: First week: a comparison appears next week. | 初週のため、比較は来週から表示されます。

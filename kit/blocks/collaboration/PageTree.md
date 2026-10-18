@@ -16,7 +16,7 @@ The `⋯` menu (`dropdown-menu`): Add Page Inside, Rename, Duplicate, Add to Fav
 - Loading: Five `skeleton` rows of different widths (Skeletons).
 - No pages: `tree.empty` and a `btn` `tree.first` that creates “Untitled” and opens it.
 - Current page: `aria-current="page"` on its link, `aria-selected="true"`, `bg-accent font-medium`; its ancestors are open.
-- Closed branch: `aria-expanded="false"`, the child `ul` is `hidden`, the toggle shows ▸ and its label is `tree.open`.
+- Closed branch: `aria-expanded="false"`, the child `ul` is `hidden`, the toggle shows ▸ and its label is `tree.open`: `aria-label="Open Grammar" data-t-label="tree.open"` (and back to `tree.close` when opened).
 - Renaming: The link is replaced by `<input class="input h-7" value="…" aria-label="Page name">`; empty name on Return keeps the old name.
 - Dragging: The row under the pointer gets `ring-2 ring-primary` (drop inside) or a 2 px line above/below (drop beside).
 - Deleted: The row disappears; a toast `tree.deleted` with Undo (DeleteUndo); child pages go with it and are named in the toast count.

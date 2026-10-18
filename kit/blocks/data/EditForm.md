@@ -9,7 +9,7 @@ App Block card (Data). The form that creates a record or edits one: labelled fie
 - Links to: DetailView (after saving), ConfirmDialog (leaving with changes), SavedState, DatePicker, ComboboxField, TagInput (richer fields)
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/data/EditForm.html` (42 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/data/EditForm.html` (44 lines of HTML).
 
 - The same form creates and edits; only the heading, the action and the button text change (`form.new_title`/`form.create` vs `form.edit_title`/`form.save`).
 - Every field: `label for` = input `id`; help in a `p` linked by `aria-describedby`; optional fields say “(optional)”; required fields say nothing extra.
@@ -25,6 +25,7 @@ Copy, never retype: `{harness}/kit/blocks/data/EditForm.html` (42 lines of HTML)
 - Server error: ErrorRetry's inline alert at the top; nothing is lost; Save works again.
 - Changed elsewhere (409): An alert with `form.saved_elsewhere`; keep the person's text in the fields.
 - Leaving with changes: Cancel, Back or a link: ConfirmDialog with `form.leave_title` (Keep Editing is the default). Closing the tab: the browser's own `beforeunload` prompt.
+- Error texts with numbers: `form.errors_title` → the error summary’s heading when there is more than one problem; `error.title_long` → the title field’s error line, with the current count.
 
 ## Texts
 (Key | English | 日本語)
@@ -64,7 +65,7 @@ Copy, never retype: `{harness}/kit/blocks/data/EditForm.html` (42 lines of HTML)
 
 ## Phone
 - One column; the two short fields stack. Buttons take the full width, Save on top (`@max-3xl:flex-col-reverse`).
-- Inputs are 44 px; date uses the phone's own picker (`type="date"`); the right keyboard per field (`type="email"`, `inputmode="numeric"`).
+- Inputs are 44 px; the date uses DatePicker's calendar popover (full width, 44 px days) so a Japanese page reads 2026年10月25日; the right keyboard per field (`type="email"`, `inputmode="numeric"`).
 - The page scrolls; the buttons are at the end, not fixed.
 
 ## Data

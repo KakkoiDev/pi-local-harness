@@ -14,12 +14,12 @@ Each file header has a Viewed checkbox (`pr.mark_viewed`): checking it folds the
 
 ## States
 - Draft comments: Comments added during a review show `pr.pending` until Submit Review; the Finish Review button shows their count.
-- Approved / changes requested: The Conversation tab lists the review with a `badge`: `pr.approved` (green) or `pr.changes_requested` (destructive).
+- Approved / changes requested: The Conversation tab lists the review with a `badge`: `pr.approved` (`bg-success text-success-foreground`) or `pr.changes_requested` (destructive).
 - Checks running: A merge box at the end of Conversation: `pr.checks_running` with a spinner glyph; Merge disabled.
 - Checks failed: `alert data-variant="destructive"` `pr.checks_failed` with Show Details; Merge disabled.
 - Ready to merge: `pr.ready` and a Merge button (ConfirmDialog: `pr.merge_q`).
 - Conflicts: `pr.conflicts`; Merge disabled with the reason.
-- Merged / closed: `badge` `pr.merged` (purple) or `pr.closed`; reply box stays for comments.
+- Merged / closed: `badge` `pr.merged` (`bg-primary text-primary-foreground`) or `pr.closed`; reply box stays for comments.
 - Outdated comment: A comment on a line that changed since shows `pr.outdated` and folds.
 - Your own change: Approve and Request Changes are disabled with `pr.own` (you can comment).
 

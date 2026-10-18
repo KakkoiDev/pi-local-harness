@@ -3,14 +3,14 @@
 App Block card (Apps). A kanban project board: boards with columns, cards that move across them, card details with checklists, labels, due dates and comments, shared with a team.
 
 - Example product: Pinwheel (a kanban project board)
-- Blocks: AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar
+- Blocks: AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar, WipLimit
 - Packages: App with no server (frontend only) with Works offline for one person; Web app (full stack) with Multiplayer, real time for a team.
 - Related: AppCrm (the same board for deals), AppCode (issues on a board)
 
 ## Screens
 (Screen | Route | Blocks)
 - Boards: `/` | ProductGrid, ListSearch, EmptyState
-- Board: `/b/{id}` | TopBar, Kanban, DragList, Presence, LabelsAssignees
+- Board: `/b/{id}` | TopBar, Kanban, WipLimit, DragList, Presence, LabelsAssignees
 - Card: `(dialog on a board)` | DetailView, DocEditor, DatePicker, Comments, LabelsAssignees
 - Filter: `(popover on a board)` | ListSearch, LabelsAssignees, ComboboxField
 - Members: `/b/{id}/members` | Invite, Roles, AvatarGroup
@@ -33,7 +33,8 @@ The first word of each step is the screen; the blocks named are the cards to cop
 **Move work**
 
 1. Board: drag a card to Doing, or its ⋯ → Move to Doing
-2. Board: Presence shows Kenji watching; his moves appear live
+2. Board: Doing shows WipLimit 4 / 3 and a warning; finish a card first
+3. Board: Presence shows Kenji watching; his moves appear live
 
 **Clean up**
 
@@ -71,9 +72,9 @@ App-level keys only; each block brings its own.
 
 ## Adding to it
 - Timelines and calendars of cards reuse Timeline and Agenda over `cards.due_on`.
-- **Proposed block: WipLimit** (a column header warning when a column holds more than its limit) if teams ask for it; until then show the count in StatusBadges.
+- Column limits are **WipLimit** (count against the limit, a warning over it, set from the column's ⋯), stored in `columns.wip_limit`.
 
 ## Pi Workbench
 - Assumes AppFoundations (its card comes with this one).
-- Load a block’s card with the app_block tool and its exact name, one at a time: AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar.
+- Load a block’s card with the app_block tool and its exact name, one at a time: AvatarGroup, ComboboxField, Comments, DataTable, DatePicker, DeleteUndo, DetailView, DocEditor, DragList, EmptyState, InstallApp, Invite, Kanban, LabelsAssignees, ListSearch, Presence, ProductGrid, Roles, SettingsPage, TopBar, WipLimit.
 - Set up: `python3 {harness}/kit/blocks/add.py <project> AppBoard` copies the libraries it needs (with licences) and adds its texts to messages/en.json and messages/ja.json.

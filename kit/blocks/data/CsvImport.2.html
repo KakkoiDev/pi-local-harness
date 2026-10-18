@@ -1,0 +1,19 @@
+<p class="text-sm" data-t="import.check_summary">240 rows are ready, 8 have problems.</p>
+<!-- the preview table: bad rows <tr class="bg-destructive/10"> with the problem in the first cell, text-destructive -->
+<label class="label gap-2 font-normal"><input class="input" type="checkbox" name="skip_bad" checked><span data-t="import.skip_bad">Skip rows with problems</span></label>
+<button class="btn" type="submit" data-t="import.run">Import 240 Rows</button>
+
+<div class="progress" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" aria-label="Import progress" data-t-label="import.progress_label"><span style="width: 48%"></span></div>
+<p class="text-sm text-muted-foreground" aria-live="polite" data-t="import.progress">120 of 248 rows</p>
+<button class="btn" data-variant="outline" type="button" data-t="import.cancel">Cancel Import</button>
+
+<h3 class="font-semibold" data-t="import.report.title">Import finished</h3>
+<ul class="grid gap-1 text-sm">
+  <li class="font-medium text-success" data-t="import.report.added">231 added</li>
+  <li data-t="import.report.updated">9 updated (same email)</li>
+  <li class="text-muted-foreground" data-t="import.report.skipped">8 skipped</li>
+</ul>
+
+<!-- step 2, a required field with no column -->
+<p class="text-destructive text-sm" data-t="import.required">Email is required. Choose the column that holds it.</p>
+<p class="text-destructive text-sm" data-t="import.duplicate">Another column already goes into Email.</p>

@@ -27,7 +27,7 @@ App Block card (Games). A cozy farming and life game: plant, water and harvest t
 - Calendar: the season’s 28 days with festivals and birthdays (MapScreen style panel).
 
 ## Controls
-Actions are named once (`move`, `use_tool`, `interact`, `hotbar_next`, `hotbar_prev`, `inventory`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`move`, `use_tool`, `interact`, `hotbar_next`, `hotbar_prev`, `inventory`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `move`, `pause` are gaming-core's own (`move` is its `moveX`/`moveY` axes); `use_tool`, `interact`, `hotbar_next`, `hotbar_prev`, `inventory` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 (Action | Keyboard | Mouse | Gamepad | Touch)
 - Move: WASD or arrow keys | Click a tile to walk there | Left stick or d-pad | Stick
@@ -72,6 +72,8 @@ Game-level keys only; each block's own keys are on its card.
 - `tool.can`: Watering Can | じょうろ
 - `summary.title`: End of Day {day} | {day}日目のおわり
 - `summary.shipped`: Shipped | 出荷
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.season_day`, `hud.money`, `summary.title` (into the HUD slots of HudPieces and the panels named above).
 
 ## Adding to it
 - A new crop: four 16 px frames, days per stage, price; the shop lists it by season.

@@ -25,6 +25,7 @@ Copy, never retype: `{harness}/kit/blocks/data/DataTable.html` (46 lines of HTML
 - Error: ErrorRetry's section version in place of the table.
 - First / last page: Previous (or Next) gets `aria-disabled="true"` and `tabindex="-1"`.
 - Many pages: 1, 2, 3, …, last; the current page has `aria-current="page"`.
+- Rows selected: `table.selected` (“2 selected”) → the bulk-action bar’s count, `#table-selected`, announced through its `aria-live`.
 
 ## Texts
 (Key | English | 日本語)

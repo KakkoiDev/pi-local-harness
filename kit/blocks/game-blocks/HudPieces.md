@@ -16,7 +16,7 @@ Leave a slot empty when the genre doesn't use it (an arcade game has score and l
 - Damage: The bar drops at once; a lighter strip shows the lost part for 0.4 s.
 - Energy empty: Energy bar empty, its label dim; actions that need it show the TutorialPrompt `tutorial.no_energy` once.
 - Timer under 10 s: Timer text in `--g-bad`; one tick sound per second.
-- New objective: The objective panel slides in from the top (fade only with Reduce Motion) and `#hud-live` announces it.
+- New objective: The objective panel slides in from the top (fade only with Reduce Motion) and `#hud-live` gets `hud.new_objective` (set from code, `{text}` the objective).
 - Combo: Appears from ×2, grows for a moment on each hit, fades after 2 s without a hit.
 - Menu open: The whole HUD is `hidden` under PauseMenu, dialogues and shops.
 

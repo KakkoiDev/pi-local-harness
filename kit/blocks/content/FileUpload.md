@@ -22,6 +22,7 @@ The `label` wrapping the hidden input makes the whole zone a click target and ke
 - Limit reached: Over `max` files: the zone is `aria-disabled="true"`, the hint becomes `upload.error.count`.
 - Removing: ConfirmDialog only for files already saved with the record; new uploads are removed at once with an Undo toast (DeleteUndo).
 - Offline (no server): Nothing changes: files are stored on the device.
+- Finished: `upload.live.done` → the `aria-live` line `#upload-live` (“trip-kyoto.jpg uploaded.”).
 
 ## Texts
 (Key | English | 日本語)

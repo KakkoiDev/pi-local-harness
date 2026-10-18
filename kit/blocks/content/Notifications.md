@@ -21,7 +21,7 @@ The title's parts sit in one `span.block` because Basecoat's item headings are f
 - Loading: Five `skeleton h-14` rows; older pages load with InfiniteScroll (`before=` the last id).
 - Error: ErrorRetry: `notif.error`, **Try Again**.
 - New while open: A button at the top: `notif.new` (“2 new notifications”) that loads them; the list doesn't jump.
-- In the TopBar popover: The bell button (`aria-label` `notif.bell` with the count) opens a `popover` with the first 8 rows and a **See All** link to `/notifications`; the count badge is on the bell.
+- In the TopBar popover: The bell button (`aria-label="Notifications, 3 unread" data-t-label="notif.bell"`, the count filled from data) opens a `popover` with the first 8 rows and a **See All** link to `/notifications`; the count badge is on the bell.
 - Turned off: When the person turned a kind off in SettingsPage it never appears here.
 
 ## Texts

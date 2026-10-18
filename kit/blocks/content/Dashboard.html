@@ -37,7 +37,10 @@
         data-chart-series='{"now":{"label":"This period","color":"var(--chart-1)","surface":"gradient"},"before":{"label":"Previous period","color":"var(--chart-2)"}}'></canvas>
       <details class="mt-2 text-sm">
         <summary data-t="dashboard.chart.table">Show as a table</summary>
-        <!-- the same numbers in a <table class="table"> (see LineChart) -->
+        <div class="table-container mt-2"><table class="table">
+          <thead><tr><th data-t="dashboard.chart.week">Week</th><th class="text-right" data-t="dashboard.chart.now">This period</th><th class="text-right" data-t="dashboard.chart.before">Previous period</th></tr></thead>
+          <tbody><tr><td>W1</td><td class="text-right tabular-nums">¥280,000</td><td class="text-right tabular-nums">¥240,000</td></tr><tr><td>W2</td><td class="text-right tabular-nums">¥310,000</td><td class="text-right tabular-nums">¥260,000</td></tr></tbody>
+        </table></div>
       </details>
     </section>
   </section>

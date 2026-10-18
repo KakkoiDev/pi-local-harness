@@ -1,12 +1,12 @@
 <article class="grid gap-6 @3xl:grid-cols-2" aria-labelledby="product-title">
   <section class="grid content-start gap-3" aria-label="Pictures" data-t-label="product.pictures">
     <img id="main-image" src="/static/products/mug.webp" alt="Ceramic Mug, blue glaze, 350 ml" class="aspect-square w-full rounded-xl object-cover">
-    <div class="flex items-start gap-2 overflow-x-auto" role="group" aria-label="Choose a picture" data-t-label="product.choose_picture"><button type="button" class="overflow-hidden rounded-md border ring-2 ring-ring" aria-label="Picture 1" aria-pressed="true"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button><button type="button" class="overflow-hidden rounded-md border " aria-label="Picture 2" aria-pressed="false"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button><button type="button" class="overflow-hidden rounded-md border " aria-label="Picture 3" aria-pressed="false"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button></div>
+    <div class="flex items-start gap-2 overflow-x-auto" role="group" aria-label="Choose a picture" data-t-label="product.choose_picture"><button type="button" class="overflow-hidden rounded-md border ring-2 ring-ring" aria-label="Picture 1" data-t-label="product.picture_n" aria-pressed="true"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button><button type="button" class="overflow-hidden rounded-md border " aria-label="Picture 2" aria-pressed="false"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button><button type="button" class="overflow-hidden rounded-md border " aria-label="Picture 3" aria-pressed="false"><img src="/static/products/mug.webp" alt="" class="size-16 object-cover"></button></div>
   </section>
   <section class="grid content-start gap-4">
     <div class="flex flex-wrap gap-1"><span class="badge" data-variant="destructive" data-t="shop.off">25 % off</span></div>
     <h1 id="product-title" class="text-2xl font-semibold">Ceramic Mug</h1>
-    <p class="text-xl font-semibold tabular-nums">¥1,650 <s class="text-muted-foreground text-base font-normal" aria-label="Was ¥2,200">¥2,200</s> <span class="text-muted-foreground text-sm font-normal" data-t="shop.tax_included">tax included</span></p>
+    <p class="text-xl font-semibold tabular-nums">¥1,650 <s class="text-muted-foreground text-base font-normal" aria-label="Was ¥2,200" data-t-label="shop.was">¥2,200</s> <span class="text-muted-foreground text-sm font-normal" data-t="shop.tax_included">tax included</span></p>
     <form class="grid gap-4" method="post" action="/cart">
       <input type="hidden" name="product" value="mug">
       <fieldset class="grid gap-2">

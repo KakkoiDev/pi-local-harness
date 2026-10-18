@@ -3,7 +3,7 @@
 App Block card (Apps). A forum or community: categories of topics, replies with reactions and mentions, profiles, notifications, and the moderation tools that keep it kind.
 
 - Example product: Crumb Circle (a community for home bakers)
-- Blocks: ActivityFeed, AvatarGroup, Breadcrumbs, Comments, ConfirmDialog, DataTable, DetailView, DocEditor, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, InfiniteScroll, ListSearch, LogIn, Mentions, Notifications, Onboarding, Profile, Reactions, Roles, SignUp, StatusBadges, Tabs, TagInput, Threads, TopBar
+- Blocks: ActivityFeed, AvatarGroup, Breadcrumbs, Comments, ConfirmDialog, DataTable, DetailView, DocEditor, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, InfiniteScroll, ListSearch, LogIn, Mentions, Notifications, Onboarding, Profile, Reactions, ReportContent, Roles, SignUp, StatusBadges, Tabs, TagInput, Threads, TopBar
 - Packages: Web app (full stack). Posts are public and shared, so it needs a server.
 - Related: AppChat (real-time instead of topics), AppCourse (a course can have a forum)
 
@@ -11,7 +11,7 @@ App Block card (Apps). A forum or community: categories of topics, replies with 
 (Screen | Route | Blocks)
 - Topics: `/` | TopBar, Tabs, ListSearch, InfiniteScroll, StatusBadges
 - Category: `/c/{slug}` | Breadcrumbs, ListSearch, InfiniteScroll
-- Topic: `/t/{id}/{slug}` | Breadcrumbs, Comments, Reactions, Mentions, Threads
+- Topic: `/t/{id}/{slug}` | Breadcrumbs, Comments, Reactions, Mentions, Threads, ReportContent
 - New topic: `/new` | EditForm, DocEditor, TagInput, FileUpload
 - Member: `/u/{name}` | Profile, ActivityFeed, AvatarGroup
 - Notifications: `/notifications` | Notifications, EmptyState
@@ -39,8 +39,8 @@ The first word of each step is the screen; the blocks named are the cards to cop
 
 **Moderate**
 
-1. Moderation: DataTable of reports
-2. Moderation: DetailView, Hide Post or Warn Member (ConfirmDialog states what the member sees)
+1. Topic: a member uses ReportContent on a post (reason, details); they see Reported
+2. Moderation: DataTable of reports by reason, then DetailView, Hide Post or Warn Member (ConfirmDialog states what the member sees)
 
 ## Phone
 - Topic list rows keep title, category and reply count; the composer for a reply opens as a full-screen sheet with Post and Cancel.
@@ -70,9 +70,9 @@ App-level keys only; each block brings its own.
 - `topic.mark_solution`: Mark as Solution | 解決済みにする
 
 ## Adding to it
-- **Proposed block: ReportContent** (Report… on a post: reason radios, a note, sent confirmation) is not in the catalogue; use ConfirmDialog with a reason field until it exists.
+- Reporting a post is **ReportContent** (reasons, details, sent, already reported); its reasons are the Moderation table's filter.
 
 ## Pi Workbench
 - Assumes AppFoundations (its card comes with this one).
-- Load a block’s card with the app_block tool and its exact name, one at a time: ActivityFeed, AvatarGroup, Breadcrumbs, Comments, ConfirmDialog, DataTable, DetailView, DocEditor, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, InfiniteScroll, ListSearch, LogIn, Mentions, Notifications, Onboarding, Profile, Reactions, Roles, SignUp, StatusBadges, Tabs, TagInput, Threads, TopBar.
+- Load a block’s card with the app_block tool and its exact name, one at a time: ActivityFeed, AvatarGroup, Breadcrumbs, Comments, ConfirmDialog, DataTable, DetailView, DocEditor, EditForm, EmailConfirm, EmptyState, FileUpload, GlobalSearch, InfiniteScroll, ListSearch, LogIn, Mentions, Notifications, Onboarding, Profile, Reactions, ReportContent, Roles, SignUp, StatusBadges, Tabs, TagInput, Threads, TopBar.
 - Set up: `python3 {harness}/kit/blocks/add.py <project> AppForum` copies the libraries it needs (with licences) and adds its texts to messages/en.json and messages/ja.json.

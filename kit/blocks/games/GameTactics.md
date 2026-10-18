@@ -27,7 +27,7 @@ App Block card (Games). A grid tactics game: turn-based battles on a square grid
 - End Turn asks to confirm only when units have not acted.
 
 ## Controls
-Actions are named once (`cursor`, `select`, `back`, `next_unit`, `end_turn`, `info`, `pause`) and read through gaming-core's input layer; the prompt on screen follows the last device used (`.game[data-device]`). Gamepad buttons by position on the standard layout. Every action is remappable in ControlsRemap except Pause.
+Actions are named once (`cursor`, `select`, `back`, `next_unit`, `end_turn`, `info`, `pause`); the prompt on screen follows the last device used (`.game[data-device]`). Through gaming-core's input layer (`gcInput`, see GameKit): `back`, `pause` are gaming-core's own (`move` is its `moveX`/`moveY` axes); `cursor`, `select`, `next_unit`, `end_turn`, `info` are added with `gcInput.init({actions: {…}})` with the defaults in the table below. Gamepad buttons by position (`padStyle: 'position'`): south, east, west, north, the shoulders and triggers, select, start. Every action is remappable in ControlsRemap except Pause and Back (gaming-core's `fixed`).
 
 (Action | Keyboard | Mouse | Gamepad | Touch)
 - Move the cursor: Arrow keys or WASD | Hover a tile | D-pad or left stick | Tap a tile (drag pans)
@@ -35,7 +35,7 @@ Actions are named once (`cursor`, `select`, `back`, `next_unit`, `end_turn`, `in
 - Back / undo move: X or Esc | Right click | East | Back button
 - Next unit: Tab | — | Right shoulder | Next button
 - Unit info: I | Middle click | North | Press and hold a unit
-- End turn: E | End Turn button | Back (left centre) | End Turn button
+- End turn: E | End Turn button | Select button | End Turn button
 - Pause: Esc (nothing chosen) | — | Start | Menu button
 
 ## Phone layout
@@ -74,6 +74,8 @@ Game-level keys only; each block's own keys are on its card.
 - `forecast.hit`: Hit {n}% | 命中 {n}%
 - `forecast.counter`: Counter | 反撃
 - `goal.defeat_all`: Defeat all enemies | 敵を全滅させる
+
+Keys with `{…}` are filled from code, never typed into the markup: `hud.turn`, `forecast.hit` (into the HUD slots of HudPieces and the panels named above).
 
 ## Adding to it
 - A class: a part set, move range, weapon, one skill; its row in Equipment.

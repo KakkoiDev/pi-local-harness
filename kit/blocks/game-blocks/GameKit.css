@@ -184,3 +184,10 @@
 .game-panel[data-tone="light"] :is(.game-btn, .game-line) { color: var(--g-ink); }
 .game-panel[data-tone="light"] .game-btn:is(:focus-visible, [data-selected="true"], :hover) { background: var(--g-accent); }
 .game-panel[data-tone="light"] .game-hint { color: color-mix(in srgb, var(--g-ink) 75%, var(--g-paper)); }
+
+/* Round 13: the page behind the game and the dimmed scrim behind a game-over screen are roles too, never a colour in the markup */
+.game { --g-backdrop: #000; --g-scrim: rgb(10 10 20 / 0.7); }
+.game-page { margin: 0; background: #000; }
+.game-scrim { background: var(--g-scrim); }
+/* Gamepad buttons other than the four face buttons: a keycap with the position's short name (LB/RB are brands; these are positions) */
+.game-padkey { display: inline-grid; place-items: center; min-width: 1.6em; height: 1.6em; padding: 0 0.35em; font-size: 0.75em; line-height: 1; color: var(--g-ink); background: var(--g-paper); border-radius: 0.5em; box-shadow: 0 0 0 2px var(--g-ink); text-shadow: none; }

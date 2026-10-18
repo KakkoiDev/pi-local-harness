@@ -8,13 +8,13 @@ App Block card (Collaboration). One issue: its title and state, the description,
 - Used in: AppCode, AppBoard, AppCrm
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/collaboration/IssueDetail.html` (29 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/collaboration/IssueDetail.html` (30 lines of HTML).
 
 The side column's headings are buttons in an editable view: each opens LabelsAssignees' picker.
 
 ## States
-- Open: Green `badge` `issue.open`.
-- Closed: `badge` `issue.closed` (`bg-purple-700 text-white`); a timeline event “closed this”; the button becomes Reopen Issue (`issue.reopen`).
+- Open: `badge` `issue.open` in `bg-success text-success-foreground`.
+- Closed: `badge` `issue.closed` (`bg-primary text-primary-foreground`); a timeline event “closed this”; the button becomes Reopen Issue (`issue.reopen`).
 - Empty reply box: Comment is disabled; the outline button reads Close Issue (`issue.close`) instead of Close with Comment.
 - Editing title: The `h1` becomes an `input` with Save / Cancel.
 - Editing a comment: Its section becomes a `textarea` with Save / Cancel; edited comments show `issue.edited`.
@@ -22,6 +22,7 @@ The side column's headings are buttons in an editable view: each opens LabelsAss
 - Locked: Reply box replaced by `issue.locked`.
 - Read only (no permission): No edit buttons, no reply box: `issue.sign_in` for visitors.
 - Not found / deleted: EmptyState `issue.not_found` with Back to Issues.
+- Closed by someone: The timeline gets a line `<span data-t-line="issue.closed_event">` (“Ren Sato closed this yesterday”), like the label line.
 
 ## Texts
 (Key | English | 日本語)

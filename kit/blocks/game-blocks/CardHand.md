@@ -12,7 +12,7 @@ Copy, never retype: `{harness}/kit/blocks/game-blocks/CardHand.html` (14 lines o
 The focused card rises (`aria-selected="true"`) and a larger detail of it appears above the hand (`.game-card` at double size, read-only). Play: Enter/south then choose a target, or drag the card up onto the board.
 
 ## States
-- Can't afford: `aria-disabled="true"` (grey); detail says `cards.need_energy`.
+- Can't afford: `aria-disabled="true"` (grey); the card's detail line gets `cards.need_energy` (set from code, `{n}` the missing energy).
 - Targeting: The card stays raised; targets on the board are highlighted on the canvas and listed for keys (← → between targets); Esc/east cancels.
 - Too many cards: Over 7 the fan overlaps more (`margin` −20 px); detail on focus still shows the full card.
 - Deck view: `.game-overlay` with `.game-slots` of cards by cost, filter tabs (All · 1 · 2 · 3+), and counts “×2”.

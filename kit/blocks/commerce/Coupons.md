@@ -16,6 +16,8 @@ Copy, never retype: `{harness}/kit/blocks/commerce/Coupons.html` (11 lines of HT
 - Errors: Under the field, `role="alert"`, the input `aria-invalid="true"`; the typed code stays. One message per reason: `unknown`, `ended`, `minimum` (says how much more), `items`, `used`.
 - A second code: One code per order: applying another shows `coupon.one_only` before replacing.
 - Price and stock states: The table in the preview is the rule for every block that shows a price: regular, sale, low stock (1–5), sold out, pre-order, coupon applied, price changed.
+- Error texts: `#coupon-error` loses `hidden` and shows one of `coupon.error.unknown`, `coupon.error.ended`, `coupon.error.minimum`, `coupon.error.items`, `coupon.error.used`; `coupon.one_only` is its help line when a code is already applied.
+- Texts other cards show: `coupon.summary_line` is the summary row in Cart and Checkout (“Coupon WELCOME500 −¥500”); `shop.ships_from`, `shop.off`, `shop.low_stock`, `shop.was` and `cart.price_changed` are the price and stock lines of ProductGrid, ProductPage and Cart.
 
 ## Texts
 (Key | English | 日本語)

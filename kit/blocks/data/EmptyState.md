@@ -21,6 +21,7 @@ Copy, never retype: `{harness}/kit/blocks/data/EmptyState.html` (11 lines of HTM
 - No permission to create: First run without the buttons; the text says who can add things (`… Your teacher adds notes here.`).
 - Inside a small panel (a Kanban column, a card): Drop the border (`border-0`) and the padding to `p-6`; keep the icon, title and one line.
 - Loading: Never show an empty state while loading: LoadingState first, EmptyState only when the answer says 0.
+- Search with no match: `empty.search_title` → the empty state’s `h3` (“No notes match “kanji””).
 
 ## Texts
 (Key | English | 日本語)

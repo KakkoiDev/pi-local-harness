@@ -22,6 +22,7 @@ Each person gets one series colour for the session (`--chart-1` … `--chart-5`,
 - Connecting: The status dot is `bg-muted-foreground` and `presence.connecting`; avatars of others are hidden.
 - Disconnected: `presence.offline` in the popover status; OfflineBanner shows at the top; the app keeps working on its own copy and syncs when back.
 - Reconnected: `presence.back` once; everyone's positions refresh.
+- More than four here: The avatar group ends with a `+N` circle whose `aria-label` is `presence.more` (“3 more”, `data-t-label="presence.more"`).
 
 ## Texts
 (Key | English | 日本語)

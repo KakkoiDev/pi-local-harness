@@ -7,7 +7,7 @@ App Block card (Charts). A gauge or progress ring for one value against a limit 
 - Used in: Dashboard, AccountSettings (storage), AppCourse (lessons), KpiTile
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/charts/GaugeRing.html` (14 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/charts/GaugeRing.html` (19 lines of HTML).
 
 Copy, never retype: `{harness}/kit/blocks/charts/GaugeRing.2.html` (9 lines of HTML).
 
@@ -20,6 +20,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 - Ring: Small progress (lessons, steps): `size-24` ring, label beside it. Use `ProgressStatus` (a bar) when space is a line.
 - Loading: A round `skeleton` the size of the gauge.
 - Theme change: The wrapper redraws; the free part is `var(--border)`.
+- Goal variant: `chart.goal.title` and `chart.goal.lede` (“3 of 5 done”) replace the storage title and lede when the gauge shows a goal.
 
 ## Texts
 (Key | English | 日本語)
@@ -31,6 +32,9 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 - `chart.goal.title`: Lessons this week | 今週のレッスン
 - `chart.goal.lede`: {done} of {goal} done | {goal}件中{done}件完了
 - `chart.show_table`: Show as a table | 表で表示
+- `chart.storage.used`: Used | 使用中
+- `chart.storage.free`: Free | 空き
+- `chart.storage.total`: Total | 合計
 - `chart.loading`: Loading the chart… | グラフを読み込み中…
 - `chart.error`: Couldn’t load the chart. Check your connection and try again. | グラフを読み込めませんでした。接続を確認して、もう一度お試しください。
 - `chart.retry`: Try Again | 再試行

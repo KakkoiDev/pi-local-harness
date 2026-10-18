@@ -5,20 +5,20 @@ App Block card (Content). A board of columns (To Do, Doing, Done) holding cards 
 - Basecoat: `card`, `badge`, `btn`, `avatar`, `dropdown-menu`, `empty`
 - Route: `/board` (one board) or `/boards/{id}`
 - Needs: Web: `GET /board`, `POST /cards`, `PATCH /cards/{id}` (`column`, `position`). No server: `store.cards()`, `store.moveCard(id, column, position)`, `store.addCard(card)`.
-- Links to: DragList (the drag rules), EditForm (card detail), LabelsAssignees, AvatarGroup, AppBoard, Presence
+- Links to: DragList (the drag rules), EditForm (card detail), LabelsAssignees, AvatarGroup, AppBoard, Presence, WipLimit (column limits)
 
 ## Markup
 Copy, never retype: `{harness}/kit/blocks/content/Kanban.html` (37 lines of HTML).
 
 ## States
-- Board (default): Columns in order; each card shows title, label and assignee; the count badge per column.
+- Board (default): Columns in order; each card shows title, label and assignee; the count badge per column (with a limit, the badge and its rules come from **WipLimit**).
 - Dragging: The dragged card gets `aria-grabbed="true"` and `opacity-50`; the drop place shows a 2 px `bg-primary` line between cards. The column under the pointer gets `ring-2 ring-ring`.
 - Picked up with the keyboard: Same look; `#board-live` says `board.live.picked`. Arrow keys move the placeholder; Space drops (`board.live.dropped`), Esc puts it back (`board.live.cancelled`).
 - Saving a move: The card moves at once; if the save fails it goes back and a toast says `board.error.move` with **Try Again**.
 - Empty column: `<p class="text-muted-foreground text-sm" data-t="board.col.empty">No cards</p>` inside the list, still a drop target.
 - Empty board: EmptyState: `board.empty.title`, `board.empty.body`, **Add Card**.
 - Loading: Three columns with two `skeleton h-20` cards each.
-- Column limit (optional): When a column has a limit, the badge reads `3 / 4`; over the limit it uses `data-variant="destructive"` (still allowed).
+- Column limit (optional): When a column has a limit, use the **WipLimit** block for the count: the badge reads `3 / 4`; over the limit it uses `data-variant="destructive"` (still allowed). WipLimit's card has the texts, the warning and how the limit is set.
 - Someone else moved a card: With Presence on: the card moves and flashes `ring-2` for 1 s; `#board-live` says `board.live.moved_by`.
 
 ## Texts
@@ -69,7 +69,7 @@ Copy, never retype: `{harness}/kit/blocks/content/Kanban.html` (37 lines of HTML
 
 ## Don't
 - Don't make drag the only way to move a card.
-- Don't add swimlanes, due-date colours or WIP rules unless asked.
+- Don't add swimlanes, due-date colours or WIP rules unless asked; a column limit is WipLimit, nothing else.
 - Don't use `position: fixed` for the dragged card; use the HTML drag image or a transform.
 
 ## Pi Workbench

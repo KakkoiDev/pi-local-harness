@@ -20,6 +20,7 @@ Load once per page, in this order: `vendor/chart.js-4.5.1/chart.umd.min.js`, `ve
 - Empty: All cells at level 0 and `chart.lessons.empty` under the grid; the grid still shows so the period is visible.
 - Loading: One `skeleton` block the size of the grid.
 - Long periods: A year is 53 columns: the grid scrolls sideways inside its own `overflow-x-auto` box, scrolled to the latest week on load.
+- Cell labels: Each cell’s `data-tooltip` is `chart.lessons.cell` (“2 lessons · Tue 22 Jul”), filled from the data with the date in the page’s language (`Intl.DateTimeFormat`).
 
 ## Texts
 (Key | English | 日本語)

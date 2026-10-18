@@ -1,0 +1,42 @@
+<form id="composer" class="relative grid gap-2 rounded-lg border bg-background p-2 focus-within:ring-[3px] focus-within:ring-ring/50" method="post" action="/channels/field-trip/messages" novalidate>
+  
+  <label class="sr-only" for="composer-text" data-t="composer.label">Message #field-trip</label>
+  <textarea id="composer-text" name="text" rows="1" maxlength="8000" class="field-sizing-content max-h-48 min-h-10 resize-none bg-transparent px-2 py-1.5 text-sm outline-none" placeholder="Message #field-trip" data-t-placeholder="composer.placeholder" aria-describedby="composer-hint"></textarea>
+  
+  <div class="flex items-center gap-1">
+    <label class="btn" data-variant="ghost" data-size="icon-sm" aria-label="Attach a file" data-t-label="composer.attach"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><input class="sr-only" type="file" name="files" multiple tabindex="-1"></label>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Add an emoji" data-t-label="composer.emoji" aria-haspopup="dialog"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+    <button class="btn" data-variant="ghost" data-size="icon-sm" type="button" aria-label="Mention someone" data-t-label="composer.mention" aria-haspopup="listbox" aria-controls="mention-list"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></button>
+    <span class="flex-1"></span>
+    <span id="composer-hint" class="hidden text-xs text-muted-foreground @3xl:inline" data-t="composer.hint">Return to send · Shift+Return for a new line</span>
+    <div class="button-group">
+      <button class="btn" data-size="sm" type="submit" disabled data-t="composer.send"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>Send</button>
+      <div class="dropdown-menu" id="send-menu">
+        <button class="btn" data-size="icon-sm" type="button" id="send-menu-trigger" aria-haspopup="menu" aria-controls="send-menu-menu" aria-expanded="false" aria-label="More send options" data-t-label="composer.more" disabled><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="send-menu-popover" data-popover aria-hidden="true">
+          <div role="menu" id="send-menu-menu" aria-labelledby="send-menu-trigger">
+            <div role="menuitem" data-t="composer.schedule"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Schedule for Later…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- a file chip while uploading -->
+<li class="badge gap-1" data-variant="secondary" aria-busy="true"><span data-t="composer.uploading">Uploading route.png…</span><button class="btn" data-variant="ghost" data-size="icon-xs" type="button" aria-label="Remove route.png" data-t-label="composer.remove_file">✕</button></li>
+
+<!-- the mention list with no match -->
+<p class="px-2 py-1.5 text-sm text-muted-foreground" role="status" data-t="composer.no_people">No one called “kenji” in this channel.</p>
+
+<!-- too long: under the field -->
+<p id="composer-count" class="px-1 text-sm text-destructive" data-t="composer.too_long">4,012 / 4,000 characters: shorten it to send.</p>
+
+<!-- after scheduling -->
+<p class="flex items-center gap-2 text-sm text-muted-foreground" role="status"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span data-t="composer.scheduled">Scheduled for Fri 23 Oct, 07:30</span></p>
+
+<!-- typing @: the mention list opens above the field (role="listbox", the field gets aria-controls and aria-activedescendant) -->
+<div id="mention-list" role="listbox" aria-label="People in #field-trip" data-t-label="composer.mention_list" class="grid gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"><div role="option" id="mention-ren" aria-selected="true" class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent"><span class="avatar" data-size="sm"><span>RS</span></span><span class="font-medium">Ren Sato</span><span class="text-muted-foreground">@ren</span></div><div role="option" id="mention-rena" aria-selected="false" class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent"><span class="avatar" data-size="sm"><span>RM</span></span><span class="font-medium">Rena Mori</span><span class="text-muted-foreground">@rena</span></div></div>
+
+<!-- read-only channel: replaces the form -->
+<div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm"><span data-t="composer.no_permission">Only members can post in #announcements.</span><button class="btn" data-size="sm" type="button" data-t="composer.join">Join Channel</button></div>

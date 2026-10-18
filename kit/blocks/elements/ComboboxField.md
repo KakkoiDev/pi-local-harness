@@ -26,6 +26,7 @@ Attribute texts: `data-t-placeholder="key"` fills `placeholder`, `data-t-label="
 - Several chosen: Basecoat draws `.combobox-chips` with a `.combobox-chip` per value and a `.combobox-chip-remove` button; the hidden input holds a JSON array.
 - Invalid: `aria-invalid="true"` on the trigger/input + error line under the field (`combo.error.required`).
 - Disabled: `disabled` on the trigger/input.
+- Remove one chosen value: Each `.combobox-chip-remove` button’s `aria-label` is `combo.remove` (“Remove Kyoto”); pass the text to the macro, Basecoat’s script writes it.
 
 ## Texts
 (Key | English | 日本語)

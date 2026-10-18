@@ -54,6 +54,7 @@ Each option is one row: the name, then a value changed with ← → (d-pad left/
 ```
 
 - `localStorage["<game-id>.settings"]`; read before the title screen so the first frame is already in the right language.
+- Bindings are not here: the Controls tab is ControlsRemap, which keeps them in gaming-core (`gcInput.save()`, `<game-id>.input`).
 
 ## Don't
 - Don't use a native `<input type="range">` styled as a slider here; the row is the slider (one focus stop, ← →).

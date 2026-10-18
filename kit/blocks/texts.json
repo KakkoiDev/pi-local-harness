@@ -702,6 +702,14 @@
     "Coupons",
     "クーポン"
    ],
+   "admin.reviews": [
+    "Reviews",
+    "レビュー"
+   ],
+   "admin.shipping": [
+    "Shipping",
+    "配送"
+   ],
    "admin.view_shop": [
     "View Shop",
     "ショップを表示"
@@ -755,6 +763,48 @@
    "chart.retry": [
     "Try Again",
     "再試行"
+   ]
+  },
+  "ArticleBody": {
+   "article.by": [
+    "By {author}",
+    "{author}"
+   ],
+   "article.reading_time": [
+    "{minutes} min read",
+    "約{minutes}分で読めます"
+   ],
+   "article.updated": [
+    "Updated {date}",
+    "{date}更新"
+   ],
+   "article.notes": [
+    "Notes",
+    "注"
+   ],
+   "article.back_to_ref": [
+    "Back to the text",
+    "本文に戻る"
+   ],
+   "article.copy_code": [
+    "Copy",
+    "コピー"
+   ],
+   "article.copied": [
+    "Copied",
+    "コピーしました"
+   ],
+   "article.image_missing": [
+    "Image not available: {alt}",
+    "画像を表示できません：{alt}"
+   ],
+   "article.contents": [
+    "On this page",
+    "このページの内容"
+   ],
+   "article.not_found": [
+    "This post doesn’t exist or was removed.",
+    "この記事は存在しないか、削除されました。"
    ]
   },
   "AvatarGroup": {
@@ -1429,6 +1479,72 @@
     "生データ"
    ]
   },
+  "CodeView": {
+   "code.meta": [
+    "{lines} lines · {size}",
+    "{lines}行・{size}"
+   ],
+   "code.wrap_group": [
+    "Line wrap",
+    "折り返し"
+   ],
+   "code.wrap": [
+    "Wrap Lines",
+    "折り返す"
+   ],
+   "code.copy": [
+    "Copy",
+    "コピー"
+   ],
+   "code.raw": [
+    "Raw",
+    "そのまま表示"
+   ],
+   "code.table_label": [
+    "Contents of {path}",
+    "{path} の内容"
+   ],
+   "code.line_link": [
+    "Line {n}",
+    "{n}行目"
+   ],
+   "code.copied": [
+    "Copied {lines} lines",
+    "{lines}行をコピーしました"
+   ],
+   "code.copy_select": [
+    "Copying isn’t allowed here. The text is selected: press ⌘C or Ctrl C.",
+    "ここではコピーできません。テキストを選択したので、⌘C または Ctrl C を押してください。"
+   ],
+   "code.large": [
+    "This file is large. Showing the first 1,000 of {lines} lines.",
+    "大きなファイルのため、{lines}行のうち最初の1,000行を表示しています。"
+   ],
+   "code.binary.title": [
+    "This file can’t be shown",
+    "このファイルは表示できません"
+   ],
+   "code.binary.body": [
+    "It isn’t text ({size}). Download it to open it.",
+    "テキストではありません（{size}）。ダウンロードして開いてください。"
+   ],
+   "code.download": [
+    "Download",
+    "ダウンロード"
+   ],
+   "code.show_raw": [
+    "Show Raw",
+    "そのまま表示"
+   ],
+   "code.empty": [
+    "This file is empty.",
+    "このファイルは空です。"
+   ],
+   "code.not_found": [
+    "This file doesn’t exist on {branch}.",
+    "{branch} にこのファイルはありません。"
+   ]
+  },
   "ComboboxField": {
    "combo.assignee": [
     "Assignee",
@@ -1483,6 +1599,10 @@
    "command.label": [
     "Search and commands",
     "検索とコマンド"
+   ],
+   "command.input_label": [
+    "Search notes or run a command",
+    "ノートを検索、またはコマンドを実行"
    ],
    "command.placeholder": [
     "Search notes or type a command…",
@@ -1710,9 +1830,21 @@
     "Jump",
     "ジャンプ"
    ],
-   "action.attack": [
+   "action.fire": [
     "Attack",
     "攻撃"
+   ],
+   "action.back": [
+    "Back (menus)",
+    "戻る（メニュー）"
+   ],
+   "controls.taken_fixed": [
+    "{input} is used by {action}, which can't change.",
+    "{input} は {action} に使われていて、変更できません。"
+   ],
+   "game.mouse.left": [
+    "Left click",
+    "左クリック"
    ],
    "action.interact": [
     "Talk or Use",
@@ -1825,6 +1957,156 @@
     "通常価格 {price}"
    ]
   },
+  "CsvImport": {
+   "import.title": [
+    "Import contacts",
+    "連絡先をインポート"
+   ],
+   "import.steps": [
+    "Steps",
+    "手順"
+   ],
+   "import.step.file": [
+    "File",
+    "ファイル"
+   ],
+   "import.step.columns": [
+    "Columns",
+    "列"
+   ],
+   "import.step.check": [
+    "Check",
+    "確認"
+   ],
+   "import.step.import": [
+    "Import",
+    "インポート"
+   ],
+   "import.file_summary": [
+    "{file} · {rows} rows · {columns} columns",
+    "{file}・{rows}行・{columns}列"
+   ],
+   "import.col.file": [
+    "Column in the file",
+    "ファイルの列"
+   ],
+   "import.col.example": [
+    "Example",
+    "例"
+   ],
+   "import.col.field": [
+    "Goes into",
+    "取り込み先"
+   ],
+   "import.map_label": [
+    "Field for column {column}",
+    "列「{column}」の取り込み先"
+   ],
+   "import.skip": [
+    "Don’t import",
+    "取り込まない"
+   ],
+   "import.has_header": [
+    "The first row holds column names",
+    "1行目は列名"
+   ],
+   "import.back": [
+    "Back",
+    "戻る"
+   ],
+   "import.next": [
+    "Check Rows",
+    "行を確認"
+   ],
+   "import.required": [
+    "{field} is required. Choose the column that holds it.",
+    "{field}は必須です。該当する列を選んでください。"
+   ],
+   "import.duplicate": [
+    "Another column already goes into {field}.",
+    "別の列がすでに{field}に割り当てられています。"
+   ],
+   "import.check_summary": [
+    "{ok} rows are ready, {bad} have problems.",
+    "{ok}行は取り込めます。{bad}行に問題があります。"
+   ],
+   "import.row_error": [
+    "Problem",
+    "問題"
+   ],
+   "import.skip_bad": [
+    "Skip rows with problems",
+    "問題のある行を除く"
+   ],
+   "import.run": [
+    "Import {n} Rows",
+    "{n}行をインポート"
+   ],
+   "import.progress": [
+    "{done} of {total} rows",
+    "{total}行中{done}行"
+   ],
+   "import.cancel": [
+    "Cancel Import",
+    "インポートを中止"
+   ],
+   "import.progress_label": [
+    "Import progress",
+    "インポートの進み具合"
+   ],
+   "import.done_toast": [
+    "Import finished: {added} added",
+    "インポートが完了しました：{added}件追加"
+   ],
+   "import.report.title": [
+    "Import finished",
+    "インポートが完了しました"
+   ],
+   "import.report.added": [
+    "{n} added",
+    "{n}件追加"
+   ],
+   "import.report.updated": [
+    "{n} updated (same email)",
+    "{n}件更新（同じメールアドレス）"
+   ],
+   "import.report.skipped": [
+    "{n} skipped",
+    "{n}件スキップ"
+   ],
+   "import.download_skipped": [
+    "Download Skipped Rows",
+    "スキップした行をダウンロード"
+   ],
+   "import.view": [
+    "View Contacts",
+    "連絡先を表示"
+   ],
+   "import.error.type": [
+    "That isn’t a CSV file. Save it as CSV and try again.",
+    "CSV ファイルではありません。CSV 形式で保存してからお試しください。"
+   ],
+   "import.error.size": [
+    "The file is over 10 MB. Split it into smaller files.",
+    "10 MB を超えています。小さなファイルに分けてください。"
+   ],
+   "import.error.encoding": [
+    "The file’s text couldn’t be read. Save it as UTF-8.",
+    "ファイルの文字を読み取れませんでした。UTF-8 で保存してください。"
+   ],
+   "import.error.run": [
+    "The import stopped and nothing was added.",
+    "インポートが止まり、何も追加されませんでした。"
+   ],
+   "field.name": [
+    "Name",
+    "氏名"
+   ],
+   "field.email": [
+    "Email",
+    "メールアドレス"
+   ]
+  },
   "Dashboard": {
    "dashboard.title": [
     "Overview",
@@ -1884,15 +2166,19 @@
    ],
    "dashboard.chart.now": [
     "This period",
-    "今期間"
+    "今期"
    ],
    "dashboard.chart.before": [
     "Previous period",
-    "前期間"
+    "前期"
    ],
    "dashboard.chart.table": [
     "Show as a table",
     "表で表示"
+   ],
+   "dashboard.chart.week": [
+    "Week",
+    "週"
    ],
    "dashboard.attention": [
     "Needs attention",
@@ -2007,6 +2293,124 @@
    "table.per_page": [
     "Rows per page",
     "表示件数"
+   ]
+  },
+  "DatabaseView": {
+   "db.title": [
+    "Trip planning",
+    "旅行の計画"
+   ],
+   "db.views": [
+    "Views",
+    "ビュー"
+   ],
+   "db.view.table": [
+    "Table",
+    "表"
+   ],
+   "db.view.board": [
+    "Board",
+    "ボード"
+   ],
+   "db.view.list": [
+    "List",
+    "リスト"
+   ],
+   "db.filter": [
+    "Filter",
+    "絞り込み"
+   ],
+   "db.filter_chip": [
+    "{property}: {value}",
+    "{property}：{value}"
+   ],
+   "db.remove_filter": [
+    "Remove filter {property}: {value}",
+    "絞り込み「{property}：{value}」を外す"
+   ],
+   "db.sort": [
+    "Sort",
+    "並べ替え"
+   ],
+   "db.sort.due": [
+    "Due date",
+    "期限"
+   ],
+   "db.sort.name": [
+    "Name",
+    "名前"
+   ],
+   "db.sort.edited": [
+    "Last edited",
+    "最終編集"
+   ],
+   "db.new": [
+    "New Page",
+    "新規ページ"
+   ],
+   "db.prop.name": [
+    "Name",
+    "名前"
+   ],
+   "db.prop.status": [
+    "Status",
+    "状態"
+   ],
+   "db.prop.tags": [
+    "Tags",
+    "タグ"
+   ],
+   "db.prop.due": [
+    "Due",
+    "期限"
+   ],
+   "db.prop.owner": [
+    "Owner",
+    "担当"
+   ],
+   "db.status.todo": [
+    "To do",
+    "未着手"
+   ],
+   "db.status.doing": [
+    "Doing",
+    "進行中"
+   ],
+   "db.status.done": [
+    "Done",
+    "完了"
+   ],
+   "db.count": [
+    "{count} pages",
+    "{count}ページ"
+   ],
+   "db.add_in": [
+    "Add a page to {column}",
+    "「{column}」にページを追加"
+   ],
+   "db.untitled": [
+    "Untitled",
+    "無題"
+   ],
+   "db.empty_title": [
+    "No pages yet",
+    "ページはまだありません"
+   ],
+   "db.empty_text": [
+    "Each page is a row here. Add the first one, or import a CSV.",
+    "ページ1つが1行になります。最初のページを追加するか、CSVを読み込んでください。"
+   ],
+   "db.no_match": [
+    "No pages match these filters.",
+    "絞り込みに一致するページはありません。"
+   ],
+   "db.clear_filters": [
+    "Clear Filters",
+    "絞り込みを解除"
+   ],
+   "db.saved": [
+    "Saved",
+    "保存しました"
    ]
   },
   "DatePicker": {
@@ -2847,6 +3251,136 @@
     "リンクが古いか、入力が間違っている可能性があります。"
    ]
   },
+  "ExportCsv": {
+   "export.open": [
+    "Export CSV…",
+    "CSVで書き出す…"
+   ],
+   "export.title": [
+    "Export orders as CSV",
+    "注文をCSVで書き出す"
+   ],
+   "export.lede": [
+    "A CSV file opens in Excel, Numbers, Google Sheets or any text editor.",
+    "CSVファイルはExcel、Numbers、Googleスプレッドシート、テキストエディタで開けます。"
+   ],
+   "export.columns": [
+    "Columns",
+    "項目"
+   ],
+   "export.col.number": [
+    "Order",
+    "注文番号"
+   ],
+   "export.col.date": [
+    "Date",
+    "日付"
+   ],
+   "export.col.customer": [
+    "Customer",
+    "お客さま"
+   ],
+   "export.col.email": [
+    "Email",
+    "メールアドレス"
+   ],
+   "export.col.items": [
+    "Items",
+    "商品"
+   ],
+   "export.col.total": [
+    "Total (yen)",
+    "合計（円）"
+   ],
+   "export.col.status": [
+    "Status",
+    "状態"
+   ],
+   "export.rows": [
+    "Rows",
+    "行"
+   ],
+   "export.rows.all": [
+    "All orders ({count})",
+    "すべての注文（{count}件）"
+   ],
+   "export.rows.filtered": [
+    "The {count} that match your filters",
+    "絞り込みに一致する{count}件"
+   ],
+   "export.rows.selected": [
+    "The {count} you selected",
+    "選択した{count}件"
+   ],
+   "export.file": [
+    "File name",
+    "ファイル名"
+   ],
+   "export.bom": [
+    "For Excel (adds a byte-order mark so Japanese shows correctly)",
+    "Excel用（日本語が正しく表示されるようBOMを付けます）"
+   ],
+   "export.format_note": [
+    "Dates are written 2026-10-18 and money as whole yen, so a spreadsheet can sort and add them.",
+    "日付は2026-10-18、金額は円の整数で書き出すので、表計算ソフトで並べ替えや合計ができます。"
+   ],
+   "export.cancel": [
+    "Cancel",
+    "キャンセル"
+   ],
+   "export.submit": [
+    "Export CSV",
+    "CSVを書き出す"
+   ],
+   "export.preparing": [
+    "Preparing {done} of {total} rows…",
+    "{total}行中{done}行を準備しています…"
+   ],
+   "export.stop": [
+    "Stop",
+    "中止"
+   ],
+   "export.background": [
+    "This is a large export. You can close this; it keeps going, and Notifications tells you when it’s ready.",
+    "大きな書き出しです。この画面を閉じても続き、準備ができたら通知でお知らせします。"
+   ],
+   "export.ready": [
+    "{file} is ready",
+    "{file}の準備ができました"
+   ],
+   "export.ready_detail": [
+    "{rows} rows · {size}",
+    "{rows}行・{size}"
+   ],
+   "export.download": [
+    "Download",
+    "ダウンロード"
+   ],
+   "export.done": [
+    "Done",
+    "閉じる"
+   ],
+   "export.error.columns": [
+    "Choose at least one column.",
+    "項目を1つ以上選んでください。"
+   ],
+   "export.error.name": [
+    "Use letters, numbers, - and _ only.",
+    "英数字、-、_ だけを使ってください。"
+   ],
+   "export.error.failed": [
+    "The export stopped at row {row}. Nothing was saved. Try again; if it keeps failing, export fewer rows.",
+    "{row}行目で書き出しが止まりました。何も保存されていません。もう一度お試しください。続けて失敗する場合は、行を減らしてください。"
+   ],
+   "export.retry": [
+    "Try Again",
+    "もう一度試す"
+   ],
+   "export.notify_ready": [
+    "Your export {file} is ready to download.",
+    "書き出した{file}をダウンロードできます。"
+   ]
+  },
   "FileTree": {
    "files.title": [
     "Files",
@@ -2957,6 +3491,88 @@
    "upload.error.count": [
     "You can add up to {max} files.",
     "追加できるファイルは {max} 件までです。"
+   ]
+  },
+  "Flashcards": {
+   "fc.deck": [
+    "Week 3 · Vocabulary",
+    "第3週・単語"
+   ],
+   "fc.position": [
+    "Card {n} of {total}",
+    "{total}枚中{n}枚目"
+   ],
+   "fc.progress": [
+    "Cards studied",
+    "学習したカード"
+   ],
+   "fc.due_new": [
+    "{n} new",
+    "新規 {n}"
+   ],
+   "fc.due_review": [
+    "{n} to review",
+    "復習 {n}"
+   ],
+   "fc.front": [
+    "Front",
+    "おもて"
+   ],
+   "fc.back": [
+    "Back",
+    "うら"
+   ],
+   "fc.meaning": [
+    "station",
+    "駅（station）"
+   ],
+   "fc.flip_help": [
+    "Press Space or tap the card to see the answer.",
+    "スペースキーを押すか、カードをタップすると答えが表示されます。"
+   ],
+   "fc.again": [
+    "Again",
+    "もう一度"
+   ],
+   "fc.know": [
+    "I Knew It",
+    "覚えた"
+   ],
+   "fc.live.next": [
+    "Card {n} of {total}.",
+    "{total}枚中{n}枚目。"
+   ],
+   "fc.done.title": [
+    "Done for today",
+    "今日の学習は完了です"
+   ],
+   "fc.done.body": [
+    "You knew {known} and will see {again} again soon.",
+    "{known}枚覚えていて、{again}枚はもう一度出題されます。"
+   ],
+   "fc.study_again": [
+    "Study Again",
+    "もう一度学習"
+   ],
+   "fc.back_to_deck": [
+    "Back to Deck",
+    "デッキに戻る"
+   ],
+   "fc.none.title": [
+    "Nothing to review today",
+    "今日復習するカードはありません"
+   ],
+   "fc.none.body": [
+    "The next cards are due on {date}.",
+    "次のカードは{date}に出題されます。"
+   ],
+   "fc.study_anyway": [
+    "Study Anyway",
+    "それでも学習する"
+   ],
+   "fc.error.sync": [
+    "Your answers are saved on this device and will be sent when you’re online.",
+    "回答はこのデバイスに保存され、オンラインになると送信されます。"
    ]
   },
   "ForgotPassword": {
@@ -3373,6 +3989,102 @@
    "game.pad.north": [
     "North button",
     "上ボタン"
+   ],
+   "game.pad.left_shoulder": [
+    "Left shoulder",
+    "左ショルダー"
+   ],
+   "game.pad.left_shoulder.short": [
+    "LS",
+    "L"
+   ],
+   "game.pad.right_shoulder": [
+    "Right shoulder",
+    "右ショルダー"
+   ],
+   "game.pad.right_shoulder.short": [
+    "RS",
+    "R"
+   ],
+   "game.pad.left_trigger": [
+    "Left trigger",
+    "左トリガー"
+   ],
+   "game.pad.left_trigger.short": [
+    "LT",
+    "LT"
+   ],
+   "game.pad.right_trigger": [
+    "Right trigger",
+    "右トリガー"
+   ],
+   "game.pad.right_trigger.short": [
+    "RT",
+    "RT"
+   ],
+   "game.pad.select": [
+    "Select button",
+    "セレクトボタン"
+   ],
+   "game.pad.select.short": [
+    "Select",
+    "セレクト"
+   ],
+   "game.pad.start": [
+    "Start button",
+    "スタートボタン"
+   ],
+   "game.pad.start.short": [
+    "Start",
+    "スタート"
+   ],
+   "game.pad.left_stick": [
+    "Left stick (press)",
+    "左スティック押し込み"
+   ],
+   "game.pad.left_stick.short": [
+    "L3",
+    "L3"
+   ],
+   "game.pad.right_stick": [
+    "Right stick (press)",
+    "右スティック押し込み"
+   ],
+   "game.pad.right_stick.short": [
+    "R3",
+    "R3"
+   ],
+   "game.pad.dpad_up.short": [
+    "↑",
+    "↑"
+   ],
+   "game.pad.dpad_down.short": [
+    "↓",
+    "↓"
+   ],
+   "game.pad.dpad_left.short": [
+    "←",
+    "←"
+   ],
+   "game.pad.dpad_right.short": [
+    "→",
+    "→"
+   ],
+   "game.pad.home.short": [
+    "Home",
+    "ホーム"
+   ],
+   "game.mouse.left": [
+    "Left click",
+    "左クリック"
+   ],
+   "game.mouse.middle": [
+    "Middle click",
+    "ホイールクリック"
+   ],
+   "game.mouse.right": [
+    "Right click",
+    "右クリック"
    ]
   },
   "GameOver": {
@@ -3845,6 +4557,18 @@
    "chart.show_table": [
     "Show as a table",
     "表で表示"
+   ],
+   "chart.storage.used": [
+    "Used",
+    "使用中"
+   ],
+   "chart.storage.free": [
+    "Free",
+    "空き"
+   ],
+   "chart.storage.total": [
+    "Total",
+    "合計"
    ],
    "chart.loading": [
     "Loading the chart…",
@@ -4700,6 +5424,10 @@
     "▼ {percent} %",
     "▼ {percent}%"
    ],
+   "kpi.week": [
+    "Week",
+    "週"
+   ],
    "kpi.better": [
     "better",
     "改善"
@@ -5231,6 +5959,104 @@
    "mention.list_label": [
     "People to mention",
     "メンションする相手"
+   ]
+  },
+  "MessageComposer": {
+   "composer.label": [
+    "Message {channel}",
+    "{channel}にメッセージを送信"
+   ],
+   "composer.placeholder": [
+    "Message {channel}",
+    "{channel}にメッセージを送信"
+   ],
+   "composer.attach": [
+    "Attach a file",
+    "ファイルを添付"
+   ],
+   "composer.emoji": [
+    "Add an emoji",
+    "絵文字を追加"
+   ],
+   "composer.mention": [
+    "Mention someone",
+    "メンション"
+   ],
+   "composer.hint": [
+    "Return to send · Shift+Return for a new line",
+    "Returnで送信・Shift+Returnで改行"
+   ],
+   "composer.send": [
+    "Send",
+    "送信"
+   ],
+   "composer.more": [
+    "More send options",
+    "送信オプション"
+   ],
+   "composer.schedule": [
+    "Schedule for Later…",
+    "送信日時を指定…"
+   ],
+   "composer.files": [
+    "Attachments",
+    "添付ファイル"
+   ],
+   "composer.remove_file": [
+    "Remove {file}",
+    "{file}を削除"
+   ],
+   "composer.uploading": [
+    "Uploading {file}…",
+    "{file}をアップロード中…"
+   ],
+   "composer.editing": [
+    "Editing your message",
+    "メッセージを編集中"
+   ],
+   "composer.edit_hint": [
+    "Esc to cancel · Return to save",
+    "Escでキャンセル・Returnで保存"
+   ],
+   "composer.cancel": [
+    "Cancel",
+    "キャンセル"
+   ],
+   "composer.save": [
+    "Save",
+    "保存"
+   ],
+   "composer.mention_list": [
+    "People in {channel}",
+    "{channel}のメンバー"
+   ],
+   "composer.no_people": [
+    "No one called “{query}” in this channel.",
+    "「{query}」という人はこのチャンネルにいません。"
+   ],
+   "composer.too_long": [
+    "{count} / {max} characters: shorten it to send.",
+    "{count} / {max}文字：送信するには短くしてください。"
+   ],
+   "composer.offline": [
+    "You’re offline. Messages send when you’re back.",
+    "オフラインです。接続が戻ると送信されます。"
+   ],
+   "composer.queued": [
+    "Waiting to send",
+    "送信待ち"
+   ],
+   "composer.scheduled": [
+    "Scheduled for {time}",
+    "{time}に送信予定"
+   ],
+   "composer.no_permission": [
+    "Only members can post in {channel}.",
+    "{channel}に投稿できるのはメンバーだけです。"
+   ],
+   "composer.join": [
+    "Join Channel",
+    "チャンネルに参加"
    ]
   },
   "Notifications": {
@@ -6233,6 +7059,76 @@
     "見つけたものを持ち帰る（{n}/{max}）"
    ]
   },
+  "QuizQuestion": {
+   "quiz.position": [
+    "Question {n} of {total}",
+    "第{n}問／全{total}問"
+   ],
+   "quiz.score": [
+    "Score {score}",
+    "得点 {score}"
+   ],
+   "quiz.progress": [
+    "Quiz progress",
+    "クイズの進み具合"
+   ],
+   "quiz.prompt": [
+    "Which word means “station”?",
+    "「station」を意味する言葉はどれですか？"
+   ],
+   "quiz.choices": [
+    "Answers",
+    "回答"
+   ],
+   "quiz.pick_one": [
+    "Choose one.",
+    "1つ選んでください。"
+   ],
+   "quiz.pick_many": [
+    "Choose all that are right.",
+    "正しいものをすべて選んでください。"
+   ],
+   "quiz.type_answer": [
+    "Type your answer",
+    "答えを入力"
+   ],
+   "quiz.skip": [
+    "Skip",
+    "スキップ"
+   ],
+   "quiz.check": [
+    "Check",
+    "答え合わせ"
+   ],
+   "quiz.next": [
+    "Next Question",
+    "次の問題"
+   ],
+   "quiz.results": [
+    "See Results",
+    "結果を見る"
+   ],
+   "quiz.right": [
+    "Right",
+    "正解"
+   ],
+   "quiz.wrong": [
+    "Not quite",
+    "不正解"
+   ],
+   "quiz.partly": [
+    "{right} of {total} right",
+    "{total}個中{right}個正解"
+   ],
+   "quiz.right_answer": [
+    "Right answer",
+    "正しい答え"
+   ],
+   "quiz.error.empty": [
+    "Choose an answer, or press Skip.",
+    "答えを選ぶか、スキップを押してください。"
+   ]
+  },
   "Reactions": {
    "react.label": [
     "Reactions",
@@ -6291,6 +7187,104 @@
     "確認済み"
    ]
   },
+  "ReportContent": {
+   "report.open": [
+    "Report…",
+    "報告…"
+   ],
+   "report.title": [
+    "Report this post",
+    "この投稿を報告"
+   ],
+   "report.lede": [
+    "Moderators will look at it. The person who wrote it won’t see who reported it.",
+    "モデレーターが確認します。投稿者には誰が報告したかは伝わりません。"
+   ],
+   "report.reason": [
+    "Why are you reporting it?",
+    "報告する理由は何ですか？"
+   ],
+   "report.reason.spam": [
+    "Spam or advertising",
+    "スパムまたは宣伝"
+   ],
+   "report.reason.harassment": [
+    "Harassment or hate",
+    "嫌がらせまたは差別的な内容"
+   ],
+   "report.reason.personal": [
+    "Shares someone’s personal information",
+    "個人情報が含まれている"
+   ],
+   "report.reason.off_topic": [
+    "Off topic or in the wrong place",
+    "話題が違う、または場所が違う"
+   ],
+   "report.reason.other": [
+    "Something else",
+    "その他"
+   ],
+   "report.details": [
+    "Details (optional)",
+    "詳細（任意）"
+   ],
+   "report.details_help": [
+    "Required for “Something else”. Up to 500 characters.",
+    "「その他」の場合は必須です。500文字以内。"
+   ],
+   "report.cancel": [
+    "Cancel",
+    "キャンセル"
+   ],
+   "report.send": [
+    "Send Report",
+    "報告を送信"
+   ],
+   "report.sending": [
+    "Sending…",
+    "送信中…"
+   ],
+   "report.done": [
+    "Done",
+    "閉じる"
+   ],
+   "report.sent.title": [
+    "Thanks, we got your report",
+    "報告を受け付けました"
+   ],
+   "report.sent.body": [
+    "A moderator will look at it, usually within a day. You don’t need to do anything else.",
+    "通常1日以内にモデレーターが確認します。ほかに必要な操作はありません。"
+   ],
+   "report.sent.line": [
+    "You reported this on {date}.",
+    "{date}に報告しました。"
+   ],
+   "report.already": [
+    "Reported",
+    "報告済み"
+   ],
+   "report.error.reason": [
+    "Choose a reason.",
+    "理由を選んでください。"
+   ],
+   "report.error.details": [
+    "Tell the moderators what’s wrong.",
+    "どのような問題か入力してください。"
+   ],
+   "report.error.send": [
+    "The report couldn’t be sent. Try again.",
+    "報告を送信できませんでした。もう一度お試しください。"
+   ],
+   "report.error.offline": [
+    "You’re offline. Connect to send the report.",
+    "オフラインです。接続してから送信してください。"
+   ],
+   "dialog.close": [
+    "Close dialog",
+    "ダイアログを閉じる"
+   ]
+  },
   "ResultsScores": {
    "results.clear": [
     "Level Clear",
@@ -6343,6 +7337,148 @@
    "results.top_needed": [
     "Top 10 needs {score}",
     "トップ10まであと {score}"
+   ]
+  },
+  "Reviews": {
+   "reviews.title": [
+    "Reviews",
+    "レビュー"
+   ],
+   "reviews.average": [
+    "{rating} out of 5",
+    "5点中 {rating}"
+   ],
+   "reviews.count": [
+    "{count} reviews",
+    "{count}件のレビュー"
+   ],
+   "reviews.stars_label": [
+    "{n} out of 5 stars",
+    "5点中 {n}点"
+   ],
+   "reviews.bar_label": [
+    "{n} stars: {count} reviews",
+    "星{n}つ：{count}件"
+   ],
+   "reviews.sort": [
+    "Sort",
+    "並べ替え"
+   ],
+   "reviews.sort_recent": [
+    "Most recent",
+    "新しい順"
+   ],
+   "reviews.sort_helpful": [
+    "Most helpful",
+    "参考になった順"
+   ],
+   "reviews.sort_low": [
+    "Lowest rating first",
+    "評価が低い順"
+   ],
+   "reviews.write": [
+    "Write a Review",
+    "レビューを書く"
+   ],
+   "reviews.verified": [
+    "Verified purchase",
+    "購入者のレビュー"
+   ],
+   "reviews.helpful": [
+    "Helpful ({count})",
+    "参考になった（{count}）"
+   ],
+   "reviews.reply_from": [
+    "Reply from {shop}",
+    "{shop}からの返信"
+   ],
+   "reviews.more": [
+    "Show {count} More Reviews",
+    "さらに{count}件を表示"
+   ],
+   "reviews.form.title": [
+    "Write a review",
+    "レビューを書く"
+   ],
+   "reviews.form.rating": [
+    "Your rating",
+    "あなたの評価"
+   ],
+   "reviews.form.star": [
+    "{n} ★",
+    "{n} ★"
+   ],
+   "reviews.form.headline": [
+    "Title",
+    "タイトル"
+   ],
+   "reviews.form.body": [
+    "Your review",
+    "レビュー"
+   ],
+   "reviews.form.body_hint": [
+    "What did you like, or not? At least 20 characters.",
+    "良かった点や気になった点を教えてください。20文字以上。"
+   ],
+   "reviews.form.shown_as": [
+    "Shown as {name}",
+    "{name}として表示されます"
+   ],
+   "reviews.form.submit": [
+    "Post Review",
+    "レビューを投稿"
+   ],
+   "reviews.form.cancel": [
+    "Cancel",
+    "キャンセル"
+   ],
+   "reviews.form.sending": [
+    "Posting…",
+    "投稿中…"
+   ],
+   "reviews.error.summary": [
+    "Fix {count} things before posting",
+    "投稿する前に{count}か所を直してください"
+   ],
+   "reviews.error.rating": [
+    "Choose a rating from 1 to 5 stars.",
+    "星1〜5で評価を選んでください。"
+   ],
+   "reviews.error.title_long": [
+    "Keep the title under 80 characters.",
+    "タイトルは80文字以内にしてください。"
+   ],
+   "reviews.error.body_short": [
+    "Write at least 20 characters ({count} so far).",
+    "20文字以上で書いてください（現在{count}文字）。"
+   ],
+   "reviews.posted": [
+    "Thanks. Your review is up.",
+    "ありがとうございます。レビューを公開しました。"
+   ],
+   "reviews.pending": [
+    "Thanks. Your review appears after the shop checks it, usually within a day.",
+    "ありがとうございます。ショップの確認後に表示されます（通常1日以内）。"
+   ],
+   "reviews.empty_title": [
+    "No reviews yet",
+    "レビューはまだありません"
+   ],
+   "reviews.empty_text": [
+    "Bought this? Be the first to say what you think.",
+    "購入された方は、最初のレビューを書いてみませんか。"
+   ],
+   "reviews.only_buyers": [
+    "Only people who bought this can review it.",
+    "レビューを書けるのは、この商品を購入した方だけです。"
+   ],
+   "reviews.error.load": [
+    "Couldn’t load the reviews. Check your connection and try again.",
+    "レビューを読み込めませんでした。接続を確認して、もう一度お試しください。"
+   ],
+   "reviews.retry": [
+    "Try Again",
+    "もう一度試す"
    ]
   },
   "Roles": {
@@ -6445,6 +7581,100 @@
    "roles.can.project": [
     "Rename, delete or transfer the project",
     "プロジェクトの名前変更・削除・移管"
+   ]
+  },
+  "RunStatus": {
+   "run.title": [
+    "Checks",
+    "チェック"
+   ],
+   "run.summary": [
+    "{passed} of {total} checks passed",
+    "{total}件中{passed}件のチェックに合格"
+   ],
+   "run.summary_running": [
+    "{done} of {total} checks done",
+    "{total}件中{done}件のチェックが完了"
+   ],
+   "run.commit": [
+    "Commit {sha} on {branch}",
+    "{branch}のコミット {sha}"
+   ],
+   "run.triggered": [
+    "Started by {name} · {when}",
+    "{name}が実行・{when}"
+   ],
+   "run.status.queued": [
+    "Queued",
+    "待機中"
+   ],
+   "run.status.running": [
+    "Running",
+    "実行中"
+   ],
+   "run.status.passed": [
+    "Passed",
+    "合格"
+   ],
+   "run.status.failed": [
+    "Failed",
+    "失敗"
+   ],
+   "run.status.skipped": [
+    "Skipped",
+    "スキップ"
+   ],
+   "run.status.cancelled": [
+    "Cancelled",
+    "キャンセル"
+   ],
+   "run.duration": [
+    "{seconds} s",
+    "{seconds}秒"
+   ],
+   "run.waiting": [
+    "Waiting for a runner",
+    "実行環境を待っています"
+   ],
+   "run.log": [
+    "Log",
+    "ログ"
+   ],
+   "run.log_excerpt": [
+    "Last lines of the log for {step}",
+    "{step}のログの最後の行"
+   ],
+   "run.full_log": [
+    "View Full Log",
+    "ログ全体を見る"
+   ],
+   "run.rerun_failed": [
+    "Re-run Failed",
+    "失敗したものを再実行"
+   ],
+   "run.rerun_all": [
+    "Re-run All",
+    "すべて再実行"
+   ],
+   "run.cancel": [
+    "Cancel Run",
+    "実行をキャンセル"
+   ],
+   "run.rerun_started": [
+    "Re-running {count} checks",
+    "{count}件のチェックを再実行しています"
+   ],
+   "run.none": [
+    "No checks ran for this commit.",
+    "このコミットではチェックは実行されていません。"
+   ],
+   "run.error.load": [
+    "Couldn’t load the checks. Try again in a moment.",
+    "チェックを読み込めませんでした。少し待ってからもう一度お試しください。"
+   ],
+   "run.retry": [
+    "Try Again",
+    "もう一度試す"
    ]
   },
   "SaveSlots": {
@@ -6689,6 +7919,136 @@
    "offline.needs_connection": [
     "Needs a connection",
     "接続が必要です"
+   ]
+  },
+  "ShippingRates": {
+   "ship.title": [
+    "Delivery rates",
+    "送料"
+   ],
+   "ship.lede": [
+    "Prices include tax. Orders over {threshold} ship free to every area except Okinawa and remote islands.",
+    "税込価格です。{threshold}以上のご注文は、沖縄・離島を除く全地域で送料無料です。"
+   ],
+   "ship.caption": [
+    "Delivery rates by area",
+    "地域別の送料"
+   ],
+   "ship.area": [
+    "Area",
+    "地域"
+   ],
+   "ship.prefectures": [
+    "Prefectures",
+    "都道府県"
+   ],
+   "ship.standard": [
+    "Standard (2–4 days)",
+    "通常便（2〜4日）"
+   ],
+   "ship.express": [
+    "Express (next day)",
+    "速達便（翌日）"
+   ],
+   "ship.free_over": [
+    "Free over {threshold}",
+    "{threshold}以上で無料"
+   ],
+   "ship.not_available": [
+    "Not available",
+    "対象外"
+   ],
+   "ship.zone.hokkaido": [
+    "Hokkaido",
+    "北海道"
+   ],
+   "ship.zone.tohoku": [
+    "Tohoku",
+    "東北"
+   ],
+   "ship.zone.kanto": [
+    "Kanto",
+    "関東"
+   ],
+   "ship.zone.chubu": [
+    "Chubu",
+    "中部"
+   ],
+   "ship.zone.kansai": [
+    "Kansai",
+    "関西"
+   ],
+   "ship.zone.chugoku_shikoku": [
+    "Chugoku and Shikoku",
+    "中国・四国"
+   ],
+   "ship.zone.kyushu": [
+    "Kyushu",
+    "九州"
+   ],
+   "ship.zone.okinawa": [
+    "Okinawa",
+    "沖縄"
+   ],
+   "ship.pref.hokkaido": [
+    "Hokkaido",
+    "北海道"
+   ],
+   "ship.pref.tohoku": [
+    "Aomori, Iwate, Miyagi, Akita, Yamagata, Fukushima",
+    "青森、岩手、宮城、秋田、山形、福島"
+   ],
+   "ship.pref.kanto": [
+    "Tokyo, Kanagawa, Saitama, Chiba, Ibaraki, Tochigi, Gunma, Yamanashi",
+    "東京、神奈川、埼玉、千葉、茨城、栃木、群馬、山梨"
+   ],
+   "ship.pref.chubu": [
+    "Niigata, Toyama, Ishikawa, Fukui, Nagano, Gifu, Shizuoka, Aichi",
+    "新潟、富山、石川、福井、長野、岐阜、静岡、愛知"
+   ],
+   "ship.pref.kansai": [
+    "Osaka, Kyoto, Hyogo, Nara, Shiga, Wakayama, Mie",
+    "大阪、京都、兵庫、奈良、滋賀、和歌山、三重"
+   ],
+   "ship.pref.chugoku_shikoku": [
+    "Tottori, Shimane, Okayama, Hiroshima, Yamaguchi, Tokushima, Kagawa, Ehime, Kochi",
+    "鳥取、島根、岡山、広島、山口、徳島、香川、愛媛、高知"
+   ],
+   "ship.pref.kyushu": [
+    "Fukuoka, Saga, Nagasaki, Kumamoto, Oita, Miyazaki, Kagoshima",
+    "福岡、佐賀、長崎、熊本、大分、宮崎、鹿児島"
+   ],
+   "ship.pref.okinawa": [
+    "Okinawa",
+    "沖縄"
+   ],
+   "ship.checkout.label": [
+    "Delivery to {area}",
+    "{area}への配送"
+   ],
+   "ship.checkout.free": [
+    "Free",
+    "無料"
+   ],
+   "ship.checkout.add_more": [
+    "Add {amount} more for free delivery.",
+    "あと{amount}で送料無料です。"
+   ],
+   "ship.checkout.choose_address": [
+    "Delivery is worked out from your address.",
+    "送料はお届け先の住所から計算されます。"
+   ],
+   "ship.checkout.unavailable": [
+    "Express isn’t available to {area}. Choose Standard.",
+    "{area}へは速達便をご利用いただけません。通常便をお選びください。"
+   ],
+   "ship.error.load": [
+    "Couldn’t load the delivery rates. Try again, or see the price at checkout.",
+    "送料を読み込めませんでした。もう一度お試しいただくか、購入手続きで料金をご確認ください。"
+   ],
+   "ship.retry": [
+    "Try Again",
+    "もう一度試す"
    ]
   },
   "ShopScreen": {
@@ -7282,6 +8642,10 @@
     "No reminder",
     "リマインダーなし"
    ],
+   "time.choose": [
+    "Choose a time",
+    "時間を選択"
+   ],
    "time.slots": [
     "Choose a time",
     "時間を選択"
@@ -7504,7 +8868,7 @@
     "Left-Handed Layout",
     "左利き用レイアウト"
    ],
-   "action.attack": [
+   "action.fire": [
     "Attack",
     "攻撃"
    ],
@@ -7583,6 +8947,150 @@
    "update.migrate.now": [
     "Update Now",
     "今すぐ更新"
+   ]
+  },
+  "WeekCalendar": {
+   "week.title": [
+    "{start}–{end} {month} {year}",
+    "{year}年{month}月{start}日〜{end}日"
+   ],
+   "week.nav": [
+    "Week",
+    "週"
+   ],
+   "week.prev": [
+    "Previous week",
+    "前の週"
+   ],
+   "week.next": [
+    "Next week",
+    "次の週"
+   ],
+   "week.today": [
+    "Today",
+    "今日"
+   ],
+   "week.new": [
+    "New Event",
+    "予定を追加"
+   ],
+   "week.day.mon": [
+    "Mon",
+    "月"
+   ],
+   "week.day.tue": [
+    "Tue",
+    "火"
+   ],
+   "week.day.wed": [
+    "Wed",
+    "水"
+   ],
+   "week.day.thu": [
+    "Thu",
+    "木"
+   ],
+   "week.day.fri": [
+    "Fri",
+    "金"
+   ],
+   "week.day.sat": [
+    "Sat",
+    "土"
+   ],
+   "week.day.sun": [
+    "Sun",
+    "日"
+   ],
+   "week.slot_free": [
+    "{day}, {time}, free",
+    "{day} {time}、空き"
+   ],
+   "week.event_label": [
+    "{title}, {start} to {end}, {who}",
+    "{title}、{start}〜{end}、{who}"
+   ],
+   "week.help": [
+    "Arrow keys move between slots. Return on a free slot makes an event there.",
+    "矢印キーで枠を移動し、空いている枠で Return を押すと予定を追加できます。"
+   ],
+   "week.drag_label": [
+    "{start}–{end}",
+    "{start}〜{end}"
+   ],
+   "week.error.title": [
+    "Give the event a title.",
+    "予定の名前を入力してください。"
+   ],
+   "week.error.ends": [
+    "The end must be after the start.",
+    "終了は開始より後にしてください。"
+   ],
+   "week.saved": [
+    "Event saved: {title}, {day} {start}",
+    "予定を保存しました：{title}、{day} {start}"
+   ],
+   "week.empty": [
+    "Nothing booked this week.",
+    "今週の予定はありません。"
+   ],
+   "week.error.load": [
+    "The week couldn’t be loaded.",
+    "週を読み込めませんでした。"
+   ]
+  },
+  "WipLimit": {
+   "board.col.doing": [
+    "Doing",
+    "進行中"
+   ],
+   "wip.count": [
+    "{count} / {limit}",
+    "{count} / {limit}"
+   ],
+   "wip.count_label": [
+    "{count} cards, limit {limit}",
+    "{count}枚、上限 {limit}枚"
+   ],
+   "wip.at_limit": [
+    "At the limit: {limit} cards",
+    "上限に達しています：{limit}枚"
+   ],
+   "wip.over": [
+    "{n} over the limit. Finish a card before starting another.",
+    "上限を{n}枚超えています。新しく始める前にカードを1枚完了させましょう。"
+   ],
+   "wip.would_exceed": [
+    "Moving it here goes over the limit of {limit}.",
+    "ここに移動すると上限の{limit}枚を超えます。"
+   ],
+   "wip.edit_label": [
+    "Limit for {column}",
+    "{column}の上限"
+   ],
+   "wip.limit": [
+    "Work-in-progress limit",
+    "同時進行の上限"
+   ],
+   "wip.limit_help": [
+    "Most cards this column should hold at once. Empty for no limit.",
+    "この列に同時に置くカードの最大数です。空欄にすると上限なしになります。"
+   ],
+   "wip.remove": [
+    "Remove Limit",
+    "上限をなくす"
+   ],
+   "wip.save": [
+    "Save",
+    "保存"
+   ],
+   "wip.saved": [
+    "Limit for {column} set to {limit}",
+    "{column}の上限を{limit}枚にしました"
+   ],
+   "wip.error.range": [
+    "Use a number from 1 to 99, or leave it empty.",
+    "1〜99 の数字を入力するか、空欄にしてください。"
    ]
   }
  }

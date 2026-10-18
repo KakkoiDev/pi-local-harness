@@ -23,6 +23,7 @@ Replies are one level deep: a reply to a reply goes into the same list, starting
 - Logged out: The form is replaced by `comments.login_to_comment` with a **Log In** link (LogIn).
 - Long thread: After 20 comments: `comments.show_more` loads older ones (button above the list).
 - New comment from someone else: With Presence: it appears at the end with a short `bg-muted` highlight; nothing jumps above the reader's position.
+- Times: `<time>` shows `comments.time.minutes` under an hour, `comments.time.hours` under a day, then the date (`Intl.DateTimeFormat`).
 
 ## Texts
 (Key | English | 日本語)

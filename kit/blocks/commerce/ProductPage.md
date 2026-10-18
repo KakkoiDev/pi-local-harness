@@ -19,6 +19,7 @@ Copy, never retype: `{harness}/kit/blocks/commerce/ProductPage.html` (33 lines o
 - Adding: Button `disabled aria-busy="true"`, then a status alert or toast `shop.added_title` with variant, quantity and price, **View Cart** and **Keep Shopping**.
 - Loading: Skeleton picture, title, price and button.
 - Not found: 404 page with a link back to the shop (EmptyState).
+- Few left: Under the price: `<p class="text-sm font-medium" data-t="shop.low_stock">Only 2 left</p>`.
 
 ## Texts
 (Key | English | 日本語)

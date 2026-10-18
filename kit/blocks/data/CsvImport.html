@@ -1,0 +1,36 @@
+<section class="card mx-auto w-full max-w-3xl" aria-labelledby="imp-title">
+  <header class="grid gap-3">
+    <h2 id="imp-title" class="text-lg font-semibold" data-t="import.title">Import contacts</h2>
+    <ol class="flex flex-wrap gap-2 text-sm" aria-label="Steps" data-t-label="import.steps">
+      <li class="flex items-center gap-1.5 text-muted-foreground"><span class="badge" data-variant="secondary">1</span><span data-t="import.step.file">File</span></li>
+      <li class="flex items-center gap-1.5 font-medium" aria-current="step"><span class="badge">2</span><span data-t="import.step.columns">Columns</span></li>
+      <li class="flex items-center gap-1.5 text-muted-foreground"><span class="badge" data-variant="outline">3</span><span data-t="import.step.check">Check</span></li>
+      <li class="flex items-center gap-1.5 text-muted-foreground"><span class="badge" data-variant="outline">4</span><span data-t="import.step.import">Import</span></li>
+    </ol>
+  </header>
+  <section class="grid gap-3">
+    <p class="text-sm text-muted-foreground" data-t="import.file_summary">customers-oct.csv · 248 rows · 5 columns</p>
+    <div class="table-container">
+      <table class="table">
+        <thead><tr><th data-t="import.col.file">Column in the file</th><th data-t="import.col.example">Example</th><th data-t="import.col.field">Goes into</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="font-medium">氏名</td><td class="text-muted-foreground">佐藤 蓮</td>
+            <td><select class="select" id="map-0" aria-label="Field for column 氏名" data-t-label="import.map_label">
+              <option value="name" selected data-t="field.name">Name</option><option value="" data-t="import.skip">Don’t import</option></select></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Mail</td><td class="text-muted-foreground">ren@example.com</td>
+            <td><select class="select" id="map-1" aria-label="Field for column Mail" data-t-label="import.map_label">
+              <option value="email" selected data-t="field.email">Email</option><option value="" data-t="import.skip">Don’t import</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <label class="label gap-2 font-normal"><input class="input" type="checkbox" name="has_header" checked><span data-t="import.has_header">The first row holds column names</span></label>
+  </section>
+  <footer class="flex flex-wrap justify-between gap-2">
+    <button class="btn" data-variant="outline" type="button" data-t="import.back">Back</button>
+    <button class="btn" type="button" data-t="import.next">Check Rows</button>
+  </footer>
+</section>

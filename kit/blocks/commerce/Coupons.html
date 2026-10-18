@@ -1,11 +1,11 @@
 <form id="coupon" class="grid gap-2" method="post" action="/cart/coupon">
   <label class="label" for="coupon-code" data-t="coupon.label">Coupon code</label>
   <div class="flex gap-2">
-    <input class="input font-mono uppercase" id="coupon-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
+    <input class="input font-mono uppercase" id="coupon-code" aria-describedby="coupon-error" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="">
     <button class="btn" data-variant="outline" type="submit" data-t="coupon.apply">Apply</button>
   </div>
-  
+  <p id="coupon-error" class="text-destructive text-sm" role="alert" hidden data-t="coupon.error.unknown">There’s no code WELCOM500. Check the spelling.</p>
 </form>
 
 <!-- applied -->
-<div class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed p-3"><span class="flex items-center gap-2"><span class="badge font-mono" data-variant="secondary">WELCOME500</span><span class="text-sm">¥500 off your first order</span></span><button class="btn" data-variant="link" data-size="sm" type="button" aria-label="Remove code WELCOME500">Remove</button></div>
+<div class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed p-3"><span class="flex items-center gap-2"><span class="badge font-mono" data-variant="secondary">WELCOME500</span><span class="text-sm" data-t="coupon.applied">¥500 off your first order</span></span><button class="btn" data-variant="link" data-size="sm" type="button" aria-label="Remove code WELCOME500" data-t-label="coupon.remove_label">Remove</button></div>

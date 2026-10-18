@@ -12,10 +12,10 @@ Copy, never retype: `{harness}/kit/blocks/game-blocks/SaveSlots.html` (15 lines 
 `data-mode="load"` reuses the same panel: title `saves.load_title`, empty slots `aria-disabled="true"`, Enter loads.
 
 ## States
-- Saving over a slot: A game-style confirm: `saves.overwrite` with Overwrite (solid) and Cancel; Cancel is focused.
-- Saved: The slot updates; `saves.saved` announced; focus stays.
+- Saving over a slot: A game-style confirm `.game-panel` over the list: `saves.overwrite` (set from code, `{n}` the slot) with Overwrite (solid) and Cancel; Cancel is focused.
+- Saved: The slot updates; a polite live region announces `saves.saved` (set from code); focus stays.
 - Autosave: A fourth row first, `saves.autosave`, load-only.
-- Delete: `saves.delete_confirm`; Cancel focused.
+- Delete: The same confirm with `saves.delete_confirm` (set from code); Cancel focused.
 - Broken save: Dim row with `saves.broken`; can be deleted, not loaded.
 - Storage full: `saves.storage_full` under the list; nothing is lost.
 - Newer version: A save from a newer game version: `saves.too_new`, not loadable.

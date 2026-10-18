@@ -1,11 +1,11 @@
-<!-- 1. Native date field (default) -->
+<!-- 1. Native date field: English-only internal pages only -->
 <div class="field">
   <label class="label" for="due-date" data-t="date.due">Due date</label>
   <input class="input" id="due-date" name="due" type="date" min="2026-01-01" max="2027-12-31" aria-describedby="due-date-help">
   <p class="text-muted-foreground text-sm" id="due-date-help" data-t="date.due_help">The day the task should be done.</p>
 </div>
 
-<!-- 2. Calendar popover -->
+<!-- 2. Calendar popover: the default (any page in Japanese, or with the language switch) -->
 <div class="field">
   <label class="label" id="visit-label" for="visit-trigger" data-t="date.visit">Visit date</label>
   <div id="visit" class="popover">

@@ -22,6 +22,7 @@ Consecutive edits by the same person to the same thing within 10 minutes are one
 - Live (with Presence): New entries are added at the top of Today with a short highlight; a polite live region announces one summary per minute at most.
 - Viewer role: Same feed; links to things they can see. Activity on things they can't see is left out.
 - Thing renamed: The line shows the name at the time and links to the current one.
+- Other kinds of event: `activity.line.created`, `activity.line.commented`, `activity.line.deleted`, `activity.line.joined` fill the same `<p data-t-line>` as the two in Markup, chosen by the event’s kind.
 
 ## Texts
 (Key | English | 日本語)

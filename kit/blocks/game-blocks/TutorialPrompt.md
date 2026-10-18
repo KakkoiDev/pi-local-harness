@@ -3,19 +3,19 @@
 App Block card (Game blocks). A short hint at the moment it's needed, naming the action with the prompt of the device in use: “Press [Space] to jump”.
 
 - Basecoat: none (game kit: `game-panel`, `game-row`, `game-key`, `game-mouse`, `game-padpos`, `[data-for]`)
-- Needs: GameKit (device switching); ControlsRemap bindings (the prompt shows the CURRENT binding, not the default)
+- Needs: GameKit (device switching, `promptHTML()`); gaming-core's bindings through `gcInput.binding()` (the prompt shows the CURRENT binding, not the default)
 - Used in: every genre's first minutes; HudPieces (energy empty), InventoryGrid (bag full)
 
 ## Markup
-Copy, never retype: `{harness}/kit/blocks/game-blocks/TutorialPrompt.html` (10 lines of HTML).
+Copy, never retype: `{harness}/kit/blocks/game-blocks/TutorialPrompt.html` (11 lines of HTML).
 
-The key text comes from the binding (`bindings.jump.keyboard` → its printed label); the gamepad position from `bindings.jump.gamepad`; touch shows the on-screen button's own icon. Screen readers get one sentence: `tutorial.jump_sr` with the device's words (“Press Space to jump” / “Press the south button to jump”).
+The prompt comes from the CURRENT binding through gaming-core: GameKit's `promptHTML('jump', device)` (from `gcInput.binding()`; a key's printed name, a gamepad position); touch shows the on-screen button's own icon. Screen readers get one sentence: `tutorial.jump_sr` with the device's words (“Press Space to jump” / “Press the south button to jump”).
 
 ## States
 - Shown: When the player first meets the need (a gap to jump), not before; stays until the action is done once, or 8 s.
 - Done: Fades out after the action; never shown again (saved in `flags.tutorial.<id>`).
 - Device changed: The prompt updates at once (CSS, through `data-device`).
-- Hold actions: A ring fills around the key while held (`tutorial.hold`).
+- Hold actions: A ring fills around the key while held; the line reads `tutorial.hold` (set from code, `{input}` the prompt's words).
 - Two inputs: Move shows WASD and arrows, the left stick, or the touch stick.
 - Hints off: Settings › Hints: Off hides all except the first-minute ones.
 

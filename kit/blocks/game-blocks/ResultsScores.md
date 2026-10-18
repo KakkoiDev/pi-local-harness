@@ -15,7 +15,7 @@ High scores (arcade and roguelike): a `game-list` of the top 10, rank · name ·
 - Counting: Lines appear one by one (0.3 s), numbers count up; any confirm skips to the end. Reduce Motion: all at once.
 - New best: `results.new_best` line and the row highlighted in the table.
 - High score: Name entry first (Enter saves), then the table.
-- Not a high score: The table shows with `results.top_needed` (“Top 10 needs 3 400”).
+- Not a high score: The table shows, with a line under it: `results.top_needed` (set from code, “Top 10 needs 3 400”).
 - Last level of a world: Next Level becomes `results.next_world`.
 
 ## Texts

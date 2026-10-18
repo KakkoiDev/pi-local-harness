@@ -3,7 +3,7 @@
 App Block card (Game blocks). On-screen controls for phones: a movement stick under the left thumb and one to three action buttons under the right, shown only when touch is the device in use.
 
 - Basecoat: none (game kit: `game-touch`, `game-stick`, `game-touchbtn`)
-- Needs: GameKit (`data-device="touch"`); pointer events; the bindings (each button fires an action, not a key)
+- Needs: GameKit (`data-device="touch"`); pointer events; gaming-core's action names (each button presses an action through GameKit's `touchState`, merged into `inputUpdate()`, not a key)
 - Used in: every genre with real-time movement; tap-only genres (GameCards, GamePuzzle, GameIdle, GameVisualNovel) don't need it
 
 ## Markup
@@ -25,7 +25,7 @@ Copy, never retype: `{harness}/kit/blocks/game-blocks/TouchControls.js` (10 line
 (Key | English | 日本語)
 - `touch.move`: Move: drag in any direction | 移動：好きな方向にドラッグ
 - `touch.left_handed`: Left-Handed Layout | 左利き用レイアウト
-- `action.attack`: Attack | 攻撃
+- `action.fire`: Attack | 攻撃
 - `action.jump`: Jump | ジャンプ
 - `game.pause`: Pause | ポーズ
 
@@ -38,7 +38,7 @@ Copy, never retype: `{harness}/kit/blocks/game-blocks/TouchControls.js` (10 line
 
 ## Data
 ```json
-{"touch": {"move": {"x": 0.62, "y": 0}, "pressed": {"jump": false, "attack": true}, "leftHanded": false}}
+{"touch": {"move": {"x": 0.62, "y": 0}, "pressed": {"jump": false, "fire": true}, "leftHanded": false}}
 ```
 
 ## Don't

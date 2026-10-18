@@ -20,6 +20,7 @@ Copy, never retype: `{harness}/kit/blocks/commerce/ProductGrid.html` (38 lines o
 - Empty after filtering: `div.empty` with `shop.empty` naming the filter, and **Clear Filters**.
 - Error: An `alert` (destructive) with **Try Again**.
 - Long names: Names wrap to two lines then clip with `line-clamp-2`; the full name is on the ProductPage.
+- Few left: The card shows `shop.low_stock` (“Only 2 left”) as `<span class="badge" data-variant="outline" data-t="shop.low_stock">`.
 
 ## Texts
 (Key | English | 日本語)

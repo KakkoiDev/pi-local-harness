@@ -15,7 +15,8 @@ Buying opens a quantity step in the same panel: `.game-option` “How many?” w
 - Not enough coins: Row `aria-disabled="true"`, price in `--g-dim`, `shop.not_enough`. Still focusable to read the description.
 - Bag full: Buy is disabled with `inv.full`.
 - Sold out: `shop.sold_out` instead of the price.
-- Bought: Coins count down to the new value, a coin sound, `shop.bought` announced; focus stays on the row.
+- Choosing how many: Enter/south on a row opens a quantity step on it (− 1 +, ← → or the d-pad); the panel's last line shows `shop.total` (set from code, `{coins}` the price × count); Enter buys, Esc goes back to the list.
+- Bought: Coins count down to the new value, a coin sound; the `aria-live` description line gets `shop.bought` (set from code); focus stays on the row.
 - Sell tab: Your items with sell prices (half the buy price); key items absent.
 - Discount: The old price struck through in `--g-dim` before the new one.
 

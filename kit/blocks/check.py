@@ -33,7 +33,9 @@ BASECOAT = KIT / 'vendor/basecoat-1.0.2/css'
 TOKENS = ('background foreground card card-foreground popover popover-foreground primary primary-foreground secondary '
           'secondary-foreground muted muted-foreground accent accent-foreground destructive destructive-foreground border '
           'input ring sidebar sidebar-foreground sidebar-primary sidebar-primary-foreground sidebar-accent '
-          'sidebar-accent-foreground sidebar-border sidebar-ring chart-1 chart-2 chart-3 chart-4 chart-5').split()
+          'sidebar-accent-foreground sidebar-border sidebar-ring chart-1 chart-2 chart-3 chart-4 chart-5 '
+          # App Blocks' state colours (round 13), light and dark like the rest: done and online, pending and low stock, search matches.
+          'success success-foreground warning warning-foreground highlight highlight-foreground').split()
 PALETTE = 'slate gray zinc neutral stone red orange amber yellow lime green emerald teal cyan sky blue indigo violet purple fuchsia pink rose'.split()
 PALETTE_COLOUR = re.compile(r'^(?:%s)-(?:50|[1-9]00|950)$' % '|'.join(PALETTE))
 PLAIN = {'transparent', 'current', 'inherit', 'white', 'black'}

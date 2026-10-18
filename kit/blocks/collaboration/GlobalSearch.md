@@ -21,6 +21,7 @@ Each kind has the same row: an icon in `figure`, a title, one snippet with `<mar
 - Too short: Fewer than 2 characters: `search.too_short` (Japanese: 1 character is enough).
 - Operators: `from:kana`, `in:#field-trip`, `is:open`, `"exact words"`; the tips are in `search.tips` under the field when it has focus and is empty.
 - Error: ErrorRetry in the results area; the field stays usable.
+- Where a result is: `search.in` → a visually hidden span before the result’s place in its `aside` (“in Class 3-B”).
 
 ## Texts
 (Key | English | 日本語)

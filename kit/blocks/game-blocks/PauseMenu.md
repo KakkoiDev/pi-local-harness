@@ -15,7 +15,7 @@ Copy, never retype: `{harness}/kit/blocks/game-blocks/PauseMenu.js` (2 lines of 
 - Open: The world freezes (`setPaused(true)`), music ducks to 30 %, the overlay dims the scene.
 - Paused by focus loss: A `.game-small` line under the title: `game.paused_on_blur`.
 - Nothing to save here: Save is `disabled` with `aria-describedby` → `pause.save_blocked` (e.g. during a boss fight); games that only autosave leave Save out.
-- Saved: A line `pause.saved` replaces the hint for 3 s; focus stays on Save.
+- Saved: `#pause-hint` shows `pause.saved` for 3 s (set from code, `{slot}` filled), then the hint again; focus stays on Save.
 - Quit with unsaved progress: A game-style confirm: `pause.quit_confirm` with Quit (east/back is Cancel).
 
 ## Texts

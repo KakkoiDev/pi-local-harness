@@ -19,7 +19,9 @@
       </div>
       <div class="field">
         <label for="note-due"><span data-t="form.due">Review on</span> <span class="font-normal text-muted-foreground" data-t="form.optional">(optional)</span></label>
-        <input type="date" id="note-due" name="review_on" value="2026-10-25" min="2026-10-18">
+        <!-- DatePicker's calendar popover (the page can be Japanese): the trigger shows 25 Oct 2026 / 2026年10月25日（日） -->
+        <button type="button" class="btn w-full justify-start font-normal" data-variant="outline" id="note-due" aria-haspopup="dialog" aria-expanded="false" aria-controls="note-due-popover"><span id="note-due-text">25 Oct 2026</span></button>
+        <input type="hidden" name="review_on" id="note-due-value" value="2026-10-25">
       </div>
     </div>
     <div class="field">

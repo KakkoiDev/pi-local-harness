@@ -16,6 +16,7 @@ Copy, never retype: `{harness}/kit/blocks/commerce/OrderConfirmation.html` (23 l
 - Receipt email failed: Destructive `alert` `order.email_failed_title`: the order is still placed; **Send Again**.
 - Reload: The URL is the order’s; reloading shows the same page and never orders again.
 - Focus: On load, focus goes to the heading (`tabindex="-1"`) so screen readers hear the thanks.
+- Paying at a convenience store: The payment box shows `order.konbini_due` (“Pay at a convenience store by 20 Oct, 23:59”) in `<p class="font-medium" data-t="order.konbini_due">`, with the payment number below.
 
 ## Texts
 (Key | English | 日本語)

@@ -1,3 +1,6 @@
+:root { --success: oklch(0.52 0.13 150); --success-foreground: oklch(0.985 0 0); --warning: oklch(0.80 0.15 80); --warning-foreground: oklch(0.27 0.06 70); --highlight: oklch(0.93 0.11 100); --highlight-foreground: oklch(0.205 0 0); }
+.dark { --success: oklch(0.72 0.15 150); --success-foreground: oklch(0.18 0.03 150); --warning: oklch(0.80 0.14 80); --warning-foreground: oklch(0.22 0.05 70); --highlight: oklch(0.47 0.10 95); --highlight-foreground: oklch(0.985 0 0); }
+@theme inline { --color-success: var(--success); --color-success-foreground: var(--success-foreground); --color-warning: var(--warning); --color-warning-foreground: var(--warning-foreground); --color-highlight: var(--highlight); --color-highlight-foreground: var(--highlight-foreground); }
 :root { --chart-1: #0072b2; --chart-2: #e69f00; --chart-3: #009e73; --chart-4: #cc79a7; --chart-5: #d55e00; }
 .dark { --chart-1: #56b4e9; --chart-2: #e69f00; --chart-3: #2bb58f; --chart-4: #da8fba; --chart-5: #f07a2a; }
 .app { container: app / inline-size; }
