@@ -112,6 +112,19 @@ memory. In terminal Pi: `/models` lists the installed models and what they can d
 In terminal Pi: `/models pull <name>` downloads it (large models are many GB), `/models remove <name>` moves it to the
 Trash. Both ask first. `/models check <name>` measures whether it answers two requests at once.
 
+## Why does Pi fix small models' tool calls?
+
+Small local models such as gemma4:e4b-mlx can call tools, but they often write the call as text instead (for example
+`<execute_tool>read{path:app/db.py}</execute_tool>`, or `read(path="app/db.py")` on the last line), and then nothing
+runs. Pi Workbench sits between Pi and Ollama and turns such text into a real call, by fixed rules: only for a tool the
+request offered, only when the arguments fit that tool, and never from prose or a code example that merely mentions a
+tool. The call then runs through Gate like any other. Each fix is logged as an automatic decision made by code, without
+file contents; Activity shows "Tool calls fixed" on the request and names a model that keeps needing it. The model menu
+says "tools" only for models that can call tools. Turn it off with `/config set tool_repair false` (next start of plh).
+
+Every model is also asked to answer as briefly as possible: no restated request, repeated plan or filler. Questions
+still come as cards, and errors, how a change was verified and what you must approve stay complete.
+
 ## How do I use it from my phone or another device?
 
 The phone opens the workbench over your Tailscale network. Once: Tailscale running and logged in on this Mac, HTTPS

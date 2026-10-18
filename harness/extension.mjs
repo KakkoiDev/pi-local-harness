@@ -35,6 +35,8 @@ import { loadGuides, chooseGuides } from './guides.mjs';
 import { loadBlocks, chooseBlocks, blocksPrompt, blocksHint, installBlocks } from './blocks.mjs';
 import { installMusic, musicAvailable } from './music.mjs';
 import { capabilityCards } from './capability-cards.mjs';
+import { installToolRepair } from './tool-repair.mjs';
+import { terseStyle } from './terse.mjs';
 
 const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
@@ -71,6 +73,7 @@ export default function harness(pi, dependencies = {}) {
   let config = {};
   try { config = JSON.parse(readFileSync(join(agentDir, 'models.json'), 'utf8')).providers?.ollama || {}; } catch {}
   pi.registerProvider?.('ollama', localModels(config));
+  const toolRepair = installToolRepair(pi, { config, localModels, bare, request: () => requestId }); // task 326: through the repair proxy
   const transcribe = dependencies.transcribe || (async path => {
     const { stdout } = await promisify(execFile)('uv', ['run', '--python', '3.12', `${moduleRoot}harness/transcribe.py`, path], { timeout: 180000, maxBuffer: 1024 * 1024 });
     return stdout.trim();
@@ -236,6 +239,7 @@ export default function harness(pi, dependencies = {}) {
           }
         });
       });
+      if (ports?.repair) toolRepair.route(ports.repair); // task 326: terminal Pi learns the proxy from the ready line
       // Round 6 header: the build, the data folder, and one line of suggestions on the very first start.
       let build = 'checkout', first = false;
       try { build = JSON.parse(readFileSync(join(moduleRoot, 'install.json'), 'utf8')).commit?.slice(0, 7) || build; } catch {}
@@ -282,7 +286,8 @@ export default function harness(pi, dependencies = {}) {
     let blockCards = '';
     if (!bare && blocks) try { blockCards = chosenBlocks.cards.length ? blocksPrompt(chosenBlocks.cards, blocks, undefined, chosenBlocks.others) : blocksHint(chosenBlocks.candidates); } catch {}
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
-    return { systemPrompt: `${event.systemPrompt}${languageGuide}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${blockCards}${cards}${consoleGuide}` };
+    const style = bare ? '' : `\n\n${terseStyle}`; // task 326: every model, web and terminal
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}${style}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${blockCards}${cards}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;

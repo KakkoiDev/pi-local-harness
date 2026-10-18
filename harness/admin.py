@@ -695,7 +695,7 @@ GUIDE_WORDS = {'What is this?': 'what', 'How do I start it?': 'start', 'How do I
                'How do I start a project?': 'project', 'How do I rename, move or delete a project?': 'rename', 'Chat or Work?': 'chat',
                'How do comments work?': 'comments', 'What does Pi see?': 'sees', 'Where do I see what Pi is doing?': 'activity',
                'Can Pi work on a long task?': 'long', 'How do I choose a model or thinking level?': 'model',
-               'How do I get a new model, or remove one?': 'pull', 'How do I use it from my phone or another device?': 'phone',
+               'How do I get a new model, or remove one?': 'pull', "Why does Pi fix small models' tool calls?": 'repair', 'How do I use it from my phone or another device?': 'phone',
                'Can I talk instead of typing?': 'voice', 'How do I change a setting?': 'setting', 'What can the terminal console do?': 'console',
                'How do I change the language?': 'language', "How do I add it to my phone's Home Screen?": 'home',
                'How do I update Pi Workbench?': 'update', 'Something is wrong. What do I do?': 'wrong', 'Where is my data?': 'data',

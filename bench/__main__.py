@@ -59,7 +59,7 @@ def main(argv=None):
         print('resolved'.ljust(width) + ''.join(table['totals'][name].ljust(size) for name, size in zip(table['columns'], cols)))
         return 0
     for row in runner.summary(results):
-        print(f"{row['model']} ({row['effort']}) · {row['mode']} {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} resolved, {row['first_try']} first try, {row['verified']} verified, pass^k {row['pass_k']}, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']} per run")
+        print(f"{row['model']} ({row['effort']}) · {row['mode']} {row['harness']} · {row['prompt_level']} prompts: {row['solved']}/{row['runs']} resolved, {row['first_try']} first try, {row['verified']} verified, pass^k {row['pass_k']}, {row['minutes']} min, wake-ups {row['wake_ups']}, refusals {row['refusals']}, tool calls fixed {row['tool_repairs']} per run, answers {row['answer_words'] if row['answer_words'] is not None else '?'} words (median)")
     return 0
 
 

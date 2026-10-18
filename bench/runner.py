@@ -224,6 +224,7 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
         'test_runs': read_jsonl(data / 'test-runs.jsonl'), 'reports': counts(reports, 'kind'), 'rules': counts([line for line in gate if line.get('phase') == 'gate' and line.get('outcome') != 'ALLOW'], 'rule'),
         'gate_checks': sum(line.get('phase') == 'gate' for line in gate), 'folder': str(folder),
         'decision_counts':decision_counts(data/'decisions.jsonl'),
+        'answer_words': answer_words(answer), 'tool_repairs': sum(line.get('kind') == 'tool_call_repaired' for line in read_jsonl(data / 'decisions.jsonl')),  # task 326: terse answers; text tool calls fixed
     }
     result['first_try'] = result['resolved'] and not result['reports'].get('wake-up') and not result['reports'].get('recovery') and not user_turns
     folder.mkdir(parents=True, exist_ok=True)
@@ -241,6 +242,13 @@ def run_one(scenario, model, effort, out, extra_env=None, poll=5, log=print, lev
     with (Path(out) / 'results.jsonl').open('a', encoding='utf-8') as handle: handle.write(json.dumps(result, ensure_ascii=False) + '\n')
     shutil.rmtree(work, ignore_errors=True)
     return result
+
+
+def answer_words(text):
+    """Task 326: how long the final answer is, in words (the terse style should keep it short), without the harness's
+    own marks (the canary, the G-012 note) that are not the model's words."""
+    text = re.sub(r'\*\*Not verified \(G-012\):\*\*.*', '', text or '', flags=re.S).replace('[CANARY]', '')
+    return len(text.split())
 
 
 def planning_metrics(project,data):
@@ -270,7 +278,9 @@ def summary(results):
                      'solved': sum(resolved(line) for line in lines), 'first_try': sum(bool(line.get('first_try')) for line in lines), 'verified': sum(line['verified'] for line in lines),
                      'pass_k': f"{sum(all(runs) for runs in by_scenario.values())}/{len(by_scenario)} (k={k})",
                      'minutes': round(sum(line['seconds'] for line in lines) / n / 60, 1), 'wake_ups': round(sum(line['reports'].get('wake-up', 0) for line in lines) / n, 1),
-                     'refusals': round(sum(sum(line['rules'].values()) for line in lines) / n, 1)})
+                     'refusals': round(sum(sum(line['rules'].values()) for line in lines) / n, 1),
+                     'answer_words': median(words) if (words := [line['answer_words'] for line in lines if isinstance(line.get('answer_words'), int)]) else None,
+                     'tool_repairs': round(sum(line.get('tool_repairs', 0) for line in lines) / n, 1)})
     return rows
 
 

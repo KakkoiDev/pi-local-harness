@@ -18,6 +18,8 @@ from agent_api import AgentHandler
 from gate.engine import GateEngine
 from gate.ledger import ProposalLedger
 from harness.web_chat import WebChat, WebHandler
+from harness import tool_repair_proxy
+from harness.model import ollama_url
 
 
 
@@ -132,10 +134,19 @@ def main():
     servers = []
     chat = None
     serve = None
+    repair = None
     try:
         api = Server(('127.0.0.1', int(os.getenv('PI_GATE_PORT', '8000'))), Handler)
         servers.append(api)
         web = Server(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
+        # Task 326: the tool-call repair proxy in front of Ollama; the workbench's Pi requests inherit its address.
+        try: repair = tool_repair_proxy.start_for_services(data_dir, ollama_url(), int(os.getenv('PI_TOOL_REPAIR_PORT', '0')), os.getenv('PI_TOOL_REPAIR', '1') != '0')
+        except OSError as error:
+            import errno
+            if error.errno != errno.EADDRINUSE: raise
+            raise SystemExit(f"Pi Workbench could not start: port {os.getenv('PI_TOOL_REPAIR_PORT')} (the tool-call repair proxy) is already in use. "
+                             'Choose another tool_repair_port in the Workbench config (0 picks a free one), then run plh again. Nothing else was stopped.') from None
+        if repair: os.environ['PI_HARNESS_TOOL_REPAIR_URL'] = repair.url
         chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, gate_token=token)
         chat.ledger = ledger
         ledger.paperwork.projects = chat.documents
@@ -148,6 +159,7 @@ def main():
             threading.Thread(target=server.serve_forever, daemon=True).start()
         # 'person' goes only to whoever started these services (terminal Pi's extension reads this line from a pipe).
         ready = {'gate': api.server_port, 'web': web.server_port, 'token': token, 'person': WebHandler.person_secret}
+        if repair: ready['repair'] = repair.url
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
             if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]
@@ -167,6 +179,7 @@ def main():
             try: serve.wait(5)
             except subprocess.TimeoutExpired: serve.kill()
         if chat: chat.close()
+        if repair: repair.close()
         for server in servers:
             server.server_close()
 

@@ -1558,6 +1558,40 @@ story('US-225', 'on a phone (390 px) the waiting message reads in full, its butt
   assert.equal((await t.bench.api('/api/workspace')).jobs.find(item => item.id === id).message, 'Shorter introduction');
 });
 
+// -- Task 326: tool calls a small model writes as text ---------------------------------------------------------------
+story('US-230', 'the model writes its tool call as text; the workbench turns it into a real call: the file is read, the answer comes, and Activity says the call was fixed', async t => {
+  const http = require('node:http');
+  const asked = [];  // a stand-in for Ollama's /v1: it answers with the pseudo call gemma4:e4b-mlx really wrote
+  const upstream = http.createServer((request, response) => {
+    let body = ''; request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      if (request.url !== '/v1/chat/completions') { response.writeHead(404, { 'Content-Type': 'application/json' }); response.end('{}'); return; }
+      asked.push(JSON.parse(body));
+      const answer = { id: 'chatcmpl-1', object: 'chat.completion', created: 1, model: 'gemma4:e4b-mlx', choices: [{ index: 0, finish_reason: 'stop', message: { role: 'assistant', content: 'Let me look at it.\n<execute_tool>\nread{path:notes.md}\n</execute_tool>' } }] };
+      response.writeHead(200, { 'Content-Type': 'application/json' }); response.end(JSON.stringify(answer));
+    });
+  });
+  await new Promise(resolve => upstream.listen(0, '127.0.0.1', resolve));
+  try {
+    await t.bench.restart({ PI_OLLAMA_URL: `http://127.0.0.1:${upstream.address().port}` }); const page = await t.reopen();
+    const { root } = await newProject(t, 'Notes');
+    fs.writeFileSync(join(root, 'notes.md'), 'hello\n');
+    const id = await say(t, 'What does notes.md say? TEST_SCRIPT=model-pseudo-call');
+    const job = await answered(t, id);
+    assert.equal(job.status, 'completed');
+    await page.locator('#messages').getByText('notes.md says hello.').waitFor();
+    assert.deepEqual(job.tools.map(tool => [tool.name, tool.detail, tool.status]), [['read', 'notes.md', 'done']], 'the read really ran, through Gate');
+    assert.equal(asked.length, 1); assert.equal(asked[0]._pi_harness_request, undefined, 'Ollama never sees the harness field');
+    const [repaired] = decisions(t).filter(row => row.kind === 'tool_call_repaired');
+    assert.deepEqual([repaired.request, repaired.who, repaired.automatic, repaired.answer.tool, repaired.answer.pattern], [id, 'code', true, 'read', 'execute_tool-tag/brace']);
+    await page.goto(t.base + '/activity');
+    await page.locator('.activity-task').filter({ hasText: 'What does notes.md say?' }).first().locator('.activity-request').click();
+    await page.locator('#activity-detail .pw-tool__cmd').filter({ hasText: 'read notes.md' }).waitFor();
+    assert.match(await page.locator('#activity-detail .activity-detail__facts').textContent(), /Tool calls fixed1 written as text by gemma4:e4b-mlx, run as real calls \(read\)/);
+    assert.equal(await page.locator('#activity-repairs').count(), 0, 'one request is not yet a pattern: no note about the model');
+  } finally { upstream.close(); }
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

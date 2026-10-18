@@ -363,3 +363,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)
 
 - [x] [325-Read, edit and remove the messages waiting for Pi](tasks/325-queue-editing.md)
+
+- [ ] [326-Fix the tool calls small models write as text, and terse answers](tasks/326-tool-call-repair-and-terse-answers.md)

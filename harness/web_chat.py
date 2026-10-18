@@ -17,6 +17,7 @@ from harness import undo as undoing
 from harness import laya, theme
 from harness.decision_log import record
 from harness import decision_rows
+from harness import tool_repairs
 import json
 import os
 from pathlib import Path
@@ -555,7 +556,7 @@ class WebChat:
             # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
             chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
             projects.append({**project,'chat':chat})
-        return {'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'language':autonomy.read(self.documents.root/'config.json',{}).get('language'),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()}
+        return tool_repairs.annotate({'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'language':autonomy.read(self.documents.root/'config.json',{}).get('language'),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()},self.documents.root)  # task 326: tool calls the workbench fixed
     def stop(self, identifier):
         """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
         with self.lock:
