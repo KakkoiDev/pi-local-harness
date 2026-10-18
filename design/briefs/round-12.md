@@ -1,7 +1,7 @@
 # Brief: round 12
 
-Date: 2026-10-18. Round 12. Three parts: (A) app building blocks a small model can grab, (B) Project Start with
-capabilities, (C) the screens the 2026-10-18 review's fixes need (added when the fix tracks report).
+Date: 2026-10-18. Round 12. Four parts: (A) app building blocks a small model can grab, (B) Project Start with
+capabilities, (C) the screens the 2026-10-18 review's fixes need, (D) a theme panel to tinker with an app's look.
 
 ## A. App building blocks, ready for a small model to grab
 
@@ -156,3 +156,25 @@ could not draw. Please draw each, desk and phone, English and Japanese.
 - The default "Paper" appearance ignores the Mac's dark mode; Markdown links in Work (ROADMAP task lines show raw
   `[…](tasks/…)` and cannot be followed); the choice card repeats its question above it; the composer's "<project> · send
   to agent queue" text; the phone menu's button row overflows in Japanese; the status needs "Working on <project>".
+
+## D. Theme panel: tinker with the app's look, live (task 312)
+
+The person: "I want to adjust the sites colors" → "Here are the color values" → a panel listing primary, secondary… with
+a colour picker that changes the Preview in real time; "I want to change the radius" → "Here are the radii", and so on.
+The workbench answers this itself (no model): the panel opens in the chat as Pi Workbench's reply.
+
+The app's theme is Basecoat's CSS variables (Tailwind v4, no config file): colours as pairs (primary and its
+foreground, secondary, accent, muted, destructive, background, card, border, input, ring, sidebar, five chart colours),
+each in light and dark; one radius; Tailwind's spacing unit; fonts later.
+
+Please draw, in the workbench's 1-bit design (the panel is workbench UI; the colours it edits are the app's):
+- **The panel in the chat**, one group per panel (colours, radius, spacing, chart colours): token name in plain words
+  ("Primary: buttons and links"), a swatch, the value, a picker; light and dark columns; the contrast check against its
+  foreground (pass/fail, never blocking); Reset per token.
+- **The live link to the Preview**: how the person sees the Preview change while dragging (Preview beside the chat on the
+  desk; on the phone, where the Preview is a tab).
+- **Save, Discard, Undo**: the saved line in the chat ("Theme saved: primary, radius" with Undo), what happens on closing
+  unsaved.
+- **The radius and spacing panels**: one slider each, with the derived sizes shown on sample buttons, cards and inputs.
+- **No theme file**: the message for a project that has none.
+- Entry points: the request in the chat, Project › Theme…, and a hint when Pi is asked something the panel could do.
