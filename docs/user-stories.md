@@ -313,7 +313,7 @@ where a failure leaves the journey stuck the step does what the owner did (Stop,
 | US-256 | open the finished app in the Preview | Show in Preview runs the app (offline: `uv run uvicorn … --port N` is served by tests/fixtures/uvicorn-standin.py, a stand-in web layer over the project's own habit code); its page is named Habit Tracker; adding a habit and ticking it today show a streak of 1 | desk | journey.cjs J14 |
 | US-255 | run the same journey with a real small model | `PI_JOURNEY_LIVE=1`: gemma4:e4b-mlx at 127.0.0.1:11434, scratch data and projects; checks the workflow (cards answered, a plan, tasks verified and committed, tests run) and writes journey-live-report.txt (steps, time per step, repairs, nudges) to the scratch folder | desk | journey.cjs live mode (opt-in, not in the offline gate) |
 
-On harness-next at 05d3054 (after tasks 324, 325 and 326), US-241, US-244, US-245, US-247, US-248, US-249,
+On harness-next at a37ea97 (after tasks 324, 325 and 326), US-241, US-244, US-245, US-247, US-248, US-249,
 US-250, US-251 and US-254 pass; US-240, US-242, US-243, US-246, US-252, US-253 and US-256 fail on real product defects listed in
 [tasks/327-golden-journey-e2e.md](../tasks/327-golden-journey-e2e.md). They are not marked xfail: the suite fails until
 they are fixed.

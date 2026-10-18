@@ -40,7 +40,7 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
   need a download (not approved), so the journey's uv stand-in serves that command with tests/fixtures/uvicorn-standin.py,
   a stand-in web layer over the project's own habit code (add a habit, tick it, streak, month). US-256.
 
-## Defects the journey finds on harness-next (05d3054, after tasks 324, 325, 326 and b54f3c8)
+## Defects the journey finds on harness-next (a37ea97, after tasks 324, 325, 326, b54f3c8 and 4a555ac)
 
 1. J02: a refused model switch's message is the toast at the bottom of the window, 822 px below the model menu.
 2. J03: the project folder is “Habit Tracker” (spaces), not a slug.
@@ -53,6 +53,15 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
    untracked); tasks/001-first-task.md's ticked boxes are never committed.
 7. J14: because of 5, the app keeps the starter's name: the Preview's page says “Notes”, not “Habit Tracker”.
 8. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
+
+## One live run (gemma4:e4b-mlx, 2026-10-19, build budget 45 minutes)
+
+L01 model menu, L03 Discussion (a question card answered, about 4 minutes) and L04 Planning (auto-started, a plan card in
+14 s) passed; L02 failed on the folder slug. L05 failed: no task reached verified in 14 minutes. The model's plan was
+about removing the starter's sample notes and renaming the app, not the habit tracker it had discussed; task 1 asked
+“Pi wants to change a file outside task 1” four times in a row (each answered Add to Task 1), was retried twice, then
+three “How should Pi proceed with this unclassified command?” cards came (task 323's area). README.md was left changed
+and uncommitted. Repairs 0, nudges 0, one passing test run.
 
 ## For the person
 
