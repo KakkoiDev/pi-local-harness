@@ -648,6 +648,8 @@
   "Paused while Pi answers you": "Pi があなたに回答する間、一時停止中",
   "Resumed": "再開しました",
   "Preparing attachments…": "添付ファイルを準備中…",
+  "Starting Pi…": "Pi を起動中…",
+  "Waiting for the model (it may be loading)…": "モデルを待っています（読み込み中かもしれません）…",
   "No projects": "プロジェクトはありません",
   "No matching projects": "一致するプロジェクトはありません",
   "Your projects will appear here.": "プロジェクトはここに表示されます。",

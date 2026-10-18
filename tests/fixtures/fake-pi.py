@@ -45,6 +45,7 @@ def scripted_story():
     found=re.search(r'TEST_SCRIPT=([\w-]+)',request['message']);state=session.with_suffix('.script')
     resume=request['message'].strip().startswith('Choice: ') or request['message'].strip() in ('Build the approved task.','Continue the approved task.')
     if found:name,index=found[1],0
+    elif request['message'].strip()=='Write the plan from our discussion.' and (Path(os.environ.get('PI_FAKE_SCRIPTS','.'))/'plan-from-discussion.json').is_file():name,index='plan-from-discussion',0  # task 324: the Planning button's request
     elif state.exists() and resume:name,index=json.loads(state.read_text())
     else:return
     spec=json.loads((Path(os.environ['PI_FAKE_SCRIPTS'])/f'{name}.json').read_text(encoding='utf-8'))

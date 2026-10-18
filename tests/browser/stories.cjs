@@ -1560,6 +1560,49 @@ story('US-205', 'controls stay owned once: an answer accepted while the worker s
   assert.equal((await answered(t, await say(t, 'Plan it'))).status, 'completed');
 });
 
+story('US-206', 'choosing Planning after a discussion starts the plan without typing; on an empty chat it starts nothing; Implementation starts the approved task', async t => {
+  const { page } = t;
+  const { project } = await newProject(t, 'Auto plan');
+  await choosePhase(t, 'Planning');
+  await page.waitForTimeout(800);
+  assert.equal((await chatJobs(t, project)).length, 0, 'an empty chat: nothing runs');
+  await choosePhase(t, 'Discussion');
+  assert.equal((await answered(t, await say(t, 'I want a click counter for my desk'))).status, 'completed');
+  await choosePhase(t, 'Planning');
+  let started = null;
+  for (let i = 0; i < 50 && !started; i++) { started = (await chatJobs(t, project)).find(job => job.message === 'Write the plan from our discussion.'); if (!started) await page.waitForTimeout(100); }
+  assert.ok(started, 'the Planning button started a request');
+  assert.equal((await answered(t, started.id)).status, 'waiting', 'it proposed a plan and waits for Start Building');
+  const card = page.locator('.pw-card[aria-label="Plan"]').last(); await card.waitFor({ timeout: 10000 });
+  await page.locator('#messages .pw-notice').filter({ hasText: 'Planning started from your discussion' }).waitFor();
+  assert.equal(await page.locator('#messages .pw-msg.user').filter({ hasText: 'Write the plan from our discussion.' }).count(), 0, 'never shown as my words');
+  assert.equal((await chatJobs(t, project)).filter(job => job.message === 'Write the plan from our discussion.').length, 1, 'once');
+  // An approved plan: back to Discussion, then Implementation from the phase menu starts the approved task.
+  const other = await newProject(t, 'Auto build');
+  await givenApprovedTasks(t, other.root, [COUNT]);
+  await choosePhase(t, 'Discussion'); await choosePhase(t, 'Implementation');
+  let build = null;
+  for (let i = 0; i < 50 && !build; i++) { build = (await chatJobs(t, other.project)).find(job => job.message === 'Build the approved task.'); if (!build) await page.waitForTimeout(100); }
+  assert.ok(build, 'Implementation started the approved task');
+  await answered(t, build.id);
+  await page.locator('#messages .pw-notice').filter({ hasText: 'Building started: the approved task' }).waitFor();
+});
+
+story('US-207', 'a project folder with spaces and capitals (“Habit Tracker”): plan, build, sandboxed test runs, the commit and the Preview all work', async t => {
+  const { root, job } = await planAndBuild(t, { name: 'Habit Tracker' });
+  assert.equal(job.status === 'completed' || job.status === 'waiting', true, 'the build ran: ' + job.status + ' ' + job.progress);
+  assert.ok(exists(root, 'counter.py') && exists(root, 'tests', 'test_counter.py'), 'Pi wrote into the folder with a space');
+  const runs = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(run => run.cwd === root);
+  assert.ok(runs.some(run => run.exit_code === 0 && run.counts.pass > 0), 'the sandboxed test run passed: ' + JSON.stringify(runs.map(run => [run.exit_code, run.counts])));
+  assert.match(commits(t, root).join('\n'), /Count clicks/, 'Gate committed the task');
+  const web = await newProject(t, 'Habit Tracker Web', 'web');
+  await t.bench.api('/api/preview/start', { project: web.project });
+  let status = null;
+  for (let i = 0; i < 100; i++) { status = await t.bench.api('/api/preview?project=' + web.project); if (['running', 'stopped', 'none'].includes(status.state)) break; await t.page.waitForTimeout(200); }
+  assert.equal(status.state, 'running', JSON.stringify(status));
+  await t.bench.api('/api/preview/stop', { project: web.project });
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

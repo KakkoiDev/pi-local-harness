@@ -675,7 +675,7 @@ class WebChat:
         # Task 290: what a crash or a stop leaves in the chat (the partial answer, the control it raised), saved once.
         reply='';partial='';pending_choice=None;pending_plan=None;check_in=None;notices=[];started=False;answered=False;detached=True
         try:
-            emit({'type':'status','text':'Preparing attachments…'})
+            emit({'type':'status','text':'Preparing attachments…' if data.get('attachments') else 'Starting Pi…'})  # task 324: never claim files that are not there
             folder=self.store.folder(identifier)
             conversation=self.store.get(identifier)
             project=conversation.get('project')
@@ -712,7 +712,7 @@ class WebChat:
             if cancelled.is_set():raise ValueError('Stopped')
             display=[{**{k:v for k,v in file.items() if k!='path'},'url':f"/api/files/{identifier}/{Path(file['path']).name}"} for file in files]
             if not detached:
-                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {})})
+                self.store.append(identifier,{'role':'user','content':data.get('message',''),'attachments':display,**({'origin':'preview','lines':lines} if lines else {}),**({'harness':str(data['harness'])[:200]} if data.get('harness') else {})})  # task 324: the phase started it, not the person
                 started=True
                 emit({'type':'conversation','conversation':self.store.get(identifier)})
             if project and not detached:migrate_session(folder/'session.jsonl',self.documents.project_path(project))  # task 262: renamed or moved since
@@ -738,6 +738,7 @@ class WebChat:
             threading.Thread(target=read,daemon=True).start()
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
+            emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
             heard=time.monotonic();settled=False;thought=''
             # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
             # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
@@ -1063,7 +1064,12 @@ class WebHandler(BaseHTTPRequestHandler):
                 for message in reversed(conversation['messages']):
                     if message.get('plan'):message['plan']['waiting']=True;break
                 self.reply(self.chat.store.save(conversation));return
-            if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(data['project']),data.get('phase'),action='phase button'));return
+            if path=='/api/phase':
+                root=self.chat.documents.project_path(data['project']);paperwork=self.chat.ledger.paperwork
+                before=paperwork.phases.get(root)['phase'];result=paperwork.phase(root,data.get('phase'),action='phase button')
+                from harness.phase_start import after_phase_change  # task 324: the phase's work starts by itself
+                started=after_phase_change(self.chat,data['project'],before,result.get('phase'))
+                self.reply({**result,**({'started':started['id']} if started else {})});return
             if path=='/api/theme/open':self.reply(self.chat.open_theme(data['project'],data.get('group','colours')));return  # task 312: Project › Theme…
             if path=='/api/theme/save':self.reply(self.chat.theme_save(data['project'],data));return
             if path=='/api/theme/add':self.reply(self.chat.theme_add(data['project']));return  # round 12: Add a Theme File

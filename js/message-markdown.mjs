@@ -13,7 +13,7 @@ export const spoken = (text, streaming = false) => {
   return stripped;
 };
 
-const INLINE = /(\*\*([^*\n]+)\*\*|`([^`\n]+)`|\*([^*\s][^*\n]*?)\*|_([^_\s][^_\n]*?)_|\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\))/g;
+const INLINE = /(\*\*([^*\n]+)\*\*|`([^`\n]+)`|\*([^*\s][^*\n]*?)\*|(?<![\p{L}\p{N}_])_([^_\s][^_\n]*?)_(?![\p{L}\p{N}_])|\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\))/gu;
 export function inlineTokens(text) {
   const tokens = [], push = (type, value, extra = {}) => {
     if (type === 'text' && tokens.at(-1)?.type === 'text') tokens.at(-1).text += value;
@@ -58,13 +58,37 @@ function separateLists(markdown) {
   }
   return out.join('\n');
 }
+// Task 324 (small models' questions): sub-items under a list item ("1. Which colour?\n   * A) Red") are a nested list,
+// not a paragraph that swallows the rest; options written on the item's own line ("Which? * A) Red * B) Blue") too.
+const SUB_LINE = /^(\s{2,}|\t+)(?:[-*] |\d+[.)] )(.*)$/, TOP_LINE = /^(?:[-*] |\d+\. )/;
+function nestSubItems(markdown) {
+  const out = [], children = []; let fence = false, parent = -1;
+  for (const line of markdown.split('\n')) {
+    if (/^```/.test(line)) { fence = !fence; parent = -1; }
+    const sub = !fence && parent >= 0 && line.match(SUB_LINE);
+    if (sub) { children[parent].push(sub[2]); continue; }
+    if (!fence && TOP_LINE.test(line)) { parent = children.length; children.push([]); out.push(line + '\u0001' + parent + '\u0001'); continue; }
+    if (line.trim()) parent = -1;
+    out.push(line);
+  }
+  return { markdown: out.join('\n'), children };
+}
+function itemOf(text, children) {
+  let found = text.match(/\u0001(\d+)\u0001$/), items = found ? children[Number(found[1])] : [];
+  if (found) text = text.slice(0, found.index);
+  const inlineOptions = text.split(/\s[*-]\s+(?=[A-Za-z0-9]\)\s)/);
+  if (!items.length && inlineOptions.length > 2) { text = inlineOptions[0]; items = inlineOptions.slice(1).map(part => part.trim()); }
+  return { text, ...(items.length ? { items } : {}) };
+}
 export function messageBlocks(markdown) {
   const result = []; let previous = null;
-  for (const block of parseMarkdown(separateLists(markdown))) {
+  const nested = nestSubItems(separateLists(markdown));
+  for (const block of parseMarkdown(nested.markdown)) {
+    if (block.text?.includes('\u0001')) block.text = LIST[block.type] ? block.text : block.text.replace(/\u0001\d+\u0001/g, '');
     const list = LIST[block.type], adjacent = previous && !/\n\s*\n/.test(previous.raw); previous = block;
     if (list) {
       const last = result.at(-1);
-      const item = { text: block.text, checked: block.type === 'check' ? block.checked : undefined };
+      const item = { ...itemOf(block.text, nested.children), checked: block.type === 'check' ? block.checked : undefined };
       if (last?.tag === list && last.kind === block.type) last.items.push(item);
       else result.push({ tag: list, kind: block.type, items: [item], start: block.type === 'number' ? Number(block.raw.match(/^\s*(\d+)\./)?.[1] || 1) : undefined }); // a list split by a code block keeps counting
     } else if (block.type === 'heading') result.push({ tag: 'h' + Math.min(block.level + 1, 6), text: block.text });
@@ -106,7 +130,9 @@ export function renderMessage(document, markdown) {
     if (block.items) for (const item of block.items) {
       const li = document.createElement('li');
       if (item.checked !== undefined) { const box = document.createElement('input'); box.type = 'checkbox'; box.className = 'pw-check'; box.checked = item.checked; box.disabled = true; box.setAttribute('aria-label', item.checked ? 'Done' : 'Not done'); li.className = 'pw-msg__task'; li.append(box); }
-      inline(document, li, item.text); element.append(li);
+      inline(document, li, item.text);
+      if (item.items) { const sub = document.createElement('ul'); for (const text of item.items) { const child = document.createElement('li'); inline(document, child, text); sub.append(child); } li.append(sub); }
+      element.append(li);
     }
     else if (block.tag === 'pre') element.textContent = block.text;
     else if (block.tag === 'blockquote') block.text.split('\n').forEach((line, index) => { if (index) element.append(document.createElement('br')); inline(document, element, line); });

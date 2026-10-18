@@ -305,6 +305,23 @@ class ChoicePaperworkTest(PaperworkTest):
         self.paper.pause('answer');self.paper.start_building(self.root)
         self.assertEqual(self.paper.phases.get(self.root)['phase'],'implementation')
 
+    def test_the_plan_keeps_the_persons_goal_and_lists_steps_written_on_one_line(self):
+        # Task 324 (live findings 10 and 11): the model's goal is one "Plan:" line under the person's own.
+        roadmap=self.root/'ROADMAP.md';text=roadmap.read_text()
+        import re as _re
+        roadmap.write_text(_re.sub(r'## Goal\s*\n.*?(?=^## |\Z)','## Goal\n\nTrack my daily habits.\n\n',text,flags=_re.M|_re.S) if '## Goal' in text else text+'\n## Goal\n\nTrack my daily habits.\n\n')
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('plan',str(self.root),'Plan it')
+        steps='1. Add the habit form. 2. Save each habit. 3. Show the streak.'
+        path=self.paper.propose_plan('plan',{'goal':'A habit tracker with streaks.','tasks':[{'title':'Habits','files':['app.py'],'done_when':'A habit is saved.','content':steps}]})['tasks'][0]['path']
+        goal=_re.search(r'## Goal\s*\n(.*?)(?=^## |^- \[|\Z)',roadmap.read_text(),_re.M|_re.S)[1]
+        self.assertIn('Track my daily habits.',goal);self.assertIn('Plan: A habit tracker with streaks.',goal)
+        written=next(file.read_text() for file in (self.root/'tasks').glob('*habits*.md'))
+        self.assertIn('1. Add the habit form.\n2. Save each habit.\n3. Show the streak.',written)
+        self.paper.propose_plan('plan',{'goal':'Habits, again.','tasks':[{'title':'Habits','files':['app.py'],'done_when':'A habit is saved.','content':'Save.'}]})
+        goal=_re.search(r'## Goal\s*\n(.*?)(?=^## |^- \[|\Z)',roadmap.read_text(),_re.M|_re.S)[1]
+        self.assertEqual(goal.count('Plan: '),1,'the next plan replaces its line');self.assertIn('Track my daily habits.',goal)
+
     def test_a_discussion_answer_stays_out_of_the_next_plan(self):
         self.paper.start('ask',str(self.root),'Which colours?')
         self.paper.choice_pending('ask',{'question':'Colour?','options':[{'label':'Blue'},{'label':'Red'}],'recommended':0})

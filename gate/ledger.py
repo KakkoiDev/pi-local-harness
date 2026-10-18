@@ -154,7 +154,14 @@ class ProposalLedger:
         if text.startswith('Choice: '):return None  # task 290 (review item 5): an answer is never read as a new request
         waiting=self.paperwork.waiting_choice(item['root'])
         if waiting:advice=self.judgements.decide(request,'waiting_reply',[text,waiting['question']])
-        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):advice=self.judgements.decide(request,'phase_intent',[text])
+        elif re.search(r'\b(?:phase|discuss|discussion|planning|implementation)\b|計画|実装|議論',text,re.I):
+            # Task 324 (live finding 8): no notice when the phase the words name is the phase the project is in.
+            try:current=self.paperwork.phases.get(item['root'])['phase']
+            except Exception:current=None
+            named={phase for phase,words in (('discussion',r'\bdiscuss(?:ion)?\b|議論'),('planning',r'\bplan(?:ning)?\b|計画'),('implementation',r'\bimplement(?:ation)?\b|\bbuild\b|実装')) if re.search(words,text,re.I)}
+            if current and named=={current}:return None
+            advice=self.judgements.decide(request,'phase_intent',[text])
+            if current and not advice.get('abstained') and advice.get('answer')==current:return None
         else:return None
         # Task 290 (review item 4): a card raised before Pi read the message keeps it; Pi gets it after the answer.
         if advice.get('choice'):self.paperwork.hold(request,text)

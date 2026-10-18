@@ -27,6 +27,17 @@ from .protocol import CheckFailed, changed_paths, is_documentation, project_root
 PROGRESS = '## Progress (kept by the harness)'
 # Task 263: the Goal section ends at the next heading or at the first task box; with no heading after it, the old
 # pattern ran to the end of the file and propose_plan erased the roadmap's task lines.
+def numbered(text):
+    """Task 324 (live finding 10): steps a model wrote on one line ("1. Add the form. 2. Save it. 3. Show it.") become a list."""
+    out=[]
+    for line in text.splitlines():
+        parts=re.split(r'(?:(?<=^)|(?<=[.!?:;)])\s+)(?=\d{1,2}[.)]\s+\S)',line)
+        steps=[part for part in parts if re.match(r'\d{1,2}[.)]\s',part)]
+        if len(steps)>=2 and len(re.findall(r'(?:^|\s)\d{1,2}[.)]\s',line))>=2:out.extend(part.strip() for part in parts if part.strip())
+        else:out.append(line)
+    return '\n'.join(out)
+
+
 GOAL = r'^## Goal\s*\n(.*?)(?=^## |^\s*[-*+] \[[ xX~]\]|\Z)'
 # Task 293 (NEW-2): where the recorded decisions keep a Planning answer given before the plan has a task.
 UNPLANNED = '(before the plan)'
@@ -481,13 +492,17 @@ class Paperwork:
                 (root/'tasks').mkdir(exist_ok=True)
                 roadmap=root/'ROADMAP.md';text=roadmap.read_text() if roadmap.exists() else '# Roadmap\n'
                 match=re.search(GOAL,text,re.M|re.S)
-                goal_text='## Goal\n\n'+goal.strip()+'\n\n'
+                # Task 324 (live finding 11): the person's Goal (Project Start's sentence) stays; the plan's own goal is
+                # one "Plan:" line under it, replaced by the next plan.
+                person='\n'.join(line for line in (match[1] if match else '').strip().splitlines() if not line.startswith('Plan: ')).strip()
+                if not person or re.fullmatch(r'Describe what we are building\.',person) or person==goal.strip():goal_text='## Goal\n\n'+goal.strip()+'\n\n'
+                else:goal_text='## Goal\n\n'+person+'\n\nPlan: '+' '.join(goal.split())+'\n\n'
                 text=text[:match.start()]+goal_text+text[match.end():] if match else text.rstrip()+'\n\n'+goal_text
                 number=max([int(m[1]) for path in (root/'tasks').glob('*.md') if (m:=re.match(r'^(\d+)',path.name))]+[0])+1
                 for task in prepared:
                     path=f'tasks/{number:03d}-'+re.sub(r'[^a-z0-9]+','-',task['title'].lower()).strip('-')[:48]+'.md'
                     steps='- [ ] Red: a test fails for this change.\n- [ ] Green: the test passes with this change.\n' if task.get('kind','code')=='code' else '- [ ] Verify the change.\n'
-                    (root/path).write_text(f"# {number:03d}: {clean(task['title'])}\n\nKind: {task.get('kind','code')}\nFiles: {', '.join(task['files'])}\n\nDone when: {clean(task['done_when'])}\n\n{task['content'].strip()}\n\n{steps}\n## Decisions\n\n",encoding='utf-8')
+                    (root/path).write_text(f"# {number:03d}: {clean(task['title'])}\n\nKind: {task.get('kind','code')}\nFiles: {', '.join(task['files'])}\n\nDone when: {clean(task['done_when'])}\n\n{numbered(task['content'].strip())}\n\n{steps}\n## Decisions\n\n",encoding='utf-8')
                     text+=f"- [ ] [{number:03d}-{clean(task['title'])}]({path})\n";number+=1
                 roadmap.write_text(text,encoding='utf-8')
             from kit.publish_audit import ensure_task

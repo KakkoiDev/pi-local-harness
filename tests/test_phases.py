@@ -389,7 +389,7 @@ class Round11LifecycleTest(unittest.TestCase):
         roadmap=(self.root/'ROADMAP.md').read_text()
         self.assertIn('- [x] [001-Old work](tasks/001-old.md)',roadmap)
         self.assertIn('* [ ] [002-Still open](tasks/002-open.md)',roadmap)
-        self.assertIn('A better counter',roadmap);self.assertNotIn('Old goal.',roadmap)
+        self.assertIn('Plan: A better counter',roadmap);self.assertIn('Old goal.',roadmap)  # task 324: the person's Goal stays
 
     def test_music_reads_and_scoped_outputs_obey_phase(self):
         from gate.phases import refusal

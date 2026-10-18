@@ -108,6 +108,15 @@ class StalledModelTest(FakePi):
         self.assertNotIn('ended', self.messages()[-1])
 
 
+class ProgressTextTest(FakePi):
+    def test_progress_never_claims_attachments_and_says_the_model_may_be_loading(self):
+        events = []
+        self.chat.send(self.conversation, {'message': 'Hello'}, events.append)
+        said = [event['text'] for event in events if event.get('type') == 'status']
+        self.assertNotIn('Preparing attachments…', said)
+        self.assertEqual(said[:2], ['Starting Pi…', 'Waiting for the model (it may be loading)…'])
+
+
 class RunningToolTest(FakePi):
     model_silence = 1
     silence = 3
@@ -171,6 +180,23 @@ class NoZombieTest(unittest.TestCase):
         with queue.condition: queue.claim(next(item for item in queue.jobs if item['id'] == added['id']))
         again = WorkQueue(Path(temp.name) / 'queue.json', lambda job, emit: None, start=False)
         self.assertEqual([item['status'] for item in again.list()], ['interrupted'])
+
+
+
+class GuideNeverAskedTest(unittest.TestCase):
+    def test_an_unsure_guide_pick_is_no_guide_decided_by_code_never_a_card(self):
+        import json
+        from unittest.mock import Mock
+        from harness.judgements import Judgements
+        with tempfile.TemporaryDirectory() as folder:
+            classifier = Mock(); classifier.ask.return_value = {'answer': None, 'confidence': .4, 'abstained': True}
+            paperwork = Mock(); paperwork.data = Path(folder); paperwork.requests = {}
+            result = Judgements(paperwork, classifier).decide('r', 'applicable_guide', ['add a habit', ['python', 'planning']])
+            self.assertIsNone(result['answer']); self.assertNotIn('choice', result); paperwork.choice_pending.assert_not_called()
+            rows = [json.loads(line) for line in (Path(folder) / 'decisions.jsonl').read_text().splitlines()]
+            self.assertEqual((rows[-1]['who'], rows[-1]['answer']), ('code', 'none'), 'recorded as an automatic decision')
+            classifier.ask.return_value = {'answer': 'python', 'confidence': .99, 'abstained': False}
+            self.assertEqual(Judgements(paperwork, classifier).decide('r', 'applicable_guide', ['add a habit', ['python']])['answer'], 'python')
 
 
 if __name__ == '__main__':
