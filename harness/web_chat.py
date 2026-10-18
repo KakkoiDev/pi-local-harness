@@ -546,7 +546,7 @@ class WebChat:
         wake-ups). Returns Gate's result, or None when the request had already ended or paused."""
         ledger=getattr(self,'ledger',None)
         if not ledger or request not in ledger.paperwork.requests:return None
-        try:return ledger.end_request(request,review=False)
+        try:return ledger.end_request(request,review=False,stopped=True)  # task 324: the task stays in progress
         except Exception as error:
             print(f'Could not end the request {request}: {error!r}',flush=True);ledger.paperwork.requests.pop(request,None);return None
     def execute_job(self, job, emit):

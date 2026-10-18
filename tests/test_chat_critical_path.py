@@ -199,5 +199,27 @@ class GuideNeverAskedTest(unittest.TestCase):
             self.assertEqual(Judgements(paperwork, classifier).decide('r', 'applicable_guide', ['add a habit', ['python']])['answer'], 'python')
 
 
+
+class StopKeepsTheTaskTest(unittest.TestCase):
+    """Live finding 17: after Stop, every call of the next request was refused "No approved task is in progress"."""
+    def test_a_stopped_request_leaves_its_task_in_progress_and_the_harness_notes_do_not_change_the_plan(self):
+        from gate.paperwork import Paperwork
+        from gate.protocol import Protocol
+        from harness.documents import DocumentStore
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); base = Path(temp.name).resolve(); data = base / 'data'; data.mkdir()
+        store = DocumentStore(data); root = Path(store.project_path(store.create_project('Probe', str(base), 'empty')))
+        roadmap = root / 'ROADMAP.md'; roadmap.write_text(roadmap.read_text().replace('Describe what we are building.', 'Count clicks.') + '- [ ] [002-Count](tasks/002-count.md)\n')
+        (root / 'tasks/002-count.md').write_text('# 002: Count\n\nKind: code\nFiles: counter.py\n\nDone when: Counts.\n\n- [ ] Red: a test fails for this change.\n- [ ] Green: the test passes with this change.\n\n## Decisions\n\n')
+        paper = Paperwork(Protocol(), data=data); paper.projects = store; paths = ['tasks/002-count.md']
+        paper.plan_state(root, {'tasks': paths, 'pending': True, 'digest': paper.plan_digest(root, paths)}); paper.start_building(root)
+        paper.start('job1', str(root), 'Build the approved task.'); (root / 'counter.py').write_text('x = 1\n')
+        result = paper.end('job1', review=False, stopped=True)
+        self.assertEqual(result['outcome'], 'not verified'); self.assertNotIn('check_in', result, 'no check-in for a stop')
+        self.assertIn('Not verified at', (root / paths[0]).read_text(), 'the harness noted it in the task')
+        self.assertTrue(paper.active_scope(root), 'the task is still in progress')
+        (root / paths[0]).write_text((root / paths[0]).read_text() + '- Colour?: Red (chosen 2026-10-18T10:00:00+09:00)\n')
+        self.assertTrue(paper.active_scope(root), 'a decision the harness records is not a change of the plan')
+
+
 if __name__ == '__main__':
     unittest.main()

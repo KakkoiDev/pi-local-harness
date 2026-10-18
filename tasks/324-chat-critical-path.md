@@ -44,6 +44,9 @@ is docs/reviews/2026-10-18-chat-critical-path-audit.md; stories US-200 to US-219
   never blocks writes (G-017); it is settled ("its request ended"). Unit (test_person_controls).
 - [x] 16. Gate's scope question mid-request pauses the request (Waiting for you), the card survives a reload, Keep Out
   and Keep the Plan work, the chat goes on (US-208). Text Pi writes after a saved card still shows live.
+- [x] 17. Stop during an approved task keeps it in progress: a stopped request gets no check-in, the harness's own
+  end-of-request notes and recorded Decisions no longer change the plan's digest (a digest saved before is accepted),
+  and a refusal while a check-in waits names Retry Task; a tool that writes nothing is refused "Not run" (US-209).
 
 ## Checks
 - [ ] Workflow verification and all browser suites pass; the audit is written.

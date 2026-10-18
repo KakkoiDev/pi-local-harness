@@ -378,7 +378,7 @@ class Paperwork:
             available=(plan.get('tasks',[]) if not plan.get('finished') else [])+plan.get('waiting',[])
             if selected is None:selected=available
             if not isinstance(selected,list) or not selected or len(set(selected))!=len(selected) or any(path not in available for path in selected):raise ValueError('Choose at least one task from the waiting plan.')
-            if plan.get('pending') and plan.get('digest')!=self.plan_digest(root,plan['tasks']):raise ValueError('The plan changed. Propose it again before approval.')
+            if plan.get('pending') and not self.same_plan(root,plan['tasks'],plan.get('digest')):raise ValueError('The plan changed. Propose it again before approval.')
             selected=[path for path in available if path in selected]
             plan.update(tasks=selected,waiting=[path for path in available if path not in selected],pending=True,digest=self.plan_digest(root,selected))
             self.plan_state(root,plan)
@@ -427,9 +427,14 @@ class Paperwork:
         try: text = path.read_text(encoding='utf-8')
         except OSError: return ''
         if not re.search(r'^Plan approved: (?:chosen|auto) ', text, re.M): return ''
-        return text if plan.get('digest') == self.plan_digest(root, tasks) else ''
+        return text if self.same_plan(root, tasks, plan.get('digest')) else ''
 
-    def plan_digest(self, root, tasks):
+    def same_plan(self, root, tasks, saved):
+        """Whether the saved digest still names this plan. A digest saved before task 324 (when the Decisions section
+        counted) is accepted too, so a plan in progress survives the update, including one a Stop had broken (its note)."""
+        return bool(saved) and saved in (self.plan_digest(root, tasks), self.plan_digest(root, tasks, legacy=True))
+
+    def plan_digest(self, root, tasks, legacy=False):
         # Progress, approval stamps and the harness's roadmap ticks do not change the approved scope.
         texts=[]
         for path in ['ROADMAP.md',*tasks]:
@@ -443,6 +448,11 @@ class Paperwork:
                 text=re.sub(r'^## Last audit\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
                 text=re.sub(r'^(- \[[ x]\] [^:\n]+):.*$',r'\1',text,flags=re.M)
             text=re.sub(r'^Plan approved:.*\n?', '', text, flags=re.M)
+            # Task 324 (live: after Stop, "No approved task is in progress" refused every call): the harness's own notes
+            # when a request ends ("Not verified at …", "Plan incomplete (G-014) …") and the Decisions it records (G-017:
+            # only the harness writes there) are paperwork, not the approved scope.
+            text=re.sub(r'^(?:Not verified at |Plan incomplete \(G-014\): ).*The task stays open\.\s*$','',text,flags=re.M)
+            if not legacy:text=re.sub(r'^## Decisions\s*\n.*?(?=^## |\Z)','',text,flags=re.M|re.S)
             text=re.sub(r'- \[[ x]\]', '- []', text)
             texts.append('\n'.join(line.rstrip() for line in text.splitlines() if line.strip()))
         return hashlib.sha256('\n'.join(texts).encode()).hexdigest()
@@ -546,7 +556,7 @@ class Paperwork:
             item=self.requests[request];root=item['root'];plan=self.plan_state(root)
             if not plan.get('pending'):raise ValueError('No plan is waiting for approval.')
             if state=='auto' and self.phases.get(root)['phase']!='planning':raise ValueError('Run on its own can only move Planning to Implementation.')
-            if plan['digest']!=self.plan_digest(root,plan['tasks']):raise ValueError('The plan changed. Propose it again before approval.')
+            if not self.same_plan(root,plan['tasks'],plan['digest']):raise ValueError('The plan changed. Propose it again before approval.')
             for path in plan['tasks']:
                 file=root/path;text=re.sub(r'^Plan approved:.*\n?', '',file.read_text(encoding='utf-8'),flags=re.M)
                 lines=text.splitlines();lines.insert(1,'\nPlan approved: '+state+' '+datetime.now().astimezone().isoformat(timespec='seconds'))
@@ -646,11 +656,13 @@ class Paperwork:
                     if '- [x] Green:' in text: self.write(item, re.sub(r'- \[x\] Green: .*', line.replace('\\', r'\\'), text, count=1))
                     else: self.progress(item, line[6:])
 
-    def end(self, request, review=True):
+    def end(self, request, review=True, stopped=False):
+        """stopped: the person stopped the request, or its Pi died (task 324): the task stays in progress, with no
+        check-in, so the next request (Continue, Retry, a new message, an answer) goes on with it."""
         with self.lock:
             item=self.requests.get(request)
             result=self._end(request,review)
-            if item and result and result.get('outcome')=='not verified' and item.get('planned'):
+            if item and result and result.get('outcome')=='not verified' and item.get('planned') and not stopped:
                 # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
                 card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks']),**({'outside':result['outside']} if result.get('outside') else {}),'title':self.subject(item).rsplit(' (task ',1)[0]}

@@ -172,8 +172,8 @@ class ProposalLedger:
         """The person's messages a question interrupted, for the request that answers it (once)."""
         return list((self.paperwork.requests.get(request) or {}).get('held') or [])
 
-    def end_request(self, request, review=True):
-        result = self.paperwork.end(request,review=review)
+    def end_request(self, request, review=True, stopped=False):
+        result = self.paperwork.end(request,review=review,stopped=stopped)
         if result and result.get('outcome') not in ('committed', 'nothing changed', 'continue'): self.report('paperwork', f"{result['outcome']}: {result.get('reason', '')}", request=request, task=result.get('task'))
         return result
 
@@ -252,6 +252,10 @@ class ProposalLedger:
                     audit=bool(re.fullmatch(r'tasks/\d+-ready-to-publish\.md',active)) and len(words)<=1 and (Path(cwd or '.')/Path(words[0] if words else '.')).resolve()==root
                 except (ValueError,KeyError,IndexError):pass
             reason = None if phase=='implementation' and audit else refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+            if reason and 'No approved task is in progress' in reason and self.paperwork.plan_state(root).get('check_in'):
+                # Task 324: the task waits for the person's check-in; say so, and the one control that goes on.
+                number=(self.paperwork.plan_state(root).get('card') or {}).get('number')
+                reason=f"{reason.split(':',1)[0]}: task {number or ''} waits for the person's check-in. Stop here: the person chooses Retry Task (or Accept) on its card, then the task goes on.".replace('task  ','the task ')
             if reason and phase=='implementation' and task and pi_tool in ('write','edit') and request in self.paperwork.requests:
                 from .scope import widen  # round 12 (task 261): a file outside the task is the person's question
                 asked=widen(self.paperwork,request,root,args,cwd,task,assistant_text)

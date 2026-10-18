@@ -15,7 +15,7 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
 | Repeated "Instruction drift: the completed response omitted [CANARY]" recoveries | `missingCanary` required the literal `[CANARY]`; a wrapped marker counted as drift, so the harness compacted and re-asked answers that had followed the instruction. Each recovery costs a compaction and a full re-ask. | The drift detector accepts the wrapped forms; it still reads the raw text (nothing is stripped before it). |
 | "Loop detected" recoveries | Working as designed. Checked that a recovery cannot wedge a request: the abort ends the turn (`agent_end`, so the watchdog waits for the harness), compaction is not "the model" (`compaction_start`…`compaction_end`), and the re-asked turn is watched again from `agent_start`. The hour limit still bounds everything. |
 
-## What was tested (stories US-200 to US-208, all passing)
+## What was tested (stories US-200 to US-209, all passing)
 
 - **US-200** the owner's scenario: a tool finishes, the model stalls; Planning chosen; a message queued behind it.
   The stalled request fails after 3 s (scratch setting) with the CutLine and Retry; the Planning message runs.
@@ -34,6 +34,7 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
   plan card arrives without typing; an empty chat starts nothing; Implementation with an approved task starts it.
 - **US-208** Gate's scope question mid-request: Waiting for you, the card after a reload, Keep Out, Keep the Plan, and
   the chat goes on.
+- **US-209** Stop during an approved task, then a new request: it writes the task's files and reaches the check-in.
 - **US-207** a folder with spaces and capitals ("Habit Tracker"): plan, build, sandboxed test runs, Gate's commit,
   the Preview.
 - Unit: `tests/test_chat_critical_path.py` (watchdog, next request after a stall, a thinking model and long tool work
@@ -72,6 +73,12 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
     waiting for the person" and Pi looped. Guide choice no longer asks (item 4), and G-017 no longer blocks on a
     system-owned question whose request has ended, or on a judgement System 1 decides itself: it is settled. With that
     out of the way, Gate's scope question for a file outside the task appears and pauses the request (US-208).
+15. **After Stop, every call was refused "No approved task is in progress"** (live finding 17). Two causes: the Stop
+    ended the request through Gate's normal end, which wrote "Not verified at …" into the task file and raised a
+    check-in; the note changed the plan's digest (the approved scope), and the check-in made the task "not in
+    progress". A stop now keeps the task in progress (no check-in), the harness's end notes and its recorded
+    Decisions are no longer part of the digest (a digest saved before is still accepted, so plans in progress
+    survive the update), and when a check-in does wait, Gate's refusal says to use Retry Task on its card (US-209).
 14. **Live text after a saved card** was hidden while the request ran on; it shows now.
 12. `ask_choices`' description tells small models never to write questions with options in prose.
 
@@ -99,5 +106,7 @@ fake Pi; no model, no network, no personal data. No transcript content is quoted
    no longer show it.
 4. Answer a question card the moment it appears: it settles once; after Pi finishes, Activity shows the request
    Completed (not Waiting for you) and your answer runs next.
-5. Press Stop during an answer: the page updates at once and keeps the partial answer with "Stopped by you".
-6. With Ollama quit, send a message: "Ollama is not answering (…). Start Ollama …, then Retry."
+5. In Implementation, press Stop while Pi builds a task, then send "continue": the task goes on and writes its
+   files (no "No approved task is in progress").
+6. Press Stop during an answer: the page updates at once and keeps the partial answer with "Stopped by you".
+7. With Ollama quit, send a message: "Ollama is not answering (…). Start Ollama …, then Retry."

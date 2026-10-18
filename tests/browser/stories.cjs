@@ -1796,6 +1796,25 @@ story('US-208', 'Gate’s question mid-request pauses it like a card of Pi’s: 
   assert.notEqual((await answered(t, await say(t, 'What is left to do?'))).status, 'running');
 });
 
+story('US-209', 'Stop during an approved task, then go on: the task is still in progress and the next request can write its files', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Stop and go');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const first = await say(t, 'Build the approved task. TEST_SCRIPT=write-then-wait');
+  for (let i = 0; i < 100 && !exists(root, 'counter.py'); i++) await page.waitForTimeout(100);
+  await t.bench.job(first, ['running']);
+  await page.locator('#stop').click();
+  assert.equal((await answered(t, first)).status, 'stopped');
+  const next = await say(t, 'Build the approved task. TEST_SCRIPT=build-counter');
+  const job = await answered(t, next);
+  assert.equal(job.status, 'completed', job.progress);
+  const events = (await t.bench.api('/api/gate')).events.filter(event => event.outcome === 'REVISE' && /No approved task is in progress/.test(event.reason || ''));
+  assert.deepEqual(events, [], 'no call was refused for want of an approved task');
+  assert.match(t.bench.read(root, 'counter.py'), /def click/, 'the task went on and wrote its file');
+  await checkIn(t).waitFor();
+  assert.equal((await chatJobs(t, project)).filter(item => ['queued', 'running'].includes(item.status)).length, 0);
+});
+
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
 
 // -- the run -----------------------------------------------------------------------------------------------------

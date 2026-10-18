@@ -1,0 +1,11 @@
+{
+ "steps": [
+  {
+   "write": "counter.py",
+   "content": "class Counter:\n    def __init__(self):\n        self.value = 0\n"
+  },
+  {
+   "hang": 60
+  }
+ ]
+}
