@@ -1,5 +1,43 @@
 {
  "exact": {
+  "Theme…": "テーマ…",
+  "Here are the colour values.": "色の値です。",
+  "Here are the chart colours.": "グラフの色です。",
+  "Here is the corner radius.": "角丸です。",
+  "Here is the spacing.": "余白です。",
+  "Here are the fonts.": "フォントです。",
+  "Theme": "テーマ",
+  "Colours": "色",
+  "Chart colours": "グラフの色",
+  "Corner radius": "角丸",
+  "Spacing": "余白",
+  "Fonts": "フォント",
+  "Light": "ライト",
+  "Dark": "ダーク",
+  "Light or dark": "ライトかダーク",
+  "Token": "トークン",
+  "Text on it": "その上の文字",
+  "Reset": "リセット",
+  "Discard": "破棄",
+  "Open Again": "もう一度開く",
+  "closed": "閉じました",
+  "The Preview shows light.": "プレビューはライト表示です。",
+  "The Preview shows dark.": "プレビューはダーク表示です。",
+  "Changes show in the Preview as you make them.": "変更はその場でプレビューに表示されます。",
+  "Not saved. The Preview shows the change.": "未保存です。プレビューには変更が表示されています。",
+  "Discarded. The Preview is back to the saved theme.": "破棄しました。プレビューは保存済みのテーマに戻りました。",
+  "Saving, and downloading the font…": "保存して、フォントをダウンロードしています…",
+  "This project has no theme file.": "このプロジェクトにはテーマファイルがありません。",
+  "Open the Theme Panel": "テーマパネルを開く",
+  "The theme panel can change this without Pi:": "テーマパネルなら Pi なしで変更できます：",
+  "Body font": "本文のフォント",
+  "Headings": "見出し",
+  "Same as the body font": "本文と同じフォント",
+  "Search Google Fonts": "Google Fonts を検索",
+  "The font list is not available offline yet.": "フォントの一覧はまだオフラインでは使えません。",
+  "No font has that name.": "その名前のフォントはありません。",
+  "Save downloads the chosen fonts into the project (static/fonts, with their licence): the app never loads them from Google.": "保存すると、選んだフォントがライセンスと一緒にプロジェクト（static/fonts）にダウンロードされます。アプリが Google から読み込むことはありません。",
+  "Nothing to save: the theme is as it was saved.": "保存するものはありません：テーマは保存したときのままです。",
   "Choose Planning to lay out tasks.": "タスクを作成するには計画を選んでください。",
   "Provide a goal and task content.": "目標とタスクの内容を指定してください。",
   "Choose code, docs or chore for the task kind.": "タスクの種類は code、docs、chore から選んでください。",
@@ -2908,6 +2946,8 @@
   [
    "Not run: {folder} is not a project, so Pi can read here but not change anything. Register the folder as a project in the workbench, or add a ROADMAP.md, then plan the change.",
    "実行しませんでした：{folder} はプロジェクトではないため、Pi はここで読み取りはできますが変更はできません。ワークベンチでこのフォルダをプロジェクトとして登録するか、ROADMAP.md を追加してから、変更を計画してください。"
-  ]
+  ],
+  ["Theme saved: {names}.", "テーマを保存しました：{names}。"],
+  ["Theme: {group}", "テーマ：{group}"]
  ]
 }

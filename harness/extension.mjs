@@ -22,6 +22,7 @@ import { installChoices } from './choices.mjs';
 import { installPlanning } from './planning.mjs';
 import {installSearch} from './web-search.mjs';
 import {installPhases} from './phases.mjs';
+import {installTheme} from './theme.mjs';
 import {checkIn} from './terminal-planning.mjs';
 import { installTaskBox, boxProposal } from './task-box.mjs';
 import { report } from './reports.mjs';
@@ -174,6 +175,7 @@ export default function harness(pi, dependencies = {}) {
   installConsole(extras, {phase:ctx=>call('/phase',{cwd:ctx?.cwd||root}), auto:automatic, recordAuto:action=>call('/auto/action',{request:requestId,...action}), ports: () => ports, seen: () => footer.markAllSeen() }); // /harness, /status, /gate … (plan 158)
   installMusic(extras);
   installPhases(pi,{call});
+  installTheme(pi);  // task 312: /theme prints the app's theme tokens (the panel is the workbench's)
   installSearch(extras,{call:(path,data)=>call(path,{...data,request:requestId})});
   installTaskBox(extras, { cwd: () => context?.cwd || root }); // task 183: tick a box by its label
   // L-008: a real browser to reproduce and measure UI bugs; a scratch workbench, never the person's own (its port is refused).

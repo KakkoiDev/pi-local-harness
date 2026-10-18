@@ -16,9 +16,11 @@ def git(root, *args, check=True):
 def request_commit(root, commit):
     """(full id, title) of a commit the harness made, or ValueError."""
     if not re.fullmatch(r'[0-9a-f]{7,40}', str(commit)): raise ValueError('not a request Pi Workbench committed')
-    found = git(root, 'log', '-1', '--format=%H%x00%an%x00%s', commit, '--', check=False)
-    full, author, title = (found.stdout.strip().split('\0') + ['', '', ''])[:3] if found.returncode == 0 else ('', '', '')
-    if author != AUTHOR: raise ValueError(f'{commit} is not a request Pi Workbench committed: only those can be undone here')
+    found = git(root, 'log', '-1', '--format=%H%x00%an%x00%s%x00%b', commit, '--', check=False)
+    full, author, title, body = (found.stdout.strip().split('\0') + ['', '', '', ''])[:4] if found.returncode == 0 else ('', '', '', '')
+    # Task 312: a theme the person saved in the panel is their own commit, marked so the same Undo can take it back.
+    theme = title.startswith('Theme: ') and re.search(r'^Workbench-Change: theme$', body, re.M)
+    if author != AUTHOR and not theme: raise ValueError(f'{commit} is not a request Pi Workbench committed: only those can be undone here')
     return full, title
 
 

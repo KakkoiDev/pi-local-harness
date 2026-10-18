@@ -491,3 +491,42 @@ body[data-view="activity"] .window-preview,body[data-view="gate"] .window-previe
  #phase-menu .pw-option{min-height:64px;grid-template-columns:22px 1fr}
  #phase-menu .pw-radio{width:22px;height:22px}
 }
+
+/* Task 312: the theme panel, in the 1-bit parts until the designer's round 12 part D lands. Everything is a .pw-theme__*
+   class on a pw-card, so the drawings can restyle it without touching js/theme-panel.mjs. The swatches are the app's
+   colours (the native colour inputs); the panel around them stays black and white. */
+.pw-workbench-reply{margin:0}
+.pw-theme{max-width:720px}
+.pw-theme__file{font-size:12px}
+.pw-theme__shows{margin:0;font-size:13px}
+.pw-theme__modes{display:none}
+.pw-theme__table{display:flex;flex-direction:column}
+.pw-theme__row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,1.2fr) minmax(0,1.2fr);gap:8px;padding:6px 0;border-top:1px solid var(--wash);align-items:start}
+.pw-theme__row--head{font-size:13px;border-top:0;padding-top:0}
+.pw-theme__name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pw-theme__name .pw-mono{font-size:12px;color:var(--ink-disabled);overflow-wrap:anywhere}
+.pw-theme__side{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pw-theme__colour{display:flex;align-items:center;gap:4px;min-width:0}
+.pw-theme__colour input[type=color]{width:32px;height:28px;padding:0;border:1px solid var(--ink);background:var(--paper);flex:none}
+.pw-theme__colour .pw-field{font-size:12px;min-height:28px;padding:2px 6px;min-width:0;flex:1}
+.pw-theme__colour[data-changed] .pw-field{font-weight:600}
+.pw-theme__colour .pw-btn{min-height:26px;padding:0 6px;font-size:13px}
+.pw-theme__caption{font-size:12px}
+.pw-theme__contrast{margin:0;font-size:12px}
+.pw-theme__contrast[data-pass=false]{text-decoration:underline dotted}
+.pw-theme__slider{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pw-theme__slider input[type=range]{flex:1 1 200px;accent-color:var(--ink)}
+.pw-theme__value{font-size:14px}
+.pw-theme__samples{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.pw-theme__sample{border:1px solid var(--ink);padding:6px 10px;font-size:13px;background:var(--paper)}
+.pw-theme__sample--field{box-shadow:var(--shadow-field);min-width:120px}
+.pw-theme__font{display:flex;flex-direction:column;gap:6px;padding:6px 0;border-top:1px solid var(--wash)}
+.pw-theme__fonts{display:flex;flex-direction:column;max-height:220px;overflow:auto}
+.pw-theme__fonts:empty{display:none}
+.pw-theme__specimen{margin:0;font-size:18px}
+@media(max-width:760px){
+ .pw-theme__modes{display:flex}
+ .pw-theme__row{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}
+ .pw-theme[data-mode=light] .pw-theme__side[data-mode=dark],.pw-theme[data-mode=dark] .pw-theme__side[data-mode=light]{display:none}
+ .pw-theme__colour input[type=color]{width:44px;height:44px}
+}

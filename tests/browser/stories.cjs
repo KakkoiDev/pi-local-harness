@@ -512,6 +512,75 @@ story('US-060', 'preview a page Pi built, at phone and tablet sizes; Open on Pho
   assert.match(phone.problem, /Phone access is off/);
 });
 
+// -- Theme panel (task 312) ----------------------------------------------------------------------------------------
+/** The app in the Preview frame, once its page has the theme helper (the Preview's proxy adds it). */
+async function appFrame(t) {
+  const end = Date.now() + 30000;
+  while (Date.now() < end) {
+    const frame = t.page.frames().find(item => item !== t.page.mainFrame() && /^http:\/\/127\.0\.0\.1:\d+\//.test(item.url()));
+    if (frame && await frame.evaluate(path => Boolean(document.querySelector(`script[src="${path}"]`)), '/__pi-workbench/theme.js').catch(() => false)) return frame;
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  const status = await t.bench.api('/api/preview?project=' + await t.page.evaluate(() => location.pathname.split('/')[2])).catch(error => error.message);
+  throw new Error(`The Preview never showed the app with the theme helper: ${JSON.stringify(status)}; frames ${t.page.frames().map(item => item.url()).join(', ')}`);
+}
+const token = (frame, name) => frame.evaluate(name => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), name);
+async function tokenIs(t, name, value) {
+  const end = Date.now() + 15000; let seen = '';
+  while (Date.now() < end) { seen = await token(await appFrame(t), name).catch(() => ''); if (seen === value) return; await new Promise(resolve => setTimeout(resolve, 200)); }
+  throw new Error(`${name} in the Preview is “${seen}”, not “${value}”`);
+}
+
+story('US-116', 'adjust the site’s colours: the panel opens without Pi, a picker restyles the Preview, Save commits, Undo restores', async t => {
+  // The App-with-no-server starter builds its styles with `uv tool run pytailwindcss` (a download, US-066): a stand-in
+  // uv on the services' PATH copies Basecoat's tokens into static/app.css and lets the watch wait.
+  fs.writeFileSync(join(t.directory, 'uv'), '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\nmkdir -p static && cat vendor/basecoat/css/base/base.css > static/app.css\n', { mode: 0o755 });
+  await t.bench.restart(); await t.reopen();
+  const { page } = t;
+  const { root } = await newProject(t, 'Colours', 'static');
+  const original = t.bench.read(root, 'styles', 'input.css');
+  // The first project with an app opens its Preview by itself (P_Answers); otherwise the person opens it.
+  const opened = await page.waitForFunction(() => document.querySelector('#preview-toggle').getAttribute('aria-pressed') === 'true', null, { timeout: 3000 }).then(() => true, () => false);
+  if (!opened) await page.locator('#preview-toggle').click();
+  await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
+  await page.locator('#prompt').fill('I want to adjust the site’s colours');
+  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await page.locator('#send').click();
+  assert.equal((await (await answered).json()).theme, 'colours');
+  const panel = page.locator('.pw-theme[data-group="colours"]'); await panel.locator('.pw-theme__row[data-token="primary"]').waitFor();
+  assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
+  assert.equal(decisions(t).at(-1).kind, 'theme_panel'); assert.equal(decisions(t).at(-1).who, 'code');
+  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench/);
+  assert.match(await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__contrast').first().textContent(), /✓ AA/);
+  await panel.locator('.pw-theme__row[data-token="primary"] .pw-theme__side[data-mode="light"] input[type=color]').first().fill('#ff0000');
+  await tokenIs(t, '--primary', '#ff0000');
+  assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'nothing is written before Save');
+  await panel.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.locator('.pw-workbench-reply', { hasText: 'Theme saved: primary.' }).waitFor();
+  assert.match(commits(t, root)[0], /\|Theme: primary$/, 'the person’s own commit');
+  assert.match(t.bench.read(root, 'styles', 'input.css'), /\/\* theme: edited in the workbench \*\/\n:root \{\n {2}--primary: #ff0000;\n\}/);
+  await tokenIs(t, '--primary', '#ff0000');
+  const row = page.locator('.pw-msg', { hasText: 'Theme saved: primary.' }).locator('.pw-done'); await row.getByText('Undo This Request…', { exact: true }).click();
+  await page.locator('#alert-message').filter({ hasText: /^Undo “/ }).waitFor(); await page.locator('#alert-danger').click();
+  await page.waitForFunction(() => [...document.querySelectorAll('.pw-done__head')].some(head => /Undone/.test(head.textContent)));
+  assert.equal(t.bench.read(root, 'styles', 'input.css'), original, 'Undo restores the file');
+  await tokenIs(t, '--primary', 'oklch(0.205 0 0)');
+});
+
+story('US-117', 'ask in Japanese: サイトの色を調整したい opens the panel; Project › Theme… too; a project without the starter’s CSS says so', async t => {
+  const { page } = t;
+  await newProject(t, 'Plain');
+  await page.locator('#prompt').fill('サイトの色を調整したい');
+  const answered = page.waitForResponse(response => response.url().endsWith('/api/jobs/create'));
+  await page.locator('#send').click();
+  assert.equal((await (await answered).json()).theme, 'colours');
+  await page.locator('.pw-theme', { hasText: 'This project has no theme file.' }).waitFor();
+  assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="theme"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('.pw-theme').length === 2);
+  assert.equal((await fetch(t.base + '/api/theme/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project: 'x' }) })).status, 403, 'Save is the person’s control only');
+});
+
 // -- Recovery -----------------------------------------------------------------------------------------------------
 story('US-070', 'Pi crashes mid-request: Activity keeps the failure and why, and Ask Pi to Retry… queues it again', async t => {
   const { page } = t;

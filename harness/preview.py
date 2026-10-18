@@ -72,6 +72,67 @@ def answers(port, timeout=2):
     except (OSError, http.client.HTTPException): return False
 
 
+HELPER = Path(__file__).with_name('theme-helper.js')
+HELPER_PATH = '/__pi-workbench/theme.js'
+HOP = {'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailer', 'trailers', 'transfer-encoding', 'upgrade'}
+
+
+def inject(page):
+    """The helper's script tag at the top of an HTML page: in <head>, else after <html> or the doctype (never before
+    the doctype, which would put the page in quirks mode)."""
+    tag = f'<script src="{HELPER_PATH}"></script>'.encode()
+    for pattern in (rb'<head\b[^>]*>', rb'<html\b[^>]*>', rb'<!doctype[^>]*>'):
+        found = re.search(pattern, page, re.I)
+        if found: return page[:found.end()] + tag + page[found.end():]
+    return tag + page
+
+
+class Frame:
+    """Task 312: what the Preview frame loads. The app is another origin, so the theme panel reaches it only by
+    postMessage; this small proxy in front of the app adds the theme helper (harness/theme-helper.js) to its HTML pages
+    and passes everything else through as it is. Only for the workbench's own frame: Open on Phone serves the app itself."""
+    def __init__(self, port, origins):
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        import json
+        from harness.theme import ALLOWED
+        helper = HELPER.read_text(encoding='utf-8').replace('__ORIGINS__', json.dumps(list(origins))).replace('__TOKENS__', json.dumps(list(ALLOWED))).encode()
+
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version = 'HTTP/1.0'  # one response per connection: a stream (server-sent events) ends when the app's does
+            def log_message(self, *args): pass
+            def relay(self):
+                if self.path.split('?', 1)[0] == HELPER_PATH:
+                    self.send_response(200); self.send_header('Content-Type', 'text/javascript; charset=utf-8'); self.send_header('Content-Length', str(len(helper)))
+                    self.send_header('Cache-Control', 'no-store'); self.send_header('X-Content-Type-Options', 'nosniff'); self.end_headers(); self.wfile.write(helper); return
+                size = int(self.headers.get('Content-Length') or 0)
+                body = self.rfile.read(size) if size > 0 else None
+                headers = {key: value for key, value in self.headers.items() if key.lower() not in HOP | {'accept-encoding', 'content-length'}}  # plain bytes back, so the page can be read
+                connection = http.client.HTTPConnection('127.0.0.1', port, timeout=300)
+                try:
+                    connection.request(self.command, self.path, body=body, headers=headers); response = connection.getresponse()
+                except (OSError, http.client.HTTPException):
+                    connection.close(); self.send_error(502, 'The app did not answer'); return
+                try:
+                    page = 'text/html' in (response.getheader('Content-Type') or '') and not response.getheader('Content-Encoding') and self.command != 'HEAD'
+                    self.send_response_only(response.status, response.reason)
+                    for key, value in response.getheaders():
+                        if key.lower() not in HOP and not (page and key.lower() == 'content-length'): self.send_header(key, value)
+                    if page:
+                        content = inject(response.read()); self.send_header('Content-Length', str(len(content))); self.end_headers(); self.wfile.write(content); return
+                    self.end_headers()
+                    while chunk := response.read1(65536): self.wfile.write(chunk); self.wfile.flush()
+                except (OSError, http.client.HTTPException): pass
+                finally: connection.close()
+            do_GET = do_POST = do_PUT = do_PATCH = do_DELETE = do_HEAD = do_OPTIONS = relay
+
+        self.server = ThreadingHTTPServer(('127.0.0.1', 0), Handler); self.server.daemon_threads = True
+        self.port = self.server.server_address[1]
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+
+    def close(self):
+        self.server.shutdown(); self.server.server_close()
+
+
 PHONE_PORT = 8443  # the app's own tailnet address while it runs (P_OnPhone); one app at a time
 
 
@@ -85,11 +146,13 @@ class App:
         self.process, self.port, self.log, self.state, self.error, self.first, self.note = process, port, log, 'starting', '', first, None
         self.phone, self.phone_url = None, ''
         self.terminal=False
+        self.frame=None  # the theme helper's proxy (Frame), for the workbench's own Preview frame
 
 
 class Previews:
-    def __init__(self, folder, command=run_command, limit=START_LIMIT, serve=tailnet_serve):
+    def __init__(self, folder, command=run_command, limit=START_LIMIT, serve=tailnet_serve, origins=()):
         self.folder, self.command, self.limit, self.serve = Path(folder), command, limit, serve
+        self.origins = tuple(origins)  # task 312: the workbench page's origins; with them the frame loads through Frame
         self.apps, self.lock = {}, threading.RLock()
 
     def status(self, project, folder=None):
@@ -99,7 +162,7 @@ class Previews:
         terminal=bool(folder and (Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()) if not app else app.terminal
         extra={'terminal':True,'command':'python -m app.tui'} if terminal else {}
         if not app: return ({'state': 'none', 'kind': 'app',**extra} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
-        found = {**extra,'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.port}/', 'first': app.first}
+        found = {**extra,'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.frame.port if app.frame else app.port}/', 'first': app.first}
         if app.state == 'starting':
             lines = [line for line in app.log.read_text(encoding='utf-8', errors='replace').splitlines() if line.strip()] if app.log.exists() else []
             if lines: found['last'] = lines[-1]
@@ -141,6 +204,7 @@ class Previews:
             app = self.apps.get(project)
             if app and app.state in ('starting', 'running'): return self.status(project)
             if app and app.process.poll() is None: app.state = 'none'; self.end_phone(app); self.end(app)  # Start Again on an app that hangs under its reloader
+            if app: self.end_frame(app)  # the stopped app's proxy goes with it
             port = free_port(); command = self.command(folder, port)
             if not command: return no_app(folder)
             self.folder.mkdir(parents=True, exist_ok=True)
@@ -155,6 +219,7 @@ class Previews:
             first = (Path(folder) / 'pyproject.toml').is_file() and not (Path(folder) / '.venv').exists()
             self.apps[project] = app = App(process, port, log, first)
             app.terminal=(Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()
+            if self.origins and not app.terminal: app.frame = Frame(port, self.origins)  # a terminal app speaks WebSocket: no helper there
         threading.Thread(target=self.watch, args=(app,), daemon=True).start()
         return self.status(project)
 
@@ -198,8 +263,12 @@ class Previews:
 
     def stop(self, project):
         with self.lock: app = self.apps.pop(project, None)
-        if app: app.state = 'none'; self.end_phone(app); self.end(app)
+        if app: app.state = 'none'; self.end_phone(app); self.end(app); self.end_frame(app)
         return {'state': 'none'}
+
+    @staticmethod
+    def end_frame(app):
+        if app.frame: app.frame.close(); app.frame = None
 
     def close(self):
         for project in list(self.apps): self.stop(project)

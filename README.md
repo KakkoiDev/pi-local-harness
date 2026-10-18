@@ -19,6 +19,9 @@ Pi's work. When the local model makes a mistake, the workbench catches it.
   terminal app, or an empty folder. Pi knows each starter well, so it gets things right more often.
 - **See your app as you build it.** The Preview runs your app beside the chat. It can show phone, tablet and full
   sizes, in English or Japanese, and open the app on your phone.
+- **Tune your app's look by hand.** Ask "I want to adjust the site's colours" and a panel opens with the app's colours,
+  corner radius, spacing and fonts (any Google font, saved into the project). The Preview changes as you drag; Save
+  keeps it as your own change, and Undo takes it back.
 - **Write and review like in a document.** Plans and notes are Markdown files you edit as headings, lists and
   checkboxes. Select a passage to comment on it, or ask Pi about it.
 - **Stay safe.** Gate checks every command before Pi can run it. Nothing is ever deleted for good: files go to the
