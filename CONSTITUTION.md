@@ -140,6 +140,12 @@ chooses an online model or a search. Secrets never go into the repository, a cha
 
 **Enforced by:** G-003 (no catastrophic shell commands); the Trash (`PI_TRASH_DIR`); the tests' isolation.
 
+Generated media (music, and later visual assets) may be written in any phase, but only by the media tools, only into
+`assets/<kind>/<name>/` inside the project, and only as a new numbered revision; nothing is overwritten. (Added by the
+person, 2026-10-18.)
+
+**Enforced by:** gate/media.py (task 291).
+
 ## Changing this constitution
 
 Only the person changes it. A change names the articles it touches, and the plans and tasks that must follow.
