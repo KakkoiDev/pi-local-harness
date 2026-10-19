@@ -1,0 +1,35 @@
+# Flaky patterns in tests/browser/*.cjs today (task 330; tests/dogfood.py; rules after test-core's flaky_lint.py).
+# file<TAB>rule<TAB>the code around the hit. This list may only shrink: fix a hit (wait for the state), then delete its
+# line. A wait that must stay says why on its line: /* flaky-lint: allow <reason> */.
+tests/browser/conversation.cjs	wait	atus)) return job; await page.waitForTimeout(200); } throw new Error('reque
+tests/browser/conversation.cjs	wait	(job.status));i++) await page.waitForTimeout(200);
+tests/browser/conversation.cjs	wait	await page.waitForTimeout(800);
+tests/browser/conversation.cjs	wait	job.status)); i++) await page.waitForTimeout(200);
+tests/browser/conversation.cjs	wait	job.status)); i++) await page.waitForTimeout(200);
+tests/browser/conversation.cjs	wait	!sent.length; i++) await page.waitForTimeout(100);
+tests/browser/conversation.cjs	wait	job.status)); i++) await page.waitForTimeout(200);
+tests/browser/conversation.cjs	wait	!sent.length; i++) await page.waitForTimeout(100);
+tests/browser/conversation.cjs	wait	&& job.text); i++) await page.waitForTimeout(100);
+tests/browser/design.cjs	timer	ON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulf
+tests/browser/design.cjs	wait	await page.waitForTimeout(500);
+tests/browser/design.cjs	timer	e.route('**/api/model',route=>new Promise(resolve=>setTimeout(()=>resolve(route.fulfill({jso
+tests/browser/design.cjs	wait	await page.waitForTimeout(900);assert.equal(fs.readFileS
+tests/browser/design.cjs	wait	trolOrMeta+Enter');await page.waitForTimeout(600);
+tests/browser/design.cjs	wait	,'Stop dictating');await page.waitForTimeout(1200);await dictate.click();
+tests/browser/design.cjs	wait	=='running'))break;await page.waitForTimeout(250);}
+tests/browser/design.cjs	wait	await page.waitForTimeout(800);/* the status button foll
+tests/browser/design.cjs	wait	summary').click();await page.waitForTimeout(2600);/* a poll rebuilds the d
+tests/browser/stories.cjs	timer	await new Promise(resolve => setTimeout(resolve, 200));
+tests/browser/stories.cjs	timer	seen === value) return; await new Promise(resolve => setTimeout(resolve, 200)); }
+tests/browser/stories.cjs	timer	if (seen !== '#ff0000') await new Promise(resolve => setTimeout(resolve, 200)); }
+tests/browser/stories.cjs	timer	{ if (check()) return; await new Promise(resolve => setTimeout(resolve, 100)); }
+tests/browser/stories.cjs	wait	ss('Meta+Digit2'); await page.waitForTimeout(200);
+tests/browser/stories.cjs	wait	await t.page.waitForTimeout(200);
+tests/browser/stories.cjs	wait	).length < 3; i++) await page.waitForTimeout(200);
+tests/browser/stories.cjs	wait	&& job.text); i++) await page.waitForTimeout(100);
+tests/browser/stories.cjs	wait	await page.waitForTimeout(800);
+tests/browser/stories.cjs	wait	.'); if (!started) await page.waitForTimeout(100); }
+tests/browser/stories.cjs	wait	sk.'); if (!build) await page.waitForTimeout(100); }
+tests/browser/stories.cjs	wait	s.state)) break; await t.page.waitForTimeout(200); }
+tests/browser/stories.cjs	wait	counter.py'); i++) await page.waitForTimeout(100);
+tests/browser/workbench.cjs	timer	await new Promise(resolve => setTimeout(resolve, 150));

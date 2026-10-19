@@ -1307,7 +1307,7 @@ story('US-122', 'without Laya, a phase word gets the harness’s own notice unde
   await newProject(t, 'Notice');
   const id = await say(t, 'Explain the planning phase TEST_SCRIPT=say-planning'); await answered(t, id);
   await page.reload();
-  const notice = page.locator('#messages .pw-notice[role="note"]').last(); await notice.waitFor();
+  const notice = page.locator('#messages .pw-notice[role="note"]').filter({ hasText: 'Laya isn’t installed' }).last(); await notice.waitFor();  // task 330: wait for this notice, not whichever is last (flaky under load)
   assert.equal(await notice.locator('.pw-notice__who').textContent(), 'Harness', 'the harness speaks, not Pi');
   assert.equal(await notice.locator('.pw-notice__text').textContent(), 'Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.');
   assert.equal(await notice.evaluate(el => getComputedStyle(el).borderTopStyle), 'dotted');

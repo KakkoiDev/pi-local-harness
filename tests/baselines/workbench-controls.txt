@@ -1,0 +1,168 @@
+# Workbench controls without an e2e step today (task 330; tests/dogfood.py). This list may only shrink.
+# `uncovered <control>`: a control in index.html or js/*.mjs no tests/browser/*.cjs step uses yet.
+# `absent <name>`: a name a browser test uses that the UI no longer has (a check that something is gone, or an id
+#   built at run time). Write the control's e2e step, then delete its line. Adding a line needs an explicit
+#   "Controls baseline: + <line> because …" line in the commit message.
+uncovered #agent-gate
+uncovered #attach
+uncovered #close-menu
+uncovered #files-close
+uncovered #folder-step-back
+uncovered #folder-up
+uncovered #folder-where
+uncovered #gate-refresh
+uncovered #missing-locate
+uncovered #model-gone-choose
+uncovered #phone-tool-check
+uncovered #pi-about
+uncovered #pi-thinking
+uncovered #pi-updates
+uncovered #preview-tab
+uncovered #record
+uncovered #retry-save
+uncovered #settings-auto
+uncovered #settings-check-updates
+uncovered #thinking-sheet-back
+uncovered #tool-bullet
+uncovered #tool-check
+uncovered #welcome-folder
+uncovered [data-command=ask-document]
+uncovered [data-command=ask-selection]
+uncovered [data-command=attach]
+uncovered [data-command=back-to-project]
+uncovered [data-command=cancel-waiting]
+uncovered [data-command=comment-selection]
+uncovered [data-command=copy-folder-path]
+uncovered [data-command=copy]
+uncovered [data-command=cut]
+uncovered [data-command=desktop-pattern]
+uncovered [data-command=download-draft]
+uncovered [data-command=find-project]
+uncovered [data-command=install-app]
+uncovered [data-command=mode-blocks]
+uncovered [data-command=mode-source]
+uncovered [data-command=next-comment]
+uncovered [data-command=paste]
+uncovered [data-command=previous-comment]
+uncovered [data-command=reconnect]
+uncovered [data-command=record]
+uncovered [data-command=reload-document]
+uncovered [data-command=remove-project]
+uncovered [data-command=rename-file]
+uncovered [data-command=run-on-own]
+uncovered [data-command=save]
+uncovered [data-command=select-all]
+uncovered [data-command=send]
+uncovered [data-command=stop]
+uncovered [data-command=toggle-event-info]
+uncovered [data-command=toggle-files]
+uncovered [data-command=toggle-preview]
+uncovered [data-command=toggle-projects]
+uncovered [data-command=toggle-resolved]
+uncovered [data-command=toggle-review]
+uncovered [data-command=trash-project]
+uncovered [data-command=undo]
+uncovered [data-command=view-gate]
+uncovered [data-command=zoom]
+uncovered button:aa
+uncovered button:agentall projects
+uncovered button:ask pi about this file…
+uncovered button:ask pi to fix
+uncovered button:back
+uncovered button:explore an image
+uncovered button:listen to a recording
+uncovered button:modelone in memory at a time
+uncovered button:next
+uncovered button:ok
+uncovered button:open again
+uncovered button:open app
+uncovered button:open in browser
+uncovered button:open on phone…
+uncovered button:open the plan
+uncovered button:projects
+uncovered button:reopen
+uncovered button:start again
+uncovered button:start from an empty folder instead
+uncovered button:understand some code
+uncovered button:‹ theme
+uncovered link:open
+uncovered link:open the plan
+uncovered link:skip to conversation
+uncovered menuitem:agent
+uncovered menuitem:ask pi about paragraph…
+uncovered menuitem:ask pi about this file…
+uncovered menuitem:comment on paragraph
+uncovered menuitem:copy folder path
+uncovered menuitem:copy path
+uncovered menuitem:delete paragraph
+uncovered menuitem:download draft…
+uncovered menuitem:edit
+uncovered menuitem:file
+uncovered menuitem:locate folder…
+uncovered menuitem:move down⌥⌘↓
+uncovered menuitem:move project to trash…
+uncovered menuitem:move project…
+uncovered menuitem:move to trash…
+uncovered menuitem:open
+uncovered menuitem:open appsafari
+uncovered menuitem:pi menu
+uncovered menuitem:project
+uncovered menuitem:reload
+uncovered menuitem:reload from disk
+uncovered menuitem:remove from list…
+uncovered menuitem:rename or move…
+uncovered menuitem:rename project…
+uncovered menuitem:view
+uncovered menuitem:view as markdown
+uncovered menuitem:window
+uncovered menuitemradio:bullet
+uncovered menuitemradio:chat
+uncovered menuitemradio:code
+uncovered menuitemradio:english
+uncovered menuitemradio:heading
+uncovered menuitemradio:high
+uncovered menuitemradio:low
+uncovered menuitemradio:medium
+uncovered menuitemradio:number
+uncovered menuitemradio:off
+uncovered menuitemradio:preview
+uncovered menuitemradio:quote
+uncovered menuitemradio:raw markdown
+uncovered menuitemradio:task
+uncovered menuitemradio:work
+uncovered menuitemradio:日本語
+uncovered radio:active
+uncovered radio:after
+uncovered radio:attention
+uncovered radio:before
+uncovered radio:beginner: plain words; decisions made by code are hidden
+uncovered radio:deleted
+uncovered radio:english
+uncovered radio:expert: every decision with its author, file paths and commands
+uncovered radio:high
+uncovered radio:low
+uncovered radio:match system
+uncovered radio:match system (default)
+uncovered radio:medium
+uncovered radio:off
+uncovered radio:open
+uncovered radio:plain
+uncovered radio:resolved
+uncovered radio:日本語
+absent #phase-refusal
+absent #plan-regression-row
+absent #round10-cards
+absent #round10-ja
+absent #selection-comment
+absent button:Add to Task 1
+absent button:More for Found
+absent button:Remove drop.txt
+absent button:Remove voice.wav
+absent button:Second project
+absent button:idea.md
+absent button:ideas.md
+absent button:live.py
+absent button:▸ 3 more: Background, Card, Border · Input · Ring
+absent heading:Hello from Pi
+absent menuitemradio:Second project
+absent radio:Files · 2
