@@ -695,3 +695,230 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-fontrow{grid-template-columns:1fr auto;min-height:44px}
   .pw-fontrow__search .pw-field{height:44px}
 }
+
+/* ---- round15_a.css ---- */
+
+/* ---- 2026-10-19 · Round 15 A: Preview action recording and Report a Problem (task 333) ---- */
+
+/* RecordingStatus: a button in the Preview foot; the dot is filled while recording, hollow when not */
+.pw-recstat{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:0 8px;font-family:var(--font-chrome);font-size:13px;line-height:16px;color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:0;cursor:default;white-space:nowrap}
+.pw-recstat::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor;box-sizing:border-box}
+.pw-recstat[data-state="on"]::before,.pw-recstat[data-state="repro"]::before{background:currentColor}
+.pw-recstat[data-state="paused"]{border-style:dotted}
+.pw-recstat[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-recstat:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* The popover the status opens (desk) / a sheet (phone) */
+.pw-recpop{width:380px;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-family:var(--font-chrome);font-size:14px;line-height:19px}
+.pw-recpop h3{margin:0;font-size:15px;font-weight:600}
+.pw-recpop .pw-facts{font-size:13px;line-height:18px}
+.pw-recpop__actions{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dotted var(--ink);padding-top:10px}
+
+/* FlowAttachment: the recent actions the workbench attached to a message, under that message */
+.pw-flow{align-self:stretch;max-width:760px;margin:-12px 0 0;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-flow>summary{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:5px 10px;list-style:none;cursor:default}
+.pw-flow>summary::-webkit-details-marker{display:none}
+.pw-flow__who{font-weight:600}
+.pw-flow__meta{flex:1 1 220px;min-width:0}
+.pw-flow ol{margin:0;padding:0;list-style:none;border-top:1px dotted var(--ink)}
+.pw-flow li{display:grid;grid-template-columns:28px 64px 1fr;gap:0 8px;padding:4px 10px;border-bottom:1px dotted var(--ink)}
+.pw-flow li .pw-flow__n{font-variant-numeric:tabular-nums}
+.pw-flow li .pw-flow__t{font-family:var(--font-mono);font-size:12px}
+.pw-flow__kept{margin:0;padding:6px 10px;font-size:12px;line-height:16px}
+.pw-flow__foot{display:flex;flex-wrap:wrap;gap:8px;padding:6px 10px;border-top:1px solid var(--ink)}
+.pw-flow__foot .pw-btn{min-height:26px;font-size:13px;padding:0 10px}
+.pw-redacted{font-style:italic}
+.pw-flow--narrow li{grid-template-columns:22px 1fr}
+.pw-flow--narrow li>span:last-child{grid-column:2}
+
+/* Report a Problem: evidence rows (a checkbox each, with what it holds) */
+.pw-evidence{margin:0;padding:0;border:0;display:flex;flex-direction:column}
+.pw-evidence>legend{padding:0 0 4px;font-family:var(--font-chrome);font-size:14px;font-weight:600}
+.pw-evrow{display:grid;grid-template-columns:18px 1fr auto;gap:2px 10px;align-items:start;padding:7px 2px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:19px}
+.pw-evrow small{grid-column:2;font-size:12px;line-height:16px}
+.pw-evrow[aria-disabled="true"]{color:var(--ink-disabled)}
+.pw-never{margin:0;padding:6px 8px;border:1px dotted var(--ink);font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-dest{display:flex;flex-direction:column;gap:2px;font-family:var(--font-chrome);font-size:13px}
+
+/* Reproduction banner in the Preview */
+.pw-repro{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 12px;border-bottom:3px double var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-repro__text{flex:1 1 200px;min-width:0}
+.pw-repro .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+@media (max-width:760px){
+  .pw-recstat{min-height:var(--size-touch);font-size:15px;padding:0 12px}
+  .pw-recpop{width:auto;border:0;box-shadow:none;padding:0}
+  .pw-flow li{grid-template-columns:22px 1fr;padding:8px 10px}
+  .pw-flow li>span:last-child{grid-column:2}
+  .pw-flow>summary{min-height:44px}
+  .pw-flow__foot .pw-btn,.pw-repro .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-evrow{min-height:44px;grid-template-columns:22px 1fr}
+  .pw-evrow .pw-link{grid-column:2}
+}
+
+/* ---- round15_b.css ---- */
+/* ---- 2026-10-19 · Round 15 B: Preview address, ports and new windows (task 321) ---- */
+
+/* The address host in toolbar 1: the usable address, in mono, before the editable path */
+.pw-address__host--addr{font-family:var(--font-mono);font-size:12px;letter-spacing:0;color:inherit}
+.pw-addrbtn{flex:none;font:inherit;font-family:var(--font-chrome);font-size:13px;color:inherit;background:none;border:1px solid var(--ink);padding:0 7px;height:26px;display:inline-flex;align-items:center;gap:4px;cursor:default}
+.pw-addrbtn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-addrbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* AddressPopover: where the app runs, one section per place, Copy beside each address */
+.pw-addr{background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);font-family:var(--font-chrome);font-size:14px;line-height:18px;width:440px;box-sizing:border-box}
+.pw-addr h3{margin:0;padding:8px 12px 4px;font-size:13px;font-weight:600}
+.pw-addr section{padding:8px 12px;border-top:1px dotted var(--ink);display:flex;flex-direction:column;gap:6px}
+.pw-addr section:first-of-type{border-top:0}
+.pw-addr__line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pw-addr__url{flex:1 1 200px;min-width:0;font-family:var(--font-mono);font-size:12px;line-height:16px;border:1px solid var(--ink);padding:3px 6px;background:var(--paper);overflow-wrap:anywhere;user-select:all}
+.pw-addr__url[aria-disabled="true"]{color:var(--ink-disabled);border-style:dotted}
+.pw-addr small{font-size:13px;line-height:17px}
+.pw-addr kbd{font:inherit;font-family:var(--font-mono);font-size:12px;border:1px solid var(--ink);padding:0 3px;white-space:nowrap}
+.pw-addr .pw-btn{min-height:24px;font-size:13px;padding:0 8px}
+
+/* The reason under a disabled foot button, tied by aria-describedby */
+.pw-reason{flex-basis:100%;margin:0;font-family:var(--font-chrome);font-size:12px;line-height:16px;text-align:right}
+
+/* Popup blocked: a plain link the person clicks (a click is never blocked) */
+.pw-preview__note--alert{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.pw-preview__note--alert a{font-weight:600}
+
+/* Mock browser windows on the two-users board (not the workbench's chrome) */
+.pw-browserwin{border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);background:#fff;display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:13px}
+.pw-browserwin__bar{display:flex;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid var(--ink)}
+.pw-browserwin__bar span.dots{display:flex;gap:4px}
+.pw-browserwin__bar span.dots i{width:8px;height:8px;border:1px solid var(--ink);border-radius:50%;display:block}
+.pw-browserwin__url{flex:1;min-width:0;font-family:var(--font-mono);font-size:11px;border:1px solid var(--ink);padding:1px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-browserwin[data-private] .pw-browserwin__bar{background:repeating-linear-gradient(135deg,#000 0 1px,transparent 1px 4px)}
+.pw-browserwin[data-private] .pw-browserwin__url{background:#fff}
+
+@media (max-width:760px){
+  .pw-addr{width:auto;border:0;box-shadow:none}
+  .pw-addr .pw-btn{min-height:var(--size-touch);font-size:16px;padding:0 12px}
+  .pw-addr__url{font-size:13px;padding:8px}
+  .pw-addrbtn{height:44px;padding:0 12px}
+}
+
+/* ---- round15_c.css ---- */
+
+/* ---- 2026-10-19 · Round 15 C: plan diagnostics and bounded repair (task 322) ---- */
+
+/* PlanCheck: System 1's findings in the saved plan files, one row per finding, file:line first */
+.pw-diag{display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-diag__summary{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:6px 12px;border-bottom:1px solid var(--ink);font-size:13px}
+.pw-diag__group{margin:0;padding:0;list-style:none}
+.pw-diag__group>li{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:2px 8px;align-items:start;padding:7px 12px;border-bottom:1px dotted var(--ink)}
+.pw-diag__group>li[aria-current="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-diag__group>li[aria-current="true"] .pw-link{color:inherit}
+.pw-diag__where{font-family:var(--font-mono);font-size:12px;white-space:nowrap}
+.pw-diag__text{grid-column:2/-1}
+.pw-diag__text small{display:block;font-size:13px;line-height:17px;margin-top:2px}
+.pw-diag__kind{font-size:12px;font-weight:600;letter-spacing:.02em}
+.pw-diag__h{margin:0;padding:8px 12px 4px;font-size:12px;font-weight:600;border-bottom:1px solid var(--ink)}
+/* the three kinds are told apart by glyph and word, never by tone alone */
+.pw-mark{display:inline-grid;place-items:center;width:12px;height:12px;margin-top:3px;flex:none}
+.pw-mark--error{background:var(--ink)}
+.pw-mark--unsupported{border:1px dashed var(--ink);box-sizing:border-box}
+.pw-mark--note{border:1px solid var(--ink);border-radius:50%;box-sizing:border-box;font-size:9px;line-height:1;font-weight:700}
+.pw-mark--note::before{content:"i"}
+
+/* Source with line numbers and finding marks (Work's source view, read-only marks; the text stays editable) */
+.pw-src{font-family:var(--font-mono);font-size:13px;line-height:20px;padding:8px 0;margin:0;overflow:auto;background:var(--paper)}
+.pw-src__l{display:grid;grid-template-columns:44px 18px minmax(0,1fr);align-items:start}
+.pw-src__no{text-align:right;padding-right:8px;color:var(--ink-disabled);user-select:none}
+.pw-src__m{display:grid;place-items:center;height:20px}
+.pw-src__t{white-space:pre-wrap;overflow-wrap:anywhere;padding-right:16px}
+.pw-src__l[data-mark]{background-image:radial-gradient(var(--ink) .5px,transparent .6px);background-size:4px 4px}
+.pw-src__l[data-mark] .pw-src__t{background:var(--paper);box-shadow:0 0 0 1px var(--paper)}
+.pw-src__l[aria-current="true"]{outline:2px solid var(--ink);outline-offset:-2px}
+
+/* Diff in the repair review: one column, +/− in the gutter, removed lines struck through */
+.pw-diff{margin:0;padding:6px 0;list-style:none;font-family:var(--font-mono);font-size:12.5px;line-height:19px;border:1px solid var(--ink);overflow:auto;max-height:100%}
+.pw-diff li{display:grid;grid-template-columns:34px 34px 16px minmax(0,1fr);white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-diff li>span:nth-child(-n+2){text-align:right;padding-right:6px;color:var(--ink-disabled)}
+.pw-diff li[data-op="add"]{font-weight:600}
+.pw-diff li[data-op="add"]>span:nth-child(3)::before{content:"+"}
+.pw-diff li[data-op="del"]>span:nth-child(3)::before{content:"−"}
+.pw-diff li[data-op="del"]>span:last-child{text-decoration:line-through}
+.pw-diff li[data-op="hunk"]{border-top:1px dotted var(--ink);border-bottom:1px dotted var(--ink);font-family:var(--font-chrome);font-size:12px;padding:2px 0}
+.pw-diff li[data-op="hunk"]>span:last-child{grid-column:1/-1;padding-left:12px}
+.pw-filelist{margin:0;padding:0;list-style:none;font-family:var(--font-chrome);font-size:14px}
+.pw-filelist li{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;border-bottom:1px dotted var(--ink)}
+.pw-filelist li[aria-selected="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-filelist li small{margin-left:auto;font-size:12px}
+.pw-verdict{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:8px 12px;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-verdict[data-state="fail"]{border-width:2px}
+
+@media (max-width:760px){
+  .pw-diag__group>li{min-height:44px;padding:10px 12px}
+  .pw-filelist li{min-height:44px}
+  .pw-src__l{grid-template-columns:32px 16px minmax(0,1fr)}
+}
+.pw-diag__group>li[aria-current="true"] .pw-mark--error{background:var(--selection-fg)}
+.pw-diag__group>li[aria-current="true"] .pw-mark{border-color:var(--selection-fg)}
+
+/* ---- round15_d.css ---- */
+
+/* ---- 2026-10-19 · Round 15 D: visual results in the chat (plan 266, visual follow-up) ---- */
+
+/* VisualResult: an image or icon Pi chose or generated, inside Pi's message. Chrome is 1-bit; only the asset is in colour. */
+.pw-visual{align-self:stretch;max-width:760px;border:1px solid var(--ink);background:var(--paper);font-family:var(--font-chrome);font-size:14px;line-height:18px;display:flex;flex-direction:column}
+.pw-visual__head{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;padding:6px 10px;border-bottom:1px solid var(--ink)}
+.pw-visual__title{margin:0;font-size:14px;font-weight:600}
+.pw-visual__head .pw-tag{margin-left:auto}
+.pw-visual__body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;padding:10px;align-items:start}
+.pw-visual__foot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 10px;border-top:1px dotted var(--ink)}
+.pw-visual__foot .pw-help{margin:0;flex:1 1 220px}
+.pw-visual .pw-facts{margin:0;font-size:13px;line-height:17px;gap:2px 12px}
+.pw-visual__alt{grid-column:1/-1;margin:0;font-size:13px;line-height:17px}
+.pw-visual__alt b{font-weight:600}
+
+/* The thumbnail is a button that opens the inspector */
+.pw-thumb{appearance:none;padding:0;border:1px solid var(--ink);background:none;cursor:default;display:grid;place-items:center;flex:none}
+.pw-thumb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-thumb img{display:block;image-rendering:pixelated}
+.pw-thumb[aria-pressed="true"],.pw-thumb[aria-checked="true"]{outline:3px double var(--ink);outline-offset:2px}
+
+/* Backdrops behind transparent assets: they belong to the asset, not the chrome */
+.pw-backdrop{display:grid;place-items:center}
+.pw-backdrop[data-bg="checker"]{background-color:#fff;background-image:conic-gradient(#d9d9d9 25%,#fff 0 50%,#d9d9d9 0 75%,#fff 0);background-size:12px 12px}
+.pw-backdrop[data-bg="light"]{background:#fff}
+.pw-backdrop[data-bg="dark"]{background:#1a1a1a}
+
+/* Candidates: a radio group of thumbnails */
+.pw-cands{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;border:0}
+.pw-cand{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
+.pw-cand input{position:absolute;opacity:0;pointer-events:none}
+.pw-cand:has(input:focus-visible) .pw-thumb{outline:2px solid var(--ink);outline-offset:2px}
+.pw-cand:has(input:checked) .pw-thumb{outline:3px double var(--ink);outline-offset:2px}
+
+/* Generating: a dotted placeholder with a determinate line */
+.pw-visual__pending{width:64px;height:64px;border:1px dotted var(--ink);display:grid;place-items:center;font-size:12px}
+.pw-visual--old{border-style:dotted}
+
+/* Inspector (dialog on the desk, full-screen sheet on the phone) */
+.pw-inspect{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:0;min-height:0}
+.pw-inspect__stage{border-right:1px solid var(--ink);display:flex;flex-direction:column;min-width:0}
+.pw-inspect__view{flex:1;min-height:260px;overflow:auto;display:grid;place-items:center;padding:16px}
+.pw-inspect__view img{image-rendering:pixelated;display:block}
+.pw-inspect__bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 10px;border-top:1px solid var(--ink)}
+.pw-inspect__side{padding:10px 12px;display:flex;flex-direction:column;gap:10px;font-family:var(--font-chrome);font-size:13px;line-height:17px;min-width:0}
+.pw-inspect__side h3{margin:0;font-size:13px;font-weight:600}
+.pw-revs{list-style:none;margin:0;padding:0;border-top:1px dotted var(--ink)}
+.pw-revs li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 8px;align-items:center;padding:5px 0;border-bottom:1px dotted var(--ink)}
+.pw-revs li[aria-current="true"]{font-weight:600}
+.pw-revs small{grid-column:2;font-weight:400;font-size:12px}
+
+/* Not shown: unsafe or unsupported content; the file is kept */
+.pw-inert{width:64px;height:64px;border:1px solid var(--ink);display:grid;place-items:center;text-align:center;font-size:11px;line-height:13px;padding:4px;box-sizing:border-box;background:repeating-linear-gradient(45deg,var(--paper) 0 4px,var(--ink) 4px 5px)}
+.pw-inert span{background:var(--paper);padding:1px 2px}
+
+@media (max-width:760px){
+  .pw-visual__body{grid-template-columns:1fr}
+  .pw-visual__foot .pw-btn{min-height:var(--size-touch);font-size:16px;flex:1 1 auto}
+  .pw-inspect{grid-template-columns:1fr}
+  .pw-inspect__stage{border-right:0;border-bottom:1px solid var(--ink)}
+  .pw-cand .pw-thumb{min-width:64px;min-height:64px}
+}
+.pw-inspect__side .pw-mono,.pw-visual .pw-mono{overflow-wrap:anywhere}

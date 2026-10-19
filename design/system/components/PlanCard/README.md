@@ -21,3 +21,8 @@ The plan, waiting for a yes. Nothing is built until it is approved (or Run on it
 - **Scope widening** during a task: a card “Pi wants to change a file outside task 2 · Gate asks you”, the file, Pi's one-line reason; **Add to Task 2** (default) · Keep Out · Open the Task.
 - **Re-plan**: “The plan needs to change · task 3 of 4”, what it adds and moves; **Re-plan** (default) · Keep the Plan · Open the Plan.
 - **Stale page** after plh restarted: an alert line inside the card “This page is out of date after plh restarted, so your choice wasn't sent.” **Reload Page**.
+
+## Round 15: the plan files can be malformed (task 322)
+
+- The plan card and Build the Planned Tasks… read ROADMAP.md and tasks/ as System 1 parsed them. When the check finds errors, a harness notice sits under the plan card ("The plan files have 2 errors…" · Show Plan Check) and an ambiguous task (two tasks with one number) is listed as "004 (2 tasks: choose in Plan Check)", never guessed.
+- Repairs are proposed, validated and reviewed as in **PlanDiagnostics**; Start Building stays available for unaffected tasks.

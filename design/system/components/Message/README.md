@@ -9,3 +9,7 @@ A turn in the project chat.
 - While Pi works, the live message ends with a ToolCall in its `--live` state or a status line (Thinking…, Using bash…).
 - **Also read:** a ContextLine (`.pw-context--after`) ends Pi's message when Pi opened files with its tools: “Also read: harness/work_queue.py · tests/test_work_queue.py”. Not shown when Pi read nothing beyond its context.
 - Tables in Pi's Markdown render as a MarkdownTable (`.pw-msg__table`), scrolling sideways inside their own box when wide.
+
+## Round 15: visual results
+
+A Pi message may end with one **VisualResult** card (an icon, an image, or a set of candidates), in the place the music player takes for sound. A message holds at most one such card. A newer revision shows in a new message, and the old card becomes `.pw-visual--old` (dotted border), with a line naming the newer one.

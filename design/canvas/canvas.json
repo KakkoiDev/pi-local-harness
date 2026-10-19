@@ -2809,6 +2809,366 @@
    "h": 400,
    "title": "New Project’s key · ⌃⌥⇧N",
    "page": "r13"
+  },
+  "R15_Recording.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Recording · first use",
+   "page": "r15"
+  },
+  "R15_FlowContext.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Recording · a problem in ordinary chat",
+   "page": "r15"
+  },
+  "R15_ReportReview.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Report a Problem…",
+   "page": "r15"
+  },
+  "R15_ReportFailure.dc.html": {
+   "x": 0,
+   "y": 1060,
+   "w": 1440,
+   "h": 1460,
+   "title": "Round 15 · Report a Problem · submit and failure states",
+   "page": "r15"
+  },
+  "R15_Reproduce.dc.html": {
+   "x": 1520,
+   "y": 1060,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Record It Again",
+   "page": "r15"
+  },
+  "R15_ReproStart.dc.html": {
+   "x": 3040,
+   "y": 1060,
+   "w": 1440,
+   "h": 620,
+   "title": "Round 15 · Record It Again · start and result",
+   "page": "r15"
+  },
+  "R15_RecordingStates.dc.html": {
+   "x": 0,
+   "y": 2680,
+   "w": 1440,
+   "h": 1820,
+   "title": "Round 15 · Recording · every state, clear, disable, 320 px",
+   "page": "r15"
+  },
+  "R15_Recording1024.dc.html": {
+   "x": 1520,
+   "y": 2680,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 15 · Recording · 1024",
+   "page": "r15"
+  },
+  "Ph15_Recording.dc.html": {
+   "x": 2624,
+   "y": 2680,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Phone · recording sheet",
+   "page": "r15"
+  },
+  "Ph15_FlowContext.dc.html": {
+   "x": 3094,
+   "y": 2680,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Phone · attached steps (日本語)",
+   "page": "r15"
+  },
+  "Ph15_ReportReview.dc.html": {
+   "x": 3564,
+   "y": 2680,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Phone · Report a Problem",
+   "page": "r15"
+  },
+  "Ph15_Reproduce.dc.html": {
+   "x": 4034,
+   "y": 2680,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Phone · Record It Again",
+   "page": "r15"
+  },
+  "R15_RecordingCopy.dc.html": {
+   "x": 0,
+   "y": 4660,
+   "w": 1440,
+   "h": 940,
+   "title": "Round 15 · Recording · EN/JA texts and walkthrough",
+   "page": "r15"
+  },
+  "R15_PreviewAddress.dc.html": {
+   "x": 0,
+   "y": 6000,
+   "w": 1440,
+   "h": 900,
+   "title": "Preview · the usable address, two ports, phone, two users",
+   "page": "r15"
+  },
+  "R15_PreviewUsers.dc.html": {
+   "x": 1520,
+   "y": 6000,
+   "w": 1440,
+   "h": 900,
+   "title": "Preview · Open in New Window again and again; windows are one person",
+   "page": "r15"
+  },
+  "R15_PreviewBlocked.dc.html": {
+   "x": 3040,
+   "y": 6000,
+   "w": 1440,
+   "h": 900,
+   "title": "Preview · popup blocked: a plain link and Copy Address",
+   "page": "r15"
+  },
+  "R15_PreviewAddress1024.dc.html": {
+   "x": 0,
+   "y": 7060,
+   "w": 1024,
+   "h": 900,
+   "title": "Preview · 1024 wide",
+   "page": "r15"
+  },
+  "R15_PreviewStates.dc.html": {
+   "x": 1104,
+   "y": 7060,
+   "w": 1440,
+   "h": 1500,
+   "title": "Preview · starting, error, stopped, no app, terminal app",
+   "page": "r15"
+  },
+  "R15_PreviewNarrow.dc.html": {
+   "x": 2624,
+   "y": 7060,
+   "w": 1440,
+   "h": 1080,
+   "title": "Preview · 320 wide, Window menu, Tailscale off, from another device",
+   "page": "r15"
+  },
+  "R15_PreviewStrings.dc.html": {
+   "x": 0,
+   "y": 8720,
+   "w": 1440,
+   "h": 1450,
+   "title": "Preview · EN/JA strings and walkthrough",
+   "page": "r15"
+  },
+  "Ph15_PreviewAddress.dc.html": {
+   "x": 1520,
+   "y": 8720,
+   "w": 390,
+   "h": 844,
+   "title": "Phone · Preview with the tailnet address",
+   "page": "r15"
+  },
+  "Ph15_PreviewAddressSheet.dc.html": {
+   "x": 1990,
+   "y": 8720,
+   "w": 390,
+   "h": 844,
+   "title": "Phone · Address sheet, no 127.0.0.1",
+   "page": "r15"
+  },
+  "Ph15_PreviewStopped.dc.html": {
+   "x": 2460,
+   "y": 8720,
+   "w": 390,
+   "h": 844,
+   "title": "Phone · stopped: Open App disabled with its reason",
+   "page": "r15"
+  },
+  "R15_PlanDiagnostics.dc.html": {
+   "x": 0,
+   "y": 10570,
+   "w": 1440,
+   "h": 900,
+   "title": "Diagnostics: Work source view and the Plan Check panel (Discussion: repair disabled with its reason)",
+   "page": "r15"
+  },
+  "R15_PlanChat.dc.html": {
+   "x": 1520,
+   "y": 10570,
+   "w": 1440,
+   "h": 900,
+   "title": "In the chat: notice and Plan Check card; Discussion vs Planning",
+   "page": "r15"
+  },
+  "R15_DuplicateTask.dc.html": {
+   "x": 3040,
+   "y": 10570,
+   "w": 1440,
+   "h": 1240,
+   "title": "Duplicate number choice, repeated link, evidence gap",
+   "page": "r15"
+  },
+  "R15_PlanRepair.dc.html": {
+   "x": 0,
+   "y": 11970,
+   "w": 1440,
+   "h": 900,
+   "title": "Repair review: changed files, diff, the harness verdict, Apply Repair",
+   "page": "r15"
+  },
+  "R15_PlanStates.dc.html": {
+   "x": 1520,
+   "y": 11970,
+   "w": 1440,
+   "h": 1980,
+   "title": "All states",
+   "page": "r15"
+  },
+  "R15_Plan1024.dc.html": {
+   "x": 3040,
+   "y": 11970,
+   "w": 1024,
+   "h": 900,
+   "title": "At 1024 px",
+   "page": "r15"
+  },
+  "Ph15_PlanDiagnostics.dc.html": {
+   "x": 4144,
+   "y": 11970,
+   "w": 390,
+   "h": 844,
+   "title": "Phone: the card in the chat",
+   "page": "r15"
+  },
+  "Ph15_PlanSource.dc.html": {
+   "x": 0,
+   "y": 14110,
+   "w": 390,
+   "h": 844,
+   "title": "Phone: file at the line",
+   "page": "r15"
+  },
+  "Ph15_PlanRepair.dc.html": {
+   "x": 470,
+   "y": 14110,
+   "w": 390,
+   "h": 844,
+   "title": "Phone: review sheet",
+   "page": "r15"
+  },
+  "Ph15_DuplicateTask.dc.html": {
+   "x": 940,
+   "y": 14110,
+   "w": 390,
+   "h": 844,
+   "title": "Phone: duplicate choice",
+   "page": "r15"
+  },
+  "R15_PlanStrings.dc.html": {
+   "x": 1410,
+   "y": 14110,
+   "w": 1440,
+   "h": 2000,
+   "title": "Strings, keyboard, 320 px",
+   "page": "r15"
+  },
+  "R15_PlanWalkthrough.dc.html": {
+   "x": 2930,
+   "y": 14110,
+   "w": 1440,
+   "h": 1000,
+   "title": "Walkthrough and open choices",
+   "page": "r15"
+  },
+  "R15_VisualResult.dc.html": {
+   "x": 0,
+   "y": 16510,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Visual results · the card in Pi’s message",
+   "page": "r15"
+  },
+  "R15_VisualInspect.dc.html": {
+   "x": 1520,
+   "y": 16510,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Visual results · Inspect",
+   "page": "r15"
+  },
+  "R15_VisualVariants.dc.html": {
+   "x": 3040,
+   "y": 16510,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 15 · Visual results · candidates",
+   "page": "r15"
+  },
+  "R15_VisualUse.dc.html": {
+   "x": 0,
+   "y": 17570,
+   "w": 1440,
+   "h": 1290,
+   "title": "Round 15 · Visual results · status and Use",
+   "page": "r15"
+  },
+  "R15_VisualStates.dc.html": {
+   "x": 1520,
+   "y": 17570,
+   "w": 1440,
+   "h": 1160,
+   "title": "Round 15 · Visual results · states",
+   "page": "r15"
+  },
+  "R15_Visual1024.dc.html": {
+   "x": 3040,
+   "y": 17570,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 15 · Visual results · 1024",
+   "page": "r15"
+  },
+  "R15_VisualWalk.dc.html": {
+   "x": 0,
+   "y": 19020,
+   "w": 1440,
+   "h": 1900,
+   "title": "Round 15 · Visual results · 320, walkthrough, strings",
+   "page": "r15"
+  },
+  "Ph15_VisualResult.dc.html": {
+   "x": 1520,
+   "y": 19020,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Visual results · phone card",
+   "page": "r15"
+  },
+  "Ph15_VisualInspect.dc.html": {
+   "x": 1990,
+   "y": 19020,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Visual results · phone inspector",
+   "page": "r15"
+  },
+  "Ph15_VisualVariants.dc.html": {
+   "x": 2460,
+   "y": 19020,
+   "w": 390,
+   "h": 844,
+   "title": "Round 15 · Visual results · phone candidates",
+   "page": "r15"
   }
  },
  "createdOnFiles": {
@@ -3488,7 +3848,52 @@
   "Ph13_NPPick.dc.html",
   "Ph13_NPPackages.dc.html",
   "R13_NPParts.dc.html",
-  "R13_Keys.dc.html"
+  "R13_Keys.dc.html",
+  "R15_Recording.dc.html",
+  "R15_FlowContext.dc.html",
+  "R15_ReportReview.dc.html",
+  "R15_ReportFailure.dc.html",
+  "R15_Reproduce.dc.html",
+  "R15_ReproStart.dc.html",
+  "R15_RecordingStates.dc.html",
+  "R15_Recording1024.dc.html",
+  "Ph15_Recording.dc.html",
+  "Ph15_FlowContext.dc.html",
+  "Ph15_ReportReview.dc.html",
+  "Ph15_Reproduce.dc.html",
+  "R15_RecordingCopy.dc.html",
+  "R15_PreviewAddress.dc.html",
+  "R15_PreviewUsers.dc.html",
+  "R15_PreviewBlocked.dc.html",
+  "R15_PreviewAddress1024.dc.html",
+  "R15_PreviewStates.dc.html",
+  "R15_PreviewNarrow.dc.html",
+  "R15_PreviewStrings.dc.html",
+  "Ph15_PreviewAddress.dc.html",
+  "Ph15_PreviewAddressSheet.dc.html",
+  "Ph15_PreviewStopped.dc.html",
+  "R15_PlanDiagnostics.dc.html",
+  "R15_PlanChat.dc.html",
+  "R15_DuplicateTask.dc.html",
+  "R15_PlanRepair.dc.html",
+  "R15_PlanStates.dc.html",
+  "R15_Plan1024.dc.html",
+  "Ph15_PlanDiagnostics.dc.html",
+  "Ph15_PlanSource.dc.html",
+  "Ph15_PlanRepair.dc.html",
+  "Ph15_DuplicateTask.dc.html",
+  "R15_PlanStrings.dc.html",
+  "R15_PlanWalkthrough.dc.html",
+  "R15_VisualResult.dc.html",
+  "R15_VisualInspect.dc.html",
+  "R15_VisualVariants.dc.html",
+  "R15_VisualUse.dc.html",
+  "R15_VisualStates.dc.html",
+  "R15_Visual1024.dc.html",
+  "R15_VisualWalk.dc.html",
+  "Ph15_VisualResult.dc.html",
+  "Ph15_VisualInspect.dc.html",
+  "Ph15_VisualVariants.dc.html"
  ],
  "pages": [
   {
@@ -3538,6 +3943,10 @@
   {
    "id": "r13",
    "name": "Round 13 revisits"
+  },
+  {
+   "id": "r15",
+   "name": "Round 15: recording, Preview, plan repair, visuals"
   },
   {
    "id": "edit",

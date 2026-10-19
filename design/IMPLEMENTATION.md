@@ -658,3 +658,104 @@ Boards: canvas page **Round 13 revisits** — [R13_ThemeFonts], [R13_ThemeParts]
 - **Add a Capability…**: checkboxes → radios, one per request.
 - **New Project's key**: ⌘N (the browser keeps it) → **⌃⌥⇧N**; new: Add Existing Folder… ⌃⌥O.
 - **Check-in default**: with a removed or weakened test the button order becomes Review First · Accept and Continue · Stop Here.
+
+## 2026-10-19 · Round 15: recording, Preview windows, plan repair and visual results (tasks 333, 321, 322; plan 266)
+
+Boards: canvas page **Round 15**. Four parts, each with its own notes below; new cards **RecordingStatus**, **FlowAttachment**, **ProblemReport**, **PlanDiagnostics**, **VisualResult**; Round 15 sections in ContextLine, HarnessNotice, PreviewWindow, Menu, PlanCard, AttachmentChip and Message. CSS: the four round 15 blocks at the end of bundle.css.
+
+**Changed earlier copy (all parts):** the Preview foot's **Open in Browser** is now **Open in New Window** (B), on every board drawn from this round on.
+
+### A · Action recording and Report a Problem (task 333)
+
+Boards: R15_Recording, R15_FlowContext, R15_ReportReview, R15_ReportFailure, R15_Reproduce, R15_ReproStart, R15_RecordingStates (incl. 320 px), R15_Recording1024, R15_RecordingCopy (EN/JA + walkthrough), Ph15_Recording, Ph15_FlowContext, Ph15_ReportReview, Ph15_Reproduce. Generator `gen/r15a.py`; DS previews `gen/ds15a.py`. Cards: **RecordingStatus**, **FlowAttachment**, **ProblemReport** (new); ContextLine and HarnessNotice (round 15 sections). CSS: `scripts/round15_a.css` (`.pw-recstat`, `.pw-recpop`, `.pw-flow`, `.pw-flow--narrow`, `.pw-redacted`, `.pw-evidence`, `.pw-evrow`, `.pw-never`, `.pw-dest`, `.pw-repro`).
+
+1. **Default: on, per project, always visible.** First Preview of a project shows a HarnessNotice (What's Kept · Stop Recording · OK). The state lives in the Preview foot: `button.pw-recstat#recording-status[data-state=on|off|paused|repro]`, `aria-haspopup="dialog" aria-controls="recording-popover"`, name “Recording on: {n} steps from this project. Recording options”. Disable: the same switch in Project › Settings… (“Record what I do in the Preview”).
+2. **Kept vs not kept** (test-core recorder): structural selectors, page loads, input lengths. Not kept: typed text, labels/ids, error text, addresses/queries; password/key fields: nothing. Shown everywhere as “(text not recorded)”, “(address not recorded)”. Retention proposal: this Mac, this project, 7 days, ≤20 flows; Clear History… → the project's Trash (recoverable).
+3. **Chat**: when System 1 classifies a message as reporting an app problem and this project has a flow from the last 30 minutes, it attaches `details.pw-flow` under the message (`aria-label="Preview actions attached to your message"`) and ContextLine lists `Preview actions (flow)`. Foot: Report a Problem… · Save as Test Draft… · Remove from Message. No flow / delivery failure: the message is sent anyway with a HarnessNotice and one action (Record It Again… / Attach Again). Online model: one line says the steps go to it with the message.
+4. **Report a Problem…** (Help menu, the recording popover, the attachment foot; phone: Preview view menu and recording sheet): dialog `aria-labelledby="report-title"`, fields `#report-what` (required), `#report-expected`, `fieldset.pw-evidence` rows (Preview actions, size and language, app version: checked; app output 40 lines: unchecked), `.pw-never`. Actions: Save Draft (Pi Workbench data, not project files) · Ask Pi About It (default; into the chat) · Submit to GitHub… (only with a repo and `gh` signed in; confirmation names `owner/repo` and what GitHub shows; Cancel default). Unavailable stays visible, disabled, with its reason (`aria-describedby="submit-why"`).
+5. **Record It Again…**: start dialog (Cancel · Start Recording) → `.pw-repro` banner in the Preview (`role="status" aria-live="polite"`, Cancel · Done). The chat's draft, its attachments and any waiting question are kept; Done attaches the new flow to the draft (not sent). “Also keep what I type during this recording” is drawn **unchecked and marked proposed** (needs privacy review).
+6. **Save as Test Draft…**: Planning/Implementation only (Discussion: disabled with “Writing a test needs Planning or Implementation (⌃⌥P).”). Writes `tests/replay/<date>-<name>.test.mjs`, failing until an expected outcome is written; redacted values are synthetic.
+7. **Failures never block**: storage → “Recording paused” + notice (Try Again); unsupported page → “Can't record this page”; app stopped/terminal app → “Not recording · …”; an answer to a waiting question always sends.
+
+Data: `{"project", "from", "to", "steps": [{"t", "kind": "click|input|load", "target": "<structural selector>", "length"?}], "viewport", "lang", "commit"}`; report draft `{"id", "project", "what", "expected", "include": {"flow": true, "viewport": true, "commit": true, "output": false}, "saved_at", "submitted": null | {"repo", "issue", "at"}}`.
+
+E2E steps (accessible names): “Recording options”, “Stop Recording”, “Record This Preview”, “Clear History…”, “Move to Trash”, “Report a Problem…”, “Preview actions attached to your message”, “Remove from Message”, “Save as Test Draft…”, “What went wrong”, “Save Draft”, “Ask Pi About It”, “Submit to GitHub…”, “Open Issue”, “Try Again”, “Record It Again…”, “Start Recording”, “Done”, “Attach Again”. Stories in R15_RecordingCopy and the three cards (incl. reload and a second Workbench tab).
+
+Changed earlier copy: the Preview foot gains the RecordingStatus button between Stop/Start and Open in Browser (PreviewWindow, worker B mentions it); Help menu gains “Report a Problem…”; Project › Settings… gains “Record what I do in the Preview”; ContextLine gains the `flow` reason.
+
+Open product choices: recording on by default (drawn) vs off; retention numbers (7 days / 20 flows); the 30-minute “recent” window; keeping typed text in a new reproduction (proposed only); report destinations beyond GitHub; whether drafts expire.
+
+### B · Preview address, ports and new windows (task 321)
+
+Boards (page r15): R15_PreviewAddress, R15_PreviewUsers, R15_PreviewBlocked, R15_PreviewAddress1024, R15_PreviewStates, R15_PreviewNarrow, R15_PreviewStrings, Ph15_PreviewAddress, Ph15_PreviewAddressSheet, Ph15_PreviewStopped. Generator: gen/r15b.py. CSS: scripts/round15_b.css. Cards: PreviewWindow (Round 15 section), Menu (one line).
+
+#### Markup, classes, IDs
+
+- Toolbar 1: `<span class="pw-address__host pw-address__host--addr">127.0.0.1:7801</span>` then the path input and Reload, then `<button class="pw-addrbtn" id="preview-addr-about" aria-haspopup="dialog" aria-expanded="false" aria-controls="preview-addr" aria-label="About this address">ⓘ Address</button>`.
+- Popover `<div class="pw-addr" role="dialog" id="preview-addr" aria-labelledby="preview-addr-t">`: `h3#preview-addr-t`, three `section`s; each address in `.pw-addr__url#preview-addr-url` (user-select: all), Copy in `.pw-btn`. Phone: the same content in a `.pw-sheet` (psheet).
+- Foot: `button#preview-newwin.pw-btn` “Open in New Window”, `aria-label="Open Class Notes in a new browser window"`; when disabled `disabled aria-describedby="preview-why"` and `p.pw-reason#preview-why`. Count: `<span class="pw-help">{n} open</span>`.
+- Blocked: `p.pw-preview__note.pw-preview__note--alert[role=alert]` with `<a target="_blank" rel="noopener" href="http://127.0.0.1:7801/notes">` and Copy Address.
+- First-use notice: `p.pw-notice[role=note]`, who “Workbench”, Copy Address.
+
+#### Data
+
+```json
+{"preview": {"address": "http://127.0.0.1:7801", "app_port": 8000, "preview_port": 7801, "same_port": false,
+             "tailnet": {"available": true, "address": "https://your-mac.your-tailnet.ts.net:8443"},
+             "viewer": "mac|tailnet", "state": "running|starting|error|stopped|none|terminal", "path": "/notes", "lang": "ja"}}
+```
+The workbench decides `viewer` from the request's host: a tailnet request never receives 127.0.0.1 in any field it shows.
+
+#### Changed earlier copy
+
+- Open in Browser → Open in New Window (ブラウザで開く → 新しいウインドウで開く), desk and terminal app.
+- Toolbar 1 host: app name → address host (mono).
+
+#### E2E steps (accessible names)
+
+1. Press “Open Class Notes in a new browser window” twice → two pages at /notes?lang=ja; status “Running” unchanged; “2 open”.
+2. Press “About this address” → dialog “Where Class Notes runs”; press “Copy Address” → clipboard equals the shown address; Esc → focus on “About this address”.
+3. Block pop-ups → press the button → alert; click “Open /notes in a new window ↗” → page opens.
+4. Stop the app → button disabled with description; press “Start” → enabled; opening a window doesn't change the start time.
+5. Phone over Tailscale → “About this address” sheet text has no “127.0.0.1”; “Open Class Notes in Safari” opens the tailnet address.
+6. Two Workbench tabs, reload one → same address in both; windows open from either.
+
+#### Open product choices
+
+See PreviewWindow README “Open product choices”: the usable address (proxy vs app port), `?lang=` in the web starter, terminal app windows, the open count, ⌃⌥B.
+
+### C · Plan diagnostics and bounded repair (task 322)
+
+Boards (page "Round 15"): R15_PlanDiagnostics (1440×900), R15_PlanChat (1440×900), R15_DuplicateTask (1440×1240), R15_PlanRepair (1440×900), R15_PlanStates (1440×1980), R15_Plan1024 (1024×900), R15_PlanStrings (1440×2000, incl. keyboard and 320 px), R15_PlanWalkthrough (1440×1000), Ph15_PlanDiagnostics, Ph15_PlanSource, Ph15_PlanRepair, Ph15_DuplicateTask (390×844). Card: **PlanDiagnostics** (new); PlanCard (round 15 section). CSS: scripts/round15_c.css (`.pw-diag`, `.pw-diag__summary`, `.pw-diag__group`, `.pw-diag__where`, `.pw-diag__kind`, `.pw-diag__h`, `.pw-mark--error|--unsupported|--note`, `.pw-src` + `__l/__no/__m/__t`, `.pw-diff` (`li[data-op=add|del|hunk]`), `.pw-filelist`, `.pw-verdict[data-state=fail]`).
+
+1. **Check**: System 1 reads the saved ROADMAP.md and tasks/*.md on save, when Pi reads the plan, and on Check Again; findings `{kind: error|unsupported|note, code, file, line, end_line}`. Codes so far: duplicate-number, steps-in-roadmap, table-format, duplicate-link, red-not-recorded. Legacy `- [ ] 004 Title` lines are valid.
+2. **Surfaces**: Work's info bar (counts + Show Plan Check) and Source gutter marks; the Plan Check panel (desk window) and card (chat); a harness notice under Pi's answer when Pi read a malformed plan. IDs: `#plan-check` (panel), `#plan-check-summary` (role=status), finding rows `li[data-finding-id]`, `#plan-repair` (Ask Pi to Repair…), `#plan-repair-why` (disabled reason), `#plan-review` (dialog/sheet), `#plan-review-apply`, `#plan-dup-004` (radiogroup).
+3. **Phase**: diagnosis in every phase; repair only in Planning (ROADMAP.md and tasks/); elsewhere the button is disabled with its reason + Change Phase….
+4. **Identity**: System 1 asks "Which task keeps number 004?" (keep A · keep B · same task (merge) · leave both); the choice is a decision row (author: you); never automatic.
+5. **Repair**: Pi's write is a proposal held aside (not the working files); System 1 validates (no unchosen error left, task count equal, no app file, Done when/goals/links/history kept, base hashes unchanged); review dialog/sheet; Apply writes, originals to the project Trash; done row with Restore Original…. Failure or a stale base writes nothing. Repeating finds nothing to do.
+
+#### Changed earlier copy
+- None replaced. PlanCard gains the round 15 notice and the "004 (2 tasks: choose in Plan Check)" line.
+
+#### E2E steps (stable accessible names)
+"Show Plan Check" · "Plan Check" (region) · finding links "ROADMAP.md:10–11" · "Ask Pi to Repair…" (disabled + description) · "Change Phase…" · radiogroup "Which task keeps number 004?" · "Use This" · "Review Changes…" · dialog "Review the plan repair" · "Apply Repair" · "Discard" · "Open Original" · "Check Again" · "Show My Edit" · "Ask Pi to Try Again" · "Restore Original…" · alert "Restore the plan files from before the repair?" · "Restore Original" · "Plan a Test Task…". Stories in the card's Walkthrough (incl. reload and a second tab).
+
+#### Open product choices
+Next free number vs suffix for renumbering; the merge rule for "same task"; Trash vs git for the original; whether Run on its own may apply a validated repair (proposed no); the ⌃⌥. / ⌃⌥, finding keys.
+
+### D · Visual results in the chat (plan 266)
+
+Boards: R15_VisualResult, R15_VisualInspect, R15_VisualVariants, R15_VisualUse, R15_VisualStates, R15_Visual1024, R15_VisualWalk, Ph15_VisualResult, Ph15_VisualInspect, Ph15_VisualVariants (generator `gen/r15d.py`). Card: **VisualResult** (new). Notes appended to AttachmentChip and Message. CSS: `scripts/round15_d.css`.
+
+1. **Markup:**
+   - The card is `section.pw-visual[aria-label]` with `.pw-visual__head` (`h3.pw-visual__title` and a status `.pw-tag`), `.pw-visual__body` (`button.pw-thumb.pw-backdrop[data-bg]`, `dl.pw-facts` and `p.pw-visual__alt`) and `.pw-visual__foot` (a `.pw-help` line and the actions).
+   - Candidates are `fieldset.pw-cands[role=radiogroup]` with a `label.pw-cand` per candidate.
+   - The inspector is a `role=dialog` holding `.pw-inspect` (`.pw-inspect__stage` with `.pw-inspect__view` and `.pw-inspect__bar`; `.pw-inspect__side` with `ol.pw-revs`).
+   - Unsafe or unsupported content shows `.pw-inert`.
+   - Stable names: “Inspect {name} icon, revision {n}”, “Use This Icon…”, “Use Icon”, “Copy to Project”, “Ask for Another”, “Show Revision {n}”, “Open as Text”, and the radio groups “Backdrop” and “Zoom”.
+2. **Rendering:** every asset goes through `<img>`; an SVG is served as image/svg+xml and never inlined or framed. Files whose `safe` flag is false (script, event attributes, foreignObject, external refs, HTML) get `.pw-inert` and **Open as Text**.
+3. **Status** is derived: proposal (outside the project), generated (in `assets/<kind>/<name>/<n>/`, unreferenced), in use (referenced). Only **Use This Icon…** writes an app file: one request with the confirmation naming the file, under phase rules and Gate's scope card. Generating and copying assets is the media exception in every phase.
+4. **Data shape:** see the card's Data section.
+5. **Changed earlier copy:** none. The AttachmentChip and Message notes are additions.
+6. **E2E steps:** the card's six-story Walkthrough (Inspect, Use and Undo, Discussion refusal, missing file after reload, second tab, unsafe SVG).
+7. **Open product choices:** an editable description; whether Copy to Project is undoable; frame playback for sprite sheets; revision retention.

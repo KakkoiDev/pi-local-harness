@@ -17,3 +17,7 @@ Collapsed under an answer: “▸ 5 decisions · 2 automatic”. Open: one row p
 ## Phone
 
 Rows and the summary are 44 px; the cut line's buttons are touch size.
+
+## Round 15: recording notices (task 333)
+
+New harness notices, all non-blocking, each with one action: first use in the Preview (“This Preview records which buttons and pages you use (never what you type)…” What's Kept · Stop Recording · OK), no recent flow (“No recent Preview actions to attach…” Record It Again…), expired (“…older than 7 days and were removed.”), delivery failure (“The Preview actions couldn't be attached… Your message was sent without them.” Attach Again), storage failure (“Recording paused: Pi Workbench can't save to its data folder… The app, your messages and your answers work as before.” Try Again), test draft saved. Japanese: “ハーネス” as the speaker. See RecordingStatus, FlowAttachment, ProblemReport.
