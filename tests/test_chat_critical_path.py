@@ -131,6 +131,13 @@ class StalledModelTest(FakePi):
             self.chat.send(self.conversation, {'message': 'Start slowly TEST_SLOW_START'}, lambda event: None)  # 3 s before any output
         self.assertRegex(self.messages()[-1]['content'], r'^reply \d+$')
 
+    def test_a_finished_answer_stops_the_model_watchdog(self):
+        """Task 327 (live, qwen3.8:27b): a complete final answer (message_end, stopReason stop), then the harness's own
+        paperwork before agent_end: the request completes, it is not "the model stopped answering"."""
+        self.chat.send(self.conversation, {'message': 'Finish TEST_ANSWER_THEN_PAPERWORK'}, lambda event: None)  # 4 s after the answer, past the 1.5 s limits
+        self.assertRegex(self.messages()[-1]['content'], r'^reply \d+$')
+        self.assertNotIn('ended', self.messages()[-1])
+
     def test_the_defaults(self):
         from harness import settings
         defaults = {name: settings.SETTINGS[name][:2] for name in ('model_start_seconds', 'model_turn_seconds', 'model_silence_seconds')}

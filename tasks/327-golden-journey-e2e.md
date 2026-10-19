@@ -86,6 +86,10 @@ harness/web_chat.py, harness/settings.py, messages/ja.json, design/briefs/round-
 - [x] 8: watchdog (the coordinator's decision): `model_turn_seconds` (300 s, `PI_HARNESS_MODEL_TURN_SECONDS`) for a turn
   after a tool result; the first turn keeps `model_start_seconds` (900 s), mid-output silence `model_silence_seconds`
   (120 s). J01 runs with start 60 s and turn 8 s, so it proves the after-tool limit. US-297.
+- [x] 8b (live, owner's build 7d7819e, qwen3.8:27b): a complete final answer was followed 120 s later by “Failed before
+  Pi finished: the model stopped answering”, so no check-in and no Accept Anyway. A finished assistant message
+  (message_end, stopReason stop, no tool call) now rests the model watchdog until the next turn; the harness's paperwork
+  after it has the long silence limit. Fake Pi `TEST_ANSWER_THEN_PAPERWORK`; tests/test_chat_critical_path.py. US-297.
 - [x] 9: Run on its own continues with “Continue the next approved task.” and the notice “Run on its own: task N
   accepted; the next approved task starts.”, never a bare “yes” (harness/extension.mjs). US-296.
 - [x] Flaky under load: US-122 and chat.cjs's ⌘K focus check wait for the state, not a moment.

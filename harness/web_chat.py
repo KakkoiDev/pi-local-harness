@@ -763,7 +763,7 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
-            heard=time.monotonic();settled=False;thought='';spoke=False;spoke_ever=False;after_tool=False  # spoke: this model turn has output (MODEL_START, or MODEL_TURN after a tool, until then)
+            heard=time.monotonic();settled=False;thought='';spoke=False;spoke_ever=False;after_tool=False;final_answer=False  # spoke: this model turn has output (MODEL_START, or MODEL_TURN after a tool, until then)
             # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
             # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
             tools_running=set();harness_turn=False;compacting=False
@@ -778,7 +778,7 @@ class WebChat:
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
                 limit=MODEL_SILENCE if spoke else max(MODEL_TURN if after_tool else MODEL_START,MODEL_SILENCE)
-                if not settled and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>limit:
+                if not settled and not final_answer and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>limit:
                     raise ValueError(model_silence_reason(limit) if spoke_ever else model_start_reason(limit))
                 if cancelled.is_set():raise ValueError('Stopped')
                 if settled and harness_done:break
@@ -789,6 +789,10 @@ class WebChat:
                 heard=time.monotonic()
                 kind=event.get('type') if isinstance(event,dict) else None
                 if kind in ('message_update','tool_execution_start'):spoke=spoke_ever=True
+                # Task 327 (live, qwen3.8:27b): a finished answer (message_end, stopReason stop, no tool call) is not a model
+                # that stopped answering: the model watchdog rests until the next turn; the harness's paperwork has SILENCE.
+                if kind=='message_end' and (event.get('message') or {}).get('role')=='assistant':final_answer=(event['message'].get('stopReason')=='stop' and not any(part.get('type')=='toolCall' for part in event['message'].get('content') or [] if isinstance(part,dict)))
+                elif kind in ('message_start','message_update','tool_execution_start','agent_start'):final_answer=False
                 elif kind=='tool_execution_end':spoke=False;after_tool=True  # the next model turn reads the result first: MODEL_TURN
                 if kind=='tool_execution_start':tools_running.add(event.get('toolCallId') or f'tool-{len(tools_running)}')
                 elif kind=='tool_execution_end':

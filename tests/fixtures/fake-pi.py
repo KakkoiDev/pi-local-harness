@@ -298,6 +298,7 @@ else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})
     if 'TEST_FINAL_TEXT' in request['message']:text='[CANARY] clean answer'
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
+    if 'TEST_ANSWER_THEN_PAPERWORK' in request['message']:time.sleep(4)  # task 327 (live, qwen3.8:27b): the answer is complete; the harness's paperwork runs before agent_end
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})  # what the extension says when it will not wake Pi (plan 184)
     sys.stdin.readline()
