@@ -25,3 +25,22 @@ Request 2026-10-13: work cycles through four phases per project.
 Decided 2026-10-13: one Gate token for web and CLI. The goal is keeping a forgetful model
 on track, not stopping a model that tries to cheat; no extra guard against the model
 calling Gate's phase endpoint itself.
+
+## Scenarios
+
+### US-031 Discussion refuses a file write; the person sees why, in the chat and in Gate, and nothing is written
+Given a project in Discussion
+When Pi tries to write a file
+Then the chat and Gate say the write was refused because the project is in Discussion
+And the file is not written
+
+### US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Building approves; the web sees the same phase
+Given terminal Pi in a project in Discussion
+When I type /plan, Pi proposes tasks, then I type /build and choose Start Building
+Then the project is in Implementation, and the web workbench shows the same phase
+
+### US-new a task marked blocked stops the build, and the chat says what blocked it
+Given a task is being built in Implementation
+When Pi writes “- [~] Blocked: <reason>” in the task file
+Then the build stops and the chat shows the task as blocked with that reason
+And no further task starts

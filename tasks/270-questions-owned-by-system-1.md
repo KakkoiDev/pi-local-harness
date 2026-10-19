@@ -44,3 +44,20 @@ tests/harness/choices.test.mjs.
 
 Acceptance: a settled decision is never asked again; every recommendation names its source (default, safety, Laya,
 safety order); Run on its own never takes a model's recommendation.
+
+## Scenarios
+
+### US-new a question I already answered is never asked again, even after a restart
+Given I answered “Which database?” with SQLite in an earlier request
+When plh restarts and Pi proposes the same question in a new request
+Then no card appears, the chat goes on with SQLite, and the decision row says it was settled earlier
+
+### US-new each recommended option says where its recommendation comes from
+Given Pi proposes a question with three options
+When the card is shown
+Then the recommended option names its source (a default, safety, Laya or safety order), never Pi's order
+
+### US-new a message that changes an earlier answer opens a Change… card for that decision
+Given a settled decision “Store notes in SQLite”
+When I send “actually keep the notes in a JSON file”
+Then a “Change…” card for that decision appears instead of the answer silently changing

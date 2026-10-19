@@ -22,3 +22,11 @@ Plan 198 ("a Japanese UI", decided 2026-10-15). The person: "let's build it then
   left but names; Japanese labels wrap.
 - [x] Terminal Pi in Japanese too: task 220 (the screens and texts; /commands stay English).
 - [ ] The designer has not drawn the Language group in Settings (it reuses Appearance's layout and the new Radio; in the round 9 brief).
+
+## Scenarios
+
+### US-090 the workbench in Japanese: Settings › Language, then the phase button and the plan card are in Japanese
+Given the workbench in English
+When I choose 日本語 in Settings › Language
+Then the phase button and the plan card read in Japanese
+

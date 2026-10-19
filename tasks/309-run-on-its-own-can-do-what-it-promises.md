@@ -12,3 +12,20 @@ refuses `git push`, `curl`, `npm install` and the like in every phase, so the no
   happen.
 - [ ] Tests: with auto on, each promised action runs through its checked tool and appears in the report; with auto off,
   it is a proposal.
+
+## Scenarios
+
+### US-new the Run on its own risk notice lists only what Pi can actually do on its own
+Given Run on its own is off
+When I turn it on
+Then the risk notice names only the actions Gate lets Pi perform on its own
+
+### US-new with Run on its own on, a promised action runs through its checked tool and shows in the report under "left the machine"
+Given Run on its own is on and a task needs a promised action (a push, a publish or a download)
+When Pi builds the task
+Then the action runs without a question and the report lists it under "left the machine"
+
+### US-new with Run on its own off, the same action is only proposed
+Given Run on its own is off
+When Pi needs that action for a task
+Then the chat proposes it for me to choose and nothing leaves the machine

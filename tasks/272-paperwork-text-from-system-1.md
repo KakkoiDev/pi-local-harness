@@ -27,3 +27,15 @@ tests/test_lessons.py.
 
 Acceptance: every commit, file name and lesson trigger is produced by code; the model's words appear only as content
 the person can read.
+
+## Scenarios
+
+### US-new a task’s commit and file name use my request’s words, never Pi’s claim that it is fixed
+Given Pi proposes a task titled “Fixed and verified everything” for my request “add a priority to notes”
+When I approve the plan and the task is committed
+Then the task file name and the commit subject come from my words, and the commit lists the checks and whether it was verified
+
+### US-new a lesson draft appears only after a recorded failure, and waits for my yes
+Given a request where a failing test run is followed by a passing one
+When the task ends
+Then a lesson draft is offered to accept or drop, and no lesson is offered on a request with no recorded failure

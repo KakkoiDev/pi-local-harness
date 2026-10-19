@@ -21,3 +21,15 @@ kit/starters.json.
 
 Acceptance: one implementation of the priority rule, passing the same behaviour tests on every adapter; nothing in the
 app knows which target it runs on.
+
+## Scenarios
+
+### US-new in a new web app, a note gets a priority, and high notes list first, then the newest
+Given a new project from the web starter
+When I add three notes and set one to high priority
+Then the high note is listed first, the others are normal and newest first, and the order is the same after a reload
+
+### US-new editing a note to an empty title shows the message and keeps the note
+Given a note “Buy milk” in a new web starter project
+When I edit it and save an empty title
+Then the title message is shown and the note still reads “Buy milk”

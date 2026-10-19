@@ -1,6 +1,7 @@
 # 296: Checked tools that match app-building tasks
 
 Kind: code
+No scenarios: the checked tools are called by Pi and checked by Gate; the person sees and types nothing new.
 
 GPT-Sol's improvement 4: checked operations for adding routes, creating migrations, running particular tests, inspecting
 pages and assembling blocks, so a small model does less fragile shell work. Every operation passes through Gate.

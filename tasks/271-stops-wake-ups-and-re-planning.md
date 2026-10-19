@@ -30,3 +30,15 @@ harness/guides/music.md, harness/AGENTS.md, tests/harness/stops.test.mjs, tests/
   workflow passes.
 
 Acceptance: punctuation in model text decides nothing; every stop names who decided it (a card, a rule, Laya, you).
+
+## Scenarios
+
+### US-new Pi ends with a question in plain text: the workbench shows it as a card with Answer Pi’s Question recommended
+Given a request with open, unverified work
+When Pi's last reply asks “Shall I continue with the second page?” without a choice card
+Then a card quotes Pi's question with “Answer Pi's question” (recommended), “Let Pi continue with its proposal”, “Something else…”
+
+### US-new the same test still failing after three runs offers “Re-plan this task?” with Go Back to Planning recommended
+Given an approved task whose Red test has not been reached after three runs
+When Pi's third run fails the same way
+Then a card “Re-plan this task?” offers “Go back to Planning for this task” (recommended), “Try once more”, “Something else…”

@@ -21,3 +21,16 @@ and shown at approval:
 
 - [ ] Red: the red step allows edits only under `Tests:`; only `Test command:` counts as a red or green run.
 - [ ] Red: without the header, defaults apply (`tests/`, `test_*`, `*_test.*`, `*.test.*`, any known runner).
+
+## Scenarios
+
+### US-new during the failing-test step, Pi’s edit to app code is refused with the step to do, and the chat says why
+Given an approved code task in Implementation, at its failing-test step
+When Pi tries to edit a file outside the test folder
+Then the chat and Gate show the edit was refused, naming the step and what to do instead
+And the file is unchanged
+
+### US-new the plan card shows the test folder and test command before I approve the plan
+Given Pi proposed a plan whose ROADMAP.md header has Tests: and Test command:
+When I look at the plan card in Planning
+Then it shows the test folder and the test command next to the tasks

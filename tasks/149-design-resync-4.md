@@ -11,3 +11,15 @@ Request 2026-10-14: the designer drew round 4 (`design/briefs/round-4-notes.md`)
 - [x] Phone recording: `.pw-btn--rec` inverted with a paper dot and the time (one bit, no red).
 - [x] Thread: Add Note and Ask Pi (default once there is text) with the help line; replaces Reply.
 - [ ] Phone: ⋯ More sheets for the open file and a folder; Model and Thinking rows in the π sheet.
+
+## Scenarios
+
+### US-new on the phone, ⋯ More on the open file and on a folder opens its sheet of actions
+Given the workbench at phone width with a file open in Work
+When I tap ⋯ More on the file, then on a folder
+Then each opens its More sheet with that item’s actions
+
+### US-new on the phone, the π sheet has Model and Thinking rows that change them
+Given the workbench at phone width
+When I open the π sheet and choose the Model row
+Then the model list opens and the chosen model shows in the row

@@ -13,3 +13,20 @@ Source: the second bug hunt (2026-10-18) and its documentation-drift part; numbe
   `<title>`, ja.json and the README text; starter READMEs describe their own kind.
 - [ ] Project creation commits with signing and hooks off and cleans up on failure, so a retry works.
 - [ ] Emoji in project names are kept or refused with a message, never silently dropped.
+
+## Scenarios
+
+### US-new a new project's own tests pass on the first run, with no network
+Given the network is off
+When I create a web project and a static project and run each README's test command
+Then Gate allows every README command and the tests pass
+
+### US-new a project name with an emoji is kept or refused with a message, never silently changed
+Given the new-project sheet
+When I create a project named "Habits 🌱"
+Then the project is created with that name, or the sheet says why the emoji cannot be used and nothing is created
+
+### US-new a project creation that fails can be tried again with the same name
+Given a project creation that failed half way
+When I create the project again with the same name
+Then it is created and its first commit is there

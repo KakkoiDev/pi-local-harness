@@ -24,3 +24,15 @@ tests/test_package.py.
 
 Acceptance: the same contract suite can be pointed at any adapter; the server package is built by code from the shared
 source and runs.
+
+## Scenarios
+
+### US-new package the app as a server: dist/server is built and the packaged app serves its pages
+Given a web app project in Implementation with an approved packaging task
+When I ask to package it for the server (`plh package server`)
+Then dist/server is written and the packaged app starts on a free port and shows the starter's pages
+
+### US-new a kit update offers the newer platform adapter as a task, never a silent overwrite
+Given a project whose platform/ copy holds an older server adapter version
+When the kit ships a newer adapter
+Then the workbench offers updating the adapter as a task, and platform/ is unchanged until I approve it

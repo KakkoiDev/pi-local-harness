@@ -13,3 +13,21 @@ https://github.com/JustVugg/colibri alongside Ollama and online providers.
   unsupported capabilities honestly.
 - [ ] Adapter unit tests, a local stub-server integration test, a browser journey; a real-model smoke test only with the
   person's yes.
+
+## Scenarios
+
+### US-new choose a model served by Colibri: the current provider stays until I pick it, and the chat answers through it
+Given a Colibri server is running on a free port with one installed model
+When I open the model choice and pick that Colibri model
+Then it is listed beside the Ollama and online models and my next message is answered with streaming text
+And the model I used before stays selectable and untouched
+
+### US-new a Colibri model that cannot call tools says so instead of failing silently
+Given a Colibri model without tool support is selected
+When I ask Pi to change a file
+Then the chat says the model cannot use tools and names what to choose instead
+
+### US-new Colibri stops mid-answer: the request fails with why and Retry
+Given Pi is answering through a Colibri model
+When the Colibri server stops
+Then the chat says the connection to Colibri was lost and offers Retry, and the chat goes on after it

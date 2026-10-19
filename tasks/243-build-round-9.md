@@ -47,3 +47,21 @@ below only says which board serves which box:
 The failing tests first showed the missing web update service and window, Terminal metadata and bridge, and per-request shared language. Their focused Python and Node checks now pass. The full Python/Node workflow passes. Scratch browser checks cover every update state, the install sheet, icons, immediate Settings, terminal sizes, Restart and phone keys, with English and Japanese controls. A real cached Textual server was also checked in scratch: Return reaches its stdin socket, and both shared Japanese and Preview's English override reach the app. No packages were downloaded.
 
 The installer-owned Dock/menu-bar/tray behavior is recorded in plan 221 for the installer work. Settings saves language and daily update checks for web and terminal; the two controls above remain deferred by the person. Startup project loading now preserves a newer view click. Design sample cards live beside the polling message list so chat refresh cannot remove test fixtures.
+
+## Scenarios
+
+### US-new Settings lists Language first, then Show lessons, the worker wait and the daily update check
+Given the workbench on the desk
+When I open Settings
+Then Language is the first row, followed by Show lessons, "Wait 10 seconds before Gate starts the worker" and "Check for updates once a day"
+And there is no "Phone access" setting
+
+### US-new on a phone (390 px) Settings shows Language first and the same three switches
+Given the workbench on a phone (390 px)
+When I open Settings from the π sheet
+Then Language is the first row and Show lessons, the worker wait and "Check for updates once a day" are there, in Japanese when Language is Japanese
+
+### US-new turning off Show lessons in web Settings is the terminal's setting on the next request
+Given Show lessons is on
+When I turn it off in web Settings and terminal Pi starts its next request
+Then terminal Pi shows no lesson lines and Settings still shows Show lessons off after a reload

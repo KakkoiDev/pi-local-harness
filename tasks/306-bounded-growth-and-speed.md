@@ -1,6 +1,7 @@
 # 306: Long-lived projects stay fast
 
 Kind: code
+No scenarios: payload size, locks, inventory order, capped logs and cross-process locking are server-side speed and safety work with no new screen or command.
 
 Source: the second bug hunt (2026-10-18) and its documentation-drift part; numbers are the hunt report's items. Items 6, 7, 8, 18.
 

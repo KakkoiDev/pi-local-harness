@@ -24,3 +24,21 @@ Source: the second bug hunt (2026-10-18) and its documentation-drift part; numbe
 - [x] Appearance: Match System is the default; Paper and Inverse stay deliberate choices (“…, always”).
 - [x] Every new string in English and Japanese (messages/ja.json, R12_Strings).
 - [x] Browser stories US-123 (a link in Work opens the task) and US-124 (⌃⌥ shortcuts).
+
+## Scenarios
+
+### US-new the status says Working while a web request runs
+Given a project open on the desk
+When I send a message and Pi starts on it
+Then the status shows Working on the project until the answer arrives, never Ready
+
+### US-new in Japanese the menus, choice lines and counts are all translated, and the phone fits
+Given Language is Japanese
+When I open the menus, answer a choice and open Work, on the desk and on a phone (390 px)
+Then the rows, "Why?", "Tasks", the "Choice: … →" line and "your words · you" are in Japanese and task counts are pluralised right
+And the π menu does not overflow, Work's checkboxes and "show more" are 44 px and chat tables scroll
+
+### US-new choosing a model while Ollama is down says so in Work too
+Given Ollama is not running
+When I choose an Ollama model and open Work
+Then Work says Ollama is down and how to start it

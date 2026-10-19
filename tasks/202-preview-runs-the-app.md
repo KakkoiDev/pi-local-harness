@@ -19,3 +19,10 @@ preview in the pi harness directly." The view itself waits for the designer: [de
   (`kit/toolchain.json`). First start of a new project 12 s (one download), then about 1.5 s.
 - [x] `GET /api/preview?project=`, `POST /api/preview/start` and `/api/preview/stop`. Green: verify_workflow.
 - [ ] The view, once the canvas has it (a later task).
+
+## Scenarios
+
+### US-060 preview a page Pi built, at phone and tablet sizes; Open on Phone says why it is off
+Given a project where Pi built a page
+When I open the Preview and switch to Phone, then Tablet, then choose Open on Phone…
+Then the page shows at each size, and Open on Phone says why phone access is off

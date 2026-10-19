@@ -56,3 +56,20 @@ Not built here: Run on its own's report as decision rows; the plan approval card
 and the scope-widening card (tasks 268 and 271 decide them); Laya's plain beginner words ("checked by the workbench")
 are the board's source tags instead. Needs the designer: the expert row's small rule, confidence, time and command; the
 disabled Change… with its reason line; the How to Install dialog.
+
+## Scenarios
+
+### US-new the approval card shows each task’s Kind and Files with who set them
+Given Pi proposed a plan in Planning
+When I open the plan card
+Then each task's Kind and Files are decision rows naming the workbench and its rule, with Change… where it can be changed
+
+### US-new changing a decision a task depended on stops that work and offers “Re-plan this task?”
+Given a task in progress that followed my answer “Store notes in SQLite”
+When I choose Change… on that answer and pick a JSON file
+Then the work that depended on it is cancelled and the “Re-plan this task?” card is shown
+
+### US-new Run on its own’s report lists every automatic decision by task, each with Change…
+Given Run on its own finished two tasks
+When I open its report
+Then every decision it took is a row under its task, with its author and Change…

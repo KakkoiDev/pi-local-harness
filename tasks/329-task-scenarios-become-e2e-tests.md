@@ -41,3 +41,15 @@ System 1 decides and checks; the model writes the scenarios and the tests.
 - [ ] The web starter's e2e example was run only on its skip path (no Python Playwright on this machine); the static one
   passed in a real headless Chromium.
 - [x] Green: python3 tests/verify_workflow.py; tests/browser/run.py all.
+
+## Scenarios
+
+### US-new removing a button from a terminal app together with its pilot test shows “Removed: …” on the check-in
+Given a terminal app project with a Textual button and a pilot test that presses it
+When Pi removes the button and its test in an approved task
+Then the check-in says “Removed: …” naming the button
+
+### US-new a terminal app’s button removed while its pilot test still uses it ends “not verified”, naming the button
+Given a terminal app project with a Textual button and a pilot test that presses it
+When Pi removes the button but keeps the test
+Then the task ends “not verified”, naming the button and the test

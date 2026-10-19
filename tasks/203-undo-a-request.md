@@ -18,3 +18,10 @@ Request 2026-10-15: "go for it" (build while the course is written).
 - [x] Green: verify_workflow. (The extension's note line has no Node test of its own: the request-end path is not
   covered by the Node suite today; the Python side parses the exact text.)
 - [ ] The button under each answer, once the canvas has it.
+
+## Scenarios
+
+### US-050 undo a request, then redo it: each is a new commit and the files follow
+Given an answer whose request the harness committed
+When I choose Undo This Request… under it, then Redo Request… on the undone row
+Then each makes a new commit, and the files go back, then come back

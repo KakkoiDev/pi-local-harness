@@ -16,3 +16,10 @@ good tui lib."
 - [x] Tests (python, `tests/test_starter.py`, `tests/test_project_kinds.py`, `tests/test_preview.py`); `PI_KIT_HEAVY=1`
   installs it and runs its 6 tests and strict pyright.
 - [ ] The designer has not drawn the fourth kind in New Project… (it follows the drawn three; in the round 9 brief).
+
+## Scenarios
+
+### US-new New Project… offers Terminal app, and its Preview shows the app running
+Given New Project… is open
+When I choose Terminal app, name it and create it
+Then the project opens and its Preview shows the terminal app in the browser

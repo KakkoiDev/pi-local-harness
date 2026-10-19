@@ -21,3 +21,10 @@ output, summaries of 19-31k characters).
   “- Q: A (chosen <time>)”; an answer while a plan waits for Start Building goes into that plan's first task, and the
   plan's digest follows (the harness's line is not a change of scope). Tests: tests/test_paperwork.py (three cases),
   US-040 passes.
+
+## Scenarios
+
+### US-new a choice I already answered is not asked again after the chat is compacted
+Given I answered a choice in Planning and the plan was approved
+When the conversation is compacted and Pi reaches the same decision while building
+Then no ChoiceCard asks it again and the task's Decisions still show my answer
