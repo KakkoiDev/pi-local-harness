@@ -377,3 +377,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [331-A new project's packages are installed at Create, and an existing project can install them](tasks/331-project-environment.md)
 
 - [ ] [332-Every starter and capability ships the same test protocol (test-core)](tasks/332-starters-test-protocol.md)
+
+- [ ] [333-Put action recording in test-core with a thin Workbench adapter](tasks/333-action-recorder-test-core.md)
