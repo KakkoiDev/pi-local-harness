@@ -14,7 +14,7 @@ class InstallTest(unittest.TestCase):
         for key in ("name", "short_name", "start_url"):
             self.assertTrue(str(manifest.get(key, "")).strip(), f"the manifest needs {key}")
         self.assertIn(manifest.get("display"), ("standalone", "fullscreen", "minimal-ui"), "it opens like an app")
-        icons = manifest.get("icons") or []
+        icons: list[dict[str, str]] = manifest.get("icons") or []
         self.assertTrue(icons, "the manifest needs an icon")
         for icon in icons:
             self.assertTrue((ROOT / str(icon["src"]).lstrip("/")).is_file(), f"missing icon {icon['src']}")

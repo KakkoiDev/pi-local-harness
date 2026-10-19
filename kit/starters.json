@@ -1,20 +1,20 @@
 {
   "static": {
     "identify": "js/app.mjs",
-    "sample_files": ["js/logic/notes.mjs", "tests/notes.test.mjs", "index.html", "js/app.mjs", "tests/e2e/notes.e2e.test.mjs"],
-    "skeleton": ["js/store.mjs", "js/i18n.mjs", "sw.js", "tests/i18n.test.mjs", "tests/files.test.mjs", "tsconfig.json", "styles/"],
+    "sample_files": ["js/logic/notes.mjs", "tests/notes.test.mjs", "index.html", "js/app.mjs", "tests/e2e/notes.e2e.test.mjs", "SCENARIOS.md"],
+    "skeleton": ["js/store.mjs", "js/i18n.mjs", "sw.js", "tests/i18n.test.mjs", "tests/files.test.mjs", "tests/protocol.test.mjs", "tests/e2e/browser.mjs", "test-core/", "tsconfig.json", "styles/"],
     "rename": {"manifest.webmanifest": ["name", "short_name"], "messages/*.json": ["app.name=Notes", "notes.*"], "README.md": ["notes text"]}
   },
   "web": {
     "identify": "app/main.py",
-    "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "tests/test_logic.py", "tests/test_app.py", "tests/e2e/test_notes_e2e.py", "app/main.py", "app/templates/pages/index.html", "app/templates/fragments/note_form.html", "app/templates/fragments/note_created.html", "app/templates/fragments/note_item.html"],
-    "skeleton": ["app/db.py", "app/i18n.py", "app/templates/base.html", "static/sw.js", "tests/test_i18n.py", "tests/test_files.py", "tests/test_base.py", "pyproject.toml", "styles/"],
+    "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "tests/test_logic.py", "tests/test_app.py", "tests/e2e/test_notes_e2e.py", "app/main.py", "app/templates/pages/index.html", "app/templates/fragments/note_form.html", "app/templates/fragments/note_created.html", "app/templates/fragments/note_item.html", "SCENARIOS.md"],
+    "skeleton": ["app/db.py", "app/i18n.py", "app/templates/base.html", "static/sw.js", "tests/test_i18n.py", "tests/test_files.py", "tests/test_base.py", "tests/test_protocol.py", "tests/e2e/conftest.py", "test-core/", "pyproject.toml", "styles/"],
     "rename": {"static/manifest.webmanifest": ["name", "short_name"], "messages/*.json": ["app.name=Notes", "notes.*"], "README.md": ["notes text"]}
   },
   "tui": {
     "identify": "app/tui.py",
-    "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "app/tui.py", "tests/test_logic.py", "tests/test_tui.py"],
-    "skeleton": ["app/db.py", "app/i18n.py", "serve.py", "tests/test_i18n.py", "tests/test_base.py", "pyproject.toml"],
+    "sample_files": ["app/logic/notes.py", "migrations/001-notes.sql", "app/tui.py", "tests/test_logic.py", "tests/test_tui.py", "SCENARIOS.md"],
+    "skeleton": ["app/db.py", "app/i18n.py", "serve.py", "tests/test_i18n.py", "tests/test_base.py", "tests/test_protocol.py", "test-core/", "pyproject.toml"],
     "rename": {"messages/*.json": ["app.name=Notes", "notes.*"], "README.md": ["notes text"]}
   }
 }

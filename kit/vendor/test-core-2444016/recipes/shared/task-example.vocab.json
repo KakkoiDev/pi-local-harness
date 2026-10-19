@@ -1,0 +1,16 @@
+{
+  "name": "Task example (sample app)",
+  "note": "The fixed step vocabulary of recipes/shared/task-example.md. Scenarios use only these steps; each has a function at every level listed (recipe scenario-steps). Check a task: python3 tools/vocab.py check TASK.md --vocab THIS_FILE.",
+  "levels": ["unit", "integration", "e2e"],
+  "steps": [
+    {"step": "Given I am signed in with an empty list", "ja": "空のリストでサインインしている"},
+    {"step": "Given I am signed in with the task {title}", "params": {"title": "text"}, "ja": "タスク {title} がある状態でサインインしている"},
+    {"step": "When I add the task {title}", "params": {"title": "text"}, "ja": "タスク {title} を追加する"},
+    {"step": "When I add a task with an empty title", "ja": "空のタイトルでタスクを追加する"},
+    {"step": "When I delete {title}", "params": {"title": "text"}, "ja": "{title} を削除する"},
+    {"step": "Then I see {title} in the list", "params": {"title": "text"}, "ja": "リストに {title} が表示される"},
+    {"step": "Then the count says {text}", "params": {"text": "text"}, "ja": "件数に {text} と表示される"},
+    {"step": "Then the list is empty", "ja": "リストが空になる"},
+    {"step": "Then the list is still empty", "ja": "リストは空のまま"}
+  ]
+}

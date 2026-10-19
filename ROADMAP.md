@@ -371,3 +371,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [329-Every task has its scenarios, and each scenario becomes an e2e test](tasks/329-task-scenarios-become-e2e-tests.md)
 
 - [ ] [330-The harness's own development uses the testing protocols it gives the apps Pi builds](tasks/330-dogfood-testing-protocols.md)
+
+- [ ] [332-Every starter and capability ships the same test protocol (test-core)](tasks/332-starters-test-protocol.md)

@@ -26,6 +26,28 @@ class KitTest(unittest.TestCase):
             self.assertIn(f"| {lib['version']} | {lib['license']} |", notices, lib['name'])
             self.assertTrue((KIT / lib['card']).is_file(), f"{lib['name']} has a card")
 
+    def test_test_core_is_pinned_to_its_commit_with_every_file_checked(self):
+        """Task 332: test-core (PR #1, not merged yet) is pinned to one commit; every file projects get is checked."""
+        library = next(lib for lib in self.libraries if lib['name'] == 'test-core')
+        self.assertRegex(library['commit'], r'^[0-9a-f]{40}$'); self.assertTrue(library['commit'].startswith(library['version']))
+        self.assertIn(library['commit'], library['source']); self.assertEqual(library['license'], 'MIT')
+        folder = KIT / library['folder']
+        for name, digest in library['files_sha256'].items():
+            self.assertEqual(hashlib.sha256((folder / name).read_bytes()).hexdigest(), digest, name)
+        for name in ('test-core/tools/scenarios.py', 'test-core/tools/vocab.py', 'test-core/functional/blocks/python/edit_form.py',
+                     'test-core/functional/blocks/js/EditForm.js', 'test-core/LICENSE', 'test-core/a11y-smoke.js', 'AGENTS.md', 'NOTES.md'):
+            self.assertTrue((folder / name).is_file(), name)
+        import subprocess, sys
+        verified = subprocess.run([sys.executable, '-I', str(folder / 'test-core/adopt.py'), '--verify', str(folder / 'test-core')], capture_output=True, text=True)
+        self.assertEqual(verified.returncode, 0, verified.stdout + verified.stderr)
+        self.assertIn(library['commit'], verified.stdout, 'the adopted copy is this commit, every file as copied')
+        for language in ('python', 'js'):
+            for recipe in ('scenario-e2e', 'scenario-steps', 'a11y-smoke', 'flaky-rules', 'offline-phone', 'fixtures'):
+                self.assertTrue((folder / 'recipes' / language / recipe / 'README.md').is_file(), f'{language}/{recipe}')
+        card = (KIT / 'cards/test-core.md').read_text()
+        for word in ('SCENARIOS.md', 'scenarios.py', 'e2e_coverage.py', 'flaky_lint.py', 'tests/e2e/conftest.py', 'tests/e2e/browser.mjs', 'data-ready', 'a11y'):
+            self.assertIn(word, card)
+
     def test_the_basecoat_card_names_only_basecoat_classes(self):
         # What a project loads: basecoat.css and what it imports, not the legacy layer (pre-1.0 classes such as
         # btn-outline live only there and render as plain text; the first card taught them).

@@ -10,7 +10,9 @@ dev = ["pytest", "httpx2", "pyright[nodejs]", "pytailwindcss"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
+extraPaths = ["test-core"]
 include = ["app", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "test-core"]  # test-core's functional library and test blocks (task 332)

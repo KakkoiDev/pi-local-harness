@@ -151,6 +151,14 @@ def scenario_card(task_text):
     except OSError: return ''
 
 
+def test_core_card(task_text):
+    """Task 332: the test protocol card (kit/cards/test-core.md) for a code task ('' otherwise): SCENARIOS.md, one e2e
+    test per scenario, the browser helper and test-core's checks, the same in every project from the kit."""
+    if not re.search(r'^Kind:\s*code\s*$', task_text, re.M): return ''
+    try: return (Path(__file__).resolve().parent.parent / 'kit/cards/test-core.md').read_text(encoding='utf-8')
+    except OSError: return ''
+
+
 def build_context(store, project, request, current=None, passage='', thread='', budget=BUDGET, now=None, task=None, changed=None):
     root = store.project_path(project)
     current_name = current.split('/', 2)[2] if current else None
@@ -204,6 +212,8 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     if note: offer('The app’s theme', note, required=True)
     card = scenario_card(selection['bodies'].get(selection['task']) or '')
     if card: offer('Recipe: scenarios become e2e tests (kit/cards/e2e-scenarios.md)', card, required=True)
+    protocol = test_core_card(selection['bodies'].get(selection['task']) or '')
+    if protocol: offer('Recipe: the test protocol (kit/cards/test-core.md)', protocol, required=True)
 
     # 3. Mentioned files, then 4. auto-selected while room is left
     chosen = [name for name in mentioned(f'{request}\n{passage}\n{thread}', names) if name != current_name]

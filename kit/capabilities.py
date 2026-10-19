@@ -96,7 +96,7 @@ def public():
     data = catalogue()
     capabilities = []
     for item in data['capabilities']:
-        row = {key: value for key, value in item.items() if not key.startswith('_') and key not in ('install', 'keywords', 'readme')}
+        row = {key: value for key, value in item.items() if not key.startswith('_') and key not in ('install', 'keywords', 'readme', 'scenarios')}
         row['tests'] = {base: tests_added(item, base) for base in item.get('install', {})}
         capabilities.append(row)
     return {'groups': data['groups'], 'packages': data['packages'], 'capabilities': capabilities}
@@ -184,6 +184,33 @@ def _block_files(names, base, folder=None):
     return files, any(texts.get(name) for name in chosen)
 
 
+# Task 332: what a capability's e2e test stands on in the project: the starter's e2e helper (the one place that decides
+# about the browser) and test-core's checkers. A project made before them gets the missing ones with the capability.
+STARTER = {'web': 'starter', 'static': 'starter-static', 'tui': 'starter-tui'}
+PROTOCOL_HELPERS = {'web': ['tests/e2e/__init__.py', 'tests/e2e/conftest.py'], 'static': ['tests/e2e/browser.mjs'], 'tui': ['tests/e2e/__init__.py']}
+
+
+def _protocol_helpers(capability, base, folder):
+    """[(source, target)] of the e2e helpers and test-core files a capability with scenarios needs and `folder` lacks."""
+    if not capability.get('scenarios') or folder is None: return []
+    folder = Path(folder); found = []
+    for name in PROTOCOL_HELPERS.get(base, []):
+        if not (folder / name).exists(): found.append((KIT / STARTER[base] / name, name))
+    test_core = KIT / next(item for item in json.loads((KIT / 'libraries.json').read_text(encoding='utf-8'))['libraries'] if item['name'] == 'test-core')['folder'] / 'test-core'
+    for source in sorted(path for path in test_core.rglob('*') if path.is_file() and '__pycache__' not in path.parts):
+        name = 'test-core/' + source.relative_to(test_core).as_posix()
+        if not (folder / name).exists(): found.append((source, name))
+    return found
+
+
+def _add_scenarios(folder, capability):
+    """The capability's scenarios, appended to the project's SCENARIOS.md under its name (the file is made if missing)."""
+    path = Path(folder) / 'SCENARIOS.md'
+    text = path.read_text(encoding='utf-8') if path.is_file() else '# Scenarios\n'
+    block = (Path(capability['_kit']) / capability['scenarios']).read_text(encoding='utf-8').strip()
+    path.write_text(text.rstrip() + f"\n\n## {capability['name']}\n\n{block}\n", encoding='utf-8')
+
+
 def planned(capability, base, folder=None):
     """(files added, files changed) when `capability` goes into a `base` project, without writing anything. With the
     project's `folder`, a library file already there, byte for byte, is neither added nor changed."""
@@ -197,19 +224,23 @@ def planned(capability, base, folder=None):
         source = Path(capability['_kit']) / source
         if source.is_dir(): added += [f'{target}/{path.relative_to(source).as_posix()}' for path in sorted(source.rglob('*')) if path.is_file() and '__pycache__' not in path.parts]
         else: added.append(target)
+    added += [target for _, target in _protocol_helpers(capability, base, folder) if target not in added]
     texts = False
     if spec.get('blocks'):
         files, texts = _block_files(spec['blocks'], base, folder); added += [name for name in files if name not in added]
-    changed = ['README.md', 'packaging.json'] + ([WORKER[base]] if spec.get('shell') else []) + (['messages/en.json', 'messages/ja.json'] if texts else [])
+    changed = ['README.md', 'packaging.json'] + ([WORKER[base]] if spec.get('shell') else []) + (['messages/en.json', 'messages/ja.json'] if texts else []) \
+        + (['SCENARIOS.md'] if capability.get('scenarios') else [])
     return added, changed
 
 
 def install(folder, capability, base):
     """Copy one capability's files into the project and add its files to the offline shell. Returns the files added."""
     folder = Path(folder); spec = capability['install'][base]; added, _ = planned(capability, base, folder)
-    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', WORKER.get(base, 'sw.js')]: project_path(folder, name)
+    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', 'SCENARIOS.md', WORKER.get(base, 'sw.js')]: project_path(folder, name)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"{capability['name']}: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''} in the project.")
+    for source, target in _protocol_helpers(capability, base, folder):
+        (folder / target).parent.mkdir(parents=True, exist_ok=True); shutil.copy2(source, folder / target)
     if spec.get('files'):
         source = Path(capability['_kit']) / spec['files']
         for path in _fragment_files(capability, base):
@@ -221,6 +252,7 @@ def install(folder, capability, base):
     if spec.get('blocks'): _blocks().add(folder, spec['blocks'])  # the libraries, licences and texts, as App Blocks copy them
     if spec.get('shell'):
         worker = folder / WORKER[base]; worker.write_text(_worker_entries(worker.read_text(encoding='utf-8'), spec['shell']), encoding='utf-8')
+    if capability.get('scenarios'): _add_scenarios(folder, capability)
     return added
 
 
@@ -437,7 +469,7 @@ def add(folder, identifier, data=None, request=None, full_suite=None):
     if missing: raise ValueError(f"{item['name']} needs {', '.join(_by_id(catalogue()['capabilities'], need, 'capability')['name'] for need in missing)} first.")
     if not (folder / '.git').exists(): raise ValueError('This project has no history, so the change could not be undone. Nothing was changed.')
     added, changed = planned(item, base, folder)
-    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', WORKER.get(base, 'sw.js')]: project_path(folder, name)
+    for name in [*added, 'README.md', 'packaging.json', 'messages/en.json', 'messages/ja.json', 'SCENARIOS.md', WORKER.get(base, 'sw.js')]: project_path(folder, name)
     taken = [name for name in added if (folder / name).exists()]
     if taken: raise ValueError(f"Not added: {', '.join(taken[:3])} already exist{'s' if len(taken) == 1 else ''}. Nothing was changed.")
     edited = [line[3:] for line in _git(folder, 'status', '--porcelain', '--', *changed).stdout.splitlines()]

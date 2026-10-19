@@ -8,20 +8,26 @@ checks, before it calls the task verified:
 - every button, link and field you add to a page or template is used by an e2e test, and an e2e test never uses a
   control you removed (remove the control and its test together; the person sees both on the check-in).
 
+Add the task's scenarios to the project's `SCENARIOS.md` too (`### Scenario: <title>`, then `- Given …`, `- When …`,
+`- Then …`): it lists every scenario the app ships, and the project's own check (`tests/test_protocol.py` or
+`tests/protocol.test.mjs`, test-core's tools; card `kit/cards/test-core.md`) fails when one has no test.
+
 ## Write the test
 
 One test per scenario, in the project's e2e folder, the scenario's words as the test's name:
 
 | Project | File | Name for “Add a note and see it in the list” | Run (names shown) |
 |---|---|---|---|
-| App with no server (`js/app.mjs`) | `tests/e2e/<feature>.e2e.test.mjs` | `test('Add a note and see it in the list', …)` | `node --test tests/e2e/<feature>.e2e.test.mjs` |
+| App with no server (`js/app.mjs`) | `tests/e2e/<feature>.e2e.test.mjs` | `test('Add a note and see it in the list', { skip }, …)` | `node --test tests/e2e/<feature>.e2e.test.mjs` |
 | Web app (`app/main.py`) | `tests/e2e/test_<feature>_e2e.py` | `def test_add_a_note_and_see_it_in_the_list(base, page):` | `uv run --offline pytest -v tests/e2e` |
 | Terminal app (`app/tui.py`) | `tests/test_tui.py` | `async def test_add_a_note_and_see_it_in_the_list():` (Textual's `run_test()` pilot) | `uv run --offline pytest -v tests/test_tui.py` |
 | Playwright Test project | `tests/e2e/<feature>.spec.ts` | `test('Add a note and see it in the list', …)` | `npx playwright test --reporter=list` |
 
-Copy the starter's example (`tests/e2e/notes.e2e.test.mjs` or `tests/e2e/test_notes_e2e.py`): it serves the app on a
-local port, starts Chromium with `--use-mock-keychain` and `--password-store=basic`, and skips with the reason when no
-browser is set up. Never download a browser in a test.
+Copy the starter's example (`tests/e2e/notes.e2e.test.mjs` or `tests/e2e/test_notes_e2e.py`). The app and the browser
+come from the project's one e2e helper, `tests/e2e/browser.mjs` (`serve`, `startBrowser`, `newPage`, `open`) or
+`tests/e2e/conftest.py` (fixtures `base`, `page`, `serve`): it serves the app on a local port, starts Chromium with
+`--use-mock-keychain` and `--password-store=basic`, refuses every host but 127.0.0.1, and skips with the reason when no
+browser is set up. Never launch or download a browser in a test yourself.
 
 - **Given** sets the state up (open the page, add what must already be there, through the app or its database).
 - **When** acts as the person does: `getByRole('button', { name: 'Add Note' })`, `getByLabel('New note')`

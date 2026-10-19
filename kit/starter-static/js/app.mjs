@@ -31,6 +31,7 @@ let problems = [];  // kept, so a language switch translates the message on scre
 function showProblems() {
   error.hidden = !problems.length; error.textContent = problems.map(problem => t(problem.key)).join(' ');
   input.setAttribute('aria-invalid', String(Boolean(problems.length)));
+  if (problems.length) input.setAttribute('aria-describedby', 'title-error'); else input.removeAttribute('aria-describedby');
 }
 
 function translatePage() {
@@ -85,3 +86,4 @@ restore.addEventListener('change', async () => {
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 translatePage(); await draw();
+document.body.dataset.ready = 'true';  // the e2e tests wait for this before the first click (test-core NOTES.md 4)

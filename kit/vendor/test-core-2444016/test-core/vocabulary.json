@@ -1,0 +1,6 @@
+{
+  "name": "This project's steps",
+  "note": "The fixed step vocabulary of this project's scenarios, next to the generated block steps (test-core/functional/blocks/vocabulary.json). Add a phrase here before a scenario uses it; give it a function per level in a Registry. Check: python3 test-core/tools/vocab.py check TASK.md --vocab test-core/vocabulary.json test-core/functional/blocks/vocabulary.json",
+  "levels": ["unit", "integration", "e2e"],
+  "steps": []
+}

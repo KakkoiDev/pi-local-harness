@@ -288,7 +288,7 @@ story('US-136', 'Add a Capability…: what changes, Safety and Undo; it is kept 
   assert.match(await dialog.locator('.pw-cap[data-id="database"]').textContent(), /The App with no server can't carry it/);
   assert.equal(await dialog.locator('.pw-cap[data-id="database"] input').isDisabled(), true);
   await dialog.locator('.pw-cap[data-id="qrcode"] input').check();
-  await page.locator('#capability-facts').filter({ hasText: 'adds 3 files · changes 3 (README.md, packaging.json, sw.js) · adds 2 tests' }).waitFor();
+  await page.locator('#capability-facts').filter({ hasText: 'adds 4 files · changes 4 (README.md, packaging.json, sw.js, SCENARIOS.md) · adds 2 tests' }).waitFor();
   const facts = await page.locator('#capability-facts').textContent();
   assert.match(facts, /every existing test must still pass; if one fails, nothing is kept/); assert.match(facts, /it is one request: Undo This Request… takes it back/);
   await page.locator('#capability-add').click();
@@ -1975,6 +1975,66 @@ story('US-300', 'Pi tries a command Gate cannot classify: it stays refused with 
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };
+
+// -- Task 332: every starter and capability ships the same test protocol (test-core) ---------------------------------
+/** A project made in Project Start with the test protocol: SCENARIOS.md (shown in Work), one e2e test per scenario, the
+ * one browser helper, test-core's tools, and its own check inside the base check Create ran (offline, uv stubbed). */
+async function protocolProject(t, name, kind, { capabilities = [], titles, tests, check, helper }) {
+  await offlineUv(t);
+  const made = await newProject(t, name, kind, capabilities);
+  await t.page.locator('#toast-text').filter({ hasText: new RegExp(`Created “${name}”: all \\d+ tests of the base pass\\.`) }).waitFor();
+  for (const file of ['SCENARIOS.md', helper, ...tests, 'test-core/tools/scenarios.py', 'test-core/tools/e2e_coverage.py', 'test-core/tools/flaky_lint.py', 'test-core/a11y-smoke.js', 'test-core/LICENSE'].filter(Boolean)) assert.ok(exists(made.root, file), file);
+  const scenarios = t.bench.read(made.root, 'SCENARIOS.md'), source = tests.map(file => t.bench.read(made.root, file)).join('\n');
+  for (const title of titles) {
+    assert.match(scenarios, new RegExp(`### Scenario: ${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n- Given `), title);
+    const python = 'test_' + title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_|_$/g, '');
+    assert.ok(source.includes(`'${title}'`) || source.includes(`def ${python}(`), `one e2e test named after “${title}”`);
+  }
+  const runs = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(run => run.cwd === made.root);
+  assert.ok(runs.some(run => run.command.includes(check) && run.exit_code === 0 && !run.counts.fail), 'Create ran the protocol check and it passed: ' + runs.map(run => run.command).join(' / '));
+  assert.ok(runs.every(run => !/e2e/.test(run.command)), 'Create never starts a browser');
+  assert.match(t.bench.read(made.root, 'README.md'), /## Scenarios and tests \(test-core\)/);
+  await t.page.locator('#work-tab').click();
+  await t.page.getByRole('button', { name: 'SCENARIOS.md', exact: true }).first().click();
+  await t.page.locator('#document-editor').getByText(titles[0]).first().waitFor();
+  return made;
+}
+const NOTES = ['Add a note and see it in the list', 'Delete a note and it leaves the list', 'An empty note is not added and says why', 'Switch the page to Japanese and back to English'];
+
+story('US-340', 'a web app from Project Start has its scenarios, one e2e test each and test-core’s checks; Create runs the checks offline and they pass', async t => {
+  await protocolProject(t, 'Shop Notes', 'web', { capabilities: ['database'], check: 'tests.test_protocol', helper: 'tests/e2e/conftest.py',
+    titles: [...NOTES, 'The notes page passes the accessibility smoke check', 'The app opens again on the same database file'],
+    tests: ['tests/e2e/test_notes_e2e.py', 'tests/e2e/test_cap_database_e2e.py'] });
+});
+
+story('US-341', 'an app with no server has its scenarios, one e2e test each and test-core’s checks; Create runs the checks offline and they pass', async t => {
+  await protocolProject(t, 'Pocket Notes', 'static', { capabilities: ['offline'], check: 'tests/protocol.test.mjs', helper: 'tests/e2e/browser.mjs',
+    titles: [...NOTES, 'Save a backup and restore it', 'The notes page passes the accessibility smoke check', 'The app opens without a connection after the first visit'],
+    tests: ['tests/e2e/notes.e2e.test.mjs', 'tests/e2e/cap-offline.e2e.test.mjs'] });
+});
+
+story('US-342', 'a terminal app has its scenarios, one pilot test each and test-core’s checks; Create runs the checks offline and they pass', async t => {
+  await protocolProject(t, 'Desk Notes', 'tui', { check: 'tests.test_protocol',
+    titles: ['Add a note with Enter and see it in the list', 'Delete the highlighted note with Ctrl+D', 'An empty note is not added and says why', 'Start in Japanese and switch to English with Ctrl+L'],
+    tests: ['tests/test_tui.py'] });
+});
+
+story('US-343', 'Add a Capability… brings its scenario into SCENARIOS.md with its e2e test, and the project’s checks still pass', async t => {
+  await offlineUv(t);
+  const { page } = t;
+  const { root } = await newProject(t, 'Card Swap', 'static');
+  await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="add-capability"]').click();
+  await page.locator('#capability-dialog .pw-cap[data-id="qrcode"] input').check();
+  await page.locator('#capability-facts').filter({ hasText: 'adds 4 files · changes 4 (README.md, packaging.json, sw.js, SCENARIOS.md) · adds 2 tests' }).waitFor();
+  await page.locator('#capability-add').click();
+  await page.locator('#capability-dialog').waitFor({ state: 'hidden', timeout: 60000 });
+  await page.locator('.pw-msg', { hasText: 'Added Share by QR code' }).waitFor();
+  assert.match(t.bench.read(root, 'SCENARIOS.md'), /## Share by QR code\n\n### Scenario: A QR code is drawn for the page address\n- Given /);
+  assert.match(t.bench.read(root, 'tests/e2e/cap-qrcode.e2e.test.mjs'), /test\('A QR code is drawn for the page address'/);
+  const runs = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(run => run.cwd === root);
+  assert.ok(runs.at(-1).command.includes('tests/protocol.test.mjs') && runs.at(-1).exit_code === 0, 'the base check with the protocol check passed with it');
+  assert.equal(commits(t, root)[0], 'Pi Workbench|Capability: Share by QR code');
+});
 
 // -- the run -----------------------------------------------------------------------------------------------------
 if (require.main === module) (async () => {

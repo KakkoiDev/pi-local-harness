@@ -238,7 +238,7 @@ class StarterSampleTest(unittest.TestCase):
         import json
         root,paper=self.project('static');paper.start('game',str(root),'Build a game')
         for name in ['js/logic/notes.mjs','tests/notes.test.mjs','tests/e2e/notes.e2e.test.mjs']:(root/name).unlink()  # task 329: the e2e example is sample too
-        (root/'js/app.mjs').write_text('export const game=1;\n');(root/'index.html').write_text('<h1>Pong</h1>');(root/'README.md').write_text('# Pong\nA game.\n')
+        (root/'js/app.mjs').write_text('export const game=1;\n');(root/'index.html').write_text('<h1>Pong</h1>');(root/'README.md').write_text('# Pong\nA game.\n');(root/'SCENARIOS.md').write_text('# Scenarios\n\n### Scenario: Serve the ball\n')  # task 332: the sample scenarios too
         for path in (root/'messages').glob('*.json'):path.write_text(json.dumps({'app.name':'Pong'}))
         (root/'manifest.webmanifest').write_text(json.dumps({'name':'Pong','short_name':'Pong'}))
         paper.observe('game');self.assertNotEqual(paper.end('game')['outcome'],'continue')

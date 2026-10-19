@@ -14,7 +14,8 @@
  ],
  "solution_trash": [
   "js/logic/notes.mjs",
-  "tests/notes.test.mjs"
+  "tests/notes.test.mjs",
+  "tests/e2e/notes.e2e.test.mjs"
  ],
  "timeout_minutes": 30
 }
