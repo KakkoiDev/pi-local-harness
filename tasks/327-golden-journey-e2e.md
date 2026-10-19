@@ -40,7 +40,7 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
   need a download (not approved), so the journey's uv stand-in serves that command with tests/fixtures/uvicorn-standin.py,
   a stand-in web layer over the project's own habit code (add a habit, tick it, streak, month). US-256.
 
-## Defects the journey finds on harness-next (a37ea97, after tasks 324, 325, 326, b54f3c8 and 4a555ac)
+## Defects the journey finds on harness-next (aa531f0, after tasks 324, 325, 326, 329, b54f3c8, 1ab6189 and cc308d0)
 
 1. J02: a refused model switch's message is the toast at the bottom of the window, 822 px below the model menu.
 2. J03: the project folder is “Habit Tracker” (spaces), not a slug.
@@ -48,11 +48,15 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
 4. J10b: with Run on its own, Gate records “Widened task 3 without asking: app/chart_days.py added”, yet the write itself
    is refused (G-015 “Gate asks the person… Stop here”); the task ends “not verified” and the run stops.
 5. J13: the Ready to publish task has no `Files:` line, so every write in it is refused (G-015 “the task has no Files:
-   line”); and its check needs `/audit`, which only terminal Pi offers: the Workbench has no way to run it.
+   line”); the request then ends with no check-in card at all; and its check needs `/audit`, which only terminal Pi
+   offers: the Workbench has no way to run it.
 6. J13: after Retry Task, task 3's commit leaves out tests/test_chart.py, written in the first attempt (it stays
    untracked); tasks/001-first-task.md's ticked boxes are never committed.
 7. J14: because of 5, the app keeps the starter's name: the Preview's page says “Notes”, not “Habit Tracker”.
-8. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
+8. Decision for the person, not asserted: since 1ab6189 a turn after a tool gets model_start_seconds (900 s) before its
+   first output, so the owner's exact stall (a tool finishes, the model never answers) fails after 15 minutes by default.
+   J01 runs with a 10 s start limit and checks the mechanism.
+9. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
 
 ## One live run (gemma4:e4b-mlx, 2026-10-19, build budget 45 minutes)
 
