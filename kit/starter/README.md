@@ -5,7 +5,8 @@ Built on the stack (plan 198): FastAPI, Jinja, htmx 4, Basecoat, SQLite, typed P
     uv sync                                   # once
     TAILWINDCSS_VERSION=v4.3.3 uv run tailwindcss -i styles/input.css -o static/app.css --minify
     uv run uvicorn app.main:app --reload      # http://127.0.0.1:8000
-    uv run pytest && uv run pyright           # tests and types
+    uv run --offline pytest                   # tests (Pi runs this form; after uv sync)
+    uv run --offline pyright                  # types (in a terminal)
 
 Logic lives in `app/logic/` as pure functions; data in `app/db.py` and `migrations/`; pages and fragments in
 `app/templates/`; every visible string in `messages/en.json` and `messages/ja.json`.

@@ -78,6 +78,7 @@ class ProposalLedger:
         self.engine, self.clock, self.limit, self.ttl = engine, clock, limit, ttl
         self.pending = {}
         self.edit_failures = OrderedDict()
+        self.refused_commands = OrderedDict()  # task 323: (request, command) refused once; the same again says so
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
@@ -213,8 +214,8 @@ class ProposalLedger:
         if console_change:tool_name='write_file'
         rewritten=None;asked=args
         if tool_name=='execute_command' and isinstance(args.get('command'),str):
-            from .phase_shell import without_cd_here
-            stripped=without_cd_here(args['command'],cwd)  # live 2026-10-19: `cd <project> && pytest …` is a plain test run
+            from .phase_shell import without_cd_here,without_output_tail
+            stripped=without_output_tail(without_cd_here(args['command'],cwd))  # live 2026-10-19: `cd <project> && pytest … 2>&1` is a plain test run
             if stripped!=args['command']:args={**args,'command':stripped};rewritten=stripped
         # The proposal keeps what Pi asked (its audit reports the same input); the checks below see the command without the no-op cd.
         proposal = ActionProposal(tool_name, copy.deepcopy(asked), 'pi tool call', authorization=auth_level)
@@ -270,14 +271,24 @@ class ProposalLedger:
                 from .phases import not_a_project
                 reason=not_a_project(root,tool_name)
             if reason:
-                judgement=None
-                if tool_name=='execute_command' and request in self.paperwork.requests:
+                judgement=None;extra={}
+                if tool_name=='execute_command' and isinstance(command,str):
                     from .phase_shell import read_only,test_run
-                    if not read_only(command) and not test_run(command):
-                        judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
-                return {**refuse('G-015', reason), 'phase':phase, **({'judgement':judgement} if judgement else {})}
+                    from .alternatives import instead
+                    # Task 323: System 1 keeps the refusal and names a checked alternative; never a question for the person.
+                    extra['instead']=instead(command,root,phase);reason=f"{reason} {extra['instead']}"
+                    if request in self.paperwork.requests:
+                        key=(request,command.strip())
+                        with self.lock:
+                            extra['repeat']=key in self.refused_commands
+                            self.refused_commands[key]=True;self.refused_commands.move_to_end(key)
+                            while len(self.refused_commands)>self.limit:self.refused_commands.popitem(last=False)
+                        if extra['repeat']:reason=f'Refused again: the same command. {reason}'
+                        if not read_only(command) and not test_run(command):
+                            judgement=self.judgements.decide(request,'shell_risk',[command,str(root)])  # task 263: json.dumps cannot take a Path
+                return {**refuse('G-015', reason), 'phase':phase, **extra, **({'judgement':judgement} if judgement else {})}
             waiting=self.paperwork.waiting_choice(root) if tool_name == 'write_file' else None
-            if waiting and waiting.get('system_owned') and ((waiting.get('judgement') or {}).get('kind') in NO_CARD or (waiting.get('request')!=request and waiting.get('request') not in self.paperwork.requests)):
+            if waiting and waiting.get('system_owned') and ((waiting.get('judgement') or {}).get('kind') in (*NO_CARD,'shell_risk') or (waiting.get('request')!=request and waiting.get('request') not in self.paperwork.requests)):
                 # Task 324 (live: a never-shown "Which guide should Pi use?" blocked every write of later requests): a
                 # question System 1 raised for a request that has ended, or one System 1 decides itself, never blocks work.
                 self.paperwork.settle_waiting(root,'its request ended');waiting=None

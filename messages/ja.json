@@ -1,5 +1,11 @@
 {
  "exact": {
+  "`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn’t installed here (no .venv; creating it is a download the person approves).": "unittest.TestCase のテストで `python3 -m unittest discover -s tests`。ここには pytest がインストールされていません（.venv がありません。作るにはダウンロードが必要で、本人の許可が要ります）。",
+  "run the project’s tests with a checked runner (pytest, unittest, node --test, npm test).": "確認済みのテストランナー（pytest、unittest、node --test、npm test）でプロジェクトのテストを実行する。",
+  "read with the read tool, `ls`, `cat` or `rg`; tests run in Implementation.": "読み取りツール、`ls`、`cat`、`rg` で読む。テストは実装中に実行します。",
+  "`rg --files` or `find . -name <pattern>` (no -exec), then the read tool or `rg <pattern>`.": "`rg --files` か `find . -name <pattern>`（-exec なし）、そのあと読み取りツールか `rg <pattern>`。",
+  "the read tool, or `ls`, `cat <file>` or `rg <pattern>` alone (no cd, globs, $, ; or redirection).": "読み取りツール、または `ls`、`cat <file>`、`rg <pattern>` を単独で（cd、グロブ、$、;、リダイレクトなし）。",
+  "read with the read tool, `ls`, `cat` or `rg`.": "読み取りツール、`ls`、`cat`、`rg` で読む。",
   "Scenario": "シナリオ",
   "Given": "前提",
   "When": "操作",
@@ -3442,6 +3448,10 @@
   ["Not added: {detail}. Nothing was changed.", "追加していません：{detail}。何も変更していません。"],
   ["The project's folder goes in {where}.", "プロジェクトのフォルダは {where} に作られます。"],
   ["{count} written as text by {model}, run as real calls ({tools})", "{model} が文章として書いた {count} 件を、本物の呼び出しとして実行しました（{tools}）"],
-  ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"]
+  ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"],
+  ["{reason} Instead: {alternative} Continue with allowed tools.", "{reason} 代わりに：{alternative} 許可されたツールで続けます。"],
+  ["Refused again: the same command. {reason}", "再び拒否しました：同じコマンドです。{reason}"],
+  ["`{command}` (no cd, pipes or redirection), or a test of the behaviour.", "`{command}`（cd、パイプ、リダイレクトなし）、または動作のテスト。"],
+  ["That command stays refused. Instead: {alternative} Continue with allowed tools.", "そのコマンドは拒否されたままです。代わりに：{alternative} 許可されたツールで続けます。"]
  ]
 }

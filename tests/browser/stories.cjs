@@ -1385,7 +1385,7 @@ story('US-125', 'Settings › Pi › Detail: Beginner hides decisions made by co
   await settings.getByRole('button', { name: 'Done', exact: true }).click();
   const row = answer.locator('details.pw-decisions:not([hidden])'); await row.waitFor();
   await row.locator('summary').click();
-  const refused = row.locator('li').filter({ hasText: 'Command' });
+  const refused = row.locator('li').filter({ hasText: 'Command' }).filter({ hasNotText: 'Command risk' });  // task 323: code keeps the refusal (Command risk) too
   assert.equal(await refused.locator('.pw-tag').textContent(), 'code');
   assert.match(await refused.textContent(), /refused|sent back/);
   assert.match(await refused.locator('.pw-decisions__rule').textContent(), /^(G-\d+|gate\.preflight)/, 'the rule');
@@ -1948,6 +1948,30 @@ story('US-282', 'removing a button together with its e2e test is allowed, and th
   const row = checkIn(t); await row.waitFor();
   assert.equal(await row.locator('.pw-card__title').textContent(), 'Task 1 of 1 done: Remove the Reset button');
   assert.equal(await row.locator('.pw-checkin__removed').textContent(), 'Removed: the “Reset” button and its test “test_reset_the_count”');
+});
+
+story('US-300', 'Pi tries a command Gate cannot classify: it stays refused with a checked alternative, nobody asks me, Pi goes on with allowed tools; a write outside the project stays refused', async t => {
+  const { page } = t;
+  const { root, project } = await newProject(t, 'Guardrail');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-unclassified');
+  assert.equal((await answered(t, id)).status, 'completed', 'the refusal never wedges the request');
+  await page.locator('#messages').getByText('The counter counts clicks.').waitFor({ timeout: 10000 });
+  assert.equal(await page.locator('.pw-card').filter({ hasText: /unclassified command|Keep the command blocked/ }).count(), 0, 'no policy card');
+  assert.ok(exists(root, 'counter.py'), 'writes went on after the refusal (no question waits)');
+  assert.equal(fs.existsSync(join(root, '..', 'escaped.py')), false, 'a write outside the project stays refused');
+  const check = checkIn(t); await check.waitFor();
+  assert.doesNotMatch(await check.textContent(), /not verified/, 'the check-in: ' + await check.textContent());
+  const events = (await t.bench.api('/api/gate')).events.filter(event => JSON.stringify(event).includes('counter.py --demo'));
+  const reasons = events.map(event => String(event.reason || ''));
+  assert.equal(reasons.length, 2, reasons.join(' / '));
+  assert.ok(reasons.every(reason => /Instead: run the project’s tests with a checked runner/.test(reason) && reason.includes('Continue with allowed tools.')), reasons.join(' / '));
+  assert.equal(reasons.filter(reason => /Refused again/.test(reason)).length, 1, 'the repeat says so once');
+  const risk = decisions(t).filter(row => row.kind === 'shell_risk' && row.who !== 'laya');
+  assert.deepEqual(risk.map(row => `${row.who}:${row.answer}:${row.rule}`), ['code:refused:judgement.keep_refusal', 'code:refused:judgement.keep_refusal'], 'System 1 kept each refusal, never the person');
+  const chat = (await t.bench.api('/api/workspace')).projects.find(item => item.id === project).chat;
+  assert.equal((await t.bench.api('/api/conversations/' + chat)).messages.filter(message => message.choice).length, 0, 'no saved card');
+  assert.equal((await answered(t, await say(t, 'Are we fine?'))).status, 'completed', 'the conversation goes on');
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

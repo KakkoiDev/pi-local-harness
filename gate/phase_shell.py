@@ -87,6 +87,15 @@ def without_cd_here(command, cwd):
     return found.group(2) if same else command
 
 
+def without_output_tail(command):
+    """Task 323: `<test run> 2>&1`, `<test run> | tail -n 30` (or head) → the test run. Pi's bash already keeps stderr and
+    shortens long output, so dropping these changes nothing but the shape; only a checked test run loses them."""
+    if not isinstance(command, str): return command
+    found = re.fullmatch(r'\s*(.*?)(?:\s+2>&1)?(?:\s*\|\s*(?:tail|head)(?:\s+-n)?\s+-?\d+)?\s*', command, re.S)
+    rest = found.group(1) if found else command
+    return rest if rest != command.strip() and test_run(rest) else command
+
+
 def read_only(command):
     if not isinstance(command, str) or not command.strip(): return False
     # Reject shell expansion, redirection, control flow and assignments even inside quotes: the exception is small.
