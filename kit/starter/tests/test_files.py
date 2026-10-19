@@ -19,6 +19,8 @@ class ReferencedFilesTest(unittest.TestCase):
             name = unquote(parsed.path).lstrip('/')
             # These two routes serve files from static/ at the site root.
             if name in {'manifest.webmanifest', 'sw.js'}: name = 'static/' + name
+            # static/app.css is built from styles/input.css by Tailwind (git ignores it): its source must exist.
+            if name == 'static/app.css': name = 'styles/input.css'
             if not (ROOT / name).is_file(): missing.append(f'{source}: {parsed.path}')
         class Assets(HTMLParser):
             source = ''
@@ -35,7 +37,7 @@ class ReferencedFilesTest(unittest.TestCase):
         for value in re.findall(r'''['"]([^'"]+)['"]''', shell[1]): check(value, 'static/sw.js')
         manifest = json.loads((ROOT / 'static/manifest.webmanifest').read_text(encoding='utf-8'))
         for icon in manifest.get('icons', []): check(icon['src'], 'static/manifest.webmanifest')
-        self.assertEqual(missing, [], 'Missing referenced files (build static/app.css before testing):\n' + '\n'.join(missing))
+        self.assertEqual(missing, [], 'Missing referenced files:\n' + '\n'.join(missing))
 
 
 if __name__ == '__main__':
