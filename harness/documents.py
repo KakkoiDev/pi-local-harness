@@ -432,7 +432,9 @@ class DocumentStore:
                 for relative,text in plan.items():(path/relative).write_text(text,encoding='utf-8')
                 starter.start_history(path,'Start the project')
             elif kind=='start':
-                try:check=kit_capabilities.build(path,(start or {}).get('packages'),(start or {}).get('capabilities'),files=plan,data=self.root)
+                from harness.packages import prepare  # task 331: the app's packages, installed before the base check
+                progress=(start or {}).get('progress')
+                try:check=kit_capabilities.build(path,(start or {}).get('packages'),(start or {}).get('capabilities'),files=plan,data=self.root,prepare=lambda folder:prepare(folder,progress))
                 except Exception:
                     if path.exists():to_trash(path)
                     raise

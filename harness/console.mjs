@@ -25,6 +25,7 @@ export const CONSOLE_COMMANDS = {
   paths: 'Where the harness keeps its data.',
   doctor: 'Checks with what is wrong and what to do.',
   audit: 'Run the publication checks for this project (asks first; offline).',
+  setup: 'Install this project’s packages: /setup packages (asks first; downloads once; your terminal only).',
   undo: 'Undo the last change made from the console (asks first).',
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
   decisions: 'The last request’s decisions with their authors: /decisions [--all] (task 273).',
@@ -67,10 +68,10 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
     parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
     async execute(_id, params, _signal, _update, ctx) {
       const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');
-      const target=params.command === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words;
+      const target=params.command === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : params.command === 'setup' && words.length === 1 ? [...words, ctx?.cwd || process.cwd()] : words;
       let { code, text } = await run(params.command, target, { webPort: ports()?.web });
       // Enabling automation always needs the person's risk confirmation, including from Pi.
-      const enabling=params.command==='auto' && words[0]==='on' || params.command==='config' && words[0]==='set' && ['auto','auto_accept'].includes(words[1]);
+      const enabling=params.command==='auto' && words[0]==='on' || params.command==='config' && words[0]==='set' && ['auto','auto_accept'].includes(words[1]) || params.command==='setup'; /* task 331: an install is the person's, even with Run on its own */
       if (code===3 && !enabling && await auto()) {
         ({code,text}=await run(params.command,[...target,'--yes'],{webPort:ports()?.web}));
         await recordAuto({command:params.command,args:words,code});
@@ -127,7 +128,7 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
           if (String(args).trim() === 'list') args = '';
         }
         const words = String(args).trim().split(/\s+/).filter(Boolean), options = { webPort: ports()?.web };
-        const target = name === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : words;
+        const target = name === 'audit' && !words.length ? [ctx?.cwd || process.cwd()] : name === 'setup' && words.length === 1 ? [...words, ctx?.cwd || process.cwd()] : words;  // task 331: /setup packages in this project
         const parse = text => { try { return JSON.parse(text); } catch { return null; } };
         const failed = text => ({ title: title(name), parts: [{ kind: 'lines', lines: text.split('\n').map((line, index) => (index ? line : `✗ ${tr(line)}`)) }], hint: '/harness lists the commands' });
         if (name === 'queue' && ['edit', 'remove'].includes(words[0])) { show(name, words, await queueChange(words, { ports, ask: ctx?.ui?.select ? (question, choices) => ctx.ui.select(question, choices) : null })); return; }  // task 325: the person's terminal only

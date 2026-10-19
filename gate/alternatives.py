@@ -62,7 +62,14 @@ TESTS_LATER = 'read with the read tool, `ls`, `cat` or `rg`; tests run in Implem
 FIND = '`rg --files` or `find . -name <pattern>` (no -exec), then the read tool or `rg <pattern>`.'
 READ_FORM = 'the read tool, or `ls`, `cat <file>` or `rg <pattern>` alone (no cd, globs, $, ; or redirection).'
 READ = 'read with the read tool, `ls`, `cat` or `rg`.'
-NO_PYTEST = '`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn\u2019t installed here (no .venv; creating it is a download the person approves).'
+NO_PYTEST = '`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn\u2019t installed here (no .venv; the person installs the packages once with Project \u203a Install Packages\u2026).'
+# Task 331: the first refusal for this reason in a project is also shown to the person, with the control that fixes it.
+PACKAGES_NOTICE = 'This project\u2019s packages aren\u2019t installed (no .venv), so pytest can\u2019t run. Install them once with Project \u203a Install Packages\u2026 (in terminal Pi: /setup packages).'
+
+
+def packages_notice(command, root, phase):
+    """The harness notice for a refusal whose alternative is NO_PYTEST (the packages are missing), else None."""
+    return PACKAGES_NOTICE if root and NO_PYTEST in instead(command, root, phase) else None
 
 
 def instead(command, root, phase):

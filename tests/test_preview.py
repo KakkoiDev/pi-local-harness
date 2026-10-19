@@ -46,7 +46,7 @@ class PreviewTest(unittest.TestCase):
     def test_the_run_command_depends_on_the_kind_of_project(self):
         stack = self.folder('stack', {'pyproject.toml': '[project]\nname="app"\n', 'app/main.py': ''})
         command = run_command(stack, 4000)
-        self.assertEqual((Path(command[0]).name, *command[1:4]), ('uv', 'run', 'uvicorn', 'app.main:app'))
+        self.assertEqual((Path(command[0]).name, *command[1:5]), ('uv', 'run', '--offline', 'uvicorn', 'app.main:app'), 'task 331: the Preview never installs')
         self.assertIn('--reload', command); self.assertEqual(command[-2:], ['--port', '4000'])
         (stack / 'styles').mkdir(); (stack / 'styles' / 'input.css').write_text('@import "tailwindcss";')
         shell = run_command(stack, 4000)[-1]
@@ -57,11 +57,21 @@ class PreviewTest(unittest.TestCase):
         self.assertEqual(Path(run_command(site, 4000)[2]).name, 'preview_files.py'); self.assertEqual(run_command(site, 4000)[-1], '4000')  # task 304: not http.server
         self.assertIsNone(run_command(self.folder('notes', {'README.md': '# Notes'}), 4000))
         tui = self.folder('tui', {'pyproject.toml': '[project]\nname="app"\n', 'app/tui.py': '', 'serve.py': ''})
-        self.assertEqual(run_command(tui,4000)[1:3],['run','python']);self.assertEqual(Path(run_command(tui,4000)[3]).name,'terminal-preview.py');self.assertEqual(run_command(tui,4000)[-1],'4000')
+        self.assertEqual(run_command(tui,4000)[1:4],['run','--offline','python']);self.assertEqual(Path(run_command(tui,4000)[4]).name,'terminal-preview.py');self.assertEqual(run_command(tui,4000)[-1],'4000')
         styled = self.folder('styled', {'index.html': '', 'styles/input.css': '@import "tailwindcss";'})
         shell = run_command(styled, 4000)[-1]
         self.assertIn('--from pytailwindcss tailwindcss -i styles/input.css -o static/app.css && {', shell, 'a no-server app gets its styles too')
         self.assertIn('preview_files.py 4000', shell)
+
+    def test_missing_packages_are_named_and_the_preview_does_not_install_them(self):
+        """Task 331: no second install path: a project with a lock file and no .venv waits for Install Packages…."""
+        lock = (Path(__file__).parent / 'fixtures' / 'packages' / 'uv.lock').read_text()
+        stack = self.folder('stack', {'pyproject.toml': '[project]\nname="app"\n', 'app/main.py': '', 'uv.lock': lock})
+        status = self.previews.start('stack', stack)
+        self.assertEqual((status['state'], status['kind']), ('none', 'packages'))
+        self.assertIn('Install Packages', status['message']); self.assertIn('4 packages', status['line'])
+        self.assertNotIn('stack', self.previews.apps, 'nothing started')
+        self.assertEqual(self.previews.status('stack', stack)['kind'], 'packages')
 
     def test_a_project_with_no_app_says_so_and_says_what_it_is(self):
         status = self.previews.start('notes', self.folder('notes', {'README.md': '# Notes'}))

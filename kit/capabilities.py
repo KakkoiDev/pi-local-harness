@@ -314,6 +314,7 @@ def check_commands(folder):
 def _display(argv):
     shown = ['python3' if part == sys.executable else part for part in argv]
     if shown and shown[0] == shutil.which('node'): shown[0] = 'node'
+    if shown and Path(shown[0]).name == 'uv': shown[0] = 'uv'
     return ' '.join(shown)
 
 
@@ -333,6 +334,8 @@ def failing_tests(output, folder):
         parts = where.split('.')
         name = f'tests/{test}.py' if where.startswith('unittest.') else f'{parts[0]}/{parts[1]}.py' if parts[0] == 'tests' and len(parts) > 1 else where
         found.append({'test': test, 'file': name, 'capability': _owner(name, folder)})
+    for name, test in re.findall(r'^(?:FAILED|ERROR) (tests/\S+?\.py)::(\S+)', output, re.M):  # pytest -q (task 331: the own tests)
+        found.append({'test': test.rsplit('::', 1)[-1], 'file': name, 'capability': _owner(name, folder)})
     lines = output.splitlines()
     for index, line in enumerate(lines):
         failed = re.match(r'^\s*not ok \d+ - (.+?)\s*$', line)
@@ -349,11 +352,13 @@ def failing_tests(output, folder):
     return unique
 
 
-def run_check(folder, data=None, request=None, project=None):
+def run_check(folder, data=None, request=None, project=None, own=None):
     """Run the base check offline in `folder`: {'passed', 'counts', 'tests', 'failing', 'commands', 'output', 'reason'}.
-    Each run is recorded as Gate's test evidence when `data` (the workbench's data folder) is given."""
-    folder = Path(folder); commands = check_commands(folder)
-    result = {'passed': bool(commands), 'counts': {'pass': 0, 'fail': 0, 'skipped': 0}, 'tests': 0, 'failing': [], 'commands': [], 'output': '', 'reason': '' if commands else 'The base has no tests to run.'}
+    Each run is recorded as Gate's test evidence when `data` (the workbench's data folder) is given. `own` (task 331):
+    the project's own tests once its packages are installed (`uv run --offline pytest -q`); they must pass too, and
+    their counts are kept apart ('own_counts') so the base's count stays the Summary's."""
+    folder = Path(folder); base = check_commands(folder); commands = base + [argv for argv in (own or []) if argv]
+    result = {'passed': bool(base), 'counts': {'pass': 0, 'fail': 0, 'skipped': 0}, 'own_counts': {'pass': 0, 'fail': 0, 'skipped': 0}, 'tests': 0, 'failing': [], 'commands': [], 'output': '', 'reason': '' if base else 'The base has no tests to run.'}
     environment = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'UV_OFFLINE': '1', 'NODE_NO_WARNINGS': '1'}
     environment.pop('PYTHONPATH', None)  # the project's own app/, never the harness's
     sys.path.insert(0, str(ROOT)) if str(ROOT) not in sys.path else None
@@ -366,7 +371,7 @@ def run_check(folder, data=None, request=None, project=None):
         except (OSError, subprocess.TimeoutExpired) as error:
             code, output = -1, f'Could not run: {error}'
         counts = _counts(output)
-        for key in result['counts']: result['counts'][key] += counts.get(key, 0)
+        for key in result['counts']: result['own_counts' if argv not in base else 'counts'][key] += counts.get(key, 0)
         shown = _display(argv); result['commands'].append(shown); result['output'] += f'$ {shown}\n' + output[-6000:] + '\n'
         if code != 0 or not counts.get('pass') or counts.get('fail'):
             result['passed'] = False
@@ -396,14 +401,19 @@ def _counts(output):
 
 
 # -- New Project and Add a Capability… --------------------------------------------------------------------------------
-def build(folder, packages, capabilities, files=None, data=None, request=None):
+def build(folder, packages, capabilities, files=None, data=None, request=None, prepare=None):
     """New Project from Project Start: assemble, run the base check, and make the first commit only if every test
-    passes. Returns the check; on a failure the caller moves the folder away (nothing is created) and says which test."""
+    passes. Returns the check; on a failure the caller moves the folder away (nothing is created) and says which test.
+    prepare(folder) (task 331, the workbench's harness/packages.py): installs the app's packages between assembling and
+    the check, and returns {'installed', 'reason', …, 'tests': argv of the project's own tests or None}."""
     plan = resolve(packages, capabilities)
     if plan['problems']: raise ValueError(' '.join(plan['problems']))
     assemble(folder, plan, files)
-    check = run_check(folder, data, request)
+    prepared = prepare(folder) if prepare else None
+    own = prepared.pop('tests', None) if isinstance(prepared, dict) else None
+    check = run_check(folder, data, request, own=[own] if own else None)
     check['plan'] = plan
+    if prepared: check['packages'] = prepared
     if check['passed']: start_history(Path(folder))
     return check
 

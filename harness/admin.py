@@ -443,6 +443,7 @@ COMMANDS = {
     'paths': ('', 'Where the harness keeps its data.'),
     'doctor': ('', 'Checks with what is wrong and what to do.'),
     'audit': ('[folder]', 'Run the publication checks for this project (asks first; offline).'),
+    'setup': ('packages [folder]', 'Install this project’s packages from its lock file (asks first; downloads once; the person’s terminal only).'),
     'undo': ('', 'Undo the last change made from the console (asks first).'),
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
     'decisions': ('[--all] [request]', 'The last request’s decisions with their authors (you, auto, Laya, code, model); --all adds those code made, with rules, paths and commands.'),
@@ -650,6 +651,23 @@ def build(console, command, args, yes=False):
         value=audit.run(root,console.data)
         items=[{'state':'ok' if row['passed'] else 'fix','label':audit.LABELS[row['key']],'detail':row['command'],'fix':row['output']} for row in value['checks']]
         return value,view('Publication audit',{'kind':'checklist','items':items},summary='Ready to publish' if value['ready'] else 'Publication checks need attention or roadmap tasks remain open.')
+    if command == 'setup':  # task 331: Project › Install Packages… in terminal Pi
+        from gate.protocol import project_root
+        from harness import packages
+        if args[:1] != ['packages']: raise ValueError('Usage: /setup packages [folder]. The optional parts (laya, music, browser) are `plh setup <part>` in a shell.')
+        root = project_root(Path(args[1]).expanduser().resolve() if len(args) > 1 else Path.cwd())
+        if root is None: raise ValueError('Open a project with ROADMAP.md before running /setup packages.')
+        found = packages.facts(root)
+        if not found['manager']: return found, view('Install Packages', {'kind': 'lines', 'lines': ['This project has no lock file with packages to install.']})
+        if found['installed']: return found, view('Install Packages', {'kind': 'lines', 'lines': ['✓ This project’s packages are installed: nothing to download.']})
+        if not yes: return changed({'confirm': True, 'title': 'Install the project’s packages?', 'action': 'Install Packages', 'detail': found['line'],
+                                    'rows': [['Folder', str(root)], ['Downloads', found['line'].split(': ', 1)[1]], ['Runs', found['command']], ['Then', 'Pi’s test runs and the Preview use them offline']]})
+        done = packages.install(root)
+        from harness.decision_log import record
+        record(console.data, None, 'packages_install', 'person', 'installed' if done['installed'] else 'not installed', rule='packages.setup')
+        if not done['installed']: raise ValueError('Not installed: ' + done['reason'])
+        disk = packages.disk(root)
+        return changed({'changed': True, 'detail': f"Installed {done['count']} packages.", 'result': f"✓ Installed {done['count']} packages{f' ({disk} on disk)' if disk else ''}. Pi’s test runs and the Preview use them offline."})
     if command == 'doctor':
         rows = console.doctor(); broken = sum(not row['ok'] and not row.get('note') for row in rows)
         items = [{'state': 'ok' if row['ok'] else 'note' if row.get('note') else 'fix', 'label': row['check'], 'detail': row['detail'].replace(str(Path.home()), '~'), 'fix': row['fix']} for row in rows]

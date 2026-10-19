@@ -211,6 +211,20 @@ so. If a test really needs the network, choose **Project › Test Sandbox…**: 
 only (localhost) or The internet, kept for that project. Only you can change it, never Pi. On other systems the
 sandbox is not there yet (Linux: bubblewrap, planned).
 
+### When are my app's packages downloaded?
+
+Once, when you press **Create** in New Project, and only then. A Web app or a Terminal app needs Python packages
+(FastAPI, pytest, …): the Summary shows how many and how big the download is, from the project's lock file (the Web
+app: 29 packages, about 68 MB, from PyPI; later projects reuse the shared uv cache), and says that pressing Create
+approves it. Create runs `uv sync --frozen`, shows its progress, then runs the base's tests and the project's own
+tests offline (`uv run --offline pytest -q`). If the download fails (no connection), the project is still created and
+the note says its packages were not installed. For such a project, or one made before, **Project › Install Packages…**
+shows the same numbers and installs them after you confirm (in terminal Pi: `/setup packages`). Only you can start
+it, never Pi; a test run Gate refuses because the packages are missing shows a Harness notice with that button. After
+that, Pi's test runs and the Preview use the installed packages offline: nothing else downloads. An app with no server
+has no packages; a project with a `package.json` that has dependencies and a `package-lock.json` uses `npm ci` the
+same way.
+
 ## How do I check whether my app is ready to publish?
 
 Run `/audit` from the project in terminal Pi (or `/audit <folder>`). After confirmation it runs the publication checks offline and records each command in the last roadmap task. Failed commands leave their boxes open. The full test result is logged. Other roadmap tasks must also be complete. Missing tools require a separate approved installation; the audit never downloads them. App descriptions are checked for starter leftovers and consistent README, manifest and English app names; arbitrary prose still needs human review.

@@ -1,0 +1,13 @@
+{
+ "steps": [
+  {
+   "bash": "uv run pytest"
+  },
+  {
+   "bash": "uv run pytest"
+  },
+  {
+   "say": "[CANARY] pytest is not installed here."
+  }
+ ]
+}

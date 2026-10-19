@@ -22,8 +22,9 @@ export function harnessNotice(text, { who = 'Harness', link = null } = {}) {
 }
 
 /** The notice for one of the harness's notice lines (`message.notices`), with its link when the harness knows one. */
-export function noticeFor(text, { installLaya } = {}) {
+export function noticeFor(text, { installLaya, installPackages } = {}) {
   if (/^Laya isn’t installed/.test(text) && installLaya) return harnessNotice(text, { link: { label: 'How to Install', action: installLaya } });
+  if (/^This project’s packages aren’t installed/.test(text) && installPackages) return harnessNotice(text, { link: { label: 'Install Packages…', action: installPackages, button: true } });  // task 331
   return harnessNotice(text);
 }
 

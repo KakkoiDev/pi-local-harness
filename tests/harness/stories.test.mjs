@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { installPhases } from '../../harness/phases.mjs';
 import { installConsole } from '../../harness/console.mjs';
 import { loadTerminalLanguage, requestLanguage } from '../../harness/language.mjs';
@@ -185,6 +186,30 @@ test('US-226 terminal: /queue edit and /queue remove change a waiting message af
   const kinds = bench.lines(join(bench.data, 'decisions.jsonl')).filter(row => row.kind.startsWith('queue_')).map(row => [row.kind, row.who]);
   assert.deepEqual(kinds, [['queue_edit', 'person'], ['queue_remove', 'person']]);
   await bench.api('/api/jobs/stop', { id: running.id }); await bench.job(running.id);
+});
+
+test('US-325 terminal: /setup packages asks first and installs the project\'s packages', async t => {
+  const bench = await workbench(t);
+  const { project } = await bench.api('/api/projects/create', { name: 'Habit Tracker', parent: bench.directory, kind: 'web' });
+  const root = join(bench.directory, 'Habit Tracker'), log = join(bench.directory, 'uv-calls.log');
+  // A uv stand-in first on PATH (harness/admin.py runs with this process's environment): never a real download.
+  writeFileSync(join(bench.directory, 'uv'), `#!/bin/sh\necho "$@" >> '${log}'\ncase "$1" in sync) mkdir -p .venv; echo "Installed 29 packages in 12ms" >&2;; esac\n`, { mode: 0o755 });
+  const saved = { PATH: process.env.PATH, PI_NO_DOWNLOADS: process.env.PI_NO_DOWNLOADS };
+  process.env.PATH = `${bench.directory}:${process.env.PATH}`; process.env.PI_NO_DOWNLOADS = '';
+  t.after(() => { for (const [key, value] of Object.entries(saved)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
+  const person = terminal(bench, root, ['Install Packages']);
+  await person.pi('setup', 'packages');  // Pi's harness tool only proposes it
+  assert.equal(person.editor.text, '/setup packages', 'the command waits on my input line');
+  assert.equal(existsSync(log), false, 'Pi installed nothing');
+  await person.type('setup', 'packages');
+  assert.match(person.asked[0].title, /Install the project’s packages\?[\s\S]*Downloads\s+29 packages, about \d+ MB \(download from PyPI/);
+  assert.deepEqual(person.asked[0].options, ['Install Packages', 'Cancel']);
+  assert.match(person.notices.at(-1), /✓ Installed 29 packages/);
+  assert.equal(readFileSync(log, 'utf8').trim(), 'sync --frozen');
+  assert.ok(existsSync(join(root, '.venv')));
+  const rows = bench.lines(join(bench.data, 'decisions.jsonl')).filter(row => row.kind === 'packages_install');
+  assert.deepEqual(rows.map(row => [row.who, row.answer, row.rule]), [['person', 'installed', 'packages.setup']]);
+  assert.equal((await bench.api('/api/project-packages?project=' + project)).missing, false);
 });
 
 test('US-110 terminal: a phase command outside a project offers the registered projects and applies to the chosen one', async t => {

@@ -68,6 +68,7 @@ def scripted_story():
         emit({'type':'tool_execution_start','toolCallId':identifier,'toolName':name,'args':args})
         if checked.get('outcome')!='ALLOW':
             emit({'type':'tool_execution_end','toolCallId':identifier,'toolName':name,'isError':True,'result':{'content':[{'type':'text','text':str(checked.get('reason'))}]}})
+            if checked.get('notice'):notify('Harness notice: '+checked['notice'])  # task 331: like the extension
             asked=(checked.get('judgement') or {}).get('choice');asked=asked if asked and (asked.get('scope') or asked.get('replan')) else None  # only Gate's scope questions; the scripts never answered the other judgements
             if asked:  # round 12: Gate's own question (a file outside the task), asked the way the extension's ask_choices does
                 shown={key:asked[key] for key in ('question','options','recommended','allow_other','system_owned') if key in asked}  # validateChoice keeps only these

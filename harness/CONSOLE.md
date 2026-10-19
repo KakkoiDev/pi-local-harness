@@ -25,6 +25,7 @@ by hand: they read live data.
 | `/paths` | Where the harness keeps its data. |
 | `/doctor` | Checks with what is wrong and what to do. |
 | `/audit [folder]` | Run publication checks offline after confirmation: files, unused code, references, strict types, all tests, and consistent app names. The audit task records each command and failed checks stay open. |
+| `/setup packages [folder]` | Task 331: install this project’s packages from its lock file (`uv sync --frozen`, or `npm ci`), after showing how many packages and how big the download is. Your terminal only: Pi’s harness tool only puts the command on your input line, even with Run on its own. The decision log keeps your decision. |
 | `/undo` | Undo the last change made from the console (asks first). |
 | `/verbose on\|off` | Every timestamp in the transcript, or (default) one header per Pi message. |
 | `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |

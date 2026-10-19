@@ -30,9 +30,21 @@ def catalogue(chat, query):
     return result
 
 
+STARTERS = {'web': 'starter', 'tui': 'starter-tui', 'static': 'starter-static'}
+from harness.packages import PROGRESS  # task 331: what Create is doing now, by the page's progress id
+
+
 def plan(chat, data):
-    """POST /api/project-start/plan: step 4's facts (the base's files and tests), or what stops Create."""
-    return kit.summary(data.get('packages') or [], data.get('capabilities') or [], kit.initial_plan(data.get('name') or 'App'))
+    """POST /api/project-start/plan: step 4's facts (the base's files and tests, and task 331's package line from the
+    package's lock file: capabilities add no Python or npm packages), or what stops Create."""
+    from harness import packages
+    result = kit.summary(data.get('packages') or [], data.get('capabilities') or [], kit.initial_plan(data.get('name') or 'App'))
+    base = result.get('base')
+    found = packages.facts(Path(kit.KIT) / STARTERS[base]) if base in STARTERS else {'manager': None}
+    result['install'] = {key: found[key] for key in ('manager', 'count', 'bytes', 'line')} if found['manager'] else None
+    return result
+
+
 
 
 def preview(chat, data):
@@ -46,16 +58,24 @@ def create(chat, data):
     if data.get('empty'):
         project = chat.documents.create_project(data['name'], data.get('parent'), 'empty')
         return {'created': True, 'project': project, 'chat': chat.project_chat(project)['id']}
-    start = {'packages': data.get('packages') or [], 'capabilities': data.get('capabilities') or [], 'sentence': data.get('sentence') or ''}
+    from harness.packages import teller
+    key = str(data.get('progress') or '')[:64]; told = teller(key)
+    start ={'packages': data.get('packages') or [], 'capabilities': data.get('capabilities') or [], 'sentence': data.get('sentence') or '', 'progress': told}
     try:
         project = chat.documents.create_project(data['name'], data.get('parent'), 'start', start=start)
     except kit.BaseFailed as error:
         return {'created': False, 'error': str(error), 'check': _shown(error.check)}
+    finally:
+        PROGRESS.pop(key, None)
+    installed = start['check'].get('packages')
+    if installed:  # task 331: pressing Create approved the download; the decision log keeps that the person did
+        from harness.decision_log import record
+        record(chat.documents.root, None, 'packages_install', 'person', 'installed' if installed['installed'] else 'not installed', rule='packages.create')
     return {'created': True, 'project': project, 'chat': chat.project_chat(project)['id'], 'check': _shown(start['check'])}
 
 
 def _shown(check):
-    return {key: check.get(key) for key in ('passed', 'counts', 'tests', 'failing', 'commands', 'reason')} | {'output': (check.get('output') or '')[-4000:]}
+    return {key: check.get(key) for key in ('passed', 'counts', 'own_counts', 'tests', 'failing', 'commands', 'reason', 'packages')} | {'output': (check.get('output') or '')[-4000:]}
 
 
 def full_suite(folder, data=None):

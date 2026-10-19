@@ -1,6 +1,23 @@
 {
  "exact": {
-  "`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn’t installed here (no .venv; creating it is a download the person approves).": "unittest.TestCase のテストで `python3 -m unittest discover -s tests`。ここには pytest がインストールされていません（.venv がありません。作るにはダウンロードが必要で、本人の許可が要ります）。",
+  "Install Packages…": "パッケージをインストール…",
+  "Install Packages": "パッケージをインストール",
+  "Install": "インストール",
+  "Download": "ダウンロード",
+  "Downloading and installing…": "ダウンロードしてインストール中…",
+  "Running the base’s tests…": "土台のテストを実行中…",
+  "This project’s packages are installed: nothing to download.": "このプロジェクトのパッケージはインストール済みです。ダウンロードするものはありません。",
+  "Installer output": "インストーラーの出力",
+  "Install this project’s packages: /setup packages (asks first; downloads once; your terminal only).": "このプロジェクトのパッケージをインストール：/setup packages（先に確認します。ダウンロードは一度だけ。あなたのターミナルだけ）。",
+  "Install this project’s packages from its lock file (asks first; downloads once; the person’s terminal only).": "ロックファイルからこのプロジェクトのパッケージをインストール（先に確認します。ダウンロードは一度だけ。本人のターミナルだけ）。",
+  "Install the project’s packages?": "プロジェクトのパッケージをインストールしますか？",
+  "This project has no lock file with packages to install.": "このプロジェクトには、インストールするパッケージを記したロックファイルがありません。",
+  "✓ This project’s packages are installed: nothing to download.": "✓ このプロジェクトのパッケージはインストール済みです。ダウンロードするものはありません。",
+  "Pi’s test runs and the Preview use them offline": "Pi のテスト実行とプレビューはオフラインでこれを使います",
+  "Create assembles the base, installs its packages, runs its tests, and makes the first commit. If a test fails, nothing is created and the failing capability is named; if the download fails, the project is still created and Project › Install Packages… installs them later.": "「作成」は土台を組み立て、パッケージをインストールし、テストを実行して、最初のコミットをします。テストが失敗したら何も作らず、失敗した機能を示します。ダウンロードに失敗してもプロジェクトは作成され、あとで「プロジェクト › パッケージをインストール…」でインストールできます。",
+  "Pi is answering about this project. Try again when that request ends: nothing was installed.": "Pi がこのプロジェクトについて回答中です。その依頼が終わったらもう一度試してください。何もインストールしていません。",
+  "`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn’t installed here (no .venv; the person installs the packages once with Project › Install Packages…).": "unittest.TestCase のテストで `python3 -m unittest discover -s tests`。ここには pytest がインストールされていません（.venv がありません。本人が「プロジェクト › パッケージをインストール…」で一度だけインストールします）。",
+  "This project’s packages aren’t installed (no .venv), so pytest can’t run. Install them once with Project › Install Packages… (in terminal Pi: /setup packages).": "このプロジェクトのパッケージはインストールされていません（.venv がありません）。そのため pytest を実行できません。「プロジェクト › パッケージをインストール…」で一度だけインストールしてください（ターミナルの Pi では /setup packages）。",
   "run the project’s tests with a checked runner (pytest, unittest, node --test, npm test).": "確認済みのテストランナー（pytest、unittest、node --test、npm test）でプロジェクトのテストを実行する。",
   "read with the read tool, `ls`, `cat` or `rg`; tests run in Implementation.": "読み取りツール、`ls`、`cat`、`rg` で読む。テストは実装中に実行します。",
   "`rg --files` or `find . -name <pattern>` (no -exec), then the read tool or `rg <pattern>`.": "`rg --files` か `find . -name <pattern>`（-exec なし）、そのあと読み取りツールか `rg <pattern>`。",
@@ -3452,6 +3469,15 @@
   ["{reason} Instead: {alternative} Continue with allowed tools.", "{reason} 代わりに：{alternative} 許可されたツールで続けます。"],
   ["Refused again: the same command. {reason}", "再び拒否しました：同じコマンドです。{reason}"],
   ["`{command}` (no cd, pipes or redirection), or a test of the behaviour.", "`{command}`（cd、パイプ、リダイレクトなし）、または動作のテスト。"],
-  ["That command stays refused. Instead: {alternative} Continue with allowed tools.", "そのコマンドは拒否されたままです。代わりに：{alternative} 許可されたツールで続けます。"]
+  ["That command stays refused. Instead: {alternative} Continue with allowed tools.", "そのコマンドは拒否されたままです。代わりに：{alternative} 許可されたツールで続けます。"],
+  ["Install the app's packages: {n} packages, about {size} (download from PyPI, once; later projects reuse the shared uv cache). Pressing Create approves this download.", "アプリのパッケージをインストール：{n} 個、約 {size}（PyPI から一度だけダウンロード。以後のプロジェクトは共有の uv キャッシュを再利用）。「作成」を押すとこのダウンロードを承認したことになります。"],
+  ["Install the app's packages: {n} packages, about {size} (download from PyPI, once; later projects reuse the shared uv cache)", "アプリのパッケージをインストール：{n} 個、約 {size}（PyPI から一度だけダウンロード。以後のプロジェクトは共有の uv キャッシュを再利用）"],
+  ["Installing the app’s packages… {line}", "アプリのパッケージをインストール中… {line}"],
+  ["Runs {command} in {name} once. Pi’s test runs and the Preview then use the packages offline; nothing else downloads.", "{name} で {command} を一度だけ実行します。その後、Pi のテスト実行とプレビューはオフラインでパッケージを使い、ほかには何もダウンロードしません。"],
+  ["Installed {n} packages ({disk} on disk): Pi’s tests and the Preview can use them now.", "{n} 個のパッケージをインストールしました（ディスク上 {disk}）。Pi のテストとプレビューで使えます。"],
+  ["Not installed: {reason}", "インストールしていません：{reason}"],
+  ["Created “{name}”: all {n} tests of the base pass; {count} packages installed ({disk}).", "「{name}」を作成しました：土台のテスト {n} 件がすべて通り、パッケージ {count} 個をインストールしました（{disk}）。"],
+  ["Created “{name}”: all {n} tests of the base pass. Its packages were not installed ({reason}): install them with Project › Install Packages….", "「{name}」を作成しました：土台のテスト {n} 件がすべて通りました。パッケージはインストールしていません（{reason}）。「プロジェクト › パッケージをインストール…」でインストールしてください。"],
+  ["{name}'s packages aren't installed yet, so the app can't start. Install them once with Project › Install Packages….", "{name} のパッケージはまだインストールされていないため、アプリを起動できません。「プロジェクト › パッケージをインストール…」で一度だけインストールしてください。"]
  ]
 }

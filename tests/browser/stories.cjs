@@ -1596,9 +1596,10 @@ story('US-206', 'choosing Planning after a discussion starts the plan without ty
 async function offlineWebUv(t) {
   const stub = '#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\n'
     + 'case " $* " in *" uvicorn "*) exec python3 -c \'import sys,http.server,functools;a=sys.argv[1:];p=int(a[a.index("--port")+1]) if "--port" in a else 8000;http.server.ThreadingHTTPServer(("127.0.0.1",p),functools.partial(http.server.SimpleHTTPRequestHandler,directory=".")).serve_forever()\' "$@";; esac\n'
+    + 'case "$1" in sync) mkdir -p .venv; exit 0;; esac\n'  /* task 331: Create installs the packages (here: an empty .venv), so the Preview may start */
     + 'mkdir -p static 2>/dev/null; printf "# pass 1\\n# fail 0\\n"\nexit 0\n';
   for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), stub, { mode: 0o755 });
-  await t.bench.restart(); await t.reopen();
+  await t.bench.restart({ PI_NO_DOWNLOADS: '' }); await t.reopen();
 }
 story('US-207', 'a project folder with spaces and capitals (“Habit Tracker”): plan, build, sandboxed test runs, the commit and the Preview all work', async t => {
   await offlineWebUv(t);
@@ -1972,6 +1973,112 @@ story('US-300', 'Pi tries a command Gate cannot classify: it stays refused with 
   const chat = (await t.bench.api('/api/workspace')).projects.find(item => item.id === project).chat;
   assert.equal((await t.bench.api('/api/conversations/' + chat)).messages.filter(message => message.choice).length, 0, 'no saved card');
   assert.equal((await answered(t, await say(t, 'Are we fine?'))).status, 'completed', 'the conversation goes on');
+});
+
+// -- Task 331: a project's packages, installed at Create or with Project › Install Packages… ---------------------------
+/** uv stand-ins that never download: `uv sync` succeeds (an empty .venv, uv's own lines) or fails like a Mac with no
+ * connection; `uv run` reports a passing pytest run; the Tailwind watch sleeps. Each `uv sync` is logged in
+ * uv-calls.log (the base check's `uv run` runs in the test sandbox, which cannot write there: test-runs.jsonl has it). */
+function packagesStub(t, mode) {
+  const log = join(t.directory, 'uv-calls.log');
+  const sync = mode === 'ok' ? 'mkdir -p .venv; echo "Prepared 29 packages in 40ms" >&2; echo "Installed 29 packages in 12ms" >&2; exit 0'
+    : 'echo "error: Failed to fetch: https://pypi.org/simple/fastapi/ (dns error: failed to lookup address information)" >&2; exit 2';
+  const stub = `#!/bin/sh\nfor arg in "$@"; do case "$arg" in --watch*) exec sleep 600;; esac; done\ncase "$1" in sync) echo "$@" >> '${log}'; ${sync};; esac\nprintf "19 passed, 1 skipped in 0.75s\\n"\nexit 0\n`;
+  for (const name of ['uv', 'uvx']) fs.writeFileSync(join(t.directory, name), stub, { mode: 0o755 });
+}
+async function packagesUv(t, mode) { packagesStub(t, mode); await t.bench.restart({ PI_NO_DOWNLOADS: '' }); await t.reopen(); }
+const uvCalls = t => fs.existsSync(join(t.directory, 'uv-calls.log')) ? fs.readFileSync(join(t.directory, 'uv-calls.log'), 'utf8').trim().split('\n').filter(Boolean) : [];
+async function installPackagesItem(t) {
+  const { page } = t;
+  await page.locator('[aria-controls="menu-project"]').click();
+  return page.locator('#menu-project [data-command="install-packages"]');
+}
+
+story('US-320', 'the Summary shows the packages to download and Create installs them before the base check', async t => {
+  await packagesUv(t, 'ok');
+  const { page } = t;
+  await startProject(t, 'Habit Tracker');
+  await chooseAndSummarise(t, { capabilities: ['database', 'charts'], packages: ['web'] });
+  const download = await page.locator('#start-download').textContent();
+  assert.match(download, /^Install the app's packages: 29 packages, about \d+ MB \(download from PyPI, once; later projects reuse the shared uv cache\)\. Pressing Create approves this download\.$/, download);
+  assert.equal(uvCalls(t).length, 0, 'nothing is downloaded before Create');
+  await page.locator('#start-next').click();
+  await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
+  await page.locator('#toast-text').filter({ hasText: /: all \d+ tests of the base pass; 29 packages installed/ }).waitFor();
+  const root = join(t.directory, 'Habit Tracker');
+  assert.deepEqual(uvCalls(t), ['sync --frozen'], 'online, once, at Create');
+  assert.ok(exists(root, '.venv'), 'the environment exists');
+  const runs = t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).filter(run => run.cwd === root);
+  assert.match(runs[0].command, /^python3 -B -m unittest /, 'the base check first');
+  assert.equal(runs.at(-1).command, 'uv run --offline pytest -q', 'then the project’s own tests, offline');
+  assert.ok(runs.every(run => run.exit_code === 0), JSON.stringify(runs.map(run => [run.command, run.exit_code])));
+  assert.deepEqual(decisions(t).filter(row => row.kind === 'packages_install').map(row => [row.who, row.answer, row.rule]), [['person', 'installed', 'packages.create']], 'pressing Create was the person’s approval');
+  assert.equal(t.bench.git(root, 'status', '--porcelain').trim(), '', '.venv is ignored; everything else is committed');
+  const item = await installPackagesItem(t);
+  assert.equal(await item.getAttribute('aria-disabled'), 'true', 'nothing is missing: Install Packages… is disabled');
+});
+
+story('US-321', 'Create while offline still creates the project and says its packages are not installed', async t => {
+  await packagesUv(t, 'offline');
+  const { root } = await newProject(t, 'Offline Notes', 'web');
+  await t.page.locator('#toast-text').filter({ hasText: /Its packages were not installed \(No connection to download the packages: .*Failed to fetch.*\): install them with Project › Install Packages…\./ }).waitFor();
+  assert.deepEqual(uvCalls(t), ['sync --frozen']);
+  assert.equal(exists(root, '.venv'), false);
+  assert.deepEqual(commits(t, root), ['Pi Workbench|Start from the Pi Workbench starter'], 'created, with its first commit');
+  assert.ok(!t.bench.lines(join(t.bench.data, 'test-runs.jsonl')).some(run => run.cwd === root && run.command.startsWith('uv run')), 'no environment: the own tests wait');
+  assert.deepEqual(decisions(t).filter(row => row.kind === 'packages_install').map(row => row.answer), ['not installed']);
+});
+
+story('US-322', 'a project without its packages offers Install Packages… and installs them after I confirm', async t => {
+  await packagesUv(t, 'offline');
+  const { page } = t;
+  const { root } = await newProject(t, 'Habit Tracker', 'web');
+  packagesStub(t, 'ok');  // the connection is back
+  const item = await installPackagesItem(t);
+  assert.notEqual(await item.getAttribute('aria-disabled'), 'true', 'the packages are missing: Install Packages… is available');
+  await item.click();
+  const dialog = page.locator('#packages-dialog'); await dialog.waitFor();
+  assert.match(await page.locator('#packages-line').textContent(), /^Install the app's packages: 29 packages, about \d+ MB \(download from PyPI/);
+  assert.match(await page.locator('#packages-help').textContent(), /Runs uv sync --frozen in Habit Tracker once/);
+  await page.locator('#packages-cancel').click(); await dialog.waitFor({ state: 'hidden' });
+  assert.deepEqual(uvCalls(t), ['sync --frozen'], 'Cancel installs nothing (the one call is Create’s, offline)');
+  await (await installPackagesItem(t)).click(); await dialog.waitFor();
+  await dialog.getByRole('button', { name: 'Install', exact: true }).click();
+  await dialog.waitFor({ state: 'hidden', timeout: 30000 });
+  await page.locator('#toast-text').filter({ hasText: /^Installed 29 packages.*: Pi’s tests and the Preview can use them now\.$/ }).waitFor();
+  assert.deepEqual(uvCalls(t), ['sync --frozen', 'sync --frozen']);
+  assert.ok(exists(root, '.venv'));
+  assert.deepEqual(decisions(t).filter(row => row.kind === 'packages_install').map(row => [row.who, row.answer, row.rule]), [['person', 'not installed', 'packages.create'], ['person', 'installed', 'packages.install']]);
+  await installPackagesItem(t);
+  await page.waitForFunction(() => document.querySelector('#menu-project [data-command="install-packages"]')?.getAttribute('aria-disabled') === 'true');
+});
+
+story('US-323', 'a refused test run points to Install Packages… in the chat', async t => {
+  await packagesUv(t, 'offline');
+  const { page } = t;
+  const { root } = await newProject(t, 'Habit Tracker', 'web');
+  await givenApprovedTasks(t, root, [COUNT]);
+  const id = await say(t, 'Build the approved task. TEST_SCRIPT=build-pytest-missing');
+  await answered(t, id);
+  const notice = page.locator('#messages .pw-notice').filter({ hasText: 'This project’s packages aren’t installed (no .venv), so pytest can’t run.' });
+  await notice.waitFor({ timeout: 10000 });
+  assert.equal(await notice.count(), 1, 'once per project, though Pi tried twice');
+  const reasons = (await t.bench.api('/api/gate')).events.filter(event => JSON.stringify(event).includes('uv run pytest')).map(event => String(event.reason || ''));
+  assert.ok(reasons.length >= 1 && reasons.every(reason => reason.includes('Project › Install Packages…')), reasons.join(' / '));
+  await notice.getByRole('button', { name: 'Install Packages…' }).click();
+  await page.locator('#packages-dialog').waitFor();
+  assert.match(await page.locator('#packages-line').textContent(), /29 packages/);
+});
+
+story('US-324', 'the install route refuses a request without the page\'s secret', async t => {
+  await packagesUv(t, 'ok');
+  const { root, project } = await newProject(t, 'Guarded App', 'static');
+  fs.copyFileSync(join(__dirname, '../fixtures/packages/uv.lock'), join(root, 'uv.lock'));
+  const response = await fetch(t.base + '/api/projects/packages', { method: 'POST', headers: { 'Content-Type': 'application/json', Host: new URL(t.base).host }, body: JSON.stringify({ project }) });
+  assert.equal(response.status, 403, 'a script on this Mac installed packages as “the person”');
+  assert.deepEqual(uvCalls(t), [], 'nothing ran');
+  assert.equal(exists(root, '.venv'), false);
+  assert.equal((await t.bench.api('/api/project-packages?project=' + project)).missing, true, 'reading what would be installed is open');
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

@@ -426,6 +426,7 @@ export default function harness(pi, dependencies = {}) {
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
       if (result.judgement?.choice) await askSystemChoice(result.judgement.choice,context);
       refusedAgain = result.outcome === 'ALLOW' ? '' : result.repeat ? (result.instead || 'Continue with allowed tools.') : refusedAgain;
+      if (result.notice && result.outcome !== 'ALLOW') notify(sharedPortEnv() ? `Harness notice: ${result.notice}` : tr(result.notice), 'info'); /* task 331: the packages are missing: the person's control */
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);

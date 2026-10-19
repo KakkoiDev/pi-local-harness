@@ -87,7 +87,12 @@ class AlternativeTest(unittest.TestCase):
         root = self.project({'pyproject.toml': '[dependency-groups]\ndev = ["pytest"]\n', 'uv.lock': '', 'tests/test_logic.py': ''})
         said = instead('uv run pytest', root, 'implementation')
         self.assertIn('`python3 -m unittest discover -s tests`', said); self.assertIn('pytest isn’t installed here (no .venv', said)
+        self.assertIn('Project › Install Packages…', said, 'task 331: the alternative names the person’s control')
+        from gate.alternatives import packages_notice
+        self.assertIn('Install Packages…', packages_notice('uv run pytest', root, 'implementation'))
+        self.assertIsNone(packages_notice('ls', root, 'implementation'))
         (root / '.venv').mkdir()
+        self.assertIsNone(packages_notice('uv run pytest', root, 'implementation'))
         self.assertIn('`uv run --offline pytest -q`', instead('uv run pytest', root, 'implementation'))
         self.assertTrue(test_run('uv run --offline pytest -q'))
 

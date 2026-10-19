@@ -30,3 +30,9 @@ Then the project is created with that name, or the sheet says why the emoji cann
 Given a project creation that failed half way
 When I create the project again with the same name
 Then it is created and its first commit is there
+
+Note (task 331, 2026-10-19): a new Web app or Terminal app now gets its packages at Create (`uv sync --frozen`, the
+person approves by pressing Create; the Summary shows the count and size from uv.lock), and the base check then also
+runs `uv run --offline pytest -q`. A project without its `.venv` offers Project › Install Packages… (terminal:
+`/setup packages`). The starter READMEs say `uv run --offline pytest` (verified; task 323) and `uv sync --frozen`.
+See [task 331](331-project-environment.md).

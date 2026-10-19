@@ -5,6 +5,7 @@
 // Capability… adds one later, kept as one undoable request only if every test still passes. The catalogue, the
 // suggestions, the checks and the tests are the workbench's code (kit/capabilities.py), never the model.
 import { icon } from './ui.mjs';
+import { followProgress, progressId } from './install-packages.mjs';
 
 const STEPS = ['Name', 'Capabilities', 'Packages', 'Summary'];
 const BASES = ['web', 'static', 'tui'];
@@ -228,11 +229,12 @@ export function installProjectStart({ api, workspace, project, showConversation,
     fact('Capabilities', plan.capabilities.length ? plan.capabilities.map(id => capability(id).name + (plan.included[id] ? ` (from ${pack(plan.included[id]).name})` : '')).join(' · ') : 'None: the package’s base only');
     fact('Packages', plan.packages.map(id => pack(id).name).join(' · '));
     fact('The base', `${plural(plan.files, 'file')}, ${plural(plan.tests, 'test')} (checked when you press Create)`);
+    if (plan.install) { const download = fact('Download', `${plan.install.line}. Pressing Create approves this download.`); download.id = 'start-download'; } /* task 331 */
     fact('Languages', 'English and Japanese, always');
     fact('Your first phase', 'Discussion: tell Pi what makes this app yours');
     body.append(facts, ...plan.warnings.map(warnLine), ...plan.problems.map(warnLine));
     const result = el('div', 'pw-start__result'); result.id = 'start-result'; body.append(result);
-    body.append(el('p', 'pw-help', 'Create assembles the base, runs its tests, and makes the first commit. If a test fails, nothing is created and the failing capability is named.'));
+    body.append(el('p', 'pw-help', plan.install ? 'Create assembles the base, installs its packages, runs its tests, and makes the first commit. If a test fails, nothing is created and the failing capability is named; if the download fails, the project is still created and Project › Install Packages… installs them later.' : 'Create assembles the base, runs its tests, and makes the first commit. If a test fails, nothing is created and the failing capability is named.'));
     next.disabled = plan.problems.length > 0; status.textContent = plan.problems.length ? 'Change the choices above to create.' : '';
   }
 
@@ -243,14 +245,22 @@ export function installProjectStart({ api, workspace, project, showConversation,
   async function create() {
     busy(true, 'Assembling the base and running its tests…');
     const result = document.getElementById('start-result');
+    /* task 331: the install's lines while it downloads, then the check */
+    const id = progressId(), stop = followProgress(api, id, found => { if (creating) status.textContent = found.stage === 'install' ? `Installing the app’s packages… ${found.line}` : 'Running the base’s tests…'; });
     try {
-      const created = await api('/api/projects/start', { name: choice.name, parent: choice.parent, packages: [...choice.packages], capabilities: [...choice.capabilities], sentence: choice.sentence });
-      if (created.created) { busy(false); await opened(created); toast?.(`Created “${choice.name}”: all ${plural(created.check.tests, 'test')} of the base pass.`); return; }
+      const created = await api('/api/projects/start', { name: choice.name, parent: choice.parent, packages: [...choice.packages], capabilities: [...choice.capabilities], sentence: choice.sentence, progress: id });
+      stop();
+      if (created.created) {
+        busy(false); await opened(created);
+        const installed = created.check.packages, base = `Created “${choice.name}”: all ${plural(created.check.tests, 'test')} of the base pass`;
+        toast?.(!installed ? `${base}.` : installed.installed ? `${base}; ${plural(installed.count, 'package')} installed${installed.disk ? ` (${installed.disk})` : ''}.` : `${base}. Its packages were not installed (${installed.reason}): install them with Project › Install Packages….`);
+        return;
+      }
       busy(false, 'Nothing was created.');
       result.replaceChildren(warnLine(created.error));
       for (const failing of created.check.failing || []) result.append(el('p', 'pw-help pw-start__failing', `Failing test: ${failing.test} (${failing.file}), from ${failing.capability}.`));
       const output = el('pre', 'pw-start__output pw-mono', created.check.output || ''); output.setAttribute('aria-label', 'Test output'); result.append(output);
-    } catch (error) { busy(false, error.message); }
+    } catch (error) { stop(); busy(false, error.message); }
   }
   async function createEmpty(name) {
     if (!name) { status.textContent = 'Give the project a name.'; document.getElementById('start-name').focus(); return; }

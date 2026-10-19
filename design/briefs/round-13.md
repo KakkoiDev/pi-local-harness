@@ -183,3 +183,18 @@ Question for the board: should the note offer a control (Choose Another Model…
 - **Not verified, naming the scenario:** the existing "Not verified" row carries Gate's sentence ("scenario “Add a
   note” has no e2e test named after it"; "test “Reset the notes” uses a control that no longer exists: the “Reset”
   button"; "the “Help” link has no e2e step"). Several reasons are joined with “;”: a list may read better.
+
+## A project's packages (task 331), built from existing parts
+
+- **Project Start › Summary:** a "Download" row in the facts list: "Install the app's packages: 29 packages, about
+  68 MB (download from PyPI, once; later projects reuse the shared uv cache). Pressing Create approves this download."
+  While Create runs, the status line reads "Installing the app’s packages… <uv's last line>", then "Running the base’s
+  tests…". Please draw the row and the progress in R12_NP4 (desk and phone): a progress bar, or the line as it is?
+- **Project › Install Packages…** (after Test Sandbox…): a desk dialog `#packages-dialog` with the same size line, the
+  command it runs ("Runs uv sync --frozen in Habit Tracker once…"), a live status line and, on failure, the installer's
+  output (the Project Start output box); Cancel · Install (default), then Try Again. Disabled when nothing is missing.
+- **HarnessNotice with a button:** "This project’s packages aren’t installed (no .venv), so pytest can’t run. Install
+  them once with Project › Install Packages…" + an Install Packages… button, shown once per project under the answer
+  whose test run Gate refused.
+- **Preview › packages missing:** the empty state says "<name>'s packages aren't installed yet, so the app can't start.
+  Install them once with Project › Install Packages…." Should it carry the button too?

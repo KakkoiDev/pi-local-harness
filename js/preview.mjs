@@ -227,6 +227,8 @@ export function installPreview({ api, project, send, showView, view, working, on
       box.append(actions); box.setAttribute('role', 'alert'); stage.replaceChildren(box);
     } else if (status.kind === 'notweb') {
       stage.replaceChildren(empty(status.message.split(':')[0] + '.', node('p', 'pw-help', status.message.split(': ').slice(1).join(': '))));
+    } else if (status.kind === 'packages') { /* task 331: no second install path: the person's Install Packages… */
+      stage.replaceChildren(empty(status.message, node('p', 'pw-help', status.line || '')));
     } else if (status.kind === 'app') {
       stage.replaceChildren(empty('The app is stopped.', node('p', 'pw-help', 'Start runs it again.')));
     } else {

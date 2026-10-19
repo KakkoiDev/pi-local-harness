@@ -30,3 +30,4 @@ def free_port():
     with socket.socket() as probe:
         probe.bind(('127.0.0.1', 0))
         return str(probe.getsockname()[1])
+os.environ['PI_NO_DOWNLOADS'] = '1'  # task 331: Create and Install Packages… never download in tests (stubs on PATH clear it)

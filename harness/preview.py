@@ -25,12 +25,12 @@ def run_command(folder, port):
     """How this project's app runs, or None when it has no app to show."""
     folder = Path(folder)
     if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'tui.py').is_file() and (folder / 'serve.py').is_file():
-        return [UV, 'run', 'python', str(Path(__file__).with_name('terminal-preview.py')), str(port)]  # a terminal app (kit/starter-tui): in the browser through textual-serve
+        return [UV, 'run', '--offline', 'python', str(Path(__file__).with_name('terminal-preview.py')), str(port)]  # a terminal app (kit/starter-tui): in the browser through textual-serve
     if (folder / 'pyproject.toml').is_file() and (folder / 'app' / 'main.py').is_file():
-        server = [UV, 'run', 'uvicorn', 'app.main:app', '--reload', '--host', '127.0.0.1', '--port', str(port)]
+        server = [UV, 'run', '--offline', 'uvicorn', 'app.main:app', '--reload', '--host', '127.0.0.1', '--port', str(port)]
         if not (folder / 'styles' / 'input.css').is_file(): return server
         # The stack's styles: Tailwind rebuilds static/app.css as templates change, in the same process group as the server.
-        styles = [UV, 'run', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
+        styles = [UV, 'run', '--offline', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
         return ['/bin/sh', '-c', f"{shlex.join(styles)} && {{ {shlex.join([*styles, '--watch=always'])} & exec {shlex.join(server)}; }}"]
     if (folder / 'index.html').is_file():
         files = [sys.executable, '-I', str(Path(__file__).with_name('preview_files.py')), str(port)]  # task 304: never outside the project, no dot-paths, no listings, loopback Host only
@@ -39,6 +39,16 @@ def run_command(folder, port):
         styles = [UV, 'tool', 'run', '--from', 'pytailwindcss', 'tailwindcss', '-i', 'styles/input.css', '-o', 'static/app.css']
         return ['/bin/sh', '-c', f"{shlex.join(styles)} && {{ {shlex.join([*styles, '--watch=always'])} & exec {shlex.join(files)}; }}"]
     return None
+
+
+def packages_missing(folder):
+    """Task 331: a project whose lock file lists packages that are not installed: the Preview waits for the person's
+    Install Packages… (no second install path; `uv run --offline` never downloads)."""
+    from harness.packages import missing
+    found = missing(folder) if folder and (Path(folder) / 'pyproject.toml').is_file() else None
+    if not found: return None
+    return {'state': 'none', 'kind': 'packages', 'line': found['line'],
+            'message': f"{Path(folder).name}'s packages aren't installed yet, so the app can't start. Install them once with Project › Install Packages…."}
 
 
 def what_it_is(folder):
@@ -163,6 +173,7 @@ class Previews:
         with self.lock: app = self.apps.get(project)
         terminal=bool(folder and (Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()) if not app else app.terminal
         extra={'terminal':True,'command':'python -m app.tui'} if terminal else {}
+        if not app and folder and self.command(folder, 0) and packages_missing(folder): return {**packages_missing(folder), **extra}
         if not app: return ({'state': 'none', 'kind': 'app',**extra} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
         found = {**extra,'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.frame.port if app.frame else app.port}/', 'first': app.first}
         if app.state == 'starting':
@@ -219,6 +230,7 @@ class Previews:
             if app: self.end_frame(app)  # the stopped app's proxy goes with it
             port = free_port(); command = self.command(folder, port)
             if not command: return no_app(folder)
+            if packages_missing(folder): return packages_missing(folder)
             self.folder.mkdir(parents=True, exist_ok=True)
             log = self.folder / f'{project}.log'
             env = {key: value for key, value in os.environ.items() if not key.startswith(('PI_', 'VIRTUAL_ENV'))}

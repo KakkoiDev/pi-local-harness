@@ -574,11 +574,12 @@ class WebChat:
         ledger=getattr(self,'ledger',None)
         return ledger.counts_today() if ledger else {'today':0,'blocked_today':0}  # every check today, not only the 200 in memory
     def workspace(self):
+        from harness.packages import needs_install
         projects=[];summaries=self.store.list()
         for project in self.documents.list_projects():
             # A missing folder keeps its chat (it hangs off the id, task 154); none is created for it.
             chat=next((summary['id'] for summary in summaries if summary.get('project')==project['id']),None) if project.get('missing') else self.project_chat(project['id'],summaries)['id']
-            projects.append({**project,'chat':chat})
+            projects.append({**project,'chat':chat,**({'packages_missing':True} if not project.get('missing') and needs_install(project['path']) else {})})  # task 331: Project › Install Packages…
         return tool_repairs.annotate({'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'language':autonomy.read(self.documents.root/'config.json',{}).get('language'),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()},self.documents.root)  # task 326: tool calls the workbench fixed
     def stop(self, identifier):
         """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
@@ -945,7 +946,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
+    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox','/api/projects/packages'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
         if re.fullmatch(r'/api/jobs/[0-9a-f]{32}/(?:edit|remove)',path):return True  # task 325: only the person changes what waits for Pi
@@ -993,6 +994,8 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
             if path=='/api/project-start':from harness import project_start;self.reply(project_start.catalogue(self.chat,parse_qs(urlparse(self.path).query)));return  # round 12, plan 253
+            if path in ('/api/project-packages','/api/packages/progress'):  # task 331: Install Packages… and Create's install progress
+                from harness import packages;query=parse_qs(urlparse(self.path).query);self.reply(packages.status(self.chat,query['project'][0]) if path=='/api/project-packages' else packages.progress(query));return
             if path=='/api/project-sandbox':  # task 311: how far this project's test runs may reach
                 from gate import sandbox;self.reply({**sandbox.widened(self.chat.documents.root,self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])),'available':sandbox.available()});return
             if path=='/api/theme/fonts':self.reply(self.chat.fonts.search(parse_qs(urlparse(self.path).query).get('q',[''])[0]));return
@@ -1028,7 +1031,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
                 allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
-                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list')})  # round 12: HarnessNotice, CutLine, DecisionRow
+                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list','install-packages')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return
@@ -1124,6 +1127,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path.startswith('/api/projects/') and path.rsplit('/',1)[-1] in ('rename','move','locate','remove','trash','summary'):
                 self.reply(self.chat.project_command(path.rsplit('/',1)[-1],data.get('project'),data));return
             if path=='/api/transcribe':self.reply(self.transcription(data));return
+            if path=='/api/projects/packages':from harness import packages;self.reply(packages.run(self.chat,data));return  # task 331: Project › Install Packages… (person only)
             if path=='/api/projects/sandbox':  # task 311: the person widens (or closes) the test sandbox for one project
                 from gate import sandbox
                 result=sandbox.widen(self.chat.documents.root,self.chat.documents.project_path(data['project']),data.get('network'))

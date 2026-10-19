@@ -2,7 +2,7 @@
 
 Built on the stack (plan 198): FastAPI, Jinja, htmx 4, Basecoat, SQLite, typed Python, English and Japanese.
 
-    uv sync                                   # once
+    uv sync --frozen                          # once: Create did it (else Project › Install Packages…)
     TAILWINDCSS_VERSION=v4.3.3 uv run tailwindcss -i styles/input.css -o static/app.css --minify
     uv run uvicorn app.main:app --reload      # http://127.0.0.1:8000
     uv run --offline pytest                   # tests (Pi runs this form; after uv sync)

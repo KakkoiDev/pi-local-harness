@@ -79,6 +79,7 @@ class ProposalLedger:
         self.pending = {}
         self.edit_failures = OrderedDict()
         self.refused_commands = OrderedDict()  # task 323: (request, command) refused once; the same again says so
+        self.packages_told = set()  # task 331: projects whose missing packages the person was told about (once each)
         self.lock = threading.Lock()
         self.events = deque(maxlen=200)
         self.event_sequence = 0
@@ -277,6 +278,9 @@ class ProposalLedger:
                     from .alternatives import instead
                     # Task 323: System 1 keeps the refusal and names a checked alternative; never a question for the person.
                     extra['instead']=instead(command,root,phase);reason=f"{reason} {extra['instead']}"
+                    from .alternatives import packages_notice
+                    told=packages_notice(command,root,phase)
+                    if told and str(root) not in self.packages_told:self.packages_told.add(str(root));extra['notice']=told  # task 331: the person's control, once per project
                     if request in self.paperwork.requests:
                         key=(request,command.strip())
                         with self.lock:
