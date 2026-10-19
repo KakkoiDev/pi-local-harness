@@ -193,7 +193,7 @@ test('US-325 terminal: /setup packages asks first and installs the project\'s pa
   const { project } = await bench.api('/api/projects/create', { name: 'Habit Tracker', parent: bench.directory, kind: 'web' });
   const root = (await bench.api('/api/workspace')).projects.find(item => item.id === project).path, log = join(bench.directory, 'uv-calls.log');  // task 327: a slug folder
   // A uv stand-in first on PATH (harness/admin.py runs with this process's environment): never a real download.
-  writeFileSync(join(bench.directory, 'uv'), `#!/bin/sh\necho "$@" >> '${log}'\ncase "$1" in sync) mkdir -p .venv; echo "Installed 29 packages in 12ms" >&2;; esac\n`, { mode: 0o755 });
+  writeFileSync(join(bench.directory, 'uv'), `#!/bin/sh\necho "$@" >> '${log}'\ncase "$1" in sync) mkdir -p .venv; echo "Installed 40 packages in 12ms" >&2;; esac\n`, { mode: 0o755 });
   const saved = { PATH: process.env.PATH, PI_NO_DOWNLOADS: process.env.PI_NO_DOWNLOADS };
   process.env.PATH = `${bench.directory}:${process.env.PATH}`; process.env.PI_NO_DOWNLOADS = '';
   t.after(() => { for (const [key, value] of Object.entries(saved)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
@@ -202,9 +202,9 @@ test('US-325 terminal: /setup packages asks first and installs the project\'s pa
   assert.equal(person.editor.text, '/setup packages', 'the command waits on my input line');
   assert.equal(existsSync(log), false, 'Pi installed nothing');
   await person.type('setup', 'packages');
-  assert.match(person.asked[0].title, /Install the project’s packages\?[\s\S]*Downloads\s+29 packages, about \d+ MB \(download from PyPI/);
+  assert.match(person.asked[0].title, /Install the project’s packages\?[\s\S]*Downloads\s+40 packages, about \d+ MB \(download from PyPI/);
   assert.deepEqual(person.asked[0].options, ['Install Packages', 'Cancel']);
-  assert.match(person.notices.at(-1), /✓ Installed 29 packages/);
+  assert.match(person.notices.at(-1), /✓ Installed 40 packages/);
   assert.equal(readFileSync(log, 'utf8').trim(), 'sync --frozen');
   assert.ok(existsSync(join(root, '.venv')));
   const rows = bench.lines(join(bench.data, 'decisions.jsonl')).filter(row => row.kind === 'packages_install');

@@ -1,0 +1,292 @@
+{
+  "note": "The step vocabulary of each App Block's test block (draft until the designer's round 14 lands: design/briefs/round-14.md in Pi Workbench). tools/blocks_from_app_blocks.py reads this file with the App Block cards and markup and writes functional/blocks/python, functional/blocks/js and functional/blocks/vocabulary.json. Controls are found as a person finds them (role and name, label, text); every control named here must exist in the App Block's markup, or generating fails. Ops: goto, click, fill, check, uncheck, select, press, visible, hidden, any, text, exact_text, value, attribute, checked, name, description, count, absent.",
+  "blocks": {
+    "LogIn": {
+      "noun": "log in form",
+      "controls": {
+        "form": {"css": "#login-form", "check": "id=\"login-form\""},
+        "email": {"label": "Email", "within": "form"},
+        "password": {"label": "Password", "within": "form"},
+        "remember": {"role": "checkbox", "name": "Keep me logged in", "within": "form"},
+        "submit": {"role": "button", "name": "Log In", "within": "form"},
+        "forgot": {"role": "link", "name": "Forgot your password?", "within": "form"},
+        "signup": {"role": "link", "name": "Sign Up", "within": "form"},
+        "error": {"css": "#login-error", "within": "form", "check": "id=\"login-error\""},
+        "invalid": {"css": "[aria-invalid=\"true\"]", "within": "form"}
+      },
+      "steps": [
+        {"step": "Given I am on the log in page", "do": [["goto"], ["visible", "submit"]]},
+        {"step": "When I log in as {email} with {password}", "do": [["fill", "email", "{email}"], ["fill", "password", "{password}"], ["click", "submit"]]},
+        {"step": "When I enter the email {email}", "do": [["fill", "email", "{email}"]]},
+        {"step": "When I enter the password {password}", "do": [["fill", "password", "{password}"]]},
+        {"step": "When I press Log In", "do": [["click", "submit"]]},
+        {"step": "When I untick keep me logged in", "do": [["uncheck", "remember"]]},
+        {"step": "When I follow the forgot password link", "do": [["click", "forgot"]]},
+        {"step": "When I follow the sign up link", "do": [["click", "signup"]]},
+        {"step": "Then I see the log in error", "do": [["visible", "error"]]},
+        {"step": "Then the email field has {email}", "do": [["value", "email", "{email}"]]},
+        {"step": "Then keep me logged in is ticked", "do": [["checked", "remember"]]}
+      ],
+      "state_step": "Then the log in form is in the {state} state",
+      "states": {
+        "Empty": [["value", "email", ""], ["value", "password", ""], ["hidden", "error"]],
+        "Field error": [["any", "invalid"]],
+        "Sending": [["attribute", "submit", "aria-busy", "true"]],
+        "Wrong email or password": [["visible", "error"]],
+        "Too many tries": [["text", "error", "Too many tries"]],
+        "Offline": [["text", "error", "offline"]]
+      },
+      "self_test": [
+        "Given I am on the log in page",
+        "Then the log in form is in the \"Empty\" state",
+        "Then keep me logged in is ticked",
+        "When I enter the email \"aiko@example.com\"",
+        "Then the email field has \"aiko@example.com\"",
+        "When I untick keep me logged in",
+        "When I follow the sign up link",
+        "Then the log in form is in the \"Empty\" state"
+      ]
+    },
+    "DataTable": {
+      "noun": "table",
+      "controls": {
+        "form": {"css": "form:has(table)", "check": "<form"},
+        "table": {"role": "table", "check": "<table"},
+        "rows": {"css": "tbody tr", "within": "table", "check": "<tbody>"},
+        "row": {"css": "tbody tr", "within": "table", "nth": "{n}"},
+        "selected_row": {"css": "tbody tr[data-state=\"selected\"]", "within": "table"},
+        "column": {"role": "columnheader", "name": "{column}", "within": "table", "check": "scope=\"col\""},
+        "sort": {"role": "button", "name": "Sort by {column}", "within": "table"},
+        "select_all": {"role": "checkbox", "name": "Select all on this page", "within": "table"},
+        "select_row": {"role": "checkbox", "name": "Select {name}", "within": "table", "exact": true},
+        "row_actions": {"role": "link", "name": "Actions for {name}", "within": "table", "exact": true},
+        "pages": {"role": "navigation", "name": "Pages", "check": "aria-label=\"Pages\""},
+        "page_link": {"role": "link", "name": "Page {n}", "within": "pages", "exact": true},
+        "previous": {"role": "link", "name": "Previous", "within": "pages"},
+        "next": {"role": "link", "name": "Next", "within": "pages"}
+      },
+      "steps": [
+        {"step": "Then the table shows {n} rows", "params": {"n": "int"}, "do": [["count", "rows", "{n}"]]},
+        {"step": "Then row {n} shows {text}", "params": {"n": "int"}, "do": [["text", "row", "{text}"]]},
+        {"step": "When I sort by {column}", "do": [["click", "sort"]]},
+        {"step": "Then the column {column} is sorted {direction}", "params": {"direction": {"one_of": ["ascending", "descending", "none"]}}, "do": [["attribute", "column", "aria-sort", "{direction}"]]},
+        {"step": "When I select the row {name}", "do": [["check", "select_row"]]},
+        {"step": "Then the row {name} is selected", "do": [["checked", "select_row"]]},
+        {"step": "When I select all rows on this page", "do": [["check", "select_all"]]},
+        {"step": "When I open the actions for {name}", "do": [["click", "row_actions"]]},
+        {"step": "When I go to page {n}", "params": {"n": "int"}, "do": [["click", "page_link"]]},
+        {"step": "When I go to the next page", "do": [["click", "next"]]},
+        {"step": "When I go to the previous page", "do": [["click", "previous"]]},
+        {"step": "Then page {n} is the current page", "params": {"n": "int"}, "do": [["attribute", "page_link", "aria-current", "page"]]}
+      ],
+      "state_step": "Then the table is in the {state} state",
+      "states": {
+        "Default": [["any", "rows"]],
+        "Row selected": [["any", "selected_row"]],
+        "Loading a page": [["attribute", "form", "aria-busy", "true"]],
+        "Empty": [["absent", "table"]]
+      },
+      "self_test": [
+        "Then the table shows 2 rows",
+        "Then row 1 shows \"駅\"",
+        "Then row 2 shows \"train\"",
+        "Then the column \"Added\" is sorted descending",
+        "Then the table is in the \"Default\" state",
+        "When I select the row \"駅\"",
+        "Then the row \"駅\" is selected",
+        "Then page 1 is the current page",
+        "When I go to page 2",
+        "Then the table shows 2 rows"
+      ]
+    },
+    "EditForm": {
+      "noun": "form",
+      "controls": {
+        "field": {"label": "{field}"},
+        "choice": {"role": "radio", "name": "{option}"},
+        "save": {"role": "button", "name": "Save"},
+        "cancel": {"role": "link", "name": "Cancel"},
+        "invalid": {"css": "[aria-invalid=\"true\"]"}
+      },
+      "steps": [
+        {"step": "When I fill {field} with {text}", "do": [["fill", "field", "{text}"]]},
+        {"step": "When I choose {option} for {field}", "do": [["select", "field", "{option}"]]},
+        {"step": "When I pick {option}", "do": [["check", "choice"]]},
+        {"step": "When I save", "do": [["click", "save"]]},
+        {"step": "When I cancel", "do": [["click", "cancel"]]},
+        {"step": "Then the field {field} has {text}", "do": [["value", "field", "{text}"]]},
+        {"step": "Then the field {field} shows the error {text}", "do": [["attribute", "field", "aria-invalid", "true"], ["description", "field", "{text}"]]},
+        {"step": "Then the field {field} says {text}", "do": [["description", "field", "{text}"]]},
+        {"step": "Then the option {option} is picked", "do": [["checked", "choice"]]}
+      ],
+      "state_step": "Then the form is in the {state} state",
+      "states": {
+        "Field error": [["any", "invalid"]],
+        "Saving": [["attribute", "save", "aria-busy", "true"]]
+      },
+      "self_test": [
+        "Then the field \"Title\" has \"Week 3 · Vocabulary\"",
+        "Then the field \"Title\" says \"Up to 120 characters\"",
+        "When I fill \"Title\" with \"Week 4\"",
+        "Then the field \"Title\" has \"Week 4\"",
+        "When I choose \"Grammar\" for \"Subject\"",
+        "Then the field \"Subject\" has \"grammar\"",
+        "When I pick \"My class\"",
+        "Then the option \"My class\" is picked",
+        "When I save",
+        "Then the field \"Title\" has \"Week 3 · Vocabulary\""
+      ]
+    },
+    "EmptyState": {
+      "noun": "empty state",
+      "controls": {
+        "box": {"css": ".empty", "check": "class=\"empty"},
+        "heading": {"role": "heading", "within": "box", "check": "<h2"},
+        "action": {"text": "{name}", "within": "box"},
+        "actions": {"css": "footer a, footer button", "within": "box"}
+      },
+      "steps": [
+        {"step": "Then I see the empty state {title}", "do": [["text", "heading", "{title}"]]},
+        {"step": "Then I see no empty state", "do": [["absent", "box"]]},
+        {"step": "Then the empty state offers {name}", "do": [["visible", "action"]]},
+        {"step": "When I take the empty state action {name}", "do": [["click", "action"]]}
+      ],
+      "state_step": "Then the empty state is in the {state} state",
+      "states": {
+        "First run": [["any", "actions"]],
+        "All done": [["count", "actions", "0"]]
+      },
+      "self_test": [
+        "Then I see the empty state \"No notes yet\"",
+        "Then the empty state offers \"New Note\"",
+        "Then the empty state offers \"Import from a File\"",
+        "Then the empty state is in the \"First run\" state",
+        "When I take the empty state action \"New Note\"",
+        "Then I see the empty state \"No notes yet\""
+      ]
+    },
+    "Toasts": {
+      "noun": "toaster",
+      "demo": ["Toasts.2.html"],
+      "controls": {
+        "toaster": {"css": "#toaster", "check": "id=\"toaster\""},
+        "toasts": {"css": ".toast", "within": "toaster"},
+        "toast": {"css": ".toast", "within": "toaster", "has_text": "{text}"},
+        "action": {"role": "button", "name": "{name}", "within": "toaster"},
+        "success": {"css": ".toast[data-category=\"success\"]", "within": "toaster"},
+        "error": {"css": ".toast[data-category=\"error\"]", "within": "toaster"}
+      },
+      "steps": [
+        {"step": "Then I see the toast {text}", "do": [["visible", "toast"]]},
+        {"step": "Then I see no toast", "do": [["count", "toasts", "0"]]},
+        {"step": "Then I see {n} toasts", "params": {"n": "int"}, "do": [["count", "toasts", "{n}"]]},
+        {"step": "When I press {name} on the toast", "do": [["click", "action"]]}
+      ],
+      "state_step": "Then the toaster is in the {state} state",
+      "states": {
+        "Success": [["any", "success"]],
+        "Error": [["any", "error"]]
+      },
+      "self_test": [
+        "Then I see the toast \"Note deleted\"",
+        "Then I see 1 toasts",
+        "Then the toaster is in the \"Success\" state",
+        "When I press \"Undo\" on the toast"
+      ]
+    },
+    "KpiTile": {
+      "noun": "tile",
+      "controls": {
+        "tile": {"role": "region", "name": "{kpi}", "check": "aria-labelledby"},
+        "change": {"css": ".badge", "within": "tile", "check": "class=\"badge\""},
+        "loading": {"css": "[aria-busy=\"true\"]", "within": "tile"},
+        "report": {"role": "link", "name": "View report", "within": "tile"},
+        "table_toggle": {"text": "Show as a table", "within": "tile", "check": "Show as a table"}
+      },
+      "steps": [
+        {"step": "Then the {kpi} tile shows {value}", "do": [["text", "tile", "{value}"]]},
+        {"step": "Then the {kpi} tile change says {text}", "do": [["text", "change", "{text}"]]},
+        {"step": "When I open the {kpi} report", "do": [["click", "report"]]},
+        {"step": "When I show the {kpi} numbers as a table", "do": [["click", "table_toggle"]]}
+      ],
+      "state_step": "Then the {kpi} tile is in the {state} state",
+      "states": {
+        "Loaded": [["any", "change"], ["visible", "report"]],
+        "No comparison yet": [["absent", "change"]],
+        "Loading": [["attribute", "tile", "aria-busy", "true"]],
+        "Going down": [["text", "change", "▼"]]
+      },
+      "self_test": [
+        "Then the \"Revenue\" tile shows \"¥420,000\"",
+        "Then the Revenue tile change says \"▲ 9 %\"",
+        "Then the Revenue tile is in the \"Loaded\" state",
+        "When I show the Revenue numbers as a table",
+        "When I open the Revenue report"
+      ]
+    },
+    "BarChart": {
+      "noun": "chart",
+      "controls": {
+        "card": {"role": "region", "name": "{title}", "check": "aria-labelledby"},
+        "chart": {"role": "img", "within": "card", "check": "role=\"img\""},
+        "loading": {"css": "[aria-busy=\"true\"]", "within": "card"},
+        "alert": {"role": "alert", "within": "card"},
+        "table_toggle": {"text": "Show as a table", "within": "card", "check": "Show as a table"},
+        "table_row": {"role": "row", "name": "{label}", "within": "card", "check": "scope=\"row\""}
+      },
+      "steps": [
+        {"step": "Then the chart {title} is described as {text}", "do": [["name", "chart", "{text}"]]},
+        {"step": "When I show the chart {title} as a table", "do": [["click", "table_toggle"]]},
+        {"step": "Then the chart {title} row {label} shows {value}", "do": [["text", "table_row", "{value}"]]}
+      ],
+      "state_step": "Then the chart {title} is in the {state} state",
+      "states": {
+        "Loaded": [["visible", "chart"]],
+        "Loading": [["any", "loading"]],
+        "Empty": [["absent", "chart"]],
+        "Error": [["any", "alert"]]
+      },
+      "self_test": [
+        "Then the chart \"Orders per day\" is described as \"Saturday is busiest\"",
+        "Then the chart \"Orders per day\" is in the \"Loaded\" state",
+        "When I show the chart \"Orders per day\" as a table",
+        "Then the chart \"Orders per day\" row Sat shows 83"
+      ]
+    },
+    "SidePanel": {
+      "noun": "side panel",
+      "controls": {
+        "panel": {"css": "#sidebar", "check": "id=\"sidebar\""},
+        "nav": {"role": "navigation", "name": "Main", "within": "panel", "check": "aria-label=\"Main\""},
+        "link": {"role": "link", "name": "{section}", "starts": true, "within": "nav"},
+        "group": {"text": "{name}", "within": "nav"},
+        "new_collection": {"role": "button", "name": "New Collection", "within": "nav"},
+        "toggle": {"role": "button", "name": "Show or hide the side panel"}
+      },
+      "steps": [
+        {"step": "When I go to {section} in the side panel", "do": [["click", "link"]]},
+        {"step": "Then the side panel shows {section} as the current page", "do": [["attribute", "link", "aria-current", "page"]]},
+        {"step": "Then the side panel badge for {section} says {count}", "do": [["text", "link", "{count}"]]},
+        {"step": "When I open or close the group {name}", "do": [["click", "group"]]},
+        {"step": "When I add a collection", "do": [["click", "new_collection"]]},
+        {"step": "When I toggle the side panel", "do": [["click", "toggle"]]},
+        {"step": "Then the side panel is open", "do": [["attribute", "panel", "aria-hidden", "false"]]},
+        {"step": "Then the side panel is closed", "do": [["attribute", "panel", "aria-hidden", "true"]]}
+      ],
+      "state_step": "Then the side panel is in the {state} state",
+      "states": {
+        "Open": [["attribute", "panel", "aria-hidden", "false"]],
+        "Collapsed": [["attribute", "panel", "aria-hidden", "true"]]
+      },
+      "self_test": [
+        "Then the side panel is open",
+        "Then the side panel shows Home as the current page",
+        "Then the side panel badge for Notes says 12",
+        "Then the side panel badge for Inbox says 3",
+        "When I open or close the group \"Japanese 1\"",
+        "When I go to Notes in the side panel",
+        "Then the side panel is in the \"Open\" state"
+      ]
+    }
+  }
+}

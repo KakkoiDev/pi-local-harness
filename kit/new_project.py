@@ -23,6 +23,19 @@ def library(name: str) -> Path:
     return KIT / found["folder"]
 
 
+def add_test_core(folder: Path) -> list[str]:
+    """Task 332: test-core in every project, as test-core's adopt kit lays it out (`test-core/`: the tools, the
+    `functional` library with the test blocks generated from App Blocks, MANIFEST.json for `adopt.py --verify`, its
+    licence and the shared accessibility check). The project's own checks (tests/test_protocol.py or
+    tests/protocol.test.mjs) run its tools offline. Files already there are kept. Returns what it added."""
+    source, added = library("test-core") / "test-core", []
+    for path in sorted(item for item in source.rglob("*") if item.is_file() and "__pycache__" not in item.parts):
+        target = folder / "test-core" / path.relative_to(source)
+        if not target.exists():
+            target.parent.mkdir(parents=True, exist_ok=True); shutil.copy(path, target); added.append(target.relative_to(folder).as_posix())
+    return added
+
+
 def initial_plan(name: str) -> dict[str, str]:
     """The same first planning task in the web workbench and runtime benchmarks."""
     return {'ROADMAP.md':f'# {name} roadmap\n\n## Goal\n\nDescribe what we are building.\n\n## Tasks\n\n- [ ] [001-Plan this app](tasks/001-first-task.md)\n',
@@ -46,6 +59,7 @@ def new_project(folder: Path, static: bool = False, files: dict[str, str] | None
     shutil.copytree(KIT / ("starter-tui" if tui else "starter-static" if static else "starter"), folder, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".venv", "__pycache__", "node_modules", "data.sqlite3", "app.css"))
     for name, text in (files or {}).items():
         (folder / name).parent.mkdir(parents=True, exist_ok=True); (folder / name).write_text(text, encoding="utf-8")
+    add_test_core(folder)
     if tui:  # a terminal app: no web libraries
         if history: start_history(folder)
         return folder

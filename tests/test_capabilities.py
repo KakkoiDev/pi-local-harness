@@ -11,6 +11,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import threading
 import tempfile
 import unittest
@@ -63,6 +64,25 @@ class CatalogueTest(unittest.TestCase):
                 if sources:
                     copied = [target for source, target in spec['copy'] if 'LICENSE' in source] + [target for source, target in spec['copy'] if (kit.KIT / source).is_dir()]
                     self.assertTrue(copied, f"{item['id']} in {base}: the licence goes with the library")
+
+    def test_every_capability_brings_its_scenario_and_one_e2e_test_named_after_it(self):
+        """Task 332: each available capability has a Given/When/Then scenario and, in every package it supports, one e2e
+        test named after its title (Playwright for web and static, Textual's pilot for the terminal app)."""
+        sys.path.insert(0, str(kit.KIT / 'vendor/test-core-2444016/test-core/tools'))
+        import scenarios as test_core
+        for item in self.data['capabilities']:
+            if not item['available']: continue
+            with self.subTest(capability=item['id']):
+                found = test_core.parse((kit.KIT / item['scenarios']).read_text())
+                self.assertEqual(len(found), 1, 'one scenario'); scenario = found[0]
+                self.assertTrue(scenario.given and scenario.when and scenario.then)
+                for base in item['install']:
+                    e2e = [path for path in kit._fragment_files(item, base) if '/tests/e2e/' in path.as_posix()]
+                    self.assertTrue(e2e, f'{base}: an e2e test')
+                    names = set().union(*(test_core.test_titles(path) for path in e2e))
+                    self.assertTrue(test_core.implemented(scenario, names), f'{base}: a test named “{scenario.title}”')
+        web, tui = (kit.KIT / f'capabilities/database/{base}/tests/test_cap_database.py' for base in ('web', 'tui'))
+        self.assertEqual(web.read_text(), tui.read_text(), 'one check of the migrations, in both packages')
 
     def test_suggestions_come_from_the_sentence_in_english_and_japanese(self):
         self.assertEqual(kit.suggest('A notes app for my class that works offline on a phone, with charts'), ['offline', 'charts', 'install'])
@@ -140,8 +160,8 @@ class AddTest(unittest.TestCase):
 
     def test_what_changes_is_shown_before(self):
         shown = kit.preview(self.folder, 'qrcode')
-        self.assertEqual(sorted(shown['added']), ['tests/cap-qrcode.test.mjs', 'vendor/qrcode/LICENSE', 'vendor/qrcode/qrcode.mjs'])
-        self.assertEqual(shown['changed'], ['README.md', 'packaging.json', 'sw.js'])
+        self.assertEqual(sorted(shown['added']), ['tests/cap-qrcode.test.mjs', 'tests/e2e/cap-qrcode.e2e.test.mjs', 'vendor/qrcode/LICENSE', 'vendor/qrcode/qrcode.mjs'])
+        self.assertEqual(shown['changed'], ['README.md', 'packaging.json', 'sw.js', 'SCENARIOS.md'])
         self.assertEqual(shown['tests_added'], 2); self.assertEqual(shown['present'], ['offline'])
 
     def test_it_is_one_commit_by_the_harness_that_undo_takes_back(self):
@@ -157,6 +177,32 @@ class AddTest(unittest.TestCase):
         self.assertFalse((self.folder / 'vendor/qrcode').exists())
         self.assertEqual(json.loads((self.folder / 'packaging.json').read_text())['capabilities'], ['offline'])
         with self.assertRaisesRegex(ValueError, 'already in this project'): kit.add(self.folder, 'offline')
+
+    def test_its_scenario_joins_scenarios_md_and_the_project_check_still_passes(self):
+        """Task 332: the capability's scenario goes into SCENARIOS.md under its name, with its e2e test; the project's
+        protocol check (scenario and test, controls, waits) passes with it; Undo takes the scenario back too."""
+        result = kit.add(self.folder, 'qrcode')
+        self.assertTrue(result['added'], result.get('message'))
+        text = (self.folder / 'SCENARIOS.md').read_text()
+        self.assertIn('## Share by QR code\n\n### Scenario: A QR code is drawn for the page address', text)
+        self.assertIn('### Scenario: Add a note and see it in the list', text, 'the app’s own scenarios stay')
+        run = subprocess.run(['node', '--test', 'tests/protocol.test.mjs'], cwd=self.folder, capture_output=True, text=True, timeout=120)
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        undo.undo(self.folder, result['commit'])
+        self.assertNotIn('Share by QR code', (self.folder / 'SCENARIOS.md').read_text())
+
+    def test_a_project_from_before_the_protocol_gets_the_e2e_helper_and_test_core_with_it(self):
+        for name in ('tests/e2e/browser.mjs', 'SCENARIOS.md'):
+            git(self.folder, 'rm', '-q', name)
+        git(self.folder, 'rm', '-q', '-r', 'test-core')
+        git(self.folder, '-c', 'user.name=Me', '-c', 'user.email=me@localhost', 'commit', '-q', '-m', 'An older project')
+        shown = kit.preview(self.folder, 'charts')
+        self.assertIn('tests/e2e/browser.mjs', shown['added']); self.assertIn('test-core/a11y-smoke.js', shown['added'])
+        result = kit.add(self.folder, 'charts')
+        self.assertTrue(result['added'], result.get('message'))
+        self.assertTrue((self.folder / 'tests/e2e/browser.mjs').is_file() and (self.folder / 'test-core/tools/scenarios.py').is_file())
+        self.assertTrue((self.folder / 'SCENARIOS.md').read_text().startswith('# Scenarios\n\n## Dashboard and charts\n'))
+        self.assertEqual(git(self.folder, 'status', '--porcelain'), '')
 
     def test_a_failing_test_keeps_nothing(self):
         before = git(self.folder, 'rev-parse', 'HEAD')

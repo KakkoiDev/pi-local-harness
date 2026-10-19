@@ -186,8 +186,8 @@ Question for the board: should the note offer a control (Choose Another Model…
 
 ## A project's packages (task 331), built from existing parts
 
-- **Project Start › Summary:** a "Download" row in the facts list: "Install the app's packages: 29 packages, about
-  68 MB (download from PyPI, once; later projects reuse the shared uv cache). Pressing Create approves this download."
+- **Project Start › Summary:** a "Download" row in the facts list: "Install the app's packages: 40 packages, about
+  108 MB (download from PyPI, once; later projects reuse the shared uv cache). Pressing Create approves this download."
   While Create runs, the status line reads "Installing the app’s packages… <uv's last line>", then "Running the base’s
   tests…". Please draw the row and the progress in R12_NP4 (desk and phone): a progress bar, or the line as it is?
 - **Project › Install Packages…** (after Test Sandbox…): a desk dialog `#packages-dialog` with the same size line, the

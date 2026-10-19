@@ -49,9 +49,9 @@ class LockTest(unittest.TestCase):
     def test_the_web_starters_lock_gives_the_numbers_create_shows(self):
         facts = packages.facts(ROOT / 'kit' / 'starter')
         self.assertEqual(facts['manager'], 'uv')
-        self.assertEqual(facts['count'], 29 if os.uname().sysname == 'Darwin' else facts['count'])
+        self.assertEqual(facts['count'], 40 if os.uname().sysname == 'Darwin' else facts['count'])
         self.assertGreater(facts['bytes'], 10_000_000)
-        self.assertRegex(facts['line'], r"^Install the app's packages: 29 packages, about \d+ MB \(download from PyPI, once; later projects reuse the shared uv cache\)$")
+        self.assertRegex(facts['line'], r"^Install the app's packages: 40 packages, about \d+ MB \(download from PyPI, once; later projects reuse the shared uv cache\)$")
 
     def test_no_sizes_says_when_the_size_is_known(self):
         text = '[[package]]\nname = "app"\nversion = "0"\nsource = { virtual = "." }\ndependencies = [{ name = "x" }]\n\n[[package]]\nname = "x"\nversion = "1"\nsource = { registry = "https://pypi.org/simple" }\n'
@@ -127,7 +127,7 @@ class InstallTest(Stubbed):
 
 # The base check runs `uv run --offline pytest -q` in the test sandbox, where STUB_LOG is scrubbed: Gate's test-run log
 # (test-runs.jsonl) says what ran instead.
-UV_OK = 'case "$1" in sync) mkdir -p .venv; echo "Installed 29 packages in 40ms" >&2;; run) echo "19 passed, 1 skipped in 0.75s";; esac\n'
+UV_OK = 'case "$1" in sync) mkdir -p .venv; echo "Installed 40 packages in 40ms" >&2;; run) echo "19 passed, 1 skipped in 0.75s";; esac\n'
 UV_OFFLINE = 'case "$1" in sync) echo "error: Failed to fetch: https://pypi.org/simple/fastapi/ (dns error)" >&2; exit 2;; run) echo "no environment" >&2; exit 2;; esac\n'
 
 
@@ -153,8 +153,8 @@ class CreateTest(Stubbed):
         check = start['check']
         self.assertTrue(check['passed']); self.assertEqual(check['own_counts']['pass'], 19)
         self.assertEqual(check['tests'], check['counts']['pass'], "the base count stays the Summary's")
-        self.assertEqual(check['packages']['installed'], True); self.assertEqual(check['packages']['count'], 29)
-        self.assertIn(('install', 'Installed 29 packages in 40ms'), seen)
+        self.assertEqual(check['packages']['installed'], True); self.assertEqual(check['packages']['count'], 40)
+        self.assertIn(('install', 'Installed 40 packages in 40ms'), seen)
         self.assertEqual(seen[-1][0], 'check')
         tracked = subprocess.run(['git', '-C', str(root), 'ls-files'], capture_output=True, text=True).stdout
         self.assertNotIn('.venv', tracked)
@@ -208,7 +208,7 @@ class RouteTest(Stubbed):
         stub(self.bin, 'uv', UV_OK)
         root = self.chat.documents.project_path(self.project)
         status, found = self.call('/api/project-packages?project=' + self.project)
-        self.assertEqual(status, 200); self.assertTrue(found['missing']); self.assertEqual(found['count'], 29)
+        self.assertEqual(status, 200); self.assertTrue(found['missing']); self.assertEqual(found['count'], 40)
         self.assertEqual(self.call('/api/projects/packages', {'project': self.project})[0], 403)
         self.assertEqual(self.calls(), []); self.assertFalse((root / '.venv').exists())
         status, done = self.call('/api/projects/packages', {'project': self.project}, self.secret())

@@ -43,6 +43,15 @@ class ContextTest(unittest.TestCase):
         text = self.build('Build task 7', task='tasks/007-queue-badge.md')['text']
         self.assertIn('Scenarios become e2e tests', text); self.assertIn('named exactly after its title', text)
 
+    def test_a_code_task_brings_the_test_protocol_card(self):
+        """Task 332: every code task gets kit/cards/test-core.md (SCENARIOS.md, the browser helper, test-core's checks)."""
+        self.assertNotIn('The test protocol, for Pi', self.build('Build task 7', task='tasks/007-queue-badge.md')['text'])
+        self.write('tasks/007-queue-badge.md', '# 007: Queue badge\n\nKind: code\nNo scenarios: an internal change.\n\n- [ ] Red: a test fails.\n')
+        text = self.build('Build task 7', task='tasks/007-queue-badge.md')['text']
+        self.assertIn('The test protocol, for Pi', text); self.assertIn('SCENARIOS.md', text)
+        self.write('tasks/007-queue-badge.md', '# 007: Queue badge\n\nKind: planning\n\n- [ ] Plan it.\n')
+        self.assertNotIn('The test protocol, for Pi', self.build('Build task 7', task='tasks/007-queue-badge.md')['text'])
+
     def test_pong_context_keeps_rules_and_relevant_code_without_generated_files(self):
         self.write('README.md','# Rules\nKeep the skeleton working.\n')
         self.write('js/app.mjs','export const ballSpeed = 3; // the ball crosses the screen\n')

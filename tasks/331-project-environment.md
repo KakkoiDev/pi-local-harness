@@ -31,6 +31,10 @@ gives the numbers, pressing Create (or confirming Install Packages…) is the pe
 - [x] The Preview of a project whose packages are missing does not start (no second install path) and points to
   Install Packages…; once installed it runs `uv run --offline`.
 - [x] Terminal Pi: `/setup packages` (the person's terminal only; Pi's harness tool never runs it) asks first.
+- [x] Coordinator's decision (2026-10-19, with task 332): the web starter's dev dependencies add the browser pins of
+  kit/libraries.json (playwright 1.56.0, pytest-playwright 0.9.0), re-locked with `uv lock --offline` (resolved from
+  the uv cache, nothing downloaded; only additions, every existing pin kept), so Create's `uv sync` installs them: the
+  web starter is now 40 packages, about 108 MB. The browser binary still comes from `plh setup browser`.
 - [x] Docs: harness/GUIDE.md, the starter READMEs, task 303's notes, docs/user-stories.md; designer note in
   design/briefs/round-13.md; Japanese strings in messages/ja.json.
 - [x] Green: python3 tests/verify_workflow.py; tests/browser/run.py all.
@@ -40,7 +44,7 @@ gives the numbers, pressing Create (or confirming Install Packages…) is the pe
 ### US-320 the Summary shows the packages to download and Create installs them before the base check
 Given the New Project dialog with the Web app package chosen
 When I reach the Summary and press Create
-Then the Summary said “Install the app's packages: 32 packages, about …” and that pressing Create approves it
+Then the Summary said “Install the app's packages: 40 packages, about 108 MB …” and that pressing Create approves it
 And Create ran `uv sync --frozen`, then the base check with `uv run --offline pytest -q`, and the project has its .venv
 
 ### US-321 Create while offline still creates the project and says its packages are not installed

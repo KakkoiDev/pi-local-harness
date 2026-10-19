@@ -67,6 +67,33 @@
    "main": "chart.umd.min.js",
    "card": "cards/charts.md",
    "sha256": "48444a82d4edcb5bec0f1965faacdde18d9c17db3063d042abada2f705c9f54a"
+  },
+  {
+   "name": "test-core",
+   "version": "2444016",
+   "license": "MIT",
+   "source": "https://github.com/KakkoiDev/test-core/tree/24440169d2cdbf3f66415c51eaa9f55105c5df0e",
+   "commit": "24440169d2cdbf3f66415c51eaa9f55105c5df0e",
+   "pinned_note": "PR #2 (branch feat/functional-tests, on top of PR #1), not merged yet: pinned to this commit (task 332). test-core/ is exactly what test-core's adopt kit writes (python3 adopt/adopt.py <target> --no-workflow: the tools, the functional library with the test blocks generated from App Blocks, MANIFEST.json, adopt.py for --verify), plus its LICENSE and the shared accessibility check; every new project gets a copy at test-core/. recipes/ keeps the recipes projects follow (scenario-e2e, scenario-steps, a11y-smoke, flaky-rules, offline-phone, fixtures; Python and JavaScript).",
+   "folder": "vendor/test-core-2444016",
+   "main": "test-core/tools/scenarios.py",
+   "card": "cards/test-core.md",
+   "sha256": "f274b8dab06e0ab9fe2d8319d00a06d6301e661f7144bb32913d2e9973ef56e3",
+   "files_sha256": {
+    "test-core/tools/e2e_coverage.py": "b81a34f2553f74600b29d473e24db9e4eea37ec75162d600011e2fc4e86e1d85",
+    "test-core/tools/flaky_lint.py": "c8f4c738edc139b61e722e11f99178c4847563d989e398c8d4874bd6a8596062",
+    "test-core/a11y-smoke.js": "bd91d66b36d38c08a9b17ce692ee1a3229ae4835303985b17725a07af365a655",
+    "test-core/MANIFEST.json": "5c959bd8e7e2c6b4b8f5768a9a578dc2fe4747d6dca81515d95057ae92ab46ac"
+   },
+   "browser_pins": {
+    "python": [
+     "playwright==1.56.0",
+     "pytest-playwright==0.9.0"
+    ],
+    "js": [
+     "@playwright/test@1.56.1"
+    ]
+   }
   }
  ]
 }

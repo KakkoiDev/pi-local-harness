@@ -17,6 +17,15 @@ after its title, driving Chromium through Playwright (recipe: `cards/e2e-scenari
 so Create never needs a browser; run by hand or by Pi with no Playwright or no browser set up, it is skipped and says
 why. Nothing is downloaded.
 
+The test protocol (task 332): every starter and capability ships the same protocol, from test-core (MIT, PR #2 pinned at
+commit 2444016 in `vendor/test-core-2444016`, card `cards/test-core.md`). `SCENARIOS.md` lists the app's
+Given/When/Then scenarios (a capability appends its own); each has one e2e test named after its title (Playwright for
+the web and static starters, Textual's pilot for the terminal one); `tests/e2e/conftest.py` or `tests/e2e/browser.mjs`
+is the one place that decides about the browser. `tests/test_protocol.py` (`tests/protocol.test.mjs` with no server)
+runs test-core's `scenarios.py`, `e2e_coverage.py` and `flaky_lint.py` from the project's `test-core/` (laid out by
+test-core's adopt kit, with its `functional` library and the test blocks generated from App Blocks), offline,
+as part of the base check; the e2e tests themselves run only where a browser is set up.
+
 ## App Blocks (`blocks/`, plan 266 item 7)
 
 The designer's ready-made app and game parts (`design/app-blocks`, 151 cards), as cards Pi gets one at a time:

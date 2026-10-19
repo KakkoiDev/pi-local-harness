@@ -8,3 +8,4 @@
 | chart.js | 4.5.1 | MIT | https://www.npmjs.com/package/chart.js/v/4.5.1 | vendor/chartjs-4.5.1/LICENSE.md |
 | p2p-core | 0.1.0 | MIT | https://github.com/KakkoiDev/p2p-core/tree/v0.1.0 | vendor/p2p-core-0.1.0/LICENSE (its own notices: vendor/p2p-core-0.1.0/THIRD_PARTY_NOTICES.md) |
 | LittleJS | 1.27.0 | MIT | https://www.npmjs.com/package/littlejsengine/v/1.27.0 | vendor/littlejs-1.27.0/LICENSE |
+| test-core | 2444016 | MIT | https://github.com/KakkoiDev/test-core/tree/24440169d2cdbf3f66415c51eaa9f55105c5df0e (PR #2, pinned commit) | vendor/test-core-2444016/LICENSE (copied into every project as test-core/LICENSE) |

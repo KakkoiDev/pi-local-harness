@@ -10,8 +10,10 @@ dev = ["pytest", "pytest-asyncio", "pyright[nodejs]"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
+extraPaths = ["test-core"]
 include = ["app", "tests", "serve.py"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "test-core"]  # test-core's functional library and test blocks (task 332)
 asyncio_mode = "auto"

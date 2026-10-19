@@ -375,3 +375,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [330-The harness's own development uses the testing protocols it gives the apps Pi builds](tasks/330-dogfood-testing-protocols.md)
 
 - [x] [331-A new project's packages are installed at Create, and an existing project can install them](tasks/331-project-environment.md)
+
+- [ ] [332-Every starter and capability ships the same test protocol (test-core)](tasks/332-starters-test-protocol.md)

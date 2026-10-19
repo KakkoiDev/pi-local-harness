@@ -41,14 +41,14 @@ class StarterTest(unittest.TestCase):
         sys.path.insert(0, str(ROOT))
         from gate import controls
         from kit.capabilities import base_tests
-        source = (self.folder / 'tests/e2e/test_notes_e2e.py').read_text()
+        source = (self.folder / 'tests/e2e/test_notes_e2e.py').read_text(); helper = (self.folder / 'tests/e2e/conftest.py').read_text()
         self.assertIn('def test_add_a_note_and_see_it_in_the_list(', source)
-        self.assertIn('--use-mock-keychain', source); self.assertIn('--password-store=basic', source)
-        self.assertIn('pytest.skip("no browser is set up for e2e tests', source)
+        self.assertIn('--use-mock-keychain', helper); self.assertIn('--password-store=basic', helper)
+        self.assertIn('pytest.skip("no browser is set up for e2e tests', helper)
         self.assertFalse([name for name in base_tests(self.folder) if 'e2e' in name], 'Create never starts a browser')
         self.assertEqual(controls.check(self.folder), {'problems': [], 'removed': []}, 'the starter as it comes passes the control rule')
         tests = controls.snapshot(self.folder)[1]
-        self.assertEqual([name for _, name in tests], ['test_add_a_note_and_see_it_in_the_list'])
+        self.assertIn('test_add_a_note_and_see_it_in_the_list', [name for _, name in tests])
 
     def test_the_templates_pass_the_htmx_4_upgrade_check(self):
         check = ROOT / 'kit/vendor/htmx-4.0.0/scripts/upgrade-check.py'
@@ -101,7 +101,7 @@ class StaticStarterTest(unittest.TestCase):
         run = subprocess.run([node, '--test', 'tests/e2e/notes.e2e.test.mjs'], cwd=self.folder, capture_output=True, text=True, timeout=120, env=env)
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
         self.assertRegex(run.stdout, r'﹣ Add a note and see it in the list .*# no browser is set up for e2e tests')
-        self.assertIn('--use-mock-keychain', (self.folder / 'tests/e2e/notes.e2e.test.mjs').read_text())
+        self.assertIn('--use-mock-keychain', (self.folder / 'tests/e2e/browser.mjs').read_text())
 
     def test_english_and_japanese_have_the_same_keys(self):
         en, ja = (json.loads((self.folder / f'messages/{language}.json').read_text()) for language in ('en', 'ja'))
@@ -133,6 +133,109 @@ class TerminalStarterTest(unittest.TestCase):
         for command in (['uv', 'sync', '-q'], ['uv', 'run', 'pytest', '-q'], ['uv', 'run', 'pyright']):
             run = subprocess.run(command, cwd=self.folder, capture_output=True, text=True, timeout=600)
             self.assertEqual(run.returncode, 0, f"{' '.join(command)}: {(run.stdout + run.stderr)[-800:]}")
+
+class ProtocolTest(unittest.TestCase):
+    """Task 332: every starter ships the same test protocol (test-core): SCENARIOS.md, one e2e test per scenario named
+    after its title, and its own check (scenarios, controls, flaky waits) inside the base check, offline."""
+    KINDS = {'web': {}, 'static': {'static': True}, 'tui': {'tui': True}}
+    TITLES = {
+        'web': ['Add a note and see it in the list', 'Delete a note and it leaves the list', 'An empty note is not added and says why',
+                'Switch the page to Japanese and back to English', 'The notes page passes the accessibility smoke check'],
+        'static': ['Add a note and see it in the list', 'Delete a note and it leaves the list', 'An empty note is not added and says why',
+                   'Switch the page to Japanese and back to English', 'Save a backup and restore it', 'The notes page passes the accessibility smoke check'],
+        'tui': ['Add a note with Enter and see it in the list', 'Delete the highlighted note with Ctrl+D', 'An empty note is not added and says why',
+                'Start in Japanese and switch to English with Ctrl+L'],
+    }
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='pi-protocol-'); self.addCleanup(self.temp.cleanup)
+
+    def make(self, kind):
+        folder = Path(self.temp.name) / kind
+        new_project(folder, **self.KINDS[kind])
+        return folder
+
+    def protocol(self, folder, kind):
+        """The project's own protocol check, as the base check runs it: (passed, output)."""
+        if kind == 'static':
+            import shutil
+            if not shutil.which('node'): self.skipTest('node is not on PATH')
+            run = subprocess.run(['node', '--test', 'tests/protocol.test.mjs'], cwd=folder, capture_output=True, text=True, timeout=120, env={**os.environ, 'PYTHON': sys.executable})
+        else:
+            run = subprocess.run([sys.executable, '-B', '-m', 'unittest', '-v', 'tests.test_protocol'], cwd=folder, capture_output=True, text=True, timeout=120)
+        return run.returncode == 0, run.stdout + run.stderr
+
+    def test_every_starter_has_test_core_scenarios_and_one_test_per_scenario(self):
+        library = next(item for item in json.loads((ROOT / 'kit/libraries.json').read_text())['libraries'] if item['name'] == 'test-core')
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                folder = self.make(kind)
+                pinned = ROOT / 'kit' / library['folder'] / 'test-core'
+                for source in (path for path in pinned.rglob('*') if path.is_file()):
+                    relative = source.relative_to(pinned)
+                    self.assertEqual((folder / 'test-core' / relative).read_bytes(), source.read_bytes(), f'{kind}: test-core/{relative} is the pinned file')
+                verified = subprocess.run([sys.executable, '-I', 'test-core/adopt.py', '--verify', 'test-core'], cwd=folder, capture_output=True, text=True)
+                self.assertEqual(verified.returncode, 0, verified.stdout + verified.stderr)
+                listed = subprocess.run([sys.executable, '-I', 'test-core/tools/scenarios.py', 'list', 'SCENARIOS.md', '--json'], cwd=folder, capture_output=True, text=True)
+                scenarios = json.loads(listed.stdout)
+                self.assertEqual([item['title'] for item in scenarios], self.TITLES[kind])
+                for item in scenarios: self.assertTrue(item['given'] and item['when'] and item['then'], item['title'])
+                self.assertIn('## Scenarios and tests (test-core)', (folder / 'README.md').read_text())
+
+    def test_the_protocol_check_is_in_the_base_check_and_passes_offline(self):
+        sys.path.insert(0, str(ROOT))
+        from kit import capabilities
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                folder = self.make(kind)
+                own = 'tests/protocol.test.mjs' if kind == 'static' else 'tests/test_protocol.py'
+                self.assertIn(own, capabilities.base_tests(folder))
+                self.assertFalse([name for name in capabilities.base_tests(folder) if 'e2e' in name], 'the base check never starts a browser')
+                passed, said = self.protocol(folder, kind)
+                self.assertTrue(passed, said)
+
+    def test_a_scenario_without_its_test_fails_the_check_and_names_it(self):
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                folder = self.make(kind)
+                with (folder / 'SCENARIOS.md').open('a') as file:
+                    file.write('\n### Scenario: Export the notes as a file\n- Given two notes\n- When I press Export\n- Then a file with both notes is saved\n')
+                passed, said = self.protocol(folder, kind)
+                self.assertFalse(passed, said)
+                self.assertIn('NO  Export the notes as a file: no test', said)
+
+    def test_a_test_using_a_removed_control_fails_and_a_new_control_needs_an_e2e_step(self):
+        pages = {'web': 'app/templates/pages/index.html', 'static': 'index.html'}
+        for kind, page in pages.items():
+            with self.subTest(kind=kind):
+                folder = self.make(kind); path = folder / page; original = path.read_text()
+                english = re.search(r'<button[^>]*(?:value="en"|data-lang="en")[^>]*>.*?</button>\n', original)[0]
+                path.write_text(original.replace(english, ''))
+                passed, said = self.protocol(folder, kind)
+                self.assertFalse(passed, said); self.assertIn('use a control that no longer exists', said); self.assertIn("name=\"English\"" if kind == 'web' else "name: 'English'", said)
+                path.write_text(original.replace('</header>', '<button class="btn" type="button">Share</button>\n</header>', 1))
+                passed, said = self.protocol(folder, kind)
+                self.assertFalse(passed, said); self.assertRegex(said, r'NO\s+button "Share"')
+
+    def test_a_fixed_wait_in_a_test_fails_the_check(self):
+        tests = {'web': ('tests/e2e/test_notes_e2e.py', '    page.wait_for_timeout(500)\n'), 'static': ('tests/e2e/notes.e2e.test.mjs', "  await page.waitForTimeout(500);\n"),
+                 'tui': ('tests/test_tui.py', '        await asyncio.sleep(1)\n')}
+        for kind, (name, line) in tests.items():
+            with self.subTest(kind=kind):
+                folder = self.make(kind); path = folder / name; text = path.read_text()
+                marker = re.search(r'\n(\s+)# When|\n(\s+)// When', text)
+                path.write_text(text[:marker.start() + 1] + line + text[marker.start() + 1:])
+                passed, said = self.protocol(folder, kind)
+                self.assertFalse(passed, said); self.assertIn('fixed', said)
+
+    @unittest.skipUnless(os.getenv('PI_TEST_CHROME') and os.getenv('NODE_PATH'), 'PI_TEST_CHROME and NODE_PATH (Playwright) run the static e2e tests in Chromium')
+    def test_the_static_e2e_tests_pass_in_a_real_browser(self):
+        folder = self.make('static'); (folder / 'static/app.css').write_text('/* scratch build output */')
+        run = subprocess.run(['node', '--test', 'tests/e2e/notes.e2e.test.mjs'], cwd=folder, capture_output=True, text=True, timeout=300)
+        self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
+        for title in self.TITLES['static']: self.assertRegex(run.stdout, '✔ ' + re.escape(title))
+        self.assertNotIn('# no browser', run.stdout)
+
 
 class ReferencedFilesTest(unittest.TestCase):
     """Task 230: each starter owns a dependency-free guard, including files only used offline."""
