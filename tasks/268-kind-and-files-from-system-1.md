@@ -33,3 +33,20 @@ tests/test_scope.py.
 
 Acceptance: no model-supplied value decides a task's verification path or write scope; the approval card (task 273)
 can show Kind and Files with the rule that set them.
+
+## Scenarios
+
+### US-new Pi writes the test file of a file in its task: the card “Allow <path> for this task?” recommends Allow
+Given an approved task whose Files list app/main.py and not tests/test_main.py
+When Pi writes tests/test_main.py during Implementation
+Then a card “Allow tests/test_main.py for this task?” shows Allow as the recommended option and “Something else…” last
+
+### US-new Pi writes a file unrelated to its task: the card recommends Keep the Scope and Re-plan, and Run on its own takes it
+Given Run on its own is building an approved task whose Files list app/main.py
+When Pi writes app/billing.py, which is not a companion of any file in the task
+Then the card recommends “Keep the scope and re-plan”, Run on its own takes it, and the report lists that decision
+
+### US-new asking to fix a typo still starts with a plan whose Kind and Files come from the workbench
+Given a project in Planning
+When I type “fix the typo on the home page”
+Then the plan card shows one task with Kind code and the template in its Files, both set by the workbench, not skipped as a small change

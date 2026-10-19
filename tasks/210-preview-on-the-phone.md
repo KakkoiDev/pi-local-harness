@@ -20,3 +20,10 @@ Round 7 (IMPLEMENTATION.md point 5; boards Ph_Preview, Ph_PreviewMenu, P_OnPhone
   https://mac.test:8443/). Browser suites pass (design.cjs line 388/694: the same intermittent Activity-navigation
   timeout as before this work).
 - [ ] Not tried on a real phone over the real tailnet.
+
+## Scenarios
+
+### US-new on a real phone over the tailnet, Open on Phone’s address opens the running app
+Given a project’s app running in the Preview, and phone access on
+When I choose Open on Phone… and open the address on my phone
+Then the app loads on the phone

@@ -15,8 +15,8 @@ One test per scenario, in the project's e2e folder, the scenario's words as the 
 | Project | File | Name for “Add a note and see it in the list” | Run (names shown) |
 |---|---|---|---|
 | App with no server (`js/app.mjs`) | `tests/e2e/<feature>.e2e.test.mjs` | `test('Add a note and see it in the list', …)` | `node --test tests/e2e/<feature>.e2e.test.mjs` |
-| Web app (`app/main.py`) | `tests/e2e/test_<feature>_e2e.py` | `def test_add_a_note_and_see_it_in_the_list(base, page):` | `uv run pytest -v tests/e2e` |
-| Terminal app (`app/tui.py`) | `tests/test_tui.py` | `async def test_add_a_note_and_see_it_in_the_list():` (Textual's `run_test()` pilot) | `uv run pytest -v tests/test_tui.py` |
+| Web app (`app/main.py`) | `tests/e2e/test_<feature>_e2e.py` | `def test_add_a_note_and_see_it_in_the_list(base, page):` | `uv run --offline pytest -v tests/e2e` |
+| Terminal app (`app/tui.py`) | `tests/test_tui.py` | `async def test_add_a_note_and_see_it_in_the_list():` (Textual's `run_test()` pilot) | `uv run --offline pytest -v tests/test_tui.py` |
 | Playwright Test project | `tests/e2e/<feature>.spec.ts` | `test('Add a note and see it in the list', …)` | `npx playwright test --reporter=list` |
 
 Copy the starter's example (`tests/e2e/notes.e2e.test.mjs` or `tests/e2e/test_notes_e2e.py`): it serves the app on a

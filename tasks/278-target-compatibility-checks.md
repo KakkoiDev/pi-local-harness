@@ -28,3 +28,15 @@ choice path (one card per conflict), tests/test_packaging_checks.py.
 
 Acceptance: an incompatible combination is explained before any file is produced, with options; the model never drops a
 feature or changes the target.
+
+## Scenarios
+
+### US-new packaging a frontend-only app that needs sign-in stops first and recommends Add a Hosted Backend for Sign-in
+Given a project whose packaging.json targets web only and that uses trusted sign-in
+When packaging starts
+Then no file is produced and a card explains the conflict with “Add a hosted backend for sign-in” (recommended), “Package as full stack only”, “Something else…”
+
+### US-new Run on its own takes a packaging fix only when it removes nothing I chose, and the report lists it
+Given Run on its own reaches a packaging conflict whose recommended resolution would drop a target I chose
+When the check fails
+Then Run on its own waits for me instead of choosing, and the report lists the waiting conflict

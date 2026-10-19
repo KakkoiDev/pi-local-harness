@@ -1,6 +1,7 @@
 # 281: End-to-end tests for each package, and the one-rule-change proof
 
 Kind: code
+No scenarios: it adds the packaging test suite and records results; the journeys it checks are task 280's app on each package, not new behaviour.
 
 Plan 253, proof steps 2 to 5. Packaging is not complete because files were produced: each packaged artifact runs and its
 behaviour is checked (CONSTITUTION.md Article 9). Every run is logged (task 228); a target that cannot run says so

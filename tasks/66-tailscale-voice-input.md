@@ -11,3 +11,10 @@ Request 2026-10-13: "access the local ui through tailscale and be able to send a
 - [x] Documented in harness/README.md (setup, trust rules, voice flow) and readme.md.
 - [x] Follow-up 2026-10-13: "I want it to be started with the plh command. and show the url in the pi cli". Services run `tailscale serve <web port>` in the foreground and stop it on exit; Pi prints `Phone: https://...` or `Phone access off: <reason>`. Tests: `TailscaleServeTest`, `tests/harness/startup-display.test.mjs`.
 - [ ] On the phone: start plh, open the Phone URL, record, check the text lands in the box. Not run: Tailscale is stopped on the dev Mac.
+
+## Scenarios
+
+### US-new on the phone over Tailscale, a recording becomes text in the prompt box
+Given plh is running with phone access on, and the workbench is open on the phone at the Phone address
+When I record a sentence with the mic button
+Then the transcribed text lands in the prompt box at the cursor

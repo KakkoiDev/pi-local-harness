@@ -89,11 +89,12 @@ Tests must never reach the real Ollama, tailnet, the person's Trash (`PI_TRASH_D
 Gate enforces it before `git commit` (rule G-005). Every rule Gate enforces is in one registry, `gate/rules.py`: its id, when it applies, what happens, the lesson behind it and the test that proves it. `/gate rules` lists them, the system prompt gets a summary generated from it (`harness/gate-rules.md`, regenerate with `python3 -m gate.rules`), and AGENT.md does not restate them. A new rule is a task with a test that names its id. Mistakes the local model made, and which rule answers each, are in `docs/lessons/`.
 
 1. **Task file.** Create `tasks/NNN-short-name.md` (next free number) from the template below and add `- [ ] [NNN-Title](tasks/NNN-short-name.md)` to `ROADMAP.md`.
-2. **Red.** Write a test that fails for the right reason. Run it; see it fail.
-3. **Implement** the smallest change that makes it pass.
-4. **Green.** Run the fast tests, then the browser suites if UI changed.
-5. **Check boxes** in the task file and mark the ROADMAP line `- [x]`.
-6. **Commit**: `type: what changed, in plain words (task NNN)` where type is `feat`, `fix`, `chore`, `docs` or `test`. End the message with the attribution line the session gives you.
+2. **Scenarios first.** A code task that changes what the person sees or types (web UI or terminal Pi) gets its Given/When/Then scenarios in `## Scenarios` before any code (see "The testing protocols, dogfooded" below).
+3. **Red.** Write the story for each scenario and the other failing tests; run them; see them fail for the right reason.
+4. **Implement** the smallest change that makes it pass.
+5. **Green.** Run the fast tests, then the browser suites if UI changed.
+6. **Check boxes** in the task file and mark the ROADMAP line `- [x]`.
+7. **Commit**: `type: what changed, in plain words (task NNN)` where type is `feat`, `fix`, `chore`, `docs` or `test`. End the message with the attribution line the session gives you.
 
 Task template:
 
@@ -107,7 +108,44 @@ Request YYYY-MM-DD: "the person's words, quoted".
 - [ ] Red (unit|browser): what the test proves.
 - [ ] What to build, in one line each.
 - [ ] Green: which suites.
+
+## Scenarios
+
+### US-new the counter shows one after I press Add
+Given a new counter page
+When I press Add
+Then the counter shows 1
 ```
+
+A code task that changes nothing the person sees or types replaces `## Scenarios` with one line under Kind:
+`No scenarios: <why>`.
+
+### The testing protocols, dogfooded (task 330)
+
+The rules Pi Workbench gives the apps Pi builds (plan 328, task 329, test-core) apply to its own development.
+`tests/dogfood.py` checks them and `tests/verify_workflow.py` runs it; each failure names the file and what to do.
+
+1. **Every scenario is one e2e story, named after it.** The heading is the story's id and title, word for word:
+   `### US-312 the counter shows one after I press Add` is `story('US-312', 'the counter shows one after I press Add', …)`
+   in `tests/browser/stories.cjs` (or another `tests/browser/*.cjs`), or `test('US-312 terminal: …', …)` in
+   `tests/harness/stories.test.mjs`. Given, When and Then are one line each (`And …` continues a step). While the story
+   is not written, the heading says `US-new <title>`; write the story first (Red), give it the next number of your range,
+   list it in `docs/user-stories.md`, and put the number in the heading. A done task cannot keep a `US-new`. Required
+   from task 330 on; an older task is checked when it has scenarios. Use the project's fixed step words where they exist
+   (none yet for the workbench itself).
+2. **Every control has an e2e step.** The controls of `index.html` and the buttons and links `js/*.mjs` renders with a
+   literal name (by id, else `data-command`, else role and name) are each used by a step in `tests/browser/*.cjs`
+   (`#id`, `[data-command="…"]`, `getByRole`/`getByLabel`/`getByText`). A test that uses a control which no longer exists
+   fails: remove the control and its step in the same commit (verify_workflow then prints "Removed: …"). A new control
+   without a step fails. Today's gaps are in `tests/baselines/workbench-controls.txt`; the list only shrinks (an entry
+   that got its step or is gone must leave it). Adding a line is a decision: say it in the commit message
+   (`Controls baseline: + <line> because …`). `python3 tests/dogfood.py baseline controls` rewrites the file; check the
+   diff before committing it.
+3. **Red before Green; wait for state, never time; no network.** The flaky rules (after test-core's `flaky_lint.py`)
+   refuse new fixed waits (`waitForTimeout`), timers used as sleeps, `networkidle`, `.only` and real hosts in
+   `tests/browser/*.cjs`. Today's hits are in `tests/baselines/flaky-browser.txt` and only shrink. Wait for a locator, a
+   response or a value (`waitFor`, `waitForFunction`, `waitForResponse`); a wait that must stay says why on its line:
+   `/* flaky-lint: allow <reason> */`.
 
 ## 5. Rules
 
@@ -142,6 +180,7 @@ Request YYYY-MM-DD: "the person's words, quoted".
 ## 7. Before you say "done"
 
 - [ ] `python3 tests/verify_workflow.py` ends with "Workflow Verification Passed!".
+- [ ] Each scenario has its story, named after it; no new control without an e2e step; no new fixed wait (§ 4, task 330).
 - [ ] `python3 tests/browser/run.py all` exits 0, the golden journey included (if any UI, CSS, JS, harness or Gate code changed).
 - [ ] Task boxes and the ROADMAP line match what you verified.
 - [ ] Docs that describe the changed behaviour are updated (README.md, docs/reference.md, harness/README.md, this file).

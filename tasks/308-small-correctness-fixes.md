@@ -13,3 +13,21 @@ Source: the second bug hunt (2026-10-18) and its documentation-drift part; numbe
 - [ ] docs/reference.md's config section matches plh.py (all keys; the `model` key rule).
 - [ ] `plh setup browser` checks a pinned hash, not the download's own header (review P3); the harness's Red proof runs
   from Pi's working folder and is audited like any test run (review P3).
+
+## Scenarios
+
+### US-new a task box whose label has $& or $' is ticked without changing the rest of the task file
+Given a task file with CRLF line endings and a step labelled "replace $& with $'"
+When that step's box is ticked
+Then only its box changes and the label and the other lines stay exactly as they were
+
+### US-new ⌘. with a terminal app in the Preview sends Control-C to the app or stops Pi, never both
+Given Pi is working and a Terminal app runs in the Preview
+When I press ⌘. with the Preview focused
+Then the app receives Control-C and Pi's request keeps going
+And pressing ⌘. with the composer focused stops the request and leaves the app running
+
+### US-new Gate's Refresh ⌘R refreshes Gate, or the label promises no shortcut
+Given the Gate view is open
+When I press ⌘R
+Then Gate's events refresh, or the Refresh button shows no ⌘R

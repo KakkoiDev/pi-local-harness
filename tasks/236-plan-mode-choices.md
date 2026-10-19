@@ -1,6 +1,7 @@
 # 236: Plan mode: decisions become choices (ask_choices), and Gate catches guesses
 
 Kind: code
+No scenarios: the open box is the bench's verification run with auto-accept; the ask_choices tool, terminal answer path and Gate catches it checks are built and the web card is task 239.
 
 Read docs/plans/236-plan-mode.md first: it is the specification. This task builds the protocol, not the web cards.
 

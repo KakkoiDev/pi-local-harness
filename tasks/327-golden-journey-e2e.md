@@ -62,6 +62,28 @@ harness/web_chat.py, harness/settings.py, messages/ja.json, design/briefs/round-
    J01 runs with a 10 s start limit and checks the mechanism.
 9. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
 
+## Scenarios
+
+### US-290 New Project shows the folder it makes: a slug of the name, never an existing folder; the name stays as typed
+Given a folder habit-tracker already in the place I create in
+When I type “Habit Tracker” in New Project and create it
+Then step 1 and the Summary say the folder habit-tracker-2, the project is named “Habit Tracker” and the old folder is untouched
+
+### US-291 a refused model switch shows right under the model menu, not at the bottom of the window
+Given Pi is working on a request
+When I choose another model in the menu bar
+Then “Pi is working. Switch models when the queue is empty.” shows right under the model name and the model stays
+
+### US-292 the answers I gave on cards in Discussion are the next plan’s Decisions, written by the harness
+Given I answered a question card in Discussion
+When I choose Planning and the plan comes
+Then the plan card counts one decision and lists my answer
+
+### US-293 Run on its own: a file outside the task is added without asking, and the same write goes through; the report names it
+Given Run on its own is on and an approved task does not list notes/extra.py
+When Pi writes notes/extra.py while building it
+Then the file is written in the same request, the task's Files list it, no card asks me and the report says “Widened task 1 without asking”
+
 ## The fixes (fix/journey-green, US-290 to US-297)
 
 - [x] 1, J02: a refused model switch is a note right under the model name (js/near-note.mjs, `#near-note`, the Toast's

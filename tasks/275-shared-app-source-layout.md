@@ -1,6 +1,7 @@
 # 275: The shared app source: one tree every package builds from
 
 Kind: code
+No scenarios: it reorganises the web starter's files and adds a purity check; the new project's app looks and behaves exactly as before.
 
 Plan 253 ("one app, many packages"), section "The shared app source". The web starter becomes the shared layout so every
 new project can be packaged as full stack, frontend only or mobile without a rewrite. kit/starter-static and existing

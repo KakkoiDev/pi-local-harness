@@ -27,3 +27,15 @@ kit/package.py (target "web"), tests/test_package.py, tests/harness/browser-adap
 
 Acceptance: the shared source runs unchanged in the browser through the adapter; the package is static files that work
 offline; sizes and start times are measured, not assumed.
+
+## Scenarios
+
+### US-new the browser runtime download card lists each file, its source, size, licence and checksum, and nothing is fetched before my yes
+Given the browser runtime is not vendored yet
+When the browser package is first needed
+Then a card lists each file with its source, size, licence and checksum, and no download starts until I choose to download
+
+### US-new the web package opens from static files and keeps working offline
+Given a project packaged for the web as dist/web
+When I open it, go offline and reload
+Then the app starts, reads and writes notes, and the notes are still there after another reload

@@ -146,7 +146,7 @@ export default function harness(pi, dependencies = {}) {
     try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
-  let noActionWoken=false, textualToolSeen=false, toolRan=false;
+  let noActionWoken=false, textualToolSeen=false, toolRan=false, refusedAgain='';  // task 323: the checked alternative after the same refused command twice
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -321,7 +321,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension' && !chain) { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;
+    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
@@ -427,6 +427,7 @@ export default function harness(pi, dependencies = {}) {
       else if (result.outcome !== 'ALLOW') check(event.toolCallId, { gate: 'blocked', reason: result.reason || 'Action denied by policy.' });
       else check(event.toolCallId, { gate: 'allowed', started: Date.now() });
       if (result.judgement?.choice) await askSystemChoice(result.judgement.choice,context);
+      refusedAgain = result.outcome === 'ALLOW' ? '' : result.repeat ? (result.instead || 'Continue with allowed tools.') : refusedAgain;
       if (result.outcome === 'REVISE') return { block: true, reason: `Gate pre-execution REVISE for ${event.toolName}: ${result.reason} The tool was not executed. Address the reason above, then retry.` };
       if (result.outcome !== 'ALLOW') return { block: true, reason: `Gate pre-execution ${result.outcome} for ${event.toolName}: ${result.reason || 'Action denied by policy.'} The tool was not executed. Reconsider the target and use a narrowly scoped alternative consistent with the user request. Ordinary shell diagnostics remain available. Do not repeat the same destructive operation or bypass this check with another tool.` };
       proposals.set(event.toolCallId, result.proposal_id);
@@ -546,10 +547,12 @@ export default function harness(pi, dependencies = {}) {
     // no answer): a turn with no answer and no tool that ran, or a tool call written as text, is nudged once whatever
     // the request's words; System 1 decides it (recorded as the wake-up incident).
     const silentTurn=!lastAnswer.trim() && !toolRan && !waitingChoice && /\b(?:tool|call|propose_plan|ask_choices|I will|I'll|let me|proceed)\b/i.test(assistantText);
-    if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
+    // Task 323: the same refused command twice, and no allowed call after it: one nudge to the checked alternative.
+    const refusalLoop=Boolean(refusedAgain) && !waitingChoice;
+    if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || refusalLoop || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
       noActionWoken=true;recovering=true;retries++;
-      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':silentTurn?'Call the tool you described now; do not describe it.':`You said: '${announced[0]}'. Do it now with a tool call.`;
-      incident('wake-up',instruction,{trigger:'no-action',round:retries});
+      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Call the tool you described now; do not describe it.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      incident('wake-up',instruction,{trigger:refusalLoop?'refused-again':'no-action',round:retries});refusedAgain='';
       say('wake-up',instruction,'warning');
       pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);return;
     }

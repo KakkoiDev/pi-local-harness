@@ -30,7 +30,7 @@ const SILENCE = 6, START = 60, TURN = 8;  // START > TURN + 30: J01 proves the a
 const SENTENCE = 'A habit tracker: add habits, tick them off each day, see streaks and a monthly chart, saved in a database, installable on my phone.';
 const SCRIPTS = join(__dirname, 'journey');
 const load = name => JSON.parse(fs.readFileSync(join(SCRIPTS, name + '.json'), 'utf8'));
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));  /* flaky-lint: allow the polling step of until(), which waits for a state; the few pauses at the owner's pace (reloadAt, J02) are not assertions */
 async function until(condition, timeout = 20000, every = 200) {
   const end = Date.now() + timeout;
   for (;;) { const value = await condition(); if (value) return value; if (Date.now() > end) return null; await sleep(every); }

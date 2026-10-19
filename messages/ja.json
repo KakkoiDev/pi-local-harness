@@ -3,6 +3,12 @@
   "· accepted by you": "· あなたが承認",
   "· accepted automatically": "· 自動で承認",
   "Give the project a name with at least one letter or digit.": "文字か数字を少なくとも1つ含む名前をプロジェクトに付けてください。",
+  "`python3 -m unittest discover -s tests` with unittest.TestCase tests: pytest isn’t installed here (no .venv; creating it is a download the person approves).": "unittest.TestCase のテストで `python3 -m unittest discover -s tests`。ここには pytest がインストールされていません（.venv がありません。作るにはダウンロードが必要で、本人の許可が要ります）。",
+  "run the project’s tests with a checked runner (pytest, unittest, node --test, npm test).": "確認済みのテストランナー（pytest、unittest、node --test、npm test）でプロジェクトのテストを実行する。",
+  "read with the read tool, `ls`, `cat` or `rg`; tests run in Implementation.": "読み取りツール、`ls`、`cat`、`rg` で読む。テストは実装中に実行します。",
+  "`rg --files` or `find . -name <pattern>` (no -exec), then the read tool or `rg <pattern>`.": "`rg --files` か `find . -name <pattern>`（-exec なし）、そのあと読み取りツールか `rg <pattern>`。",
+  "the read tool, or `ls`, `cat <file>` or `rg <pattern>` alone (no cd, globs, $, ; or redirection).": "読み取りツール、または `ls`、`cat <file>`、`rg <pattern>` を単独で（cd、グロブ、$、;、リダイレクトなし）。",
+  "read with the read tool, `ls`, `cat` or `rg`.": "読み取りツール、`ls`、`cat`、`rg` で読む。",
   "Scenario": "シナリオ",
   "Given": "前提",
   "When": "操作",
@@ -3448,6 +3454,10 @@
   ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"],
   ["Folder: {path}", "フォルダ：{path}"],
   ["Run on its own: task {n} accepted; the next approved task starts.", "自動で実行：タスク {n} を承認しました。次の承認済みタスクを始めます。"],
-  ["publication checks failed: {names}. Fix them; the harness runs the audit again when the task ends", "公開前チェックに失敗しました：{names}。修正してください。タスクの終わりにハーネスがもう一度監査します"]
+  ["publication checks failed: {names}. Fix them; the harness runs the audit again when the task ends", "公開前チェックに失敗しました：{names}。修正してください。タスクの終わりにハーネスがもう一度監査します"],
+  ["{reason} Instead: {alternative} Continue with allowed tools.", "{reason} 代わりに：{alternative} 許可されたツールで続けます。"],
+  ["Refused again: the same command. {reason}", "再び拒否しました：同じコマンドです。{reason}"],
+  ["`{command}` (no cd, pipes or redirection), or a test of the behaviour.", "`{command}`（cd、パイプ、リダイレクトなし）、または動作のテスト。"],
+  ["That command stays refused. Instead: {alternative} Continue with allowed tools.", "そのコマンドは拒否されたままです。代わりに：{alternative} 許可されたツールで続けます。"]
  ]
 }

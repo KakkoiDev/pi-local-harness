@@ -16,3 +16,20 @@ Owner request: detect malformed ROADMAP.md and task files and let the AI repair 
 ## Acceptance boundaries
 
 Use scratch copies of the owner-provided Pong example for regressions. Do not edit the person's Pong project without explicit authorization. A checked Green box and unchecked Red box may expose missing evidence; repair must report this instead of inventing a historical failing test. Existing human-readable Markdown and supported legacy layouts must not be rejected merely for differing from a new template. A valid syntax check alone does not establish that work is complete.
+
+## Scenarios
+
+### US-new a malformed roadmap shows each problem with its file and line
+Given a project whose ROADMAP.md has task details mixed in and two 004 entries
+When I open the project's plan
+Then each problem is listed with its file and line, structural errors apart from evidence warnings
+
+### US-new asking Pi to repair the roadmap fixes it, and after a reload nothing is duplicated or lost
+Given a project whose roadmap was diagnosed as malformed
+When I ask Pi to repair it and the repair is validated
+Then the corrected roadmap and tasks are shown, and after a reload the conversation goes on with no task duplicated or lost
+
+### US-new two tasks with the same number ask me which one keeps it
+Given two roadmap entries numbered 004 that point to different task files
+When the repair reaches them
+Then a card asks me which task keeps 004 instead of discarding or renumbering one

@@ -47,6 +47,16 @@ def verify_workflow():
             if checkboxes and all(cb_status == 'x' for cb_status in checkboxes):
                 errors.append(f"Task {path} has every box checked but is still open in ROADMAP.md; mark it done or add the open item")
     
+    # Task 330: the testing protocols, dogfooded (scenarios ↔ stories, workbench control coverage, flaky rules).
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import dogfood
+    problems, notes = dogfood.check_all(os.getcwd())
+    for note in notes:
+        print(f"ℹ️ {note}")
+    errors += problems
+    if not problems:
+        print("✅ dogfood checks passed (scenarios, controls, flaky rules)")
+
     # Run the Python and Node suites; any failure fails the gate.
     suites = [('unittest', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests'])] if os.path.isdir('tests') else []
     node_tests = sorted(glob.glob('tests/harness/*.test.mjs'))

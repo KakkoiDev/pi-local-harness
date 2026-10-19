@@ -76,9 +76,10 @@ class DecisionLogTest(unittest.TestCase):
         paper=Mock();paper.data=self.data;paper.requests={'r':{'root':str(self.project)}};paper.waiting_choice.return_value=None
         with patch('harness.laya.shell_risk',return_value={'answer':None,'confidence':0.54,'abstained':True}):
             result=Judgements(paper,Mock()).decide('r','shell_risk',['private command','private path'])
-        self.assertEqual(result['who'],'person','the person is asked instead')
-        rows=self.rows();self.assertEqual(len(rows),1);self.assertTrue(rows[0]['abstained']);self.assertEqual(rows[0]['answer'],'abstained')
-        self.assertEqual(runner.decision_counts(self.data/'decisions.jsonl'),{'code':0,'laya':0,'person':0,'model':0})
+        self.assertEqual(result['who'],'code','task 323: System 1 keeps the refusal; the person is never asked')
+        rows=self.rows();self.assertEqual(len(rows),2);self.assertTrue(rows[0]['abstained']);self.assertEqual(rows[0]['answer'],'abstained')
+        self.assertEqual((rows[1]['who'],rows[1]['answer'],rows[1]['rule']),('code','refused','judgement.keep_refusal'))
+        self.assertEqual(runner.decision_counts(self.data/'decisions.jsonl'),{'code':1,'laya':0,'person':0,'model':0})
 
     def test_the_models_plan_layout_choices_are_logged_as_model_proposals(self):
         paper=self.ledger().paperwork;paper.phases.choose(self.project,'planning',actor='person');paper.start('r',str(self.project),'Plan it')

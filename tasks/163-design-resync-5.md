@@ -10,3 +10,15 @@ Request 2026-10-14: the designer drew round 5 (the brief at https://claude.ai/ar
 - [x] Found on the way: two Python tests raced the queue's worker (it could start, and finish, a request the test expected to stay waiting): the intermittent verify failure. Both hold the queue now.
 - [x] Green: verify_workflow, design.cjs, chat.cjs.
 - [ ] B (the worker card) waits for plan 156 phases 2 to 5.
+
+## Scenarios
+
+### US-new when the chat starts a worker, its card shows it proposed, running, then its summary
+Given a chat where Pi proposes a worker for a task
+When the countdown ends and the worker runs to the end
+Then the card shows the countdown with Not Now, then running with Show in Activity and Stop, then Completed
+
+### US-new Gate asks before a worker starts: Not Now is the default and leaves one dotted line
+Given Gate asks me about starting a worker
+When I choose Not Now
+Then the card becomes one dotted declined line and no worker runs

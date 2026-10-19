@@ -360,7 +360,7 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [ ] [322-Validate and repair roadmap and task structure](tasks/322-workflow-document-validation-and-repair.md)
 
-- [ ] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)
+- [x] [323-Resolve guardrail uncertainty without policy questions](tasks/323-guardrail-uncertainty-without-policy-questions.md)
 
 - [x] [324-Repair the chat critical path](tasks/324-chat-critical-path.md)
 
@@ -371,3 +371,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [327-The golden journey: the owner's session as one E2E test](tasks/327-golden-journey-e2e.md)
 
 - [ ] [329-Every task has its scenarios, and each scenario becomes an e2e test](tasks/329-task-scenarios-become-e2e-tests.md)
+
+- [ ] [330-The harness's own development uses the testing protocols it gives the apps Pi builds](tasks/330-dogfood-testing-protocols.md)

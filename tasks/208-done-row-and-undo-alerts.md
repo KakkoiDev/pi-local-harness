@@ -16,3 +16,11 @@ Round 7 (points 7, 8, 12; DoneRow card; boards P_DoneParts, P_Undo, P_UndoConfli
 - [x] Tried in the browser: undo, the row's "undone at", Redo, and the "changed again" alert naming the later request.
 - [x] G-012 into the row ("! Not verified"): decided 2026-10-15, unverified changes are committed too, marked (task 213).
 - [ ] The lesson line (task 211).
+
+## Scenarios
+
+### US-new the first commit in a project shows one quiet lesson line under the answer, and I can dismiss it
+Given a project where Pi just made its first commit
+When the answer’s done row shows
+Then one lesson line names the lesson and its length
+And dismissing it, or Don’t show lessons in Settings, hides it

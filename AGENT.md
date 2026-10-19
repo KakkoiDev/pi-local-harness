@@ -21,6 +21,10 @@ and `python3 tests/browser/run.py all` after a UI change (exit 2 means the suite
 not run: say "not verified", never "passed"). Do not create task files, tick progress
 boxes or commit. Keep README instructions aligned with actual behavior.
 
+Working on this repository itself, follow docs/contributing-for-agents.md § 4: scenarios first (one e2e story per
+scenario, named after it), Red first, every control with an e2e step, no fixed waits; tests/verify_workflow.py checks
+them (task 330).
+
 What Gate enforces (the commit order, plan files, destructive commands…) is not
 restated here: it is one registry in gate/rules.py, always on, summarised in your
 system prompt and listed by `/gate rules`. A rule that sends an action back says

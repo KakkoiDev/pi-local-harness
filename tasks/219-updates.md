@@ -12,3 +12,21 @@ The person, 2026-10-15: "I want to make it easy for the user to update the app w
   through the existing auto_update). CONSOLE.md and the guide ("How do I update Pi Workbench?").
 - [ ] The web: π › Check for Updates… and an "update available" mark: in the round 9 brief for the designer (design/briefs/round-9.md).
 - [ ] A check at start (daily, quiet) once the designer has drawn where it shows.
+
+## Scenarios
+
+### US-new π › Check for Updates… lists what is new in plain words, and Update says to restart plh
+Given a newer version of Pi Workbench is on GitHub
+When I choose π › Check for Updates… and then Update
+Then the sheet lists the changes in plain words
+And after Update it says “Updated. Restart plh to use it.”
+
+### US-new Check for Updates… says why it will not update a copy with its own commits
+Given my copy of Pi Workbench has commits that are not on GitHub
+When I choose π › Check for Updates…
+Then it says the copy has its own changes and is not updated automatically
+
+### US-new a newer version found by the daily check puts a mark on the π menu
+Given the daily check found a newer version
+When I open the workbench
+Then the update-available mark shows where the designer drew it

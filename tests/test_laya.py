@@ -136,7 +136,10 @@ class LadderTest(unittest.TestCase):
         self.assertEqual(result['who'],'code');classifier.ask.assert_not_called();paperwork.choice_pending.assert_not_called()
         classifier.ask.return_value={'answer':None,'confidence':.4,'abstained':True}
         result=judge.decide('r','shell_risk',['custom-tool','/scratch'])
-        self.assertTrue(result['abstained']);self.assertEqual(result['who'],'person')
+        self.assertTrue(result['abstained']);self.assertEqual(result['who'],'code','task 323: never the person');paperwork.choice_pending.assert_not_called()
+        paperwork.requests={'r':{'root':'/scratch'}};paperwork.waiting_choice.return_value=None
+        result=judge.decide('r','assumed_value',['custom request','The speed is 500.'])
+        self.assertEqual(result['who'],'person')
         choice=paperwork.choice_pending.call_args.args[1]
         self.assertEqual(choice['recommended'],0);self.assertTrue(choice['allow_other']);self.assertGreaterEqual(len(choice['options']),2)
         self.assertNotIn('custom-tool',str(choice),'Do not echo a possibly secret command into a choice or log.')
@@ -185,7 +188,8 @@ class GateIntegrationTest(unittest.TestCase):
             result=ledger.propose('execute_command',{'command':'unknown-command --flag'},'admin',pi_tool='bash',cwd=str(root),request='r')
             self.assertEqual(result['rule'],'G-015',result)
             self.assertIn('judgement',result)
-            self.assertEqual(result['judgement']['who'],'person')
+            self.assertEqual(result['judgement']['who'],'code','task 323: System 1 keeps the refusal; never a question')
+            self.assertNotIn('choice',result['judgement'])
 
 class RequestInterpretationTest(unittest.TestCase):
     def test_natural_language_phase_and_waiting_replies_only_return_advice(self):
@@ -241,7 +245,7 @@ class DecisionRecordTest(unittest.TestCase):
             paperwork=Mock();paperwork.data=folder;paperwork.requests={};paperwork.waiting_choice.return_value=None
             classifier=Mock();classifier.ask.return_value={'answer':None,'confidence':.6,'abstained':True}
             Judgements(paperwork,classifier).decide('r','shell_risk',['private-command-value','/scratch'])
-            row=json.loads((Path(folder)/'decisions.jsonl').read_text())
+            row=json.loads((Path(folder)/'decisions.jsonl').read_text().splitlines()[0])  # task 323: then code keeps the refusal
             self.assertEqual(row['who'],'laya');self.assertEqual(row['confidence'],.6);self.assertEqual(row['answer'],'abstained');self.assertEqual(row['request'],'r')
             self.assertNotIn('private-command-value',str(row))
 

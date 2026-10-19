@@ -34,3 +34,20 @@ tests/test_evidence.py, tests/test_test_integrity.py.
 - [ ] Green: the new tests, task 260's tests and the browser design suite pass; the full workflow passes.
 
 Acceptance: no model choice or claim can make a task verified; every "verified" names the checks that proved it.
+
+## Scenarios
+
+### US-new a task whose test lost its assertions ends “not verified”, and Keep the Tests as They Were is recommended
+Given an approved task with a test file that had three assertions
+When Pi's change leaves that test file with one assertion and the checks pass
+Then the check-in says “not verified” and a card offers “Keep the tests as they were” (recommended), “Accept the smaller tests”, “Something else…”
+
+### US-new the check-in’s “Tried it” line lists only the checks that ran, with the pages and sizes
+Given a task whose template changed and Pi wrote “I opened the page” without a browser run
+When the task ends
+Then the “Tried it” line names only the recorded checks and sizes, and Pi's unrecorded claim is not shown
+
+### US-new a queued comment shows as answered only when its task is verified
+Given a comment I left that queued a task
+When Pi replies to the comment but its task ends “not verified”
+Then the comment is still open, and it shows as answered once the task is verified

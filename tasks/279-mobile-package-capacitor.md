@@ -26,3 +26,15 @@ links), tests/test_phone.py, tests/test_package.py.
 
 Acceptance: one command makes an installable Android package from the same source, an Xcode project for iPhone, and says
 honestly which steps are the person's.
+
+## Scenarios
+
+### US-new plh phone android builds a signed APK and shows a QR code to install it over my tailnet
+Given a project packaged for mobile with the Android toolchain installed
+When I run `plh phone android`
+Then a signed APK is built with the project's key and a QR code to install it over my tailnet is shown, with a reminder to back up the key
+
+### US-new plh phone ios opens the Xcode project and explains Apple’s signing; the Apple ID sign-in stays mine
+Given a project packaged for mobile on a Mac with Xcode
+When I run `plh phone ios`
+Then the Xcode project opens and Apple's signing rules are explained in plain words, saying the Apple ID sign-in is my step

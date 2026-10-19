@@ -1,6 +1,7 @@
 # 274: The bench reports who made each judgement, honestly; target: the model makes none
 
 Kind: code
+No scenarios: it changes how the bench and the decision log count judgements, which the person neither sees in the workbench nor types.
 
 Plan 267, section 4; CONSTITUTION.md Article 11; extends task 249. Review P2: every Gate preflight is logged as a code
 "decision" and Laya abstentions as Laya decisions, so the model's share trends to 0%; P1-15: test runs write into the
