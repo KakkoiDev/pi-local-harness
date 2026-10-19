@@ -170,3 +170,16 @@ Question for the board: should the note offer a control (Choose Another Model…
 - **Progress words.** "Starting Pi…" then "Waiting for the model (it may be loading)…" replace "Preparing
   attachments…" when nothing is attached. The CutLine reason for a stalled model is the board's own copy.
 
+
+## Task scenarios and the E2E rule (task 329), built from existing parts
+
+- **Plan card › Tasks:** under each task's "Done when", one `small.pw-plan__scenario` line per scenario:
+  "Scenario: **Add a note** · Given the list is empty · When I write “milk” and choose Add Note · Then “milk” is in the
+  list". Each scenario becomes one e2e test named after its title. Please draw it in R12_Plan (desk and phone): one
+  line, a collapsed list, or a small table of Given / When / Then?
+- **Check-in › facts:** a "Removed" row (`span.pw-checkin__removed`, one per line): "Removed: the “Reset” button and its
+  test “Reset the notes”" when a request removed a control together with its e2e test. Shown on verified and not
+  verified check-ins. Should it carry the caution glyph, and make Review First the default like a weakened test?
+- **Not verified, naming the scenario:** the existing "Not verified" row carries Gate's sentence ("scenario “Add a
+  note” has no e2e test named after it"; "test “Reset the notes” uses a control that no longer exists: the “Reset”
+  button"; "the “Help” link has no e2e step"). Several reasons are joined with “;”: a list may read better.

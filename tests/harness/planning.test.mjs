@@ -28,3 +28,10 @@ test('Open ROADMAP.md shows the actual source and returns to approval',async()=>
  try {await tool.execute('open',{},null,null,{ui:{select:async(title)=>{shown.push(title);return ++count===1?'Open ROADMAP.md':count===2?'Back':'Start Building';}}});assert.match(shown[1],/The person’s text/);assert.equal(approved,true);}
  finally{rmSync(dir,{recursive:true,force:true});}
 });
+
+test('task 329: propose_plan takes each task’s scenarios (title, given, when, then)',()=>{
+ let tool;installPlanning({registerTool:value=>tool=value},{});
+ const item=tool.parameters.properties.tasks.items.properties.scenarios;
+ assert.equal(item.type,'array');assert.deepEqual(item.items.required,['title','given','when','then']);
+ assert.match(tool.description,/scenarios/);
+});

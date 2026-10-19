@@ -12,7 +12,7 @@ export function choiceRows(choice,width=80) {
 export function planView(plan,width=80) {
  const decisions=plan.tasks.flatMap(task=>task.decisions?[task.decisions]:[]);
  return renderView({title:tr('Plan'),summary:`${plan.tasks.length} ${tr('tasks')}`,parts:[{kind:'prose',text:tr('Goal')+'  '+plan.goal},
-  ...plan.tasks.map((task,index)=>({kind:'lines',lines:[`${index+1}  ${task.title}`,...wrap(tr('Done when')+': '+task.done_when,Math.max(20,width-6)).map(line=>ansiStyle.dim('   '+line))]})),
+  ...plan.tasks.map((task,index)=>({kind:'lines',lines:[`${index+1}  ${task.title}`,...wrap(tr('Done when')+': '+task.done_when,Math.max(20,width-6)).map(line=>ansiStyle.dim('   '+line)),...(task.scenarios||[]).flatMap(item=>wrap(tr('Scenario')+': '+item.title+' · '+tr('Given')+' '+item.given+' · '+tr('When')+' '+item.when+' · '+tr('Then')+' '+item.then,Math.max(20,width-6)).map(line=>ansiStyle.dim('   '+line)))]})),
   ...(decisions.length?[{kind:'lines',heading:tr('Decisions'),lines:decisions.flatMap(text=>text.split('\n'))}]:[])]},width,{style:ansiStyle}).join('\n');
 }
 

@@ -42,6 +42,7 @@ export function frameCheckIn(row,check,{data={},state={},next,review,stop,previe
  else{facts.append(node('dt','','Not verified'),node('dd','',check.outside?.length?'changes outside the task’s Files, left out of its commit':check.verification||check.reason||'no passing test run after the last change'));
   if(check.outside?.length){const dd=node('dd');dd.append('Changed files not in its Files: ');check.outside.forEach((path,index)=>{if(index)dd.append(', ');dd.append(mono(path));});facts.append(node('dt','','Outside the task'),dd);}
   facts.append(node('dt','','Next'),node('dd','',`Retry Task runs task ${check.number} again from its steps`));}
+ if(check.removed?.length){const dd=node('dd');check.removed.forEach(text=>dd.append(node('span','pw-checkin__removed',`Removed: ${text}`),node('br')));facts.append(node('dt','','Removed'),dd);}/* task 329: a control and its e2e test, removed together */
  body.append(facts);
  const links=node('div','pw-card__links');links.append(link('Show in Preview',preview));if(undo)links.append(link('Undo This Task…',undo));body.append(links);
  const gap=node('span');gap.style.flex='1';

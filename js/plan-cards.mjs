@@ -49,12 +49,17 @@ export function choiceCard(choice,{state={},answer,change}={}){
  if(choice.number&&choice.total&&choice.number<choice.total)foot.append(button('Take All Recommendations',()=>answer(choice.options[0].label,{take_all:true})));/* R12_Gate: this one and the rest of the batch take their recommendations */
  foot.append(node('span','pw-help','or type your answer below'));return el;
 }
+/* Task 329: a task's scenarios under its Done when (each becomes an e2e test named after its title); no drawing yet (design/briefs/round-13.md). */
+function scenarioLines(task){
+ return (task.scenarios||[]).map(scenario=>{const line=node('small','pw-plan__scenario');line.append(node('span','','Scenario'),': ',prose('b','',scenario.title));
+  for(const key of ['given','when','then'])line.append(' · ',node('span','',key[0].toUpperCase()+key.slice(1)),' ',prose('span','',scenario[key]));return line;});
+}
 export function planCard(plan,{name='',state={},approve,another,change,open}={}){
  const decisions=planDecisions(plan),count=`${plan.tasks.length} tasks · ${decisions.length} decisions`;
  if(state.replaced){const el=settled(`Plan v${state.version} · replaced by v${state.replaced} at ${time(state.replacedAt)}`,{old:true,action:()=>{el.replaceWith(planCard(plan,{name,state:{historical:true},approve,change,open}));},label:'Show'});return el;}
  if(state.approved||plan.approved)return settled(`Plan approved: building · ${count} · Start Building${plan.state==='auto'?'':` · you · ${time(state.continuedAt||plan.when)}`}`,{state:plan.state,action:open,label:'Open the Plan'});
  const {el,head,body,foot}=card('Plan: '+name,'file','Plan');head.append(node('span','',count));body.append(prose('p','pw-plan__goal',plan.goal),node('h4','pw-plan__h','Tasks'));
- const tasks=node('ol','pw-plan__tasks');for(const task of plan.tasks.length>7?plan.tasks.slice(0,5):plan.tasks){const item=node('li');item.append(prose('span','',task.title));item.append(node('small','',`Done when ${task.done_when}`));tasks.append(item);}
+ const tasks=node('ol','pw-plan__tasks');for(const task of plan.tasks.length>7?plan.tasks.slice(0,5):plan.tasks){const item=node('li');item.append(prose('span','',task.title));item.append(node('small','',`Done when ${task.done_when}`));item.append(...scenarioLines(task));tasks.append(item);}
  if(plan.tasks.length>7){const item=node('li');item.append(link(`and ${plan.tasks.length-5} more tasks · Open the Plan`,open));tasks.append(item);}body.append(tasks,...grantSection(plan),node('h4','pw-plan__h','Decisions'));/* round 12: What you grant, above Decisions */
  const list=node('ul','pw-plan__decisions');for(const decision of decisions){const li=node('li');li.append(glyph('done'),prose('b','',decision.question),prose('span','',decision.answer),tag(decision.state));list.append(li);}body.append(list);
  if(plan.waiting)return settled(`Plan waiting · ${plan.tasks.length} tasks, not started · Plan Another Task · you`,{action:open,label:'Open the Plan'});
