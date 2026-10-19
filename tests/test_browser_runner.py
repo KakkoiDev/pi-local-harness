@@ -26,7 +26,7 @@ class BrowserRunnerTest(unittest.TestCase):
 
     def test_unknown_suite_is_refused(self):
         run = subprocess.run([sys.executable, 'tests/browser/run.py', 'nope'], cwd=ROOT, capture_output=True, text=True, timeout=30)
-        self.assertEqual(run.returncode, 2); self.assertIn('design, chat, stories or all', run.stdout + run.stderr)
+        self.assertEqual(run.returncode, 2); self.assertIn('design, chat, stories, conversation, journey or all', run.stdout + run.stderr)
 
     def test_gate_counts_it_as_a_test_run(self):
         self.assertEqual(test_folder('python3 tests/browser/run.py chat', str(ROOT)), ROOT)

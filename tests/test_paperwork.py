@@ -292,6 +292,25 @@ class ChoicePaperworkTest(PaperworkTest):
         self.paper.start_building(self.root)  # the harness's line is not a change of the plan's scope
         self.assertEqual(self.paper.phases.get(self.root)['phase'],'implementation')
 
+    def test_discussion_answers_since_the_last_plan_are_the_next_plans_decisions(self):
+        # Task 327 (journey J06): three cards answered in Discussion, then Planning: the plan's Decisions are those answers.
+        self.paper.phases.choose(self.root,'discussion',actor='person')
+        for number,(question,answer) in enumerate([('Where are habits saved?','SQLite database'),('What is a streak?','Every day ticked')]):
+            self.paper.start(f'ask{number}',str(self.root),'Ask me')
+            self.paper.choice_pending(f'ask{number}',{'question':question,'options':[{'label':answer},{'label':'Other'}],'recommended':0})
+            self.paper.pause(f'ask{number}')
+            self.paper.start(f'answer{number}',str(self.root),f'Choice: {question} → {answer}');self.paper.pause(f'answer{number}')
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('plan',str(self.root),'Plan it')
+        plan=self.paper.propose_plan('plan',{'goal':'Habits.','tasks':[{'title':'Store habits','files':['app.py'],'done_when':'Saved.','content':'Save.'}]})
+        self.assertEqual(plan['tasks'][0]['decisions'],'- Where are habits saved?: SQLite database (chosen)\n- What is a streak?: Every day ticked (chosen)')
+        self.paper.pause('plan');self.paper.start_building(self.root)
+        self.paper.phases.choose(self.root,'planning',actor='person')
+        self.paper.start('again',str(self.root),'Plan the next')
+        later=self.paper.propose_plan('again',{'goal':'Habits.','tasks':[{'title':'Chart','files':['chart.py'],'done_when':'Drawn.','content':'Draw.'}]})
+        chart=next(task for task in later['tasks'] if task['title']=='Chart')
+        self.assertEqual(chart['decisions'],'','only the answers since the last plan')
+
     def test_a_planning_answer_while_the_plan_waits_is_appended_to_it(self):
         self.paper.phases.choose(self.root,'planning',actor='person')
         self.paper.start('plan',str(self.root),'Plan a counter')
@@ -322,14 +341,15 @@ class ChoicePaperworkTest(PaperworkTest):
         goal=_re.search(r'## Goal\s*\n(.*?)(?=^## |^- \[|\Z)',roadmap.read_text(),_re.M|_re.S)[1]
         self.assertEqual(goal.count('Plan: '),1,'the next plan replaces its line');self.assertIn('Track my daily habits.',goal)
 
-    def test_a_discussion_answer_stays_out_of_the_next_plan(self):
+    def test_a_discussion_answer_is_in_the_next_plan(self):
+        # Task 293 kept it out; task 327 (the coordinator's decision, journey J06) carries the person's Discussion answers.
         self.paper.start('ask',str(self.root),'Which colours?')
         self.paper.choice_pending('ask',{'question':'Colour?','options':[{'label':'Blue'},{'label':'Red'}],'recommended':0})
         self.paper.pause('ask');self.paper.start('answer',str(self.root),'Choice: Colour? → Red');self.paper.pause('answer')
         self.paper.phases.choose(self.root,'planning',actor='person')
         self.paper.start('plan',str(self.root),'Plan a counter')
         path=self.paper.propose_plan('plan',{'goal':'A click counter.','tasks':[{'title':'Count clicks','files':['app.py'],'done_when':'Each click adds one.','content':'Count.'}]})['tasks'][0]['path']
-        self.assertNotIn('Colour?',(self.root/path).read_text())
+        self.assertIn('- Colour?: Red (chosen ',(self.root/path).read_text())
 
 class PlanLifecycleTest(PaperworkTest):
     def test_plan_waits_for_person_approval_survives_restart_and_reuses_task(self):

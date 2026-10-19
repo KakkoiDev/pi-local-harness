@@ -41,7 +41,7 @@ function terminal(bench, cwd, answers = []) {
 test('US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Building approves; the web sees the same phase', async t => {
   const bench = await workbench(t);
   const { project } = await bench.api('/api/projects/create', { name: 'Terminal counter', parent: bench.directory, kind: 'empty' });
-  const root = join(bench.directory, 'Terminal counter');
+  const root = join(bench.directory, 'terminal-counter');  // task 327: the folder is a slug of the name
   const person = terminal(bench, root, ['Start Building']);
   await person.type('plan');
   assert.match(person.notices.at(-1), /Phase: Planning/);
@@ -65,7 +65,7 @@ test('US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Bu
 test('US-101 terminal: /build with nothing planned changes nothing and says to /plan first', async t => {
   const bench = await workbench(t);
   const { project } = await bench.api('/api/projects/create', { name: 'Nothing planned', parent: bench.directory, kind: 'empty' });
-  const person = terminal(bench, join(bench.directory, 'Nothing planned'));
+  const person = terminal(bench, join(bench.directory, 'nothing-planned'));
   await person.type('build');
   assert.match(person.notices.at(-1), /nothing is planned yet\. \/plan first/);
   assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'discussion');
@@ -119,7 +119,7 @@ test('US-091 terminal in Japanese: the language chosen in web Settings is the te
   await bench.api('/api/settings', { language: 'ja' });
   const { project } = await bench.api('/api/projects/create', { name: 'Nihongo', parent: bench.directory, kind: 'empty' });
   loadTerminalLanguage(requestLanguage(bench.data, {}));  // what the extension does at each request (harness/extension.mjs)
-  const person = terminal(bench, join(bench.directory, 'Nihongo'));
+  const person = terminal(bench, join(bench.directory, 'nihongo'));
   await person.type('plan');
   assert.match(person.notices.at(-1), /フェーズ：計画/);
   assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'planning');

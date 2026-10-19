@@ -31,8 +31,21 @@ def catalogue(chat, query):
 
 
 def plan(chat, data):
-    """POST /api/project-start/plan: step 4's facts (the base's files and tests), or what stops Create."""
-    return kit.summary(data.get('packages') or [], data.get('capabilities') or [], kit.initial_plan(data.get('name') or 'App'))
+    """POST /api/project-start/plan: step 4's facts (the base's files and tests, the folder Create makes), or what stops
+    Create."""
+    result = kit.summary(data.get('packages') or [], data.get('capabilities') or [], kit.initial_plan(data.get('name') or 'App'))
+    return {**result, 'folder': _folder(chat, data.get('name'), data.get('parent'))}
+
+
+def folder(chat, query):
+    """GET /api/project-start/folder?name=…&parent=…: the folder New Project makes for that name (step 1 shows it): a slug
+    such as habit-tracker, never an existing folder (harness/folder_name.py)."""
+    return {'folder': _folder(chat, query.get('name', [''])[0], query.get('parent', [''])[0])}
+
+
+def _folder(chat, name, parent):
+    try: return chat.documents.new_project_folder(name, parent or None)
+    except ValueError: return ''
 
 
 def preview(chat, data):

@@ -1,4 +1,4 @@
-"""Run the browser suites from any shell: `python3 tests/browser/run.py design|chat|stories|all`.
+"""Run the browser suites from any shell: `python3 tests/browser/run.py design|chat|stories|conversation|journey|all`.
 
 Finds Playwright (NODE_PATH, PI_PLAYWRIGHT, or ~/.cache/plh-browser/node_modules as docs/contributing-for-agents.md sets it
 up) and exits with the suite's own code. Without Playwright it runs nothing, says so ("Not run") and exits 2, so a model
@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-SUITES = {'design': 'tests/browser/design.cjs', 'chat': 'tests/browser/chat.cjs', 'stories': 'tests/browser/stories.cjs', 'conversation': 'tests/browser/conversation.cjs'}
+SUITES = {'design': 'tests/browser/design.cjs', 'chat': 'tests/browser/chat.cjs', 'stories': 'tests/browser/stories.cjs', 'conversation': 'tests/browser/conversation.cjs', 'journey': 'tests/browser/journey.cjs'}
 SETUP = ('mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 '
          '&& npx playwright install chromium && cd -')
 
@@ -25,7 +25,7 @@ def playwright():
 def main(names):
     chosen = list(SUITES) if names in ([], ['all']) else names
     if any(name not in SUITES for name in chosen):
-        print(f'Usage: python3 tests/browser/run.py design, chat, stories or all (got {" ".join(names)})'); return 2
+        print(f'Usage: python3 tests/browser/run.py design, chat, stories, conversation, journey or all (got {" ".join(names)})'); return 2
     modules = playwright()
     if not modules:
         print('Not run: Playwright is not installed, so the browser suites did not run. Nothing was verified.')

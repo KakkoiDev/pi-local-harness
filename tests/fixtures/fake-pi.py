@@ -276,6 +276,14 @@ if request['message'].rstrip().endswith('TEST_RECOVER'):  # the extension aborts
 if request['message'].rstrip().endswith('TEST_REFUSED'):  # another agent holds the lock
     emit({'type':'extension_ui_request','method':'notify','message':'Harness refused: One agent is already working. Wait or stop the active task before starting another.'})
     sys.stdin.readline();sys.exit(0)
+if 'TEST_WAKE_THEN_SLOW' in request['message']:  # task 327 (live, Run on its own): a finished answer, the harness wakes Pi, its next turn starts slowly
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'[CANARY] Task 4 is done.'}})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'[CANARY] Task 4 is done.'}],'stopReason':'stop'}});emit({'type':'agent_settled'})
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness recovery: Continue the next approved task.'});emit({'type':'agent_start'})
+    time.sleep(3)  # the model reads the next task before its first token: longer than model_silence_seconds in the test
+    emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'[CANARY] Task 5 is done.'}})
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'[CANARY] Task 5 is done.'}],'stopReason':'stop'}});emit({'type':'agent_settled'})
+    emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'});sys.stdin.readline();sys.exit(0)
 if request['message'].rstrip().endswith('TEST_SLOW_START'):time.sleep(3)  # 2026-10-19: a big model loads and reads a long prompt before its first token
 if request['message'].rstrip().endswith('TEST_THINK'):
     for step in range(8):
@@ -298,6 +306,7 @@ else:
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})
     if 'TEST_FINAL_TEXT' in request['message']:text='[CANARY] clean answer'
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':text}],'stopReason':'stop'}})
+    if 'TEST_ANSWER_THEN_PAPERWORK' in request['message']:time.sleep(4)  # task 327 (live, qwen3.8:27b): the answer is complete; the harness's paperwork runs before agent_end
     emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'})  # what the extension says when it will not wake Pi (plan 184)
     sys.stdin.readline()

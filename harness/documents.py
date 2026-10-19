@@ -1,5 +1,6 @@
 """Small single-user Markdown workspace: one person (and Pi in comment threads), no accounts, collaboration or sync."""
 from harness.markdown_records import read_record,write_record
+from harness.folder_name import free_folder,folder_slug
 import hashlib
 import json
 import re
@@ -328,11 +329,15 @@ class DocumentStore:
         if not path.is_dir():raise ValueError('Choose an existing folder')
         with self.lock:
             for project in self.list_projects():
-                if Path(project['path']).resolve()==path:return project['id']
+                if Path(project['path']).resolve()==path:
+                    # Task 327: New Project in <data>/projects is discovered under its folder's name (habit-tracker) the
+                    # moment it exists; the project's name is the one the person typed (Habit Tracker).
+                    if fresh and name and self.registry[project['id']]['name']!=slug(name):self.registry[project['id']]['name']=slug(name);self.save_registry()
+                    return project['id']
             for key,value in ([] if fresh else self.registry.items()):
                 if value.get('removed') and Path(value['path']).resolve()==path:
                     # Added again after Remove from List or Put Back: the same id, so its chat and comments come back.
-                    value.pop('removed');value['name']=slug(name or path.name);self.save_registry();return key
+                    value.pop('removed');value['name']=slug(name) if name else value.get('name') or slug(path.name);self.save_registry();return key  # task 327: Put Back keeps the name (the folder is its slug)
             identifier=uuid.uuid4().hex
             self.registry[identifier]={'name':slug(name or path.name),'path':str(path)}
             self.save_registry()
@@ -356,14 +361,15 @@ class DocumentStore:
             entry=self.entry(project);entry['removed']=True;self.save_registry()
         return {'project':project,'path':entry['path']}
     def rename_project(self, project, name):
-        """Rename Project…: the folder is renamed in place; the app shows the folder's name. The id, and so the address,
-        chat, comments and Activity, stay."""
+        """Rename Project…: the project takes the name and its folder is renamed in place to the name's slug (task 327: as
+        New Project, “Habit Tracker” lives in habit-tracker). The id, and so the address, chat, comments and Activity, stay."""
         with self.lock:
-            entry,path=self.present(project);name=slug(name);target=path.parent/name
-            if target==path:return {'project':project,'name':name,'path':str(path),'previous':name}
-            if target.exists() and target.resolve()!=path:raise ValueError(f'A folder named “{name}” already exists in {path.parent}.')
+            entry,path=self.present(project);name=slug(name);target=path.parent/folder_slug(name);previous=entry.get('name') or path.name
+            if target==path or target.exists() and target.resolve()==path.resolve():
+                entry.update(name=name);self.save_registry();return {'project':project,'name':name,'path':str(path),'previous':previous}
+            if target.exists():raise ValueError(f'A folder named “{target.name}” already exists in {path.parent}.')
             self.before_project_move(path)
-            previous=path.name;path.rename(target)
+            path.rename(target)
             entry.update(name=name,path=str(target));self.save_registry();self.after_project_move(path,target)
             return {'project':project,'name':name,'path':str(target),'previous':previous}
     def move_project(self, project, parent):
@@ -417,13 +423,10 @@ class DocumentStore:
         Project Start): start={'packages','capabilities'} assembles a base and runs its tests; if one fails, the folder
         goes to the Trash and kit_capabilities.BaseFailed says which test (nothing is created); otherwise start['check'] has the run."""
         if kind not in ('web','static','tui','empty','start'):raise ValueError('Choose Web app, App with no server, Terminal app or Empty folder')
-        name=slug(name)
-        base=Path(parent).expanduser().resolve() if parent else self.projects
-        if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
-        if not base.is_dir():raise ValueError('Parent folder not found')
-        path=base/name
+        name=slug(name)  # the project's name, as typed ("Habit Tracker"); its folder is a slug (harness/folder_name.py, task 327)
+        base=self.new_project_parent(parent)
         with self.lock:
-            if path.exists():raise ValueError('Project already exists; add its existing folder instead')
+            path=free_folder(base,name)  # habit-tracker, or habit-tracker-2 when that exists: never an existing folder
             plan=starter.initial_plan(name)
             sentence=str((start or {}).get('sentence') or '').strip()
             if sentence:plan['ROADMAP.md']=plan['ROADMAP.md'].replace('Describe what we are building.',sentence,1)
@@ -440,6 +443,14 @@ class DocumentStore:
                 start['check']=check  # the caller shows the counts
             else:starter.new_project(path,static=kind=='static',tui=kind=='tui',files=plan)
             return self.register(str(path),name,fresh=True)  # task 262: its own uuid, never the folder name
+    def new_project_parent(self, parent=None):
+        if parent and not Path(parent).expanduser().is_absolute():raise ValueError('Choose an absolute parent folder')
+        base=Path(parent).expanduser().resolve() if parent else self.projects
+        if not base.is_dir():raise ValueError('Parent folder not found')
+        return base
+    def new_project_folder(self, name, parent=None):
+        """Where New Project would create `name` (Project Start shows it on step 1 and in the summary)."""
+        return str(free_folder(self.new_project_parent(parent),slug(name)))
     def directories(self, directory=None):
         path=Path(directory or Path.home()).expanduser().resolve()
         if not path.is_dir():raise ValueError('Folder not found')

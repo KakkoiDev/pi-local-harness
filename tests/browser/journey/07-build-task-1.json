@@ -1,0 +1,107 @@
+{
+ "about": "Steps 7-9 (findings 11, 12, 13, 16, 17): the model writes tool calls as text twice, reads a file outside the project, works test-first, writes a migration outside the task, is stopped mid-answer and continues.",
+ "turns": [
+  {
+   "when": "approved task",
+   "say": "<execute_tool>\nread{path:app/db.py}\n</execute_tool>"
+  },
+  {
+   "when": "",
+   "say": "read(path=\"app/db.py\")"
+  },
+  {
+   "when": "tool:|continue|Continue|Call the tool|describ|Nothing ran",
+   "calls": [
+    {
+     "name": "read",
+     "arguments": {
+      "path": "/etc/hosts"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*(localhost|hosts|REVISE)",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "tests/test_habits.py",
+      "content": "import tempfile\nimport unittest\nfrom pathlib import Path\n\nfrom app.habits import add_habit, list_habits, tick, ticks\n\n\nclass HabitsTest(unittest.TestCase):\n    def setUp(self):\n        self.folder = tempfile.TemporaryDirectory()\n        self.db = Path(self.folder.name) / \"habits.sqlite3\"\n\n    def tearDown(self):\n        self.folder.cleanup()\n\n    def test_add_habit_is_listed(self):\n        add_habit(self.db, \"Read\")\n        self.assertEqual(list_habits(self.db), [\"Read\"])\n\n    def test_tick_is_kept_once_per_day(self):\n        add_habit(self.db, \"Read\")\n        tick(self.db, \"Read\", \"2026-10-01\")\n        tick(self.db, \"Read\", \"2026-10-01\")\n        self.assertEqual(ticks(self.db, \"Read\"), [\"2026-10-01\"])\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to tests/test_habits",
+   "calls": [
+    {
+     "name": "bash",
+     "arguments": {
+      "command": "python3 -m unittest tests.test_habits"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*(Error|FAILED)",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "migrations/002-habits.sql",
+      "content": "CREATE TABLE IF NOT EXISTS habits (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);\nCREATE TABLE IF NOT EXISTS ticks (habit TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY (habit, day));\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*(not part of task|outside)",
+   "say": "[CANARY] I will wait for your answer about migrations/002-habits.sql."
+  },
+  {
+   "when": "Choice: Pi wants to change a file outside|Add to Task",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "migrations/002-habits.sql",
+      "content": "CREATE TABLE IF NOT EXISTS habits (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);\nCREATE TABLE IF NOT EXISTS ticks (habit TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY (habit, day));\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to migrations",
+   "slow": 20,
+   "say": "[CANARY] Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. Now I write app/habits.py with add_habit, list_habits and tick. "
+  },
+  {
+   "when": "continue|Continue|approved task",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "app/habits.py",
+      "content": "import sqlite3\nfrom pathlib import Path\n\nSCHEMA = Path(__file__).resolve().parent.parent / \"migrations\" / \"002-habits.sql\"\n\n\ndef _open(path):\n    connection = sqlite3.connect(path)\n    connection.executescript(SCHEMA.read_text())\n    return connection\n\n\ndef add_habit(path, name):\n    with _open(path) as connection:\n        connection.execute(\"INSERT OR IGNORE INTO habits (name) VALUES (?)\", (name,))\n\n\ndef list_habits(path):\n    with _open(path) as connection:\n        return [row[0] for row in connection.execute(\"SELECT name FROM habits ORDER BY id\")]\n\n\ndef tick(path, name, day):\n    with _open(path) as connection:\n        connection.execute(\"INSERT OR IGNORE INTO ticks (habit, day) VALUES (?, ?)\", (name, day))\n\n\ndef ticks(path, name):\n    with _open(path) as connection:\n        return [row[0] for row in connection.execute(\"SELECT day FROM ticks WHERE habit = ? ORDER BY day\", (name,))]\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to app/habits",
+   "calls": [
+    {
+     "name": "bash",
+     "arguments": {
+      "command": "python3 -m unittest tests.test_habits"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
+   "say": "[CANARY] Task 1 is done: habits and their ticks are saved in SQLite, with tests."
+  }
+ ]
+}

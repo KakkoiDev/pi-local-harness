@@ -1,0 +1,85 @@
+{
+ "about": "Steps 4-5 (findings 2, 5, 6): a prose answer with nested option lists and add_habit identifiers; the [CANARY] marker in backticks and in bold; three questions asked with ask_choices, one at a time.",
+ "turns": [
+  {
+   "when": "What do you need to know",
+   "say": "[CANARY] Before planning I need three answers:\n\n1. Where should habits be saved?\n   - SQLite in the app folder (recommended)\n   - A JSON file\n2. What counts as a streak?\n   - Ticked every day\n   - Ticked on most days\n3. Which chart for the month?\n   - A bar per day\n   - A calendar grid\n\nThe code will have add_habit, tick_habit and month_chart functions."
+  },
+  {
+   "when": "good first app",
+   "say": "`[CANARY]` Yes: it is small, and add_habit is a good first function."
+  },
+  {
+   "when": "as choices",
+   "say": "**[CANARY]**\n\nThree questions, one at a time.",
+   "calls": [
+    {
+     "name": "ask_choices",
+     "arguments": {
+      "question": "Where should habits be saved?",
+      "number": 1,
+      "total": 3,
+      "options": [
+       {
+        "label": "SQLite database",
+        "detail": "A file in the app folder"
+       },
+       {
+        "label": "JSON file"
+       }
+      ],
+      "recommended": 0
+     }
+    }
+   ]
+  },
+  {
+   "when": "Choice: Where should habits be saved",
+   "calls": [
+    {
+     "name": "ask_choices",
+     "arguments": {
+      "question": "What counts as a streak?",
+      "number": 2,
+      "total": 3,
+      "options": [
+       {
+        "label": "Every day ticked"
+       },
+       {
+        "label": "Most days ticked"
+       }
+      ],
+      "recommended": 0
+     }
+    }
+   ]
+  },
+  {
+   "when": "Choice: What counts as a streak",
+   "calls": [
+    {
+     "name": "ask_choices",
+     "arguments": {
+      "question": "Which chart for the month?",
+      "number": 3,
+      "total": 3,
+      "options": [
+       {
+        "label": "Bar per day"
+       },
+       {
+        "label": "Calendar grid"
+       }
+      ],
+      "recommended": 0
+     }
+    }
+   ]
+  },
+  {
+   "when": "Choice: Which chart for the month",
+   "say": "**[CANARY]** Thanks: a SQLite database, a streak of days ticked in a row, and a bar per day."
+  }
+ ]
+}

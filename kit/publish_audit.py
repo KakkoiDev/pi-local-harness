@@ -5,6 +5,20 @@ import re
 ROOT=Path(__file__).resolve().parent.parent
 
 
+def files_line():
+    """The template's Files: line (task 327): what Ready to publish may change to make its checks pass."""
+    return next(line for line in (ROOT/'kit/publish-audit.md').read_text(encoding='utf-8').splitlines() if line.startswith('Files:'))
+
+
+def scoped(file):
+    """A Ready to publish task made before task 327 has no Files: line, so Gate refused every write in it: add the line."""
+    if not file.is_file() or file.is_symlink():return
+    text=file.read_text(encoding='utf-8')
+    if re.search(r'^Files:',text,re.M):return
+    kind=re.search(r'^Kind:.*$',text,re.M)
+    file.write_text(text[:kind.end()]+'\n'+files_line()+text[kind.end():] if kind else text.rstrip()+'\n\n'+files_line()+'\n',encoding='utf-8')
+
+
 def ensure_task(root,reset=False):
     """One audit at the end of a roadmap with open work; moving it never changes another task's boxes."""
     root=Path(root);roadmap=root/'ROADMAP.md'
@@ -21,6 +35,7 @@ def ensure_task(root,reset=False):
         path=f'tasks/{number:03d}-ready-to-publish.md'
         template=(ROOT/'kit/publish-audit.md').read_text(encoding='utf-8')
         (root/path).write_text(template.replace('{number}',f'{number:03d}'),encoding='utf-8')
+    scoped(root/path)
     line=next((line for line in lines if f'({path})' in line),f'- [ ] [Ready to publish]({path})')
     if reset:
         line=re.sub(r'- \[[xX]\]', '- [ ]',line)

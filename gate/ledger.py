@@ -266,7 +266,14 @@ class ProposalLedger:
             if reason and phase=='implementation' and task and pi_tool in ('write','edit') and request in self.paperwork.requests:
                 from .scope import widen  # round 12 (task 261): a file outside the task is the person's question
                 asked=widen(self.paperwork,request,root,args,cwd,task,assistant_text)
-                if asked:return {**refuse('G-015',asked['reason']),'phase':phase,'judgement':{'choice':asked['choice']}}
+                from harness.autonomy import enabled as running_on_its_own
+                if asked and asked['choice'].get('scope') and running_on_its_own(self.paperwork.data):
+                    # Task 327 (journey J10b): under Run on its own Gate takes its own recommended answer (Add to Task N),
+                    # records it as automatic for the run's report, and this same write goes through: no "Stop here".
+                    self.paperwork.decision(request,asked['choice']['question'],asked['choice']['options'][0]['label'],'auto')
+                    task=self.paperwork.active_scope(root)
+                    reason=refusal(phase, root, tool_name, args, cwd=cwd, pi_tool=pi_tool, task=task, approved=bool(task))
+                elif asked:return {**refuse('G-015',asked['reason']),'phase':phase,'judgement':{'choice':asked['choice']}}
             if reason and outside and phase=='discussion' and not self.paperwork.phases.get(root)['history']:
                 from .phases import not_a_project
                 reason=not_a_project(root,tool_name)

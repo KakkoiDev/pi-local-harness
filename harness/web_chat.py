@@ -58,9 +58,12 @@ SILENCE=float(os.getenv('PI_HARNESS_SILENCE_SECONDS','3600'))
 MODEL_SILENCE=float(os.getenv('PI_HARNESS_MODEL_SILENCE_SECONDS','120'))
 # 2026-10-19 (live, qwen3.8:27b): a big model loading and reading a long prompt sent nothing for over 120 s before its
 # first token, and again after each tool result (it reads the whole context plus the result), and the watchdog failed
-# healthy requests. So each model turn (the first, and each one after a tool) has model_start_seconds until its first
-# output; only a silence in the middle of a turn's output has the short MODEL_SILENCE.
+# healthy requests. So the request's first model turn has model_start_seconds until its first output; only a silence in
+# the middle of a turn's output has the short MODEL_SILENCE.
 MODEL_START=float(os.getenv('PI_HARNESS_MODEL_START_SECONDS','900'))
+# Task 327 (the coordinator's decision): a model turn after a tool result has its own limit. The model is loaded by then
+# and only reads the result, so 15 minutes is far too long for the owner's stall (a tool ends, the model never answers).
+MODEL_TURN=float(os.getenv('PI_HARNESS_MODEL_TURN_SECONDS','300'))
 
 
 def model_silence_reason(seconds):
@@ -760,7 +763,7 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
-            heard=time.monotonic();settled=False;thought='';spoke=False;spoke_ever=False  # spoke: this model turn has output (MODEL_START until then)
+            heard=time.monotonic();settled=False;thought='';spoke=False;spoke_ever=False;after_tool=False;final_answer=False  # spoke: this model turn has output (MODEL_START, or MODEL_TURN after a tool, until then)
             # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
             # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
             tools_running=set();harness_turn=False;compacting=False
@@ -774,8 +777,8 @@ class WebChat:
                 # Task 165: no limit on total time (long work is fine, Gate guards it); only silence fails, and a pause for the chat is not silence.
                 if self.active.get(key,{}).get('paused'):heard=time.monotonic()
                 if time.monotonic()-heard>SILENCE:raise ValueError(f'Pi sent nothing for {silence_words(SILENCE)}. Stopped; the work so far is in its record.')
-                limit=MODEL_SILENCE if spoke else max(MODEL_START,MODEL_SILENCE)
-                if not settled and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>limit:
+                limit=MODEL_SILENCE if spoke else max(MODEL_TURN if after_tool else MODEL_START,MODEL_SILENCE)
+                if not settled and not final_answer and not tools_running and not harness_turn and not compacting and time.monotonic()-heard>limit:
                     raise ValueError(model_silence_reason(limit) if spoke_ever else model_start_reason(limit))
                 if cancelled.is_set():raise ValueError('Stopped')
                 if settled and harness_done:break
@@ -786,7 +789,14 @@ class WebChat:
                 heard=time.monotonic()
                 kind=event.get('type') if isinstance(event,dict) else None
                 if kind in ('message_update','tool_execution_start'):spoke=spoke_ever=True
-                elif kind=='tool_execution_end':spoke=False  # the next model turn reads the result first: MODEL_START again
+                # Task 327 (live, qwen3.8:27b): a finished answer (message_end, stopReason stop, no tool call) is not a model
+                # that stopped answering: the model watchdog rests until the next turn; the harness's paperwork has SILENCE.
+                if kind=='message_end' and (event.get('message') or {}).get('role')=='assistant':final_answer=(event['message'].get('stopReason')=='stop' and not any(part.get('type')=='toolCall' for part in event['message'].get('content') or [] if isinstance(part,dict)))
+                elif kind in ('message_start','message_update','tool_execution_start','agent_start'):final_answer=False
+                # Task 327 (live, Run on its own): a turn the harness starts (a wake-up, the next approved task, a recovery)
+                # reads its context before its first output, like a turn after a tool: model_turn_seconds, not the silence limit.
+                if kind=='agent_start' and spoke_ever:spoke=False;after_tool=True
+                elif kind=='tool_execution_end':spoke=False;after_tool=True  # the next model turn reads the result first: MODEL_TURN
                 if kind=='tool_execution_start':tools_running.add(event.get('toolCallId') or f'tool-{len(tools_running)}')
                 elif kind=='tool_execution_end':
                     if event.get('toolCallId') in tools_running:tools_running.discard(event.get('toolCallId'))
@@ -992,6 +1002,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
+            if path=='/api/project-start/folder':from harness import project_start;self.reply(project_start.folder(self.chat,parse_qs(urlparse(self.path).query)));return  # task 327: the folder is a slug
             if path=='/api/project-start':from harness import project_start;self.reply(project_start.catalogue(self.chat,parse_qs(urlparse(self.path).query)));return  # round 12, plan 253
             if path=='/api/project-sandbox':  # task 311: how far this project's test runs may reach
                 from gate import sandbox;self.reply({**sandbox.widened(self.chat.documents.root,self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])),'available':sandbox.available()});return
@@ -1028,7 +1039,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
                 allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
-                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list')})  # round 12: HarnessNotice, CutLine, DecisionRow
+                allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list','near-note')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
                 if path not in allowed:self.reply({'error':'Not found'},404);return

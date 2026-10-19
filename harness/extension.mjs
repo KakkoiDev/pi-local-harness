@@ -43,6 +43,8 @@ const moduleRoot = fileURLToPath(new URL('../', import.meta.url));
 // Pi's tools as Gate's risk categories. harness (the console tool, task 167) only reads: a change it is asked for is just previewed.
 export const GATE_TOOL_NAMES = { read: 'read_file', grep: 'read_file', find: 'read_file', ls: 'read_file', harness: 'read_file', ask_choices: 'read_file', propose_plan: 'read_file', web_search:'read_file', app_block:'read_file', task_box: 'write_file', browser: 'write_file', music: 'write_file', write: 'write_file', edit: 'write_file', bash: 'execute_command', powershell: 'execute_command' };
 const names = GATE_TOOL_NAMES;
+// Task 327: Run on its own continues with the harness's own words (gate/paperwork.py BUILD takes them as the task in progress).
+export const CONTINUE_NEXT = 'Continue the next approved task.';
 export default function harness(pi, dependencies = {}) {
   // The bench baseline (PI_HARNESS_BARE=1): plain Pi with Gate's core safety rules, none of the harness around it, to
   // measure what the harness adds. No extra tools, recovery, wake-ups, paperwork or rules summary.
@@ -516,7 +518,9 @@ export default function harness(pi, dependencies = {}) {
             else {say('committed',`${result.message} · committed as ${result.commit}`,'info');
             nextPlanInput=true;recovering=true;
             notify('Harness recovery: Continue the next approved task.','info');
-            pi.sendUserMessage('yes');return;}
+            /* task 327: the harness's own words, shown as its notice; never a fake "yes" from the person */
+            if (sharedPortEnv()) notify('Harness notice: Run on its own: task '+check.number+' accepted; the next approved task starts.','info');
+            pi.sendUserMessage(CONTINUE_NEXT);return;}
           }
           if (sharedPortEnv()) notify('Harness check-in: '+JSON.stringify(check),'info');
           else if(!check.accepted) {

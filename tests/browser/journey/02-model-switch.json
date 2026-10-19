@@ -1,0 +1,14 @@
+{
+ "about": "Step 2 (finding 4): a long answer that keeps coming, so a model switch meets a running request.",
+ "turns": [
+  {
+   "when": "Summarise the project",
+   "slow": 12,
+   "say": "[CANARY] The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. The project is a pong game with two paddles and a ball. "
+  },
+  {
+   "when": "Which model",
+   "say": "[CANARY] I am the model you chose."
+  }
+ ]
+}

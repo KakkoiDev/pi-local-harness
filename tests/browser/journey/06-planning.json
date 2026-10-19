@@ -1,0 +1,57 @@
+{
+ "about": "Step 6 (findings 8, 10): the model first only says it will call propose_plan (no tool call); after one nudge it calls it. Each task's steps are written on one line.",
+ "turns": [
+  {
+   "when": "plan",
+   "say": "[CANARY] I will proceed with the propose_plan call"
+  },
+  {
+   "when": "call|tool|propose_plan|describ|now",
+   "calls": [
+    {
+     "name": "propose_plan",
+     "arguments": {
+      "goal": "Track habits with streaks.",
+      "tasks": [
+       {
+        "title": "Store habits",
+        "kind": "code",
+        "files": [
+         "app/habits.py",
+         "tests/test_habits.py"
+        ],
+        "done_when": "add_habit saves a habit and list_habits returns it.",
+        "content": "1. Write a failing test for add_habit in tests/test_habits.py. 2. Implement add_habit and list_habits in app/habits.py with SQLite. 3. Run the tests."
+       },
+       {
+        "title": "Tick habits and count streaks",
+        "kind": "code",
+        "files": [
+         "app/streaks.py",
+         "tests/test_streaks.py"
+        ],
+        "done_when": "streak counts the days in a row.",
+        "content": "1. Test streak. 2. Implement it in app/streaks.py. 3. Run the tests."
+       },
+       {
+        "title": "Monthly chart data",
+        "kind": "code",
+        "files": [
+         "app/chart.py",
+         "tests/test_chart.py",
+         "app/main.py"
+        ],
+        "done_when": "month_chart returns one value per day of the month, and the app imports the habit modules.",
+        "content": "1. Test month_chart. 2. Implement it in app/chart.py. 3. Import the habit modules in app/main.py. 4. Run the tests."
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*(plan approval|Stop here)",
+   "say": "[CANARY] The plan is ready for you."
+  }
+ ]
+}
