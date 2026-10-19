@@ -23,7 +23,9 @@ const { scratch, launch } = require('./workbench.cjs');
 const { fakeOllama } = require('../fixtures/fake-ollama.cjs');
 const { startProject, choosePhase, say, decisions } = require('./stories.cjs');
 
-const SILENCE = 6;  // the model watchdog for this scratch workbench (the product's default is 120 s)
+// The model watchdog for this scratch workbench: the product waits model_start_seconds (900 s) for a turn's first output,
+// also the turn after a tool (1ab6189), then model_silence_seconds (120 s) between outputs. Here both are short.
+const SILENCE = 6, START = 10;
 const SENTENCE = 'A habit tracker: add habits, tick them off each day, see streaks and a monthly chart, saved in a database, installable on my phone.';
 const SCRIPTS = join(__dirname, 'journey');
 const load = name => JSON.parse(fs.readFileSync(join(SCRIPTS, name + '.json'), 'utf8'));
@@ -122,15 +124,15 @@ step('J01', 'a request stuck after a tool fails within the watchdog bound with C
   const next = await say(t, "let's plan the icons now");
   // Finding 1: the request ends "failed: the model stopped answering" within the bound, and the lane frees by itself.
   await t.check('finding 1: the silent request fails within the watchdog bound', async () => {
-    const ended = await until(async () => { const item = await job(t, stuck); return ENDED.includes(item.status) && item; }, (SILENCE + 30) * 1000);
-    assert.ok(ended, `still ${(await job(t, stuck)).status} ${SILENCE + 30} s after the model went silent (the watchdog is ${SILENCE} s)`);
-    assert.equal(ended.status, 'failed'); assert.match(`${ended.progress} ${ended.error || ''}`, /the model stopped answering/);
+    const ended = await until(async () => { const item = await job(t, stuck); return ENDED.includes(item.status) && item; }, (START + 30) * 1000);
+    assert.ok(ended, `still ${(await job(t, stuck)).status} ${START + 30} s after the model went silent (the watchdog is ${START} s)`);
+    assert.equal(ended.status, 'failed'); assert.match(`${ended.progress} ${ended.error || ''}`, /the model (stopped answering|did not start answering)/);
   });
   await t.check('finding 1: the message queued behind it starts by itself', async () => {
     assert.ok(await until(async () => (await job(t, next)).status !== 'queued', 15000), 'the queued message is still waiting');
   });
   await t.check('finding 1: the cut answer shows why, with Retry', async () => {
-    await cut(t).locator('.pw-cut__text').filter({ hasText: /Failed before Pi finished: the model stopped answering/ }).waitFor({ timeout: 5000 });
+    await cut(t).locator('.pw-cut__text').filter({ hasText: /Failed before Pi finished: the model (stopped answering|did not start answering)/ }).waitFor({ timeout: 5000 });
     assert.equal(await cut(t).locator('.pw-cut').getByRole('button', { name: 'Retry', exact: true }).count(), 1);
   });
   if ((await job(t, stuck)).status === 'running') { t.note('J01: stopped the stuck request by hand (what the owner did)'); await page.locator('#stop').click(); }
@@ -504,11 +506,11 @@ step('J13', 'the end: Ready to publish passes from the Workbench, every task is 
 
 step('J14', 'the finished app in the Preview: its page shows, adding a habit and ticking it today work (the project’s own code)', async t => {
   const { page } = t;
-  const row = page.locator('#messages .pw-card[aria-label^="Task "]').last();
-  await row.getByText('Show in Preview', { exact: true }).click();
+  const show = page.locator('#messages .pw-card[aria-label^="Task "]').getByText('Show in Preview', { exact: true }).last();
+  if (await show.count()) await show.click(); else if (!await page.locator('#preview-body').isVisible()) { t.note('J14: no check-in offers Show in Preview; opened the Preview with its toggle'); await page.locator('#preview-toggle').click(); }
   const app = page.frameLocator('#preview-body iframe');
   // The Preview opened by itself when the project was created and stopped then (the habit code did not exist yet).
-  const again = page.locator('#preview-body').getByRole('button', { name: 'Start Again', exact: true });
+  const again = page.getByRole('button', { name: 'Start Again', exact: true }).locator('visible=true');
   if (await until(async () => (await again.count()) > 0 || (await app.getByRole('heading').count()) > 0, 20000) && await again.count()) {
     t.note('J14: the Preview showed its first run, stopped at Create (no habit code then); pressed Start Again'); await again.click();
   }
@@ -699,7 +701,7 @@ async function main() {
   if (LIVE) fs.writeFileSync(join(bench.data, 'model.json'), JSON.stringify({ model: LIVE_MODEL, effort: 'low' }) + '\n');
   // The fake models' measured verdicts, so the workbench never measures them (capability.check).
   else fs.writeFileSync(join(bench.data, 'model-capabilities.json'), JSON.stringify(Object.fromEntries(['gemma4:26b-mlx', 'qwen3:8b', 'tiny:1b'].map(name => [name, { digest: '', ollama: '0.12.0', num_parallel: '1', verdict: 'parallel' }]))));
-  await bench.start({ PI_BINARY: wrapper, PI_OLLAMA_URL: url, OLLAMA_NUM_PARALLEL: '1', ...(LIVE ? {} : { PI_HARNESS_MODEL_SILENCE_SECONDS: String(SILENCE) }) });
+  await bench.start({ PI_BINARY: wrapper, PI_OLLAMA_URL: url, OLLAMA_NUM_PARALLEL: '1', ...(LIVE ? {} : { PI_HARNESS_MODEL_SILENCE_SECONDS: String(SILENCE), PI_HARNESS_MODEL_START_SECONDS: String(START) }) });
   const browser = await launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await context.addInitScript(WATCH);
