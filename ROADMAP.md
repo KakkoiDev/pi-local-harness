@@ -383,3 +383,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [335-Compare shipped starter files, excluding interpreter caches](tasks/335-starter-protocol-cache-files.md)
 
 - [x] [334-Retry a planning request that ends without submitting its plan](tasks/334-retry-missing-plan.md)
+
+- [x] [336-Prepare the designer brief for the remaining UI](tasks/336-designer-brief-for-blocked-ui.md)

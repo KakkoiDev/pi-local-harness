@@ -143,3 +143,10 @@ All-browser run: **exit 0**. Exact summaries:
 Browser verification used scratch data and the scripted model, not a live Gemma run. The real Workbench was read
 only to check running/queued counts (both zero); no project content or logs were exported. Installation/restart
 status is reported after the commits, not assumed here. Task 333 and the larger roadmap remain open.
+
+
+The owner will transmit the new designer brief: [round 15](../../design/briefs/round-15.md), task 336. It covers
+recorder/report consent and privacy limits, Preview ports and multi-user windows, malformed-plan repair states and
+visual results in chat. This is a brief, not delivered designs or implemented controls. No external message was sent.
+
+Committed implementation: task 334 `fdeb821`; starter-check repair: task 335 `fa67055`.
