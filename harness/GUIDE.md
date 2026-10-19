@@ -101,7 +101,8 @@ if the model itself stops answering: while Pi waits for the model, two minutes w
 the request as failed, with what Pi wrote so far and Retry, and the next request starts (`/config set
 model_silence_seconds …`; a running command or the harness's own checks are not the model). Before a turn's first word
 the model gets longer: 15 minutes for the request's first turn (`model_start_seconds`, a big model may be loading) and 5
-minutes for a turn after a tool result (`model_turn_seconds`). When
+minutes for a turn after a tool result or one the harness starts, such as the next approved task (`model_turn_seconds`).
+A finished answer stops the clock: the harness's own checks after it are not the model. When
 Pi stops with work open (code changed and no test passed on it, a loop, a hang), the harness wakes it to continue, at
 most `wake_ups` times per request (default 5; `/config set wake_ups …`, 0 for no limit). Stop
 ends a request at any time: in Chat, in Activity, or ⌘. .

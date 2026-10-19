@@ -112,6 +112,9 @@ Then the file is written in the same request, the task's Files list it, no card 
   Pi finished: the model stopped answering”, so no check-in and no Accept Anyway. A finished assistant message
   (message_end, stopReason stop, no tool call) now rests the model watchdog until the next turn; the harness's paperwork
   after it has the long silence limit. Fake Pi `TEST_ANSWER_THEN_PAPERWORK`; tests/test_chat_critical_path.py. US-297.
+- [x] 8c (live, Run on its own): after task 004 was committed the harness woke Pi for the next task and 120 s later the
+  request failed “the model stopped answering”, stopping the run. A turn the harness starts (agent_start after output)
+  now waits `model_turn_seconds` for its first output. Fake Pi `TEST_WAKE_THEN_SLOW`. US-297.
 - [x] 9: Run on its own continues with “Continue the next approved task.” and the notice “Run on its own: task N
   accepted; the next approved task starts.”, never a bare “yes” (harness/extension.mjs). US-296.
 - [x] Flaky under load: US-122 and chat.cjs's ⌘K focus check wait for the state, not a moment.

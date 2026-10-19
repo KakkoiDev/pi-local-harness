@@ -138,6 +138,14 @@ class StalledModelTest(FakePi):
         self.assertRegex(self.messages()[-1]['content'], r'^reply \d+$')
         self.assertNotIn('ended', self.messages()[-1])
 
+    def test_the_harness_wake_up_turn_waits_like_a_turn_not_like_a_silence(self):
+        """Task 327 (live, Run on its own): the task's answer was finished, the harness woke Pi for the next task, and 120 s
+        later the request failed "the model stopped answering". The woken turn waits model_turn_seconds for its first output."""
+        with patch.object(web_chat, 'MODEL_TURN', 10):
+            self.chat.send(self.conversation, {'message': 'Next TEST_WAKE_THEN_SLOW'}, lambda event: None)  # 3 s before the woken turn's first token, past the 1.5 s silence limit
+        self.assertNotIn('ended', self.messages()[-1])
+        self.assertIn('Task 5 is done.', self.messages()[-1]['content'])
+
     def test_the_defaults(self):
         from harness import settings
         defaults = {name: settings.SETTINGS[name][:2] for name in ('model_start_seconds', 'model_turn_seconds', 'model_silence_seconds')}

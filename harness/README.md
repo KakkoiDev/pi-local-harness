@@ -30,7 +30,7 @@ applies the next time plh starts). A variable already set in your shell wins ove
 | `silence_seconds` | `PI_HARNESS_SILENCE_SECONDS` | 3600 | A request stops after this long without a word from Pi |
 | `model_silence_seconds` | `PI_HARNESS_MODEL_SILENCE_SECONDS` | 120 | While Pi waits for the model: this long with no token, thought or tool call fails the request (“the model stopped answering”) and the next one starts |
 | `model_start_seconds` | `PI_HARNESS_MODEL_START_SECONDS` | 900 | The request’s first model turn may take this long before its first output (a big model loading and reading a long context) |
-| `model_turn_seconds` | `PI_HARNESS_MODEL_TURN_SECONDS` | 300 | A model turn after a tool result may take this long before its first output; then the request fails and the next one starts (task 327) |
+| `model_turn_seconds` | `PI_HARNESS_MODEL_TURN_SECONDS` | 300 | A model turn after a tool result, or one the harness starts (a wake-up, the next approved task), may take this long before its first output; then the request fails and the next one starts (task 327) |
 | `hang_seconds` | `PI_HANG_MS` (×1000) | 60 | Thought-phase inactivity before abort, compact and re-ask |
 | `ollama_url` | `PI_OLLAMA_URL` | http://127.0.0.1:11434 | Where Ollama answers |
 | `tool_repair`, `tool_repair_port` | `PI_TOOL_REPAIR`, `PI_TOOL_REPAIR_PORT` | true, 0 | Pi reaches Ollama through the tool-call repair proxy (task 326); 0 chooses its port |

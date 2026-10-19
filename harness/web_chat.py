@@ -793,6 +793,9 @@ class WebChat:
                 # that stopped answering: the model watchdog rests until the next turn; the harness's paperwork has SILENCE.
                 if kind=='message_end' and (event.get('message') or {}).get('role')=='assistant':final_answer=(event['message'].get('stopReason')=='stop' and not any(part.get('type')=='toolCall' for part in event['message'].get('content') or [] if isinstance(part,dict)))
                 elif kind in ('message_start','message_update','tool_execution_start','agent_start'):final_answer=False
+                # Task 327 (live, Run on its own): a turn the harness starts (a wake-up, the next approved task, a recovery)
+                # reads its context before its first output, like a turn after a tool: model_turn_seconds, not the silence limit.
+                if kind=='agent_start' and spoke_ever:spoke=False;after_tool=True
                 elif kind=='tool_execution_end':spoke=False;after_tool=True  # the next model turn reads the result first: MODEL_TURN
                 if kind=='tool_execution_start':tools_running.add(event.get('toolCallId') or f'tool-{len(tools_running)}')
                 elif kind=='tool_execution_end':
