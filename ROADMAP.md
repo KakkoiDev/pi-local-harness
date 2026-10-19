@@ -368,6 +368,6 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [x] [326-Fix the tool calls small models write as text, and terse answers](tasks/326-tool-call-repair-and-terse-answers.md)
 
-- [ ] [327-The golden journey: the owner's session as one E2E test](tasks/327-golden-journey-e2e.md)
+- [x] [327-The golden journey: the owner's session as one E2E test](tasks/327-golden-journey-e2e.md)
 
 - [ ] [329-Every task has its scenarios, and each scenario becomes an e2e test](tasks/329-task-scenarios-become-e2e-tests.md)

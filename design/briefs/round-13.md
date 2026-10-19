@@ -183,3 +183,19 @@ Question for the board: should the note offer a control (Choose Another Model…
 - **Not verified, naming the scenario:** the existing "Not verified" row carries Gate's sentence ("scenario “Add a
   note” has no e2e test named after it"; "test “Reset the notes” uses a control that no longer exists: the “Reset”
   button"; "the “Help” link has no e2e step"). Several reasons are joined with “;”: a list may read better.
+
+
+## The golden journey's fixes (task 327), built from existing parts
+
+- **A refusal next to the control that was used.** A refused model switch ("Pi is working. Switch models when the
+  queue is empty.") is now a small note right under the model name in the menu bar (`#near-note`, the Toast's 1-bit
+  box `.pw-toast` without Undo, `role="status"`, gone after 6 s, on the next click or Escape), not the toast at the
+  bottom of the window, 822 px away. Please draw it in the MenuBar card (desk; the phone sheet keeps the toast): a
+  popover with a pointer, or a line under the menu bar?
+- **Project Start's folder.** The project's folder is a slug (“Habit Tracker” → `habit-tracker`; never an existing
+  folder: `habit-tracker-2`), and the name stays as typed. Step 1 shows it under “Create in …” as one `.pw-help` line
+  (`#start-folder`, “Folder: ~/Code/habit-tracker”), and the Summary's facts have a “Folder” row after “Name”. Please
+  draw both in R12_NP1 and R12_NP4 (desk and phone).
+- **Run on its own going on to the next task.** The harness no longer sends a bare “yes” as if from the person: the
+  answer carries the HarnessNotice “Run on its own: task 2 accepted; the next approved task starts.” Should it look
+  different from the other notices (the auto glyph)?

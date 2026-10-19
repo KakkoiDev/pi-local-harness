@@ -44,6 +44,59 @@ class CompletionEvidenceTest(unittest.TestCase):
                 self.assertEqual((self.root/'app.py').read_text(),'x = 1\n')
                 state=self.paper.plan_state(self.root);state.update(check_in=False);self.paper.plan_state(self.root,state)
 
+    def test_a_test_file_left_by_an_unverified_attempt_is_the_retrys_and_is_committed(self):
+        """Task 327 (journey J13): the first attempt wrote only tests/test_chart.py and ended not verified with nothing
+        committed; after Retry Task the next request's commit includes it (it never stays untracked)."""
+        task=self.approve(self.paper)
+        self.paper.start('first',str(self.root),'Build the approved task.')
+        (self.root/'tests').mkdir(exist_ok=True);(self.root/'tests/test_badge.py').write_text('assert True\n')
+        self.assertEqual(self.paper.end('first')['outcome'],'not verified')
+        self.assertEqual(self.paper.plan_state(self.root)['left'],{task:['tests/test_badge.py']})
+        self.paper.accept_task(self.root)  # Retry Task
+        self.paper.start('retry',str(self.root),'Continue the approved task.')
+        self.assertIn('tests/test_badge.py',self.paper.changes(self.paper.requests['retry']))
+        (self.root/'app.py').write_text('x = 2\n')
+        self.paper.end('retry')
+        self.assertIn('tests/test_badge.py',git(self.root,'ls-files'),'committed with the retry, verified or not')
+
+    def publish_task(self):
+        from kit.publish_audit import ensure_task
+        task=ensure_task(self.root)
+        self.paper.plan_state(self.root,{'tasks':[task],'pending':True,'digest':self.paper.plan_digest(self.root,[task])})
+        self.paper.start_building(self.root)
+        return task
+
+    def test_ready_to_publish_has_a_scope_and_the_harness_runs_its_audit_when_its_request_ends(self):
+        """Task 327 (journey J13): the web workbench has no /audit, so System 1 runs it (harness/audit.py's run, the same
+        code) when the Ready to publish task's request ends; its writes are in scope (its Files: line)."""
+        from unittest.mock import patch
+        from harness.audit import LABELS
+        task=self.publish_task()
+        self.assertRegex((self.root/task).read_text(),r'(?m)^Files: README\.md, manifest\.webmanifest, app/, static/, js/, messages/, tests/$')
+        self.paper.start('publish',str(self.root),'Continue the next approved task.')
+        (self.root/'README.md').write_text('# Counter\n\nCounts clicks.\n')
+        calls=[]
+        def run(root,data,request=None,project=None):
+            calls.append(request);path=root/task;path.write_text(path.read_text().replace('- [ ]','- [x]'))
+            return {'checks':[{'key':key,'passed':True} for key in LABELS]}
+        with patch('harness.audit.run',run),patch('harness.audit.verified',lambda root,data,task:bool(calls)):
+            result=self.paper.end('publish')
+        self.assertEqual(calls,['publish'],'run once, by the harness')
+        self.assertEqual(result['outcome'],'committed',result);self.assertTrue(result['check_in']['verified'])
+        self.assertIn('README.md',git(self.root,'show','--name-only','--format=','HEAD'))
+
+    def test_a_failed_publication_check_is_named_on_the_check_in(self):
+        from unittest.mock import patch
+        task=self.publish_task()
+        self.paper.start('publish',str(self.root),'Continue the next approved task.')
+        (self.root/'README.md').write_text('# A Pi Workbench project\n')
+        failed=lambda root,data,request=None,project=None:{'checks':[{'key':'tests','passed':True},{'key':'description','passed':False}]}
+        with patch('harness.audit.run',failed),patch('harness.audit.verified',lambda root,data,task:False):
+            result=self.paper.end('publish')
+        self.assertEqual(result['outcome'],'not verified')
+        self.assertTrue(result['reason'].startswith('publication checks failed: The README and the manifest describe this app.'),result['reason'])
+        self.assertEqual(result['check_in']['question'],'Retry Task')
+
     def test_gate_settlement_persists_unverified_state_across_restart(self):
         ledger=ProposalLedger(GateEngine('','/dev/null'),protocol_file=Path(self.data.name)/'integration-runs.json',events_file=Path(self.data.name)/'events.jsonl')
         ledger.paperwork.identity=('Pi Workbench','harness@localhost')

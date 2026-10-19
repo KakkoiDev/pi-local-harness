@@ -29,7 +29,10 @@ function evidenceFacts(facts,check){
 
 export function frameCheckIn(row,check,{data={},state={},next,review,stop,preview,undo,anyway,restored=false}={}){
  if(state.continued&&check.next){row.querySelector('.pw-done__head')?.append(node('span','',` · continued by you · ${time(state.continuedAt)}`));return row;}
- if(check.accepted&&!check.next){const line=node('section','pw-card pw-card--settled'),words=node('div','pw-card__line'),back=link('Back to Discussion',stop);words.append(glyph('done'),node('span','',`All ${check.total} planned tasks are built · still Implementation`),back);line.append(words);row.className=line.className;row.replaceChildren(...line.childNodes);return row;}
+ if(check.accepted&&!check.next){const line=node('section','pw-card pw-card--settled'),words=node('div','pw-card__line'),back=link('Back to Discussion',stop);words.append(glyph('done'),node('span','',`All ${check.total} planned tasks are built · still Implementation`),back);
+  /* task 327 (journey J13): the last task's check-in still says which task was verified, also when Run on its own accepted it */
+  const count=`Task ${check.number} of ${check.total}`,task=node('div','pw-card__line');if(check.number&&check.verified){task.append(glyph('done'),node('span','',`${count} done: ${check.title||data.title||check.task}`),node('span','',check.state?' · accepted by you':' · accepted automatically'));row.setAttribute('aria-label',`${count} done`);line.append(task);}
+  line.append(words);row.className=line.className;row.replaceChildren(...line.childNodes);return row;}
  const verified=Boolean(check.verified),title=check.title||data.title||check.task,count=`Task ${check.number} of ${check.total}`;
  row.className='pw-card';row.setAttribute('aria-label',verified?`${count} done`:`${count} not verified`);
  const head=node('div','pw-card__head'),body=node('div','pw-card__body'),foot=node('div','pw-card__foot');

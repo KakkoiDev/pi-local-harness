@@ -268,7 +268,9 @@ class Paperwork:
                        'at':datetime.now().astimezone().isoformat(timespec='seconds')}
                 self.save_choice(item['root'],value)
                 # Task 293 (NEW-2): a Planning answer given before the plan exists waits for the plan's first task.
-                if phase=='planning':self.keep_decision(item['root'],UNPLANNED,{key:value[key] for key in ('question','answer','state','at')})
+                # Task 327 (journey J06): so does the person's answer on a Discussion card: the cards answered since the
+                # last plan are the next plan's Decisions (Gate writes them; the model cannot). Automatic answers are not.
+                if phase=='planning' or phase=='discussion' and state!='auto':self.keep_decision(item['root'],UNPLANNED,{key:value[key] for key in ('question','answer','state','at')})
                 if state=='auto' and self.runs:self.runs.add(item['root'],'decisions',value)
                 return {key:value[key] for key in ['task','question','answer','state']}
             was_approved=self.plan_status_for_item({**item,'task':task})
@@ -658,7 +660,11 @@ class Paperwork:
             if active and not item['new_plan'] and not item['task'] and not item.get('other_task'):
                 # Task 260: Build/Continue works on the task in progress; any other message (a question) attaches to it
                 # only at its first write, so a question never ends the task or raises a check-in.
-                if BUILD.match(item['text']) or approval(item['text']):item['task']=active
+                if BUILD.match(item['text']) or approval(item['text']):
+                    item['task']=active
+                    # Task 327 (journey J13): what an earlier request of this task left uncommitted (its first attempt
+                    # ended "not verified" with nothing committed) is this request's too, so its commit includes it.
+                    for path in plan.get('left',{}).get(active,[]):item['before'].pop(path,None)
                 else:item['candidate']=active
             waiting=self.waiting_choice(root)
             prefix=f"Choice: {waiting['question']} → " if waiting else ''
@@ -736,8 +742,12 @@ class Paperwork:
                 # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
                 card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks']),**({'outside':result['outside']} if result.get('outside') else {}),**({'removed':result['removed']} if result.get('removed') else {}),'title':self.subject(item).rsplit(' (task ',1)[0]}
+                if not result.get('commit'):
+                    left=plan.setdefault('left',{});left[item['task']]=sorted(set(left.get(item['task'],[]))|{path for path in self.changes(item) if not plan_path(path)})
                 plan.update(check_in=True,verified=False,card=card);self.plan_state(item['root'],plan)
                 result['check_in']=card
+            elif item and result and result.get('outcome')=='committed' and item.get('task') and item['task'] in self.plan_state(item['root']).get('left',{}):
+                plan=self.plan_state(item['root']);plan['left'].pop(item['task'],None);self.plan_state(item['root'],plan)
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
                 from harness.autonomy import enabled
                 outcome=result['outcome']
@@ -799,9 +809,18 @@ class Paperwork:
                 saved = self.commit(root,sorted(set(inside)|{task,'ROADMAP.md'}),self.subject(item,', plan incomplete'),f'Plan incomplete (G-014): {reason}')
                 return {'outcome':'plan incomplete','task':task,'reason':reason,**saved}
             from harness.audit import verified as audit_verified
-            publish = task.endswith('-ready-to-publish.md')
+            publish = task.endswith('-ready-to-publish.md'); failed = []
+            if publish and planned and self.data and not audit_verified(root,self.data,task):
+                # Task 327 (journey J13): System 1 runs the publication audit itself when the Ready to publish task's
+                # request ends, the same code as terminal /audit (harness/audit.py): the web workbench has no /audit.
+                from harness.audit import run as run_audit
+                try:audited=run_audit(root,self.data,request=request)  # its boxes, its "## Last audit" section and its record
+                except (OSError,ValueError):audited=None  # the reason below says the checks are still open
+                failed=[row['key'] for row in (audited or {}).get('checks',[]) if not row['passed']]
+                text=(root/task).read_text(encoding='utf-8')
             if publish and (open_boxes(text) or not audit_verified(root,self.data,task)):
-                reason='publication checks are still open; run /audit and fix every failed check'
+                from harness.audit import LABELS as AUDIT_LABELS
+                reason=('publication checks failed: '+', '.join(AUDIT_LABELS[key] for key in failed)+'. Fix them; the harness runs the audit again when the task ends') if failed else 'publication checks are still open; run /audit and fix every failed check'
                 saved=self.commit(root,sorted(set(inside)|{task,'ROADMAP.md'}),self.subject(item,', not verified'),reason)
                 return {'outcome':'not verified','task':task,'reason':reason,**saved}
             if outside:
@@ -826,7 +845,8 @@ class Paperwork:
             if code:
                 answer = self.protocol.verification(root)
                 reason = None
-                if not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
+                if publish: pass  # task 327: Ready to publish proves itself with the audit above (its "All tests pass" ran the suite); it changes names, not behaviour, so there is no Red
+                elif not (answer and answer[2]): reason = 'no test passed on the final code (Green)'
                 else:
                     # Task 260: Red is always proved by the harness (a copy of the project without the change must fail
                     # the same test command); a failed run Pi showed earlier is never enough on its own.

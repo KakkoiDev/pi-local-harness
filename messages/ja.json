@@ -1,5 +1,8 @@
 {
  "exact": {
+  "· accepted by you": "· あなたが承認",
+  "· accepted automatically": "· 自動で承認",
+  "Give the project a name with at least one letter or digit.": "文字か数字を少なくとも1つ含む名前をプロジェクトに付けてください。",
   "Scenario": "シナリオ",
   "Given": "前提",
   "When": "操作",
@@ -3442,6 +3445,9 @@
   ["Not added: {detail}. Nothing was changed.", "追加していません：{detail}。何も変更していません。"],
   ["The project's folder goes in {where}.", "プロジェクトのフォルダは {where} に作られます。"],
   ["{count} written as text by {model}, run as real calls ({tools})", "{model} が文章として書いた {count} 件を、本物の呼び出しとして実行しました（{tools}）"],
-  ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"]
+  ["{model} often writes tool calls as text: the workbench fixed them in {n} recent requests. Another model may work faster.", "{model} はツール呼び出しを文章として書くことがよくあります。最近の {n} 件の依頼でワークベンチが直しました。別のモデルのほうが速く進むかもしれません。"],
+  ["Folder: {path}", "フォルダ：{path}"],
+  ["Run on its own: task {n} accepted; the next approved task starts.", "自動で実行：タスク {n} を承認しました。次の承認済みタスクを始めます。"],
+  ["publication checks failed: {names}. Fix them; the harness runs the audit again when the task ends", "公開前チェックに失敗しました：{names}。修正してください。タスクの終わりにハーネスがもう一度監査します"]
  ]
 }

@@ -61,7 +61,8 @@ async function newProject(t, name, kind = 'empty', capabilities = []) {
   }
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
   const project = await page.evaluate(() => location.pathname.split('/')[2]);
-  return { project, root: join(t.directory, name) };
+  const made = (await t.bench.api('/api/workspace')).projects.find(item => item.id === project);  // task 327: the folder is a slug of the name
+  return { project, root: made?.path || join(t.directory, name) };
 }
 
 async function choosePhase(t, name) {
@@ -155,8 +156,8 @@ story('US-001', 'first run: an empty workbench leads to the first project, which
   await page.locator('#start-name').fill('Hello'); await pickWhere(t);
   await page.locator('#start-empty').click();
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && !document.querySelector('#prompt').disabled);
-  assert.ok(exists(t.directory, 'Hello', 'ROADMAP.md') && exists(t.directory, 'Hello', 'tasks', '001-first-task.md'));
-  assert.match(commits(t, join(t.directory, 'Hello')).at(-1), /^.*\|/, 'a git repository with a first commit');
+  assert.ok(exists(t.directory, 'hello', 'ROADMAP.md') && exists(t.directory, 'hello', 'tasks', '001-first-task.md'));
+  assert.match(commits(t, join(t.directory, 'hello')).at(-1), /^.*\|/, 'a git repository with a first commit');
   assert.match(await page.locator('#phase-button').textContent(), /Discussion/, 'every project starts in Discussion');
 });
 
@@ -218,7 +219,7 @@ story('US-133', 'create with capabilities: the sentence’s suggestions are mark
   await page.locator('#start-next').click();
   await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
   await page.locator('#toast-text').filter({ hasText: `Created “Class Notes”: all ${tests} tests of the base pass.` }).waitFor();
-  const root = join(t.directory, 'Class Notes');
+  const root = join(t.directory, 'class-notes');
   assert.match(t.bench.read(root, 'ROADMAP.md'), /A notes app for my class that works offline on a phone/);
   for (const name of ['vendor/chart.js-4.5.1/chart.umd.min.js', 'vendor/chart.js-4.5.1/LICENSE.md', 'vendor/basecoat/chart.min.js', 'tests/cap-charts.test.mjs', 'tests/cap-offline.test.mjs', 'tests/cap-install.test.mjs']) assert.ok(exists(root, name), name);
   assert.deepEqual(JSON.parse(t.bench.read(root, 'packaging.json')), { packages: ['static', 'phone'], capabilities: ['offline', 'charts', 'install'] });
@@ -265,8 +266,8 @@ story('US-135', 'a failing base test creates nothing (the folder goes to the Tra
   assert.match(await page.locator('#start-result .pw-start__failing').first().textContent(), /tests\/test_cap_broken\.py/);
   assert.match(await page.locator('#start-result .pw-start__output').textContent(), /this capability is broken on purpose/);
   assert.equal(await page.locator('#start-status').textContent(), 'Nothing was created.');
-  assert.equal(exists(t.directory, 'Broken'), false, 'no folder');
-  assert.ok(exists(t.directory, 'Trash', 'Broken'), 'the partial folder went to the Trash');
+  assert.equal(exists(t.directory, 'broken'), false, 'no folder');
+  assert.ok(exists(t.directory, 'Trash', 'broken'), 'the partial folder went to the Trash');
   assert.equal((await t.bench.api('/api/workspace')).projects.length, 0, 'no project');
   const made = await newProject(t, 'Solid', 'web');
   await page.locator('[aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="add-capability"]').click();
@@ -337,7 +338,7 @@ story('US-010', 'rename a project, then keep talking with Pi in it', async t => 
   await page.locator('#menubar [aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="rename-project"]').click();
   await page.locator('#name-dialog-input').fill('New name'); await page.locator('#name-dialog-ok').click();
   await page.locator('#toast-text').filter({ hasText: 'Renamed to “New name”.' }).waitFor();
-  assert.ok(exists(t.directory, 'New name', 'ROADMAP.md') && !exists(made.root));
+  assert.ok(exists(t.directory, 'new-name', 'ROADMAP.md') && !exists(made.root));
   const second = await say(t, 'Are you still there?');
   const job = await answered(t, second);
   assert.equal(job.status, 'completed', `the request after the rename ${job.status}: ${job.progress || ''}`);
@@ -363,7 +364,7 @@ story('US-017', 'rename a project while Pi works in it: it waits, says why, and 
   await page.locator('#menubar [aria-controls="menu-project"]').click(); await page.locator('#menu-project [data-command="rename-project"]').click();
   await page.locator('#name-dialog-input').fill('Renamed while busy'); await page.locator('#name-dialog-ok').click();
   await page.getByText(/Pi is answering about this project/).first().waitFor();
-  assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'Renamed while busy'), 'nothing moved');
+  assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'renamed-while-busy'), 'nothing moved');
   await t.bench.api('/api/jobs/stop', { id });
 });
 
@@ -1214,7 +1215,7 @@ story('US-130', 'rename a project while terminal Pi works: its own alert, Show i
     assert.equal(await page.locator('#name-dialog').evaluate(dialog => dialog.open), false, 'the name dialog closed: the alert stands alone');
     await page.locator('#alert-danger').click();
     await page.waitForFunction(() => document.body.dataset.view === 'activity');
-    assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'Class Notes 2'), 'nothing moved');
+    assert.ok(exists(made.root, 'ROADMAP.md') && !exists(t.directory, 'class-notes-2'), 'nothing moved');
   } finally { fs.rmSync(join(t.bench.data, '.agent-lock'), { force: true }); }
 });
 
@@ -1306,8 +1307,10 @@ story('US-122', 'without Laya, a phase word gets the harness’s own notice unde
   const { page } = t;
   await newProject(t, 'Notice');
   const id = await say(t, 'Explain the planning phase TEST_SCRIPT=say-planning'); await answered(t, id);
+  const laya = () => page.locator('#messages .pw-notice[role="note"]').filter({ hasText: 'Laya isn’t installed' }).last();
+  await laya().waitFor({ timeout: 20000 });  // task 327: wait for the saved notice, not a moment (flaky under load)
   await page.reload();
-  const notice = page.locator('#messages .pw-notice[role="note"]').last(); await notice.waitFor();
+  const notice = laya(); await notice.waitFor({ timeout: 20000 });
   assert.equal(await notice.locator('.pw-notice__who').textContent(), 'Harness', 'the harness speaks, not Pi');
   assert.equal(await notice.locator('.pw-notice__text').textContent(), 'Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.');
   assert.equal(await notice.evaluate(el => getComputedStyle(el).borderTopStyle), 'dotted');
@@ -1402,7 +1405,7 @@ const chatJobs = async (t, project) => (await t.bench.api('/api/workspace')).job
 const lastAnswer = t => t.page.locator('#messages .pw-msg.assistant:not([data-live])').last();
 
 story('US-200', 'the model stops answering after a tool: the request fails with why and Retry, and my Planning message starts next', async t => {
-  await t.bench.restart({ PI_HARNESS_MODEL_SILENCE_SECONDS: '3', PI_HARNESS_MODEL_START_SECONDS: '3' }); const page = await t.reopen();  // three seconds instead of two minutes, for this scratch workbench only
+  await t.bench.restart({ PI_HARNESS_MODEL_SILENCE_SECONDS: '3', PI_HARNESS_MODEL_START_SECONDS: '3', PI_HARNESS_MODEL_TURN_SECONDS: '3' }); const page = await t.reopen();  // three seconds instead of two minutes, for this scratch workbench only
   const { project } = await newProject(t, 'Pong');
   const stuck = await say(t, 'Look at the roadmap TEST_SCRIPT=hang-after-tool');
   await t.bench.job(stuck, ['running']);
@@ -1948,6 +1951,74 @@ story('US-282', 'removing a button together with its e2e test is allowed, and th
   const row = checkIn(t); await row.waitFor();
   assert.equal(await row.locator('.pw-card__title').textContent(), 'Task 1 of 1 done: Remove the Reset button');
   assert.equal(await row.locator('.pw-checkin__removed').textContent(), 'Removed: the “Reset” button and its test “test_reset_the_count”');
+});
+
+// -- The golden journey's fixes (task 327) ---------------------------------------------------------------------------
+story('US-290', 'New Project shows the folder it makes: a slug of the name, never an existing folder; the name stays as typed', async t => {
+  const { page } = t;
+  fs.mkdirSync(join(t.directory, 'habit-tracker'));  // already there: never used, never overwritten
+  await startProject(t, 'Habit Tracker', 'A habit tracker with streaks.');
+  await page.locator('#start-folder').filter({ hasText: `Folder: ${join(t.directory, 'habit-tracker-2')}` }).waitFor();
+  await page.locator('#start-name').fill('Café Notes');
+  await page.locator('#start-folder').filter({ hasText: `Folder: ${join(t.directory, 'cafe-notes')}` }).waitFor();
+  await page.locator('#start-name').fill('Habit Tracker');
+  await chooseAndSummarise(t, { packages: ['web'] });
+  assert.match(await page.locator('#start-facts').textContent(), new RegExp(`NameHabit TrackerFolder${join(t.directory, 'habit-tracker-2').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  await page.locator('#start-back').click(); await step(t, 'Packages'); await page.locator('#start-back').click(); await page.locator('#start-back').click(); await step(t, 'Name');
+  await page.locator('#start-empty').click();
+  await page.waitForFunction(() => document.body.dataset.view === 'chat' && /\/chat$/.test(location.pathname), null, { timeout: 60000 });
+  const id = await page.evaluate(() => location.pathname.split('/')[2]);
+  const made = (await t.bench.api('/api/workspace')).projects.find(item => item.id === id);
+  assert.equal(made.name, 'Habit Tracker');
+  assert.equal(made.path, join(t.directory, 'habit-tracker-2'));
+  assert.deepEqual(fs.readdirSync(join(t.directory, 'habit-tracker')), [], 'the existing folder is untouched');
+  assert.equal(await page.locator('#window-title').textContent(), 'Habit Tracker');
+});
+
+story('US-291', 'a refused model switch shows right under the model menu, not at the bottom of the window', async t => {
+  const { page } = t;
+  await newProject(t, 'Switch');
+  await page.route('**/api/models', route => route.fulfill({ json: { models: [{ id: 'gemma4:26b-mlx', tools: true, thinking: true, vision: true }, { id: 'qwen3:8b', tools: true, thinking: false, vision: false }], current: { model: 'gemma4:26b-mlx', effort: 'high', chosenEffort: 'high', thinking: true } } }));
+  const busy = await say(t, 'Keep going TEST_TICK');
+  await t.bench.job(busy, ['running']); await page.locator('#stop').waitFor({ state: 'visible' });
+  await page.locator('#model-button').click(); await page.locator('#model-menu [data-model="qwen3:8b"]').click();
+  const note = page.locator('#near-note'); await note.waitFor();
+  assert.equal(await note.getAttribute('role'), 'status');
+  assert.equal(await note.textContent(), 'Pi is working. Switch models when the queue is empty.');
+  const [menu, box] = [await page.locator('#model-button').boundingBox(), await note.boundingBox()];
+  assert.ok(box.y >= menu.y + menu.height && box.y - (menu.y + menu.height) < 24, `right under the menu: ${JSON.stringify({ menu, box })}`);
+  assert.ok(box.x + box.width <= 1440 && box.x >= 0, 'inside the window');
+  assert.equal(await page.locator('#toast').isVisible() && /Switch models/.test(await page.locator('#toast-text').textContent()), false, 'not the toast at the bottom');
+  await page.keyboard.press('Escape'); await note.waitFor({ state: 'detached' });
+  assert.match(await page.locator('#model').textContent(), /gemma4:26b-mlx/, 'the model did not change');
+  await answered(t, busy);
+});
+
+story('US-292', 'the answers I gave on cards in Discussion are the next plan’s Decisions, written by the harness', async t => {
+  const { page } = t;
+  await newProject(t, 'Colours');
+  const asked = await say(t, 'Which colours? TEST_SCRIPT=discuss-choice'); assert.equal((await answered(t, asked)).status, 'waiting');
+  const card = page.locator('.pw-card[aria-label="Which colours?"]'); await card.waitFor();
+  const resumed = page.waitForResponse(response => response.url().endsWith('/api/choices/answer'));
+  await card.getByRole('button', { name: 'Answer', exact: true }).click();
+  await answered(t, (await (await resumed).json()).job);
+  await choosePhase(t, 'Planning');  // the Planning button's own request: "Write the plan from our discussion."
+  const plan = page.locator('.pw-card[aria-label="Plan"]').last(); await plan.waitFor({ timeout: 30000 });
+  assert.match(await plan.textContent(), / · 1 decisions?/, 'the plan card counts it');
+  assert.match((await plan.locator('.pw-plan__decisions').allInnerTexts()).join(' / '), /Which colours\?[\s\S]*Black on white/);
+});
+
+story('US-293', 'Run on its own: a file outside the task is added without asking, and the same write goes through; the report names it', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Widen');
+  await givenApprovedTasks(t, root, [COUNT]);
+  await turnOnRunOnItsOwn(t);
+  await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=build-outside'));
+  assert.equal(t.bench.read(root, 'notes', 'extra.py'), 'NOTE = "counts clicks"\n', 'written in the same request');
+  assert.match(t.bench.read(root, 'tasks', fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name))), /^Files: .*notes\/extra\.py/m);
+  assert.equal(await page.locator('.pw-card[aria-label="Pi wants to change a file outside task 1"]').count(), 0, 'no card for the person');
+  assert.ok(decisions(t).some(row => row.kind === 'scope_widening' && row.automatic), JSON.stringify(decisions(t).filter(row => row.kind === 'scope_widening')));
+  await page.locator('.pw-card').filter({ hasText: 'Ran on its own' }).last().filter({ hasText: 'Widened task 1 without asking: notes/extra.py' }).waitFor();
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

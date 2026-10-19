@@ -23,9 +23,10 @@ const { scratch, launch } = require('./workbench.cjs');
 const { fakeOllama } = require('../fixtures/fake-ollama.cjs');
 const { startProject, choosePhase, say, decisions } = require('./stories.cjs');
 
-// The model watchdog for this scratch workbench: the product waits model_start_seconds (900 s) for a turn's first output,
-// also the turn after a tool (1ab6189), then model_silence_seconds (120 s) between outputs. Here both are short.
-const SILENCE = 6, START = 10;
+// The model watchdog for this scratch workbench: the product waits model_start_seconds (900 s) for the request's first
+// output, model_turn_seconds (300 s) for a turn after a tool result (task 327, the coordinator's decision: the owner's
+// stall), then model_silence_seconds (120 s) between outputs. Here all three are short.
+const SILENCE = 6, START = 60, TURN = 8;  // START > TURN + 30: J01 proves the after-tool limit, not the first turn's
 const SENTENCE = 'A habit tracker: add habits, tick them off each day, see streaks and a monthly chart, saved in a database, installable on my phone.';
 const SCRIPTS = join(__dirname, 'journey');
 const load = name => JSON.parse(fs.readFileSync(join(SCRIPTS, name + '.json'), 'utf8'));
@@ -124,8 +125,8 @@ step('J01', 'a request stuck after a tool fails within the watchdog bound with C
   const next = await say(t, "let's plan the icons now");
   // Finding 1: the request ends "failed: the model stopped answering" within the bound, and the lane frees by itself.
   await t.check('finding 1: the silent request fails within the watchdog bound', async () => {
-    const ended = await until(async () => { const item = await job(t, stuck); return ENDED.includes(item.status) && item; }, (START + 30) * 1000);
-    assert.ok(ended, `still ${(await job(t, stuck)).status} ${START + 30} s after the model went silent (the watchdog is ${START} s)`);
+    const ended = await until(async () => { const item = await job(t, stuck); return ENDED.includes(item.status) && item; }, (TURN + 30) * 1000);
+    assert.ok(ended, `still ${(await job(t, stuck)).status} ${TURN + 30} s after the model went silent after a tool (model_turn_seconds is ${TURN} s)`);
     assert.equal(ended.status, 'failed'); assert.match(`${ended.progress} ${ended.error || ''}`, /the model (stopped answering|did not start answering)/);
   });
   await t.check('finding 1: the message queued behind it starts by itself', async () => {
@@ -701,7 +702,7 @@ async function main() {
   if (LIVE) fs.writeFileSync(join(bench.data, 'model.json'), JSON.stringify({ model: LIVE_MODEL, effort: 'low' }) + '\n');
   // The fake models' measured verdicts, so the workbench never measures them (capability.check).
   else fs.writeFileSync(join(bench.data, 'model-capabilities.json'), JSON.stringify(Object.fromEntries(['gemma4:26b-mlx', 'qwen3:8b', 'tiny:1b'].map(name => [name, { digest: '', ollama: '0.12.0', num_parallel: '1', verdict: 'parallel' }]))));
-  await bench.start({ PI_BINARY: wrapper, PI_OLLAMA_URL: url, OLLAMA_NUM_PARALLEL: '1', ...(LIVE ? {} : { PI_HARNESS_MODEL_SILENCE_SECONDS: String(SILENCE), PI_HARNESS_MODEL_START_SECONDS: String(START) }) });
+  await bench.start({ PI_BINARY: wrapper, PI_OLLAMA_URL: url, OLLAMA_NUM_PARALLEL: '1', ...(LIVE ? {} : { PI_HARNESS_MODEL_SILENCE_SECONDS: String(SILENCE), PI_HARNESS_MODEL_START_SECONDS: String(START), PI_HARNESS_MODEL_TURN_SECONDS: String(TURN) }) });
   const browser = await launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await context.addInitScript(WATCH);

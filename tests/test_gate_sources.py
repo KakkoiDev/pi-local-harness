@@ -48,7 +48,7 @@ class GateSourceTest(unittest.TestCase):
         chat = WebChat(Path(self.temp.name) / 'chats', 1, 2, data_root=Path(self.temp.name) / 'data'); self.addCleanup(chat.close)
         parent = Path(self.temp.name) / 'code'; parent.mkdir()
         project = chat.documents.create_project('Shop', str(parent)); chat.ledger = self.ledger
-        self.ledger.propose('execute_command', {'command': 'ls'}, 'admin', cwd=str(parent / 'Shop' / 'src'), source='web')
+        self.ledger.propose('execute_command', {'command': 'ls'}, 'admin', cwd=str(parent / 'shop' / 'src'), source='web')
         self.ledger.propose('execute_command', {'command': 'rm -rf /'}, 'admin', cwd='/elsewhere', source='terminal')
         events = chat.gate_events()
         self.assertEqual([(event['project'], event['from']) for event in events], [(project, 'Web'), (None, 'Terminal')])

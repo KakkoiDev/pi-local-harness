@@ -9,7 +9,10 @@ recorded as an E2E test", "continue the test so that you can go further and actu
 model will use the 4b model for speed".
 
 Files: tests/browser/journey.cjs, tests/browser/journey/*.json, tests/fixtures/fake-ollama.cjs, tests/fixtures/uvicorn-standin.py, tests/browser/run.py,
-tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents.md
+tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents.md, harness/folder_name.py,
+harness/documents.py, harness/project_start.py, js/project-start.mjs, js/near-note.mjs, js/chat.mjs, js/check-ins.mjs,
+chat.css, gate/paperwork.py, gate/ledger.py, kit/publish-audit.md, kit/publish_audit.py, harness/extension.mjs,
+harness/web_chat.py, harness/settings.py, messages/ja.json, design/briefs/round-13.md, tests/
 
 - [x] A fake model, not a fake Pi: tests/fixtures/fake-ollama.cjs answers as Ollama does (`/api/tags`, `/api/show`,
   `/api/ps`, `/api/generate` for the menu bar's model switch; Pi's OpenAI-compatible stream with text, thinking, real
@@ -35,7 +38,8 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
   scratch data and projects, generous timeouts, workflow checks, and journey-live-report.txt/.json in the kept scratch
   folder. Documented as opt-in, outside the required offline gate.
 - [x] User stories US-240 to US-256 in docs/user-stories.md, coverage table updated.
-- [ ] The journey passes. Not yet: it fails on real product defects (below). Nothing is marked xfail.
+- [x] The journey passes (fix/journey-green): every defect below is fixed in the product; nothing is marked xfail and no
+  assertion was weakened (J01's limits follow the coordinator's watchdog decision, item 8).
 - [x] J14, the finished app in the Preview: the Web app package's Preview runs `uv run uvicorn … --port N`; FastAPI would
   need a download (not approved), so the journey's uv stand-in serves that command with tests/fixtures/uvicorn-standin.py,
   a stand-in web layer over the project's own habit code (add a habit, tick it, streak, month). US-256.
@@ -57,6 +61,34 @@ tests/test_browser_runner.py, docs/user-stories.md, docs/contributing-for-agents
    first output, so the owner's exact stall (a tool finishes, the model never answers) fails after 15 minutes by default.
    J01 runs with a 10 s start limit and checks the mechanism.
 9. Seen, not asserted: under Run on its own the next task starts with the bare user message “yes”.
+
+## The fixes (fix/journey-green, US-290 to US-297)
+
+- [x] 1, J02: a refused model switch is a note right under the model name (js/near-note.mjs, `#near-note`, the Toast's
+  1-bit box, role status), not the toast at the bottom. Designer note in design/briefs/round-13.md. US-291.
+- [x] 2, J03: the folder is a slug (harness/folder_name.py: lowercase, hyphens, Latin accents dropped, other scripts such
+  as Japanese kept as Unicode letters with hyphens for spaces; never an existing folder: -2, -3…); the name stays as
+  typed; Project Start shows “Folder: …” on step 1 and a Folder row in the Summary (`/api/project-start/folder`). Rename
+  Project… follows the same rule, and its Undo restores both name and folder. US-290.
+- [x] 3, J06: the person's answers on Discussion cards since the last plan are kept by Gate (gate/paperwork.py,
+  `UNPLANNED`) and written into the next plan's first task's Decisions; the plan card counts them. Automatic answers are
+  not carried. Task 293's test that kept them out is replaced. US-292.
+- [x] 4, J10b: under Run on its own Gate answers its own scope question (Add to Task N, automatic, reported) and the same
+  write goes through (gate/ledger.py): no “Stop here”. US-293.
+- [x] 5, J13: the Ready to publish task has `Files: README.md, manifest.webmanifest, app/, static/, js/, messages/, tests/`
+  (kit/publish-audit.md; an older task gets the line from kit/publish_audit.py); when its request ends the harness runs
+  the publication audit itself (harness/audit.py `run`, the same code as terminal `/audit`), names a failed check on the
+  check-in, and needs no Red (its evidence is the audit, whose “All tests pass” runs the suite). The last check-in says
+  “Task N of N done: Ready to publish”, also when Run on its own accepted it (js/check-ins.mjs). US-294.
+- [x] 6, J13: what an unverified attempt left uncommitted (`left` in the plan state) is the retry's too, so the retry's
+  commit includes tests/test_chart.py. US-295.
+- [x] 7, J14: follows from 5.
+- [x] 8: watchdog (the coordinator's decision): `model_turn_seconds` (300 s, `PI_HARNESS_MODEL_TURN_SECONDS`) for a turn
+  after a tool result; the first turn keeps `model_start_seconds` (900 s), mid-output silence `model_silence_seconds`
+  (120 s). J01 runs with start 60 s and turn 8 s, so it proves the after-tool limit. US-297.
+- [x] 9: Run on its own continues with “Continue the next approved task.” and the notice “Run on its own: task N
+  accepted; the next approved task starts.”, never a bare “yes” (harness/extension.mjs). US-296.
+- [x] Flaky under load: US-122 and chat.cjs's ⌘K focus check wait for the state, not a moment.
 
 ## One live run (gemma4:e4b-mlx, 2026-10-19, build budget 45 minutes)
 
