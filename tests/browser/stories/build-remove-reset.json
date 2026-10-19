@@ -1,0 +1,28 @@
+{
+ "steps": [
+  {
+   "think": "Remove the Reset button, and its e2e test with it."
+  },
+  {
+   "write": "tests/test_page.py",
+   "content": "import unittest\nfrom pathlib import Path\n\n\nclass Page(unittest.TestCase):\n    def test_only_add(self):\n        page = Path('index.html').read_text()\n        self.assertIn('Add', page)\n        self.assertNotIn('Reset', page)\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "write": "index.html",
+   "content": "<!doctype html><title>Counter</title>\n<button>Add</button>\n"
+  },
+  {
+   "write": "tests/e2e/test_buttons_e2e.py",
+   "content": "def test_add(page):\n    page.get_by_role('button', name='Add').click()\n"
+  },
+  {
+   "bash": "python3 -m unittest discover -s tests"
+  },
+  {
+   "say": "[CANARY] The Reset button is gone, with its test."
+  }
+ ]
+}

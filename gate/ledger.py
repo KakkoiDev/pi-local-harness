@@ -404,7 +404,7 @@ class ProposalLedger:
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
             # Task 260: a `--help` call or a run where no test ran is neither Red nor Green in the task's progress.
             if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and test_invocation(command, output):
-                self.paperwork.ran(request, command, exit_code == 0)
+                self.paperwork.ran(request, command, exit_code == 0, output)  # task 329: the test names, for the scenarios
             note = self.paperwork.observe(request)
             if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))
         self.record_event('audit', event.status, proposal, event.reasoning, token, tool_call_id, cwd=cwd, source=source,

@@ -12,6 +12,11 @@ capability's own tests, with Python's unittest or Node's test runner alone. `pyt
 static,phone offline,charts` does what New Project does. A capability the kit cannot assemble yet is listed with its
 reason and `available: false`.
 
+E2E tests (task 329): the web and static starters ship one e2e example in `tests/e2e/`, one test per scenario named
+after its title, driving Chromium through Playwright (recipe: `cards/e2e-scenarios.md`). The base check never runs it,
+so Create never needs a browser; run by hand or by Pi with no Playwright or no browser set up, it is skipped and says
+why. Nothing is downloaded.
+
 ## App Blocks (`blocks/`, plan 266 item 7)
 
 The designer's ready-made app and game parts (`design/app-blocks`, 151 cards), as cards Pi gets one at a time:

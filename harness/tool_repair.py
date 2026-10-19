@@ -441,7 +441,8 @@ def _coerce_one(value, schema, where):
 # Names small models give an argument of the harness's own tools, and the argument they mean: a fixed list System 1
 # keeps, not a guess. Live 2026-10-19: gemma4:e4b-mlx wrote propose_plan's task `content` as `steps`. A synonym is used
 # only when the schema has its target and the call does not set the target itself.
-ARGUMENT_SYNONYMS = {'steps': 'content'}
+# Task 329: propose_plan's scenarios, as models trained on Gherkin and user stories name them.
+ARGUMENT_SYNONYMS = {'steps': 'content', 'user_stories': 'scenarios', 'stories': 'scenarios', 'name': 'title'}
 
 
 def validate(name, arguments, schema, prefix=''):

@@ -36,6 +36,13 @@ class ContextTest(unittest.TestCase):
     def build(self, request, **options):
         return build_context(self.store, self.project, request, **options)
 
+    def test_a_code_task_with_scenarios_brings_the_e2e_recipe_card(self):
+        """Task 329: the task in progress has scenarios: Pi gets kit/cards/e2e-scenarios.md with it."""
+        self.assertNotIn('Scenarios become e2e tests', self.build('Build task 7', task='tasks/007-queue-badge.md')['text'])
+        self.write('tasks/007-queue-badge.md', '# 007: Queue badge\n\nKind: code\n\n- [ ] Red: a test fails.\n\n## Scenarios\n\n### See the count\nGiven two jobs\nWhen I open the page\nThen the badge says 2\n\n## Decisions\n\n')
+        text = self.build('Build task 7', task='tasks/007-queue-badge.md')['text']
+        self.assertIn('Scenarios become e2e tests', text); self.assertIn('named exactly after its title', text)
+
     def test_pong_context_keeps_rules_and_relevant_code_without_generated_files(self):
         self.write('README.md','# Rules\nKeep the skeleton working.\n')
         self.write('js/app.mjs','export const ballSpeed = 3; // the ball crosses the screen\n')

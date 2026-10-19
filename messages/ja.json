@@ -1,5 +1,10 @@
 {
  "exact": {
+  "Scenario": "シナリオ",
+  "Given": "前提",
+  "When": "操作",
+  "Then": "結果",
+  "Removed": "削除したもの",
   "tools · thinks · parallel": "ツール · 思考する · 並行",
   "tools · thinks · one at a time": "ツール · 思考する · 一度にひとつ",
   "tools · thinks · checking…": "ツール · 思考する · 確認中…",
@@ -1670,6 +1675,42 @@
   "Pi is answering about this project. Try again when that request ends: nothing was changed.": "Pi がこのプロジェクトについて回答中です。その依頼が終わったらもう一度試してください。何も変更していません。"
  },
  "patterns": [
+  [
+   "Removed: {text}",
+   "削除：{text}"
+  ],
+  [
+   "scenario “{title}” has no e2e test named after it",
+   "シナリオ「{title}」には、その名前の E2E テストがありません"
+  ],
+  [
+   "scenario “{title}”: its test did not run (run the tests with their names shown)",
+   "シナリオ「{title}」：テストが実行されていません（テスト名が表示される形で実行してください）"
+  ],
+  [
+   "scenario “{title}”: its test failed",
+   "シナリオ「{title}」：テストが失敗しました"
+  ],
+  [
+   "scenario “{title}”: its test was skipped (is a browser set up for the tests?)",
+   "シナリオ「{title}」：テストがスキップされました（テスト用のブラウザは用意されていますか？）"
+  ],
+  [
+   "scenario “{title}”: its test passed only before the last change; run it again",
+   "シナリオ「{title}」：テストが通ったのは最後の変更の前だけです。もう一度実行してください"
+  ],
+  [
+   "test “{name}” uses a control that no longer exists: {control}",
+   "テスト「{name}」は、もう存在しない操作部品を使っています：{control}"
+  ],
+  [
+   "{control} has no e2e step",
+   "{control} を使う E2E テストの手順がありません"
+  ],
+  [
+   "Task “{title}” changes what the person sees: give it at least one scenario (title, given, when, then); each becomes an e2e test named after its title.",
+   "タスク「{title}」は画面に見える部分を変えます。シナリオ（title、given、when、then）を少なくとも 1 つ付けてください。各シナリオはその題名の E2E テストになります。"
+  ],
   ["{prefix} starts more than one waiting message: type more of its id.", "{prefix} で始まる待機中のメッセージが複数あります。id をもう少し入力してください。"],
   ["No waiting message {prefix}. It may have started or been removed.", "待機中のメッセージ {prefix} はありません。すでに始まったか、削除された可能性があります。"],
   ["The workbench did not answer: {error}", "ワークベンチが応答しませんでした：{error}"],

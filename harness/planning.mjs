@@ -7,8 +7,8 @@ import {join} from 'node:path';
 export function installPlanning(pi, { propose, approve, pending, cancel, another=async()=>{}, change=async()=>{}, web=()=>false, auto=()=>false } = {}) {
   pi.registerTool?.({
     name:'propose_plan',label:'Propose the plan',
-    description:'Provide goal and task content (title, kind, files, done_when, content without checkboxes); System 1 lays out ROADMAP.md and task files. Show the actual plan and wait for Start Building before code. Each task will be verified and committed separately.',
-    parameters:{type:'object',properties:{goal:{type:'string'},tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},kind:{type:'string',enum:['code','docs','chore']},files:{type:'array',items:{type:'string'}},done_when:{type:'string'},content:{type:'string'}},required:['title','files','done_when','content']}}}},
+    description:'Provide goal and task content (title, kind, files, done_when, content without checkboxes, and scenarios: Given/When/Then, at least one for a code task that changes what the person sees; each scenario becomes one e2e test named exactly after its title); System 1 lays out ROADMAP.md and task files. Show the actual plan and wait for Start Building before code. Each task will be verified and committed separately.',
+    parameters:{type:'object',properties:{goal:{type:'string'},tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},kind:{type:'string',enum:['code','docs','chore']},files:{type:'array',items:{type:'string'}},done_when:{type:'string'},content:{type:'string'},scenarios:{type:'array',items:{type:'object',properties:{title:{type:'string'},given:{type:'string'},when:{type:'string'},then:{type:'string'}},required:['title','given','when','then']}}},required:['title','files','done_when','content']}}}},
     async execute(_id,params,_signal,_update,ctx) {
       try {
         const plan=await propose(params);

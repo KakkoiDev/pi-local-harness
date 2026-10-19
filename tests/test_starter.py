@@ -36,6 +36,20 @@ class StarterTest(unittest.TestCase):
         used = {key for path in (self.folder / 'app/templates').rglob('*.html') for key in re.findall(r"""t\(["']([\w.]+)["']\)""", path.read_text())}
         self.assertLessEqual(used, set(en))
 
+    def test_it_has_an_e2e_example_named_after_its_scenario_that_the_base_check_does_not_run(self):
+        """Task 329: one e2e test per scenario, named after it; offline, it skips and says why (no browser download)."""
+        sys.path.insert(0, str(ROOT))
+        from gate import controls
+        from kit.capabilities import base_tests
+        source = (self.folder / 'tests/e2e/test_notes_e2e.py').read_text()
+        self.assertIn('def test_add_a_note_and_see_it_in_the_list(', source)
+        self.assertIn('--use-mock-keychain', source); self.assertIn('--password-store=basic', source)
+        self.assertIn('pytest.skip("no browser is set up for e2e tests', source)
+        self.assertFalse([name for name in base_tests(self.folder) if 'e2e' in name], 'Create never starts a browser')
+        self.assertEqual(controls.check(self.folder), {'problems': [], 'removed': []}, 'the starter as it comes passes the control rule')
+        tests = controls.snapshot(self.folder)[1]
+        self.assertEqual([name for _, name in tests], ['test_add_a_note_and_see_it_in_the_list'])
+
     def test_the_templates_pass_the_htmx_4_upgrade_check(self):
         check = ROOT / 'kit/vendor/htmx-4.0.0/scripts/upgrade-check.py'
         said = subprocess.run([sys.executable, '-I', str(check), str(self.folder / 'app/templates')], capture_output=True, text=True); said = said.stdout + said.stderr
@@ -77,6 +91,17 @@ class StaticStarterTest(unittest.TestCase):
         logic = (self.folder / 'js/logic/notes.mjs').read_text()
         for forbidden in ('document.', 'window.', 'indexedDB', 'localStorage', 'Date.now', 'new Date', 'Math.random', 'crypto.', 'fetch('):
             self.assertNotIn(forbidden, logic, forbidden)
+
+    def test_its_e2e_example_skips_offline_and_says_why(self):
+        """Task 329: the scenario's e2e test runs with node --test; with no Playwright it is skipped with the reason."""
+        import shutil
+        node = shutil.which('node')
+        if not node: self.skipTest('node is not on PATH')
+        env = {key: value for key, value in os.environ.items() if key not in ('NODE_PATH', 'PI_TEST_CHROME')}
+        run = subprocess.run([node, '--test', 'tests/e2e/notes.e2e.test.mjs'], cwd=self.folder, capture_output=True, text=True, timeout=120, env=env)
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        self.assertRegex(run.stdout, r'﹣ Add a note and see it in the list .*# no browser is set up for e2e tests')
+        self.assertIn('--use-mock-keychain', (self.folder / 'tests/e2e/notes.e2e.test.mjs').read_text())
 
     def test_english_and_japanese_have_the_same_keys(self):
         en, ja = (json.loads((self.folder / f'messages/{language}.json').read_text()) for language in ('en', 'ja'))

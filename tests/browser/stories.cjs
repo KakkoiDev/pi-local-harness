@@ -120,6 +120,7 @@ import json, re, sys
 from pathlib import Path
 from gate.paperwork import Paperwork
 from gate.protocol import Protocol
+from gate.scenarios import section
 from harness.documents import DocumentStore
 root, data, tasks, goal = Path(sys.argv[1]).resolve(), Path(sys.argv[2]), json.loads(sys.argv[3]), sys.argv[4]
 roadmap = root/'ROADMAP.md'; text = roadmap.read_text()
@@ -128,7 +129,8 @@ paths = []
 for number, task in enumerate(tasks, start=2):
     path = f'tasks/{number:03d}-' + re.sub(r'[^a-z0-9]+', '-', task['title'].lower()).strip('-') + '.md'
     kind = task.get('kind', 'code'); steps = '- [ ] Red: a test fails for this change.\\n- [ ] Green: the test passes with this change.\\n' if kind == 'code' else '- [ ] Verify the change.\\n'
-    (root/path).write_text(f"# {number:03d}: {task['title']}\\n\\nKind: {kind}\\nFiles: {', '.join(task['files'])}\\n\\nDone when: {task['done_when']}\\n\\n{steps}\\n## Decisions\\n\\n")
+    stories = section(task['scenarios']) + '\\n' if task.get('scenarios') else ''  # task 329: the fixed Scenarios format
+    (root/path).write_text(f"# {number:03d}: {task['title']}\\n\\nKind: {kind}\\nFiles: {', '.join(task['files'])}\\n\\nDone when: {task['done_when']}\\n\\n{steps}\\n{stories}## Decisions\\n\\n")
     text += f"- [ ] [{number:03d}-{task['title']}]({path})\\n"; paths.append(path)
 roadmap.write_text(text)
 paper = Paperwork(Protocol(), data=data); paper.projects = DocumentStore(data)
@@ -1906,6 +1908,46 @@ story('US-271', 'Run on its own: the automatic approval is committed, and a task
   assert.equal(t.bench.git(root, 'status', '--porcelain', '--untracked-files=all').trim(), '');
   assert.equal(t.bench.read(root, 'tasks/001-first-task.md').replace(/- \[x\]/g, '- [ ]'), first, 'the planning task only got its boxes ticked by the approval');
   assert.ok(!decisions(t).some(row => row.kind === 'task_acceptance' && row.automatic), 'never accepted automatically');
+});
+
+// -- Task 329: every task has its scenarios; each becomes an e2e test; the E2E control rule ---------------------------
+const COUNT_A_CLICK = { title: 'Count a click', given: 'the counter shows 0', when: 'I click once', then: 'it shows 1' };
+
+story('US-280', 'the plan card shows each task’s scenarios (Given, When, Then), and the task file keeps them in the fixed format', async t => {
+  const { page } = t;
+  const { root } = await newProject(t, 'Click Page');
+  await choosePhase(t, 'Planning');
+  await answered(t, await say(t, 'Plan a click counter page TEST_SCRIPT=plan-scenarios'));
+  const card = page.locator('.pw-card[aria-label="Plan"]').last(); await card.waitFor();
+  const line = card.locator('.pw-plan__scenario');
+  assert.equal(await line.count(), 1, 'one line per scenario');
+  assert.equal((await line.textContent()).replace(/\s+/g, ' '), 'Scenario: Count a click · Given the page shows 0 · When I click Count · Then the page shows 1');
+  const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks-on-the-page/.test(name));
+  assert.match(t.bench.read(root, 'tasks/' + task), /## Scenarios\n\n### Count a click\nGiven the page shows 0\nWhen I click Count\nThen the page shows 1\n/);
+});
+
+story('US-281', 'a task whose scenario has no e2e test ends “not verified”, naming the scenario, even though its other test passed', async t => {
+  const { root } = await newProject(t, 'Counter');
+  await givenApprovedTasks(t, root, [{ ...COUNT, scenarios: [COUNT_A_CLICK] }]);
+  await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=build-counter'));
+  const row = checkIn(t); await row.waitFor();
+  assert.equal(await row.locator('.pw-card__title').textContent(), 'Task 1 of 1 not verified: Count clicks');
+  assert.match(await row.locator('.pw-facts').textContent(), /scenario “Count a click” has no e2e test named after it/);
+  assert.equal(await row.locator('.pw-btn--default').textContent(), 'Retry Task');
+  assert.match(commits(t, root)[0], /\(task 002, not verified\)$/, 'committed, marked not verified');
+});
+
+story('US-282', 'removing a button together with its e2e test is allowed, and the check-in says “Removed: …”', async t => {
+  const { root } = await newProject(t, 'Buttons');
+  fs.writeFileSync(join(root, 'index.html'), '<!doctype html><title>Counter</title>\n<button>Add</button>\n<button>Reset</button>\n');
+  fs.mkdirSync(join(root, 'tests/e2e'), { recursive: true });
+  fs.writeFileSync(join(root, 'tests/e2e/test_buttons_e2e.py'), "def test_add(page):\n    page.get_by_role('button', name='Add').click()\n\n\ndef test_reset_the_count(page):\n    page.get_by_role('button', name='Reset').click()\n");
+  t.bench.git(root, 'add', '-A'); t.bench.git(root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'The page and its e2e tests');
+  await givenApprovedTasks(t, root, [{ title: 'Remove the Reset button', files: ['index.html', 'tests/'], done_when: 'Only Add is left.' }]);
+  await answered(t, await say(t, 'Build the approved task. TEST_SCRIPT=build-remove-reset'));
+  const row = checkIn(t); await row.waitFor();
+  assert.equal(await row.locator('.pw-card__title').textContent(), 'Task 1 of 1 done: Remove the Reset button');
+  assert.equal(await row.locator('.pw-checkin__removed').textContent(), 'Removed: the “Reset” button and its test “test_reset_the_count”');
 });
 
 module.exports = { story, newProject, startProject, pickWhere, choosePhase, say, answered, planAndBuild, givenApprovedTasks, decisions, commits };

@@ -525,6 +525,10 @@ class Paperwork:
                     if any(git_internal(path) for path in files):raise ValueError('Files cannot include .git/: the harness keeps the repository itself.')
                     if re.search(r'^\s*[-*+] \[[ xX]\]|^(?:Kind:|Files:|Plan approved:|Request |## (?:Progress|For the person))',task['content'],re.M):raise ValueError('Provide content without checkboxes; the harness lays out the steps.')
                     if any(rules.written_decision(task[key]) for key in ('title','done_when','content')):raise ValueError('Decisions: '+rules.MODEL_DECISION)
+                    from . import scenarios  # task 329: Given/When/Then, each one an e2e test named after it
+                    task={**task,'scenarios':scenarios.clean(task.get('scenarios'))}
+                    if not task['scenarios'] and scenarios.needed(task):raise ValueError(f"Task “{clean(task['title'])}” changes what the person sees: give it at least one scenario (title, given, when, then); each becomes an e2e test named after its title.")
+                    if any(rules.written_decision(value) for item in task['scenarios'] for value in item.values()):raise ValueError('Decisions: '+rules.MODEL_DECISION)
                     prepared.append(task)
                 for task in prepared:  # the model's layout choices, measured as its proposals (task 261); no file names
                     record_decision(self.data,request,'task_kind','model',task.get('kind','code'),proposal=True)
@@ -543,7 +547,8 @@ class Paperwork:
                 for task in prepared:
                     path=f'tasks/{number:03d}-'+re.sub(r'[^a-z0-9]+','-',task['title'].lower()).strip('-')[:48]+'.md'
                     steps='- [ ] Red: a test fails for this change.\n- [ ] Green: the test passes with this change.\n' if task.get('kind','code')=='code' else '- [ ] Verify the change.\n'
-                    (root/path).write_text(f"# {number:03d}: {clean(task['title'])}\n\nKind: {task.get('kind','code')}\nFiles: {', '.join(task['files'])}\n\nDone when: {clean(task['done_when'])}\n\n{numbered(task['content'].strip())}\n\n{steps}\n## Decisions\n\n",encoding='utf-8')
+                    stories=scenarios.section(task['scenarios'])+'\n' if task['scenarios'] else ''
+                    (root/path).write_text(f"# {number:03d}: {clean(task['title'])}\n\nKind: {task.get('kind','code')}\nFiles: {', '.join(task['files'])}\n\nDone when: {clean(task['done_when'])}\n\n{numbered(task['content'].strip())}\n\n{steps}\n{stories}## Decisions\n\n",encoding='utf-8')
                     text+=f"- [ ] [{number:03d}-{clean(task['title'])}]({path})\n";number+=1
                 roadmap.write_text(text,encoding='utf-8')
             from kit.publish_audit import ensure_task
@@ -564,7 +569,8 @@ class Paperwork:
                 # Task 261: the card shows the decisions the harness recorded, never lines written into the file.
                 decisions='\n'.join(f"- {value['question']}: {value['answer']} ({value['state']})" for value in self.recorded_decisions(root,path))
                 from .scope import grant  # round 12: What you grant (Kind and Files, with their sources)
-                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions,'grant':grant(self,root,path,text)})
+                from .scenarios import parse as scenario_list
+                tasks.append({'path':path,'title':title[1],'done_when':done[1],'decisions':decisions,'grant':grant(self,root,path,text),'scenarios':scenario_list(text)})
             if not tasks:raise ValueError('The plan needs at least one open task.')
             goal=re.search(GOAL,roadmap,re.M|re.S)
             first=root/tasks[0]['path']
@@ -691,11 +697,17 @@ class Paperwork:
                     f"Before you finish, add a `## For the person` section to {item['task']}: two or three short lines for someone who does not "
                     "read code, what changed and then \"Tried it: …\".")
 
-    def ran(self, request, command, passed):
-        """A test run Gate saw: written into the task's progress."""
+    def ran(self, request, command, passed, output=''):
+        """A test run Gate saw: written into the task's progress. The test names it printed are kept with the code state
+        they ran on (task 329: each scenario's test must pass on the final code)."""
         with self.lock:
             item = self.requests.get(request)
             if not item or not test_invocation(command): return
+            if output:
+                from .scenarios import results
+                answer = self.protocol.verification(item['root']); state = answer[0] if answer else None
+                seen = item.setdefault('tests_seen', {})
+                for name, result in results(output).items(): seen.pop(name, None); seen[name] = (result, state)
             # Task 324 (live 2026-10-19): a test run is work on the approved task in progress, so the request takes it as its
             # task (a question that runs nothing still never does, task 260).
             if not item['task'] and item.get('candidate'): item['task'] = item['candidate']
@@ -723,7 +735,7 @@ class Paperwork:
             if item and result and result.get('outcome')=='not verified' and item.get('planned') and not stopped:
                 # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
-                card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks']),**({'outside':result['outside']} if result.get('outside') else {}),'title':self.subject(item).rsplit(' (task ',1)[0]}
+                card={'root':str(item['root']),'task':item['task'],'verified':False,'reason':result.get('reason'),'next':item['task'],'retry':True,'question':'Retry Task','number':plan['tasks'].index(item['task'])+1,'total':len(plan['tasks']),**({'outside':result['outside']} if result.get('outside') else {}),**({'removed':result['removed']} if result.get('removed') else {}),'title':self.subject(item).rsplit(' (task ',1)[0]}
                 plan.update(check_in=True,verified=False,card=card);self.plan_state(item['root'],plan)
                 result['check_in']=card
             if item and item.get('auto_run') and result and result.get('outcome')!='continue':
@@ -821,11 +833,12 @@ class Paperwork:
                     proof = self.prove_red(item, code)
                     if proof is True: self.progress(item, f"Red (proved by the harness): without the change, `{item['test_command']}` fails")
                     else: reason = proof
+                if not reason: reason = self.e2e_reason(item, text, answer[0] if answer else None)
                 if reason:
                     # Committed too, marked (2026-10-15): every change can be undone the same way; the task stays open.
                     self.write(item, text.rstrip('\n') + f'\n\nNot verified at {clock()}: {reason}. The task stays open.\n')
                     saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item, ', not verified'), f'Not verified: {reason}.')
-                    return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved}
+                    return {'outcome': 'not verified', 'task': task, 'reason': reason, **saved, **({'removed': item['removed']} if item.get('removed') else {})}
             planned=self.plan_status_for_item(item)
             if planned:
                 self.write(item,re.sub(r'^(\s*[-*+]) \[ \]', r'\1 [x]', (root/task).read_text(encoding='utf-8'),flags=re.M))
@@ -840,13 +853,24 @@ class Paperwork:
             from .checkins import evidence, task_title
             proof = evidence(self, request, item, inside) if planned else None  # round 12 (plan 267): before the commit, HEAD is the old code
             saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item))
-            result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved}
+            result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved, **({'removed': item['removed']} if item.get('removed') else {})}
             if result['outcome']=='committed':record_decision(self.data,request,'step_done','code','verified_and_committed',rule='G-013')
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
-                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task',**({'evidence':proof} if proof else {}),**({'next_title':task_title(root,next_task)} if next_task else {})}
+                result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task',**({'evidence':proof} if proof else {}),**({'next_title':task_title(root,next_task)} if next_task else {}),**({'removed':item['removed']} if item.get('removed') else {})}
                 plan.update(index=index,check_in=True,finished=False,verified=True,card=result['check_in']);self.plan_state(root,plan)
             return result
+
+    def e2e_reason(self, item, text, state):
+        """Task 329: why the e2e evidence is missing, or None. Every scenario of the task has its test, passed on the final
+        code in this request's runs; and the E2E control rule (gate/controls.py) holds for the request's changes. The
+        controls removed with their tests are kept on the item for the check-in ("Removed: …")."""
+        from . import controls, scenarios
+        problems = scenarios.check(item['root'], scenarios.parse(text), item.get('tests_seen') or {}, state) if task_kind(item['root'], item['task']) == 'code' else []
+        found = controls.check(item['root'])
+        if found['removed']: item['removed'] = found['removed']
+        problems += found['problems']
+        return '; '.join(problems) if problems else None
 
     def sample_cleanup(self, item):
         """Once, before the first code request is committed: name the sample left from the starter's first commit."""

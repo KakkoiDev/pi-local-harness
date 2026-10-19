@@ -1,0 +1,35 @@
+{
+ "steps": [
+  {
+   "think": "Plan the counter page with its scenarios."
+  },
+  {
+   "say": "[CANARY] The plan is ready."
+  },
+  {
+   "plan": {
+    "goal": "A click counter page for one person.",
+    "tasks": [
+     {
+      "title": "Count clicks on the page",
+      "kind": "code",
+      "files": [
+       "index.html",
+       "tests/"
+      ],
+      "done_when": "Each click on Count adds one.",
+      "content": "Test a click in the browser, then build the page.",
+      "scenarios": [
+       {
+        "title": "Count a click",
+        "given": "the page shows 0",
+        "when": "I click Count",
+        "then": "the page shows 1"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -203,6 +203,16 @@ class GemmaNativeWithoutQuotes(unittest.TestCase):
                                                                                 'kind': 'code', 'title': '003-Implement Data Model and Database Schema'}]})])
         self.assertEqual(result.content, 'Here is the plan.')
 
+    def test_scenario_synonyms_small_models_use_are_known(self):
+        """Task 329: `user_stories` (or `stories`) for scenarios, `name` for a scenario's title."""
+        schema = json.loads(json.dumps(PROPOSE_PLAN))['function']['parameters']
+        schema['properties']['tasks']['items']['properties']['scenarios'] = {'type': 'array', 'items': {'type': 'object', 'properties': {
+            'title': {'type': 'string'}, 'given': {'type': 'string'}, 'when': {'type': 'string'}, 'then': {'type': 'string'}}, 'required': ['title', 'given', 'when', 'then']}}
+        task = {'title': 'Notes', 'files': ['index.html'], 'done_when': 'x', 'content': 'y',
+                'user_stories': [{'name': 'Add a note', 'given': 'a', 'when': 'b', 'then': 'c'}]}
+        checked = validate('propose_plan', {'goal': 'g', 'tasks': [task]}, schema)
+        self.assertEqual(checked['tasks'][0]['scenarios'], [{'title': 'Add a note', 'given': 'a', 'when': 'b', 'then': 'c'}])
+
     def test_the_same_plan_with_the_right_key_is_repaired(self):
         result = repair(LIVE.replace('{steps:', '{content:'), [PROPOSE_PLAN])
         task = calls(result)[0][1]['tasks'][0]

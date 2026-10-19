@@ -144,6 +144,13 @@ def select_files(root, files, request, current=None, task=None, changed=None):
     return {'files':safe,'names':ordered,'reasons':reasons,'task':active,'bodies':bodies,'excluded':excluded}
 
 
+def scenario_card(task_text):
+    """Task 329: the e2e recipe card for a code task with scenarios ('' otherwise): each scenario becomes one e2e test."""
+    if not re.search(r'^Kind:\s*code\s*$', task_text, re.M) or not re.search(r'^## Scenarios\s*$', task_text, re.M): return ''
+    try: return (Path(__file__).resolve().parent.parent / 'kit/cards/e2e-scenarios.md').read_text(encoding='utf-8')
+    except OSError: return ''
+
+
 def build_context(store, project, request, current=None, passage='', thread='', budget=BUDGET, now=None, task=None, changed=None):
     root = store.project_path(project)
     current_name = current.split('/', 2)[2] if current else None
@@ -195,6 +202,8 @@ def build_context(store, project, request, current=None, passage='', thread='', 
     from harness.theme import context_note  # task 312: after the person saved a theme, styles follow its tokens
     note = context_note(root)
     if note: offer('The app’s theme', note, required=True)
+    card = scenario_card(selection['bodies'].get(selection['task']) or '')
+    if card: offer('Recipe: scenarios become e2e tests (kit/cards/e2e-scenarios.md)', card, required=True)
 
     # 3. Mentioned files, then 4. auto-selected while room is left
     chosen = [name for name in mentioned(f'{request}\n{passage}\n{thread}', names) if name != current_name]
