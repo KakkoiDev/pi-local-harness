@@ -4,7 +4,7 @@ try:
 except ModuleNotFoundError:
     from tests import isolation  # noqa: F401
 import unittest
-from gate.phase_shell import read_only
+from gate.phase_shell import read_only, without_cd_here
 
 
 class ReadOnlyShellTest(unittest.TestCase):
@@ -69,3 +69,15 @@ class ReviewShellTest(unittest.TestCase):
                         'npm run test', 'yarn test', 'pnpm test', 'make test', 'make test -j4', 'node --test tests/app.test.mjs',
                         'node --test --test-name-pattern=counter tests/', 'bun test', 'bun test tests/app.test.ts', 'pytest --cov-report=term-missing']:
             self.assertTrue(test_run(command), command)
+
+
+class CdHereTest(unittest.TestCase):
+    """Live 2026-10-19: `cd <project> && python3 -m pytest …` was refused as an unclassified command."""
+    def test_a_cd_into_the_folder_pi_is_in_is_dropped(self):
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as folder:
+            root = os.path.realpath(os.path.join(folder, 'Habit Tracker')); os.mkdir(root); os.mkdir(os.path.join(root, 'app'))
+            for command in [f"cd {root.replace(' ', chr(92) + ' ')} && python3 -m pytest tests/test_db.py", f'cd "{root}" && python3 -m pytest tests/test_db.py', 'cd . && python3 -m pytest tests/test_db.py']:
+                self.assertEqual(without_cd_here(command, root), 'python3 -m pytest tests/test_db.py', command)
+            for command in ['cd app && python3 -m pytest', 'cd .. && rm -rf x', f'cd {folder} && ls', 'cd "$HOME" && ls', 'python3 -m pytest', 'cd && ls']:
+                self.assertEqual(without_cd_here(command, root), command, command)
