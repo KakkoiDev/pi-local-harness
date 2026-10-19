@@ -211,7 +211,13 @@ class ProposalLedger:
         from harness.autonomy import enabled as automatic
         console_change=pi_tool=='harness' and not harness_read_only(args,applies=automatic(self.paperwork.data))
         if console_change:tool_name='write_file'
-        proposal = ActionProposal(tool_name, copy.deepcopy(args), 'pi tool call', authorization=auth_level)
+        rewritten=None;asked=args
+        if tool_name=='execute_command' and isinstance(args.get('command'),str):
+            from .phase_shell import without_cd_here
+            stripped=without_cd_here(args['command'],cwd)  # live 2026-10-19: `cd <project> && pytest …` is a plain test run
+            if stripped!=args['command']:args={**args,'command':stripped};rewritten=stripped
+        # The proposal keeps what Pi asked (its audit reports the same input); the checks below see the command without the no-op cd.
+        proposal = ActionProposal(tool_name, copy.deepcopy(asked), 'pi tool call', authorization=auth_level)
         def refuse(rule_id, reason, said=None):
             outcome, said = rules.BY_ID[rule_id].outcome, said or rules.decided(rule_id, reason)
             self.record_event('gate', outcome, proposal, said, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule_id, request=request)
@@ -364,6 +370,7 @@ class ProposalLedger:
             if response.get('sandbox'): self.sandboxed[token] = response['sandbox']
         self.record_event('gate', 'ALLOW', proposal, 'Approved before execution.', token, tool_call_id, cwd=cwd, source=source, request=request)
         response['proposal_id'] = token
+        if rewritten and 'command' not in response:response['command']=rewritten  # Pi runs the command without the no-op cd
         return response
 
     def verification(self, cwd):

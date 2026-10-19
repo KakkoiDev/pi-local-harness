@@ -115,6 +115,23 @@ class GateSandboxesAllowedTestRunsTest(unittest.TestCase):
             self.assertNotIn('command', reading, 'only test runs execute project code')
 
 
+    def test_a_test_run_after_a_cd_into_the_project_runs_sandboxed_without_the_cd(self):
+        """Live 2026-10-19: `cd <project> && python3 -m pytest tests/test_db.py`; Gate runs it as a plain test run."""
+        from unittest.mock import patch
+        from gate.engine import GateEngine
+        from gate.ledger import ProposalLedger
+        with tempfile.TemporaryDirectory() as folder, patch('gate.phases.refusal', return_value=None):
+            root = Path(os.path.realpath(folder)) / 'Habit Tracker'; (root / 'tasks').mkdir(parents=True); (root / 'ROADMAP.md').write_text('# Roadmap\n')
+            data = root.parent / 'data'; data.mkdir()
+            ledger = ProposalLedger(GateEngine('', str(data / 'audit.log')), events_file=data / 'gate-events.jsonl')
+            args = {'command': f'cd {str(root).replace(" ", chr(92) + " ")} && python3 -m unittest'}
+            allowed = ledger.propose('execute_command', args, 'admin', cwd=str(root), request='r')
+            self.assertEqual(allowed['outcome'], 'ALLOW')
+            self.assertTrue(allowed['command'].endswith("'python3 -m unittest'"), allowed['command'])
+            event = ledger.complete(allowed['proposal_id'], 'execute_command', args, 'OK', 0)
+            self.assertEqual(event.status, 'SUCCESS', 'Pi reports what it asked for; no drift')
+
+
 class SandboxRouteTest(unittest.TestCase):
     def test_only_the_persons_page_can_widen_the_sandbox(self):
         import http.server, json, threading, urllib.error, urllib.request

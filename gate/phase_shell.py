@@ -6,6 +6,7 @@ Git reads must disable optional index writes, fsmonitor hooks, external diff and
 import os
 import re
 import shlex
+from pathlib import Path
 
 FLAGS = {
     'ls': ('alhRrtSdF1', set()), 'cat': ('nbsuvET', set()), 'wc': ('clmwL', set()),
@@ -69,6 +70,21 @@ def expands_glob(command):
             elif quote is None:quote=char
         elif quote is None and char in '*?[{':return True
     return False
+
+
+def without_cd_here(command, cwd):
+    """`cd <the folder Pi is already in> && rest` → rest. Live 2026-10-19: `cd /Users/…/Habit\\ Tracker && python3 -m
+    pytest tests/test_db.py` was refused as an unclassified command although the cd changes nothing (Pi runs in the
+    project). Only a cd to cwd itself is dropped; anything else is left for the usual checks."""
+    if not isinstance(command, str) or not cwd: return command
+    found = re.match(r'\s*cd\s+((?:[^\s&;|\\\'"]|\\.)+|"[^"$`\\]*"|\'[^\']*\')\s*&&\s*(\S.*)\Z', command, re.S)
+    if not found: return command
+    try: target = shlex.split(found.group(1))
+    except ValueError: return command
+    if len(target) != 1: return command
+    try: same = (Path(cwd) / Path(target[0]).expanduser()).resolve() == Path(cwd).resolve()
+    except (OSError, RuntimeError): return command
+    return found.group(2) if same else command
 
 
 def read_only(command):
