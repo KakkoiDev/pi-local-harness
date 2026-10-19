@@ -21,7 +21,7 @@ import uuid
 from harness.decision_log import record as record_decision
 
 from . import rules
-from .planning import approval, file_allowed
+from .planning import approval, file_allowed, READ_ONLY
 from .protocol import CheckFailed, changed_paths, is_documentation, project_root, task_kind, test_invocation
 
 PROGRESS = '## Progress (kept by the harness)'
@@ -737,7 +737,7 @@ class Paperwork:
         check-in, so the next request (Continue, Retry, a new message, an answer) goes on with it."""
         with self.lock:
             item=self.requests.get(request)
-            result=self._end(request,review)
+            result=self._end(request,review and not stopped)
             if item and result and result.get('outcome')=='not verified' and item.get('planned') and not stopped:
                 # Task 260: only the task in progress gets a check-in; accepting an unverified one retries it.
                 plan=self.plan_state(item['root'])
@@ -764,6 +764,18 @@ class Paperwork:
         with self.lock:
             item = self.requests.get(request)
             if not item: return None
+            # Task 334: a planning request can end with fluent prose but no submitted plan. The saved phase and
+            # request intent, not the model's claim of completion, decide this single retry. Pending plans and paused
+            # choices are already waits for the person; never turn those into a model wake-up.
+            if (review and item.get('new_plan') and not READ_ONLY.search(item['text']) and not item.get('proposed') and not item.get('missing_plan_checked')
+                    and self.phases.get(item['root'])['phase'] == 'planning'
+                    and not self.plan_state(item['root']).get('pending') and not self.waiting_choice(item['root'])):
+                item['missing_plan_checked'] = True
+                record_decision(self.data, request, 'planning_retry', 'code', 'propose_plan', rule='planning.missing_plan')
+                return {'outcome': 'continue', 'kind': 'plan', 'task': item['task'],
+                        'instruction': 'No plan was submitted. Call propose_plan with goal and tasks (title, files, '
+                                       'done_when, content and scenarios). Do not only describe the plan. If a required '
+                                       'decision is missing, use ask_choices. Wait for Start Building; do not approve it yourself.'}
             if review and not item.get('sample_checked'):
                 item['sample_checked'] = True
                 instruction = self.sample_cleanup(item)

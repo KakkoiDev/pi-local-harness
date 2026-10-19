@@ -381,3 +381,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [333-Put action recording in test-core with a thin Workbench adapter](tasks/333-action-recorder-test-core.md)
 
 - [x] [335-Compare shipped starter files, excluding interpreter caches](tasks/335-starter-protocol-cache-files.md)
+
+- [x] [334-Retry a planning request that ends without submitting its plan](tasks/334-retry-missing-plan.md)

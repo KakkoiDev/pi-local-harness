@@ -220,3 +220,28 @@ test('US-110 terminal: a phase command outside a project offers the registered p
   assert.equal(person.asked[0].title, 'Choose a project');
   assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'planning');
 });
+
+
+test('US-350 terminal: a missing plan is retried once and approval still waits for me', async t => {
+  const bench = await workbench(t);
+  const { project } = await bench.api('/api/projects/create', { name: 'Missing plan', parent: bench.directory, kind: 'empty' });
+  const root = join(bench.directory, 'missing-plan');
+  const person = terminal(bench, root, ['Start Building']);
+  await person.type('plan');
+  await bench.gate('/request', { request: 'missing-plan', cwd: root, text: 'Plan a counter' });
+  const first = await bench.gate('/request/end', { request: 'missing-plan', review: true });
+  assert.equal(first.result.outcome, 'continue');
+  assert.match(first.result.instruction, /propose_plan/);
+  await bench.gate('/plan', { request: 'missing-plan', content: { goal: 'Count clicks.', tasks: [{ title: 'Count clicks', files: ['counter.py', 'tests/'], done_when: 'Each click adds one.', content: 'Test, then implement.' }] } });
+  await bench.gate('/request/pause', { request: 'missing-plan' });
+  const pending = await bench.api('/api/phase?project=' + project);
+  assert.equal(pending.phase, 'planning');
+  assert.equal(pending.pending, true);
+  assert.equal(Boolean(pending.approved), false);
+  await person.type('build');
+  assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'implementation');
+  await person.type('plan');
+  await bench.gate('/request', { request: 'bounded', cwd: root, text: 'Plan another counter' });
+  assert.equal((await bench.gate('/request/end', { request: 'bounded', review: true })).result.outcome, 'continue');
+  assert.notEqual((await bench.gate('/request/end', { request: 'bounded', review: true })).result.outcome, 'continue');
+});

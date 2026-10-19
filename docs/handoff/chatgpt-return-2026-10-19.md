@@ -92,3 +92,54 @@ The two “in progress” protocol tracks from the handoff had already finished 
 These are other agents' existing commits, not changes authored in this checkpoint. Both PRs were attached to this
 chat for review. Nothing in either repository was edited or merged, and their suites were not rerun locally here;
 the reported protocol results are GitHub CI evidence read through `gh pr checks`.
+
+
+## Resumed work: task 334, missing-plan recovery
+
+The owner's “finish everything now” resumes the unfinished handoff. Implemented one bounded System 1 recovery for
+its L04 symptom: a planning request with no submitted plan gets one instruction to call propose_plan, retaining its
+request. The code uses the saved phase and request's existing new-plan intent flag; it does not approve or generate
+plans itself. It records planning_retry / code / planning.missing_plan, with no request text in the decision record.
+Stop, review=false, leaving Planning, an existing pending plan and a pending choice suppress this retry. The extension's
+existing retry budget also remains authoritative. A second unsuccessful settlement can end; this is not an infinite loop.
+
+Red: the new paperwork test and terminal US-350 both returned nothing changed before the implementation. A separate
+red assertion then proved the decision-log row was absent, before the logging addition. Targeted Green: 66 paperwork
+tests and 19 Node tests (including 14 terminal journeys and the extension recovery tests). The new log assertion and
+US-350 passed again after the logging change. Full workflow/browser evidence follows after completion.
+
+This does not establish a passing live Gemma L04 run: no live model was run. Prompt-size/classifier improvements and
+the larger build-and-repair requirements in task 295 remain open. Do not tick the overall small-model track complete.
+
+Scope still not completed: task 333's Workbench adapter/storage/context and designed reporting controls; the large
+open System 1 and packaging tracks; existing task 321/322 design requirements. Browser/WASM packaging (277) explicitly
+requires runtime/storage choices and a versioned download approval, and mobile follows it. Core PRs remain owner-merge
+only: test-core #3, gaming-core #3 and p2p-core #1 were checked again and are OPEN; recorder CI remains successful.
+Those are reviewable deliverables, not merged releases. Existing open roadmap boxes must not be checked merely because
+this recovery fix passes. No new designer controls were invented and no download was made.
+
+
+Task 335 was found during task 334's full check: the starter-copy assertion compared source __pycache__ files that
+new_project correctly excludes. Red was reproduced for all three starters. The assertion now compares shipped files
+and explicitly refuses caches in the destination; adopt.py --verify still checks the manifest. Six focused starter/kit
+tests pass. No vendor/runtime rule changed. The initial workflow failure is not counted as a passing gate.
+
+
+## Resumed verification completed (tasks 334 and 335)
+
+The replacement full workflow ended **✅ Workflow Verification Passed!** (dogfood, unittest and node --test passed).
+It ran after the read-only exclusion, decision logging and starter cache assertion repair. The initial workflow
+failure is retained in the account above, not counted as passed. Verification was chained to the commits: a failed
+process result stops the subsequent staging/commit tools. Only documentation/progress was updated after this gate.
+
+All-browser run: **exit 0**. Exact summaries:
+
+- **Design checks passed.**
+- **UX regression passed: document/text discussions, Markdown Activity, drafts/conflicts, reconnect, keyboard, attachments, live files and four tabs at 320/390/768/1101/1440px.**
+- **Stories: 99 passed, 0 expected failures, 0 unexpectedly passed, 0 failed.**
+- **Conversation checks passed: one answer per card through its own route, drafts and attachments kept, controls send their own requests.**
+- **Journey: 15 of 15 steps passed.**
+
+Browser verification used scratch data and the scripted model, not a live Gemma run. The real Workbench was read
+only to check running/queued counts (both zero); no project content or logs were exported. Installation/restart
+status is reported after the commits, not assumed here. Task 333 and the larger roadmap remain open.

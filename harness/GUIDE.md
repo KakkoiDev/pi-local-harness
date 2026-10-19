@@ -279,3 +279,10 @@ markup, texts and states instead of inventing them. An app's card lists its bloc
 `app_block` tool. `python3 kit/blocks/add.py <project> <Name>` (in the harness folder) copies what a block needs, such
 as Chart.js for a chart, with licences, and `python3 kit/blocks/check.py <page>` checks a page for classes Basecoat
 does not have, missing labels, charts without a table, hard-coded colours and CDN links.
+
+
+### What if Pi describes a plan but never submits it?
+
+For a planning request in Planning, the harness asks Pi once to call `propose_plan` if no plan was submitted. This
+keeps the same request and does not approve the plan. Stop, a pending question, a pending plan and returning to
+Discussion prevent that retry. A real-model success still depends on the model following the tool instruction.

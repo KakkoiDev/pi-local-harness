@@ -417,3 +417,5 @@ Web POSTs from Node send the page's person secret (`X-Pi-Person`, read from the 
 does), like the person's own page; US-081 checks that a POST without it is refused.
 
 US-142: Project Start capability filtering and keyboard focus survive selection (`stories.cjs`).
+
+US-350: terminal: a missing plan is retried once and approval still waits for me (`stories.test.mjs`, task 334).

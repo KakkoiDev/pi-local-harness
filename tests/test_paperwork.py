@@ -5,6 +5,7 @@ try:
     import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
+import json
 import subprocess
 import tempfile
 import unittest
@@ -34,6 +35,42 @@ class PaperworkTest(unittest.TestCase):
         git(self.root, 'init', '-q'); git(self.root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'add', '-A'); git(self.root, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'start')
         self.protocol = Protocol(Path(self.data.name) / 'runs.json')
         self.paper = Paperwork(self.protocol, data=self.data.name, identity=('Pi Workbench', 'harness@localhost'))
+
+    def test_missing_plan_retries_once_and_keeps_the_request(self):
+        self.paper.phases.choose(self.root, 'planning', actor='person')
+        self.paper.start('missing', str(self.root), 'Plan a counter')
+        result = self.paper.end('missing')
+        self.assertEqual(result['outcome'], 'continue')
+        self.assertEqual(result['kind'], 'plan')
+        self.assertIn('propose_plan', result['instruction'])
+        self.assertIn('missing', self.paper.requests)
+        self.assertEqual(self.paper.end('missing')['outcome'], 'nothing changed')
+        self.assertNotIn('missing', self.paper.requests)
+        rows = [json.loads(line) for line in (Path(self.data.name) / 'decisions.jsonl').read_text().splitlines()]
+        wake = [row for row in rows if row.get('kind') == 'planning_retry']
+        self.assertEqual(len(wake), 1)
+        self.assertEqual(wake[0]['who'], 'code')
+        self.assertEqual(wake[0]['rule'], 'planning.missing_plan')
+
+    def test_explaining_the_plan_does_not_request_a_new_one(self):
+        self.paper.phases.choose(self.root, 'planning', actor='person')
+        self.paper.start('explain', str(self.root), 'Explain the current plan.')
+        self.assertEqual(self.paper.end('explain')['outcome'], 'nothing changed')
+
+    def test_missing_plan_never_retries_after_stop_phase_change_or_pending_plan(self):
+        for mode in ('stopped', 'no-review', 'discussion', 'pending', 'choice'):
+            with self.subTest(mode=mode):
+                self.paper.phases.choose(self.root, 'planning', actor='person')
+                self.paper.start(mode, str(self.root), 'Plan a counter')
+                if mode == 'discussion':
+                    self.paper.phases.choose(self.root, 'discussion', actor='person')
+                if mode == 'pending':
+                    self.paper.plan_state(self.root, {'pending': True, 'tasks': []})
+                if mode == 'choice':
+                    self.paper.choice_pending(mode, {'question': 'Who uses it?', 'options': [{'label': 'Me'}, {'label': 'Team'}], 'recommended': 0})
+                result = self.paper.end(mode, stopped=mode == 'stopped', review=mode != 'no-review')
+                self.assertNotEqual(result['outcome'], 'continue')
+                self.paper.plan_state(self.root, {})
 
     def real_test(self, value):
         """Task 260: the harness proves Red itself in a copy of the project, so verified work needs a real test of it.
