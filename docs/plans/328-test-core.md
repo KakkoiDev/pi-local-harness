@@ -39,20 +39,6 @@ data-testid, else role and name, else id; the tests that reach them through Play
 getByText/getByTestId (and the Python spellings) or `#id`. A project without e2e tests is not checked; the starters ship
 one, so new projects are.
 
-## Every task has its scenarios, and each scenario becomes an e2e test
-
-The person, 2026-10-19: "I would like each task to have that type of user story [Given–When–Then] and then have the
-system 2 build that as an e2e test." System 1 lays out and checks; System 2 writes the words and the tests:
-
-- propose_plan's tasks carry `scenarios: [{title, given, when, then}]`; a code task that changes what the person sees
-  needs at least one. The task file gets `## Scenarios` in one fixed format (`### <title>`, then Given/When/Then lines);
-  the plan card shows them.
-- In Implementation the model writes one e2e test per scenario, named exactly after its title, with the project's e2e
-  runner (Playwright for web and static apps, a Textual pilot test for terminal apps); the recipe card
-  (`kit/cards/e2e-scenarios.md` until test-core's recipes are vendored) joins the context of such a task.
-- Before "verified", every scenario's test passed on the final code in a run Gate saw (the runner's printed names);
-  a missing, failing or skipped one is "not verified", naming the scenario.
-
 ## Lessons already learned (record them in test-core's README)
 
 - **Headless Chromium on macOS needs `--use-mock-keychain` (and `--password-store=basic`).** Without it, every test
@@ -69,6 +55,17 @@ system 2 build that as an e2e test." System 1 lays out and checks; System 2 writ
 e2e test." Each planned task carries one or more Given/When/Then scenarios in its file; the model writes one e2e test
 per scenario from a test-core recipe; System 1 checks that every scenario has a test of the same name that ran and
 passed before the task can be verified (Pi Workbench task 329).
+
+Built by task 329:
+
+- propose_plan's tasks carry `scenarios: [{title, given, when, then}]`; a code task that changes what the person sees
+  needs at least one. The task file gets `## Scenarios` in one fixed format (`### <title>`, then Given/When/Then lines);
+  the plan card shows them.
+- In Implementation the model writes one e2e test per scenario, named exactly after its title, with the project's e2e
+  runner (Playwright for web and static apps, a Textual pilot test for terminal apps); the recipe card
+  (`kit/cards/e2e-scenarios.md` until test-core's recipes are vendored) joins the context of such a task.
+- Before "verified", every scenario's test passed on the final code in a run Gate saw (the runner's printed names);
+  a missing, failing or skipped one is "not verified", naming the scenario.
 
 ## Test blocks: functional programming for tests (the person, 2026-10-19)
 
