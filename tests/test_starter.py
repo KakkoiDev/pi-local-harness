@@ -171,9 +171,10 @@ class ProtocolTest(unittest.TestCase):
             with self.subTest(kind=kind):
                 folder = self.make(kind)
                 pinned = ROOT / 'kit' / library['folder'] / 'test-core'
-                for source in (path for path in pinned.rglob('*') if path.is_file()):
+                for source in (path for path in pinned.rglob('*') if path.is_file() and '__pycache__' not in path.parts):
                     relative = source.relative_to(pinned)
                     self.assertEqual((folder / 'test-core' / relative).read_bytes(), source.read_bytes(), f'{kind}: test-core/{relative} is the pinned file')
+                self.assertFalse(list((folder / 'test-core').rglob('__pycache__')), 'the starter must not ship interpreter caches')
                 verified = subprocess.run([sys.executable, '-I', 'test-core/adopt.py', '--verify', 'test-core'], cwd=folder, capture_output=True, text=True)
                 self.assertEqual(verified.returncode, 0, verified.stdout + verified.stderr)
                 listed = subprocess.run([sys.executable, '-I', 'test-core/tools/scenarios.py', 'list', 'SCENARIOS.md', '--json'], cwd=folder, capture_output=True, text=True)
