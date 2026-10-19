@@ -34,6 +34,15 @@ class PlanningPolicyTest(unittest.TestCase):
         for path in ['src-other/game.py','tests/test_other.py','../src/game.py','/src/game.py']:
             self.assertFalse(file_allowed(task,path),path)
 
+    def test_a_code_tasks_tests_are_always_in_scope(self):
+        """Live 2026-10-19: the person was asked whether a code task could write tests/test_db.py."""
+        task = '# Task\nKind: code\nFiles: app/db.py\n'
+        for path in ['tests/test_db.py', 'tests/browser/journey.spec.js', 'js/logic.test.mjs', 'app/db_test.py', 'e2e/habits.spec.ts']:
+            self.assertTrue(file_allowed(task, path), path)
+        for path in ['app/main.py', 'testsuite/app.py', 'app/contest.py', '.git/hooks/pre-commit']:
+            self.assertFalse(file_allowed(task, path), path)
+        self.assertFalse(file_allowed('# Task\nKind: docs\nFiles: README.md\n', 'tests/test_db.py'), 'only a code task')
+
     def test_git_internals_are_never_in_a_tasks_files(self):
         # Task 261: a hook in .git/ would run with the harness's own commit.
         for task in ['# Task\nFiles: .git/hooks/pre-commit\n', '# Task\nFiles: .git/\n', '# Task\nFiles: vendor/\n', '# Task\n']:
