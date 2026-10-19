@@ -93,6 +93,7 @@ body[data-view="work"] [data-view-only="work"],body[data-view="gate"] [data-view
 
 /* Toast */
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;min-width:320px}
+.pw-near-note{position:fixed;z-index:60;max-width:min(360px,calc(100vw - 16px));padding:8px 12px}/* task 327: a refusal under the menu bar item that was used (js/near-note.mjs) */
 
 /* ---------- Phone (≤760px) ---------- */
 @media (max-width:760px){

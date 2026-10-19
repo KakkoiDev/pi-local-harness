@@ -1,0 +1,126 @@
+{
+ "about": "Step 10b, only when task 3 stopped (Retry Task, what the owner would do): the rest of task 3, then the Ready to publish task.",
+ "turns": [
+  {
+   "when": "approved task|Retry|task 3",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "app/chart_days.py",
+      "content": "import calendar\n\n\ndef days_in(year, month):\n    return calendar.monthrange(year, month)[1]\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to app/chart_days",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "app/chart.py",
+      "content": "import datetime\n\nfrom app.chart_days import days_in\n\n\ndef month_chart(year, month, ticks):\n    days = [datetime.date.fromisoformat(tick) for tick in ticks]\n    return [sum(1 for day in days if (day.year, day.month, day.day) == (year, month, number)) for number in range(1, days_in(year, month) + 1)]\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to app/chart\\.py",
+   "calls": [
+    {
+     "name": "edit",
+     "arguments": {
+      "path": "app/main.py",
+      "edits": [
+       {
+        "oldText": "from app.logic.notes import check_title\n",
+        "newText": "from app.logic.notes import check_title\nfrom app import chart, habits, streaks  # noqa: F401  the habit tracker (tasks 1-3)\n"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*app/main\\.py",
+   "calls": [
+    {
+     "name": "bash",
+     "arguments": {
+      "command": "python3 -m unittest tests.test_habits tests.test_streaks tests.test_chart"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
+   "say": "[CANARY] Task 3 is done: month_chart gives one value per day, and the app imports the habit modules."
+  },
+  {
+   "when": "approved task|publish|^user: yes\\b",
+   "calls": [
+    {
+     "name": "write",
+     "arguments": {
+      "path": "README.md",
+      "content": "# Habit Tracker\n\nAdd habits, tick them off each day, see your streaks and a monthly chart. Saved in SQLite; installable on a phone.\n\n    uv sync\n    uv run uvicorn app.main:app --reload\n"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool: Successfully wrote to README",
+   "calls": [
+    {
+     "name": "edit",
+     "arguments": {
+      "path": "static/manifest.webmanifest",
+      "edits": [
+       {
+        "oldText": "\"name\": \"Notes\"",
+        "newText": "\"name\": \"Habit Tracker\""
+       },
+       {
+        "oldText": "\"short_name\": \"Notes\"",
+        "newText": "\"short_name\": \"Habits\""
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*manifest",
+   "calls": [
+    {
+     "name": "edit",
+     "arguments": {
+      "path": "messages/en.json",
+      "edits": [
+       {
+        "oldText": "\"app.name\": \"Notes\"",
+        "newText": "\"app.name\": \"Habit Tracker\""
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*en\\.json",
+   "calls": [
+    {
+     "name": "bash",
+     "arguments": {
+      "command": "python3 -m unittest tests.test_habits tests.test_streaks tests.test_chart"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:[\\s\\S]*\\bOK\\b",
+   "say": "[CANARY] Ready to publish: the README and the app names describe the Habit Tracker, and every test passes."
+  }
+ ]
+}

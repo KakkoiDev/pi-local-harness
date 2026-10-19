@@ -53,11 +53,32 @@ Browser suites (slow, ~2 minutes each, `conversation` under a minute; run before
 # once: install Playwright somewhere outside the repo and a Chromium for it
 mkdir -p ~/.cache/plh-browser && cd ~/.cache/plh-browser && npm install playwright@1.56.1 && npx playwright install chromium && cd -
 # every time:
-python3 tests/browser/run.py design   # or chat, stories, conversation, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
+python3 tests/browser/run.py design   # or chat, stories, conversation, journey, or all: finds Playwright, or says "Not run" and how to set it up (exit 2)
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/design.cjs   # design conformance; prints "Design checks passed."
 NODE_PATH=~/.cache/plh-browser/node_modules node tests/browser/chat.cjs     # regression; prints "UX regression passed: …"
 python3 tests/browser/run.py stories  # user-story journeys (docs/user-stories.md); xfail = a known review defect, XPASS = remove the marker
+python3 tests/browser/run.py journey  # the golden journey (task 327): the owner's whole session, real Pi + extension, a fake model; ~6 minutes
+PI_JOURNEY_LIVE=1 python3 tests/browser/run.py journey   # opt-in: the same journey with the real local Ollama (gemma4:e4b-mlx)
 ```
+
+**Required: `python3 tests/browser/run.py all` exits 0, and `all` includes `journey`.** The golden journey
+(`tests/browser/journey.cjs`, US-240 to US-256) replays the owner's session of 2026-10-18 from a stalled request to a
+finished, published app through the real UI. It runs the real Pi 1.1.0 (`pi` on PATH) with the real harness extension
+and fakes only the model (`tests/fixtures/fake-ollama.cjs`, scripted by `tests/browser/journey/*.json`); without Pi it
+prints "Not run" and exits 2, which fails `all` (never skip it). It is not marked xfail anywhere: a failing step is a
+product defect. `PI_JOURNEY_VERBOSE=1` prints the page, the model's last requests and the server log for a failed step;
+`PI_JOURNEY_KEEP=1` keeps the scratch folder (with `model-log.json`, every request the model received);
+`PI_JOURNEY_UNTIL=J06` stops after a step.
+
+**Opt-in, not part of the required offline gate: the live journey.** `PI_JOURNEY_LIVE=1 python3 tests/browser/run.py
+journey` runs the journey's workflow against the real local Ollama at 127.0.0.1:11434 (the only address it uses) with
+`gemma4:e4b-mlx` (`PI_JOURNEY_MODEL` to change it, `PI_JOURNEY_LIVE_MINUTES` for the build budget, 90 by default). The
+data folder, the projects, Pi's HOME and settings are scratch; the scratch `model.json` names the model so the workbench
+never switches (a switch would unload the model loaded before, which may be yours). Its checks are about the workflow,
+not the model's words (cards appear and are answered with the recommendation, a plan comes, tasks are verified and
+committed, tests run), with generous timeouts. It keeps its scratch folder and writes `journey-live-report.txt` and
+`.json` there (steps, time per step, what the stand-in person pressed, repairs, nudges, test runs). It says "Not run"
+when Ollama or the model is missing.
 
 Each suite starts its own server on random ports with a temporary data folder and a fake Pi (`tests/fixtures/fake-pi.py`). Screenshots go to a fresh folder per run (`shot('name.png')`, never a fixed `/tmp` path); the suite prints it at the end. A non-zero exit code means it failed, whatever the last line says; never pipe a suite through `tail` without keeping its exit code. A suite that spawns a server must read the server's stderr (an unread pipe fills and the server stalls); on failure both suites print the server's error lines.
 
@@ -160,7 +181,7 @@ The rules Pi Workbench gives the apps Pi builds (plan 328, task 329, test-core) 
 
 - [ ] `python3 tests/verify_workflow.py` ends with "Workflow Verification Passed!".
 - [ ] Each scenario has its story, named after it; no new control without an e2e step; no new fixed wait (§ 4, task 330).
-- [ ] Both browser suites exit 0 (if any UI, CSS or JS changed).
+- [ ] `python3 tests/browser/run.py all` exits 0, the golden journey included (if any UI, CSS, JS, harness or Gate code changed).
 - [ ] Task boxes and the ROADMAP line match what you verified.
 - [ ] Docs that describe the changed behaviour are updated (README.md, docs/reference.md, harness/README.md, this file).
 - [ ] The commit message says what changed for the person, not just the code.

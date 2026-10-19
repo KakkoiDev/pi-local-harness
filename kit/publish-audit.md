@@ -1,8 +1,11 @@
 # {number}: Ready to publish
 
 Kind: code
+Files: README.md, manifest.webmanifest, app/, static/, js/, messages/, tests/
 
-The harness checks this task with `/audit` after the app's work is complete. Each box records its command.
+The harness runs the publication audit (the same checks as `/audit`) when this task's work ends, in the web workbench and
+in the terminal. Each box records its command. Pi may change the app's code and its descriptions (the Files above) to make
+the checks pass: remove an unused file or function, fix a type, name the app in the README and the manifest. No new feature.
 
 - [ ] No unused files: run the entry-point reachability check.
 - [ ] No unused code: check JavaScript exports or Vulture at 80% confidence.

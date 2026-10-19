@@ -185,9 +185,10 @@ class ScopeWidening(unittest.TestCase):
         """Run on its own takes the recommended Add to Task N; the end-of-run report lists it as a widened scope."""
         from harness.autonomy import set_enabled
         set_enabled(self.paper.data, True, confirmed=True)
-        refused = self.write('app/admin.js')
-        choice = refused['judgement']['choice']
-        self.paper.decision('r', choice['question'], choice['options'][0]['label'], 'auto')
+        allowed = self.write('app/admin.js')
+        # Task 327 (journey J10b): the same write goes through; nothing waits for a person, nothing says "Stop here".
+        self.assertEqual(allowed['outcome'], 'ALLOW', allowed); self.assertNotIn('judgement', allowed)
+        self.assertIsNone(self.paper.waiting_choice(self.root) if (self.paper.waiting_choice(self.root) or {}).get('pending') else None)
         self.assertIn('app/admin.js', (self.root / 'tasks/001-subjects.md').read_text())
         report = self.paper.runs.get(self.paper.runs.index()['active'][self.paper.runs.key(self.root)])
         widened = [item for item in report['decisions'] if item.get('scope_widened')]

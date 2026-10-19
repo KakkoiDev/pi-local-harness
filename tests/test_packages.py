@@ -143,8 +143,8 @@ class CreateTest(Stubbed):
     def test_create_installs_before_the_base_check_which_then_runs_the_own_tests_offline(self):
         stub(self.bin, 'uv', UV_OK); seen = []
         start = {'packages': ['web'], 'capabilities': [], 'progress': lambda stage, text: seen.append((stage, text))}
-        self.store().create_project('Habit Tracker Web', str(self.scratch), 'start', start=start)
-        root = self.scratch / 'Habit Tracker Web'
+        store = self.store(); project = store.create_project('Habit Tracker Web', str(self.scratch), 'start', start=start)
+        root = store.project_path(project)  # task 327: the folder is a slug (habit-tracker-web)
         self.assertEqual(self.calls()[0], 'sync --frozen', 'online, once, before the check')
         self.assertTrue((root / '.venv').is_dir())
         commands = [run['command'] for run in self.runs()]
@@ -162,9 +162,9 @@ class CreateTest(Stubbed):
     def test_offline_create_still_creates_with_the_note(self):
         stub(self.bin, 'uv', UV_OFFLINE)
         start = {'packages': ['web'], 'capabilities': []}
-        project = self.store().create_project('Offline App', str(self.scratch), 'start', start=start)
+        store = self.store(); project = store.create_project('Offline App', str(self.scratch), 'start', start=start)
         self.assertTrue(project)
-        root = self.scratch / 'Offline App'
+        root = store.project_path(project)
         self.assertTrue((root / '.git').is_dir() and not (root / '.venv').exists())
         self.assertFalse(start['check']['packages']['installed'])
         self.assertIn('No connection', start['check']['packages']['reason'])

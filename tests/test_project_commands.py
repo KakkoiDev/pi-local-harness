@@ -21,7 +21,7 @@ class ProjectCommandsTest(unittest.TestCase):
         self.chat = WebChat(self.root / 'chats', 1, 2, data_root=self.root / 'data'); self.addCleanup(self.chat.close)
         self.store = self.chat.documents
         self.code = self.root / 'code'; self.code.mkdir()
-        self.project = self.store.create_project('Japanese study app', str(self.code))
+        self.project = self.store.create_project('Japanese study app', str(self.code))  # task 327: its folder is japanese-study-app
         self.conversation = self.chat.project_chat(self.project)
         self.page = f'projects/{self.project}/ROADMAP.md'
         self.comment = self.store.comment(self.page, 'Shorter.', 'Describe what we are building.')
@@ -36,7 +36,7 @@ class ProjectCommandsTest(unittest.TestCase):
     def test_rename_renames_the_folder_and_keeps_the_id(self):
         result = self.chat.project_command('rename', self.project, {'name': 'Japanese flashcards'})
         self.assertEqual(result['project'], self.project, 'the address /p/<id> does not change')
-        self.assertTrue((self.code / 'Japanese flashcards' / 'ROADMAP.md').is_file()); self.assertFalse((self.code / 'Japanese study app').exists())
+        self.assertTrue((self.code / 'japanese-flashcards' / 'ROADMAP.md').is_file()); self.assertFalse((self.code / 'japanese-study-app').exists())
         self.assertEqual(self.listed()[self.project]['name'], 'Japanese flashcards')
         self.assertEqual(self.store.get(self.page)['comments'][0]['text'], 'Shorter.', 'comments stay')
         self.assertEqual(self.chat.project_chat(self.project)['id'], self.conversation['id'], 'the chat stays')
@@ -57,10 +57,10 @@ class ProjectCommandsTest(unittest.TestCase):
         learning = self.code / 'learning'; learning.mkdir()
         result = self.store.move_project(self.project, str(learning))
         self.assertEqual(result['project'], self.project)
-        self.assertTrue((learning / 'Japanese study app' / 'ROADMAP.md').is_file())
-        self.assertEqual(Path(self.listed()[self.project]['path']), (learning / 'Japanese study app').resolve())
+        self.assertTrue((learning / 'japanese-study-app' / 'ROADMAP.md').is_file())
+        self.assertEqual(Path(self.listed()[self.project]['path']), (learning / 'japanese-study-app').resolve())
         self.assertEqual(self.store.get(self.page)['comments'][0]['text'], 'Shorter.')
-        with self.assertRaisesRegex(ValueError, 'inside itself'): self.store.move_project(self.project, str(learning / 'Japanese study app' / 'tasks'))
+        with self.assertRaisesRegex(ValueError, 'inside itself'): self.store.move_project(self.project, str(learning / 'japanese-study-app' / 'tasks'))
         with self.assertRaisesRegex(ValueError, 'already'): self.store.move_project(self.project, str(learning))
         with self.assertRaisesRegex(ValueError, 'folder'): self.store.move_project(self.project, 'relative/path')
 
@@ -78,14 +78,14 @@ class ProjectCommandsTest(unittest.TestCase):
         summary = self.store.project_summary(self.project)
         self.assertEqual((summary['files'], summary['folders']), (3, 1), 'ROADMAP.md, first task, publication audit; tasks/')
         self.store.trash_project(self.project)
-        self.assertTrue((self.trash / 'Japanese study app' / 'ROADMAP.md').is_file()); self.assertFalse((self.code / 'Japanese study app').exists())
+        self.assertTrue((self.trash / 'japanese-study-app' / 'ROADMAP.md').is_file()); self.assertFalse((self.code / 'japanese-study-app').exists())
         self.assertNotIn(self.project, self.listed())
-        shutil.move(str(self.trash / 'Japanese study app'), str(self.code / 'Japanese study app'))  # Put Back
-        self.assertEqual(self.store.register(str(self.code / 'Japanese study app')), self.project)
+        shutil.move(str(self.trash / 'japanese-study-app'), str(self.code / 'japanese-study-app'))  # Put Back
+        self.assertEqual(self.store.register(str(self.code / 'japanese-study-app')), self.project)
         self.assertEqual(self.store.get(self.page)['comments'][0]['text'], 'Shorter.', 'comments come back')
 
     def test_locate_points_a_missing_project_at_its_new_folder(self):
-        moved = self.root / 'elsewhere'; shutil.move(str(self.code / 'Japanese study app'), str(moved))
+        moved = self.root / 'elsewhere'; shutil.move(str(self.code / 'japanese-study-app'), str(moved))
         self.assertTrue(self.listed()[self.project]['missing'])
         with self.assertRaisesRegex(ValueError, 'missing'): self.store.rename_project(self.project, 'Other')
         self.store.locate_project(self.project, str(moved))
@@ -99,7 +99,7 @@ class ProjectCommandsTest(unittest.TestCase):
         self.assertEqual(refused.exception.job, job['id']); self.assertEqual(str(refused.exception), 'Pi is answering about this project.')
         for command in ['move', 'trash']:
             with self.assertRaises(ProjectBusy): self.chat.project_command(command, self.project, {'parent': str(self.root)})
-        self.assertTrue((self.code / 'Japanese study app').is_dir())
+        self.assertTrue((self.code / 'japanese-study-app').is_dir())
         self.chat.queue.cancel(job['id'])
         self.chat.switching = None
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
@@ -114,7 +114,7 @@ class ProjectCommandsTest(unittest.TestCase):
             self.assertNotIsInstance(refused.exception, ProjectBusy, 'no workbench request to show')
             self.assertIsInstance(refused.exception, TerminalBusy, 'round 12 (R12_Renamed): the page shows its own alert')
             self.assertEqual(refused.exception.command, command); self.assertRegex(refused.exception.since, r'^\d\d:\d\d$')
-        self.assertTrue((self.code / 'Japanese study app').is_dir())
+        self.assertTrue((self.code / 'japanese-study-app').is_dir())
         self.assertEqual(self.chat.project_command('summary', self.project, {})['project'], self.project, 'reading is fine')
         lock.unlink()
         self.assertEqual(self.chat.project_command('rename', self.project, {'name': 'Other'})['name'], 'Other')
@@ -253,7 +253,7 @@ class ProjectIdsTest(unittest.TestCase):
         second = self.store.create_project('Notes')
         self.assertNotEqual(second, first)
         self.assertNotEqual(self.chat.project_chat(second)['id'], chat, 'not the renamed project\'s chat')
-        self.assertEqual(self.store.project_path(first).name, 'Journal'); self.assertEqual(self.store.project_path(second).name, 'Notes')
+        self.assertEqual(self.store.project_path(first).name, 'journal'); self.assertEqual(self.store.project_path(second).name, 'notes')
         self.assertEqual(self.chat.project_chat(first)['id'], chat)
 
     def test_a_name_equal_to_another_projects_id_never_reuses_it(self):

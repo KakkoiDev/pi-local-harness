@@ -97,14 +97,24 @@ export function installProjectStart({ api, workspace, project, showConversation,
     const where = button('', 'pw-row pw-start__where'); where.id = 'start-where';
     const whereLabel = el('span', 'pw-start__where-label'); whereLabel.textContent = `Create in ${tilde(choice.parent)}`;
     where.append(whereLabel, el('span', '', '›')); where.lastChild.setAttribute('aria-hidden', 'true');
-    where.onclick = async () => { const picked = await workspace.pickFolder(choice.parent); if (picked) { choice.parent = picked; whereLabel.textContent = `Create in ${tilde(picked)}`; } };
+    /* Task 327: the folder is a slug (habit-tracker), the name stays as typed; the workbench says which folder it makes. */
+    const folder = el('p', 'pw-help pw-start__folder'); folder.id = 'start-folder';
+    let asked = 0;
+    const showFolder = async () => {
+      const mine = ++asked, typed = input.value.trim();
+      if (!typed) { folder.textContent = ''; return; }
+      try { const found = await api(`/api/project-start/folder?name=${encodeURIComponent(typed)}&parent=${encodeURIComponent(choice.parent)}`); if (mine === asked) folder.textContent = found.folder ? `Folder: ${tilde(found.folder)}` : ''; }
+      catch { if (mine === asked) folder.textContent = ''; }
+    };
+    input.addEventListener('input', showFolder); showFolder();
+    where.onclick = async () => { const picked = await workspace.pickFolder(choice.parent); if (picked) { choice.parent = picked; whereLabel.textContent = `Create in ${tilde(picked)}`; showFolder(); } };
     const sentence = el('label', 'pw-label pw-start__field', 'What is it, in a sentence? (optional)'), text = el('input', 'pw-field'); text.id = 'start-sentence'; text.maxLength = 300; text.placeholder = 'e.g. A notes app for my class, in Japanese and English.'; text.value = choice.sentence; sentence.append(text);
     const help = el('p', 'pw-help', 'The workbench reads the sentence to suggest capabilities in the next step; nothing is chosen for you.');
     const out = el('div', 'pw-start__way-out'), empty = button('Start from an empty folder instead', 'pw-btn'); empty.id = 'start-empty';
     empty.onclick = () => createEmpty(input.value.trim());
     out.append(empty, el('p', 'pw-help', 'Skips capabilities and packages: ROADMAP.md and tasks/001-first-task.md only, as before.'));
     for (const field of [input, text]) field.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); forward(); } });
-    body.append(name, where, sentence, help, out);
+    body.append(name, where, folder, sentence, help, out);
     setTimeout(() => input.focus());
   }
 
@@ -220,12 +230,13 @@ export function installProjectStart({ api, workspace, project, showConversation,
   async function summaryStep() {
     next.disabled = true; status.textContent = 'Counting the base…';
     let plan;
-    try { plan = await api('/api/project-start/plan', { name: choice.name, packages: [...choice.packages], capabilities: [...choice.capabilities] }); }
+    try { plan = await api('/api/project-start/plan', { name: choice.name, parent: choice.parent, packages: [...choice.packages], capabilities: [...choice.capabilities] }); }
     catch (error) { status.textContent = error.message; return; }
     if (step !== 3) return;
     const facts = el('dl', 'pw-facts'); facts.id = 'start-facts';
     const fact = (term, value) => { const dd = el('dd', '', value); facts.append(el('dt', '', term), dd); return dd; };
-    fact('Name', `${choice.name} · ${tilde(choice.parent)}/${choice.name}`).dataset.noTranslate = '';
+    fact('Name', choice.name).dataset.noTranslate = '';
+    fact('Folder', tilde(plan.folder || `${choice.parent}/${choice.name}`)).dataset.noTranslate = '';
     fact('Capabilities', plan.capabilities.length ? plan.capabilities.map(id => capability(id).name + (plan.included[id] ? ` (from ${pack(plan.included[id]).name})` : '')).join(' · ') : 'None: the package’s base only');
     fact('Packages', plan.packages.map(id => pack(id).name).join(' · '));
     fact('The base', `${plural(plan.files, 'file')}, ${plural(plan.tests, 'test')} (checked when you press Create)`);

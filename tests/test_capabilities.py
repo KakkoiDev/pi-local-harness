@@ -120,16 +120,16 @@ class BuildTest(unittest.TestCase):
                 self.assertEqual(failing[0]['capability'], 'Always fails (test)')
                 self.assertIn('always fails', failing[0]['test'].replace('_', ' '))
                 self.assertIn('Nothing was created', str(raised.exception))
-                self.assertFalse((code / ('Broken ' + base)).exists(), 'no folder')
-                self.assertTrue((self.root / 'Trash' / ('Broken ' + base)).is_dir(), 'the partial folder is in the Trash')
+                self.assertFalse((code / ('broken-' + base)).exists(), 'no folder')  # task 327: the folder is a slug of the name
+                self.assertTrue((self.root / 'Trash' / ('broken-' + base)).is_dir(), 'the partial folder is in the Trash')
         self.assertEqual(store.list_projects(), [], 'and no project')
 
     def test_create_through_the_store_registers_the_project_with_its_check(self):
         store = DocumentStore(self.root / 'data'); code = self.root / 'code'; code.mkdir()
         start = {'packages': ['tui'], 'capabilities': ['database']}
         project = store.create_project('Quiz', str(code), 'start', start=start)
-        self.assertTrue(start['check']['passed']); self.assertEqual(store.project_path(project), (code / 'Quiz').resolve())
-        self.assertTrue((code / 'Quiz/tests/test_cap_database.py').is_file() and (code / 'Quiz/ROADMAP.md').is_file())
+        self.assertTrue(start['check']['passed']); self.assertEqual(store.project_path(project), (code / 'quiz').resolve())
+        self.assertTrue((code / 'quiz/tests/test_cap_database.py').is_file() and (code / 'quiz/ROADMAP.md').is_file())
 
 
 class AddTest(unittest.TestCase):

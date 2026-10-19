@@ -1,0 +1,26 @@
+{
+ "about": "Step 1 (findings 1, 5): a tool finishes, then the model stream goes silent with the connection open (a restarted Ollama runner); later a long answer the person stops.",
+ "turns": [
+  {
+   "when": "Look at the roadmap",
+   "think": "Looking at the project first.",
+   "calls": [
+    {
+     "name": "read",
+     "arguments": {
+      "path": "ROADMAP.md"
+     }
+    }
+   ]
+  },
+  {
+   "when": "^tool:",
+   "hang": true
+  },
+  {
+   "when": "Explain the icons at length",
+   "say": "[CANARY] Partial answer: the first half of a long explanation about the icons",
+   "hang": true
+  }
+ ]
+}

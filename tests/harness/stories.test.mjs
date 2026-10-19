@@ -42,7 +42,7 @@ function terminal(bench, cwd, answers = []) {
 test('US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Building approves; the web sees the same phase', async t => {
   const bench = await workbench(t);
   const { project } = await bench.api('/api/projects/create', { name: 'Terminal counter', parent: bench.directory, kind: 'empty' });
-  const root = join(bench.directory, 'Terminal counter');
+  const root = join(bench.directory, 'terminal-counter');  // task 327: the folder is a slug of the name
   const person = terminal(bench, root, ['Start Building']);
   await person.type('plan');
   assert.match(person.notices.at(-1), /Phase: Planning/);
@@ -66,7 +66,7 @@ test('US-100 terminal: /plan, Pi proposes, /build reviews the tasks and Start Bu
 test('US-101 terminal: /build with nothing planned changes nothing and says to /plan first', async t => {
   const bench = await workbench(t);
   const { project } = await bench.api('/api/projects/create', { name: 'Nothing planned', parent: bench.directory, kind: 'empty' });
-  const person = terminal(bench, join(bench.directory, 'Nothing planned'));
+  const person = terminal(bench, join(bench.directory, 'nothing-planned'));
   await person.type('build');
   assert.match(person.notices.at(-1), /nothing is planned yet\. \/plan first/);
   assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'discussion');
@@ -120,7 +120,7 @@ test('US-091 terminal in Japanese: the language chosen in web Settings is the te
   await bench.api('/api/settings', { language: 'ja' });
   const { project } = await bench.api('/api/projects/create', { name: 'Nihongo', parent: bench.directory, kind: 'empty' });
   loadTerminalLanguage(requestLanguage(bench.data, {}));  // what the extension does at each request (harness/extension.mjs)
-  const person = terminal(bench, join(bench.directory, 'Nihongo'));
+  const person = terminal(bench, join(bench.directory, 'nihongo'));
   await person.type('plan');
   assert.match(person.notices.at(-1), /フェーズ：計画/);
   assert.equal((await bench.api('/api/phase?project=' + project)).phase, 'planning');
@@ -191,7 +191,7 @@ test('US-226 terminal: /queue edit and /queue remove change a waiting message af
 test('US-325 terminal: /setup packages asks first and installs the project\'s packages', async t => {
   const bench = await workbench(t);
   const { project } = await bench.api('/api/projects/create', { name: 'Habit Tracker', parent: bench.directory, kind: 'web' });
-  const root = join(bench.directory, 'Habit Tracker'), log = join(bench.directory, 'uv-calls.log');
+  const root = (await bench.api('/api/workspace')).projects.find(item => item.id === project).path, log = join(bench.directory, 'uv-calls.log');  // task 327: a slug folder
   // A uv stand-in first on PATH (harness/admin.py runs with this process's environment): never a real download.
   writeFileSync(join(bench.directory, 'uv'), `#!/bin/sh\necho "$@" >> '${log}'\ncase "$1" in sync) mkdir -p .venv; echo "Installed 29 packages in 12ms" >&2;; esac\n`, { mode: 0o755 });
   const saved = { PATH: process.env.PATH, PI_NO_DOWNLOADS: process.env.PI_NO_DOWNLOADS };

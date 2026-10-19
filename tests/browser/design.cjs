@@ -31,7 +31,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.goto(base);
   const post=(path,body)=>page.evaluate(async([path,body])=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Pi-Person':document.querySelector('meta[name="pi-person"]')?.content||''},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw new Error(data.error);return data;},[path,body]); /* task 261: as the person, with the page's secret */
   const created=await post('/api/projects/create',{name:'Design check',parent:directory});
-  const root=join(directory,'Design check');
+  const root=join(directory,'design-check');
   await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/ROADMAP.md`));
   await page.locator('#work-tab.active').waitFor();await page.locator('#chat-tab').click();
   // Task 233: a marked plan uses the existing request row without falsely claiming no tests ran.
@@ -905,8 +905,8 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   }
   { // Task 136: "Also read:" after an answer lists files Pi opened beyond its context; nothing when there are none.
   await stopAll();const reads=await post('/api/projects/create',{name:'Reads',parent:directory});
-  fs.writeFileSync(join(directory,'Reads','unrelated.txt'),'Outside the selected context.');
-  const old=new Date(Date.now()-7200e3);for(const file of ['ROADMAP.md','tasks/001-first-task.md'])fs.utimesSync(join(directory,'Reads',file),old,old);/* not "changed in the last hour" */
+  fs.writeFileSync(join(directory,'reads','unrelated.txt'),'Outside the selected context.');
+  const old=new Date(Date.now()-7200e3);for(const file of ['ROADMAP.md','tasks/001-first-task.md'])fs.utimesSync(join(directory,'reads',file),old,old);/* not "changed in the last hour" */
   await page.goto(`${base}/p/${reads.project}/chat`);await page.locator('#prompt').fill('Look around TEST_READ');await page.locator('#send').click();
   const after=page.locator('#thread .pw-msg .pw-context--after').last();await after.waitFor({timeout:20000});
   assert.equal(await after.textContent(),'Also read:unrelated.txt(Pi opened it)');assert.equal(await after.locator('a').getAttribute('title'),'unrelated.txt');
@@ -945,9 +945,9 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await projectMenu('rename-project');await page.locator('#name-dialog-title').filter({hasText:'Rename Project'}).waitFor();
   await page.locator('#name-dialog-input').fill('Renamed');assert.match(await page.locator('#name-dialog-help').textContent(),/^Renames the folder “Rename me” to “Renamed” in .+\. Chat, comments and Activity stay with the project\.$/);
   await page.locator('#name-dialog-ok').click();await page.locator('#toast-text').filter({hasText:'Renamed to “Renamed”.'}).waitFor();
-  assert.ok(fs.existsSync(join(directory,'Renamed','ROADMAP.md')));assert.equal(new URL(page.url()).pathname,`/p/${pid}/chat`,'the address stays');
+  assert.ok(fs.existsSync(join(directory,'renamed','ROADMAP.md')));assert.equal(new URL(page.url()).pathname,`/p/${pid}/chat`,'the address stays');
   await page.locator('#window-title').filter({hasText:'Renamed'}).waitFor();
-  await page.locator('#toast-undo').click();await page.waitForFunction(()=>document.querySelector('#window-title').textContent==='Rename me');assert.ok(fs.existsSync(join(directory,'Rename me')),'Undo renames it back');
+  await page.locator('#toast-undo').click();await page.waitForFunction(()=>document.querySelector('#window-title').textContent==='Rename me');assert.ok(fs.existsSync(join(directory,'rename-me')),'Undo renames it back');
   fs.mkdirSync(join(directory,'Elsewhere'));
   await projectMenu('rename-project');await page.locator('#name-dialog-title').filter({hasText:'Rename Project'}).waitFor();await page.locator('#name-dialog-input').fill('Elsewhere');await page.locator('#name-dialog-ok').click();
   await page.locator('#name-dialog-help').filter({hasText:'A folder named “Elsewhere” already exists'}).waitFor();assert.equal(await page.locator('#name-dialog').evaluate(dialog=>dialog.open),true,'round 5: the error stays in the dialog');
@@ -955,17 +955,17 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#name-dialog-cancel').click();
   await projectMenu('move-project');await page.locator('#folder-dialog-title').filter({hasText:'Move “Rename me”'}).waitFor();await page.locator('#folder-list .pw-row').first().waitFor();assert.equal(await page.locator('#folder-use').textContent(),'Move Here');
   assert.equal(await page.locator('#folder-name').isVisible(),false,'no name field when moving');
-  assert.equal(await page.locator('#folder-list .pw-row',{hasText:'Rename me'}).isDisabled(),true,'the project cannot move into itself');
+  assert.equal(await page.locator('#folder-list .pw-row',{hasText:'rename-me'}).isDisabled(),true,'the project cannot move into itself');
   await page.locator('#folder-path').fill(join(directory,'Elsewhere'));await page.locator('#folder-go').click();await page.locator('#folder-help').filter({hasText:'Elsewhere.'}).waitFor();
   assert.match(await page.locator('#folder-help').textContent(),/^Moves “Rename me” into .+Elsewhere\. Chat, comments and Activity stay with the project\.$/);
   await page.locator('#folder-use').click();await page.locator('#toast-text').filter({hasText:/^Moved to .+Elsewhere\.$/}).waitFor();
-  assert.ok(fs.existsSync(join(directory,'Elsewhere','Rename me','ROADMAP.md')));
+  assert.ok(fs.existsSync(join(directory,'Elsewhere','rename-me','ROADMAP.md')));
   await page.locator('#prompt').fill('Hold on TEST_WAIT');await page.locator('#send').click();
   await projectMenu('rename-project');await page.locator('#name-dialog-title').filter({hasText:'Rename Project'}).waitFor();await page.locator('#name-dialog-input').fill('Busy');await page.locator('#name-dialog-ok').click();
   await page.locator('#alert-message').filter({hasText:'Pi is answering about this project.'}).waitFor();
   assert.equal(await page.locator('#alert-danger').textContent(),'Show in Activity');assert.equal(await page.locator('#alert-default').textContent(),'OK');
   assert.equal(await page.locator('#alert-danger').evaluate(button=>button.classList.contains('pw-dialog__danger')),false,'an ordinary button');
-  await page.locator('#alert-default').click();assert.ok(fs.existsSync(join(directory,'Elsewhere','Rename me')),'nothing moved');
+  await page.locator('#alert-default').click();assert.ok(fs.existsSync(join(directory,'Elsewhere','rename-me')),'nothing moved');
   await stopAll();
   await projectMenu('remove-project');await page.locator('#alert-message').filter({hasText:'Remove “Rename me” from the list?'}).waitFor();
   assert.equal(await page.locator('#alert-default').textContent(),'Remove');await page.keyboard.press('Escape');
@@ -978,10 +978,10 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await projectMenu('trash-project');await page.locator('#alert-message').filter({hasText:'Move “Rename me” to the Trash?'}).waitFor();
   assert.match(await page.locator('#alert-detail').textContent(),/^Its 3 files and 1 folder go to the Trash on your Mac\./);assert.equal(await page.locator('#alert-default').textContent(),'Cancel','Cancel is the default');
   await page.locator('#alert-danger').click();await page.locator('#toast-text').filter({hasText:'“Rename me” is in the Trash.'}).waitFor();
-  assert.ok(fs.existsSync(join(directory,'Trash','Rename me','ROADMAP.md')),'in the (test) Trash');assert.equal(await listed(),false);
-  const gone=await post('/api/projects/create',{name:'Gone',parent:directory});fs.renameSync(join(directory,'Gone'),join(directory,'Found'));
+  assert.ok(fs.existsSync(join(directory,'Trash','rename-me','ROADMAP.md')),'in the (test) Trash');assert.equal(await listed(),false);
+  const gone=await post('/api/projects/create',{name:'Gone',parent:directory});fs.renameSync(join(directory,'gone'),join(directory,'Found'));
   await page.goto(`${base}/projects`);await page.locator('#project-list .pw-row',{hasText:'Gone'}).click();
-  await page.locator('#missing-banner').waitFor();assert.match(await page.locator('#missing-text').textContent(),/^The folder .+Gone is missing\. The chat is kept; Pi cannot work here until you locate it\.$/);
+  await page.locator('#missing-banner').waitFor();assert.match(await page.locator('#missing-text').textContent(),/^The folder .+gone is missing\. The chat is kept; Pi cannot work here until you locate it\.$/);
   await page.locator('#menubar [aria-controls="menu-project"]').click();
   assert.equal(await page.locator('#menu-project [data-command="move-project"]').isVisible(),false);assert.equal(await page.locator('#menu-project [data-command="locate-project"]').isVisible(),true);
   assert.equal(await page.locator('#menu-project [data-command="rename-project"]').getAttribute('aria-disabled'),'true','dimmed, not hidden');
@@ -1082,7 +1082,7 @@ paper.start_building(root)
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),emptyCode.id);
   await page.reload();const emptyCheck=page.locator('.pw-card').filter({hasText:'no implementation change'}).last();await emptyCheck.waitFor();
   assert.match(await emptyCheck.textContent(),/not verified/);
-  assert.match(require('node:fs').readFileSync(join(directory,'Phase lifecycle',task),'utf8'),/- \[ \] Red:/);
+  assert.match(require('node:fs').readFileSync(join(directory,'phase-lifecycle',task),'utf8'),/- \[ \] Red:/);
   await page.reload();await page.locator('.pw-card').filter({hasText:'no implementation change'}).last().waitFor();
   execFileSync('python3',['-c',`from pathlib import Path
 from gate.paperwork import Paperwork
@@ -1091,7 +1091,7 @@ from harness.documents import DocumentStore
 import sys
 root=Path(sys.argv[1]);data=Path(sys.argv[2]);paper=Paperwork(Protocol(),data=data);paper.projects=DocumentStore(data)
 plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_state(root,plan)
-`,join(directory,'Phase lifecycle'),join(directory,'workspace')]);
+`,join(directory,'phase-lifecycle'),join(directory,'workspace')]);
   const checked=await post('/api/jobs/create',{project:phaseProject.project,message:'TASK='+task+' TEST_PHASE_CHECK'});
   await page.waitForFunction(id=>fetch('/api/workspace').then(r=>r.json()).then(d=>d.jobs.some(j=>j.id===id&&j.status==='completed')),checked.id);
   await page.reload();const phaseLast=page.locator('.pw-card').filter({hasText:'Waiting for you to check it'}).last();await phaseLast.waitFor();

@@ -487,8 +487,8 @@ test('auto check-ins start fresh request identities and finish with a report (ta
  try {
   harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});await handlers.session_start({},ctx);
   await handlers.input({source:'interactive',text:'Build a game'},ctx);await handlers.agent_settled({aborted:false});
-  assert.deepEqual(sent,['yes']);assert.equal(notices.filter(text=>text==='Harness settled').length,0);
-  await handlers.input({source:'extension',text:'yes'},ctx);handlers.agent_start({},ctx);await handlers.agent_settled({aborted:false});
+  assert.deepEqual(sent,['Continue the next approved task.'],'task 327: the harness\'s own words, never a fake "yes"');assert.equal(notices.filter(text=>text==='Harness settled').length,0);
+  await handlers.input({source:'extension',text:'Continue the next approved task.'},ctx);handlers.agent_start({},ctx);await handlers.agent_settled({aborted:false});
   const requests=calls.filter(call=>call.path==='/request');assert.equal(requests.length,2);assert.notEqual(requests[0].body.request,requests[1].body.request);
   assert.equal(notices.filter(text=>text==='Harness settled').length,1);assert.ok(notices.some(text=>text.startsWith('Harness report: ')));
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}

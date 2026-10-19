@@ -81,7 +81,6 @@ uncovered button:open on phone…
 uncovered button:open the plan
 uncovered button:projects
 uncovered button:reopen
-uncovered button:start again
 uncovered button:start from an empty folder instead
 uncovered button:understand some code
 uncovered button:‹ theme
@@ -159,6 +158,7 @@ absent button:More for Found
 absent button:Remove drop.txt
 absent button:Remove voice.wav
 absent button:Second project
+absent button:Tick today
 absent button:idea.md
 absent button:ideas.md
 absent button:live.py
