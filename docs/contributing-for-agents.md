@@ -4,7 +4,7 @@ Written for any model working on this repository, including small local ones. Fo
 
 ## 1. What this project is (one paragraph)
 
-Pi Workbench is a local web app for **one person, one local AI agent (Pi), one chat per project, and real Markdown files**. `plh` starts Pi in a terminal, Gate (a command checker) on port 8000 and the web workbench on port 3000. The web server is standard-library Python. The page is plain HTML, CSS and ES modules, designed as a Pi Workbench 1-bit Macintosh-style interface by a separate designer.
+Pi WorkStation is a local web app for **one person, one local AI agent (Pi), one chat per project, and real Markdown files**. `plh` starts Pi in a terminal, Gate (a command checker) on port 8000 and the web workbench on port 3000. The web server is standard-library Python. The page is plain HTML, CSS and ES modules, designed as a Pi Workbench 1-bit Macintosh-style interface by a separate designer.
 
 The product rule for every feature: **the workbench takes care of the basics, Pi knows how all of it works, and the person can push further for their particular need.** So a feature ships as a working default, a card or guide that teaches Pi exactly how it works, and plain editable code in the person's project (no lock-in, nothing Pi cannot explain or extend).
 
@@ -122,7 +122,7 @@ A code task that changes nothing the person sees or types replaces `## Scenarios
 
 ### The testing protocols, dogfooded (task 330)
 
-The rules Pi Workbench gives the apps Pi builds (plan 328, task 329, test-core) apply to its own development.
+The rules Pi WorkStation gives the apps Pi builds (plan 328, task 329, test-core) apply to its own development.
 `tests/dogfood.py` checks them and `tests/verify_workflow.py` runs it; each failure names the file and what to do.
 
 1. **Every scenario is one e2e story, named after it.** The heading is the story's id and title, word for word:

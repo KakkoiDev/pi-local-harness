@@ -35,7 +35,7 @@ test('startup, ten-second loop check, abort/compact/reask, canary reinjection', 
   assert.equal(startup.length,1);
   const lines=renderers['harness-startup'](startup[0]).render(120);
   const strip=line=>line.replace(/\x1b\]8;;[^\x1b]*\x1b\\/g,'').replace(/\x1b\[[0-9;]*m/g,'');
-  assert.match(strip(lines[0]),/^π Pi Workbench {2}build \S+ · data in /,'round 6 (T_Startup): name and build first');
+  assert.match(strip(lines[0]),/^π Pi WorkStation {2}build \S+ · data in /,'round 6 (T_Startup): name and build first');
   for (const [index,label] of [[1,'Web'],[2,'Gate']]) {
    const url=lines[index].match(/http:\/\/127\.0\.0\.1:\d+/)[0];
    assert.equal(lines[index], `  ${label.padEnd(8)}\x1b[4m\x1b]8;;${url}\x1b\\${url}\x1b]8;;\x1b\\\x1b[24m`,'a link: underlined, no colour');

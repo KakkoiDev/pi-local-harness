@@ -1,11 +1,11 @@
-# Pi Workbench guide
+# Pi WorkStation guide
 
 A short guide for new users, as questions and answers. In terminal Pi, `/guide` prints it and `/guide <words>` prints
 the matching sections; Pi reads it through its `harness` tool to answer "how do I…?".
 
 ## What is this?
 
-Pi Workbench is a local workbench for one person and one local AI agent, Pi. Each project is a real folder on your Mac
+Pi WorkStation is a local workbench for one person and one local AI agent, Pi. Each project is a real folder on your Mac
 with one chat, a plan (`ROADMAP.md`, `tasks/`) and Markdown files you edit and comment on. Everything runs on this Mac:
 the model (Ollama), Pi, Gate (which checks every command Pi runs) and the web workbench.
 
@@ -54,7 +54,7 @@ Markdown as blocks or source, comment on a passage, and ask Pi about a passage o
 ## How do I change my app's colours, corners or fonts?
 
 Say so in the chat ("I want to adjust the site's colours", or 「サイトの色を調整したい」), or choose **Project › Theme…**
-(⌃⌥K). Pi Workbench answers by itself, without a model: a panel with tabs for **Colours** (light and dark side by side,
+(⌃⌥K). Pi WorkStation answers by itself, without a model: a panel with tabs for **Colours** (light and dark side by side,
 each with its contrast; the first five show, "▸ 3 more" opens the rest), **Radius**, **Spacing**, **Chart** and
 **Fonts**. A swatch opens a picker (drag the field and the hue strip, type a hex; Esc puts the old value back), and the
 Preview follows as you go. **Save Theme** writes only what you changed into `styles/input.css` as your own change; the
@@ -122,7 +122,7 @@ Trash. Both ask first. `/models check <name>` measures whether it answers two re
 
 Small local models such as gemma4:e4b-mlx can call tools, but they often write the call as text instead (for example
 `<execute_tool>read{path:app/db.py}</execute_tool>`, or `read(path="app/db.py")` on the last line), and then nothing
-runs. Pi Workbench sits between Pi and Ollama and turns such text into a real call, by fixed rules: only for a tool the
+runs. Pi WorkStation sits between Pi and Ollama and turns such text into a real call, by fixed rules: only for a tool the
 request offered, only when the arguments fit that tool, and never from prose or a code example that merely mentions a
 tool. The call then runs through Gate like any other. Each fix is logged as an automatic decision made by code, without
 file contents; Activity shows "Tool calls fixed" on the request and names a model that keeps needing it. The model menu
@@ -175,7 +175,7 @@ override it. Appearance and typing preferences apply to this browser.
 While using the workbench away from the Mac, choose π › Add to Home Screen… for the iPhone or Android steps.
 The π icon opens the workbench running on the Mac, so the Mac must stay on with Tailscale connected.
 
-## How do I update Pi Workbench?
+## How do I update Pi WorkStation?
 
 In the web workbench, π › Check for Updates… checks GitHub and shows what changed. A dot on π marks a known new
 version. Update waits for Pi's request to finish; after it succeeds, quit `plh` and start it again. Settings can turn the
@@ -185,7 +185,7 @@ prepare a request asking Pi to help.
 In terminal Pi, `/update` says whether a new version is on GitHub and what changed; `/update now` updates (it asks
 first), then quit `plh` and start it again: the new version installs as it starts, while `auto_update` is on (the
 default; with it off, `/config set auto_update true` first). Your projects and data are not
-touched. An update never overwrites changes you made to Pi Workbench's own files: it says so instead.
+touched. An update never overwrites changes you made to Pi WorkStation's own files: it says so instead.
 
 ## Something is wrong. What do I do?
 
@@ -274,7 +274,7 @@ Discussion includes `web_search`: Bing returns titles, links and snippets; sourc
 Yes, from the designer's App Blocks: 137 ready-made parts (log in, side panel, data table, charts, cart, kanban…),
 whole apps (online shop, admin dashboard, notes, chat, CRM…), game genres (RPG, shooter, cozy, roguelike…) and art
 direction. Name what you want in the chat, in English or Japanese ("add a login page", 「ログイン画面を作って」, "build an
-online shop", "make an RPG"): Pi Workbench gives Pi exactly that card, never the whole library, and Pi copies its
+online shop", "make an RPG"): Pi WorkStation gives Pi exactly that card, never the whole library, and Pi copies its
 markup, texts and states instead of inventing them. An app's card lists its blocks; Pi loads each one with its
 `app_block` tool. `python3 kit/blocks/add.py <project> <Name>` (in the harness folder) copies what a block needs, such
 as Chart.js for a chart, with licences, and `python3 kit/blocks/check.py <page>` checks a page for classes Basecoat

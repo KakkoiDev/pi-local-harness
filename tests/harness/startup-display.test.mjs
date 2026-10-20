@@ -14,7 +14,7 @@ test('older Pi without entry renderers loads and falls back to notifications',()
 });
 test('the header: name and build, Web, Gate, Phone, how to begin (round 6, T_Startup)',()=>{
  const base={gate:8000,web:3000},about={build:'7f3b86b',data:'~/pi-local-harness-data'};
- assert.deepEqual(startupLines(base,about),['π Pi Workbench  build 7f3b86b · data in ~/pi-local-harness-data','  Web     http://127.0.0.1:3000','  Gate    http://127.0.0.1:8000','  Phone   off · set remote_hosts and remote_users  /guide phone','  Ask in words, or type /harness for commands.']);
+ assert.deepEqual(startupLines(base,about),['π Pi WorkStation  build 7f3b86b · data in ~/pi-local-harness-data','  Web     http://127.0.0.1:3000','  Gate    http://127.0.0.1:8000','  Phone   off · set remote_hosts and remote_users  /guide phone','  Ask in words, or type /harness for commands.']);
  assert.equal(startupLines(base,{...about,first:true}).at(-1),'  New here? Try “is anything stuck?”, /status or /guide.');
  const lines=startupLines({...base,remote:'https://mini.example.ts.net'},about);
  assert.equal(lines[3],'  Phone   https://mini.example.ts.net  scan →');
@@ -35,6 +35,6 @@ test('the phone address prints as a scannable QR code under its line (task 122)'
  assert.equal(qr[0].replace(/\x1b\[[0-9;]*m/g,''),' '.repeat(size+8),'quiet zone');
  assert.equal(rows.at(-1),'  Ask in words, or type /harness for commands.','under 100 columns the QR goes below the phone line');
  assert.equal(renderStartup(['  Phone   '+url+'  scan →'],size+7).some(row=>row.includes('\x1b[30;47m')),false,'no QR when the terminal is narrower than it');
- const wide=renderStartup(['π Pi Workbench  build x','  Web     http://127.0.0.1:3000','  Phone   '+url+'  scan →','  Ask in words, or type /harness for commands.'],120);
+ const wide=renderStartup(['π Pi WorkStation  build x','  Web     http://127.0.0.1:3000','  Phone   '+url+'  scan →','  Ask in words, or type /harness for commands.'],120);
  assert.ok(wide[0].includes('\x1b[30;47m'),'from 100 columns the QR sits beside the lines'); assert.equal(wide.length,Math.ceil((size+8)/2));
 });

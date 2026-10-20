@@ -734,7 +734,7 @@ story('US-116', 'adjust the site’s colours: the panel opens without Pi, the pi
   const primary = panel.locator('.pw-theme__row[data-token="primary"]'); await primary.waitFor();
   assert.equal((await t.bench.api('/api/workspace')).jobs.length, 0, 'Pi was not asked');
   assert.equal(decisions(t).at(-1).kind, 'theme_panel'); assert.equal(decisions(t).at(-1).who, 'code');
-  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi Workbench.*· no model/);
+  assert.match(await page.locator('.pw-msg').last().locator('.pw-msg__label').textContent(), /Pi WorkStation.*· no model/);
   assert.equal(await panel.locator('.pw-card__title').textContent(), 'Theme · Colours');
   assert.deepEqual(await panel.getByRole('tab').allTextContents(), ['Colours', 'Radius', 'Spacing', 'Chart', 'Fonts']);
   assert.match(await primary.locator('.pw-theme__name').textContent(), /^Primary\s*buttons and links$/);
@@ -2215,7 +2215,25 @@ story('US-343', 'Add a Capability… brings its scenario into SCENARIOS.md with 
 });
 
 // -- the run -----------------------------------------------------------------------------------------------------
-if (require.main === module) (async () => {
+if (require.main === module) story('US-351', 'the browser and terminal identify the app as Pi WorkStation without losing my projects', async t => {
+  const made = await newProject(t, 'Kept project');
+  const before = (await t.bench.api('/api/workspace')).projects.find(item => item.id === made.project);
+  assert.equal(await t.page.title(), 'Pi WorkStation');
+  await t.page.locator('#pi-about').evaluate(button => button.click());
+  await t.page.locator('#about-dialog').waitFor();
+  assert.equal(await t.page.locator('#about-title').textContent(), 'Pi WorkStation');
+  await t.page.locator('#about-dialog button[value="ok"]').click();
+  await t.page.reload();
+  await t.page.waitForFunction(() => document.querySelector('#window-title'));
+  const after = (await t.bench.api('/api/workspace')).projects.find(item => item.id === made.project);
+  assert.equal(after.id, before.id); assert.equal(after.path, before.path);
+  const { startupLines } = await import('../../harness/startup-display.mjs');
+  assert.match(startupLines({web:3000,gate:8000})[0], /^π Pi WorkStation  build /);
+  const dictionary = JSON.parse(fs.readFileSync(join(__dirname, '../../messages/ja.json'), 'utf8'));
+  assert.equal(dictionary.exact['About Pi WorkStation'], 'Pi WorkStation について');
+});
+
+(async () => {
   const browser = await launch(); let bench = null, context = null, current = null;
   const code = await run({
     async fresh(item) {

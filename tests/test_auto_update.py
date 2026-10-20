@@ -113,7 +113,7 @@ class AutoUpdateTest(unittest.TestCase):
         self.commit('marker-while-running\n')
         before = self.backups()
         result = self.launch()
-        self.assertEqual(self.installed(), '# Pi Workbench', 'the running package is left as it is')
+        self.assertEqual(self.installed(), '# Pi WorkStation', 'the running package is left as it is')
         self.assertEqual(self.backups(), before)
         self.assertIn('already running', result.stderr); self.assertIn(str(server.server_port), result.stderr)
         self.assertNotIn('extension', result.stdout, 'a second Pi must not start duplicate services')
@@ -151,7 +151,7 @@ class AutoUpdateTest(unittest.TestCase):
         (self.data / 'config.json').write_text(json.dumps({**config, 'auto_update': False}))
         self.commit('marker-skipped\n')
         self.launch()
-        self.assertEqual(self.installed(), '# Pi Workbench')
+        self.assertEqual(self.installed(), '# Pi WorkStation')
 
     def test_missing_checkout_still_starts_the_installed_build(self):
         self.commit('marker-unreached\n')

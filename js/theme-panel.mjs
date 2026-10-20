@@ -1,5 +1,5 @@
 // Task 312, the theme panel, rebuilt to the designer's round 12 drawing (card ThemePanel; boards R12_ThemeColours,
-// R12_ThemeRadius, R12_ThemeParts, Ph12_Theme, Ph12_ThemePick). Pi Workbench's own reply in the chat (“no model”):
+// R12_ThemeRadius, R12_ThemeParts, Ph12_Theme, Ph12_ThemePick). Pi WorkStation's own reply in the chat (“no model”):
 // one group of the app's theme per panel, switched by the tabs in its head (Colours · Radius · Spacing · Chart, and
 // Fonts, which the designer has not drawn yet). A change restyles the Preview at once through the helper the Preview's
 // proxy adds to the app (harness/theme-helper.js); Save Theme writes the block in styles/input.css and commits it as the

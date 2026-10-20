@@ -14,6 +14,6 @@ class DesignBrandTests(unittest.TestCase):
             self.assertIn('Pi Workbench 1-bit',text,name)
             self.assertNotIn('Pi Workbench System 1',text,name)
         readme=(ROOT/'README.md').read_text()
-        self.assertEqual(readme.splitlines()[0],'# Pi Workbench')
+        self.assertEqual(readme.splitlines()[0],'# Pi WorkStation')
         self.assertIn('Pi Workbench 1-bit',readme)
         self.assertIn('System 1 decides; System 2 produces',(ROOT/'CONSTITUTION.md').read_text())

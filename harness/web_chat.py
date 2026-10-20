@@ -495,7 +495,7 @@ class WebChat:
         if result['abstained']:return 'hint',group
         return ('yes' if result['answer'] else None),group
     def open_theme(self, project, group='colours', message=''):
-        """The panel as Pi Workbench's reply in the project chat (after the person's words, when they asked in words)."""
+        """The panel as Pi WorkStation's reply in the project chat (after the person's words, when they asked in words)."""
         if group not in theme.GROUPS:raise ValueError('Unknown theme group.')
         chat=self.project_chat(project)
         if message.strip():self.store.append(chat['id'],{'role':'user','content':message})

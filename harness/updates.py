@@ -1,6 +1,6 @@
 """Updates (the person, 2026-10-15: "make it easy for the user to update the app when a new version comes out").
 
-Pi Workbench is installed from a clone of its GitHub repository (install.json names it: the source). A check fetches
+Pi WorkStation is installed from a clone of its GitHub repository (install.json names it: the source). A check fetches
 the clone's remote and says whether a new version is there and what changed, in plain words. An update is only ever a
 fast-forward of that clone: never over changes that are not saved, never over the clone's own commits. plh then
 installs the new build the next time it starts (plh.py update(), auto_update), or at once from /update.
@@ -42,7 +42,7 @@ def check(source, fetch=True):
     if ahead:
         return {**found, 'state': 'blocked', 'why': f'This copy has its own changes ({ahead} commit{"s" if ahead != 1 else ""} not on GitHub), so it is not updated automatically.'}
     if git(source, 'status', '--porcelain', '--untracked-files=no').stdout.strip():
-        return {**found, 'state': 'blocked' if behind else 'current', 'why': 'Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.'}
+        return {**found, 'state': 'blocked' if behind else 'current', 'why': 'Some files of Pi WorkStation were edited and not saved in a commit; updating would overwrite them.'}
     return {**found, 'state': 'available' if behind else 'current'}
 
 

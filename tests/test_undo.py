@@ -49,8 +49,8 @@ class UndoTest(unittest.TestCase):
 
     def test_only_the_harness_own_commits(self):
         mine = commit(self.root, {'notes.md': 'my notes\n'}, 'My notes', name='Person')
-        with self.assertRaisesRegex(ValueError, 'not a request Pi Workbench committed'): undo.undo(self.root, mine)
-        with self.assertRaisesRegex(ValueError, 'not a request Pi Workbench committed'): undo.preview(self.root, 'deadbeef')
+        with self.assertRaisesRegex(ValueError, 'not a request Pi WorkStation committed'): undo.undo(self.root, mine)
+        with self.assertRaisesRegex(ValueError, 'not a request Pi WorkStation committed'): undo.preview(self.root, 'deadbeef')
 
     def test_unsaved_edits_in_those_files_are_never_overwritten(self):
         (self.root / 'app.py').write_text('def total(a, b):\n    return a + b  # mine\n')

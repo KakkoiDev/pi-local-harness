@@ -1,6 +1,6 @@
-# Pi Workbench: reference
+# Pi WorkStation: reference
 
-How Pi Workbench works in detail: install and update, projects and chat, data and configuration, the architecture, recovery, where to change things. For a first look, see [the README](../README.md).
+How Pi WorkStation works in detail: install and update, projects and chat, data and configuration, the architecture, recovery, where to change things. For a first look, see [the README](../README.md).
 
 New here? [harness/GUIDE.md](../harness/GUIDE.md) answers the common questions (starting, opening the workbench, projects,
 comments, models, the phone, settings, trouble). In terminal Pi, `/guide <words>` prints the matching answers, and Pi
@@ -31,7 +31,7 @@ if necessary. The installed runtime survives moving or deleting the checkout.
 checkout's committed `HEAD` with the installed build; if they differ it installs that
 commit (`git archive`, so uncommitted edits never ship) and prints `PLH: updated to
 <commit>`. If the checkout is gone or the update fails it prints `PLH: not updated` and
-starts the installed build. While a Pi Workbench already answers on its web port, `plh` does
+starts the installed build. While a Pi WorkStation already answers on its web port, `plh` does
 not update (the package would change under it) and says so; quit the workbench and start `plh` again.
 Set `"auto_update": false` in `config.json` to stop this.
 A running session keeps its build until you restart `plh`. Re-run the installer by hand

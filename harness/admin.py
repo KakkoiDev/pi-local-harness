@@ -365,7 +365,7 @@ class Console:
     def set_ollama(self, key, raw, yes=False):
         if key not in OLLAMA_KEYS: raise ValueError(f"Unknown Ollama setting {key}. Settings: {', '.join(OLLAMA_KEYS)}.")
         where, name, check, about = OLLAMA_KEYS[key]; value = check(raw); before = self.ollama_value(key)
-        detail = f"{key}: {before if before not in (None, '', 0) else 'default'} → {value}\n{about}\nPi Workbench restarts Ollama so it reads the new value; a loaded model unloads."
+        detail = f"{key}: {before if before not in (None, '', 0) else 'default'} → {value}\n{about}\nPi WorkStation restarts Ollama so it reads the new value; a loaded model unloads."
         rows = [[key, f"{before if before not in (None, '', 0) else 'default'} → {value}"], ['Saved in', str(OLLAMA_SETTINGS) if where == 'db' else f'{name} (launchctl)'], ['Also', 'Ollama restarts; a loaded model unloads']]
         if not yes: return {'confirm': True, 'title': f'Change Ollama’s {key}?', 'detail': detail, 'rows': rows, 'action': 'Change and Restart'}
         self.idle()
@@ -404,7 +404,7 @@ class Console:
         staging = folder / f"Removed model {name.replace('/', ' ').replace(':', ' ')} {datetime.now().strftime('%Y-%m-%d %H%M%S')}"
         for source in [manifest, *blobs]:
             target = staging / source.relative_to(folder); target.parent.mkdir(parents=True, exist_ok=True); source.rename(target)
-        (staging / 'README.txt').write_text(f'{name}, removed from {folder} by the Pi Workbench console.\nTo bring it back, move manifests/ and blobs/ from this folder into {folder} (merge the folders).\n')
+        (staging / 'README.txt').write_text(f'{name}, removed from {folder} by the Pi WorkStation console.\nTo bring it back, move manifests/ and blobs/ from this folder into {folder} (merge the folders).\n')
         to_trash(staging)
         self.log(command=f'models remove {name}', trash=staging.name, files=len(blobs), bytes=size)
         return {'changed': True, 'detail': detail, 'result': f'✓ {name} is in the Trash.'}
@@ -448,8 +448,8 @@ COMMANDS = {
     'reports': ('[kind]', 'Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.'),
     'decisions': ('[--all] [request]', 'The last request’s decisions with their authors (you, auto, Laya, code, model); --all adds those code made, with rules, paths and commands.'),
     'bench': ('', 'The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.'),
-    'guide': ('[words]', 'How to use Pi Workbench: the guide, or its sections about the words.'),
-    'update': ('[now]', 'Is a new version of Pi Workbench on GitHub, and what changed; now updates (asks first).'),
+    'guide': ('[words]', 'How to use Pi WorkStation: the guide, or its sections about the words.'),
+    'update': ('[now]', 'Is a new version of Pi WorkStation on GitHub, and what changed; now updates (asks first).'),
 }
 
 
@@ -677,12 +677,12 @@ def build(console, command, args, yes=False):
         source = update_source()
         if args[:1] == ['now']:
             found = updates.check(source)
-            if found['state'] != 'available': return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi Workbench is up to date.'})
+            if found['state'] != 'available': return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi WorkStation is up to date.'})
             # Task 263: plh installs the updated clone at its next start only when auto_update is on; otherwise say so.
             manual = f"auto_update is off, so plh keeps running this build. To install it, run python3 {source / 'harness/install.py'}, or turn auto_update on (/config set auto_update true) and start plh again."
             auto = bool(console.config()['values'].get('auto_update', True))
             if not yes:
-                return changed({'confirm': True, 'title': 'Update Pi Workbench?', 'action': 'Update',
+                return changed({'confirm': True, 'title': 'Update Pi WorkStation?', 'action': 'Update',
                                 'rows': [['Changes', f"{found['behind']} from GitHub"], ['Then', 'quit plh and start it again: the new version installs as it starts' if auto else 'the clone is updated; ' + manual]]})
             done = updates.apply(source)
             if done['state'] != 'updated': return done, view('Update', {'kind': 'prose', 'text': done.get('why', '')})
@@ -691,12 +691,12 @@ def build(console, command, args, yes=False):
         if found['state'] == 'available':
             return found, view('Update', {'kind': 'prose', 'text': f"A new version is on GitHub: {found['behind']} change{'s' if found['behind'] != 1 else ''}."},
                                {'kind': 'lines', 'lines': ['· ' + line for line in found['changes']]}, hint='/update now updates (asks first)')
-        return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi Workbench is up to date.'})
+        return found, view('Update', {'kind': 'prose', 'text': found.get('why') or 'Pi WorkStation is up to date.'})
     raise LookupError(f'Unknown command: {command}. Type /harness for the list.')
 
 
 def update_source():
-    """The clone Pi Workbench was installed from (install.json), or this checkout when it runs from one."""
+    """The clone Pi WorkStation was installed from (install.json), or this checkout when it runs from one."""
     record = ROOT / 'install.json'
     try: return Path(json.loads(record.read_text())['source'])
     except (OSError, ValueError, KeyError): return ROOT
@@ -716,7 +716,7 @@ GUIDE_WORDS = {'What is this?': 'what', 'How do I start it?': 'start', 'How do I
                'How do I get a new model, or remove one?': 'pull', "Why does Pi fix small models' tool calls?": 'repair', 'How do I use it from my phone or another device?': 'phone',
                'Can I talk instead of typing?': 'voice', 'How do I change a setting?': 'setting', 'What can the terminal console do?': 'console',
                'How do I change the language?': 'language', "How do I add it to my phone's Home Screen?": 'home',
-               'How do I update Pi Workbench?': 'update', 'Something is wrong. What do I do?': 'wrong', 'Where is my data?': 'data',
+               'How do I update Pi WorkStation?': 'update', 'Something is wrong. What do I do?': 'wrong', 'Where is my data?': 'data',
                'How do I check whether my app is ready to publish?': 'publish', 'Why does Pi ask me to choose?': 'choose',
                'How do I let Pi work on its own?': 'auto'}
 

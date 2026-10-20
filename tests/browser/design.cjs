@@ -661,7 +661,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   assert.equal(await page.locator('#hint').isVisible(),false);assert.equal(await page.locator('.composer-wrap .footnote').isVisible(),false);
   assert.equal(new Set(await page.locator('.pw-composer__row>*').evaluateAll(items=>items.filter(item=>item.getClientRects().length&&item.offsetHeight).map(item=>Math.round(item.getBoundingClientRect().top)))).size,1,'composer controls in one row');
   await page.locator('#open-menu').click();
-  assert.equal(await page.locator('#sidebar .sheet-head__title').textContent(),'π Pi Workbench');assert.equal(await page.locator('#sidebar>.pw-titlebar').isVisible(),false);
+  assert.equal(await page.locator('#sidebar .sheet-head__title').textContent(),'π Pi WorkStation');assert.equal(await page.locator('#sidebar>.pw-titlebar').isVisible(),false);
   assert.equal(await page.locator('#pi-status').isVisible(),false,'Ph_Pi: no status strip');
   // Round 8 point 2 (Ph8_Pi): Model and Thinking in the π sheet; Model opens its own sheet with ‹ π.
   assert.equal(await page.locator('#pi-model').isVisible(),true);assert.ok((await page.locator('#pi-model-meta').textContent()).length>0,'the model name');
@@ -1136,16 +1136,16 @@ plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_
   // Round 9: every designed update state uses the safe backend result; these routes never fetch the real clone.
   await post('/api/settings',{language:'en'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));await page.reload();
   for(const [state,why,title,action] of [
-   ['current','','Pi Workbench is up to date.',''],['unknown','','Can’t check for updates right now.','Try Again'],
+   ['current','','Pi WorkStation is up to date.',''],['unknown','','Can’t check for updates right now.','Try Again'],
    ['blocked','This copy has its own changes (2 commits not on GitHub), so it is not updated automatically.','This copy is not updated automatically.','Ask Pi to Update'],
-   ['blocked','Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.','Pi Workbench can’t update yet.','Ask Pi to Save Them'],
-   ['available','','A new version of Pi Workbench is ready','Update']]){
+   ['blocked','Some files of Pi WorkStation were edited and not saved in a commit; updating would overwrite them.','Pi WorkStation can’t update yet.','Ask Pi to Save Them'],
+   ['available','','A new version of Pi WorkStation is ready','Update']]){
    updateFixture={state,why,changes:Array.from({length:25},(_,n)=>'Change '+n)};
    await page.setViewportSize({width:1440,height:900});await page.locator('#menubar [aria-controls="menu-pi"]').click();await page.locator('#menu-pi [data-command="check-updates"]').click();
    const update=page.locator('#updates-dialog');await update.getByRole('heading',{name:title,exact:true}).waitFor();
    if(action)assert.equal(await update.getByRole('button',{name:action,exact:true}).count(),1);
    if(state==='blocked')assert.match(await update.textContent(),/Nothing was changed/);
-   if(state==='available'){assert.equal(await update.locator('li').count(),20);await update.getByRole('button',{name:'Update',exact:true}).click();await update.getByRole('heading',{name:'Updating Pi Workbench…',exact:true}).waitFor();await update.getByRole('heading',{name:/Updated to abc1234/}).waitFor();}
+   if(state==='available'){assert.equal(await update.locator('li').count(),20);await update.getByRole('button',{name:'Update',exact:true}).click();await update.getByRole('heading',{name:'Updating Pi WorkStation…',exact:true}).waitFor();await update.getByRole('heading',{name:/Updated to abc1234/}).waitFor();}
    await page.keyboard.press('Escape');
   }
   const manifest=await page.evaluate(()=>fetch('/design/app-icons/manifest.webmanifest').then(r=>r.json()));assert.equal(manifest.display,'standalone');assert.equal(manifest.icons[1].purpose,'maskable');

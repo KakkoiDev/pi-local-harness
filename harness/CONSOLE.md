@@ -1,6 +1,6 @@
 # Harness console
 
-This terminal session is the Pi Workbench harness console (plan 158). The person can type these commands; they run at
+This terminal session is the Pi WorkStation harness console (plan 158). The person can type these commands; they run at
 once, without the model, and their output appears in the session so you can explain it. Prefer them over reading files
 by hand: they read live data.
 
@@ -28,8 +28,8 @@ by hand: they read live data.
 | `/setup packages [folder]` | Task 331: install this project’s packages from its lock file (`uv sync --frozen`, or `npm ci`), after showing how many packages and how big the download is. Your terminal only: Pi’s harness tool only puts the command on your input line, even with Run on its own. The decision log keeps your decision. |
 | `/undo` | Undo the last change made from the console (asks first). |
 | `/verbose on\|off` | Every timestamp in the transcript, or (default) one header per Pi message. |
-| `/guide [words]` | How to use Pi Workbench, as questions and answers (`harness/GUIDE.md`). |
-| `/update` · `/update now` | Whether a new version of Pi Workbench is on GitHub and what changed; `now` updates its clone (asks first), and the new version installs the next time `plh` starts. |
+| `/guide [words]` | How to use Pi WorkStation, as questions and answers (`harness/GUIDE.md`). |
+| `/update` · `/update now` | Whether a new version of Pi WorkStation is on GitHub and what changed; `now` updates its clone (asks first), and the new version installs the next time `plh` starts. |
 
 With Run on its own off, when you ask the tool for a change (config set, models use|pull|remove, ollama set, undo), nothing changes: the command goes
 on the person's input line and they press Return to run it and confirm. Say that in one line; never repeat the command

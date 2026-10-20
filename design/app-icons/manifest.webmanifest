@@ -1,6 +1,6 @@
 {
-  "name": "Pi Workbench",
-  "short_name": "Pi Workbench",
+  "name": "Pi WorkStation",
+  "short_name": "Pi WorkStation",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -144,7 +144,7 @@ def main():
         except OSError as error:
             import errno
             if error.errno != errno.EADDRINUSE: raise
-            raise SystemExit(f"Pi Workbench could not start: port {os.getenv('PI_TOOL_REPAIR_PORT')} (the tool-call repair proxy) is already in use. "
+            raise SystemExit(f"Pi WorkStation could not start: port {os.getenv('PI_TOOL_REPAIR_PORT')} (the tool-call repair proxy) is already in use. "
                              'Choose another tool_repair_port in the Workbench config (0 picks a free one), then run plh again. Nothing else was stopped.') from None
         if repair: os.environ['PI_HARNESS_TOOL_REPAIR_URL'] = repair.url
         chat = WebChat(os.getenv('PI_WEB_DATA', str(data_dir / 'chats')), api.server_port, web.server_port, data_root=data_dir, gate_token=token)
@@ -191,6 +191,6 @@ if __name__ == '__main__':
         from plh import workbench_running, already_running_message
         port=os.getenv('PI_WEB_PORT','3000')
         if workbench_running(port):message=already_running_message(port)
-        else:message=(f"Pi Workbench could not start: port {os.getenv('PI_GATE_PORT','8000')} (Gate) or {port} (web) is already in use. "
+        else:message=(f"Pi WorkStation could not start: port {os.getenv('PI_GATE_PORT','8000')} (Gate) or {port} (web) is already in use. "
                       "Another Workbench session or application may be using it. Close that session, or choose unused ports in the Workbench config, then run plh again. Nothing else was stopped.")
         raise SystemExit(message)

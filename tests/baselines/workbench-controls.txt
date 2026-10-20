@@ -14,7 +14,6 @@ uncovered #gate-refresh
 uncovered #missing-locate
 uncovered #model-gone-choose
 uncovered #phone-tool-check
-uncovered #pi-about
 uncovered #pi-thinking
 uncovered #pi-updates
 uncovered #preview-tab

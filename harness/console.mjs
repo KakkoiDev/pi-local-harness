@@ -30,8 +30,8 @@ export const CONSOLE_COMMANDS = {
   reports: 'Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].',
   decisions: 'The last request’s decisions with their authors: /decisions [--all] (task 273).',
   bench: 'The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.',
-  guide: 'How to use Pi Workbench: /guide, or /guide <words> for the matching questions.',
-  update: 'A new version of Pi Workbench on GitHub, and what changed: /update · /update now (asks first).',
+  guide: 'How to use Pi WorkStation: /guide, or /guide <words> for the matching questions.',
+  update: 'A new version of Pi WorkStation on GitHub, and what changed: /update · /update now (asks first).',
 };
 
 /** python3 -m harness.admin <command> <args>, with the live web port when the services run. */
@@ -63,8 +63,8 @@ export function installConsole(pi, { ports = () => undefined, run = runAdmin, se
   // type the command, which then asks for their yes (plan 158, C1).
   pi.registerTool?.({
     name: 'harness', label: 'Harness console',
-    description: 'Ask the Pi Workbench harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes are previewed for the person unless Run on its own is on; then changes run automatically. Turning automation on always requires the person’s risk confirmation.',
-    promptSnippet: 'harness: the Pi Workbench console (status, doctor, queue, gate, models, config, guide for how-to questions)',
+    description: 'Ask the Pi WorkStation harness about itself, instead of bash or searching files: status, doctor, queue, job <id>, gate [n] [blocked] | why <id>, models, ollama, projects, config, paths, and guide [words] (how to use the workbench: opening it, projects, comments, models, phone, settings). Changes are previewed for the person unless Run on its own is on; then changes run automatically. Turning automation on always requires the person’s risk confirmation.',
+    promptSnippet: 'harness: the Pi WorkStation console (status, doctor, queue, gate, models, config, guide for how-to questions)',
     parameters: { type: 'object', properties: { command: { type: 'string', enum: Object.keys(CONSOLE_COMMANDS), description: 'The console command' }, args: { type: 'string', description: 'Its words, e.g. "blocked", "why 12", "phone"' } }, required: ['command'] },
     async execute(_id, params, _signal, _update, ctx) {
       const words = String(params?.args || '').trim().split(/\s+/).filter(Boolean).filter(word => word !== '--yes');

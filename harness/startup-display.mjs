@@ -25,7 +25,7 @@ function qrRows(text) {
 export function renderStartup(lines, width) {
   const columns = Math.max(1, width);
   const shown = lines.map(line => (columns < 80 ? line.replace(/^(\s*Phone\s+off) · .*\s{2}\/guide phone$/, '$1 · /guide phone') : line))
-    .map(line => (line.length > columns && line.startsWith('π Pi Workbench') ? line.replace(/ · data in .*$/, '') : line)); // /paths shows the data folder
+    .map(line => (line.length > columns && line.startsWith('π Pi WorkStation') ? line.replace(/ · data in .*$/, '') : line)); // /paths shows the data folder
   // The lines are read in English (the phone line, the shortenings), then shown in the terminal's language.
   const phoneAt = shown.findIndex(line => /^\s*Phone:?\s+https:\/\//.test(line));
   const phone = phoneAt < 0 ? null : /https:\/\/\S+/.exec(shown[phoneAt])[0];
@@ -60,7 +60,7 @@ function renderLine(line, columns) {
 export function startupLines(ports, { build = 'checkout', data = '~/pi-local-harness-data', first = false } = {}) {
   const phone = ports.remote ? `${ports.remote}  scan →`
     : `off · ${ports.remote_error || 'set remote_hosts and remote_users'}  /guide phone`; // see /guide phone and harness/README.md
-  return [`π Pi Workbench  build ${build} · data in ${data}`, `  Web     http://127.0.0.1:${ports.web}`, `  Gate    http://127.0.0.1:${ports.gate}`,
+  return [`π Pi WorkStation  build ${build} · data in ${data}`, `  Web     http://127.0.0.1:${ports.web}`, `  Gate    http://127.0.0.1:${ports.gate}`,
     `  Phone   ${phone}`, '  Ask in words, or type /harness for commands.', ...(first ? ['  New here? Try “is anything stuck?”, /status or /guide.'] : [])]; // translated as they are drawn (renderStartup)
 }
 

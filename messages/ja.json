@@ -271,7 +271,7 @@
   "Enter a search query of 1–500 characters.": "検索語を1〜500文字で入力してください。",
   "Choose a registered project or a folder with ROADMAP.md and tasks/.": "登録済みのプロジェクト、または ROADMAP.md と tasks/ があるフォルダを選んでください。",
   "Not written: the task has no Files: line. Add a Files: line in Planning, then Start Building.": "書き込んでいません：タスクに Files: 行がありません。Planning で Files: 行を追加してから Start Building を選んでください。",
-  "About Pi Workbench": "Pi Workbench について",
+  "About Pi WorkStation": "Pi WorkStation について",
   "Settings…": "設定…",
   "Settings": "設定",
   "Desktop Pattern…": "デスクトップパターン…",
@@ -932,7 +932,7 @@
   "Write a message or attach a file": "メッセージを書くか、ファイルを添付してください",
   "Write a prompt or choose a comment": "プロンプトを書くか、コメントを選んでください",
   "Write a reply of at most 10,000 characters": "返信は 10,000 文字以下で書いてください",
-  "not a request Pi Workbench committed": "Pi Workbench がコミットした依頼ではありません",
+  "not a request Pi WorkStation committed": "Pi WorkStation がコミットした依頼ではありません",
   "1 check today": "今日 1 件のチェック",
   "Open App": "アプリを開く",
   "▶ Running": "▶ 実行中",
@@ -1129,7 +1129,7 @@
   "Undo the last change made from the console (asks first).": "コンソールでの最後の変更を取り消します（先に確認します）。",
   "Incidents the harness met (rules, Gate failures, recoveries, wake-ups, stops), for the analysis.": "ハーネスが出会った問題（ルール、Gate の失敗、復旧、Pi を起こしたこと、停止）。分析用。",
   "The bench: fixed scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.": "ベンチ：決まったシナリオを実際のモデルで実行。モデルとハーネスのビルドごとの解決、検証、時間、Pi を起こした回数。",
-  "How to use Pi Workbench: the guide, or its sections about the words.": "Pi Workbench の使い方：ガイド全体、または言葉に関係する節。",
+  "How to use Pi WorkStation: the guide, or its sections about the words.": "Pi WorkStation の使い方：ガイド全体、または言葉に関係する節。",
   "Requests in Activity: /queue [all|running|waiting|failed|…].": "アクティビティの依頼：/queue [all|running|waiting|failed|…]。",
   "The Markdown record of one request: /job <id> (its first 8 characters).": "依頼ひとつの Markdown の記録：/job <id>（先頭 8 文字）。",
   "Gate checks, newest first: /gate [n] [blocked] · /gate why <id>.": "Gate のチェック（新しい順）：/gate [n] [blocked] · /gate why <id>。",
@@ -1138,7 +1138,7 @@
   "config.json explained; /config set <key> <value> changes one (asks first).": "config.json の説明。/config set <key> <value> で 1 件を変更（先に確認します）。",
   "Incidents the harness met while Pi worked (rules, Gate failures, recoveries, wake-ups, stops): /reports [kind].": "Pi の作業中にハーネスが出会った問題（ルール、Gate の失敗、復旧、Pi を起こしたこと、停止）：/reports [kind]。",
   "The bench: scenarios run with the real model; solved, verified, time, wake-ups per model and harness build.": "ベンチ：シナリオを実際のモデルで実行。モデルとハーネスのビルドごとの解決、検証、時間、Pi を起こした回数。",
-  "How to use Pi Workbench: /guide, or /guide <words> for the matching questions.": "Pi Workbench の使い方：/guide、または /guide <words> で一致する質問。",
+  "How to use Pi WorkStation: /guide, or /guide <words> for the matching questions.": "Pi WorkStation の使い方：/guide、または /guide <words> で一致する質問。",
   "Quit and reopen the Ollama app (asks first)": "Ollama アプリを終了して開き直す（先に確認します）",
   "Only checks that did not allow": "許可しなかったチェックだけ",
   "Explain one check: why <id>": "チェックを 1 件説明：why <id>",
@@ -1415,11 +1415,11 @@
   "Runs in a terminal window, keys and text only: a quiz, a calculator, a script. The Preview shows it here.": "キーとテキストだけのターミナルアプリです。クイズ、計算機、スクリプトなど。プレビューに表示されます。",
   "Add to Home Screen": "ホーム画面に追加",
   "Add to Home Screen…": "ホーム画面に追加…",
-  "A new version of Pi Workbench is ready": "Pi Workbench の新しいバージョンがあります",
-  "Pi Workbench is up to date.": "Pi Workbench は最新です。",
+  "A new version of Pi WorkStation is ready": "Pi WorkStation の新しいバージョンがあります",
+  "Pi WorkStation is up to date.": "Pi WorkStation は最新です。",
   "Checked just now. It checks again once a day.": "たった今確認しました。1日1回確認します。",
   "This copy is not updated automatically.": "このコピーは自動更新されません。",
-  "Pi Workbench can’t update yet.": "Pi Workbench はまだ更新できません。",
+  "Pi WorkStation can’t update yet.": "Pi WorkStation はまだ更新できません。",
   "Can’t check for updates right now.": "今はアップデートを確認できません。",
   "GitHub can’t be reached from this Mac. Check the connection, then try again.": "この Mac から GitHub に接続できません。接続を確認して再試行してください。",
   "Ask Pi to Update": "Pi に更新を依頼",
@@ -1427,7 +1427,7 @@
   "Try Again": "再試行",
   "Later": "後で",
   "Update": "更新",
-  "Updating Pi Workbench…": "Pi Workbench を更新中…",
+  "Updating Pi WorkStation…": "Pi WorkStation を更新中…",
   "Checking for updates…": "アップデートを確認中…",
   "Nothing was changed.": "変更は行われませんでした。",
   "Keep this window open. Pi’s current request finishes first.": "このウインドウを開いたままにしてください。Pi の現在のリクエストが先に完了します。",
@@ -1437,7 +1437,7 @@
   "Tap Add.": "「追加」をタップします。",
   "Open the ⋮ menu.": "⋮ メニューを開きます。",
   "Choose Install app.": "「アプリをインストール」を選びます。",
-  "Add Pi Workbench to this phone. It opens the workbench running on your Mac: Pi and the model keep running there, nothing runs on this phone. The Mac must be on and Tailscale connected.": "Pi Workbench をこのスマホのホーム画面に追加します。ワークベンチ、Pi、モデルは Mac で動き続け、このスマホでは動きません。Mac の電源と Tailscale 接続が必要です。",
+  "Add Pi WorkStation to this phone. It opens the workbench running on your Mac: Pi and the model keep running there, nothing runs on this phone. The Mac must be on and Tailscale connected.": "Pi WorkStation をこのスマホのホーム画面に追加します。ワークベンチ、Pi、モデルは Mac で動き続け、このスマホでは動きません。Mac の電源と Tailscale 接続が必要です。",
   "Takes about a minute. Your projects, chats and settings are not touched. Pi’s current request finishes first.": "約1分かかります。プロジェクト、チャット、設定は変更されません。Pi の現在のリクエストが先に完了します。",
   "All projects. Pi answers, plans, builds, publishes, pushes, downloads, sends and uses the Trash without asking. Turning it on shows these risks first.": "すべてのプロジェクトで、Pi が回答、計画、作成、公開、プッシュ、ダウンロード、送信、ゴミ箱への移動を確認なしで行います。有効にする前にリスクを表示します。",
   "Not sure? If several people need the same data at different times, or the app needs a secret, choose Web app. Otherwise, App with no server. Keys and text only: Terminal app.": "迷ったら：複数の人が同じデータを使う場合や秘密のキーが必要なら「Web アプリ」。それ以外は「サーバーなしアプリ」。キーとテキストだけなら「ターミナルアプリ」です。",
@@ -1449,8 +1449,8 @@
   "Tab": "Tab",
   "Ctrl": "Ctrl",
   "Return": "Return",
-  "Quit plh: Quit in the π menu-bar item, or Control-C in its terminal.\nStart it again: open Pi Workbench, or type plh.\nThis page reconnects by itself.": "plh を終了：メニューバーの π から終了するか、ターミナルで Control-C を押します。\n再起動：Pi Workbench を開くか、plh と入力します。\nこのページは自動で再接続します。",
-  "Some files of Pi Workbench were edited and not saved in a commit; updating would overwrite them.": "Pi Workbench のファイルに未コミットの編集があります。更新すると上書きされるため、更新できません。",
+  "Quit plh: Quit in the π menu-bar item, or Control-C in its terminal.\nStart it again: open Pi WorkStation, or type plh.\nThis page reconnects by itself.": "plh を終了：メニューバーの π から終了するか、ターミナルで Control-C を押します。\n再起動：Pi WorkStation を開くか、plh と入力します。\nこのページは自動で再接続します。",
+  "Some files of Pi WorkStation were edited and not saved in a commit; updating would overwrite them.": "Pi WorkStation のファイルに未コミットの編集があります。更新すると上書きされるため、更新できません。",
   "This copy has its own changes (1 commit not on GitHub), so it is not updated automatically.": "このコピーには GitHub にないコミットが1件あるため、自動更新されません。",
   "(rules)": "（ルール）",
   "(task)": "（作業中のタスク）",
@@ -1896,8 +1896,8 @@
    "{missing} は Ollama にインストールされていません。別のモデルを選ぶまで、Pi は {model} を使います。"
   ],
   [
-   "{commit} is not a request Pi Workbench committed: only those can be undone here",
-   "{commit} は Pi Workbench がコミットした依頼ではありません。ここで取り消せるのはそれだけです"
+   "{commit} is not a request Pi WorkStation committed: only those can be undone here",
+   "{commit} は Pi WorkStation がコミットした依頼ではありません。ここで取り消せるのはそれだけです"
   ],
   [
    "“{name}” would make {size} MiB in total. Limit: {limit} MiB per file and 20 MiB in total.",
@@ -2776,8 +2776,8 @@
    "ルール {id} はありません。/gate rules で一覧を表示します。"
   ],
   [
-   "π Pi Workbench  build {build} · data in {data}",
-   "π Pi Workbench  ビルド {build} · データ {data}"
+   "π Pi WorkStation  build {build} · data in {data}",
+   "π Pi WorkStation  ビルド {build} · データ {data}"
   ],
   [
    "No model named “{name}”. Installed: {list}.",

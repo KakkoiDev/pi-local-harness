@@ -130,7 +130,7 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         except socket.timeout:
             return self.error(504, f'Ollama at {proxy.upstream} did not answer in time.', 'upstream_timeout')
         except OSError as error:
-            return self.error(502, f'Pi Workbench could not reach Ollama at {proxy.upstream} ({error.__class__.__name__}: {error}). '
+            return self.error(502, f'Pi WorkStation could not reach Ollama at {proxy.upstream} ({error.__class__.__name__}: {error}). '
                                    'Start Ollama, or check ollama_url in the Workbench config.', 'upstream_unreachable')
         try:
             if tools and response.status == 200:

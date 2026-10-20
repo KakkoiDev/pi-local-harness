@@ -386,6 +386,7 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [x] [336-Prepare the designer brief for the remaining UI](tasks/336-designer-brief-for-blocked-ui.md)
 
+- [x] [337-Rename the product Pi WorkStation](tasks/337-rename-product-pi-workstation.md)
 
 - [ ] [338-Manage reusable skills with an ICM adapter](tasks/338-icm-skill-management.md)
 

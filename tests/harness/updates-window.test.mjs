@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {updateView,awayFromMac} from '../../js/updates-window.mjs';
 test('each backend state keeps its safe next step and limits plain changes',()=>{
- assert.equal(updateView({state:'current'}).title,'Pi Workbench is up to date.');
+ assert.equal(updateView({state:'current'}).title,'Pi WorkStation is up to date.');
  assert.equal(updateView({state:'unknown'}).action,'Try Again');
  assert.equal(updateView({state:'blocked',why:'This copy has its own changes (2 commits not on GitHub).'}).action,'Ask Pi to Update');
  assert.equal(updateView({state:'blocked',why:'Some files were edited and not saved in a commit.'}).action,'Ask Pi to Save Them');

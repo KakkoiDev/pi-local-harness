@@ -419,3 +419,8 @@ does), like the person's own page; US-081 checks that a POST without it is refus
 US-142: Project Start capability filtering and keyboard focus survive selection (`stories.cjs`).
 
 US-350: terminal: a missing plan is retried once and approval still waits for me (`stories.test.mjs`, task 334).
+
+### US-351 the browser and terminal identify the app as Pi WorkStation without losing my projects
+Given a registered scratch project in the existing data location
+When I open About, reload and render terminal startup
+Then the product is Pi WorkStation, Japanese copy uses the same name, and the project keeps its ID and path

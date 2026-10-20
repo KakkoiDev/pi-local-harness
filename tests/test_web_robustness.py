@@ -75,7 +75,7 @@ class WebRobustnessTest(unittest.TestCase):
             with urllib.request.urlopen(self.base + path, timeout=5) as response:
                 self.assertEqual(response.status, 200, path)
         with urllib.request.urlopen(self.base + '/p/abc/work/x.md', timeout=5) as response:
-            self.assertIn('<title>Pi Workbench</title>', response.read().decode())
+            self.assertIn('<title>Pi WorkStation</title>', response.read().decode())
         for path in ['/p', '/p/abc', '/p/abc/other', '/api/nothing', '/js/missing.mjs', '/projects/x']:
             with self.assertRaises(urllib.error.HTTPError, msg=path) as caught: urllib.request.urlopen(self.base + path, timeout=5)
             self.assertEqual(caught.exception.code, 404, path)

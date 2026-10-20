@@ -1,8 +1,8 @@
-# Pi Workbench
+# Pi WorkStation
 
 **Make your own apps by talking with an AI that runs on your own computer.**
 
-![Pi Workbench: a project's files on the left, the chat with Pi in the middle, and the app Pi is building running live on the right](docs/screenshots/workbench.png)
+![Pi WorkStation: a project's files on the left, the chat with Pi in the middle, and the app Pi is building running live on the right](docs/screenshots/workbench.png)
 
 You describe what you want in plain words. Pi, a coding agent, writes the code. You watch the app change in the
 Preview next to the chat, and you can undo any change with one click. Everything runs on your Mac: the AI model
@@ -86,9 +86,9 @@ new numbered revision under `assets/music/<name>/` in the project and never over
 ## Updating
 
 Type `/update` in terminal Pi (or π › Check for Updates… in the browser). It shows what is new, in plain words, and
-updates Pi Workbench's copy when you say yes. The next time `plh` starts, it installs and uses the new version, as long
+updates Pi WorkStation's copy when you say yes. The next time `plh` starts, it installs and uses the new version, as long
 as `auto_update` is on (the default; `/config set auto_update true` turns it back on). Then reload the page in your
-browser. An update never overwrites changes you made to Pi Workbench's own files.
+browser. An update never overwrites changes you made to Pi WorkStation's own files.
 
 ## Learn more
 
@@ -134,4 +134,4 @@ Core-library integration for Claude Code: [handoff and exact pins](docs/handoff/
 and [gaming-core inventory/report](docs/handoff/gaming-core.md). These describe future
 visual/coding/game adapters; the existing music workflow remains available.
 
-If `plh` says Pi Workbench is already running in another session, open the address it shows. A second copy is not started. To restart, exit Pi in the terminal that started the existing Workbench, then run `plh` again. An occupied port without a responding Workbench may belong to another application; choose unused ports in the Workbench config rather than stopping an unknown process.
+If `plh` says Pi WorkStation is already running in another session, open the address it shows. A second copy is not started. To restart, exit Pi in the terminal that started the existing Workbench, then run `plh` again. An occupied port without a responding Workbench may belong to another application; choose unused ports in the Workbench config rather than stopping an unknown process.

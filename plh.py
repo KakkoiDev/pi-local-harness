@@ -46,7 +46,7 @@ def update():
     return commit
 
 def workbench_running(port):
-    """Task 263: does a Pi Workbench answer on this port? Updating then would swap the package under it (new pages, old
+    """Task 263: does a Pi WorkStation answer on this port? Updating then would swap the package under it (new pages, old
     backend). Only a workbench's /api/settings answer counts, so another app on the port never blocks updates."""
     try:port=int(port)
     except (TypeError,ValueError):return False
@@ -58,7 +58,7 @@ def workbench_running(port):
     except (OSError,ValueError):return False
 
 def already_running_message(port):
-    return (f'Pi Workbench is already running in another session. Open http://127.0.0.1:{port} to use it. '
+    return (f'Pi WorkStation is already running in another session. Open http://127.0.0.1:{port} to use it. '
             'No second copy was started. To restart, exit Pi in the session that started it, then run plh again.')
 
 def main():

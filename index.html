@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff"><title>Pi Workbench</title>
+  <meta name="theme-color" content="#ffffff"><title>Pi WorkStation</title>
   <link rel="manifest" href="/design/app-icons/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/design/app-icons/pi-180.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/design/app-icons/pi-32.png">
@@ -18,7 +18,7 @@
       alert.id = 'startup-error';
       alert.className = 'pw-dialog';
       alert.setAttribute('role', 'alert');
-      alert.innerHTML = '<div class="pw-alert"><span class="pw-alert__icon" data-icon="alert-stop"></span><div><p class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, and reload this page.</p></div></div><div class="pw-dialog__actions"><button class="pw-btn pw-btn--default" onclick="location.reload()">Reload Page</button></div>';
+      alert.innerHTML = '<div class="pw-alert"><span class="pw-alert__icon" data-icon="alert-stop"></span><div><p class="pw-alert__message">Pi WorkStation could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, and reload this page.</p></div></div><div class="pw-dialog__actions"><button class="pw-btn pw-btn--default" onclick="location.reload()">Reload Page</button></div>';
       document.body.append(alert);
     });
   </script>
@@ -30,7 +30,7 @@
   <nav id="menubar" class="pw-menubar" role="menubar" aria-label="Menu bar">
     <div class="menubar-slot"><button class="pw-menubar__title pw-menubar__pi" role="menuitem" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pi" aria-label="Pi menu">π<span class="pw-update-dot" data-update-mark hidden></span></button>
       <div id="menu-pi" class="pw-menu" role="menu" aria-label="Pi" hidden>
-        <button class="pw-menu__item" role="menuitem" data-command="about">About Pi Workbench</button>
+        <button class="pw-menu__item" role="menuitem" data-command="about">About Pi WorkStation</button>
         <div class="pw-menu__sep" role="separator"></div>
         <button class="pw-menu__item" role="menuitem" data-command="check-updates">Check for Updates…<span class="pw-menu__key" data-update-label></span></button>
         <button class="pw-menu__item" role="menuitem" data-command="install-app" hidden>Add to Home Screen…</button>
@@ -155,7 +155,7 @@
 
     <!-- Projects window (phone: the π sheet) -->
     <aside id="sidebar" class="pw-window window-projects" aria-label="Project navigation">
-      <div class="sheet-head"><h2 class="sheet-head__title"><span class="pi-mark" aria-hidden="true">π</span> Pi Workbench</h2><button id="pi-close" type="button" class="pw-btn pw-btn--plain">Close</button></div><!-- phone (Ph_Pi) -->
+      <div class="sheet-head"><h2 class="sheet-head__title"><span class="pi-mark" aria-hidden="true">π</span> Pi WorkStation</h2><button id="pi-close" type="button" class="pw-btn pw-btn--plain">Close</button></div><!-- phone (Ph_Pi) -->
       <div id="pi-status" class="pi-status"><span id="pi-status-text" class="pw-glyph"></span><button id="pi-stop" type="button" class="pw-btn" hidden>Stop</button></div><!-- phone (Ph_Pi) -->
       <div class="pw-titlebar"><button id="close-menu" class="pw-box" aria-label="Close menu"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span class="pw-box" aria-hidden="true"></span></div>
       <div class="pw-infobar"><span id="project-count"></span><span>on this Mac</span></div>
@@ -182,7 +182,7 @@
         <button id="pi-updates" class="pw-btn">Check for Updates…<span data-update-label></span></button>
         <button id="pi-install" class="pw-btn" data-command="install-app" hidden>Add to Home Screen…</button>
         <button id="pi-settings" class="pw-btn">Settings…</button>
-        <button id="pi-about" class="pw-btn">About Pi Workbench</button>
+        <button id="pi-about" class="pw-btn">About Pi WorkStation</button>
       </div>
       <div class="pw-statusbar"><span>Local AI</span><span>Pi runs on this Mac</span></div>
     </aside>
@@ -203,7 +203,7 @@
       </aside>
 
     <main id="main-window" class="pw-window">
-      <header class="pw-titlebar"><button class="pw-box" aria-label="Close window" data-command="close-window"></button><div class="pw-titlebar__stripes"></div><h1 id="window-title" class="pw-titlebar__title">Pi Workbench</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window" data-command="zoom"></button></header>
+      <header class="pw-titlebar"><button class="pw-box" aria-label="Close window" data-command="close-window"></button><div class="pw-titlebar__stripes"></div><h1 id="window-title" class="pw-titlebar__title">Pi WorkStation</h1><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window" data-command="zoom"></button></header>
       <div id="workspace-bar" class="pw-toolbar">
         <nav class="view-tabs pw-seg" aria-label="Workspace view">
           <button id="chat-tab" class="active" aria-pressed="true">Chat<kbd>⌃⌥1</kbd></button>
@@ -449,7 +449,7 @@
     <p class="pw-help">Changes apply at once; terminal Pi’s /settings shows the same values.</p>
     <div class="pw-dialog__actions"><button id="settings-cancel" type="button" class="pw-btn pw-btn--default">Done</button></div>
   </form></dialog>
-  <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi Workbench</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd><dt class="pw-label">Gate</dt><dd id="about-gate" class="pw-mono"></dd><dt class="pw-label">Data</dt><dd id="about-data" class="pw-mono"></dd></dl><!-- Dialogs2 About --><p class="pw-help">One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
+  <dialog id="about-dialog" class="pw-dialog" aria-labelledby="about-title"><form method="dialog" class="window-column"><div class="welcome-mark" aria-hidden="true">π</div><h2 id="about-title" class="pw-dialog__title">Pi WorkStation</h2><dl class="about-facts"><dt class="pw-label">Model</dt><dd id="about-model" class="pw-mono"></dd><dt class="pw-label">Web</dt><dd id="about-web" class="pw-mono"></dd><dt class="pw-label">Gate</dt><dd id="about-gate" class="pw-mono"></dd><dt class="pw-label">Data</dt><dd id="about-data" class="pw-mono"></dd></dl><!-- Dialogs2 About --><p class="pw-help">One person, one agent. Pi runs on this Mac; the model runs wherever its provider points.</p><div class="pw-dialog__actions"><button value="ok" class="pw-btn pw-btn--default">OK</button></div></form></dialog>
   <dialog id="phone-dialog" class="pw-dialog" aria-labelledby="phone-dialog-title"><form method="dialog" class="window-column">
     <h2 id="phone-dialog-title" class="pw-dialog__title">Open on Phone</h2>
     <div id="phone-off" class="pw-alert" hidden><span class="pw-alert__icon" data-icon="alert-caution"></span><div><p class="pw-alert__message">Phone access is off.</p><p id="phone-off-detail" class="pw-alert__detail"></p></div></div><!-- Dialogs2: tailscale serve did not start (task 141) -->
