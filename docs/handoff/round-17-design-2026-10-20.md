@@ -30,7 +30,9 @@ Everything in round 17 is **Proposed**, except R17_ContextExisting, which redraw
 - **Overview conversation:** a server-side conversation `{id, scope, messages}`; answers carrying `sources[]` and `coverage`; sources carrying `source_hash` and `changed_at`; and an Open route back to `/overview` that keeps the conversation and the focused source.
 - **Context receipt:** a per-job `context_receipt` (always / found / left out / search state) and `scope_notice`, from the report's selection receipt §6. No score, rank, query text or engine field reaches the UI.
 
-## Unresolved product questions
+## Product questions (resolved after this handoff)
+
+All 20 questions below are resolved by the owner-authorized [decision record](../plans/360-round-17-product-decisions.md). The original questions are retained for provenance; the decision record supersedes their drawn defaults. See the [round18 designer prompt](../../design/briefs/round-18-overview-decisions.md) for the required revision.
 
 1. **Order within a kind:** oldest first (drawn), or newest first?
 2. **Show filter:** per window (drawn), or app-wide?

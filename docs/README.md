@@ -53,3 +53,5 @@ Review and return handoff (2026-10-17):
 - [Local search study](reports/local-search-study-2026-10-20.md): DuckDB, QMD and SQLite FTS5; rebuildable indexes over authoritative Markdown.
 
 - [Scoped context retrieval research](reports/scoped-context-retrieval-2026-10-20.md): dashboard-wide versus project-only search, dynamic context, DuckDB evaluation and acceptance tests.
+
+- [Round17 product decisions](plans/360-round-17-product-decisions.md) and [round18 designer prompt](../design/briefs/round-18-overview-decisions.md): all 20 questions resolved under owner delegation.

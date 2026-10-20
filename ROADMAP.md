@@ -431,3 +431,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [358-Run real process-crash tests in the backend suite](tasks/358-headless-process-crash-tests.md)
 
 - [x] [359-Research scoped project context retrieval](tasks/359-scoped-context-retrieval-research.md)
+
+- [x] [360-Resolve round17 decisions and brief round18](tasks/360-round-17-product-decisions.md)
