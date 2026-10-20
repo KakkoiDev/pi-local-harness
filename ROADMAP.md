@@ -385,3 +385,13 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [334-Retry a planning request that ends without submitting its plan](tasks/334-retry-missing-plan.md)
 
 - [x] [336-Prepare the designer brief for the remaining UI](tasks/336-designer-brief-for-blocked-ui.md)
+
+- [ ] [338-Manage reusable skills with an ICM adapter](tasks/338-icm-skill-management.md)
+
+- [ ] [339-Plan the permanent second-brain workspace](tasks/339-second-brain-feasibility.md)
+
+- [ ] [340-Add an AI-powered Python and HTMX app starter](tasks/340-ai-powered-app-starter.md)
+
+- [ ] [341-Audit ICM runtime before integration](tasks/341-audit-icm-runtime.md)
+
+- [ ] [342-Base the harness editor on Jikko](tasks/342-evaluate-jikko-integration.md)

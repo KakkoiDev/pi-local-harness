@@ -33,3 +33,10 @@ Review and return handoff (2026-10-17):
 
 - [Claude Code handoff and exact dependency pins](handoff/core-libraries.md)
 - [gaming-core inventory and future Pi integration](handoff/gaming-core.md)
+
+
+## Pi WorkStation direction (2026-10-20)
+
+- [Integration plan](plans/337-pi-workstation-skills-and-knowledge.md): ICM skills, project knowledge, Jikko interoperability and an AI-powered Python/HTMX starter; proposals and scratch acceptance criteria.
+- [Claude handback](handoff/pi-workstation-2026-10-20.md): verified recorder checkpoint, rename verification status and review requests.
+- [Designer brief round 16](../design/briefs/round-16.md): new surfaces need design before implementation.
