@@ -336,3 +336,7 @@ to keep project document bodies directly editable.
 ## Automatic learning evidence
 
 Gate selects private structured observations and verified regression receipts automatically. See [the curator operating guide](plans/343-automatic-log-curator.md) for selection rules, limits, inspection, pause, correction and provenance. No chat text or AI configuration is automatically promoted.
+
+### Internal selected-run evidence
+
+`harness.run_evidence.normalize(records, project=..., request=..., limit=10000)` accepts explicitly scoped host envelopes (`project`, `request`, `source`, `event`) for Gate ledger events or Pi RPC tool-start/end events. It performs no I/O or replay. Its metadata-only result omits arguments and output, hashes call IDs, and cites original input positions. Permission checks never prove a tool ran; missing and conflicting receipts remain explicit. This is an internal building block for task 350, not an available Agentplay viewer or complete trace export.

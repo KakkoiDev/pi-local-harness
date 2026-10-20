@@ -415,3 +415,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [350-Analyze WorkStation runs with Agentplay](tasks/350-agentplay-tool-run-analysis.md)
 
 - [ ] [351-Trial Phonon-2 for local English transcription](tasks/351-phonon2-transcription-trial.md)
+
+- [x] [352-Normalize selected tool-run evidence](tasks/352-normalized-run-evidence.md)
