@@ -126,3 +126,24 @@ See R17_OverviewWalk. Main: Given Class Notes runs task 2 and Pong waits for an 
 3. Recorded problems: 7 days, or the last 20? Drawn: 7 days.
 4. Should a service problem (Ollama stopped) also appear in the StatusButton words ("Model server stopped")? Drawn: it counts in "need you" only.
 5. At 1024, keep the Projects window open beside Overview? Drawn: hidden, as Activity at 1024.
+
+## Round 18 · Proposed: finalized (decisions 1–7, 13, 20 of docs/plans/360)
+
+Boards: R18_Overview, R18_OverviewService, R18_Overview1024, R18_OverviewAskAbout, R18_OverviewStatus, R18_OverviewRowActions, R18_OverviewFocus, R18_OverviewWindows, R18_OverviewHistory, R18_OverviewStates, R18_OverviewStrings, R18_OverviewWalk, Ph18_Overview, Ph18_OverviewService, Ph18_OverviewRowMenu, Ph18_OverviewHistory. CSS: `scripts/round18_a.css`. Existing vs Proposed: still all Proposed; round 17's layout, read-only rule, PhaseControl and approval cards are unchanged.
+
+- **Japanese name (20).** Overview is 概要 everywhere: window title 「概要 · すべてのプロジェクト」, Window menu, Agent row, accessible names (「エージェントの状態：…。概要を開く」).
+- **Project row actions (13, 6).** Under the row text, right-aligned, three gridcells: `button.pw-prow__ask` **Ask About {project}** (truncated with `title`; full name in its accessible name), `button.pw-prow__act` **Open in Activity**, `button.pw-rowmore[aria-haspopup=menu]` "More for {project}" (⋯). The ⋯ menu: **Open Chat** (Return) · **Open in New Window** (⌘Return / Ctrl+Return) · separator · **Ask About {project}** · **Open in Activity**. Ask About opens the Ask pane in a conversation scoped to that project ("Searching Class Notes only"), focuses the composer ("Ask about Class Notes…"), sends nothing. It reuses the current conversation only if it has no messages; otherwise it starts a new one (draft conflict: SearchScope / ConversationList, worker B).
+- **Service failure (4).** While a work-blocking service is down (Ollama stopped), nothing says Working, Idle or Ready: each row's now cell reads *State unknown while Ollama is stopped* (`.pw-prow[data-unknown]`, plug glyph), queued work stays as a second line `.pw-prow__queue` "Queued: 2 requests · waiting for Ollama", the Projects count "5 · 2 queued · state unknown while Ollama is stopped", the infobar "Ollama stopped at 14:24, so Pi can’t run work in any project. What each project is doing can’t be known until it answers; the queue is kept." Show: Working then reads "No project can be shown as working while Ollama is stopped. Queued: 2 requests in Class Notes." The service item is first under Needs you (AttentionItem § Round 18).
+- **History (3, 7).** "Recorded problems" → **Resolved in the last 7 days** (JA 過去 7 日間に解決), note "Newest first · history only: nothing to do here". Resolved problems only, newest first, collapsed; unresolved items never appear here and never leave Needs you by age. Cancelled interrupted request: "Cancelled by you · 14:40" + second line `.pw-hist__note` "Changes made before the restart are still in the project." (never rolled back / undone / done).
+- **Filters (2).** Show is per window, kept with the window across reload (e.g. `/overview?show=working`); a new window starts at All. Show filters Projects only.
+- **Popup blocked (6).** `div.pw-ovnotice[role=status]` under the toolbar: "Your browser blocked the new window." + **Open Here** + **Copy Link** ("Link Copied" for 2 s). Focus stays on the item; no second attempt.
+- **1024 (5).** Projects window hidden by default; if opened explicitly (Window › Projects), resizing keeps it with its state; Overview shows the Ask Across Projects toggle.
+- **Ask pane head** (as ConversationList § Anatomy). `div.pw-ask__head` has three rows: (1) "Ask across projects" plus **New** (accessible name "New Conversation", ⌃⌥N); (2) `div.pw-convo` › `button.pw-convo__btn`, full width, showing the current title ("New conversation" for an empty one); (3) the scope button `button.pw-scope__btn`, full width. Superseded: round 17's head, which was the title plus the scope button on one line.
+- Keys hint: "Each list is one Tab stop: ↑ ↓ move, Return opens, ⌘Return opens in a new window, → reaches the row’s buttons and ⋯. ⌃⌥0 opens Overview." (Ctrl+Return off the Mac).
+
+Superseded round 17 text (old → new):
+- "Recorded problems" / "History only: nothing to do here" → "Resolved in the last 7 days" / "Newest first · history only: nothing to do here"; the r17 history row "Interrupted · …still waiting for you (in Needs you)" is removed (unresolved items are never in history).
+- Project row "two gridcells … 2. Open in Activity" → four gridcells: row link, Ask About {project}, Open in Activity, ⋯.
+- "Show … Saved per window." → kept per window across reload; a second window keeps its own.
+- Keyboard "In Projects, → moves to Open in Activity" → "→ moves through Ask About, Open in Activity and ⋯".
+- Open product choices 1–5 → resolved by decisions 1–5 (docs/plans/360); the section is closed.

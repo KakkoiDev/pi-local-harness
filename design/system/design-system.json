@@ -225,8 +225,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-20T09:00:00Z",
+  "at": "2026-10-20T13:00:00Z",
   "via": "Claude (Cowork)",
-  "note": "Round 17: Overview · All Projects, Ask across projects, project search boundary and the context receipt; 5 new cards (WorkOverview, AttentionItem, SearchScope, SourceList, ContextReceipt)."
+  "note": "Round 18: Overview and scoped context finalized from plan 360 (service status priority, conversation history, selective retry, Page-view citations, per-message receipts); new ConversationList card; ContextMeter, VisualResult and Dialog repairs."
  }
 }

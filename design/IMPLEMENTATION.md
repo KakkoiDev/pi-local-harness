@@ -1176,3 +1176,569 @@ The exact copy is in the ContextReceipt README's Texts table and on R17_ContextS
 8. **Project boundary.** Given I ask in Class Notes about Pong, then the HarnessNotice says “Pi searched Class Notes only. To search every project, ask in Overview.” with Ask in Overview (R17_ProjectScope, Ph17_ProjectScope).
 9. **What Pi used.** When I press Why?, then “What Pi uses for this message” separates Always with this request from Found for this question, with read times, left-out and truncated items; a stale file offers Ask Again (R17_ContextReceipt, R17_ContextStates, Ph17_ContextSheet).
 10. **Reload, phone, keyboard.** After reload the same items and focus target return; on the phone Overview and Ask are separate screens with 44 px rows; ↑↓ moves within each list, Return opens (Ph17_Overview, Ph17_Ask, R17_OverviewWalk, R17_AskWalk, R17_ContextWalk).
+
+## 2026-10-20 · Round 18: Overview and scoped context, finalized (decisions of plan 360)
+
+Boards: canvas page **Round 18: Overview decisions** (41 boards: 31 desk `R18_`, 10 phone `Ph18_`). This round applies the 20 owner-delegated decisions in `docs/plans/360-round-17-product-decisions.md` to round 17; it does not reopen them. Three parts below: A, Overview (status priority with a stopped service, order and focus, per-window filters, history, ⌘/Ctrl+Return, 1024, Ask About); B, Ask across projects (conversation history and per-conversation scope and draft, prefill and draft conflict, selective retry, citations in Page view and redacted unavailable sources); C, the project conversation (a receipt for every submitted message, compact counts, left-out names and reasons, three found rows, the narrowed boundary notice). New card **ConversationList**; Round 18 sections in WorkOverview, AttentionItem, StatusButton, PhoneBar, MenuBar, SearchScope, SourceList, ContextReceipt, ContextLine, Message, plus the design-system repairs in ContextMeter, VisualResult and Dialog. CSS: `round18_fix.css`, `round18_a.css`, `round18_b.css`, `round18_c.css`, appended to `bundle.css` and `components.css`. Handoff: `docs/handoff/round-18-design-2026-10-20.md`.
+
+**Everything here is Proposed.** Nothing in this round ships because it is drawn; the data each part still needs is listed under “Data contracts still missing (✱)”. Approval cards, PhaseControl and the read-only Overview are unchanged. Several agents stays “Proposed later” (R17_SeveralAgents); no round 18 board implies more than one agent.
+
+#### Decisions → boards and cards (all 20)
+
+| # | Decision (plan 360) | Boards | Cards |
+| --- | --- | --- | --- |
+| 1 | Oldest first within a kind; history newest first; a focused row never moves | R18_OverviewFocus, R18_OverviewHistory | AttentionItem, WorkOverview |
+| 2 | Show filters per window | R18_OverviewWindows | WorkOverview |
+| 3 | 7 days of resolved history; unresolved never expire | R18_OverviewHistory, R18_OverviewFocus | WorkOverview, AttentionItem |
+| 4 | Work-blocking service status, priority, no false Working/Idle | R18_OverviewService, R18_OverviewStatus, R18_OverviewStates, Ph18_OverviewService | StatusButton, PhoneBar, WorkOverview, AttentionItem |
+| 5 | Projects window hidden at 1024 unless opened explicitly | R18_Overview1024, R18_OverviewWindows | MenuBar |
+| 6 | ⌘Return / Ctrl+Return on a focused row, Open in New Window, popup blocked | R18_OverviewRowActions, R18_Overview, R18_OverviewWalk | AttentionItem, WorkOverview |
+| 7 | Cancelled interrupted request leaves an honest history row | R18_OverviewHistory, Ph18_OverviewHistory | AttentionItem, WorkOverview |
+| 8 | New dashboard conversation = all authorized projects, stated | R18_AskConversations, R18_AskHistory | ConversationList, SearchScope |
+| 9 | Keep and list conversations, New Conversation | R18_AskHistory, R18_AskConversations, Ph18_AskHistory | ConversationList |
+| 10 | Cited Markdown opens in Page view at the section; Source view reachable | R18_AskCitePage, R18_AskCiteStates, Ph18_AskCite | SourceList |
+| 11 | Removed/revoked citation → numbered, disabled, redacted placeholder | R18_AskCiteStates, R18_AskConversations, R18_AskRetryStates | SourceList, SearchScope |
+| 12 | Retry only missing projects; new attempt; original kept; full refresh separate | R18_AskRetry, R18_AskRetryStates | SearchScope |
+| 13 | Ask About {project} on each project row | R18_Overview, R18_OverviewAskAbout, R18_OverviewRowActions, Ph18_OverviewRowMenu, R18_AskAbout, R18_AskPrefill | WorkOverview, ConversationList |
+| 14 | A receipt for every submitted message, recorded at send | R18_ProjectScope, R18_ContextReceipt, R18_ContextStates, R18_ProjectScopeStates, R18_Context1024, Ph18_ContextSheet | ContextReceipt, Message, ContextLine |
+| 15 | Retry sends at once, deduplicated, rechecked, draft kept; “Nothing to retry.” | R18_AskRetryStates, Ph18_AskRetry, R18_AskNarrow | SearchScope |
+| 16 | Ask in Overview prefills and waits; draft conflict | R18_ProjectScope, R18_ProjectScopeStates, Ph18_ProjectScope, R18_AskPrefill, Ph18_AskDraft | Message, ConversationList |
+| 17 | Compact counts; expanded left-out names and reasons (authorized only) | R18_ContextReceipt, R18_ContextStates | ContextReceipt |
+| 18 | Three found rows, then Show All | R18_ContextReceipt, R18_ContextStates, Ph18_ContextSheet | ContextReceipt |
+| 19 | Boundary notice only for an explicitly named project; scope indicator always | R18_ProjectScope, R18_ProjectScopeStates, Ph18_ProjectScope | Message, ContextLine |
+| 20 | 概要 | R18_OverviewStrings, R18_AskStrings, R18_ContextStrings | WorkOverview, MenuBar, Message |
+
+#### Fixed wording shared by all parts
+
+- Status priority, highest first: “Connection interrupted” → “Can't run work · Ollama stopped[ · 2 need you]” (作業を実行できません · Ollama 停止中[ · 対応待ち 2 件]) → “2 need you · Working on Class Notes” → Working / Waiting → Ready. While a work-blocking service is down, project rows read “State unknown while Ollama is stopped” (Ollama 停止中のため状態不明) and keep “Queued: 2 requests · waiting for Ollama”.
+- History: “Resolved in the last 7 days” (過去 7 日間に解決), newest first; “Cancelled by you · 14:40” + “Changes made before the restart are still in the project.”
+- Open in New Window; blocked: “Your browser blocked the new window.” + Open Here + Copy Link (ブラウザーが新しいウインドウをブロックしました。/ ここで開く / リンクをコピー).
+- Ask About Class Notes (Class Notes について質問); New Conversation (新しい会話); “This conversation already has an unsent draft.” + Keep My Draft + Replace with New Question.
+- Retry Pong / Retry 2 Projects (Pong で再試行 / 2 件のプロジェクトで再試行) → “Retrying Pong…” → reply “Retry · Pong”; “Nothing to retry.”; full refresh: ⋯ › Ask All Projects Again.
+- Source unavailable (ソースは利用できません); “Sources · 3 · 1 unavailable”; “Changed after this answer (2 days ago). You're reading the current file.” + Show Source.
+- “What Pi used for this message”; summary “Pi used 3 always · 4 found · 2 left out” (常に 3 · 検索 4 · 除外 2); Show All 4; Ask Again with Current Files (現在のファイルでもう一度質問).
+
+#### Privacy and redaction (all parts)
+
+Every name, path, section, line range, excerpt and count is resolved against the person's current authorization each time it is drawn: in Sources, coverage lines, Retry targets, scope labels, the scope popup, conversation items, receipts and counts. A project the person can no longer open leaves labels and counts with no placeholder or “1 hidden”; the only trace kept is a cited source's number, shown as “Source unavailable” so cite marks stay aligned. The boundary notice never names another project and never appears for an unknown or unauthorized name. Conversation history and old receipts grant nothing. Retrieval scope never authorizes a project write. No database words (index, BM25, SQL, DuckDB, query, embedding, rank) in the ordinary UI. Nothing is published to the Second Brain.
+
+#### Design-system repairs (confirmed round 15/16 gaps)
+
+- ContextMeter: `.pw-meter--near` is now defined (2 px bar frame, the meter may wrap). No markup change.
+- VisualResult: the generating bar's undefined `pw-bar` is replaced by the ContextMeter bar primitive (`.pw-meter__bar` › `.pw-meter__fill`, no tick; it counts finished candidates, not time); the inspect dialog header uses `.pw-dialog__head`, now defined and documented in the Dialog card. R15_VisualStates and R15_VisualInspect are updated. The rules live in `round18_fix.css` and are scoped to those classes; nothing global changes.
+
+### A · Overview finalized
+
+Generator `gen/r18a.py` (execs `gen/r17a.py`, which execs r13.py; injects `round17_b.css`, `round17_c.css`, `round18_fix.css`, `round18_a.css` on top of round17_a). Card previews `gen/ds18a.py`. CSS `scripts/round18_a.css`. Layout `r18layout_a.json`. Check `r18check_a.py` (0 HTML problems, 0 undefined `pw-` classes across the 16 boards and the WorkOverview, AttentionItem, StatusButton, PhoneBar, MenuBar previews). Every board was rendered with shot.py (`shots18a/`) and fixed for overflow, clipping and overlap.
+
+Design only: nothing here claims that a backend feature ships. Round 17's layouts, the read-only Overview, PhaseControl and the approval cards are unchanged.
+
+#### Boards (reading order)
+
+| Board | Size | Shows |
+| --- | --- | --- |
+| R18_Overview | 1440×1360 | The desk Overview: rows gain Ask About {project}, Open in Activity and ⋯. Items have ⋯. "Resolved in the last 7 days". The Ask pane header has a conversation popup and scope. |
+| R18_OverviewService | 1440×1300 | Ollama stopped, 2 queued, 2 need you. The status reads "Can’t run work · Ollama stopped · 2 need you" and the service item is first. Every row is "State unknown…", Class Notes adds "Queued: 2 requests · waiting for Ollama", and the Agent rows never say running. |
+| R18_Overview1024 | 1024×1400 | Projects window opened explicitly and kept at 1024, plus the Ask Across Projects toggle. |
+| R18_OverviewAskAbout | 1440×1000 | After Ask About Class Notes: a new conversation reading "Searching Class Notes only", the composer focused, nothing sent. |
+| R18_OverviewStatus | 1440×1480 | The 5-step priority ladder, rules for mixed states, the Agent rows while stopped, Activity's service detail (Open Details) and EN/JA. |
+| R18_OverviewRowActions | 1440×1500 | Row ⋯ menu, item ⋯ menu, ⌘/Ctrl+Return rules, the popup-blocked notice with its rules, and ⌘Return in the Ask composer still sending. |
+| R18_OverviewFocus | 1440×2000 | Oldest first within a kind. A new item is inserted above the focus while the focused row keeps its place ("1 new item in Needs you"). When the focused item resolves, focus moves on ("Class Notes: answered"). An 11 Oct question is still listed. |
+| R18_OverviewWindows | 1440×1560 | Two windows with Show: Needs You and Show: Working, reload rules, Window › Projects checked, and resize rules. |
+| R18_OverviewHistory | 1440×1260 | Interrupted item → Activity detail with Cancel Request… plus the alert → item leaves ("pi-local-harness: cancelled") → history row "Cancelled by you · 14:40". |
+| R18_OverviewStates | 1440×2580 | Ollama stopped alone; Show: Working while stopped; non-blocking Preview stopped; not connected beats service; 320 px. |
+| Ph18_Overview · Ph18_OverviewService · Ph18_OverviewRowMenu · Ph18_OverviewHistory | 390×844 | Phone list with 44 px row actions; two-line blocked status; the row ⋯ sheet; history with the cancelled row. |
+| R18_OverviewStrings | 1440×1640 | EN/JA (47 strings). |
+| R18_OverviewWalk | 1440×1480 | Given/When/Then for every decision, including reload and two windows. |
+
+#### Decision → boards and cards
+
+1. **Order: oldest first within a kind; history newest first.** R18_OverviewFocus (cells 1, 4, 5) and R18_OverviewHistory. Cards: AttentionItem § Round 18, WorkOverview § Round 18.
+2. **Per-window filters.** R18_OverviewWindows. Card: WorkOverview.
+3. **7 days of resolved history; unresolved items never expire.** R18_OverviewHistory and R18_OverviewFocus (11 Oct question). Cards: WorkOverview, AttentionItem.
+4. **Work-blocking service status and priority.** R18_OverviewService, R18_OverviewStatus, R18_OverviewStates and Ph18_OverviewService. Cards: StatusButton § Round 18, PhoneBar, WorkOverview, AttentionItem.
+5. **1024: Projects window hidden by default and kept when opened explicitly.** R18_Overview1024 and R18_OverviewWindows. Card: MenuBar § Round 18.
+6. **⌘/Ctrl+Return, its visible equivalent and the popup-blocked notice.** R18_OverviewRowActions, R18_Overview (⋯ everywhere) and R18_OverviewWalk. Cards: AttentionItem, WorkOverview.
+7. **Cancelled history row.** R18_OverviewHistory and Ph18_OverviewHistory. Cards: AttentionItem, WorkOverview.
+13. **Ask about this project (row action).** R18_Overview, R18_OverviewAskAbout, R18_OverviewRowActions and Ph18_OverviewRowMenu. Card: WorkOverview. Worker B owns the conversation, the prefill and the draft-conflict UI.
+20. **概要.** R18_OverviewStrings and R18_OverviewWalk (Japanese journey). Cards: WorkOverview, MenuBar.
+
+#### Markup, classes, ids (new in round 18)
+
+- **Project row.** `div.pw-prow[role=row]#prow-<id>[data-unknown]` contains:
+  - `span.pw-prow__cellwrap[role=gridcell]`, holding `a.pw-prow__main[aria-keyshortcuts="Meta+Enter Control+Enter"]`.
+  - `span.pw-prow__side`, which holds three `span[role=gridcell]`: `button.pw-prow__ask` "Ask About {name}" (`title` = full label), `button.pw-prow__act` "Open in Activity", and `button.pw-rowmore[aria-haspopup=menu][aria-expanded][aria-label="More for {name}"]`.
+  - `.pw-prow__now` (the now cell, which wraps) and `.pw-prow__queue` (the queued line under the now/agent cells).
+- **Attention item.** `li.pw-attnrow` holds `a.pw-attn[aria-keyshortcuts][data-blocking][data-new]` and `button.pw-rowmore` "More for {project}: {kind}".
+- **Row and item menu.** `.pw-menu.pw-rowmenu[role=menu]` contains `.pw-menu__item` entries:
+  - Row: Open Chat (Return) · Open in New Window (⌘Return) · separator · Ask About {name} · Open in Activity.
+  - Item: Open {X} · Open in New Window.
+- **Popup-blocked notice.** `div.pw-ovnotice[role=status]` sits between the toolbar and the infobar. It holds `.pw-ovnotice__text` and two `.pw-btn` buttons (Open Here, Copy Link).
+- **Status button.** `button#agent-status.pw-statusbtn.pw-statusbtn--attention.pw-statusbtn--blocked[data-state=blocked]`. On the phone it adds `.pw-statusbtn--wrap`.
+- **History.** `ul.pw-hist` with `li` containing `.pw-hist__state`, `.pw-hist__what` (wrapping text plus `.pw-hist__note`) and `time`. The toggle reads "Resolved in the last 7 days".
+- **Ask pane head.** It matches the ConversationList card and gen/r18b.py's `pane18` head. Inside `aside.pw-overview__ask`, `div.pw-ask__head` holds three rows:
+  - Row 1: `h2.pw-ask__title#ov-ask-h` "Ask across projects", plus the small **New** button (accessible name "New Conversation", `aria-keyshortcuts="Control+Alt+N"`).
+  - Row 2, full width: `div.pw-convo` › `button.pw-convo__btn#ask-convo[aria-haspopup=menu][aria-controls=ask-convo-menu][aria-label="Conversation: {title}"]` (speech glyph, title, ▾).
+  - Row 3, full width: `span.pw-scope` › `button.pw-scope__btn#ask-scope`.
+  - Classes come from round17_b.css and round18_b.css. `.pw-overview__askbar` and `.pw-overview__conv` are removed.
+- **Live region.** `#ov-live` is unchanged. Boards draw it as `.pw-ovlive`.
+
+#### Exact copy (EN → JA)
+
+The full table is on R18_OverviewStrings. Key strings:
+
+| English | Japanese |
+| --- | --- |
+| Overview · All Projects (window title) | 概要 · すべてのプロジェクト |
+| Overview (menu, Agent row, names) | 概要 |
+| Can’t run work · Ollama stopped | 作業を実行できません · Ollama 停止中 |
+| Can’t run work · Ollama stopped · 2 need you | … · 対応待ち 2 件 |
+| aria-label: Agent status: can’t run work, Ollama stopped, 2 need you. Open Overview | エージェントの状態：作業を実行できません、Ollama 停止中、対応待ち 2 件。概要を開く |
+| State unknown while Ollama is stopped | Ollama 停止中のため状態不明 |
+| Queued: 2 requests · waiting for Ollama | 待機中：リクエスト 2 件 · Ollama を待っています |
+| Service problem · Ollama stopped | サービスの問題 · Ollama 停止中 |
+| Agent row: Can’t run work · 2 need you | 作業を実行できません · 対応待ち 2 件 |
+| Activity row: 2 queued · Ollama stopped | 待機中 2 件 · Ollama 停止中 |
+| Projects list: state unknown | 状態不明 |
+| Ollama: running again | Ollama：再び動作しています |
+| Resolved in the last 7 days | 過去 7 日間に解決 |
+| Newest first · history only: nothing to do here | 新しい順 · 履歴のみ（ここで行う操作はありません） |
+| Cancelled by you · 14:40 | あなたがキャンセル · 14:40 |
+| Changes made before the restart are still in the project. | 再起動前に行われた変更は、プロジェクトに残っています。 |
+| Cancel Request… | リクエストをキャンセル… |
+| Cancel this interrupted request? | 中断したこのリクエストをキャンセルしますか？ |
+| Keep Request | リクエストを残す |
+| {project}: cancelled | {project}：キャンセルしました |
+| 1 new item in Needs you | 対応待ちに新しい項目が 1 件 |
+| {project}: answered | {project}：回答済み |
+| Open in New Window | 新しいウインドウで開く |
+| Open Chat | チャットを開く |
+| More for {name} | {name} のその他の操作 |
+| Your browser blocked the new window. | ブラウザーが新しいウインドウをブロックしました。 |
+| Open Here | ここで開く |
+| Copy Link | リンクをコピー |
+| Link Copied | リンクをコピーしました |
+| Ask About {project} | {project} について質問 |
+| Ask about {project}… (placeholder) | {project} について質問… |
+
+#### States
+
+- **Status priority.**
+  1. Connection interrupted, with Reconnect.
+  2. A blocking service failure. Shown alone as "Can’t run work · Ollama stopped" (framed, because the service item itself needs you), or with attention appended as "… · 2 need you".
+  3. Attention: "2 need you · Working on Class Notes".
+  4. Working or Waiting.
+  5. Ready.
+
+  The "need you" count in state 2 excludes the blocking service item, because the words already name it. Non-blocking problems (for example "Service problem · Preview stopped") only add to the count and keep the service kind's last place.
+- **While state 2 holds, no surface says Working, Idle or Ready.** This covers the status button, the Agent rows, the Projects list, each Overview row and the Show: Working empty state. Queued counts stay.
+- **Not connected while a service is stopped.** Connection interrupted wins, and Overview shows the dotted 14:20 snapshot.
+- **Focused item resolves.** It fades for 2 s, then focus moves to the next item (else the previous one, else the heading) and the region announces "{project}: answered".
+- **New items arrive.** They are inserted around the focused item and the list scrolls to keep the focused item in place. A `[data-new]` "New" tag shows until the item is focused or 60 s pass.
+- **Popup blocked.** An inline notice appears. Open Here behaves as Return. Copy Link changes to "Link Copied" for 2 s. The notice closes after either action or on the next successful open.
+- **History.** Resolved problems only, newest first, collapsed by default, kept 7 days for display.
+
+#### Keyboard and focus
+
+- **Lists.** Needs you and the Projects grid are one Tab stop each, with ↑ ↓ Home End to move. Return opens the item. ⌘Return (macOS) or Ctrl+Return (elsewhere) opens it in a new browser window, and focus stays on the item.
+  - → moves from the item link to ⋯.
+  - In Projects, → goes link → Ask About → Open in Activity → ⋯, and ← goes back.
+  - Esc closes the ⋯ menu and returns focus to ⋯.
+- **Composers.** The new-window shortcuts are never bound inside a composer. In the Ask pane and in project chats, Return and ⌘Return keep their send meaning.
+- **Ask About.** Focus moves to the Ask composer. In the new conversation, Shift+Tab reaches the conversation popup.
+- **Second window.** It keeps its own focus and its own Show value.
+- **Live updates.** A live update never moves the focused row.
+
+#### Responsive
+
+- **≥1100.** Projects home, Overview and the 400 px Ask pane. Row actions sit on their own right-aligned line under the row text.
+- **1024.** The Projects window is hidden by default. If it was opened explicitly, it is kept with its state, and Overview shows the Ask Across Projects toggle.
+- **≤560 (320).** Section heads wrap (the note goes on its own line), row actions wrap, and items stack.
+- **Phone ≤760.**
+  - Row actions are 44 px (Ask About fills the line), and item ⋯ is a full-height 44 px column.
+  - A row's ⋯ opens a sheet (Open Chat · Ask About · Open in Activity) with no new-window item.
+  - The blocked status uses two lines inside the 44 px button.
+
+#### Superseded round 17 text (exact old → new)
+
+- **StatusButton.**
+  - Old: "Should a service problem (Ollama stopped) also appear in the StatusButton words…? Drawn: it counts in 'need you' only."
+  - New: a work-blocking service shows "Can’t run work · Ollama stopped[ · 2 need you]" at priority 2.
+  - Round 17's "otherwise as before (Ready, Working · 1 waiting, 1 waiting, Connection interrupted + Reconnect)" is replaced by the five-step priority.
+- **Project rows during a blocking failure.** "Working: task 2 · Subjects · 2 queued" / "Idle" → "State unknown while Ollama is stopped" plus "Queued: 2 requests · waiting for Ollama".
+- **Agent row and Projects list during a blocking failure.**
+  - Agent row "Overview · 5 need you · 1 working" → "Can’t run work · 2 need you".
+  - Activity row "1 running · 2 waiting" → "2 queued · Ollama stopped".
+  - Projects list "running" → "state unknown".
+- **Service item placement.** It was the last kind ("Service problem"); a blocking one is now first, as "Service problem · Ollama stopped".
+- **History section.**
+  - "Recorded problems" → "Resolved in the last 7 days".
+  - "History only: nothing to do here" → "Newest first · history only: nothing to do here".
+  - The history row "Interrupted · pi-local-harness · Request 13:35 · task 3: still waiting for you (in Needs you)" is removed.
+  - The count "3 in the last 7 days" → "3".
+- **Announcements.**
+  - "{project}: answered. {n} need you." → "{project}: answered".
+  - "Pong: waiting for your answer." (new item) → "1 new item in Needs you".
+- **Project row structure.** "`div.pw-prow[role=row]` with two gridcells: row link, Open in Activity" → four gridcells: row link, Ask About {project}, Open in Activity, ⋯.
+- **Keyboard hint.** "Each list is one Tab stop: ↑ ↓ move, Return opens, → reaches Open in Activity." → "…, Return opens, ⌘Return opens in a new window, → reaches the row’s buttons and ⋯."
+- **AttentionItem keyboard.** "⌘Return (Ctrl+Return) opens in a new browser window" now has a visible equivalent: ⋯ › Open in New Window.
+- **Ask pane header.** "Ask across projects" + scope button → row 1: title + **New**; row 2: the conversation popup (ConversationList); row 3: the scope button.
+- **Open product choices.** WorkOverview 1–5 and AttentionItem 1–2 are resolved and closed.
+
+#### Data contracts still missing (✱)
+
+- ✱ **Service health record.** `{service:"ollama", state:"stopped"|"running", since, blocking:true|false}` in the Overview projection, with blocking vs non-blocking decided by the host, never by text.
+- ✱ **Per-project `now.state`.** It must be able to say `"unknown"` (with the reason `service_stopped`) instead of idle.
+- ✱ **Queued count per project.** It must stay valid while the model server is down.
+- ✱ **Attention `created_at`.** Needed for oldest-first ordering, plus a stable `id` per item.
+- ✱ **Resolution records.** `resolved_at` and `resolution` (`answered` | `approved` | `continued` | `recovered` | `cancelled`) for the history and the announcements. A `cancelled_by` field and a `cancelled` state for interrupted requests.
+- ✱ **Cancel endpoint for interrupted requests.** Only queued-job cancel exists today (`/api/jobs/cancel`).
+- ✱ **Per-window Show state.** Kept in the window address or session; no server field.
+- ✱ **Deep links for every item and row target**, used by Open in New Window and Copy Link.
+- ✱ **Ask About `scope.project_ids`.** Created on a new or empty dashboard conversation; worker B's contract.
+
+#### Privacy and redaction
+
+- The service item names the service and "All projects", never project content.
+- Overview rows and items appear only for registered projects the person can open.
+- Copy Link copies an Overview, chat or Activity address, which grants no access by itself.
+- Ask About narrows search scope only. It never grants writes and never adds projects.
+- History rows show recorded facts only. "Changes made before the restart are still in the project." states what is true and lists no file contents.
+
+#### Acceptance journeys (extended; R18_OverviewWalk has the stable names)
+
+1. **Service failure with queue and attention.** Boards: R18_OverviewService, R18_OverviewStatus, Ph18_OverviewService.
+   - Given Ollama stopped at 14:24, 2 queued, Pong and home-server waiting.
+   - Then the button is named "Agent status: can’t run work, Ollama stopped, 2 need you. Open Overview".
+   - Then the first item reads "All projects: Service problem · Ollama stopped. Model server · Ollama. Open Details".
+   - Then no row text matches /\b(Working|Idle|Ready)\b/ and Class Notes reads "Queued: 2 requests · waiting for Ollama".
+   - When Ollama returns, Then "Ollama: running again" is announced and the button reads "2 need you".
+2. **Connection beats service.** Board: R18_OverviewStates.
+3. **Order and focus.** Board: R18_OverviewFocus.
+   - Given focus on the home-server check-in, When a Class Notes question arrives, Then it lists after Pong's question, focus keeps its place, and one announcement is made: "1 new item in Needs you".
+   - When the focused Class Notes question is answered in another window, Then focus is on the next item and "Class Notes: answered" is announced.
+4. **Unresolved never expires; history newest first.** Boards: R18_OverviewFocus, R18_OverviewHistory.
+5. **Two windows, two filters, reload.** Board: R18_OverviewWindows.
+6. **Open in new window, popup blocked, composer unaffected.** Board: R18_OverviewRowActions.
+7. **1024 with an explicit Projects window.** Boards: R18_Overview1024, R18_OverviewWindows.
+8. **Cancel an interrupted request.** Boards: R18_OverviewHistory, Ph18_OverviewHistory.
+   - Expect "pi-local-harness: cancelled".
+   - Expect the row "Cancelled by you · 14:40" with "Changes made before the restart are still in the project.".
+   - Expect no "rolled back" text.
+9. **Ask about this project.** Boards: R18_OverviewAskAbout, Ph18_OverviewRowMenu.
+   - Expect "Searching Class Notes only" and composer focus.
+   - Expect no request sent.
+   - Expect the earlier conversation's scope and draft to be unchanged.
+10. **Japanese.** Board: R18_OverviewStrings. Expect 概要 everywhere.
+
+#### Existing vs Proposed
+
+| Part | Status |
+| --- | --- |
+| Activity, Gate, ChoiceCard, PlanCard, CheckInCard, Ask Pi to Retry…, Connection interrupted + Reconnect | Existing, unchanged |
+| Overview window, AttentionItem, project row (round 17) | Proposed (round 17), revised here |
+| Status priority with "Can’t run work · Ollama stopped" | Proposed |
+| "State unknown while Ollama is stopped", queued-while-stopped line | Proposed |
+| Ask About {project}, row and item ⋯ menus, Open in New Window, popup-blocked notice | Proposed |
+| Activity › Cancel Request… for interrupted requests, plus the alert | Proposed (no endpoint yet ✱) |
+| Activity service detail with Check Again | Proposed wording on the round 17 detail |
+| Resolved in the last 7 days, Cancelled by you row | Proposed |
+| Per-window Show, Projects window kept at 1024 | Proposed |
+| Several agents | Still Proposed later (R17_SeveralAgents, unchanged) |
+
+#### New open issues (genuinely new only)
+
+1. **Several blocking services at once.** For example, Ollama stopped while another blocking service is also down. The decided words name one service. I did not draw a case for two and propose the lead fix the wording; a candidate is "Can’t run work · 2 services stopped · 2 need you".
+2. **Item ⋯ grid semantics.** The item ⋯ makes Needs you a list of link + button pairs reached with →. If implementers prefer ARIA semantics, Needs you could become `role=grid` like Projects. Behaviour is the same either way.
+
+### B · Ask across projects finalized
+
+Design only: nothing here ships a conversation store, retry, or Page-view routing. Generator `gen/r18b.py` (execs `gen/r17b.py` minus its preview section, which execs r13.py); run with `PW_OUT=SP/out18b/`; only `R18_Ask*`/`Ph18_Ask*` are copied to `cv/project/`. CSS: `scripts/round18_b.css`, injected together with `round17_a/b/c.css` and `round18_fix.css`. Layout: `r18layout_b.json`. Validation: `r18check_b.py` → 0 HTML problems, 0 undefined `pw-` classes (16 boards + SearchScope, SourceList, ConversationList previews). Every board render-checked with `shot.py` (PNGs in `shots18b/`).
+
+All boards are titled “Round 18 · Proposed · …”. Round 17's pane layout, read-only line, hand-off, Overview lists (worker A) and approval cards are unchanged.
+
+#### Boards (reading order)
+
+| Board | Size | Shows |
+| --- | --- | --- |
+| R18_AskHistory | 1440×900 | Conversation popup open: New Conversation ⌃⌥N, then conversations newest first “title · scope · date”, Draft marker; project rows with “Ask About {project}” |
+| R18_AskConversations | 1440×2300 | A (narrowed, draft) → switch to B → New (all projects) → back to A; project added later (“Searching 5 of 6 projects”); project no longer available; no project left |
+| R18_AskAbout | 1440×900 | Ask About Class Notes: new conversation, “Searching Class Notes only”, focus in Question, nothing sent |
+| R18_AskPrefill | 1440×1520 | Reuse of an empty conversation; draft-conflict notice; Keep My Draft; Replace with New Question; Ask in Overview prefill; Ask in Overview with conflict |
+| R18_AskRetry | 1440×900 | Original answer unchanged (“Retried at 14:41 · below”) + new reply “Retry · Pong”; draft “And conflicts?” untouched |
+| R18_AskRetryStates | 1440×2230 | One, several, in flight, done, still missing, target no longer available, Nothing to retry, ⋯ › Ask All Projects Again |
+| R18_AskCitePage | 1440×900 | Open → docs/offline.md in Page view at “Sync queue”, section marked, Page/Source toggle, ‹ Overview |
+| R18_AskCiteStates | 1440×1760 | Source view; changed banner + Show Source; moved; Sources with moved/changed/deleted; unavailable (redacted); section gone |
+| R18_Ask1024 | 1024×900 | Projects window hidden (default); Ask About presses “Ask Across Projects”; ‹ Back to Lists |
+| R18_AskNarrow | 1440×940 | 320 px pane (retry in flight + draft notice), static popup, keyboard, announcements |
+| Ph18_AskHistory | 390×844 | Conversations sheet |
+| Ph18_AskDraft | 390×844 | Draft notice, stacked 44 px buttons |
+| Ph18_AskRetry | 390×844 | Retrying Pong…, draft kept |
+| Ph18_AskCite | 390×844 | Page view, changed banner, Page/Source toggle |
+| R18_AskStrings | 1440×1800 | EN/JA (round 18 additions) |
+| R18_AskWalk | 1440×1900 | 16 Given/When/Then journeys incl. reload and two windows |
+
+#### Decisions → boards and cards
+
+| # | Decision | Boards | Cards |
+| --- | --- | --- | --- |
+| 8 | New conversation = all authorized projects, stated | R18_AskConversations (New), R18_AskHistory, R18_AskWalk 2 | ConversationList, SearchScope R18 |
+| 9 | Keep and list conversations + New | R18_AskHistory, R18_AskConversations, Ph18_AskHistory | ConversationList |
+| 10 | Cited Markdown opens in Page view at the section; Source reachable; changed status | R18_AskCitePage, R18_AskCiteStates, Ph18_AskCite | SourceList R18 |
+| 11 | Removed/revoked citation → disabled numbered placeholder, redacted | R18_AskCiteStates (unavailable), R18_AskConversations (no longer available), R18_AskRetryStates (target removed) | SourceList R18, SearchScope R18 |
+| 12 | Retry only missing projects; new attempt; original kept; full refresh separate | R18_AskRetry, R18_AskRetryStates | SearchScope R18 |
+| 13 (Ask side) | Ask About opens a scoped conversation, focuses composer, sends nothing | R18_AskAbout, R18_Ask1024, R18_AskPrefill | ConversationList |
+| 15 | Retry sends at once, dedupes, rechecks scope, keeps draft; “Nothing to retry.” | R18_AskRetryStates, Ph18_AskRetry, R18_AskNarrow | SearchScope R18 |
+| 16 (Overview side) | Ask in Overview prefills and waits; draft conflict | R18_AskPrefill, Ph18_AskDraft | ConversationList |
+| 20 | 概要 | R18_AskStrings (“‹ 概要”, “概要 · すべてのプロジェクト”) | — |
+
+#### Markup and ids (new)
+
+- Head: `.pw-ask__head` › `h3#ov-ask-h` “Ask across projects” + **New** (`aria-label="New Conversation"`, `aria-keyshortcuts="Control+Alt+N"`) › `.pw-convo` › `button.pw-convo__btn#ask-convo[aria-haspopup=menu][aria-controls=ask-convo-menu][aria-label="Conversation: {title}"]` › `.pw-scope` (round 17).
+- Menu: `div.pw-convo__pop[role=menu]#ask-convo-menu` › `button.pw-convo__new[role=menuitem]` + `div[role=group][aria-label="Conversations, newest first"]` › `button.pw-convo__item[role=menuitemradio][aria-checked]` › `.pw-convo__t`, `.pw-convo__m` (+ `.pw-convo__draft`).
+- Notice: first child of `form.pw-ask__foot`: `div.pw-asknotice[role=group][aria-labelledby=ask-conflict-t]` › `p#ask-conflict-t` + `.pw-asknotice__actions` (Keep My Draft `.pw-btn--default`, Replace with New Question).
+- Disabled Send: `button[disabled][aria-describedby=ask-send-off]` + `p.pw-help#ask-send-off`.
+- Answer ⋯: `.pw-msg__label` › `span.pw-msg__more` › `button[aria-haspopup=menu][aria-label="More for this answer"]` + `.pw-menu[role=menu]` › `.pw-menu__item` “Ask All Projects Again”.
+- Retry: in `p.pw-coverage--partial`, `button.pw-btn` “Retry Pong” → `[aria-disabled=true]` “Retrying Pong…” → `a.pw-link.pw-coverage__after[href="#retry-1"]` “Retried at 14:41 · below”; “Nothing to retry.” is `span.pw-coverage__after[role=status]`. Result: `article.pw-msg.pw-msg--retry#retry-1[aria-label="Retry · Pong, 14:41"]` with `.pw-msg__tag` “Retry · Pong”.
+- Citations: `li.pw-sources__item[data-changed|data-deleted|data-unavailable]`; `span.pw-cite.pw-cite--off[role=img][aria-label="Source 3, unavailable"]`.
+- Page view: `.pw-infobar` (‹ Overview · “Source 1 of 3 · Sync queue” · Page/Source `role=tablist`) › `p.pw-pagebanner[role=note]` › `article.pw-doc` › `section.pw-cited[aria-labelledby=pg-sync]` › `h2#pg-sync[tabindex=-1]` + `p#pg-cited` “Cited as source 1 · lines 12–40”.
+
+#### Exact copy
+
+All EN/JA in R18_AskStrings (and the cards' tables). Key lines: “New Conversation” 新しい会話 · “Conversation: {title}” · “Conversations · newest first” · “All projects (5)” · “Class Notes, Pong” · “Draft” 下書き · “Ask About Class Notes” Class Notes について質問 · placeholder “Ask about Class Notes” · “This conversation already has an unsent draft.” この会話には未送信の下書きがあります。 · “Keep My Draft” 下書きを残す · “Replace with New Question” 新しい質問に置き換える · “Searched 4 of 5 projects · Pong was catching up” · “Retry Pong” Pong で再試行 · “Retry 2 Projects” 2 件のプロジェクトで再試行 · “Retrying Pong…” · “Retry · Pong” · “Retried at 14:41 · below” · “Nothing to retry.” 再試行するものはありません。 · “Ask All Projects Again” · “Changed after this answer (2 days ago). You're reading the current file.” · “Show Source” · “Moved to docs/sync.md after this answer” · “No longer in Class Notes” · “Source unavailable” ソースは利用できません · “Sources · 3 · 1 unavailable”.
+
+Proposed by B (not fixed by the lead, flagged for review): “Searching {n} of {m} projects”, “Added after this conversation started. Check it to search it here too.”, “Choose projects to search”, “None of this conversation's projects can be searched now. Choose projects, or start a New Conversation.”, “Retried at {time} · below”, “Searched 0 of 1 project · Pong is still catching up”, “Ask Again in 2 Projects / in Class Notes”, “asked again”, “Cited as source 1 · lines 12–40”, “The cited section isn't in the current file; showing the file from the top.”
+
+#### States
+
+Conversations: current / switched / new (all, stated) / reused empty / draft conflict / kept / replaced / project added later / project no longer available / none left. Retry: one / several / in flight / done / still missing / target revoked / nothing to retry / full refresh. Citations: Page view / Source view / changed / section gone / moved / deleted / unavailable. Round 17 states (searching, no matches, unavailable search, hand-off, >5 sources) unchanged.
+
+#### Keyboard and focus
+
+- Tab order: ‹ Back to Lists (1024) → New → conversation popup → scope → conversation (one stop) → per answer: ⋯, Sources (one stop), Retry → notice → Question → Send.
+- ⌃⌥N anywhere in the Ask pane = New Conversation (inserts nothing in Question). Elsewhere ⌃⌥N is still New File (round 13); Overview has no project, so no clash. Return / ⌘Return in Question keep their send meaning; ⌘/Ctrl+Return (worker A's Open in New Window) is bound only to a focused Overview row, never the Ask pane.
+- After New, switch, Ask About, Ask in Overview, Keep or Replace: focus in Question, caret at the end.
+- Notice: focus on Keep My Draft; Escape = Keep.
+- Retry: `aria-disabled` keeps focus on the button while in flight; on “Nothing to retry.” focus moves to the line.
+- Page view: focus on the cited heading; ‹ Overview / ⌃⌥0 returns to the same conversation, scroll and Open button.
+- Announcements (polite): see R18_AskNarrow. A live update in another window never moves focus or scroll.
+
+#### Responsive
+
+≥1100: 400 px pane, popup as wide as the head. 1024: Projects window hidden by default (worker A); Ask About presses “Ask Across Projects” and shows the pane full width. Phone: conversation button (44 px) + New on row 1, scope on row 2; Conversations sheet; notice buttons stacked 44 px; Retry button 44 px; Page view with Page/Source 44 px tabs and the banner under them. 320: titles truncate (full title in the accessible name); buttons wrap.
+
+#### Superseded round 17 text (exact old → new)
+
+- R17 notes Data: “One active conversation; New starts another, and old ones are not listed in this round.” → conversations are kept and listed newest first (ConversationList); each keeps its scope and draft.
+- Pane head: “New” (button, unnamed) → “New” with accessible name “New Conversation”, ⌃⌥N; plus the conversation popup button.
+- Interactions: “New starts an empty conversation scoped to all projects.” → kept, and stated on the button: “Searching all projects (5)”; Ask About/Ask in Overview reuse only an empty conversation.
+- “Searched 4 of 5 projects · Pong is ready now” + **Ask Again** → “Searched 4 of 5 projects · Pong was catching up” + **Retry Pong** (sends at once; reply “Retry · Pong”).
+- R17_AskStates note “When Pong catches up, the line becomes “Searched 4 of 5 projects · Pong is ready now” with Ask Again. Nothing re-asks by itself.” → Retry is offered immediately; nothing re-asks by itself still holds.
+- “Searched 5 projects · 14:32 · 1 source changed since” + **Ask Again** → “Searched 5 projects · 14:32”; the source item says “changed after this answer”; full refresh = ⋯ › **Ask All Projects Again**.
+- “changed since this answer” → “changed after this answer”.
+- Open: “opens the file at that line in that project's Work … in Source view, the cited lines marked” → Markdown opens in **Page view** at the section; Source view via the bar's toggle; code unchanged.
+- “Open {file} in {project} at line {n}” → “Open {file} in {project} at {section}” (Markdown).
+- “The cited lines changed; showing the file from the top.” → banner “Changed after this answer ({ago}). You're reading the current file.” + Show Source; “The cited section isn't in the current file; showing the file from the top.” only when the section is gone.
+- “{project} was removed from Pi WorkStation” (named, greyed) → “Source unavailable” (no name); head “Sources · 3 in 2 projects” → “Sources · 3 · 1 unavailable”.
+- “Searched 5 projects · 14:32 · Kanji Cards was removed after this answer” → “Searched 4 projects · 14:32”.
+- R17 walkthrough 5 “when Pong is ready the line offers “Ask Again”, which asks the same question once” → “Retry Pong” sends once, result “Retry · Pong”.
+- R17 walkthrough 9 “the other shows the question and answer … with the same scope” → each window keeps its own current conversation; a conversation's messages, scope and draft are the same wherever it is shown.
+- Round 17 open choices 1–6 (B) are decided by decisions 8–13, 15, 16.
+
+#### Data contracts still missing (✱)
+
+- ✱ Conversation list per person `{id, title, scope:{project_ids[], all_at_start}, updated_at, message_count, draft}`, newest first; reload-safe; current conversation per window.
+- ✱ Draft store per conversation (text, updated_at) — see open issue 2.
+- ✱ Conversation title generation.
+- ✱ Answer coverage `{searched_ids[], missing:[{project_id, reason:"catching_up"|"failed"}], at}`; retry attempt `{id, parent_answer_id, target_ids[], state:"in_flight"|"done"|"none_authorized", coverage}`, idempotent per parent answer (one in flight; server-side dedupe across windows).
+- ✱ Source `{n, project_id, path, heading, anchor, lines, source_hash, read_at}` plus a current-state resolver: `changed_at`, `moved_to`, `deleted`, `authorized` — evaluated at display time.
+- ✱ Work route: `/{project}/work/{path}?view=page#{anchor}` with `return=/overview?conversation={id}&source={n}`.
+- ✱ Prefill route into Overview: `{source:"ask_about"|"ask_in_overview", project_id?, text?}` — never auto-sent.
+
+#### Privacy and redaction
+
+- Names, paths, sections, lines, excerpts and counts are resolved against the person's current authorization every time they are drawn: in Sources, coverage lines, Retry targets, scope labels, the popup, conversation items and counts.
+- Unauthorized projects leave labels and counts with no placeholder or “1 hidden”, except the Sources item, which keeps its number with “Source unavailable” so cite marks stay aligned (decision 11).
+- Retry rechecks authorization at the click; with no target it sends nothing.
+- Conversation history grants nothing: a listed conversation never re-exposes a revoked project's sources.
+- No database words in UI (index, BM25, SQL, DuckDB, query, embedding).
+
+#### Acceptance journeys (extended; Given/When/Then on R18_AskWalk)
+
+1 Switch conversations · 2 New is always all projects · 3 Ask About with messages · 4 Ask About reuse · 5 Draft conflict keep · 6 Draft conflict replace · 7 Ask in Overview · 8 Retry one project (dedupe, draft preserved, original unchanged) · 9 Retry with a removed target · 10 Nothing to retry · 11 Full refresh · 12 Open in Page view and Source view · 13 Changed / moved / deleted · 14 Unavailable source (revocation) · 15 Reload (conversations, scopes, drafts, retry in flight) · 16 Two windows (own current conversation; one retry). Service failure and old receipts are worker A's and C's.
+
+#### Existing vs Proposed
+
+| Element | Existing | Proposed |
+| --- | --- | --- |
+| Ask pane, scope, Sources, coverage | Proposed in round 17 (not shipped) | Revised (round 18) |
+| ConversationList (popup, draft notice) | — | New card |
+| Retry and ⋯ › Ask All Projects Again | — | New |
+| Work Page view (`pw-doc`), Source view (`pw-src`) | Existing views | Adds cited-section marking, banners, ‹ Overview |
+| Overview rows' “Ask About {project}” | — | Worker A owns the row; drawn here as context |
+
+#### Genuinely new open issues
+
+1. **“All projects” and projects registered later.** Drawn: an existing conversation keeps the set it started with (“Searching 5 of 6 projects”), so scope never widens silently. Alternative: “all” stays live. Needs a product call.
+2. **Where drafts live.** Per conversation, but device-local or synced? Two windows editing the same conversation's draft need a rule (drawn: last edit wins when the other window is not focused).
+3. **Prose that names a now-unauthorized project.** Decision 11 keeps prose unchanged; when access is *revoked* (not removed by the person), the host may need to hide the whole answer instead. Drawn: prose kept, sources redacted.
+4. **Full refresh in a narrowed conversation.** The fixed name “Ask All Projects Again” is wrong when the conversation searches 2 projects; drawn “Ask Again in 2 Projects / in Class Notes”.
+5. **⌃⌥N overlap with New File.** Resolved by scope (Ask pane only); worker A's Menu should show New Conversation ⌃⌥N in Overview's File menu if wanted.
+
+### C · Project conversation and per-message receipts
+
+Generator `gen/r18c.py` (execs the pieces of `gen/r17c.py`, which execs `gen/r13.py`; injects `scripts/round17_*.css`, `round18_fix.css`, `round18_c.css`). Card previews: `gen/ds18c.py`. Layout `r18layout_c.json`. Check `r18check_c.py` (0 HTML problems, 0 undefined `pw-` classes in the 9 boards and the 3 card previews). Every board render-checked with `shot.py` (PNGs in `shots/`).
+
+Boards (reading order):
+
+| Board | Size |
+| --- | --- |
+| R18_ProjectScope | 1440×900 |
+| R18_ContextReceipt | 1440×900 |
+| R18_ContextStates | 1440×3720 |
+| R18_ProjectScopeStates | 1440×1600 (includes the 320 px cell) |
+| R18_Context1024 | 1024×900 |
+| Ph18_ProjectScope | 390×844 |
+| Ph18_ContextSheet | 390×844 |
+| R18_ContextStrings | 1440×1340 |
+| R18_ContextWalk | 1440×840 |
+
+Cards: **ContextReceipt** (Round 18 section; preview rewritten), **ContextLine** (Round 18 section; Round 18 block appended to preview, height 1190), **Message** (Round 18 section; block appended, height 720). CSS `scripts/round18_c.css`: `.pw-context__scope`, `.pw-rcpt-sum` (+ `__scope`, `__part`, `__flag`), `.pw-receipt--inline`, `.pw-receipt__recorded`, `.pw-receipt__never`, `.pw-receipt__group--out`, `.pw-receipt__more`, `.pw-receipt__state--partial`. The lead should append round17_c and round18_c to bundle.css so previews render.
+
+#### Decisions → boards and cards
+
+| # | What C draws | Boards | Cards |
+| --- | --- | --- | --- |
+| 14 | A receipt for every submitted message, recorded at send; historical states (interrupted, unavailable, no longer available, changed); none for drafts | R18_ProjectScope, R18_ContextReceipt, R18_ContextStates, R18_ProjectScopeStates (draft), R18_Context1024, Ph18_ContextSheet, Walk 1, 4–7, 10, 11 | ContextReceipt, Message, ContextLine |
+| 16 (project side) | Ask in Overview prefills, waits for Send; reuse/draft-conflict rule handed to B | R18_ProjectScope, R18_ProjectScopeStates, Ph18_ProjectScope, Walk 9 | Message |
+| 17 | Compact counts in the summary; expanded Left out with authorized names and reasons | R18_ContextReceipt, R18_ContextStates, Walk 3 | ContextReceipt |
+| 18 | 3 found rows + Show All {n} / Show Fewer, keyboard and phone | R18_ContextReceipt, R18_ContextStates (Show All pressed), Ph18_ContextSheet, Walk 2 | ContextReceipt |
+| 19 | Notice only for an explicitly named, registered, authorized project; “Searched: Class Notes only” always in the summary and composer line | R18_ProjectScope, R18_ProjectScopeStates (Pong / no match / Tetris), Ph18_ProjectScope, Walk 8 | Message, ContextLine |
+| 20 | 概要 in every JA string here | R18_ContextStrings, R18_ContextStates (JA) | Message |
+
+#### Existing vs Proposed
+
+| | Existing | Proposed round 17 | Proposed round 18 |
+| --- | --- | --- | --- |
+| Composer line | `Pi sees: … +N Why?` | `… ┊ 2 found Why?` | `… ┊ Searched: Class Notes only Why?` (+ “· search catching up” / “· no search”) |
+| Composer Why? | “Why Pi sees these N files” | latest message's receipt | “What Pi will use when you send” (always files only; nothing recorded) |
+| Receipt | — | one, from the composer | one per submitted message, from a summary under its answer, opened in place |
+| Found | related mixed in | 3 + Show 2 More | 3 + Show All 4 / Show Fewer |
+| Left out | — | “n more matches left out…” + Show | “Left out · n” with names and reasons |
+| Changed | — | Ask Again | Ask Again with Current Files |
+| Boundary notice | — | about another project | only when another project you can open is explicitly named |
+
+#### Markup and ids
+
+- Summary: `button.pw-rcpt-sum#receipt-<msg>-sum[aria-expanded][aria-controls=receipt-<msg>]` > `span.pw-rcpt-sum__scope` (“<b>Searched:</b> Class Notes only”), `span.pw-rcpt-sum__part` × n (“ · Pi used 3 always”, “ · 4 found”, “ · 2 left out”), `span.pw-rcpt-sum__flag` (“ · Interrupted”, “ · 1 changed”, “ · 1 file no longer available”). Last child of Pi's `article.pw-msg`, after `.pw-context--after`.
+- Receipt: `section.pw-receipt.pw-receipt--inline#receipt-<msg>[role=region][aria-labelledby=receipt-<msg>-title]` > `h3#…-title[tabindex=-1]`, `p.pw-receipt__recorded`, `p.pw-receipt__scope`, `p.pw-help.pw-receipt__never`, optional `div.pw-receipt__state[role=status]` (`--stale` holds `button#…-again[aria-describedby=…-again-why]`, disabled with `…-busy`; `--partial` for interrupted), `section.pw-receipt__group--always`, `section.pw-receipt__group--found > ol#…-found > li[data-state=current|stale|gone]` + `p.pw-receipt__more > button#…-all[aria-expanded][aria-controls=…-found]`, `section.pw-receipt__group--out > ol > li` (`.pw-receipt__where`, `.pw-receipt__why`), `p.pw-receipt__after`, `p.pw-receipt__foot`. Phone: inside `psheet('What Pi used')`, no h3, `aria-label`.
+- Composer line: `p.pw-context#chat-context` … `span.pw-context__sep`, `span.pw-context__scope#context-scope[data-search=ready|catching|unavailable]`, `button.pw-context__why[aria-haspopup=dialog][aria-controls=context-before-send]`. Popover `section.pw-receipt#context-before-send[role=dialog][aria-labelledby=cbs-title]`.
+- Notice: `p.pw-notice[role=note]` > `button#ask-in-overview[aria-describedby=ask-in-overview-why]` + visible `span.pw-help#ask-in-overview-why`.
+
+#### Copy (exact; full table on R18_ContextStrings)
+
+| English | 日本語 |
+| --- | --- |
+| Searched: Class Notes only | 検索範囲: Class Notes のみ |
+| Pi used {a} always · {f} found · {l} left out | 常に {a} · 検索 {f} · 除外 {l} |
+| none found / Interrupted / search unavailable / 1 changed | 見つかりません / 中断 / 検索なし / 1 件変更 |
+| What Pi used for this message / What Pi used (sheet) | このメッセージで Pi が使ったもの / Pi が使ったもの |
+| Recorded when you sent this at {time}. Later changes are flagged, never rewritten. | {time} の送信時に記録しました。あとの変更は印で示し、書き換えません。 |
+| Always with this request · {n} / Found for this question · {n} / Left out · {n} | このリクエストで常に · {n} / この質問で見つかったもの · {n} / 除外 · {n} |
+| Left out to keep it short / Not searched: search was catching up | 短くするため除外 / 未検索: 検索を準備中でした |
+| Show All {n} / Show Fewer | {n} 件すべて表示 / 表示を減らす |
+| Interrupted: Pi stopped before reading the rest / The list shows what Pi had read when it stopped. | 中断: Pi は残りを読む前に停止しました / Pi が停止するまでに読んだものを表示しています。 |
+| Search unavailable for this message / Pi used the files it always gets and the ones you named. | このメッセージでは検索を利用できませんでした / Pi は常に使うファイルと、あなたが名前を挙げたファイルを使いました。 |
+| 1 file no longer available / It was deleted, or you can no longer open it, so its name is hidden. / File no longer available | 1 件のファイルは利用できなくなりました / 削除されたか、開けなくなったため、名前を表示しません。 / 利用できなくなったファイル |
+| changed after Pi read it / {file} changed after Pi read it at {time}. The answer may be out of date. | Pi が読んだあとに変更されました / {file} は Pi が {time} に読んだあとに変更されました。回答が古いかもしれません。 |
+| Ask Again with Current Files / Sends this message again with the files as they are now. This answer stays. / Pi is answering. Ask again when it’s done. | 現在のファイルでもう一度質問 / このメッセージを現在のファイルでもう一度送信します。この回答は残ります。 / Pi が回答中です。終わってからもう一度質問してください。 |
+| What Pi will use when you send | 送信時に Pi が使うもの |
+| Pi searched Class Notes only. To search every project, ask in Overview. | Pi が検索したのは Class Notes だけです。すべてのプロジェクトを検索するには、概要で質問してください。 |
+| Ask in Overview / Opens Overview with your question in a conversation searching all projects. Nothing is sent until you press Send. | 概要で質問 / 概要を開き、すべてのプロジェクトを検索する会話に質問を入れます。送信を押すまで送られません。 |
+
+#### States
+
+Summary and receipt per state are tabulated in the ContextReceipt card (Found, Changed, Changed while Pi answers, Interrupted, Search unavailable, No longer available, Catching up at send, Draft). The changed and no-longer-available states are computed when the receipt opens. Everything else is the record made at send and is never recomputed. The boundary notice is recorded with the job, so it shows once and again after a reload, never added later.
+
+#### Keyboard, focus, live
+
+- The summary is a disclosure: Space/Return toggles, focus stays, several may be open. Show All keeps focus and flips to Show Fewer. The rows are inserted above it.
+- Ask Again with Current Files: one request at a time. It is disabled with its reason while Pi works in this project. Pressing it sends at once, in the same conversation. The new answer comes at the end with its own summary; focus stays on the button. The old receipt is unchanged.
+- Live updates (new messages from another window, a file going stale) never move focus or close an open receipt. The one polite announcement is “{file} changed after Pi read it.” while that receipt is open.
+- Composer: Why? popover; Esc returns focus to Why?. Return/⌘Return keep their send meaning (A's ⌘/Ctrl+Return isn't bound here).
+- Ask in Overview: moves to Overview with focus in its composer; nothing is sent.
+
+#### Responsive
+
+- ≥1100: the receipt is in place, up to 560 wide.
+- 1024: the same (R18_Context1024). The composer line hides file names from the end; the scope and Why? never hide.
+- 320: the summary wraps at each “·” and the scope stays whole. Rows stack; the notice button wraps to its own row.
+- Phone: summary 44 px → sheet “What Pi used” (top 110); Show All and Ask in Overview are 44 px. Close returns focus to the summary.
+
+#### Superseded round 17 text (old → new)
+
+- “What Pi uses for this message” → “What Pi used for this message”. “What Pi uses” (sheet) → “What Pi used”.
+- Composer line “2 found” / “none found” (`.pw-context__found#context-found`) → “Searched: Class Notes only” (`.pw-context__scope#context-scope`). The live “search catching up” / “no search” follow it after “·”.
+- Why? `aria-controls="context-receipt"` opening the latest receipt → `aria-controls="context-before-send"` opening “What Pi will use when you send”.
+- Receipt `role=dialog#context-receipt` popover → `role=region#receipt-<message>` in place under each answer.
+- “2 more found” + “Show 2 More” → “Show All 4” / “Show Fewer”.
+- “{n} more matches left out to keep it short” + “Show” (JA “短くするため、ほかに {n} 件を省きました。” + “表示”) → “Left out · {n}” with “Left out to keep it short” / “Not searched: search was catching up” (JA “除外 · {n}”, “短くするため除外”, “未検索: 検索を準備中でした”).
+- “Ask Again” / aria-label “Ask Again with the changed files” (JA “もう一度質問”) → “Ask Again with Current Files” (JA “現在のファイルでもう一度質問”).
+- “moved to Trash after Pi read it” + struck name + “…was moved to Trash after Pi read it. The answer may name a test that isn’t there now.” → row “File no longer available” + note “1 file no longer available” / “It was deleted, or you can no longer open it, so its name is hidden.”
+- Receipt banners “Search is catching up after changes; Pi used the files it chose without search.” / “Search isn’t available right now; Pi used the files it chose without search. You can still send.” → Left out reason “Not searched: search was catching up” / “Search unavailable for this message” + “Pi used the files it always gets and the ones you named.”
+- Boundary trigger “the message names another registered project or asks about something outside this one” → “the message explicitly names another registered project the person can open”.
+- JA “Overview で質問” → “概要で質問”. “…Overview で質問してください。” → “…概要で質問してください。”
+- “Opens Overview with your question in Ask across projects. Nothing is sent until you press Send.” → “Opens Overview with your question in a conversation searching all projects. Nothing is sent until you press Send.” (JA “Overview を開き、「プロジェクト横断で質問」に質問を入れます。…” → “概要を開き、すべてのプロジェクトを検索する会話に質問を入れます。送信を押すまで送られません。”).
+- R17 Walk 1 “pressing “Why?” opens the dialog “What Pi uses for this message”” → pressing the answer's summary opens the region “What Pi used for this message”.
+
+#### Data contracts still missing (✱)
+
+- ✱ `context_receipt` per submitted job, write-once: `{recorded_at, scope{project_id}, search: ready|catching_up|unavailable, interrupted_at?, always[{path, reason, word?}], found[{doc_id, path, section, lines|truncated, read_at, revision, words[]}], left_out[{doc_id, path, section?, reason: budget|not_searched}], also_read[]}`. Partial lists are kept on interruption, and nothing is filled in afterwards.
+- ✱ Read-time projection: per item, `availability: current|changed|gone`. For `gone`, the host strips path, section, lines, read_at and words before the response. Counts come from the record.
+- ✱ `scope_notice: {project_id}` on the job, set only when the message explicitly names a registered project the sender can open at send time. The UI text never shows the name.
+- ✱ Resend: `POST job {resend_of: job_id}`, deduplicated while one is in flight. It returns a new job with its own receipt.
+- ✱ Ask in Overview handoff: a server-side prefill `{text, scope: all_authorized}` addressed to the Overview conversation, following B's reuse and draft-conflict rule. The question text never goes in a URL or log.
+- No score, rank, query, index or engine field reaches the UI.
+
+#### Privacy and redaction
+
+- Project chat receipts list only files in this project. Left-out names are those the person can open now; a file removed or no longer authorized loses its name everywhere in old receipts (count kept, “File no longer available”).
+- The boundary notice never names the other project and never appears for an unknown or unauthorized name, so a notice can't confirm that a project exists. The person's own message is not rewritten.
+- No receipt or record exists for a draft. Receipts are never saved into the Second Brain.
+
+#### Acceptance journeys (extending round 17 journeys 8 and 9)
+
+Given/When/Then for each story with accessible names is on **R18_ContextWalk**:
+
+1. Every message keeps its receipt (R18_ContextReceipt).
+2. Three found rows, then Show All (R18_ContextStates, Ph18_ContextSheet).
+3. Left out with names and reasons.
+4. Changed after Pi read it → Ask Again with Current Files (incl. disabled while answering).
+5. Interrupted.
+6. Search unavailable then.
+7. No longer available (source revocation).
+8. Boundary only for a named project: Pong vs no match vs Tetris (R18_ProjectScopeStates; scope isolation).
+9. Ask in Overview (draft preservation; B's boards).
+10. No receipt for a draft (reload).
+11. Two windows, reload, phone.
+
+#### Genuinely new open issues
+
+1. **Project names that are ordinary words.** A project called “Notes” or “Search” would make “explicitly names” fire on everyday questions. A rule is needed: for example, the match must be case-sensitive or quoted, or “the Notes project”. Product or harness choice.
+2. **Phase for Ask Again with Current Files.** If the project's phase changed since the original message, the resend must use the current phase, because it never changes phase. Should the description then say so (“…in Discussion”)? Drawn: same phase only.
+3. **Receipt lifetime.** Receipts live as long as their message. What happens to them when a conversation is cleared or compacted is not decided (decision 9 sets no retention policy).
+
+#### Acceptance journeys added in round 18 (extend round 17's ten)
+
+11. **Conversation history.** Given two dashboard conversations, one narrowed to Class Notes and Pong with an unsent draft, When I switch between them with the conversation popup and reload, Then each comes back with its own messages, scope and draft, and New Conversation starts with “Searching all projects (5)” (R18_AskHistory, R18_AskConversations, Ph18_AskHistory, R18_AskWalk 1–2, 15).
+12. **Selective retry.** Given “Searched 4 of 5 projects · Pong was catching up”, When I press Retry Pong twice, Then one attempt is sent, the button reads “Retrying Pong…”, a reply “Retry · Pong” appears below with its own Sources and coverage, and the original answer and receipt are unchanged (R18_AskRetry, R18_AskRetryStates, R18_AskWalk 8).
+13. **Draft preservation.** Given an empty conversation holding a draft, When I press Ask About Pong or Ask in Overview, Then “This conversation already has an unsent draft.” appears with Keep My Draft focused; Keep opens another new conversation with the prefill; nothing is sent; a retry never touches the composer (R18_AskPrefill, Ph18_AskDraft, R18_AskWalk 5–7).
+14. **Scope isolation.** Given the Class Notes chat, When I ask about Pong by name, Then the notice “Pi searched Class Notes only. To search every project, ask in Overview.” appears; When I ask about a word with no match, or name a project I can't open, Then no notice appears; “Searched: Class Notes only” is always shown (R18_ProjectScopeStates, R18_ContextWalk 8).
+15. **Source revocation.** Given an answer citing a Kanji Cards source, When Kanji Cards is removed or my access ends, Then that citation reads “Source unavailable” with its number, the heading “Sources · 3 · 1 unavailable”, its name leaves every scope and count, Retry no longer offers it, and “Nothing to retry.” is shown without sending when no target remains (R18_AskCiteStates, R18_AskRetryStates, R18_AskWalk 9–10, 14).
+16. **Service failure.** Given Ollama stopped with 2 queued requests and 2 items needing me, Then the status button reads “Can't run work · Ollama stopped · 2 need you”, no row says Working, Idle or Ready, and the service item is first; When Ollama returns, Then “Ollama: running again” is announced once (R18_OverviewService, R18_OverviewStatus, Ph18_OverviewService, R18_OverviewWalk 1–2).
+17. **Old receipts.** Given an earlier message whose search was interrupted and one of whose files was later moved to Trash, When I open its receipt, Then it shows what was recorded at send time (“Interrupted: Pi stopped before reading the rest”, “File no longer available” with no name) and nothing is recomputed; a draft has no receipt (R18_ContextStates, R18_ProjectScopeStates, R18_ContextWalk 1, 5–7, 10).
+18. **Focus, windows, keyboard.** Given focus on a Needs you row, When a new item arrives or the focused one is answered elsewhere, Then focus stays or moves to the next item with one announcement; two windows keep their own Show filter; ⌘Return opens the focused row in a new window but never acts inside a composer; a blocked popup offers Open Here and Copy Link (R18_OverviewFocus, R18_OverviewWindows, R18_OverviewRowActions).
+
+#### Validation (what ran)
+
+HTML nesting and `pw-` class definitions checked on all 41 boards and every card preview (0 problems, 0 undefined classes, including the ContextMeter and VisualResult repairs); every board named in this section exists on the canvas; boards and previews were rendered and inspected; `tests.test_design_brand`, `tests.test_frontend` and `tests.test_web_robustness` pass. Not verifiable here: screen-reader output, real browser popup blocking and keyboard behavior, which need the built frontend.

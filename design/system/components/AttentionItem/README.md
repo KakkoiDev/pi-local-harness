@@ -100,3 +100,25 @@ Polite, once per change: "{project}: answered.", "…: plan approved.", "…: co
 
 1. ⌘Return to open in a new window: keep, or leave to the browser?
 2. Should an interrupted request that you cancel stay in Recorded problems? Drawn: yes, as "Cancelled by you".
+
+## Round 18 · Proposed: order, focus stability, ⋯, service first (decisions 1, 3, 4, 6, 7)
+
+- **Order.** Kinds in round 17 order (question, plan, check-in, failed, interrupted, service); within a kind **oldest first**. A *work-blocking* service problem is first of all, as `Service problem · Ollama stopped` → **Open Details** (`[data-blocking]`, 2 px frame); non-blocking ones (e.g. "Service problem · Preview stopped") stay in the service place (last) and only add to the count. Unresolved items never leave by age (an 11 Oct question is still listed, first in its kind).
+- **⋯ (visible equivalent of ⌘Return).** `li.pw-attnrow` holds the link and `button.pw-rowmore[aria-haspopup=menu]` "More for {project}: {kind}". Menu: **Open {X}** (Return) · **Open in New Window** (⌘Return / Ctrl+Return). No Ask About on items (decision 13). → from the item reaches ⋯, ← returns. The link carries `aria-keyshortcuts="Meta+Enter Control+Enter"`.
+- **⌘Return / Ctrl+Return** on the focused item opens its target in a new browser window; focus stays here. Never bound in a composer. Blocked: WorkOverview's inline notice (Open Here · Copy Link).
+- **Focus stability.** A live update never moves the focused item: new items are inserted around it, and if one lands above, the list scrolls by its height so the focused row keeps its place. One polite announcement per update: "1 new item in Needs you" ("{n} new items in Needs you"). New items carry `[data-new]` ("New" tag after the request) until focused or 60 s. When the focused item resolves: fade 2 s, focus to the next item (else previous, else the heading), announcement "{project}: answered" (or "plan approved", "continued", "recovered", "cancelled").
+- **Interrupted → cancelled.** Activity's detail gains **Cancel Request…** for interrupted requests (alert "Cancel this interrupted request?", default **Keep Request**). Cancelling removes the item ("pi-local-harness: cancelled") and leaves the history row "Cancelled by you · 14:40" + "Changes made before the restart are still in the project."
+
+| English | 日本語 |
+| --- | --- |
+| Service problem · Ollama stopped | サービスの問題 · Ollama 停止中 |
+| Open in New Window | 新しいウインドウで開く |
+| 1 new item in Needs you | 対応待ちに新しい項目が 1 件 |
+| {project}: answered | {project}：回答済み |
+| {project}: cancelled | {project}：キャンセルしました |
+| Cancelled by you · {time} | あなたがキャンセル · {time} |
+| Changes made before the restart are still in the project. | 再起動前に行われた変更は、プロジェクトに残っています。 |
+
+Superseded round 17 text (old → new): "Kinds (in this order) … service" last → blocking service first; "{project}: answered. {n} need you." → "{project}: answered"; "New attention: 'Pong: waiting for your answer.'" → "1 new item in Needs you"; Keyboard "⌘Return (Ctrl+Return) opens in a new browser window" now has the visible ⋯ › Open in New Window; Open product choices 1–2 → resolved (decisions 6, 7).
+
+Walkthrough: Given focus is on home-server's check-in, When a Class Notes question arrives, Then it lists after Pong's question, focus and position stay, and "1 new item in Needs you" is announced once; When the focused Class Notes question is answered in another window, Then focus moves to the next item and "Class Notes: answered" is announced.

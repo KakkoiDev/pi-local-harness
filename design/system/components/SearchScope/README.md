@@ -129,3 +129,46 @@ The button fills the row under the bar, 44 px tall, with New beside it. Pressing
 - Should a new conversation start from the last scope used, instead of all projects?
 - Should Overview offer a scope per project row (“Ask about Pong”), which would open Ask already narrowed?
 - When a project catches up, should Ask Again re-ask only the missing project and merge the result, or ask everything again (as drawn)?
+
+## Round 18
+
+Decisions 8, 12, 13, 15 and 16 (docs/plans/360-round-17-product-decisions.md); boards R18_AskConversations, R18_AskAbout, R18_AskPrefill, R18_AskRetry, R18_AskRetryStates, R18_Ask1024, Ph18_AskRetry. CSS: `scripts/round18_b.css`. Conversation history and the draft notice: see the new card **ConversationList**.
+
+**Scope per conversation (decided).** A new conversation always starts “Searching all projects (5)”, said on the button; it never inherits a narrowed scope. Each existing conversation keeps its own scope. Ask About {project} (Overview row button or row ⋯) sets “Searching {project} only” on a reused empty conversation or a new one. Ask in Overview sets “Searching all projects (5)”.
+
+**New labels.** “Searching {n} of {m} projects” when a project was registered after the conversation started (it is not added silently; the popup lists it unchecked with “added {time}” and “Added after this conversation started. Check it to search it here too.”). “Choose projects to search” when none of the conversation's projects can be searched any more (Send disabled with the reason).
+
+**Retry replaces Ask Again for missing projects (decisions 12, 15).**
+
+| State | Coverage line |
+| --- | --- |
+| One missing | Searched 4 of 5 projects · Pong was catching up · **Retry Pong** |
+| Several missing | Searched 3 of 5 projects · Pong and Notes app were catching up · **Retry 2 Projects** |
+| In flight | … · **Retrying Pong…** (`aria-disabled="true"`, keeps focus; repeat clicks and other windows' clicks ignored; one attempt) |
+| Done | … · link “Retried at 14:41 · below”; the result is a new reply `article.pw-msg.pw-msg--retry` labelled **Retry · Pong** with its own Sources and line “Searched 1 project: Pong · 14:41” |
+| Still missing after a retry | the retry reply: “Searched 0 of 1 project · Pong is still catching up” · **Retry Pong** |
+| A target no longer authorized | it leaves the line, the button and the count: “Searched 3 of 4 projects · Pong was catching up” · **Retry Pong** |
+| No target left | “Searched 4 projects · 14:32” + “Nothing to retry.” (role=status); no request is sent |
+
+Retry sends at once, rechecks authorization at the click, leaves the composer's draft alone, never retries tool effects and never changes a phase. The original answer, its Sources and its line stay as they were (only its button becomes the “Retried …” link). The full refresh is separate: the answer's ⋯ (“More for this answer”) › **Ask All Projects Again** asks the same question again as a new question “· asked again” in the conversation's scope; in a narrowed conversation the item reads **Ask Again in 2 Projects** / **Ask Again in Class Notes**.
+
+**Superseded (old → new).**
+- “Searched 4 of 5 projects · Pong is ready now · Ask Again” → “Searched 4 of 5 projects · Pong was catching up · Retry Pong” (offered at once, not only when Pong is ready; JA “Pong で再試行”).
+- “Searched 5 projects · 14:32 · 1 source changed since · Ask Again” → “Searched 5 projects · 14:32”; the changed source is marked on its SourceList item, and the full refresh is ⋯ › Ask All Projects Again.
+- “Searched 5 projects · 14:32 · Kanji Cards was removed after this answer” → “Searched 4 projects · 14:32” (the removed project is neither named nor counted).
+- Walkthrough 3's “Later the line reads “Pong is ready now”, and “Ask Again” asks the same question once.” → “Retry Pong” sends at once; the result is a new reply “Retry · Pong”.
+- Open product choices 1–3 are decided (all projects; Ask About per row; retry only the missing projects).
+
+| English | 日本語 |
+| --- | --- |
+| Searching {n} of {m} projects | {m} 件中 {n} 件のプロジェクトを検索 |
+| Searched {n} of {m} projects · {project} was catching up | {m} 件中 {n} 件を検索 · {project} は変更を反映中でした |
+| {a} and {b} were catching up | {a} と {b} は変更を反映中でした |
+| Retry {project} / Retry {n} Projects | {project} で再試行 / {n} 件のプロジェクトで再試行 |
+| Retrying {project}… / Retrying {n} projects… | {project} で再試行中… / {n} 件のプロジェクトで再試行中… |
+| Retry · {project} | 再試行 · {project} |
+| Retried at {time} · below | {time} に再試行 · 下に表示 |
+| Nothing to retry. | 再試行するものはありません。 |
+| Ask All Projects Again | すべてのプロジェクトでもう一度質問 |
+| Ask About {project} | {project} について質問 |
+| Choose projects to search | 検索するプロジェクトを選択 |

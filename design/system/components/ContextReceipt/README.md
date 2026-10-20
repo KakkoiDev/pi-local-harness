@@ -130,3 +130,95 @@ Why? opens a sheet titled **What Pi uses** (top 150 px). Rows are 44 px. Close i
 - Whether **Ask in Overview** should only prefill (as drawn) or send at once.
 - Whether left-out names should be shown at all, or only their count.
 - The cap of 3 visible found rows.
+
+## Round 18: a receipt for every message (decisions 14, 17, 18, 19)
+
+**Existing vs Proposed.** Existing: nothing (the round 17 receipt is Proposed and was reached only from Why? on the composer line, for the latest message). Proposed (round 18): every **submitted** message keeps its own receipt, recorded at send time. Each Pi answer ends with a compact summary button; pressing it opens that message's receipt **in place** under the answer (desk) or as a sheet (phone). The composer's Why? no longer opens a receipt: before sending there is nothing recorded. Boards: R18_ProjectScope, R18_ContextReceipt, R18_ContextStates, R18_ProjectScopeStates, R18_Context1024, Ph18_ProjectScope, Ph18_ContextSheet, R18_ContextStrings, R18_ContextWalk. CSS: `scripts/round18_c.css`.
+
+### Anatomy
+
+```
+Pi 14:32  …answer…  Also read: app/notes.js
+[▸ Searched: Class Notes only · Pi used 3 always · 4 found · 2 left out]     button.pw-rcpt-sum[aria-expanded][aria-controls=receipt-<msg>]
+┌ What Pi used for this message ─────────────────────────────┐              section.pw-receipt.pw-receipt--inline#receipt-<msg> role=region
+│ Recorded when you sent this at 14:31. Later changes are flagged, never rewritten.   .pw-receipt__recorded
+│ Searched: Class Notes only / Other projects are never searched from this chat.      .pw-receipt__scope + .pw-receipt__never
+│ [state banner: changed / interrupted / unavailable / no longer available]           .pw-receipt__state
+│ ┌ Always with this request · 3 (solid) ┐                                            .pw-receipt__group--always
+│ ┌ Found for this question · 4 (dotted) ┐  3 rows, then [Show All 4]                .pw-receipt__group--found + p.pw-receipt__more
+│ ┌ Left out · 2 (dotted) ┐  name › section + reason                                 .pw-receipt__group--out
+│ Also read by Pi while answering: app/notes.js · 14:32                              .pw-receipt__after
+│ Chosen again for every message. Never vendor/, … or other projects.                .pw-receipt__foot
+└─────────────────────────────────────────────────────────────┘
+```
+
+- **Summary** (compact counts, decision 17): “Searched: Class Notes only · Pi used {a} always · {f} found · {l} left out” (JA “検索範囲: Class Notes のみ · 常に {a} · 検索 {f} · 除外 {l}”). Zero parts are dropped (“· 2 found”, no “0 left out”); nothing found reads “none found”. Flags are appended in bold: “· Interrupted”, “· 1 changed”, “· 1 file no longer available”; search unavailable replaces the found part with “· search unavailable”. “Searched: Class Notes only” is always first (decision 19's compact indicator). Its accessible name is its visible text.
+- **Found** (decision 18): three rows, then **Show All {n}** (`aria-expanded=false`, `aria-controls=receipt-<msg>-found`). Pressing it inserts the remaining rows above the button, which becomes **Show Fewer**, keeps focus and announces nothing. This is a display cap only; the heading always gives the full count.
+- **Left out** (decision 17): each authorized name with a reason: “Left out to keep it short” (budget) or “Not searched: search was catching up”. Names are plain text (Pi didn’t read them), never an excerpt. Only files in this project the person can open appear; anything else is neither named nor counted.
+
+### States (historical: recorded, not recomputed)
+
+| State | Summary | Receipt |
+| --- | --- | --- |
+| Found | “… · 4 found · 2 left out” | both groups, Left out |
+| Changed | “… · 1 changed” | solid banner “{file} changed after Pi read it at {time}. The answer may be out of date.” + **Ask Again with Current Files** (description “Sends this message again with the files as they are now. This answer stays.”); row flag “changed after Pi read it” |
+| Changed, Pi answering | same | the button is disabled with “Pi is answering. Ask again when it’s done.” |
+| Interrupted | “… · 2 found · Interrupted” | dashed banner “Interrupted: Pi stopped before reading the rest” / “The list shows what Pi had read when it stopped.”; only the rows read before the stop; no Left out or Also read group is invented |
+| Search unavailable | “… · Pi used 4 always · search unavailable” | “Search unavailable for this message” / “Pi used the files it always gets and the ones you named.”; no Found group |
+| No longer available | “… · 1 file no longer available” | note “1 file no longer available” / “It was deleted, or you can no longer open it, so its name is hidden.”; the row keeps its place and the count and reads “File no longer available” (no link, path, section, lines, read time or reason) |
+| Catching up at send | “… · 2 left out” | Left out rows with “Not searched: search was catching up” |
+| Draft | none | no receipt exists; Why? on the composer opens “What Pi will use when you send” (see ContextLine) |
+
+Changed and no-longer-available are computed when the receipt opens (revision vs the current file; current authorization) and are never stored as resolved. Everything else is the record made at send.
+
+### Texts (EN / JA): see R18_ContextStrings; the key ones
+
+| English | 日本語 |
+| --- | --- |
+| What Pi used for this message | このメッセージで Pi が使ったもの |
+| What Pi used (phone sheet) | Pi が使ったもの |
+| Recorded when you sent this at {time}. Later changes are flagged, never rewritten. | {time} の送信時に記録しました。あとの変更は印で示し、書き換えません。 |
+| Pi used {a} always · {f} found · {l} left out | 常に {a} · 検索 {f} · 除外 {l} |
+| Left out · {n} | 除外 · {n} |
+| Left out to keep it short | 短くするため除外 |
+| Not searched: search was catching up | 未検索: 検索を準備中でした |
+| Show All {n} / Show Fewer | {n} 件すべて表示 / 表示を減らす |
+| Interrupted: Pi stopped before reading the rest | 中断: Pi は残りを読む前に停止しました |
+| Search unavailable for this message | このメッセージでは検索を利用できませんでした |
+| 1 file no longer available / File no longer available | 1 件のファイルは利用できなくなりました / 利用できなくなったファイル |
+| Ask Again with Current Files | 現在のファイルでもう一度質問 |
+
+### Data (✱ none of this exists yet)
+
+`context_receipt` is written once per submitted job and never rewritten: `{recorded_at, scope: {project_id}, search: ready|catching_up|unavailable, interrupted_at?, always[{path, reason, word?}], found[{doc_id, path, section, lines|truncated, read_at, revision, words[]}], left_out[{doc_id, path, section?, reason: budget|not_searched}], also_read[]}`. On read, the host returns, per item, `availability: current|changed|gone`; for `gone` it returns no path, section, lines, read time or words. No score, rank, query text or engine field.
+
+### Focus, keyboard, live
+
+- The summary is a disclosure button (`aria-expanded`, `aria-controls`); Space/Return toggles it; focus stays on it. Several receipts may be open at once; each is a `role=region` labelled by its heading.
+- Tab order inside: file links → Show All → (when present) Ask Again with Current Files comes first after the banner text.
+- A live update (a new message, a file going stale) never moves focus and never closes an open receipt. A row that turns “changed” while open is announced once, politely: “app/subjects.js changed after Pi read it.”
+- Phone: the summary is 44 px; it opens a sheet **What Pi used** (Close returns focus to the summary). Show All is 44 px.
+- 1024 and 320: in place, at most 560 wide; the summary wraps at each “·”, “Searched: Class Notes only” stays whole.
+
+### Don't
+
+- Don't recompute an old receipt from today's selection; don't remove a flag on reload.
+- Don't show a receipt, a “found” count or read times for an unsent draft.
+- Don't name or count files from projects the person can't open, or a removed file's path.
+- Don't add a Show button for Left out: in the expanded receipt the names are always shown.
+
+### Walkthrough
+
+See R18_ContextWalk (11 stories): every message keeps its receipt · Show All · Left out names/reasons · changed + Ask Again with Current Files · interrupted · search unavailable then · no longer available · boundary only for a named project · Ask in Overview · no receipt for a draft · two windows, reload, phone.
+
+### Superseded (round 17 → round 18)
+
+- “What Pi uses for this message” → “What Pi used for this message”; phone “What Pi uses” → “What Pi used”.
+- Opened from the composer’s Why? (popover, `role=dialog`, `#context-receipt`) → opened from each answer’s summary button, in place (`role=region`, `#receipt-<message id>`).
+- “2 more found” + “Show 2 More” → “Show All 4” / “Show Fewer”.
+- “{n} more matches left out to keep it short” + Show → the group “Left out · {n}” with names and reasons.
+- “Ask Again” (JA “もう一度質問”) → “Ask Again with Current Files” (JA “現在のファイルでもう一度質問”).
+- Missing: “moved to Trash after Pi read it” with the name struck through → the redacted row “File no longer available” and “1 file no longer available”.
+- “Search is catching up after changes; Pi used the files it chose without search.” (receipt) → Left out reason “Not searched: search was catching up”. “Search isn’t available right now; … You can still send.” (receipt) → “Search unavailable for this message”. The live states stay on the composer line.
+- States row “Before sending: the line previews the selection for the draft … read times are absent until sent” → “Draft: no receipt”.
+- Open product choices of round 17 are all resolved (decisions 14–19); none remain for this card.

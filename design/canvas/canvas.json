@@ -3449,6 +3449,334 @@
    "h": 520,
    "title": "Round 17 · Proposed · Context receipt: walkthrough",
    "page": "r17"
+  },
+  "R18_Overview.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1360,
+   "title": "Round 18 · Proposed · Overview · All Projects: each project row gains Ask About and ⋯; history is “Resolved in the last 7 days”, newest first",
+   "page": "r18"
+  },
+  "R18_OverviewService.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1300,
+   "title": "Round 18 · Proposed · Ollama stopped with work queued and 2 items waiting: the status says “Can’t run work”; nothing reads Working, Idle or Ready",
+   "page": "r18"
+  },
+  "R18_Overview1024.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1024,
+   "h": 1400,
+   "title": "Round 18 · Proposed · Overview at 1024 with the Projects window opened from Window › Projects: resizing keeps it, with its state; Ask Across Projects is a toggle",
+   "page": "r18"
+  },
+  "R18_OverviewAskAbout.dc.html": {
+   "x": 0,
+   "y": 1480,
+   "w": 1440,
+   "h": 1000,
+   "title": "Round 18 · Proposed · Ask About Class Notes: the Ask pane opens a conversation searching Class Notes only and focuses the composer; nothing is sent",
+   "page": "r18"
+  },
+  "R18_OverviewStatus.dc.html": {
+   "x": 1520,
+   "y": 1480,
+   "w": 1440,
+   "h": 1480,
+   "title": "Round 18 · Proposed · Status button priority: Connection interrupted › Can’t run work · Ollama stopped › attention › Working › Ready; mixed states",
+   "page": "r18"
+  },
+  "R18_OverviewRowActions.dc.html": {
+   "x": 0,
+   "y": 3040,
+   "w": 1440,
+   "h": 1500,
+   "title": "Round 18 · Proposed · Row actions: Ask About and ⋯ on each project row, ⋯ on each item; ⌘/Ctrl+Return opens in a new window; popup blocked; composer keeps its keys",
+   "page": "r18"
+  },
+  "R18_OverviewFocus.dc.html": {
+   "x": 1520,
+   "y": 3040,
+   "w": 1440,
+   "h": 2000,
+   "title": "Round 18 · Proposed · Order and focus: oldest first within a kind; live updates insert around the focused row; when it resolves focus moves on with one announcement",
+   "page": "r18"
+  },
+  "R18_OverviewWindows.dc.html": {
+   "x": 0,
+   "y": 5120,
+   "w": 1440,
+   "h": 1560,
+   "title": "Round 18 · Proposed · Two windows keep their own Show filter, also after reload; an explicitly opened Projects window survives resizing to 1024",
+   "page": "r18"
+  },
+  "R18_OverviewHistory.dc.html": {
+   "x": 1520,
+   "y": 5120,
+   "w": 1440,
+   "h": 1260,
+   "title": "Round 18 · Proposed · Cancelling an interrupted request leaves “Cancelled by you · 14:40”; Resolved in the last 7 days, newest first",
+   "page": "r18"
+  },
+  "R18_OverviewStates.dc.html": {
+   "x": 0,
+   "y": 6760,
+   "w": 1440,
+   "h": 2580,
+   "title": "Round 18 · Proposed · States: Ollama stopped alone, Show: Working while stopped, non-blocking problem, not connected over a stopped service, 320 px",
+   "page": "r18"
+  },
+  "Ph18_Overview.dc.html": {
+   "x": 1520,
+   "y": 6760,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Overview: each row has Ask About, Open in Activity and ⋯ (44 px); items have ⋯",
+   "page": "r18"
+  },
+  "Ph18_OverviewService.dc.html": {
+   "x": 1990,
+   "y": 6760,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Ollama stopped: the status in two lines, the service item first, every row “State unknown while Ollama is stopped”",
+   "page": "r18"
+  },
+  "Ph18_OverviewRowMenu.dc.html": {
+   "x": 0,
+   "y": 9420,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · a row’s ⋯ sheet: Open Chat, Ask About Class Notes, Open in Activity",
+   "page": "r18"
+  },
+  "Ph18_OverviewHistory.dc.html": {
+   "x": 470,
+   "y": 9420,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Resolved in the last 7 days, newest first, with “Cancelled by you · 14:40”",
+   "page": "r18"
+  },
+  "R18_OverviewStrings.dc.html": {
+   "x": 940,
+   "y": 9420,
+   "w": 1440,
+   "h": 1640,
+   "title": "Round 18 · Proposed · Overview round 18: English and Japanese strings (Ctrl+Return in the key hints off the Mac)",
+   "page": "r18"
+  },
+  "R18_OverviewWalk.dc.html": {
+   "x": 0,
+   "y": 11140,
+   "w": 1440,
+   "h": 1480,
+   "title": "Round 18 · Proposed · Overview walkthrough: decisions 1–7, 13, 20 as Given/When/Then with stable accessible names (reload and two windows included)",
+   "page": "r18"
+  },
+  "R18_AskHistory.dc.html": {
+   "x": 0,
+   "y": 12860,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · Ask: the conversation popup — conversations newest first, each “title · scope · date”; New Conversation ⌃⌥N; each keeps its own scope and draft (Overview lists simplified; see R18_Overview)",
+   "page": "r18"
+  },
+  "R18_AskConversations.dc.html": {
+   "x": 1520,
+   "y": 12860,
+   "w": 1440,
+   "h": 2300,
+   "title": "Round 18 · Proposed · Ask: several conversations — switch, New (always all projects), back again; scope and draft stay with each; projects added or no longer available",
+   "page": "r18"
+  },
+  "R18_AskAbout.dc.html": {
+   "x": 0,
+   "y": 15240,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · Ask About Class Notes (row button or row ⋯ menu): a new conversation “Searching Class Notes only”, focus in Question, nothing sent; the earlier conversation stays listed (Overview lists simplified; see R18_Overview)",
+   "page": "r18"
+  },
+  "R18_AskPrefill.dc.html": {
+   "x": 1520,
+   "y": 15240,
+   "w": 1440,
+   "h": 1520,
+   "title": "Round 18 · Proposed · Ask About and Ask in Overview: reuse an empty conversation, else start a new one; the draft conflict (Keep My Draft / Replace with New Question); nothing sends",
+   "page": "r18"
+  },
+  "R18_AskRetry.dc.html": {
+   "x": 0,
+   "y": 16840,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · Ask: Retry Pong sends at once; the result is a new reply “Retry · Pong” under the original, which is unchanged; the draft is untouched (Overview lists simplified; see R18_Overview)",
+   "page": "r18"
+  },
+  "R18_AskRetryStates.dc.html": {
+   "x": 1520,
+   "y": 16840,
+   "w": 1440,
+   "h": 2230,
+   "title": "Round 18 · Proposed · Ask: Retry states — one, several, in flight, done, still missing, a target no longer available, nothing to retry, the separate full refresh",
+   "page": "r18"
+  },
+  "R18_AskCitePage.dc.html": {
+   "x": 0,
+   "y": 19150,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · Ask: Open on a cited Markdown file opens it in Page view at the section; the bar’s Source toggle reaches the raw lines",
+   "page": "r18"
+  },
+  "R18_AskCiteStates.dc.html": {
+   "x": 1520,
+   "y": 19150,
+   "w": 1440,
+   "h": 1760,
+   "title": "Round 18 · Proposed · Ask: citations — Source view, changed after the answer, moved, deleted, unavailable (redacted), section gone",
+   "page": "r18"
+  },
+  "R18_Ask1024.dc.html": {
+   "x": 3040,
+   "y": 19150,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 18 · Proposed · 1024 wide: Projects window hidden by default; Ask About Class Notes presses “Ask Across Projects” and opens a new conversation scoped to Class Notes",
+   "page": "r18"
+  },
+  "R18_AskNarrow.dc.html": {
+   "x": 0,
+   "y": 20990,
+   "w": 1440,
+   "h": 940,
+   "title": "Round 18 · Proposed · Ask: 320 wide (popup button, retry in flight, draft notice), keyboard and announcements",
+   "page": "r18"
+  },
+  "Ph18_AskHistory.dc.html": {
+   "x": 1520,
+   "y": 20990,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Conversations sheet: New Conversation first, then newest first with scope, date and Draft",
+   "page": "r18"
+  },
+  "Ph18_AskDraft.dc.html": {
+   "x": 1990,
+   "y": 20990,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Ask About Pong while the empty conversation holds a draft: the notice above the composer, 44 px choices",
+   "page": "r18"
+  },
+  "Ph18_AskRetry.dc.html": {
+   "x": 0,
+   "y": 22010,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Retrying Pong… (one attempt, focus kept), the draft untouched below",
+   "page": "r18"
+  },
+  "Ph18_AskCite.dc.html": {
+   "x": 470,
+   "y": 22010,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · Open a cited file: Page view at the section, changed banner with Show Source, the Page/Source toggle",
+   "page": "r18"
+  },
+  "R18_AskStrings.dc.html": {
+   "x": 940,
+   "y": 22010,
+   "w": 1440,
+   "h": 1800,
+   "title": "Round 18 · Proposed · Ask: English and Japanese strings (round 18 additions; round 17’s R17_AskStrings still holds unless superseded)",
+   "page": "r18"
+  },
+  "R18_AskWalk.dc.html": {
+   "x": 0,
+   "y": 23890,
+   "w": 1440,
+   "h": 1900,
+   "title": "Round 18 · Proposed · Ask: the walkthrough, one Given/When/Then per journey (stable accessible names in quotes; reload and two windows)",
+   "page": "r18"
+  },
+  "R18_ProjectScope.dc.html": {
+   "x": 0,
+   "y": 26030,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · Project chat: a receipt summary under every answer; boundary notice only for a named project",
+   "page": "r18"
+  },
+  "R18_ContextReceipt.dc.html": {
+   "x": 1520,
+   "y": 26030,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 18 · Proposed · An earlier message’s receipt, opened in place (recorded at send)",
+   "page": "r18"
+  },
+  "R18_ContextStates.dc.html": {
+   "x": 0,
+   "y": 27010,
+   "w": 1440,
+   "h": 3720,
+   "title": "Round 18 · Proposed · Receipt states: summaries, Show All, changed, busy, interrupted, unavailable, no longer available, Japanese",
+   "page": "r18"
+  },
+  "R18_ProjectScopeStates.dc.html": {
+   "x": 1520,
+   "y": 27010,
+   "w": 1440,
+   "h": 1600,
+   "title": "Round 18 · Proposed · Project scope: no receipt for a draft, boundary notice cases, 320 px",
+   "page": "r18"
+  },
+  "R18_Context1024.dc.html": {
+   "x": 3040,
+   "y": 27010,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 18 · Proposed · Receipt at 1024",
+   "page": "r18"
+  },
+  "Ph18_ProjectScope.dc.html": {
+   "x": 0,
+   "y": 30810,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · receipt summaries and the boundary notice",
+   "page": "r18"
+  },
+  "Ph18_ContextSheet.dc.html": {
+   "x": 470,
+   "y": 30810,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 · Proposed · Phone · What Pi used sheet",
+   "page": "r18"
+  },
+  "R18_ContextStrings.dc.html": {
+   "x": 940,
+   "y": 30810,
+   "w": 1440,
+   "h": 1340,
+   "title": "Round 18 · Proposed · Project conversation and receipts: EN/JA strings",
+   "page": "r18"
+  },
+  "R18_ContextWalk.dc.html": {
+   "x": 0,
+   "y": 32230,
+   "w": 1440,
+   "h": 840,
+   "title": "Round 18 · Proposed · Project conversation and receipts: walkthrough",
+   "page": "r18"
   }
  },
  "createdOnFiles": {
@@ -4208,7 +4536,48 @@
   "Ph17_ProjectScope.dc.html",
   "Ph17_ContextSheet.dc.html",
   "R17_ContextStrings.dc.html",
-  "R17_ContextWalk.dc.html"
+  "R17_ContextWalk.dc.html",
+  "R18_Overview.dc.html",
+  "R18_OverviewService.dc.html",
+  "R18_Overview1024.dc.html",
+  "R18_OverviewAskAbout.dc.html",
+  "R18_OverviewStatus.dc.html",
+  "R18_OverviewRowActions.dc.html",
+  "R18_OverviewFocus.dc.html",
+  "R18_OverviewWindows.dc.html",
+  "R18_OverviewHistory.dc.html",
+  "R18_OverviewStates.dc.html",
+  "Ph18_Overview.dc.html",
+  "Ph18_OverviewService.dc.html",
+  "Ph18_OverviewRowMenu.dc.html",
+  "Ph18_OverviewHistory.dc.html",
+  "R18_OverviewStrings.dc.html",
+  "R18_OverviewWalk.dc.html",
+  "R18_AskHistory.dc.html",
+  "R18_AskConversations.dc.html",
+  "R18_AskAbout.dc.html",
+  "R18_AskPrefill.dc.html",
+  "R18_AskRetry.dc.html",
+  "R18_AskRetryStates.dc.html",
+  "R18_AskCitePage.dc.html",
+  "R18_AskCiteStates.dc.html",
+  "R18_Ask1024.dc.html",
+  "R18_AskNarrow.dc.html",
+  "Ph18_AskHistory.dc.html",
+  "Ph18_AskDraft.dc.html",
+  "Ph18_AskRetry.dc.html",
+  "Ph18_AskCite.dc.html",
+  "R18_AskStrings.dc.html",
+  "R18_AskWalk.dc.html",
+  "R18_ProjectScope.dc.html",
+  "R18_ContextReceipt.dc.html",
+  "R18_ContextStates.dc.html",
+  "R18_ProjectScopeStates.dc.html",
+  "R18_Context1024.dc.html",
+  "Ph18_ProjectScope.dc.html",
+  "Ph18_ContextSheet.dc.html",
+  "R18_ContextStrings.dc.html",
+  "R18_ContextWalk.dc.html"
  ],
  "pages": [
   {
@@ -4266,6 +4635,10 @@
   {
    "id": "r17",
    "name": "Round 17: Overview and scoped context"
+  },
+  {
+   "id": "r18",
+   "name": "Round 18: Overview decisions"
   },
   {
    "id": "edit",

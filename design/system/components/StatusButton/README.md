@@ -17,3 +17,15 @@ The agent status at the right of the menu bar, as a button that opens **Activity
 - Two encodings, never mixed: the **frame** (`.pw-statusbtn--attention`) means something needs you; the **glyph** says what Pi is doing (hourglass working, clock waiting, none ready, caution connection).
 - Attention no longer clears when a window is opened. Supersedes "Attention clears when Activity is opened" and "attention wins … until Activity is opened": the frame and count follow Overview's Needs you list, which shrinks only when a card is answered, accepted, continued or retried.
 - Phone: the same words, 44 px, opens the Overview screen. Boards R17_OverviewEntry, R17_Overview, Ph17_Overview.
+
+## Round 18 · Proposed: one state, by priority (decision 4)
+
+Highest first; only one is shown:
+1. **Connection interrupted** (existing; the browser can't reach Pi WorkStation) + Reconnect.
+2. **Work-blocking service failure**: "Can’t run work · Ollama stopped" (JA 作業を実行できません · Ollama 停止中), with attention appended "Can’t run work · Ollama stopped · 2 need you" (JA … · 対応待ち 2 件). Plug glyph, bold words, framed (`.pw-statusbtn--attention .pw-statusbtn--blocked`, `data-state="blocked"`): the service item itself is in Needs you. aria-label "Agent status: can’t run work, Ollama stopped, 2 need you. Open Overview" (JA エージェントの状態：作業を実行できません、Ollama 停止中、対応待ち 2 件。概要を開く). The count excludes the blocking service item (the words name it).
+3. **Attention**: "2 need you · Working on Class Notes" (round 17); non-blocking problems only add to this count.
+4. **Working / Waiting** (existing words). 5. **Ready**.
+
+While (2) holds nothing says Working, Idle or Ready anywhere (Agent row "Can’t run work · 2 need you", Activity row "2 queued · Ollama stopped", project lists "state unknown"). When Ollama answers: "Ollama: running again" (polite), the item leaves, history "Recovered at …". Phone: the same words wrap to two lines inside the 44 px button (`.pw-statusbtn--wrap`, max 236 px). Boards R18_OverviewStatus, R18_OverviewService, Ph18_OverviewService.
+
+Superseded (old → new): round 17 "otherwise as before (Ready, Working · 1 waiting, 1 waiting, Connection interrupted + Reconnect)" with a stopped service only counted in "need you" → the five-step priority above; a work-blocking service now changes the words.

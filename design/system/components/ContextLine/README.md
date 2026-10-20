@@ -30,3 +30,13 @@ When a FlowAttachment is on a message, Pi sees: lists it as one more item, `Prev
 - Why? now has `aria-haspopup="dialog"` and `aria-controls="context-receipt"`, replacing `ctx-why`.
 
 Superseded: “Why Pi sees these N files” → “What Pi uses for this message”. “Related: its name matches “subject”” → (Found group) “Matches “subject””. Footer “Never vendor/, licences, build output or files over 40 KB.” → “…files over 40 KB, or other projects.” The +N counter no longer counts related files.
+
+## Round 18: the line before sending (decisions 14, 19)
+
+**Existing vs Proposed.** Existing: round 11 line. Proposed (round 18): the line stays “Pi sees:” and stays a preview of what is **always** sent. After the dotted separator it now ends with the scope, **“Searched: Class Notes only”** (`span.pw-context__scope#context-scope[data-search=ready|catching|unavailable]`), with the live search state appended: “· search catching up” / “· no search” (JA “検索範囲: Class Notes のみ”, “· 検索を準備中”, “· 検索なし”). Then Why?. Boards: R18_ProjectScope, R18_ProjectScopeStates, R18_Context1024, Ph18_ProjectScope.
+
+- **Why?** (`aria-haspopup=dialog`, `aria-controls="context-before-send"`) opens **What Pi will use when you send** (JA “送信時に Pi が使うもの”): Searched: Class Notes only, the Always group, and “Found files are chosen when you send. Each message then keeps its own record under Pi’s answer, starting “Searched: Class Notes only · Pi used…”. Nothing is recorded for a draft.” Esc returns focus to Why?.
+- Overflow: file names hide from the end; the scope and Why? never hide.
+- The receipt of each sent message is reached from the summary under its answer (see ContextReceipt, Message).
+
+Superseded (round 17 → round 18): `.pw-context__found` (“2 found”, “none found”, “search catching up”, “no search”) on the composer line → `.pw-context__scope` “Searched: Class Notes only” (+ “· search catching up” / “· no search”); the found count now lives in each answer's summary. Why? `aria-controls="context-receipt"` → `"context-before-send"`; it opens “What Pi will use when you send” instead of the latest receipt.

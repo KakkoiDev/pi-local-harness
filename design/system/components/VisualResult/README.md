@@ -160,3 +160,8 @@ A dialog on the desk (`role=dialog`, “Icon save, revision 2”, 760 px) and fu
 - **Undoing Copy to Project:** should it be undoable like any request? (Assumed yes, as one request.)
 - **Kinds beyond icons:** the same card shows images and sprites. Should sprite sheets get frame playback?
 - **Retention:** how many revisions are kept before older ones go to Trash, or all of them?
+
+## Round 18: preview repairs
+
+- The generating card's bar used an undefined `pw-bar` with inline black. It now reuses the ContextMeter primitive without its tick: `<span class="pw-meter__bar" aria-hidden="true" style="display:block;width:220px;height:10px;--pw-meter:25%"><span class="pw-meter__fill"></span></span>`. The fill counts finished candidates (1 of 4), never time or an estimate; the status text (“Generating 4 candidates · 0:12”) stays the accessible information.
+- The inspect dialog's header uses `.pw-dialog__head`, now defined in the Dialog card (Round 18), instead of inline styles. Boards R15_VisualStates and R15_VisualInspect are updated the same way.

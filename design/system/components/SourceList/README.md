@@ -121,3 +121,45 @@ Open is disabled only when the project was removed or can't be opened. The reaso
 - Should Open land in Page view (the rendered heading) instead of Source view for Markdown? Source is drawn because only Source can mark lines.
 - When a cited project is removed, should its item stay (as drawn) or disappear, leaving a note of how many sources were hidden?
 - Should Open Class Notes Chat also switch that chat to Planning when the request clearly needs a change? As drawn it doesn't: only the person changes the phase.
+
+## Round 18
+
+Decisions 10 and 11 (docs/plans/360-round-17-product-decisions.md); boards R18_AskCitePage, R18_AskCiteStates, Ph18_AskCite, R18_AskWalk. CSS: `scripts/round18_b.css` (`.pw-sources__item[data-unavailable]`, `[data-deleted]`, `.pw-cite--off`, `.pw-pagebanner`, `.pw-cited`).
+
+**Open lands in Page view (decided).** Open on a Markdown source opens it in Work's **Page view**, scrolled to the cited heading; the cited section is wrapped in `section.pw-cited` (a 3 px rule on the left), with “Cited as source 1 · lines 12–40” under the heading, and focus on the heading (`tabindex="-1"`). The infobar reads “‹ Overview · Source 1 of 3 · Sync queue”; its Page/Source tabs reach the raw lines (Source view, lines marked, the first current, as round 17 drew). Code files have no page and open in Source view at their lines. The Open button is named “Open {file} in {project} at {section}” (“at line {n}” for code).
+
+**Item states.**
+
+| State | Item | When opened |
+| --- | --- | --- |
+| Changed after the answer | meta “lines 12–40 · **changed after this answer**” | banner `p.pw-pagebanner` “Changed after this answer (2 days ago). You're reading the current file.” + **Show Source** (Source view at the section). Never shows the old revision. |
+| Section gone | — | under the banner: “The cited section isn't in the current file; showing the file from the top.” |
+| Moved in the same project | meta “**Moved to docs/sync.md after this answer**” | opens the new path; banner “Moved to docs/sync.md after this answer” |
+| Deleted | meta “No longer in Class Notes”; path struck (`data-deleted`); Open disabled, described by the meta | — |
+| Unavailable (project removed, or access lost) | number kept; text only “Source unavailable” (`data-unavailable`); no project, path, section, lines or excerpt; Open disabled (“Open, source 3 unavailable”) | — |
+
+With an unavailable item the head drops the project count: “Sources · 3 · 1 unavailable”. The cite mark keeps its number as `span.pw-cite.pw-cite--off[aria-label="Source 3, unavailable"]` (dotted, not a link). Authorization is rechecked every time the answer is drawn; cached excerpts are never shown. The answer's own prose is not rewritten (decision 11); see the notes' open issue.
+
+**Superseded (old → new).**
+- Open → “the file at that line in that project's Work … in Source view” → Page view at the cited section for Markdown; Source view via the bar's toggle; code files unchanged.
+- “Open {file} in {project} at line {n}” → “Open {file} in {project} at {section}” (Markdown).
+- “changed since this answer” → “changed after this answer”; the coverage line's Ask Again is gone (see SearchScope Round 18).
+- “The cited lines changed; showing the file from the top.” → banner “Changed after this answer ({ago}). You're reading the current file.” + Show Source; and only when the section is gone, “The cited section isn't in the current file; showing the file from the top.”
+- Removed project: “{project} was removed from Pi WorkStation” (greyed, named) → “Source unavailable” (no name), head “Sources · 3 · 1 unavailable”.
+- Open product choices 1–2 are decided (Page view; numbered placeholder).
+
+| English | 日本語 |
+| --- | --- |
+| Source {n} of {m} · {section} | 出典 {n}/{m} · {section} |
+| Cited as source {n} · lines {from}–{to} | 出典 {n} として引用 · {from}–{to} 行 |
+| Page · Source | ページ · ソース |
+| Changed after this answer ({ago}). You're reading the current file. | この回答の後に変更されました（{ago}）。現在のファイルを表示しています。 |
+| Show Source | ソースを表示 |
+| changed after this answer | この回答の後に変更 |
+| Moved to {path} after this answer | この回答の後に {path} へ移動 |
+| No longer in {project} | {project} にはもうありません |
+| Source unavailable | ソースは利用できません |
+| Source {n}, unavailable | 出典 {n}、利用できません |
+| Sources · {n} · {k} unavailable | 出典 · {n} 件 · {k} 件は利用できません |
+| Open {file} in {project} at {section} | {project} の {file} を「{section}」で開く |
+| The cited section isn't in the current file; showing the file from the top. | 引用した節は現在のファイルにないため、先頭から表示しています。 |

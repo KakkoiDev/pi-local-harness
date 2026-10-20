@@ -25,3 +25,8 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 - Window menu: after Open App in New Window ⌃⌥B / Copy App Address and a separator, the app-level radios **Overview · All Projects ⌃⌥0**, **Activity · All Projects ⌃⌥3**, **Gate · All Projects ⌃⌥4**.
 - The StatusButton opens Overview (not Activity): words "5 need you · Working on Class Notes". See StatusButton § Round 17.
 - While Overview is open, View's Chat ⌃⌥1 and Work ⌃⌥2 stay enabled and return to the last project, as from Activity and Gate.
+
+## Round 18 · Proposed (decisions 5, 20)
+
+- Window › **Projects** (checkbox) at 1024: unchecked by default. Checking it opens the Projects window; once opened explicitly it stays open when the browser is resized to 1024, with its scroll, open groups and selection. Only its close box or unchecking hides it. Board R18_Overview1024, R18_OverviewWindows.
+- JA: Window › 「概要 · すべてのプロジェクト ⌃⌥0」; the StatusButton words follow StatusButton § Round 18.

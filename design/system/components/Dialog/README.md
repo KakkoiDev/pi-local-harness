@@ -33,3 +33,7 @@ A Note alert “A new version of Pi Workbench is ready”, the versions, up to 2
 ## Round 13
 
 - **File menu**: New Project… **⌃⌥⇧N** · Add Existing Folder… **⌃⌥O** · — · New File… ⌃⌥N · New Task… ⌃⌥T · — · Rename Project…. ⇧ makes the bigger “new”, as ⇧⌘N (New Folder) on the Mac; ⌘N and ⌘O stay the browser’s. Board: R13_Keys.
+
+## Round 18: `.pw-dialog__head`
+
+A dialog whose body is edge to edge (VisualResult's Inspect, `padding: 0` on `.pw-dialog`) puts its title in `div.pw-dialog__head`: a flex row, 10 px × 14 px padding, a 1 px ink rule below, gap `--space-2`; `.pw-dialog__title` inside it takes the remaining width and loses its margin; buttons (Close) follow the title. Ordinary padded dialogs keep `.pw-dialog__title` directly, unchanged. Defined in `scripts/round18_fix.css` (end of the bundle); nothing global changes.

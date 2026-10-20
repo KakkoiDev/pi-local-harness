@@ -1163,3 +1163,186 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-receipt__scope,.pw-receipt__group,.pw-receipt__state,.pw-receipt__after,.pw-receipt__foot,.pw-receipt h3{margin-left:0;margin-right:0}
 }
 .pw-prow__agent{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---- round18_fix ---- */
+/* Round 18 · design-system repairs: classes used by earlier cards but never defined */
+.pw-dialog__head{display:flex;align-items:center;gap:var(--space-2);padding:10px 14px;border-bottom:1px solid var(--ink)}
+.pw-dialog__head .pw-dialog__title{flex:1;margin:0}
+.pw-meter--near{white-space:normal}
+.pw-meter--near .pw-meter__bar{border-width:2px}
+
+/* ---- round18_a ---- */
+/* ---- 2026-10-20 · Round 18 A: Overview finalized (decisions 1–7, 13, 20): row actions, service-blocked status, focus stability, popup blocked ---- */
+
+/* Project row side (round 18): Ask About <project>, Open in Activity, ⋯ on their own line under the row text, right-aligned (three gridcells; → / ← move between them) */
+.pw-prow{flex-wrap:wrap}
+.pw-prow__cellwrap{flex-basis:100%}
+.pw-prow__side{flex:1 1 100%;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:0 4px 6px;margin-top:-4px}
+.pw-prow__side>[role="gridcell"]{display:flex;min-width:0}
+.pw-prow__ask{font:inherit;font-size:13px;color:inherit;background:var(--paper);border:1px solid var(--ink);padding:0 8px;height:22px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
+.pw-prow__ask:focus-visible,.pw-rowmore:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-prow__now{white-space:normal}
+.pw-prow__queue{grid-column:1/4;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.pw-prow[data-unknown] .pw-prow__now{font-style:italic}
+
+/* Round 18 row: fixed phase and badge columns so rows line up whatever their side buttons; glyphs never shrink */
+.pw-prow__main{grid-template-columns:minmax(0,1fr) 168px 92px;padding-bottom:2px}
+.pw-prow__badge{justify-self:end}
+.pw-prow__cell>svg{flex:none}
+
+/* ⋯ (More) button on a project row and on an attention item: opens the row's menu */
+.pw-rowmore{flex:none;width:28px;height:22px;display:inline-flex;align-items:center;justify-content:center;padding:0;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--ink);cursor:default}
+.pw-rowmore[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+
+/* Attention item with its ⋯: the link keeps the whole row; ⋯ sits at the end (→ reaches it) */
+.pw-attnrow{display:flex;align-items:flex-start;gap:6px}
+.pw-attnrow>.pw-attn{flex:1;min-width:0}
+.pw-attnrow>.pw-rowmore{margin-top:8px}
+.pw-attnlist>li.pw-attnrow:first-child .pw-attn{border-top:0}
+.pw-attnrow+.pw-attnrow{border-top:1px dotted var(--ink)}
+.pw-attnrow+.pw-attnrow>.pw-attn{border-top:0}
+.pw-attn[data-blocking]{border:2px solid var(--ink)}
+.pw-attn[data-new] .pw-attn__req::after{content:"New";margin-left:6px;border:1px solid currentColor;padding:0 4px;font-size:11px;line-height:14px;font-weight:400}
+
+/* The row's ⋯ menu, drawn open on boards (a pw-menu placed under its button) */
+.pw-rowmenu{position:absolute;z-index:4;min-width:260px}
+
+/* Inline notice under the toolbar: popup blocked (Open Here · Copy Link) */
+.pw-ovnotice{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:6px 12px;border-bottom:1px solid var(--ink);background:var(--paper);font-family:var(--font-chrome);font-size:14px}
+.pw-ovnotice__text{flex:1;min-width:180px}
+.pw-ovnotice .pw-btn{min-height:22px;font-size:13px}
+
+/* Status button, work blocked by a stopped service: the plug glyph and the words; framed because the service item needs you */
+.pw-statusbtn--blocked{font-weight:600}
+.pw-statusbtn--wrap{white-space:normal;text-align:left;line-height:15px;max-width:236px;padding-top:2px;padding-bottom:2px;height:auto;min-height:22px}
+.pw-statusbtn--wrap>span[role="status"]{display:block}
+
+/* History rows: a second line for what stays true (e.g. changes kept after a cancel) */
+.pw-hist__what{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pw-hist__note{font-family:var(--font-text);font-size:14px;line-height:18px}
+
+/* Ask pane head (round 18): reuses round17_b/round18_b .pw-ask__head, .pw-convo, .pw-scope (ConversationList card) */
+.pw-composer [data-focus]{outline:2px solid var(--ink);outline-offset:1px}
+
+
+@media (max-width:560px){
+  .pw-prow__side{flex-wrap:wrap}
+  .pw-ovsec__head{flex-wrap:wrap}
+  .pw-ovsec__note{flex-basis:100%;margin-left:0}
+  .pw-prow__main{grid-template-columns:minmax(0,1fr) auto}
+}
+@media (max-width:760px){
+  .pw-prow__ask,.pw-rowmore{height:var(--size-touch);min-width:var(--size-touch)}
+}
+.pw-ov--phone .pw-prow__ask,.pw-ov--phone .pw-rowmore{height:var(--size-touch);min-width:var(--size-touch)}
+.pw-ov--phone .pw-prow__side{flex-wrap:wrap}
+.pw-ov--phone .pw-prow__side>[role="gridcell"]:first-child{flex:1}
+.pw-ov--phone .pw-prow__side>[role="gridcell"]:first-child .pw-prow__ask{flex:1}
+.pw-ov--phone .pw-prow__ask{max-width:none}
+.pw-ov--phone .pw-attnrow>.pw-rowmore{margin-top:0;align-self:stretch;height:auto}
+.pw-ov--narrow .pw-prow__side{flex-wrap:wrap}
+.pw-ov--narrow .pw-ovsec__head{flex-wrap:wrap}
+.pw-ov--narrow .pw-ovsec__note{flex-basis:100%;margin-left:0}
+.pw-ov--phone .pw-prow__ask,.pw-ov--phone .pw-prow__act{font-size:15px}
+
+/* ---- round18_b ---- */
+/* ---- 2026-10-20 · Round 18 B: Ask across projects — conversation history, prefill and draft conflict, retry, citations in Page view ---- */
+
+/* ConversationList: the popup button in the Ask pane head names the current conversation; the menu lists them newest first */
+.pw-convo{position:relative;display:flex;flex:1 1 100%;min-width:0}
+.pw-convo__btn{font:inherit;font-family:var(--font-chrome);font-size:13px;font-weight:600;color:inherit;background:var(--paper);border:1px solid var(--ink);height:26px;padding:0 6px 0 8px;display:inline-flex;align-items:center;gap:6px;cursor:default;white-space:nowrap;width:100%;min-width:0}
+.pw-convo__btn>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.pw-convo__btn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-convo__btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-convo__pop{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:7;margin:0;padding:3px 0;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);font-family:var(--font-chrome);font-size:14px;line-height:18px;display:flex;flex-direction:column}
+.pw-convo__pop--static{position:static}
+.pw-convo__new{font:inherit;color:inherit;background:none;border:0;min-height:28px;padding:0 12px 0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;cursor:default}
+.pw-convo__key{font-size:13px}
+.pw-convo__h{margin:0;padding:6px 12px 2px 24px;font-size:12px;font-weight:600;border-top:1px dotted var(--ink)}
+.pw-convo__item{font:inherit;color:inherit;background:none;border:0;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:4px 12px 5px 24px;text-align:left;cursor:default;min-width:0}
+.pw-convo__item[aria-checked="true"]::before{content:"✓";position:absolute;left:8px;top:4px}
+.pw-convo__t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-convo__m{font-size:12px;line-height:16px;overflow-wrap:anywhere}
+.pw-convo__draft{display:inline-block;border:1px solid currentColor;padding:0 3px;font-size:11px;line-height:14px;margin-left:4px}
+.pw-convo__new:hover,.pw-convo__new:focus-visible,.pw-convo__new[data-active="true"],
+.pw-convo__item:hover,.pw-convo__item:focus-visible,.pw-convo__item[data-active="true"]{background:var(--selection-bg);color:var(--selection-fg);outline:none}
+
+/* The draft-conflict notice: inline, above the composer; Keep My Draft is the default */
+.pw-asknotice{margin:0;border:1px solid var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-asknotice__t{margin:0;display:flex;gap:6px;align-items:flex-start}
+.pw-asknotice__t svg{flex:none;margin-top:3px}
+.pw-asknotice__actions{display:flex;gap:8px;flex-wrap:wrap}
+.pw-asknotice__actions .pw-btn{min-height:24px;font-size:13px;padding:0 10px}
+
+/* Retry: the in-flight button keeps focus (aria-disabled); the result is a new reply under the original */
+.pw-coverage .pw-btn[aria-disabled="true"]{border-style:dotted}
+.pw-coverage__after{font-size:12px;white-space:nowrap}
+.pw-msg--retry{margin-left:14px;padding-left:12px;border-left:3px double var(--ink)}
+.pw-msg__tag{font-weight:600}
+.pw-msg__more{margin-left:auto;position:relative;display:inline-flex}
+.pw-msg__more>button{font:inherit;color:inherit;background:none;border:1px solid transparent;height:20px;padding:0 4px;display:inline-flex;align-items:center;cursor:default}
+.pw-msg__more>button[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-msg__more>button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.pw-msg__more .pw-menu{left:auto;right:0;min-width:240px}
+
+/* Citations whose file changed, moved, was deleted, or is no longer available */
+.pw-sources__item[data-unavailable]{color:var(--ink-disabled)}
+.pw-sources__item[data-unavailable] .pw-sources__path{font-style:italic}
+.pw-sources__item[data-deleted] .pw-sources__path{text-decoration:line-through}
+.pw-cite--off{border-style:dotted;color:var(--ink-disabled)}
+
+/* Page view of a cited Markdown file: the banner under the infobar, the cited section marked */
+.pw-pagebanner{flex:none;margin:0;display:flex;align-items:flex-start;flex-wrap:wrap;gap:6px 10px;padding:6px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-pagebanner svg{flex:none;margin-top:3px}
+.pw-pagebanner>span{flex:1 1 240px;min-width:0}
+.pw-pagebanner .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+.pw-cited{margin:0 0 0 -17px;padding:0 0 0 14px;border-left:3px solid var(--ink);display:flex;flex-direction:column;gap:14px}
+.pw-cited>h2:focus,.pw-cited>h2:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+.pw-cited ul{margin:0;padding-left:24px}
+
+@media (max-width: 759px){
+  .pw-convo__btn{height:44px;font-size:16px;padding:0 12px}
+  .pw-convo__new,.pw-convo__item{min-height:44px;font-size:16px;line-height:20px;padding-top:6px;padding-bottom:6px}
+  .pw-convo__m{font-size:14px;line-height:18px}
+  .pw-asknotice{font-size:15px;line-height:20px;padding:10px 12px}
+  .pw-asknotice__actions{flex-direction:column}
+  .pw-asknotice__actions .pw-btn{min-height:44px;font-size:16px}
+  .pw-coverage .pw-btn{min-height:44px;font-size:15px}
+  .pw-pagebanner{font-size:15px;line-height:20px;padding:8px 16px}
+  .pw-pagebanner .pw-btn{min-height:44px;font-size:15px}
+  .pw-cited{margin-left:-14px;padding-left:11px}
+}
+.pw-convo__pop [role="group"]{display:flex;flex-direction:column}
+
+/* ---- round18_c ---- */
+/* Round 18 · C: per-message context receipts (ContextReceipt, ContextLine, Message) */
+.pw-context__scope{flex:none;white-space:nowrap;border:1px dotted var(--ink);padding:0 4px}
+.pw-context__scope b{font-weight:600}
+.pw-context__scope[data-search="catching"] .pw-context__state,.pw-context__scope[data-search="unavailable"] .pw-context__state{text-decoration:underline dotted}
+
+.pw-rcpt-sum{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;align-self:flex-start;margin:6px 0 0;padding:2px 8px 2px 6px;border:1px dotted var(--ink);border-radius:0;background:var(--paper);color:var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px;text-align:left;cursor:default;max-width:100%;box-sizing:border-box}
+.pw-rcpt-sum::before{content:"\25B8";flex:none}
+.pw-rcpt-sum[aria-expanded="true"]{border-style:solid}
+.pw-rcpt-sum[aria-expanded="true"]::before{content:"\25BE"}
+.pw-rcpt-sum:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-rcpt-sum__scope b{font-weight:600}
+.pw-rcpt-sum__part{white-space:nowrap}
+.pw-rcpt-sum__flag{white-space:nowrap;font-weight:600}
+
+.pw-receipt--inline{width:auto;max-width:560px;box-shadow:none;margin-top:6px}
+.pw-receipt__recorded{margin:-4px 12px 0;font-size:12px}
+.pw-receipt__group--out{border:1px dotted var(--ink)}
+.pw-receipt__group--out h4{border-bottom-style:dotted}
+.pw-receipt__group li[data-state="gone"] .pw-receipt__where{font-style:italic}
+.pw-receipt__never{margin:-6px 12px 0;font-size:12px}
+.pw-receipt__more{margin:0;padding:4px 8px;border-top:1px dotted var(--ink);display:flex;gap:8px;align-items:baseline;justify-content:flex-end}
+.pw-receipt__state--partial{border-style:dashed}
+.pw-receipt__state p{margin:0}
+.pw-receipt__state .pw-help{margin:2px 0 0;font-size:12px}
+
+@media (max-width:760px){
+  .pw-rcpt-sum{min-height:44px;padding:6px 8px;align-items:center;font-size:14px}
+  .pw-receipt--inline{max-width:none}
+  .pw-receipt__recorded,.pw-receipt__never{margin-left:0;margin-right:0}
+  .pw-receipt__more .pw-btn{min-height:44px}
+}
