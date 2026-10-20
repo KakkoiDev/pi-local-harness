@@ -51,3 +51,17 @@ The person approved the two downloads previously pending. See [approved tools re
 ### Owner clarification: integrate analysis into Actions
 
 The person wants Agentplay-inspired observability neatly integrated into WorkStation's existing **Actions panel**, not a standalone viewer as the final product experience. Plan 348, task 350 and the round-16 designer prompt now specify the integration boundary and live/history/scope/unknown-state journeys. The upstream viewer remains a synthetic compatibility proof. Claude should review this direction and integrate only after designer boards arrive; do not infer permission to invent panel UI from the successful proof.
+
+## Centralized dashboard request (20 October 2026)
+
+Plan354 and `design/briefs/project-work-dashboard.md` capture the owner's new global overview: active/queued work grouped by project, recorded agent/task/location, and unresolved decisions, approvals, validations and errors needing the person. Reuse authoritative states and deep-link to existing actions; viewing never resolves attention. Account for stale/replaced cards, two windows, reload, disconnected service and future distinct agent ownership. The overview complements Actions observability; it does not add multi-agent execution. UI waits for designer boards.
+
+## Pi Durable case study (task 355)
+
+Read `docs/reports/pi-durable-case-study-2026-10-20.md`. Owner clarification: keep the current runtime and extract useful ideas; no runtime trial or dependency adoption now. Start with crash tests for answer settlement, then durable receipts and shared dashboard state. The report compares the queue/choice persistence boundaries, defines Gate and phase constraints, and proposes crash/duplicate/cancellation/reconnect tests. Review the specific queue-before-card-save boundary in `WebChat.answer_choice`; this is a fault-injection hypothesis, not a reproduced bug. Preserve Python/HTMX, Jikko, ICM frozen contracts and Brain privacy. No dependency installation or runtime migration was performed.
+
+## Headless library, crash tests and search (tasks 356–358)
+
+Owner wants a reusable backend library independent of any UI, with System 1/System 2 and Markdown philosophy documented. Read `docs/architecture/harness.md`, plan357 and the Pi Durable conformance map. Six real process-exit tests now cover queue and individual Markdown replacement boundaries in ordinary unittest discovery. Full choice atomicity, safe replay, production library extraction and broader upstream parity are not complete. The inventory records 70 top-level upstream test files with blob identities; 13 priority sources were consulted, without an exhaustive assertion-level audit. Case-level triage and test-workers inventory remain open. Exclude foreign Chord/TypeScript/Cloudflare/WASM/code-mode mechanics, preserve equivalent safety contracts, defer full multi-agent/background/fork features explicitly.
+
+The local search study recommends an initial rebuildable SQLite FTS5 lexical adapter, not a dependency adoption. DuckDB's FTS refresh/autoload and QMD's models/update commands need explicit controls and approval before any trial. A synthetic in-memory local FTS5 probe passed; no search engine/model downloaded or benchmarked. Markdown and authorized project scope remain authoritative.

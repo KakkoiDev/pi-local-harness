@@ -419,3 +419,13 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [352-Normalize selected tool-run evidence](tasks/352-normalized-run-evidence.md)
 
 - [x] [353-Offline Ruff checks and Agentplay compatibility proof](tasks/353-approved-quality-and-trace-proofs.md)
+
+- [x] [354-Plan the centralized project work dashboard](tasks/354-plan-project-work-dashboard.md)
+
+- [x] [355-Assess Pi Durable for WorkStation](tasks/355-pi-durable-case-study.md)
+
+- [x] [356-Document the harness library, crash contract and local search](tasks/356-document-harness-library-and-search.md)
+
+- [ ] [357-Extract the headless harness library and conformance suite](tasks/357-extract-headless-harness-library.md)
+
+- [x] [358-Run real process-crash tests in the backend suite](tasks/358-headless-process-crash-tests.md)

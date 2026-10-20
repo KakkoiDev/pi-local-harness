@@ -44,3 +44,10 @@ Review and return handoff (2026-10-17):
 - [Integration proof and Claude review](handoff/integration-proof-2026-10-20.md): tested boundaries, repeatable checks and remaining production work.
 
 - [Code quality, Agentplay and Phonon-2 plan](plans/348-quality-traces-and-phonon.md): existing coverage, implementation tasks and trial limits.
+
+- [Project work dashboard plan](plans/354-project-work-dashboard.md) and [designer brief](../design/briefs/project-work-dashboard.md): global work and attention grouped by project.
+- [Pi Durable case study](reports/pi-durable-case-study-2026-10-20.md): recovery/state comparison, adoption recommendation and fault-injection trial for Claude review.
+
+- [Harness philosophy and library architecture](architecture/harness.md): current storage/decision flow, UI-independent target and mandatory crash suite.
+- [Pi Durable conformance map](reports/pi-durable-conformance-2026-10-20.md): actual upstream test sources, executable coverage, gaps and exclusions.
+- [Local search study](reports/local-search-study-2026-10-20.md): DuckDB, QMD and SQLite FTS5; rebuildable indexes over authoritative Markdown.

@@ -1,0 +1,709 @@
+{
+  "date": "2026-10-20",
+  "repository": "earendil-works/pi",
+  "path": "packages/durable/test",
+  "top_level_files": 70,
+  "limits": "Top-level *.test.ts inventory only; examples, helpers and test-workers are not included. Thirteen priority sources inspected; other entries are preliminary file-level classification, not case-level parity. Blob IDs identify inspected directory versions; no runtime package installed.",
+  "files": [
+    {
+      "file": "codemode-checkpoints.test.ts",
+      "blob_sha": "098feb12d3eb96d0cc4d9a3f82666c78068779c2",
+      "bytes": 2936,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/codemode-checkpoints.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "codemode-describe.test.ts",
+      "blob_sha": "99ced0465dbc70279d64e6d9e6da0ba11f8be89d",
+      "bytes": 4969,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/codemode-describe.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "codemode-models.test.ts",
+      "blob_sha": "70dc36f6d35c6a9e3e93201b346c04477fe59b9b",
+      "bytes": 10751,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/codemode-models.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "codemode.test.ts",
+      "blob_sha": "650255e43b9e8401dc8f813858c5febc9d5319dd",
+      "bytes": 45979,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/codemode.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "env-line-scan.test.ts",
+      "blob_sha": "538c59bc7aee28c256010db7e673ee30eadedac5",
+      "bytes": 4088,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/env-line-scan.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "env-node-conformance.test.ts",
+      "blob_sha": "38e8de61b60c08c027aca65bdbe020dc32e9a763",
+      "bytes": 4916,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/env-node-conformance.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "env-node-spill.test.ts",
+      "blob_sha": "c451c11f85bf993b4f75f482398897fc9085e40c",
+      "bytes": 3327,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/env-node-spill.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "env-node.test.ts",
+      "blob_sha": "4287987dea6f4896236e680ec37e8a82cf5e6ea5",
+      "bytes": 40505,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/env-node.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "env-truncate.test.ts",
+      "blob_sha": "93665252fb1a30b6cdeed94ac76a877ff124ad02",
+      "bytes": 3536,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/env-truncate.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-blocked.test.ts",
+      "blob_sha": "0cd7aa484b7f6f4caff654f65300c272b9362629",
+      "bytes": 20733,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-blocked.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-callers.test.ts",
+      "blob_sha": "ff9a8311e6c5bdfee2ee909ec5099c06f4f6a2ab",
+      "bytes": 6546,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-callers.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-cancellation-barrier.test.ts",
+      "blob_sha": "5afd2a4f0afc30fb2d64374dc6d120c21a0ab8e9",
+      "bytes": 8501,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-cancellation-barrier.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-compaction.test.ts",
+      "blob_sha": "cc4a857970d21d901761306041c2d38780cda279",
+      "bytes": 108289,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-compaction.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-context.test.ts",
+      "blob_sha": "f3a9ada0ed2a16bf438a07e990da61c8478a6e67",
+      "bytes": 41522,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-context.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-conversations.test.ts",
+      "blob_sha": "30697772af3782840e71705d42a2f32ef991aed5",
+      "bytes": 20311,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-conversations.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-events.test.ts",
+      "blob_sha": "22a5d2d75b2c8c2f2b3eb8acd4b1d20d7394ca66",
+      "bytes": 25393,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-events.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-failed-run-inbox.test.ts",
+      "blob_sha": "c81b48e20a0d1da2ddad4ab85d0d638a250c1d5c",
+      "bytes": 4164,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-failed-run-inbox.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-generation-recovery.test.ts",
+      "blob_sha": "ef104ac4c720a0064e83c42ff4cf46351ec920c9",
+      "bytes": 14608,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-generation-recovery.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-generation.test.ts",
+      "blob_sha": "381a2cfc1c41a77ebcabed86c28c05061ceefeda",
+      "bytes": 31618,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-generation.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-host-inputs.test.ts",
+      "blob_sha": "b1a06fd986b09038e0589159db001595464306e0",
+      "bytes": 4183,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-host-inputs.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-inbox.test.ts",
+      "blob_sha": "9c7a0505e23179b00555e715bbe43e6556284346",
+      "bytes": 42360,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-inbox.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-input-entries.test.ts",
+      "blob_sha": "019172d039d304144a5ee389b144afbbee473672",
+      "bytes": 19987,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-input-entries.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-inspect.test.ts",
+      "blob_sha": "78aa8f20de13813fd7b827e888a1a7947baebad9",
+      "bytes": 6362,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-inspect.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-lifecycle.test.ts",
+      "blob_sha": "91fce7ecb98a2ec844e448d6d54edfa55d758f0e",
+      "bytes": 24199,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-lifecycle.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-live-deltas.test.ts",
+      "blob_sha": "488c1cd69561521b2cc60bdf512b9186d258a9ab",
+      "bytes": 18010,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-live-deltas.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-nested-tools-restart.test.ts",
+      "blob_sha": "342e103c08cb9b06da76a2621e3f2e7e43f8a789",
+      "bytes": 25916,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-nested-tools-restart.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "future_scope",
+      "reason": "Detailed child-agent/task ownership or durable scheduling API is future work; current cancellation and no-orphan safety remain in scope.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-nested-tools.test.ts",
+      "blob_sha": "59c05560bb0228e71ec33fd80aff12b0ca580d3b",
+      "bytes": 50960,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-nested-tools.test.ts",
+      "inspection": "inventory_only",
+      "scope": "future_scope",
+      "reason": "Detailed child-agent/task ownership or durable scheduling API is future work; current cancellation and no-orphan safety remain in scope.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-ownership.test.ts",
+      "blob_sha": "40430cdc8abbc66e853fcd5810d24a76fc5e2e15",
+      "bytes": 62857,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-ownership.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "future_scope",
+      "reason": "Detailed child-agent/task ownership or durable scheduling API is future work; current cancellation and no-orphan safety remain in scope.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-prompt.test.ts",
+      "blob_sha": "40ef2e09e6351a1c89220d43677c6fb118927428",
+      "bytes": 11590,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-prompt.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-registry.test.ts",
+      "blob_sha": "bf2edf002e5f27c89b03576aca99933f817ff8aa",
+      "bytes": 12634,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-registry.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-reports.test.ts",
+      "blob_sha": "0bc2304cdcaf47ae85e8fd175dbe62d3d12d6e6c",
+      "bytes": 7962,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-reports.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-scheduler-indexes.test.ts",
+      "blob_sha": "f0c558b3ea8cdb4a49b8b3ff0b38f7fc608aa463",
+      "bytes": 11959,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-scheduler-indexes.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-scheduler-retention.test.ts",
+      "blob_sha": "8b12c4cb095c148f08e2d69d674735dd3013a8c2",
+      "bytes": 26014,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-scheduler-retention.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-sleep.test.ts",
+      "blob_sha": "b665387de49043b4f1fb3cc5eb8b9a393840b7a5",
+      "bytes": 17908,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-sleep.test.ts",
+      "inspection": "inventory_only",
+      "scope": "future_scope",
+      "reason": "Detailed child-agent/task ownership or durable scheduling API is future work; current cancellation and no-orphan safety remain in scope.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-storage-failure.test.ts",
+      "blob_sha": "f488fc188c73babfe6111cb8055c7c5b7d3eec64",
+      "bytes": 25639,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-storage-failure.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-structured-output.test.ts",
+      "blob_sha": "92ef991a51ce7daca1e16e151d9f7287e193d627",
+      "bytes": 15896,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-structured-output.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-structured.test.ts",
+      "blob_sha": "16d191e0aa676b66f0760a06130b1d4e35aae673",
+      "bytes": 83929,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-structured.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-submissions.test.ts",
+      "blob_sha": "07afaa5476ef286677ea56008e5a99486aa90f48",
+      "bytes": 12839,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-submissions.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-task-graph.test.ts",
+      "blob_sha": "3beb45e0111f2ba0711d48a404f780c36f720738",
+      "bytes": 14549,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-task-graph.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "future_scope",
+      "reason": "Detailed child-agent/task ownership or durable scheduling API is future work; current cancellation and no-orphan safety remain in scope.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-tasks-recovery.test.ts",
+      "blob_sha": "29b98d8d926fb25dcbafb9965d784cf6bfd56732",
+      "bytes": 33464,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-tasks-recovery.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-tasks.test.ts",
+      "blob_sha": "f76cb8308ee8a30383321c38217f12d96bfa0b8c",
+      "bytes": 55202,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-tasks.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-telemetry-options.test.ts",
+      "blob_sha": "e623b833d778620ee9103b770ea195697843415f",
+      "bytes": 1241,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-telemetry-options.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-telemetry.test.ts",
+      "blob_sha": "20bf7f15f2a8224ad3974b4f1a14a5664f7b0f62",
+      "bytes": 41450,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-telemetry.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-tools-recovery.test.ts",
+      "blob_sha": "226bade8155d791e76ab355a17d39e77ccae99ed",
+      "bytes": 15192,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-tools-recovery.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-tools.test.ts",
+      "blob_sha": "4c06ce80538a211077abe6fe36ffa649aed6be9a",
+      "bytes": 47782,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-tools.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "harness-view.test.ts",
+      "blob_sha": "44f12e91d76efa7771a27d208a6c9a4a5f23ec0b",
+      "bytes": 15477,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/harness-view.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "images-wasm-module.test.ts",
+      "blob_sha": "9e8111f7815114e5f0a5d3ec3a9e42bbc1cc99f9",
+      "bytes": 1204,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/images-wasm-module.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "jsonl-storage.test.ts",
+      "blob_sha": "cebfb0a69ec892669e3a03cdecbac489d5873a35",
+      "bytes": 40871,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/jsonl-storage.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "memory-storage.test.ts",
+      "blob_sha": "f01af3ed30928b74220633915f263cc14696b632",
+      "bytes": 1356,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/memory-storage.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "provider-session-cache-e2e.test.ts",
+      "blob_sha": "e1fdb960ebb28759a13e71dc67ba5f5b7dc5c2ef",
+      "bytes": 4808,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/provider-session-cache-e2e.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-checkpoints-migrations.test.ts",
+      "blob_sha": "20e56d721e3ab79865a290630f3856aa09963a3d",
+      "bytes": 31342,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-checkpoints-migrations.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-definitions.test.ts",
+      "blob_sha": "1146a106770a68d842e2cd4a98e9478ebc66c401",
+      "bytes": 9188,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-definitions.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-document-retention.test.ts",
+      "blob_sha": "04f78586b07f7ebc756200826af359753bf87414",
+      "bytes": 22945,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-document-retention.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-documents.test.ts",
+      "blob_sha": "b92f67776c47d0c23c3bdc1223448ffddfe99309",
+      "bytes": 27341,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-documents.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-forks.test.ts",
+      "blob_sha": "3c541b548ed8e5cb65cbe127069e3d4bee5da434",
+      "bytes": 27640,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-forks.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-states.test.ts",
+      "blob_sha": "121912c79aa7812c7bc30350554e49b7667348f2",
+      "bytes": 8361,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-states.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-tables.test.ts",
+      "blob_sha": "fe017504f57071d8ca8d39aaeb790c6a473f320c",
+      "bytes": 18707,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-tables.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "session-watches.test.ts",
+      "blob_sha": "13e0ae46ab652efd47d6d9255e1d4d507e174d57",
+      "bytes": 17617,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/session-watches.test.ts",
+      "inspection": "priority_source_read",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "spec-usage.test.ts",
+      "blob_sha": "489f482043231c0ed4bb79001d10ffbdf515ea96",
+      "bytes": 15655,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/spec-usage.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "sqlite-cloudflare.test.ts",
+      "blob_sha": "0bf9c101db24e60acd4583c08c14c0f588bb2142",
+      "bytes": 3780,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/sqlite-cloudflare.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "sqlite-facade.test.ts",
+      "blob_sha": "46662535f24c95bcfee1313c63a3bc29e9e20875",
+      "bytes": 9429,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/sqlite-facade.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "sqlite-migrations.test.ts",
+      "blob_sha": "0006e8a25c0a2bb2598f95daa25f5a880e785a9f",
+      "bytes": 6281,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/sqlite-migrations.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "sqlite-storage.test.ts",
+      "blob_sha": "c3db82ab2ad851feb6a4fbc3adfba16b8ced2ccd",
+      "bytes": 23123,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/sqlite-storage.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "storage-runtime-boundary.test.ts",
+      "blob_sha": "84ef2d51252f0f9d23b9dc788af58c4bcec6e81c",
+      "bytes": 2128,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/storage-runtime-boundary.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "system-order-cache-e2e.test.ts",
+      "blob_sha": "0d67629d514fb0707293b86cd97503ef774674d5",
+      "bytes": 5527,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/system-order-cache-e2e.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "tool-search.test.ts",
+      "blob_sha": "895240bbb3dff937452d8ef8c70bac25607625fa",
+      "bytes": 10101,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/tool-search.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "tools-images.test.ts",
+      "blob_sha": "f893c7dbe6df28b23245d9120fdccaf9a82b674a",
+      "bytes": 24765,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/tools-images.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "tools-read-differential.test.ts",
+      "blob_sha": "e8486be10feaefe41552cfba7241bb2f52cba438",
+      "bytes": 7794,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/tools-read-differential.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "tools.test.ts",
+      "blob_sha": "dba4d7c9d83d56c1fb5dda4dcf1e7ad832068f8a",
+      "bytes": 30256,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/tools.test.ts",
+      "inspection": "inventory_only",
+      "scope": "adapt",
+      "reason": "Translate observable behavior into the Python/Markdown contract; upstream internal API parity is not required.",
+      "local_status": "not_ported_by_this_inventory"
+    },
+    {
+      "file": "types.test.ts",
+      "blob_sha": "30ee143f14e25496ab33e6da6fbe0cc6c2127e0f",
+      "bytes": 13114,
+      "url": "https://github.com/earendil-works/pi/blob/main/packages/durable/test/types.test.ts",
+      "inspection": "inventory_only",
+      "scope": "outside_current_scope",
+      "reason": "Upstream-specific JavaScript/code-mode, WASM, Cloudflare, type-system or storage implementation contract; retain only any independent safety invariant.",
+      "local_status": "not_ported_by_this_inventory"
+    }
+  ]
+}
