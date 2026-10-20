@@ -407,3 +407,11 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [346-Record Capacitor exports for mobile and desktop](tasks/346-record-unified-capacitor-exports.md)
 
 - [ ] [347-Capacitor Electron desktop exports and native storage](tasks/347-capacitor-desktop-export-and-storage.md)
+
+- [x] [348-Plan code quality, Agentplay and Phonon-2](tasks/348-plan-quality-traces-and-speech.md)
+
+- [ ] [349-Add code-quality and duplication checks](tasks/349-code-quality-and-duplication.md)
+
+- [ ] [350-Analyze WorkStation runs with Agentplay](tasks/350-agentplay-tool-run-analysis.md)
+
+- [ ] [351-Trial Phonon-2 for local English transcription](tasks/351-phonon2-transcription-trial.md)

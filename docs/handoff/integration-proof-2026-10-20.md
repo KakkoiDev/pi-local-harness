@@ -33,3 +33,7 @@ The owner wants all these projects to strengthen WorkStation: Jikko as editor fo
 ## Subsequent owner decision: unified native exports
 
 Use Capacitor for Android/iOS and its Capawesome Electron integration for Windows/macOS/Linux. Plan253 records the canonical shared Python/HTMX source, Pyodide artifact, native desktop storage through an isolated bridge, signing/build-host constraints and tests. Task347 is the open implementation task; task281 now includes desktop conformance. The designer prompt includes export/storage states. No desktop adapter or dependency installation is claimed complete.
+
+## Subsequent owner request: quality, Agentplay and Phonon-2
+
+Plan348 and tasks349–351 record lint/clone checks, Agentplay (confirmed by the person) and a measured local Phonon-2 trial. Existing Activity/Gate traces are useful but bounded/truncated; Pi compatibility with Agentplay needs a parser/map proof. Preserve Whisper for Japanese and other languages: Phonon-2 is English-only. No new tools/models are installed and no personal logs imported by this planning change. The designer prompt includes any new diagnostics/replay/speech controls.

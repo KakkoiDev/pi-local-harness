@@ -42,3 +42,5 @@ Review and return handoff (2026-10-17):
 - [Designer brief round 16](../design/briefs/round-16.md): new surfaces need design before implementation.
 - [Round 16 copy/paste designer prompt](../design/briefs/round-16-designer-prompt.md): connected Skills, Brain, Jikko and AI-starter walkthroughs.
 - [Integration proof and Claude review](handoff/integration-proof-2026-10-20.md): tested boundaries, repeatable checks and remaining production work.
+
+- [Code quality, Agentplay and Phonon-2 plan](plans/348-quality-traces-and-phonon.md): existing coverage, implementation tasks and trial limits.
