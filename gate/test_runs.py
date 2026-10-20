@@ -37,6 +37,10 @@ def record(data, *, request, project, cwd, command, exit_code, duration, output)
         (data / 'test-runs').mkdir(parents=True, exist_ok=True)
         (data / row['output_file']).write_text('\n'.join(str(output).splitlines()[-200:]) + '\n', encoding='utf-8')
         with (data / 'test-runs.jsonl').open('a', encoding='utf-8') as handle: handle.write(json.dumps(row, ensure_ascii=False) + '\n')
+    from harness.learning import emit
+    import hashlib
+    emit(data, project=str(project), source=identifier, kind='test_passed' if exit_code==0 else 'test_failed',
+         request=str(request or identifier), signature=hashlib.sha256((str(cwd)+'\0'+str(command)).encode()).hexdigest())
     return row
 
 

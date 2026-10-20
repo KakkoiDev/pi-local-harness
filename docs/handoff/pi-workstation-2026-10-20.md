@@ -36,4 +36,11 @@ ICM repair is available for owner review in [private ICM PR 2](https://github.co
 
 ICM PR 2 CI subsequently passed on both Linux and macOS. This confirms the upstream regression entry point; it does not verify the still-unimplemented WorkStation integration.
 
-The owner also proposes an automatic System 1 knowledge curator: code selects evidence-backed learning events from project logs and Laya handles typed categorization/abstention. The new plan section specifies selection, deduplication, provenance, lifecycle, privacy and evaluation. This is an intended brain capability, not a shipped log-ingestion service; no personal logs have been imported. System 2 may draft notes but never decides promotion or changes configuration from log content.
+The owner also proposes an automatic System 1 knowledge curator: code selects evidence-backed learning events from project logs and Laya handles typed categorization/abstention. The new plan section specifies selection, deduplication, provenance, lifecycle, privacy and evaluation. The bounded backend is now implemented in the follow-up below; the permanent brain interface and semantic calibration remain pending. No personal logs have been imported. System 2 may draft notes but never decides promotion or changes configuration from log content.
+
+
+## Implemented follow-up: automatic log curator (task 343)
+
+Owner requested implementation and Claude review on 20 October. See [the operating guide and review limits](../plans/343-automatic-log-curator.md), `harness/learning.py` and `tests/test_learning.py`. Trusted producers are Gate refusals, test-run recording and successful verified code commits. Inspect classification/selection, exact-runner receipt binding, later-failure contradiction, scope isolation, privacy, TTL, budgets, failure isolation and retained history. No model self-verification or configuration promotion is allowed. Code-first categorization ships; production Laya calibration, automatic source-change watching, stable project-ID migration, permanent brain UI and approved skill/document promotion remain separate integration work. Do not describe this as a semantic understanding of all historical project logs.
+
+A separate regression fix (task 344) excludes only untracked CPython bytecode in `__pycache__` from request change inventories. Source files in that folder and tracked bytecode remain visible. This addresses the prior plan/build browser failures without widening task Files or weakening phase permissions.

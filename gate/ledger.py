@@ -133,6 +133,10 @@ class ProposalLedger:
             self.count(self.events[-1]); identifier = self.event_sequence
             if self.events_file:
                 with self.events_file.open('a', encoding='utf-8') as handle: handle.write(json.dumps(self.events[-1]) + '\n')
+        if phase=='gate' and outcome!='ALLOW' and cwd and rule:
+            from harness.learning import emit
+            emit(self.paperwork.data, project=str(project_root(cwd) or cwd), source=str(identifier), kind='failure',
+                 request=str(request or identifier), signature=str(rule))
         # Task 261: an allowed call and a successful audit are not decisions (gate-events.jsonl keeps them); a refusal is.
         # Task 273: it names its event, so an expert's decision row shows the command or path without this log keeping it.
         if not (phase=='gate' and outcome=='ALLOW' or phase=='audit' and outcome in {'SUCCESS','VERIFIED'}):record_decision(self.paperwork.data,request,'command_allowed' if phase=='gate' and proposal.tool_name=='execute_command' else 'tool_permission' if phase=='gate' else 'tool_audit','code',outcome,rule=rule or ('gate.preflight' if phase=='gate' else 'gate.audit'),event=identifier)

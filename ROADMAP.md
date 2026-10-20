@@ -397,5 +397,6 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [ ] [342-Base the harness editor on Jikko](tasks/342-evaluate-jikko-integration.md)
 
+- [x] [343-Automatically curate safe project evidence](tasks/343-automatic-log-curator.md)
 
 - [x] [344-Keep generated interpreter caches out of request verification](tasks/344-ignore-untracked-interpreter-cache.md)

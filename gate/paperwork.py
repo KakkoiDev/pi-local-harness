@@ -887,6 +887,9 @@ class Paperwork:
             saved = self.commit(root, sorted(set(inside) | {task, 'ROADMAP.md'}), self.subject(item))
             result={'outcome': saved.pop('outcome', 'committed'), 'task': task, **saved, **({'removed': item['removed']} if item.get('removed') else {})}
             if result['outcome']=='committed':record_decision(self.data,request,'step_done','code','verified_and_committed',rule='G-013')
+            if code and result['outcome']=='committed' and item.get('test_command'):
+                from harness.learning import verified
+                verified(self.data, project=str(root), request=str(request), revision=result.get('commit'), command=item['test_command'])
             if planned and result['outcome']=='committed':
                 plan=self.plan_state(root);index=plan['tasks'].index(task);next_task=plan['tasks'][index+1] if index+1<len(plan['tasks']) else None
                 result['check_in']={'root':str(root),'task':task,'verified':True,'verification':item.get('test_command','Documentation change'),'next':next_task,'title':self.subject(item).rsplit(' (task ',1)[0],'number':index+1,'total':len(plan['tasks']),'question':'Accept and Continue' if next_task else 'Accept Task',**({'evidence':proof} if proof else {}),**({'next_title':task_title(root,next_task)} if next_task else {}),**({'removed':item['removed']} if item.get('removed') else {})}
