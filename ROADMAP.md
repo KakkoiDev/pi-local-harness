@@ -386,6 +386,7 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 
 - [x] [336-Prepare the designer brief for the remaining UI](tasks/336-designer-brief-for-blocked-ui.md)
 
+
 - [ ] [338-Manage reusable skills with an ICM adapter](tasks/338-icm-skill-management.md)
 
 - [ ] [339-Plan the permanent second-brain workspace](tasks/339-second-brain-feasibility.md)
@@ -395,3 +396,6 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [341-Audit ICM runtime before integration](tasks/341-audit-icm-runtime.md)
 
 - [ ] [342-Base the harness editor on Jikko](tasks/342-evaluate-jikko-integration.md)
+
+
+- [x] [344-Keep generated interpreter caches out of request verification](tasks/344-ignore-untracked-interpreter-cache.md)

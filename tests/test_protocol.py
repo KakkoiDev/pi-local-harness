@@ -205,3 +205,26 @@ class ProtocolTest(unittest.TestCase):
         (self.root / 'ROADMAP.md').unlink()
         (self.root / 'app.py').write_text('VALUE = 2\n')
         self.assertEqual(self.commit()['outcome'], 'ALLOW')
+
+    def test_untracked_interpreter_cache_is_not_request_work_but_tracked_cache_is(self):
+        from gate.protocol import changed_paths
+        cache=self.root/'__pycache__';cache.mkdir()
+        bytecode=cache/'app.cpython-314.pyc';bytecode.write_bytes(b'cache')
+        source=cache/'source.py';source.write_text('VALUE = 2')
+        paths=changed_paths(self.root)
+        self.assertNotIn('__pycache__/app.cpython-314.pyc',paths)
+        self.assertIn('__pycache__/source.py',paths)
+        git(self.root,'add',str(bytecode));git(self.root,'-c','user.name=t','-c','user.email=t@t','commit','-qm','tracked cache')
+        bytecode.write_bytes(b'changed');self.assertIn('__pycache__/app.cpython-314.pyc',changed_paths(self.root))
+
+    def test_new_project_history_ignores_generated_cache_without_hiding_source(self):
+        from kit.new_project import start_history
+        project=self.root/'new';project.mkdir();(project/'ROADMAP.md').write_text('# Plan')
+        start_history(project)
+        cache=project/'tests/__pycache__';cache.mkdir(parents=True)
+        (cache/'app.cpython-314.pyc').write_bytes(b'generated')
+        result=subprocess.run(['git','-C',str(project),'status','--porcelain'],capture_output=True,text=True,check=True)
+        self.assertEqual(result.stdout,'')
+        (cache/'source.py').write_text('pass')
+        result=subprocess.run(['git','-C',str(project),'status','--porcelain','--untracked-files=all'],capture_output=True,text=True,check=True)
+        self.assertIn('source.py',result.stdout)

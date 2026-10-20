@@ -148,6 +148,9 @@ def changed_paths(root):
     def add(path, status):
         relative = (top / path).relative_to(root) if (top / path).is_relative_to(root) else None
         if relative is not None:
+            # A test run creates these even in projects without a gitignore. They
+            # are not implementation work; tracked bytecode still counts.
+            if status=='??' and '__pycache__' in relative.parts[:-1] and re.fullmatch(r'.+\.cpython-\d{2,3}(?:\.opt-\d)?\.pyc',relative.name):return
             paths[relative.as_posix()] = status
     while index < len(entries):
         entry = entries[index]
