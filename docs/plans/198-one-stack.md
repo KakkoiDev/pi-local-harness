@@ -7,6 +7,10 @@ to figure out. We just make it really good at using one way of the most versatil
 Decided 2026-10-15: **FastAPI with Jinja2**, **plain sqlite3** (a data module per table), **PWA only**, the blocks
 catalogue starts with **the dozen common ones**. Scope: new projects first.
 
+## 2026-10-20: native exports across mobile and desktop
+
+Owner decision: Capacitor for Android/iOS, the Capawesome Electron platform for Capacitor for Windows/macOS/Linux. Browser/PWA and full-stack exports remain packages of the same Python/HTMX app. See plan253’s latest owner decision and task347 for native local storage, bridge security, distribution and real-platform tests. Earlier PWA-first guidance remains the lightweight installation route, not a limit on the chosen native targets.
+
 ## 2026-10-18: one app, several packaging targets
 
 The person clarified that full-stack, frontend-only and mobile should be packages of the same application foundation, rather than separately authored apps. See [plan 253](253-one-app-many-packages.md) for the proposed boundary, proof sequence and open runtime questions. This direction supersedes the historical second-JavaScript-stack approach for future frontend-only work below. Existing apps are not migrated by this documentation change. Capability and reliable building come first; generated-app performance and scalability come later.

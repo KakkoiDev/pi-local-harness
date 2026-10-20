@@ -187,3 +187,32 @@ otherwise (the spike decides; no further question). 4. sqlite3 on a persistent b
 offline. 6. The harness keeps the Android key per project in the data folder, with a backup reminder. 7. The PWA when it
 is enough. 8. The Android toolchain is asked for when the first mobile package is requested. 9. Existing no-server
 apps stay as they are.
+
+## Owner decision: Capacitor mobile and Electron desktop
+
+Confirmed 2026-10-20: use the Capacitor ecosystem for native app exports across all requested platforms. Android and iOS use Capacitor's official native targets; Windows, macOS and Linux use the **Capawesome Electron platform for Capacitor**. This selects the desktop route that was previously unspecified; it does not claim native desktop support is built into Capacitor core. Browser/PWA and full-stack/server exports remain supported packages of the same source, without requiring a native shell.
+
+| Export | Runtime/package | Persistence |
+|---|---|---|
+| Android / iOS | Capacitor, bundled offline by default; explicitly selected connected mode remains available | Maintained native storage adapter and device-scoped app data |
+| Windows / macOS / Linux | Capacitor Electron integration, bundling the same browser/Pyodide artifact | Native app-data files/SQLite through a maintained desktop bridge |
+| Browser / PWA | Static browser/Pyodide artifact, including GitHub Pages where compatible | Browser-backed persistence under the same application storage contract |
+| Full stack / server | Normal Python runtime and web server | Server-side storage adapter |
+
+One Python/HTMX application supplies business rules, templates, migrations and behavior tests. Packaging adapters supply the shell, storage, device APIs and distribution. There is no separately rewritten desktop or mobile application. Pyodide's in-browser Python does not automatically gain host filesystem access: the native bridge must implement and test that boundary explicitly.
+
+### Desktop local files and storage (task 347)
+
+Desktop apps can persist their own data and SQLite databases in the platform's application-data directory, and open/save files or folders chosen through native dialogs, subject to OS permissions. Ordinary app data remains separate from exported documents and credentials. Updates preserve app data; exports/backup and restore must work. A denied permission, moved folder, full disk or interrupted write must preserve the last valid data and return a useful error. Use recoverable Trash for user-file removal.
+
+Keep the web renderer isolated. Expose narrowly defined storage operations through a validated bridge; never give generated HTML or model output unrestricted Node, filesystem, shell or arbitrary IPC access. Enforce path/symlink boundaries, validate IPC senders and keep credentials out of browser assets. The same storage contract has browser and native implementations; native-only capabilities must be reported honestly when exporting to the browser.
+
+### Implementation and verification
+
+Tasks 275–278 establish the shared source, adapters and compatibility checks. Task279 builds mobile. New task347 builds desktop and native storage. Task280 is the common acceptance app; task281 proves its behavior across server, browser, mobile and desktop. Update the Project Start/export designer brief before adding desktop controls, storage permissions, progress or signing UI.
+
+Test Windows, macOS and Linux artifacts on their actual OSes, plus Android and iOS through their supported build/test environments. Unit/stub bridge tests alone do not verify a native package. Cover offline launch, create/edit/reload/relaunch persistence, native file selection and permission refusal, safe bridge handling of hostile renderer content, backup/restore, upgrade preservation and one shared-rule change reaching every supported export. Missing SDKs, signing identities or OS runners mean **not run**, never a passing claim. Record build-host restrictions, signing/notarization and distribution requirements per target; do not promise every artifact can be built on this Mac alone.
+
+This is an architecture decision, not approval to download Electron, Capacitor plugins, SDKs or signing tools. Pin and review the integration and dependencies, list source/licence/size/checksum, then obtain required download approval. Never commit signing keys, tokens or user data. Existing projects are not migrated automatically.
+
+References checked 2026-10-20: [Capacitor supported targets](https://capacitorjs.com/docs/getting-started/environment-setup), [Capawesome Electron platform](https://github.com/capawesome-team/capacitor-electron), [Electron isolation](https://www.electronjs.org/docs/latest/tutorial/context-isolation), [native app-data locations](https://github.com/electron/electron/blob/main/docs/api/app.md).

@@ -403,3 +403,7 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [344-Keep generated interpreter caches out of request verification](tasks/344-ignore-untracked-interpreter-cache.md)
 
 - [x] [345-Prove frozen skills and scoped Brain evidence](tasks/345-skill-evidence-integration-proof.md)
+
+- [x] [346-Record Capacitor exports for mobile and desktop](tasks/346-record-unified-capacitor-exports.md)
+
+- [ ] [347-Capacitor Electron desktop exports and native storage](tasks/347-capacitor-desktop-export-and-storage.md)

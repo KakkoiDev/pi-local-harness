@@ -26,3 +26,10 @@ acceptance app), docs/plans/253-one-app-many-packages.md (results).
 
 Acceptance: the same source, packaged three ways, passes the same journey on each, and one change in app/logic reaches
 all three.
+
+## Extension decided 2026-10-20: native desktop targets
+
+Task347 adds Capacitor Electron exports. Extend the above three-package acceptance to include real Windows, macOS and Linux artifacts; the original three-package wording is historical, not a limit on the new scope.
+
+- [ ] Desktop: run the common acceptance journey in packaged apps on Windows, macOS and Linux; verify offline relaunch, native storage persistence, file dialog cancel/permission errors, hostile bridge requests and upgrade/backup/restore without data loss.
+- [ ] Extend the one-rule-change proof to all supported desktop exports as well as server/web/mobile. Real OS or SDK/signing steps that cannot run are explicitly not run; a stubbed bridge is not native verification.

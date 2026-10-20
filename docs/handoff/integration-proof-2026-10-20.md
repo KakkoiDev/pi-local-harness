@@ -29,3 +29,7 @@ To repeat the optional engine proof, build an already-local Jikko checkout with 
 - Production frontend waits for Round16 design. Use design/briefs/round-16-designer-prompt.md, then implement against named boards with end-to-end user stories. This is a designer handoff, not an invented production screen.
 
 The owner wants all these projects to strengthen WorkStation: Jikko as editor foundation, ICM for host/generated-project skills, and a permanent Brain holding AI configuration and reusable knowledge. Preserve those decisions; the above boundaries are the implementation sequence, not a proposal to abandon integration.
+
+## Subsequent owner decision: unified native exports
+
+Use Capacitor for Android/iOS and its Capawesome Electron integration for Windows/macOS/Linux. Plan253 records the canonical shared Python/HTMX source, Pyodide artifact, native desktop storage through an isolated bridge, signing/build-host constraints and tests. Task347 is the open implementation task; task281 now includes desktop conformance. The designer prompt includes export/storage states. No desktop adapter or dependency installation is claimed complete.
