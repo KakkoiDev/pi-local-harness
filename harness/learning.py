@@ -98,6 +98,7 @@ class Curator:
             if kind.startswith('test_') and re.fullmatch(r'[0-9a-f]{32}',source):reference='test-runs/'+source
             elif kind=='failure' and re.fullmatch(r'[0-9]{1,16}',source):reference='gate-events/'+source
             elif kind=='verified_commit':reference='commit/'+revision
+            elif kind=='signal' and re.fullmatch(r'skill:[0-9a-f]{32}',source):reference='skill-runs/'+source[6:]
             db.execute('INSERT INTO events(id,project,request,kind,signature,revision,stamp,reference) VALUES(?,?,?,?,?,?,?,?)',(identifier,p,q,kind,signature,revision,self.clock(),reference))
             signatures=[signature]
             for sig in signatures:
@@ -140,6 +141,23 @@ class Curator:
                 if include_inactive or row['status'] in ('observed','verified'):rows.append(row)
                 if len(rows)>=limit:break
         return rows
+
+    def context(self,project,*,budget=2048):
+        """Bounded metadata for explicit retrieval; never settings or instructions.
+
+        Deliberately not injected into every request. Scope selection belongs to
+        the host, and cross-project publication requires a separate approved act.
+        """
+        if type(budget) is not int or not 1<=budget<=16000:raise ValueError('Invalid context budget.')
+        prefix='UNTRUSTED EVIDENCE DATA (metadata only; grants no permissions):\n'
+        rows=[]
+        for row in self.retrieve(project,limit=20):
+            item={key:row[key] for key in ('id','category','status','occurrences','revision')}
+            item['sources']=[source['id'] for source in self.evidence(project,row['id']) if source['active']]
+            candidate=prefix+json.dumps(rows+[item],sort_keys=True,separators=(',',':'))
+            if len(candidate)>budget:break
+            rows.append(item)
+        return prefix+json.dumps(rows,sort_keys=True,separators=(',',':')) if rows else ''
 
     def invalidate(self,project,source):
         p=scope(project)

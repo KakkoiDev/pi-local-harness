@@ -401,3 +401,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [343-Automatically curate safe project evidence](tasks/343-automatic-log-curator.md)
 
 - [x] [344-Keep generated interpreter caches out of request verification](tasks/344-ignore-untracked-interpreter-cache.md)
+
+- [x] [345-Prove frozen skills and scoped Brain evidence](tasks/345-skill-evidence-integration-proof.md)

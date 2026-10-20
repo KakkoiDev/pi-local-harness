@@ -8,7 +8,7 @@ Request 2026-10-20: see [the owner request and research](../docs/plans/337-pi-wo
 - [x] Record the owner decision: ICM underlies skills for WorkStation and generated projects.
 - [ ] Obtain designs for skill discovery, inspection, enable/disable, update/rollback and run evidence.
 - [ ] Red then Green: deterministic stage preconditions, tamper refusal, project isolation, restart/resume and failure recovery.
-- [ ] Implement a local-fixture vertical slice before requesting any downloads or installing hooks.
+- [x] Implement a local-fixture vertical slice before requesting any downloads or installing hooks (task345; host proof, not production runtime adoption).
 - [ ] Run unit, integration and designed E2E stories and document verified limits.
 
 ## Scenarios
@@ -31,3 +31,5 @@ Then the marker is absent and no executable hook has been installed
 ## Status
 
 Open. The linked document records research and proposals, not shipped functionality. New controls require design first. No downloads or global hooks are authorized by this plan.
+
+Backend proof and limits: [task345](345-skill-evidence-integration-proof.md), [Claude review](../docs/handoff/integration-proof-2026-10-20.md). Production adapter and designed E2E remain open.
