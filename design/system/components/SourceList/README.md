@@ -1,0 +1,123 @@
+# SourceList
+
+**Existing vs Proposed.** Existing: nothing. Today an answer from Pi cites files only in its prose, if at all, and never across projects. Proposed (round 17): under an answer in Overview's **Ask across projects** pane, a numbered list of what the answer used. Each item gives the project, the document and the section, the lines and how recently they changed. Each item has an **Open** button that opens the file at that line in that project's Work. Numbered marks in the answer point at the items.
+
+Plan 354 and the scoped-context-retrieval report (20 Oct). Boards: R17_Ask, R17_AskStates, R17_AskSource, R17_AskNarrow, Ph17_Ask, Ph17_AskSources, R17_AskStrings, R17_AskWalk. CSS: `scripts/round17_b.css` (`.pw-sources`, `.pw-sources__*`, `.pw-cite`, `.pw-askro`, `.pw-handoff`, `.pw-src__l[data-cited]`). The project chat may use the same list under an answer; see Message's Round 17 section (worker C).
+
+## Anatomy
+
+- `section.pw-sources[aria-label="Sources"]` inside `article.pw-msg`, after Pi's words and before the coverage line (SearchScope).
+- **Head:** `h4.pw-sources__head#ask-src-h`, for example “Sources · 3 in 2 projects”.
+- **List:** `ol#ask-src-list[aria-labelledby]`, made of `li.pw-sources__item#src-N`. Each item holds:
+  - the number `.pw-sources__n`;
+  - the path `.pw-sources__path`: **Class Notes** › docs/offline.md › Sync queue, breaking anywhere;
+  - the meta `.pw-sources__meta`: “lines 12–40 · changed 2 days ago”;
+  - the Open button `button.pw-sources__open`, named “Open docs/offline.md in Class Notes at line 12”.
+- **More:** `button.pw-sources__more[aria-expanded]`, “Show 4 more”, when there are more than 5 items. It expands in place; it never opens a dialog.
+- **Cite mark:** `a.pw-cite[href="#src-N"][aria-label="Source N"]` in the answer text.
+- **Read-only line:** `p.pw-askro#ask-readonly` above the Ask composer reads “Pi reads these projects to answer. To change one, open it and ask there.” The Question field's `aria-describedby` points to it. There is one per pane, never one per answer.
+- **Hand-off:** `.pw-handoff`, used when the person asks for a change. Pi answers “I can only read here. Open Class Notes to change it.” and shows the default button **Open Class Notes Chat**, plus a help line.
+
+## States
+
+| State | What changes |
+| --- | --- |
+| Default | Up to 5 items, then Show N more. The head counts every item and every project. |
+| Changed since this answer | The item's meta adds a bold “changed since this answer” (`data-changed`). The coverage line offers Ask Again. Open shows the file as it is now: at the same heading if it still exists, otherwise from the top, with “The cited lines changed; showing the file from the top.” |
+| Project removed | The item keeps its number so the cite marks still match. Its text is greyed (`data-gone`), its meta reads “Kanji Cards was removed from Pi WorkStation”, and Open is disabled and described by that line. |
+| Plans only (search unavailable) | Items cite ROADMAP.md and task files only. |
+| No matches | No list at all. The coverage line says “No matches in 5 projects.” |
+| Focused from Work | After ‹ Overview, the item whose Open was used is outlined (`aria-current`) and its Open button has focus. |
+
+## Texts (EN / JA)
+
+| English | 日本語 |
+| --- | --- |
+| Sources · {n} in {p} projects | 出典 · {p} 件のプロジェクトに {n} 件 |
+| lines {from}–{to} | {from}–{to} 行 |
+| changed {ago} | {ago}に変更 |
+| changed since this answer | この回答の後に変更 |
+| Show {n} more | さらに {n} 件を表示 |
+| Open | 開く |
+| Open {file} in {project} at line {n} | {project} の {file} を {n} 行目で開く |
+| {project} was removed from Pi WorkStation | {project} は Pi WorkStation から削除されました |
+| The cited lines changed; showing the file from the top. | 引用した行が変更されたため、ファイルの先頭から表示しています。 |
+| Pi reads these projects to answer. To change one, open it and ask there. | Pi はプロジェクトを読んで答えるだけです。変更するときは、そのプロジェクトを開いてそこで頼んでください。 |
+| I can only read here. Open {project} to change it. | ここでは読むことしかできません。変更するには {project} を開いてください。 |
+| Open {project} Chat | {project} のチャットを開く |
+| Your request goes with it as a draft. Nothing is sent or changed until you send it there. | 依頼は下書きとして引き継がれます。そちらで送信するまで、何も送信・変更されません。 |
+| ‹ Overview | ‹ 概要 |
+| Back to Overview, Ask across projects | 概要の「全プロジェクトに質問」に戻る |
+
+## Data
+
+```json
+{"sources": [{"n": 1, "project_id": "prj_classnotes", "project": "Class Notes", "path": "docs/offline.md",
+  "heading": "Sync queue", "lines": [12, 40], "source_hash": "sha256:…", "changed_at": "2026-10-18T09:12:00",
+  "changed_since_answer": false, "available": true}], "total": 9}
+```
+
+- `source_hash` and `changed_since_answer` don't exist yet. They come from the retrieval report's step 5, “verify identity, permission and revision”. Until they exist, “changed since this answer” is not shown, and Open always opens the current file at the stored line.
+- The heading is the nearest Markdown heading, or the function or test name for code. If there is none, the path ends at the file: “Class Notes › app/sync.js”.
+- Lines are 1-based and inclusive, from the version Pi read.
+- The section and line text are never copied into another project's chat or model context; the answer only quotes what it needs.
+
+## Disabled reasons
+
+Open is disabled only when the project was removed or can't be opened. The reason is that item's meta line, linked with `aria-describedby`.
+
+## Focus, keyboard, live
+
+- The list is one tab stop. ↑↓ moves between items, with focus on each item's Open button, and Return opens. Show N more is the last stop; pressing it moves focus to the first new item.
+- Open → Work. **‹ Overview**, ⌃⌥0 or the Window menu returns to the same conversation, scroll position and item, with focus on its Open button.
+- Arrival is announced politely: “Answered · 3 sources in 2 projects”.
+
+## Phone
+
+- Items have 44 px Open buttons and 15 px text.
+- Show N more expands in place.
+- Open goes to that project's Work view, and the bar's back button reads ‹ Overview.
+
+## Don't
+
+- Don't show more than 5 items before Show N more.
+- Don't cite a project outside the conversation's scope, or one the person can't open.
+- Don't say a found solution is compatible, licensed for reuse or verified in another app. Pi can only say where it is.
+- Don't put Edit, Apply or Copy into Project on an item. Discovery is not permission; changes happen in the project's own chat.
+- Don't send anything to the project's chat when Open is used.
+- Don't add “search doesn't save to the Second Brain” to every answer: it is said once, in the pane's first-open help.
+
+## Walkthrough (Given / When / Then)
+
+1. **Cite two projects.**
+   - Given I asked “Where did we already solve offline support?”.
+   - When the answer arrives.
+   - Then “Sources · 3 in 2 projects” lists “Class Notes › docs/offline.md › Sync queue”, with “lines 12–40 · changed 2 days ago”, first, and the answer's marks 1–3 link to the items.
+2. **Open and return.**
+   - When I press “Open docs/offline.md in Class Notes at line 12”.
+   - Then Work shows the file in Source view with line 12 current and lines 12–40 marked.
+   - When I then press “Back to Overview, Ask across projects”.
+   - Then I'm back on the same item with focus on its Open button.
+3. **Many sources.**
+   - Given 9 sources.
+   - Then 5 show, and “Show 4 more” reveals the rest in place.
+4. **Changed after.**
+   - Given docs/offline.md changed after the answer.
+   - Then item 1 says “changed since this answer”, and the coverage line offers Ask Again.
+5. **Removed project.**
+   - Given Kanji Cards is removed while the answer is shown.
+   - Then item 3 is greyed and its Open is disabled with “Kanji Cards was removed from Pi WorkStation”.
+6. **Asking for a change.**
+   - When I send “Rename the “Sync queue” section in Class Notes to “Offline queue”.”.
+   - Then Pi answers “I can only read here. Open Class Notes to change it.”.
+   - When I press “Open Class Notes Chat”.
+   - Then Class Notes' chat opens with my request as an unsent draft, and no file has changed.
+7. **Reload and second window.**
+   - After a reload, the same sources show.
+   - A second window on the same conversation shows the same list.
+
+## Open product choices
+
+- Should Open land in Page view (the rendered heading) instead of Source view for Markdown? Source is drawn because only Source can mark lines.
+- When a cited project is removed, should its item stay (as drawn) or disappear, leaving a note of how many sources were hidden?
+- Should Open Class Notes Chat also switch that chat to Planning when the request clearly needs a change? As drawn it doesn't: only the person changes the phase.

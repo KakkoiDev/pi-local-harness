@@ -9,3 +9,11 @@ The agent status at the right of the menu bar, as a button that opens **Activity
 - Height 22px inside the 28px bar; 44px on phone, where it sits at the right of the PhoneBar.
 - CSS: `.pw-statusbtn`, `.pw-statusbtn__more`, `.pw-statusbtn--attention`, `[data-state]` for previews only.
 - Round 5: the button opens Activity **on the running request** (`/activity?job=<id>`), not just the window; so does the Agent section’s Activity row. Worker running while the chat is idle: “Working · worker in pi-local-harness”; paused: “Working · worker paused”. Later, with more agents: “2 of 3 agents busy”.
+
+## Round 17 · Proposed: opens Overview (plan 354)
+
+- The button opens **Overview · All Projects** (`/overview`, ⌃⌥0), not Activity. `aria-keyshortcuts="Control+Alt+0"`; `aria-label="Agent status: <words>. Open Overview"`. Supersedes round 4/5 "opens Activity · All Projects (⌘3)" and "opens Activity on the running request"; Activity stays ⌃⌥3 in the Window menu and the Agent section.
+- Words: when something needs the person, "<n> need you · Working on <project>" (one agent working) or "<n> need you" / "1 needs you" (nothing running); otherwise as before (Ready, Working · 1 waiting, 1 waiting, Connection interrupted + Reconnect).
+- Two encodings, never mixed: the **frame** (`.pw-statusbtn--attention`) means something needs you; the **glyph** says what Pi is doing (hourglass working, clock waiting, none ready, caution connection).
+- Attention no longer clears when a window is opened. Supersedes "Attention clears when Activity is opened" and "attention wins … until Activity is opened": the frame and count follow Overview's Needs you list, which shrinks only when a card is answered, accepted, continued or retried.
+- Phone: the same words, 44 px, opens the Overview screen. Boards R17_OverviewEntry, R17_Overview, Ph17_Overview.

@@ -19,3 +19,14 @@ One line that says which files Pi gets with a request, before you send it (**Pi 
 ## Round 15: Preview actions (task 333)
 
 When a FlowAttachment is on a message, Pi sees: lists it as one more item, `Preview actions (flow)` with its range, after the files; its title attribute is the range and step count. Removing the attachment removes the item. Pi's reasons popover says “flow: you reported a problem; the workbench attached this project's recent Preview actions”. See FlowAttachment.
+
+## Round 17: found sources and the context receipt (plan 354)
+
+**Existing vs Proposed.** Today the line is `Pi sees: README.md (rules) · ROADMAP.md (plan) · 002-subjects.md (task) +N Why?`: the +N counter mixes the deterministic files with *related* ones, and Why? opens one mixed list. Proposed: the deterministic items stay as they are (rules · plan · task · named · changed · flow). After a dotted separator (`.pw-context__sep`) comes one text item `.pw-context__found`: “2 found”, “none found”, “search catching up” or “no search”. **Why?** stays the only control, and it opens the new **ContextReceipt** (see that card). Searching needs nothing extra to click. Boards: R17_ProjectScope, R17_ContextReceipt, R17_ContextStates, R17_Context1024, R17_ContextExisting, Ph17_ProjectScope, Ph17_ContextSheet.
+
+- Overflow: file names hide from the end, as today. “N found” and Why? never hide, and +N counts deterministic files only.
+- Stale: “2 found” gets a trailing “!”, and its accessible name adds “1 changed after Pi read it”.
+- The reason word **related** is retired. Retrieved files are “found” and live only in the receipt’s Found group.
+- Why? now has `aria-haspopup="dialog"` and `aria-controls="context-receipt"`, replacing `ctx-why`.
+
+Superseded: “Why Pi sees these N files” → “What Pi uses for this message”. “Related: its name matches “subject”” → (Found group) “Matches “subject””. Footer “Never vendor/, licences, build output or files over 40 KB.” → “…files over 40 KB, or other projects.” The +N counter no longer counts related files.

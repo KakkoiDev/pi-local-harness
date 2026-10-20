@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Round 17 · Proposed · Ask across projects: an answer that cites two projects, the read-only line, a follow-up</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}
+/* ---- 2026-10-15 · Round 7: the app, running beside the chat (plan 198) ---- */
+
+/* PreviewWindow: the project's own app, live, in a window beside the chat (a view when the chat would drop under 480px). */
+.pw-preview{display:flex;flex-direction:column;min-width:0}
+.pw-address{flex:1 1 160px;min-width:0;display:flex;align-items:center;gap:6px;height:30px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);padding:0 8px;font-family:var(--font-mono);font-size:13px}
+.pw-address__host{flex:none;color:var(--ink-disabled);font-family:var(--font-chrome)}
+.pw-address input{flex:1;min-width:0;border:0;padding:0;background:none;font:inherit;color:var(--ink);outline:none}
+.pw-preview__note{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:4px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-preview__note time{margin-left:auto}
+.pw-preview__stage{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px}
+.pw-preview__frame{flex:none;position:relative;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.pw-preview__frame>iframe{display:block;border:0;width:100%;height:100%}
+.pw-preview__frame[data-scaled]>*{transform-origin:0 0}
+.pw-preview__caption{flex:none;font-family:var(--font-chrome);font-size:12px;line-height:16px;background:var(--paper);padding:0 6px}
+.pw-preview__empty{margin:auto;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--paper);border:1px solid var(--ink);padding:20px 22px;font-family:var(--font-chrome);font-size:15px;line-height:21px}
+.pw-preview__empty p{margin:0}
+.pw-preview__error{align-self:stretch;margin:0;border:1px solid var(--ink);background:var(--paper);padding:8px 10px;font-family:var(--font-mono);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-preview--dim .pw-preview__stage,.pw-preview--dim .pw-toolbar,.pw-preview--dim .pw-statusbar{color:var(--ink-disabled)}
+.pw-preview__foot{flex:none;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;font-family:var(--font-chrome);font-size:13px}
+.pw-preview__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DoneRow: under each finished answer, what was done in plain words; the request is one commit. */
+.pw-done{align-self:stretch;max-width:760px;margin:-12px 0 0;border-top:1px solid var(--ink);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.pw-done__head{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-done__head time{color:inherit}
+.pw-done__text{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45;text-wrap:pretty}
+.pw-done__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.pw-done__actions .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* LessonLine: at most one per answer, when the person meets an idea for the first time. */
+.pw-lesson{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;border-top:1px dotted var(--ink);padding-top:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-lesson__hide{margin-left:auto;font:inherit;color:inherit;background:none;border:0;padding:0 2px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+
+@media (max-width:760px){
+  .pw-address{height:44px;font-size:15px}
+  .pw-done__actions .pw-btn,.pw-preview__foot .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-lesson__hide{min-height:44px}
+  .pw-preview__stage{padding:0}
+  .pw-preview__frame{border:0;box-shadow:none}
+}
+.pw-seg>[disabled]{color:var(--ink-disabled)}
+/* Radio: a 14px circle, an 8px dot when chosen. Used by New Project's kind. */
+.pw-radio{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);margin:3px 0 0;display:inline-grid;place-content:center;flex:none}
+.pw-radio:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.pw-choice{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:6px 0;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-choice small{grid-column:2;display:block;font-size:13px;line-height:18px}
+.pw-lines{margin:6px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:12px;line-height:1.6}
+.pw-lines li{display:flex;gap:12px}.pw-lines li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+/* ---- 2026-10-16 · Rounds 9–10: updates, plan mode (plan 236) ---- */
+
+/* Card: a framed card inside Pi's message (ChoiceCard, PlanCard, CheckInCard, AwayCard). Same frame as WorkerCard. */
+.pw-card{align-self:stretch;max-width:640px;background:var(--paper);border:1px solid var(--ink);box-shadow:2px 2px 0 var(--ink);display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-card__head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-card__title{margin:0;font-size:15px;line-height:20px;font-weight:600;flex:1 1 200px}
+.pw-card__body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.pw-card__body>p{margin:0}
+.pw-card__foot{padding:8px 12px;border-top:1px solid var(--ink);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pw-card__foot .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+.pw-card__links{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+.pw-card--settled{box-shadow:none}
+.pw-card--auto{border-style:dotted;box-shadow:none}
+.pw-card--old{box-shadow:none;color:var(--ink-disabled);border-color:var(--ink-disabled)}
+/* One answered line: a settled card collapses to it */
+.pw-card__line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;padding:6px 10px;font-size:14px}
+.pw-card__line b{font-weight:600}
+.pw-card__line .pw-link{margin-left:auto;font-size:13px}
+
+/* Tag: a small framed word (Recommended, chosen, given, auto) */
+.pw-tag{display:inline-flex;align-items:center;font-family:var(--font-chrome);font-size:11px;line-height:16px;border:1px solid var(--ink);padding:0 4px;white-space:nowrap}
+.pw-tag--dotted{border-style:dotted}
+
+/* Option rows (ChoiceCard): radio, label, tag, one-line detail */
+.pw-option{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;align-items:start;padding:7px 2px;border-top:1px dotted var(--ink);cursor:default}
+.pw-option:first-child{border-top:0}
+.pw-option__label{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.pw-option small{grid-column:2;font-size:13px;line-height:18px}
+.pw-option .pw-field{grid-column:2;font-size:15px;min-height:30px;padding:4px 8px}
+
+/* PlanCard */
+.pw-plan__goal{margin:0;font-family:var(--font-text);font-size:16px;line-height:1.45}
+.pw-plan__h{margin:4px 0 0;font-size:13px;font-weight:600;text-transform:none}
+.pw-plan__tasks{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.pw-plan__tasks small{display:block;font-size:13px;line-height:18px}
+.pw-plan__decisions{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.pw-plan__decisions li{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.pw-facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.pw-facts dt{font-weight:600}.pw-facts dd{margin:0}
+
+/* AutoToggle: next to Send */
+.pw-auto{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:14px;cursor:default;white-space:nowrap}
+
+@media (max-width:760px){
+  .pw-card{max-width:none}
+  .pw-option{min-height:44px;grid-template-columns:22px 1fr;align-items:center}
+  .pw-option .pw-radio{width:22px;height:22px;margin:0}
+  .pw-option .pw-radio:checked::before{width:12px;height:12px}
+  .pw-card__foot .pw-btn{min-height:var(--size-touch);font-size:16px;flex:1 1 auto}
+  .pw-card__links a{min-height:44px;display:inline-flex;align-items:center}
+  .pw-auto{min-height:44px;font-size:15px}
+  .pw-auto .pw-check{width:22px;height:22px}
+}
+/* ---- 2026-10-17 · Round 11: three phases for every request (task 247), context reasons (task 234) ---- */
+
+/* PhaseControl: a popup button in the composer row; the project's phase, set only by the person. */
+.pw-phase{position:relative;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 26px 0 10px;font-family:var(--font-chrome);font-size:14px;line-height:18px;color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:0;box-shadow:var(--shadow-popup);white-space:nowrap;cursor:default}
+.pw-phase::after{content:"";position:absolute;right:9px;top:50%;margin-top:-2px;border:4px solid transparent;border-top:5px solid currentColor;border-bottom:0}
+.pw-phase:hover{background:var(--wash)}
+.pw-phase[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-phase:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-phase[aria-busy="true"]{border-style:dotted;box-shadow:none}
+.pw-phase__label{font-weight:600}
+.pw-phase .pw-tag{margin-left:2px}
+.pw-phase-menu{min-width:340px}
+.pw-phase-menu .pw-menu__item{height:auto;min-height:44px;padding-top:6px;padding-bottom:6px;align-items:flex-start;flex-direction:column;gap:1px;white-space:normal}
+.pw-phase-menu .pw-menu__item>span:first-child{display:flex;width:100%;justify-content:space-between;gap:16px;font-weight:600}
+.pw-phase-menu small{font-size:13px;line-height:17px;font-weight:400}
+.pw-phase-menu .pw-menu__note{white-space:normal}
+
+/* PhaseLine: a quiet line in the chat each time the phase changes */
+.pw-phase-line{align-self:center;display:flex;align-items:center;gap:8px;margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:3px 12px}
+
+/* WaitingStrip: in Discussion, planned tasks that wait to be built */
+.pw-waiting{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:8px 16px;border-top:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-waiting__tasks{flex:1 1 200px;min-width:0}
+
+/* Phase refusal inside a tool row: same layout as Gate's block, named by the phase */
+.pw-tool__reason{margin:0;padding:6px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-why{font-family:var(--font-chrome);font-size:13px}
+.pw-why>summary{cursor:default;text-decoration:underline;text-underline-offset:2px}
+.pw-why ul{margin:4px 0 0;padding-left:18px}
+
+/* ContextLine reasons: a Why? button opens the list with the full path and the reason for each file */
+.pw-context__why{flex:none;font:inherit;color:inherit;background:none;border:0;padding:0 2px;margin-left:6px;text-decoration:underline;text-underline-offset:2px;cursor:default}
+.pw-context__why[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg);text-decoration:none}
+.pw-reasons{background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:8px 0;font-family:var(--font-chrome);font-size:14px;line-height:18px;width:440px}
+.pw-reasons h3{margin:0 12px 6px;font-size:13px;font-weight:600}
+.pw-reasons ol{margin:0;padding:0;list-style:none}
+.pw-reasons li{display:grid;grid-template-columns:1fr auto;gap:0 12px;padding:5px 12px;border-top:1px dotted var(--ink)}
+.pw-reasons li:first-child{border-top:0}
+.pw-reasons .pw-reasons__path{grid-column:1/-1;font-family:var(--font-mono);font-size:12px;color:var(--ink-disabled);overflow-wrap:anywhere}
+.pw-reasons .pw-reasons__why{grid-column:1/-1;font-size:13px}
+.pw-reasons p{margin:6px 12px 0;font-size:12px}
+
+@media (max-width:760px){
+  .pw-phase{height:44px;font-size:16px;padding-right:30px}
+  .pw-phase-menu .pw-menu__item{min-height:64px}
+  .pw-reasons{width:auto;border:0;box-shadow:none;padding:0}
+  .pw-reasons li{padding:8px 0;min-height:44px}
+  .pw-context__why{min-height:44px}
+}
+/* ---- 2026-10-18 · Round 12: Project Start (plan 253) and the review's screens (tasks 260–263, 290, 291, plan 267) ---- */
+
+/* HarnessNotice: an inline note from the harness under an answer (not Pi's words) */
+.pw-notice{align-self:stretch;max-width:760px;margin:-12px 0 0;display:flex;align-items:flex-start;flex-wrap:wrap;gap:4px 10px;border:1px dotted var(--ink);padding:6px 10px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-notice__who{font-weight:600}
+.pw-notice__text{flex:1 1 240px;min-width:0}
+
+/* CutLine: under an answer that was stopped or failed before Pi finished */
+.pw-cut{align-self:stretch;max-width:760px;margin:-12px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;border-top:1px solid var(--ink);padding-top:8px;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-cut__text{flex:1 1 260px;min-width:0}
+.pw-cut .pw-btn{min-height:26px;font-size:14px;padding:0 10px}
+
+/* DecisionRow: the decisions behind an answer, collapsed under it */
+.pw-decisions{align-self:stretch;max-width:760px;margin:-12px 0 0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-decisions>summary{cursor:default;display:inline-flex;gap:6px;align-items:center;list-style:none}
+.pw-decisions>summary::-webkit-details-marker{display:none}
+.pw-decisions ul{list-style:none;margin:6px 0 0;padding:0;border-top:1px dotted var(--ink)}
+.pw-decisions li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:5px 0;border-bottom:1px dotted var(--ink);font-size:14px}
+.pw-decisions li .pw-link{margin-left:auto;font-size:13px}
+
+/* Capability picker (Project Start) */
+.pw-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:14px}
+.pw-steps li{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;border-bottom:1px dotted var(--ink)}
+.pw-steps li[aria-current="step"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-steps li[data-done]::after{content:"✓";margin-left:auto}
+.pw-cap{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;padding:8px 2px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-cap small{grid-column:2;font-size:13px;line-height:18px}
+.pw-cap__meta{grid-column:2;display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12px;line-height:16px}
+.pw-cap[aria-disabled="true"]{color:var(--ink-disabled)}
+.pw-cap__warn{grid-column:2;display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;border:1px solid var(--ink);padding:4px 8px;margin-top:4px;color:var(--ink)}
+.pw-capgroup{margin:0;padding:0;border:0}
+.pw-capgroup>legend{padding:10px 0 2px;font-family:var(--font-chrome);font-size:13px;font-weight:600}
+
+/* Shortcut table */
+.pw-keys{border-collapse:collapse;font-family:var(--font-chrome);font-size:14px}
+.pw-keys th,.pw-keys td{border-bottom:1px dotted var(--ink);padding:5px 12px 5px 0;text-align:left;vertical-align:top}
+.pw-keys th{border-bottom:1px solid var(--ink);font-size:13px}
+.pw-keys kbd{font:inherit;border:1px solid var(--ink);padding:0 4px;white-space:nowrap}
+
+@media (max-width:760px){
+  .pw-cap{min-height:44px;grid-template-columns:22px 1fr;padding:10px 2px}
+  .pw-cap .pw-check{width:22px;height:22px}
+  .pw-cut .pw-btn{min-height:var(--size-touch);font-size:16px}
+  .pw-decisions>summary{min-height:44px}
+  .pw-decisions li{min-height:44px}
+}
+
+/* ThemePanel (task 312): the app's theme, edited live from the chat. Workbench UI; only the swatches carry the app's colours. */
+.pw-theme .pw-card__body{gap:0;padding:0}
+.pw-theme__row{display:grid;grid-template-columns:minmax(150px,1.2fr) 1fr 1fr auto;align-items:center;gap:6px 12px;padding:7px 12px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-theme__row:first-child{border-top:0}
+.pw-theme__row--head{font-size:12px;font-weight:600;padding-top:6px;padding-bottom:6px}
+.pw-theme__name small{display:block;font-size:12px;line-height:16px}
+.pw-theme__val{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pw-swatch{flex:none;width:22px;height:22px;border:1px solid var(--ink);display:inline-grid;place-content:center;font-size:11px;font-weight:600;cursor:default;padding:0}
+.pw-swatch[aria-expanded="true"]{outline:2px solid var(--ink);outline-offset:1px}
+.pw-theme__hex{font-family:var(--font-mono);font-size:12px;width:76px;height:22px;border:1px solid var(--ink);padding:0 4px;background:var(--paper)}
+.pw-contrast{font-size:12px;white-space:nowrap}
+.pw-theme__reset{font:inherit;font-size:12px;background:none;border:0;padding:0;text-decoration:underline;color:inherit;cursor:default}
+.pw-theme__reset:disabled{color:var(--ink-disabled);text-decoration:none}
+.pw-picker{width:240px;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:10px;display:flex;flex-direction:column;gap:8px;font-family:var(--font-chrome);font-size:13px}
+.pw-picker__field{height:140px;border:1px solid var(--ink);position:relative}
+.pw-picker__hue{height:12px;border:1px solid var(--ink);background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+.pw-slider{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;font-family:var(--font-chrome);font-size:14px;padding:10px 12px}
+.pw-slider input[type=range]{width:100%;accent-color:var(--ink)}
+.pw-samples{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;padding:10px 12px;border-top:1px dotted var(--ink)}
+@media (max-width:760px){
+  .pw-theme__row{grid-template-columns:1fr auto;min-height:56px}
+  .pw-swatch{width:32px;height:32px}
+}
+/* ---- 2026-10-18 · Round 13: the round 12 builds, revisited ---- */
+
+/* ThemePanel · Fonts: one row per role (headings, body); the family, a search, Reset, then a sample in the app's look */
+.pw-fontrow{display:grid;grid-template-columns:minmax(120px,auto) 1fr auto;gap:6px 12px;align-items:center;padding:10px 12px;border-top:1px dotted var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-fontrow:first-child{border-top:0}
+.pw-fontrow__family{font-family:var(--font-mono);font-size:13px}
+.pw-fontrow__search{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+.pw-fontrow__search .pw-field{flex:1;min-width:0;height:26px}
+.pw-fontsample{grid-column:1/-1;border:1px solid var(--ink);padding:8px 10px;background:#fff;color:#0f172a;display:flex;flex-direction:column;gap:2px}
+.pw-fontget{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;border:1px dotted var(--ink);padding:6px 10px;font-size:13px}
+.pw-fontget__text{flex:1 1 260px;min-width:0}
+/* the picker's what-am-I-editing segment */
+.pw-picker .pw-seg{align-self:flex-start}
+/* a theme panel folded after Save Theme */
+.pw-theme--folded{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px}
+/* test output under a failed Create */
+.pw-output{margin:0;border:1px dotted var(--ink);padding:8px 10px;font-family:var(--font-mono);font-size:12px;line-height:17px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto}
+@media (max-width:760px){
+  .pw-fontrow{grid-template-columns:1fr auto;min-height:44px}
+  .pw-fontrow__search .pw-field{height:44px}
+}
+/* ---- 2026-10-19 · Round 15 C: plan diagnostics and bounded repair (task 322) ---- */
+
+/* PlanCheck: System 1's findings in the saved plan files, one row per finding, file:line first */
+.pw-diag{display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-diag__summary{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:6px 12px;border-bottom:1px solid var(--ink);font-size:13px}
+.pw-diag__group{margin:0;padding:0;list-style:none}
+.pw-diag__group>li{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:2px 8px;align-items:start;padding:7px 12px;border-bottom:1px dotted var(--ink)}
+.pw-diag__group>li[aria-current="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-diag__group>li[aria-current="true"] .pw-link{color:inherit}
+.pw-diag__where{font-family:var(--font-mono);font-size:12px;white-space:nowrap}
+.pw-diag__text{grid-column:2/-1}
+.pw-diag__text small{display:block;font-size:13px;line-height:17px;margin-top:2px}
+.pw-diag__kind{font-size:12px;font-weight:600;letter-spacing:.02em}
+.pw-diag__h{margin:0;padding:8px 12px 4px;font-size:12px;font-weight:600;border-bottom:1px solid var(--ink)}
+/* the three kinds are told apart by glyph and word, never by tone alone */
+.pw-mark{display:inline-grid;place-items:center;width:12px;height:12px;margin-top:3px;flex:none}
+.pw-mark--error{background:var(--ink)}
+.pw-mark--unsupported{border:1px dashed var(--ink);box-sizing:border-box}
+.pw-mark--note{border:1px solid var(--ink);border-radius:50%;box-sizing:border-box;font-size:9px;line-height:1;font-weight:700}
+.pw-mark--note::before{content:"i"}
+
+/* Source with line numbers and finding marks (Work's source view, read-only marks; the text stays editable) */
+.pw-src{font-family:var(--font-mono);font-size:13px;line-height:20px;padding:8px 0;margin:0;overflow:auto;background:var(--paper)}
+.pw-src__l{display:grid;grid-template-columns:44px 18px minmax(0,1fr);align-items:start}
+.pw-src__no{text-align:right;padding-right:8px;color:var(--ink-disabled);user-select:none}
+.pw-src__m{display:grid;place-items:center;height:20px}
+.pw-src__t{white-space:pre-wrap;overflow-wrap:anywhere;padding-right:16px}
+.pw-src__l[data-mark]{background-image:radial-gradient(var(--ink) .5px,transparent .6px);background-size:4px 4px}
+.pw-src__l[data-mark] .pw-src__t{background:var(--paper);box-shadow:0 0 0 1px var(--paper)}
+.pw-src__l[aria-current="true"]{outline:2px solid var(--ink);outline-offset:-2px}
+
+/* Diff in the repair review: one column, +/− in the gutter, removed lines struck through */
+.pw-diff{margin:0;padding:6px 0;list-style:none;font-family:var(--font-mono);font-size:12.5px;line-height:19px;border:1px solid var(--ink);overflow:auto;max-height:100%}
+.pw-diff li{display:grid;grid-template-columns:34px 34px 16px minmax(0,1fr);white-space:pre-wrap;overflow-wrap:anywhere}
+.pw-diff li>span:nth-child(-n+2){text-align:right;padding-right:6px;color:var(--ink-disabled)}
+.pw-diff li[data-op="add"]{font-weight:600}
+.pw-diff li[data-op="add"]>span:nth-child(3)::before{content:"+"}
+.pw-diff li[data-op="del"]>span:nth-child(3)::before{content:"−"}
+.pw-diff li[data-op="del"]>span:last-child{text-decoration:line-through}
+.pw-diff li[data-op="hunk"]{border-top:1px dotted var(--ink);border-bottom:1px dotted var(--ink);font-family:var(--font-chrome);font-size:12px;padding:2px 0}
+.pw-diff li[data-op="hunk"]>span:last-child{grid-column:1/-1;padding-left:12px}
+.pw-filelist{margin:0;padding:0;list-style:none;font-family:var(--font-chrome);font-size:14px}
+.pw-filelist li{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;border-bottom:1px dotted var(--ink)}
+.pw-filelist li[aria-selected="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-filelist li small{margin-left:auto;font-size:12px}
+.pw-verdict{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:8px 12px;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-verdict[data-state="fail"]{border-width:2px}
+
+@media (max-width:760px){
+  .pw-diag__group>li{min-height:44px;padding:10px 12px}
+  .pw-filelist li{min-height:44px}
+  .pw-src__l{grid-template-columns:32px 16px minmax(0,1fr)}
+}
+.pw-diag__group>li[aria-current="true"] .pw-mark--error{background:var(--selection-fg)}
+.pw-diag__group>li[aria-current="true"] .pw-mark{border-color:var(--selection-fg)}
+/* ---- 2026-10-20 · Round 17 B: Overview › Ask across projects (scope, sources, coverage) ---- */
+
+/* AskPane: the dashboard conversation, 400 px on the right of Overview (full width at 1024 and on the phone) */
+.pw-ask{width:400px;flex:none;display:flex;flex-direction:column;min-height:0;border-left:1px solid var(--ink);background:var(--paper)}
+.pw-ask--full{width:auto;flex:1;border-left:0}
+.pw-ask__head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 12px;border-bottom:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px}
+.pw-ask__title{margin:0;font-size:13px;font-weight:600;flex:1 1 auto}
+.pw-ask__head .pw-scope{flex:1 1 100%}
+.pw-ask__head .pw-scope__btn{width:100%}
+.pw-ask__head .pw-scope__btn span{flex:1;text-align:left}
+.pw-ask__body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:flex-end}
+.pw-ask__body .pw-transcript{padding:16px}
+.pw-ask__empty{margin:auto 0 0;padding:16px;display:flex;flex-direction:column;gap:8px;font-family:var(--font-text);font-size:15px;line-height:1.45}
+.pw-ask__foot{border-top:1px solid var(--ink);padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.pw-ask__row{display:flex;align-items:center;gap:8px}
+.pw-ask__row .pw-field{flex:1;min-width:0;resize:none}
+
+/* SearchScope: a popup button that names what will be searched; the popover holds checkboxes */
+.pw-scope{position:relative;display:inline-flex}
+.pw-scope__btn{font:inherit;font-family:var(--font-chrome);font-size:13px;color:inherit;background:var(--paper);border:1px solid var(--ink);height:24px;padding:0 6px 0 8px;display:inline-flex;align-items:center;gap:6px;cursor:default;white-space:nowrap}
+.pw-scope__btn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-scope__btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-scope__pop{position:absolute;top:calc(100% + 4px);left:0;z-index:6;width:300px;box-sizing:border-box;background:var(--paper);border:1px solid var(--ink);box-shadow:var(--shadow-popup);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-scope__pop--static{position:static}
+.pw-scope__pop h3{margin:0;padding:8px 12px 4px;font-size:13px;font-weight:600}
+.pw-scope__pop fieldset{border:0;margin:0;padding:0 0 4px}
+.pw-scope__item{display:flex;align-items:center;gap:8px;min-height:24px;padding:2px 12px}
+.pw-scope__item--all{border-bottom:1px dotted var(--ink);padding-bottom:6px;margin-bottom:2px}
+.pw-scope__item small{margin-left:auto;font-size:12px;white-space:nowrap}
+.pw-scope__pop p{margin:0;padding:6px 12px 8px;border-top:1px dotted var(--ink);font-size:12px;line-height:16px}
+
+/* Coverage: one line under an answer saying what was searched (never a database word) */
+.pw-coverage{margin:0;display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-coverage svg{flex:none;margin-top:2px}
+.pw-coverage>span{flex:1 1 0;min-width:0}
+.pw-coverage .pw-btn{flex:none}
+.pw-coverage--partial,.pw-coverage--off{border:1px dotted var(--ink);padding:4px 6px}
+.pw-coverage .pw-btn{min-height:20px;font-size:12px;padding:0 6px}
+
+/* SourceList: the citations under an answer; at most 5, then Show N more */
+.pw-sources{margin:0;border:1px solid var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:17px}
+.pw-sources__head{margin:0;padding:4px 8px;border-bottom:1px solid var(--ink);font-size:12px;font-weight:600}
+.pw-sources ol{list-style:none;margin:0;padding:0}
+.pw-sources__item{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:2px 6px;align-items:start;padding:6px 8px;border-top:1px dotted var(--ink)}
+.pw-sources__item:first-child{border-top:0}
+.pw-sources__n{font-size:12px;text-align:right}
+.pw-sources__path{overflow-wrap:anywhere}
+.pw-sources__path b{font-weight:600}
+.pw-sources__meta{grid-column:2;font-size:12px;line-height:16px}
+.pw-sources__open{grid-row:1/span 2;grid-column:3;align-self:center;min-height:22px;font-size:12px;padding:0 8px}
+.pw-sources__item[data-changed] .pw-sources__meta b{font-weight:600}
+.pw-sources__item[data-gone]{color:var(--ink-disabled)}
+.pw-sources__item[aria-current="true"]{outline:2px solid var(--ink);outline-offset:-2px}
+.pw-sources__more{display:block;width:100%;text-align:left;font:inherit;font-size:12px;color:inherit;background:none;border:0;border-top:1px dotted var(--ink);padding:5px 8px 5px 32px;text-decoration:underline;cursor:default}
+.pw-sources__more:focus-visible,.pw-sources__open:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+
+/* An inline citation mark in Pi's answer: its number points at the SourceList item */
+.pw-cite{font-family:var(--font-chrome);font-size:11px;line-height:1;vertical-align:super;border:1px solid var(--ink);padding:0 2px;margin-left:1px;color:inherit;text-decoration:none}
+
+/* Read-only: the one line above the Ask composer; the hand-off button when a change is asked for */
+.pw-askro{margin:0;font-family:var(--font-chrome);font-size:12px;line-height:16px;display:flex;gap:6px;align-items:flex-start}
+.pw-askro svg{flex:none;margin-top:2px}
+.pw-handoff{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pw-handoff .pw-help{margin:0;font-size:12px}
+
+/* A source opened from Overview: the cited lines in Work */
+.pw-src__l[data-cited]{box-shadow:inset 3px 0 0 var(--ink)}
+
+@media (max-width: 759px){
+  .pw-ask{width:auto;border-left:0}
+  .pw-scope__btn{height:44px;font-size:16px;padding:0 12px}
+  .pw-scope__item{min-height:44px;font-size:16px}
+  .pw-sources__item{padding:10px 12px;font-size:15px;line-height:20px}
+  .pw-sources__open,.pw-sources__more{min-height:44px;font-size:15px}
+}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #fff"><div style="position: absolute; top: 28px; left: 0"><div class="pw-root pw-desk" style="width: 1440px; height: 872px; box-sizing: border-box; padding: 24px; display: flex; gap: 20px; align-items: stretch; position: relative; color: #000"><section class="pw-window" aria-label="Projects" style="width: 220px; flex: none"><div class="pw-titlebar"><span style="width: 28px"></span><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Projects</h2><div class="pw-titlebar__stripes"></div><span style="width: 28px"></span></div><nav class="pw-window__body" aria-label="Projects"><section class="pw-group" aria-labelledby="g-agent"><div class="pw-group__head"><h3 class="pw-group__title" id="g-agent"><button class="pw-group__toggle" aria-expanded="true" aria-controls="g-agent-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Agent<span class="pw-group__count">3</span></button></h3></div><div class="pw-group__body" id="g-agent-body" role="list"><a href="#" class="pw-row" role="listitem" aria-current="true" style="background: #000; color: #fff"><span class="pw-row__label">Overview</span><span class="pw-row__meta" style="color: #fff">2 need you · 1 working</span></a><a href="#" class="pw-row" role="listitem"><span class="pw-row__label">Activity</span></a><a href="#" class="pw-row" role="listitem"><span class="pw-row__label">Gate</span></a></div></section><section class="pw-group" aria-labelledby="g-proj"><div class="pw-group__head"><h3 class="pw-group__title" id="g-proj"><button class="pw-group__toggle" aria-expanded="true" aria-controls="g-proj-body"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 5h9l-4.5 6z" fill="currentColor"/></svg>Projects<span class="pw-group__count">5</span></button></h3></div><div class="pw-group__body" id="g-proj-body" role="list"><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Class Notes</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Pong</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Kanji Cards</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">Notes app</span></a><a href="#" class="pw-row" role="listitem"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M.5 3.5h5l1.5 1.5h8.5v9.5H.5z" fill="none" stroke="currentColor"/></svg><span class="pw-row__label">home-server</span></a></div></section></nav></section><section class="pw-window" aria-label="Overview · All Projects" style="flex: 1; min-width: 0; display: flex; flex-direction: column"><div class="pw-titlebar"><button class="pw-box" aria-label="Close Overview"></button><div class="pw-titlebar__stripes"></div><h2 class="pw-titlebar__title">Overview · All Projects</h2><div class="pw-titlebar__stripes"></div><button class="pw-box pw-box--zoom" aria-label="Zoom window"></button></div><div class="pw-toolbar" style="gap: 12px"><span class="pw-glyph" role="status"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Live · updated 14:32</span><span style="flex: 1"></span><div class="pw-seg" role="radiogroup" aria-label="Show"><button role="radio" aria-checked="true" style="height: 24px; font-size: 13px">All</button><button role="radio" aria-checked="false" style="height: 24px; font-size: 13px">Needs You</button><button role="radio" aria-checked="false" style="height: 24px; font-size: 13px">Working</button></div></div><div style="flex: 1; min-height: 0; display: flex"><div id="ov-lists" style="flex: 1; min-width: 0; overflow: hidden; font-family: var(--font-chrome); font-size: 14px"><h3 class="pw-label" style="margin: 0; padding: 10px 12px 4px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between">Needs you<span style="font-weight: 400">2</span></h3><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor"/><path d="M5.8 6.2a2.2 2.2 0 1 1 3 2c-.6.3-.8.7-.8 1.3v.5M8 11.6v1.4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg> Class Notes</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Waiting for your answer · Request 14:20 · task 2 Subjects</span><span class="pw-row__meta">14:24</span></div><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2.5.5h11v15h-11z" fill="none" stroke="currentColor"/><path d="M5 4.5h6M5 8h6M5 11.5h4" stroke="currentColor"/></svg> Pong</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Plan waiting for approval · Request 13:58</span><span class="pw-row__meta">14:02</span></div><h3 class="pw-label" style="margin: 0; padding: 10px 12px 4px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between">Projects<span style="font-weight: 400">5</span></h3><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600">Class Notes</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Working: task 2 · Subjects</span><span class="pw-row__meta">Needs you · 1</span></div><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600">Pong</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Idle · Planning</span><span class="pw-row__meta">Needs you · 1</span></div><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600">Kanji Cards</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Idle</span><span class="pw-row__meta"></span></div><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600">Notes app</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Queued: 2 requests</span><span class="pw-row__meta"></span></div><div class="pw-row" style="min-height: 26px; border-top: 1px dotted #000; gap: 10px; padding: 3px 12px"><span class="pw-row__label" style="flex: 0 0 150px; font-weight: 600">home-server</span><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Idle</span><span class="pw-row__meta"></span></div><h3 class="pw-label" style="margin: 0; padding: 10px 12px 4px; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between">Recorded problems<span style="font-weight: 400">3 · collapsed</span></h3><p class="pw-help" style="margin: 8px 12px; font-size: 12px">(The lists are drawn in detail on worker A’s boards: R17_Overview…)</p></div><section class="pw-ask" id="ov-ask" aria-labelledby="ov-ask-h"><div class="pw-ask__head"><h3 class="pw-ask__title" id="ov-ask-h">Ask across projects</h3><button type="button" class="pw-btn" style="min-height: 24px; font-size: 13px">New</button><span class="pw-scope"><button type="button" class="pw-scope__btn" id="ask-scope" aria-haspopup="dialog" aria-expanded="false" aria-controls="ask-scope-pop"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><span>Searching all projects (5)</span><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button></span></div><div class="pw-ask__body" aria-label="Conversation" tabindex="0"><div class=pw-transcript><article class="pw-msg pw-msg--user"><div class="pw-msg__label"><b>You</b><time>14:31</time></div><p class="pw-msg__body">Where did we already solve offline support?</p></article><article class="pw-msg"><div class="pw-msg__label"><b>Pi</b><time>14:32</time></div><p class="pw-msg__body">Twice. <b style="font-weight: 600">Class Notes</b> keeps edits in a queue while offline and sends them when the connection returns<a href="#src-1" class="pw-cite" aria-label="Source 1">1</a><a href="#src-2" class="pw-cite" aria-label="Source 2">2</a>. <b style="font-weight: 600">Kanji Cards</b> keeps the deck on the device so reviews work offline, but it saves nothing back<a href="#src-3" class="pw-cite" aria-label="Source 3">3</a>. For saving edits, Class Notes is the closer match; I haven’t checked whether its code fits another app.</p><section class="pw-sources" aria-label="Sources"><h4 class="pw-sources__head" id="ask-src-h">Sources · 3 in 2 projects</h4><ol id="ask-src-list" aria-labelledby="ask-src-h"><li class="pw-sources__item" id="src-1"><span class="pw-sources__n">1</span><span class="pw-sources__path"><b>Class Notes</b> › docs/offline.md › Sync queue</span><span class="pw-sources__meta">lines 12–40 · changed 2 days ago</span><button type="button" class="pw-btn pw-sources__open" aria-label="Open docs/offline.md in Class Notes at line 12">Open</button></li><li class="pw-sources__item" id="src-2"><span class="pw-sources__n">2</span><span class="pw-sources__path"><b>Class Notes</b> › app/sync.js › flushQueue()</span><span class="pw-sources__meta">lines 8–31 · changed 2 days ago</span><button type="button" class="pw-btn pw-sources__open" aria-label="Open app/sync.js in Class Notes at line 8">Open</button></li><li class="pw-sources__item" id="src-3"><span class="pw-sources__n">3</span><span class="pw-sources__path"><b>Kanji Cards</b> › docs/decisions.md › Offline reviews</span><span class="pw-sources__meta">lines 4–19 · changed 3 weeks ago</span><button type="button" class="pw-btn pw-sources__open" aria-label="Open docs/decisions.md in Kanji Cards at line 4">Open</button></li></ol></section><p class="pw-coverage" role="note"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l4.5 4.5" stroke="currentColor" stroke-width="2"/></svg><span>Searched 5 projects · 14:32</span></p></article></div></div><form class="pw-ask__foot" aria-label="Ask across projects"><p class="pw-askro" id="ask-readonly"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M.8 8C2.6 4.8 5.1 3.2 8 3.2s5.4 1.6 7.2 4.8C13.4 11.2 10.9 12.8 8 12.8S2.6 11.2.8 8z" fill="none" stroke="currentColor"/><circle cx="8" cy="8" r="2.2" fill="currentColor"/></svg><span>Pi reads these projects to answer. To change one, open it and ask there.</span></p><div class="pw-ask__row"><textarea class="pw-field" rows="2" aria-label="Question" aria-describedby="ask-readonly" placeholder="Ask a follow-up about your projects"></textarea><button type="submit" class="pw-btn pw-btn--default">Send</button></div></form></section></div></section></div></div><div style="position: absolute; top: 0; left: 0; width: 1440px; z-index: 5"><dc-import name="C_MenuBar" open="none" view="chat" status="Ready" statusState="rest" update="false" auto="false" hint-size="1440px,28px"></dc-import></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

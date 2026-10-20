@@ -19,3 +19,9 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 - **No thinking**: the thinking title reads “No thinking”, `aria-disabled`, dimmed; its menu still opens, items dimmed, note “<model> does not think. Choose a model that thinks to set a level.” Disabled, never hidden.
 - Use the Ollama tag everywhere (title, menu, toast); not a marketing name in one place and a tag in another.
 - Phone: the π sheet has a **Model** group under Agent with two 44px rows, Model › and Thinking ›, each opening a sheet with the same list. Boards: MB_Model, Ph_Model, Ph_ModelList.
+
+## Round 17 · Proposed: Overview (plan 354)
+
+- Window menu: after Open App in New Window ⌃⌥B / Copy App Address and a separator, the app-level radios **Overview · All Projects ⌃⌥0**, **Activity · All Projects ⌃⌥3**, **Gate · All Projects ⌃⌥4**.
+- The StatusButton opens Overview (not Activity): words "5 need you · Working on Class Notes". See StatusButton § Round 17.
+- While Overview is open, View's Chat ⌃⌥1 and Work ⌃⌥2 stay enabled and return to the last project, as from Activity and Gate.

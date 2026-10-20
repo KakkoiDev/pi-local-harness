@@ -3169,6 +3169,286 @@
    "h": 844,
    "title": "Round 15 · Visual results · phone candidates",
    "page": "r15"
+  },
+  "R17_Overview.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1130,
+   "title": "Round 17 · Proposed · Overview · All Projects: what needs you first, then every project; Ask across projects on the right",
+   "page": "r17"
+  },
+  "R17_Overview1024.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1024,
+   "h": 1130,
+   "title": "Round 17 · Proposed · Overview at 1024: no Projects window; Ask Across Projects is a toggle that replaces the lists",
+   "page": "r17"
+  },
+  "R17_OverviewEntry.dc.html": {
+   "x": 2624,
+   "y": 0,
+   "w": 1440,
+   "h": 1020,
+   "title": "Round 17 · Proposed · Entry points: Agent section row, StatusButton, Window menu ⌃⌥0",
+   "page": "r17"
+  },
+  "R17_OverviewFollow.dc.html": {
+   "x": 0,
+   "y": 1290,
+   "w": 1440,
+   "h": 2700,
+   "title": "Round 17 · Proposed · Following an item: the existing card in the project chat, ‹ Overview to return; a question replaced before the link was followed",
+   "page": "r17"
+  },
+  "R17_OverviewWindows.dc.html": {
+   "x": 1520,
+   "y": 1290,
+   "w": 1440,
+   "h": 1760,
+   "title": "Round 17 · Proposed · Two windows and reload: an answer in one window clears the item in the other; focus moves to the next item",
+   "page": "r17"
+  },
+  "R17_OverviewHistory.dc.html": {
+   "x": 3040,
+   "y": 1290,
+   "w": 1440,
+   "h": 1040,
+   "title": "Round 17 · Proposed · Recorded problems: a failure retried successfully stays in history marked “Recovered at 14:52”; a recovered Gate refusal is not shown",
+   "page": "r17"
+  },
+  "R17_OverviewStates.dc.html": {
+   "x": 0,
+   "y": 4150,
+   "w": 1440,
+   "h": 3120,
+   "title": "Round 17 · Proposed · Overview states: empty, loading, not connected, reconnected, unknown, moved and deleted, long names, service, 320 px",
+   "page": "r17"
+  },
+  "R17_SeveralAgents.dc.html": {
+   "x": 1520,
+   "y": 4150,
+   "w": 1440,
+   "h": 640,
+   "title": "Round 17 · Proposed later · Several agents (not shipped)",
+   "page": "r17"
+  },
+  "Ph17_Overview.dc.html": {
+   "x": 3040,
+   "y": 4150,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · Overview: Needs you first, then projects; Ask is its own screen",
+   "page": "r17"
+  },
+  "Ph17_OverviewItem.dc.html": {
+   "x": 3510,
+   "y": 4150,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · Following an item: Pong’s chat at the question; ‹ Overview returns; nothing answered by opening",
+   "page": "r17"
+  },
+  "Ph17_OverviewStates.dc.html": {
+   "x": 3980,
+   "y": 4150,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · Not connected: dotted, “at 14:20”, Reconnect; the chat is not blocked",
+   "page": "r17"
+  },
+  "Ph17_Entry.dc.html": {
+   "x": 0,
+   "y": 7430,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · View popup: Overview · all first after the separator",
+   "page": "r17"
+  },
+  "Ph17_EntryPi.dc.html": {
+   "x": 470,
+   "y": 7430,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · π sheet: Agent section starts with Overview",
+   "page": "r17"
+  },
+  "R17_OverviewStrings.dc.html": {
+   "x": 940,
+   "y": 7430,
+   "w": 1440,
+   "h": 2050,
+   "title": "Round 17 · Proposed · Overview: English and Japanese strings",
+   "page": "r17"
+  },
+  "R17_OverviewWalk.dc.html": {
+   "x": 2460,
+   "y": 7430,
+   "w": 1440,
+   "h": 1180,
+   "title": "Round 17 · Proposed · Overview walkthrough: plan 354’s journeys, Given/When/Then with stable accessible names",
+   "page": "r17"
+  },
+  "R17_Ask.dc.html": {
+   "x": 0,
+   "y": 9880,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Ask across projects: an answer that cites two projects, the read-only line, a follow-up",
+   "page": "r17"
+  },
+  "R17_AskScope.dc.html": {
+   "x": 1520,
+   "y": 9880,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Ask: the scope popup — All projects or a few; the button then reads “Searching 2 projects”; kept per conversation",
+   "page": "r17"
+  },
+  "R17_AskStates.dc.html": {
+   "x": 3040,
+   "y": 9880,
+   "w": 1440,
+   "h": 2400,
+   "title": "Round 17 · Proposed · Ask: searching, no matches, partial, unavailable, removed project, changed source, asked to change, many sources",
+   "page": "r17"
+  },
+  "R17_Ask1024.dc.html": {
+   "x": 0,
+   "y": 12440,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 17 · Proposed · 1024 wide: “Ask Across Projects” replaces the lists; ‹ Back to Lists returns; the conversation is kept",
+   "page": "r17"
+  },
+  "R17_AskSource.dc.html": {
+   "x": 1104,
+   "y": 12440,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Ask: Open on a source opens that file at its line in the project’s Work; ‹ Overview returns",
+   "page": "r17"
+  },
+  "R17_AskNarrow.dc.html": {
+   "x": 2624,
+   "y": 12440,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Ask: 320 wide content, keyboard and announcements",
+   "page": "r17"
+  },
+  "Ph17_Ask.dc.html": {
+   "x": 4144,
+   "y": 12440,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · Ask is its own screen: scope on top, the answer and its sources, the read-only line",
+   "page": "r17"
+  },
+  "Ph17_AskScope.dc.html": {
+   "x": 0,
+   "y": 13500,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · the scope sheet: 44 px rows; the button names the count",
+   "page": "r17"
+  },
+  "Ph17_AskSources.dc.html": {
+   "x": 470,
+   "y": 13500,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · Sources: 5 then Show 4 more; Open opens the file in the project’s Work (‹ Overview to return)",
+   "page": "r17"
+  },
+  "R17_AskStrings.dc.html": {
+   "x": 940,
+   "y": 13500,
+   "w": 1440,
+   "h": 1540,
+   "title": "Round 17 · Proposed · Ask: English and Japanese strings",
+   "page": "r17"
+  },
+  "R17_AskWalk.dc.html": {
+   "x": 2460,
+   "y": 13500,
+   "w": 1440,
+   "h": 1120,
+   "title": "Round 17 · Proposed · Ask: the walkthrough, one Given/When/Then per journey (stable accessible names in quotes)",
+   "page": "r17"
+  },
+  "R17_ProjectScope.dc.html": {
+   "x": 0,
+   "y": 15440,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Project chat: found sources in Pi sees, boundary notice",
+   "page": "r17"
+  },
+  "R17_ContextReceipt.dc.html": {
+   "x": 1520,
+   "y": 15440,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Proposed · Why? becomes the context receipt",
+   "page": "r17"
+  },
+  "R17_ContextExisting.dc.html": {
+   "x": 3040,
+   "y": 15440,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 17 · Existing · Today’s Pi sees line and Why? list",
+   "page": "r17"
+  },
+  "R17_ContextStates.dc.html": {
+   "x": 0,
+   "y": 16500,
+   "w": 1440,
+   "h": 2480,
+   "title": "Round 17 · Proposed · Context receipt states (stale, missing, catching up, unavailable, long, Japanese, 320 px)",
+   "page": "r17"
+  },
+  "R17_Context1024.dc.html": {
+   "x": 1520,
+   "y": 16500,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 17 · Proposed · Context receipt at 1024",
+   "page": "r17"
+  },
+  "Ph17_ProjectScope.dc.html": {
+   "x": 2624,
+   "y": 16500,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · project chat and boundary notice",
+   "page": "r17"
+  },
+  "Ph17_ContextSheet.dc.html": {
+   "x": 3094,
+   "y": 16500,
+   "w": 390,
+   "h": 844,
+   "title": "Round 17 · Proposed · Phone · What Pi uses sheet",
+   "page": "r17"
+  },
+  "R17_ContextStrings.dc.html": {
+   "x": 0,
+   "y": 19140,
+   "w": 1440,
+   "h": 1300,
+   "title": "Round 17 · Proposed · Context receipt: EN/JA strings",
+   "page": "r17"
+  },
+  "R17_ContextWalk.dc.html": {
+   "x": 1520,
+   "y": 19140,
+   "w": 1440,
+   "h": 520,
+   "title": "Round 17 · Proposed · Context receipt: walkthrough",
+   "page": "r17"
   }
  },
  "createdOnFiles": {
@@ -3893,7 +4173,42 @@
   "R15_VisualWalk.dc.html",
   "Ph15_VisualResult.dc.html",
   "Ph15_VisualInspect.dc.html",
-  "Ph15_VisualVariants.dc.html"
+  "Ph15_VisualVariants.dc.html",
+  "R17_Overview.dc.html",
+  "R17_Overview1024.dc.html",
+  "R17_OverviewEntry.dc.html",
+  "R17_OverviewFollow.dc.html",
+  "R17_OverviewWindows.dc.html",
+  "R17_OverviewHistory.dc.html",
+  "R17_OverviewStates.dc.html",
+  "R17_SeveralAgents.dc.html",
+  "Ph17_Overview.dc.html",
+  "Ph17_OverviewItem.dc.html",
+  "Ph17_OverviewStates.dc.html",
+  "Ph17_Entry.dc.html",
+  "Ph17_EntryPi.dc.html",
+  "R17_OverviewStrings.dc.html",
+  "R17_OverviewWalk.dc.html",
+  "R17_Ask.dc.html",
+  "R17_AskScope.dc.html",
+  "R17_AskStates.dc.html",
+  "R17_Ask1024.dc.html",
+  "R17_AskSource.dc.html",
+  "R17_AskNarrow.dc.html",
+  "Ph17_Ask.dc.html",
+  "Ph17_AskScope.dc.html",
+  "Ph17_AskSources.dc.html",
+  "R17_AskStrings.dc.html",
+  "R17_AskWalk.dc.html",
+  "R17_ProjectScope.dc.html",
+  "R17_ContextReceipt.dc.html",
+  "R17_ContextExisting.dc.html",
+  "R17_ContextStates.dc.html",
+  "R17_Context1024.dc.html",
+  "Ph17_ProjectScope.dc.html",
+  "Ph17_ContextSheet.dc.html",
+  "R17_ContextStrings.dc.html",
+  "R17_ContextWalk.dc.html"
  ],
  "pages": [
   {
@@ -3947,6 +4262,10 @@
   {
    "id": "r15",
    "name": "Round 15: recording, Preview, plan repair, visuals"
+  },
+  {
+   "id": "r17",
+   "name": "Round 17: Overview and scoped context"
   },
   {
    "id": "edit",

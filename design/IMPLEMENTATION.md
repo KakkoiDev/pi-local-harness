@@ -759,3 +759,420 @@ Boards: R15_VisualResult, R15_VisualInspect, R15_VisualVariants, R15_VisualUse, 
 5. **Changed earlier copy:** none. The AttachmentChip and Message notes are additions.
 6. **E2E steps:** the card's six-story Walkthrough (Inspect, Use and Undo, Discussion refusal, missing file after reload, second tab, unsafe SVG).
 7. **Open product choices:** an editable description; whether Copy to Project is undoable; frame playback for sprite sheets; revision retention.
+
+## 2026-10-20 · Round 17: Overview and scoped context (plan 354, report scoped-context-retrieval)
+
+Boards: canvas page **Round 17: Overview and scoped context** (35 boards: 25 desk `R17_`, 10 phone `Ph17_`). Three parts, each with its own notes below: A, the Overview window (attention, projects, review and recovery, entry points); B, the dashboard conversation **Ask across projects** (scope, sources, coverage); C, the project conversation's search boundary and the revised context receipt. New cards **WorkOverview**, **AttentionItem**, **SearchScope**, **SourceList**, **ContextReceipt**; Round 17 sections in StatusButton, Menu, MenuBar, PhoneBar, ContextLine and Message. CSS: `round17_a.css`, `round17_b.css`, `round17_c.css`, appended to `bundle.css` and `design/components.css`. Inputs: `design/briefs/project-work-dashboard.md`, `docs/plans/354-project-work-dashboard.md`, `docs/reports/scoped-context-retrieval-2026-10-20.md`, `docs/architecture/harness.md`.
+
+**Everything in this round is Proposed** except boards titled “Round 17 · Existing · …” (R17_ContextExisting redraws the shipped “Pi sees:” line and Why? sheet for comparison). The board titled “Round 17 · Proposed later · Several agents (not shipped)” (R17_SeveralAgents) is a direction only: today's UI shows one agent and never implies more.
+
+#### Existing vs Proposed (whole round)
+
+| Area | Existing (shipped, unchanged here) | Proposed in round 17 |
+| --- | --- | --- |
+| App-level windows | Activity · All Projects ⌃⌥3, Gate · All Projects ⌃⌥4 | Overview · All Projects ⌃⌥0 at `/overview`, first in the Window menu's app-level items |
+| Status button | Opens Activity (⌘3); attention clears when Activity opens | Opens Overview; text “5 need you · Working on Class Notes”; attention follows the Needs you count |
+| Answering, approving, retrying | QuestionCard, PlanCard, CheckInCard and request retry in the project chat | Unchanged. Overview only opens them (Open Question / Open Plan / Open Check-in / Open Request / Open Details); opening never resolves |
+| Phase and approvals | PhaseControl ⌃⌥D/P/I, explicit approvals | Unchanged; Overview shows phase read-only |
+| Project chat context | “Pi sees:” line + Why? sheet with reason words incl. “related” | “What Pi uses for this message”: **Always with this request** vs **Found for this question**, Left out, truncated, stale + Ask Again, missing, catching up, unavailable; “Searched: Class Notes only” |
+| Cross-project search | None | Ask across projects pane, scope popup “Searching all projects (5)”, Sources with project › file › section · lines · changed |
+| Search failure | n/a | Never blocks chat; Pi answers from what it has and says so |
+| Second Brain | Written only by its own flows | Unchanged: search never publishes to it |
+| Several agents | One agent (Pi) | Proposed later only (R17_SeveralAgents) |
+
+#### Rules every part follows
+
+- No database words in ordinary UI (no index, BM25, SQL, DuckDB, query, embedding, partition). The words are “search”, “Searching N projects”, “catching up after changes”.
+- Discovery is not permission: “Pi reads these projects to answer. To change one, open it and ask there.”
+- No invented progress (no %, no ETA), no inferred idle/completed while disconnected, one polite announcement per change, no duplicate notifications (Overview does not add toasts; the status button and the item are the same count).
+- AI messages stay short; detail is behind Why?, Show N more and Open.
+
+### A · Overview · All Projects: attention, projects, review and recovery
+
+Generator `gen/r17a.py` (execs r13.py), CSS `scripts/round17_a.css`, cards `WorkOverview`, `AttentionItem` (new); Round 17 sections appended to `StatusButton`, `Menu`, `MenuBar`, `PhoneBar`. Brief: `design/briefs/project-work-dashboard.md`; plan `docs/plans/354-project-work-dashboard.md`.
+
+#### Boards
+
+| Board | Size | Shows |
+| --- | --- | --- |
+| R17_Overview | 1440×1130 | Projects home (Agent › Overview current) + Overview: Needs you (5 kinds), Projects (5), Recorded problems (collapsed), Ask across projects pane idle |
+| R17_Overview1024 | 1024×1130 | No Projects window; "Ask Across Projects" toggle replaces the lists |
+| R17_OverviewEntry | 1440×1020 | Agent section row, StatusButton words, Window menu ⌃⌥0, superseded entry text |
+| R17_OverviewFollow | 1440×2700 | Item → project chat at the card with "‹ Overview"; replaced question (notice + newer card; Overview reads "Replaced"); plan lands on PlanCard |
+| R17_OverviewWindows | 1440×1760 | Answer in window 1 → item leaves window 2, focus to next, announcement; reload |
+| R17_OverviewHistory | 1440×1040 | Failure → retry → "Recovered at 14:52"; recovered Gate refusal not shown |
+| R17_OverviewStates | 1440×3120 | Idle, no projects, loading, not connected, reconnected, unknown agent/terminal gap, moved/Trash, long names, service problem, 320 px |
+| R17_SeveralAgents | 1440×640 | "Round 17 · Proposed later · Several agents (not shipped)", synthetic records |
+| Ph17_Overview · Ph17_OverviewItem · Ph17_OverviewStates · Ph17_Entry · Ph17_EntryPi | 390×844 | Phone list, following an item, not connected, View popup, π sheet Agent |
+| R17_OverviewStrings · R17_OverviewWalk | 1440×2050 · 1440×1180 | EN/JA; Given/When/Then |
+
+#### Markup, classes, ids
+
+- Window: `section.pw-window[aria-label="Overview · All Projects"]` › titlebar (h1) › `.pw-toolbar` (`span.pw-fresh[role=status][data-state=live|stale|reconnected|loading]` with `.pw-fresh__dot`; Reconnect when stale; "Show" `.pw-seg[role=radiogroup]` All · Needs You · Working; at ≤1180 `button[aria-pressed][aria-controls=ov-ask]` "Ask Across Projects") › `.pw-infobar` (back link, rule sentence) › `.pw-overview[data-ask=open?]` › `.pw-overview__main#ov-main` + `aside.pw-overview__ask#ov-ask` (400 px; `.pw-overview__askhead`, `.pw-overview__askbody`, `form.pw-composer`).
+- Sections `.pw-ovsec` with `.pw-ovsec__head`, `h2.pw-ovsec__title` (`#ov-needs-h`, `#ov-proj-h` tabindex −1; `#ov-hist-h` holds `button.pw-ovsec__toggle[aria-expanded][aria-controls=ov-hist]`), `.pw-ovsec__count`, `.pw-ovsec__note`, `.pw-ovsec__empty`.
+- Needs you: `ul.pw-attnlist[aria-labelledby=ov-needs-h][aria-describedby=ov-keys]` › `li` › `a.pw-attn#attn-<attention id>` (see AttentionItem; `[data-stale] [data-replaced] [data-leaving] [aria-current]`).
+- Projects: `div.pw-plist[role=grid]` › `div.pw-prow[role=row]#prow-<project id>[data-stale][data-missing]` › `span.pw-prow__cellwrap[role=gridcell]` › `a.pw-prow__main` (`.pw-prow__name[title]`, `.pw-prow__cell` phase, `.pw-prow__badge` › `.pw-needs`, now, `.pw-prow__agent`, `.pw-prow__latest`, `.pw-prow__unknown` italic) + `span.pw-prow__cellside[role=gridcell]` › `button.pw-prow__act` "Open in Activity".
+- History: `ul.pw-hist#ov-hist` › `li` (`.pw-hist__state`, what, time).
+- Live: `#ov-live[aria-live=polite]` visually hidden (boards draw `.pw-ovlive`).
+- Entry: Projects home Agent group first row `a.pw-row#agent-overview[aria-keyshortcuts="Control+Alt+0"][aria-current]` "Overview" + meta; StatusButton `#agent-status` gets `aria-keyshortcuts="Control+Alt+0"` and "… Open Overview"; project chat infobar gets `a.pw-return#overview-return[aria-label="Back to Overview"]` "‹ Overview" when opened from Overview (also `?from=overview`).
+- Synthetic (later): `.pw-synthetic`, `.pw-agentrun`.
+- Drawn-size modifiers for boards: `.pw-ov--narrow`, `.pw-ov--phone` (the app uses the media queries at 560 and 760; ≤1180 hides the Ask pane unless `.pw-overview[data-ask=open]`, which then hides the lists).
+
+#### Data each element needs (✓ exists · ✗ not yet)
+
+- Stable registered project id and name ✓; folder state ok/missing/trashed ✓ (Project menu task 154).
+- Saved phase ✓. Queue: running request, task n/title ✓, queued count ✓.
+- Agent name + model ✓ (the model of the run); role ✗ (null today → not shown).
+- Latest recorded activity (last tool call kind + path/command + result + time) ✗ as a per-project field; derivable from Activity's task record.
+- Attention: pending choice ✓, plan waiting ✓, check-in waiting ✓, failed request ✓, interrupted by restart ✓ (round 5 restart marking), service down ✗ as a record; `replaced_by` on choices ✗; `recovered_at` on failures ✗; stable attention ids ✗.
+- Snapshot `as_of` and change count since a time ✗.
+- Terminal runs: no request identity → disclosed as not listed.
+
+#### Copy (exact)
+
+See R17_OverviewStrings (EN/JA, 60 strings) and the two cards. Key lines: "Overview · All Projects"; "Overview · 5 need you · 1 working" / "Nothing needs you"; "5 need you · Working on Class Notes"; "Live · updated 14:32"; "Not connected · showing 14:20"; "Reconnected · 2 changes since 14:20"; "Loading…"; kinds and Open labels per spec; "Request 14:20 · task 2 Subjects"; "Working: task 2 · Subjects" / "Queued: 2 requests" / "Idle"; "Pi · gemma4:12b" / "Agent not recorded"; "No activity recorded"; "Needs you · 1"; "Open in Activity"; "Recovered at 14:52"; "This question was replaced at 14:40 by a newer one, below." (HarnessNotice, who "Pi WorkStation"); Overview item "Replaced" + "Open the Newer Question".
+
+#### States and interactions
+
+- An item opens its target (chat at the card, or Activity detail); opening never resolves. It leaves only on authoritative resolution, in any window; it fades 2 s if focused, then focus moves to the next item / previous / heading, with one polite announcement.
+- A replaced question: Overview item becomes "Replaced"; following it lands on the newer card; the old card's Answer is disabled with "Replaced at 14:40: answer the newer question."; no control answers the old one (server must reject stale card ids).
+- Failure retried successfully: item leaves; Recorded problems row "Recovered at 14:52" (7 days). Recovered Gate refusals: only in Gate.
+- Not connected: last snapshot dotted, every status "at 14:20", Reconnect; chat unaffected. Reconnected: one line, one announcement.
+- Show filter affects Projects only. Ask pane: idle state drawn here; conversation is worker B.
+
+#### Accessibility
+
+Window h1; sections h2; lists single Tab stop with roving tabindex (↑↓ Home End, Return; → / ← to Open in Activity in the grid); focus kept by id across updates; item accessible name "Project: Kind. Request…. Open X", sentence via aria-describedby; badges are text; glyphs `aria-hidden`; frame (needs you) and glyph (agent state) never the only carrier — words always present. ⌃⌥0 global.
+
+#### Responsive
+
+≥1100: Projects home + Overview + 400 px Ask pane. 1024: Overview alone, Ask toggle replaces the lists (Back / toggle returns). ≤560 content (320): items and rows stack, Open in Activity on its own line. Phone ≤760: own screen from View popup or π sheet, 44 px rows, Ask its own screen, "‹ Overview" back from an item.
+
+#### Superseded earlier text (old → new)
+
+- StatusButton: "The agent status … as a button that opens **Activity · All Projects** (⌘3)" → opens **Overview · All Projects** (⌃⌥0).
+- StatusButton aria-label "Agent status: Working, 1 waiting. Open Activity" → "Agent status: 5 need you, working on Class Notes. Open Overview"; `aria-keyshortcuts` "Meta+3"/"Control+Alt+3" → "Control+Alt+0".
+- StatusButton: "Attention clears when Activity is opened." / "attention wins … until Activity is opened" → the frame follows the Needs you count, which falls only on authoritative resolution.
+- Round 5: "the button opens Activity **on the running request**" → opens Overview; the Agent row Activity still does that.
+- PhoneBar `aria-label="Agent status: … Open Activity"` → "… Open Overview".
+- Window menu: app-level section "Activity · All Projects ⌃⌥3, Gate · All Projects ⌃⌥4" → "Overview · All Projects ⌃⌥0, Activity · All Projects ⌃⌥3, Gate · All Projects ⌃⌥4".
+- Agent section (round 4) "Activity · 1 running, 1 waiting", "Gate · 12 checks, 1 blocked" → first row "Overview · 2 need you · 1 working" added above them.
+- Phone View popup: "Activity · all, Gate · all" after the separator → "Overview · all, Activity · all, Gate · all".
+
+#### Plan 354 journeys → boards
+
+1. Two projects running/queued, row lands on the exact request → R17_Overview, R17_OverviewWalk #1.
+2. Choice waiting while another runs; answering clears only that item across two windows and reload → R17_Overview, R17_OverviewWindows.
+3. Question replaced before opened → R17_OverviewFollow cells 3–4.
+4. Plan approval and task validation link to explicit controls; viewing changes nothing → R17_OverviewFollow cell 5, Walk #5.
+5. Failed/interrupted: reason and recovery location; retry resolves; history kept; recovered Gate refusal absent → R17_OverviewHistory.
+6. Connection drops/reconnects → R17_OverviewStates (not connected, reconnected), Ph17_OverviewStates.
+7. Phone and keyboard; focus survives updates → Ph17_*, R17_OverviewWindows, KEYS line.
+8. Synthetic concurrent agents; unknown identity → R17_SeveralAgents, R17_OverviewStates (unknown).
+
+#### E2E steps
+
+1. Seed: 5 projects; Class Notes running req-1420 (task 2) + 2 queued + failed req-1350; Pong choice q1; Japanese study app plan waiting; home-server check-in; pi-local-harness interrupted.
+2. Press ⌃⌥0 → `/overview`; expect h1 "Overview · All Projects", 5 `.pw-attn` in kind order, StatusButton "5 need you · Working on Class Notes".
+3. Tab into Needs you; ↓ twice; Return → Japanese study app chat; PlanCard focused; phase still Planning; "Back to Overview" → focus on the same item.
+4. Open a second page on `/overview`; in page 1 answer Pong q1 → page 2: `#attn-…pong…` removed within 2 s, focus on next item, live region text "Pong: answered. 4 need you."; reload page 2 → still 4.
+5. Replace Pong question server-side before following → item text "Replaced"; follow → newer card focused, notice present, old Answer disabled; POST to old card id rejected.
+6. Retry req-1350 to success → item gone; Recorded problems contains "Recovered at"; inject a recovered Gate refusal → absent from both lists.
+7. Stop the service → "Not connected · showing hh:mm", `[data-stale]` rows, no "Idle" without " at "; chat send still queues; restart → "Reconnected · n changes since hh:mm" once.
+8. 390×844: View › "Overview · all"; tap item; "‹ Overview" returns; rows ≥44 px. 320 px content: no horizontal scroll.
+9. No text matching /index|BM25|SQL|DuckDB|query|embedding/i in `/overview`.
+
+#### Open product choices
+
+1. Order within a kind: oldest first (drawn) or newest.
+2. Show filter: per window (drawn) or app-wide.
+3. Recorded problems retention: 7 days (drawn) or last 20.
+4. Service problem in the StatusButton words? (drawn: counted in "need you" only).
+5. 1024: keep the Projects window beside Overview? (drawn: hidden).
+6. ⌘/Ctrl+Return opens an item in a new browser window: keep?
+7. Should cancelling an interrupted request leave a "Cancelled by you" history row? (drawn in card text: yes).
+
+#### Existing vs Proposed
+
+| Part | Status |
+| --- | --- |
+| Activity · All Projects, Gate · All Projects, ⌃⌥3/⌃⌥4 | Existing, unchanged |
+| ChoiceCard, PlanCard, CheckInCard, Activity failure detail, Ask Pi to Retry… | Existing; Overview only links to them |
+| Replaced ChoiceCard: HarnessNotice + disabled Answer with reason | Proposed |
+| Overview · All Projects window, ⌃⌥0, `/overview` | Proposed |
+| AttentionItem, project row, Recorded problems | Proposed |
+| Agent section Overview row; Window menu item; phone View popup and π sheet rows | Proposed |
+| StatusButton opens Overview; new words; attention follows Needs you | Proposed (supersedes round 4/5) |
+| "‹ Overview" return in project chat | Proposed |
+| Ask across projects pane | Proposed (idle drawn by A; conversation by B) |
+| Several agents | Proposed later, not shipped |
+
+### B · Ask across projects: scope, sources and coverage
+
+Generator `gen/r17b.py` (execs r13.py) builds the boards. CSS is `scripts/round17_b.css`; the Work source view's `pw-src` classes come from round15_c. Layout: `r17layout_b.json`. Cards: **SearchScope** and **SourceList** (new). HarnessNotice is not used; coverage problems use the coverage line, not a notice.
+
+#### Boards (reading order)
+
+| Board | Size | Shows |
+| --- | --- | --- |
+| R17_Ask | 1440×900 | Projects home (Agent › Overview selected), Overview with simple lists, and the Ask pane: an answer citing Class Notes and Kanji Cards, Sources, the coverage line, the read-only line and the follow-up composer |
+| R17_AskScope | 1440×900 | The scope popup open, narrowed to 2 projects; the next answer's coverage line names them |
+| R17_AskStates | 1440×2400 | First open (with the Second Brain sentence), searching, no matches, partial, unavailable, project removed, source changed, asked to change, more than 5 sources |
+| R17_Ask1024 | 1024×900 | The Ask Across Projects toggle replaces the lists; ‹ Back to Lists |
+| R17_AskSource | 1440×900 | Open → Class Notes, docs/offline.md in Work, Source view, line 12 current, lines 12–40 marked, ‹ Overview |
+| R17_AskNarrow | 1440×900 | The pane at 320, the scope popup closed and open, keyboard and announcements |
+| Ph17_Ask | 390×844 | Phone: Ask as its own screen (‹ Overview) |
+| Ph17_AskScope | 390×844 | Phone: the Search in sheet, with 44 px rows |
+| Ph17_AskSources | 390×844 | Phone: 5 sources, then Show 4 more |
+| R17_AskStrings | 1440×1540 | EN/JA strings |
+| R17_AskWalk | 1440×1120 | Given/When/Then walkthrough |
+
+#### Markup, classes, ids
+
+- **Pane:** `section.pw-ask#ov-ask[aria-labelledby="ov-ask-h"]`; `.pw-ask--full` at 1024 and on the phone. It holds:
+  - the head `.pw-ask__head`: optional `‹ Back to Lists`, `h3.pw-ask__title#ov-ask-h`, **New**, and `.pw-scope`;
+  - the body `.pw-ask__body[aria-label="Conversation"][tabindex=0]`, containing `.pw-transcript` with the usual `article.pw-msg`, or `.pw-ask__empty`;
+  - the foot `form.pw-ask__foot[aria-label="Ask across projects"]`, containing `p.pw-askro#ask-readonly`, then `.pw-ask__row`, which holds `textarea.pw-field[aria-label="Question"][aria-describedby="ask-readonly"]` and the Send/Stop button.
+- **Scope:** `button.pw-scope__btn#ask-scope[aria-haspopup="dialog"][aria-expanded][aria-controls="ask-scope-pop"]` and `div.pw-scope__pop[role="dialog"]#ask-scope-pop` (see SearchScope).
+- **Coverage:** `p.pw-coverage[role="note"]`, with `--partial` and `--off` variants. While searching it uses `role="status"`.
+- **Sources:** `section.pw-sources` › `h4#ask-src-h` + `ol#ask-src-list` › `li.pw-sources__item#src-N[data-changed|data-gone|aria-current]`, plus `button.pw-sources__more`; and `a.pw-cite[href="#src-N"]` (see SourceList).
+- **Hand-off:** `.pw-handoff` › the default button **Open {project} Chat** + `.pw-help`.
+- **Work, cited lines:** `.pw-src__l[data-cited]` (a 3 px rule on the left); the first cited line has `aria-current="true"`. The infobar gets `a.pw-infobar__back[aria-label="Back to Overview, Ask across projects"]` “‹ Overview” and “Source 1 of 3 · lines 12–40”.
+- **1024 toggle:** `button[aria-pressed][aria-controls="ov-ask"]` “Ask Across Projects” in the Overview toolbar. When it is pressed, `#ov-lists` is hidden and the pane is `--full`.
+
+#### Data each element needs (✱ = doesn't exist yet)
+
+- ✱ **Overview conversation.** `{id, scope:{all, project_ids[]}, messages[]}`, stored server-side so reload and a second window show the same conversation. One active conversation; New starts another, and old ones are not listed in this round.
+- **Authorized projects.** The registered projects the person can open, by stable id, name and order. This already exists as the Projects home list; ✱ the filter is applied before search.
+- ✱ **Answer.** `{text, sources[], coverage:{searched_ids[], catching_up_ids[], unavailable:bool, at}}`.
+- ✱ **Source.** `{n, project_id, path, heading, lines:[from,to], source_hash, changed_at, available}`. ✱ `changed_since_answer` is computed by comparing `source_hash` with the current revision.
+- ✱ **Open.** A route into the project's Work at `path#L12-L40` in Source view, returning to `/overview` with the conversation id and the source number, so focus can return.
+- ✱ **Hand-off.** Open the project chat with `draft=<question>`, a draft that is never auto-sent.
+
+#### Exact copy
+
+Everything is in R17_AskStrings. The key lines:
+
+- “Searching all projects (5)”, “Searching 2 projects”, “Searching Class Notes only”.
+- “Searched 4 of 5 projects · Pong is catching up after changes”.
+- “Search isn't available right now. Pi answers from the project list and plans only.”
+- “No matches in 5 projects.”
+- “Pi reads these projects to answer. To change one, open it and ask there.”
+- “Sources · 3 in 2 projects”.
+- “Class Notes › docs/offline.md › Sync queue”, with “lines 12–40 · changed 2 days ago”.
+- “Show 4 more”.
+- “I can only read here. Open Class Notes to change it.” with **Open Class Notes Chat**.
+- The Second Brain sentence appears once, in the first-open help: “Pi reads the projects' files and plans to answer and changes nothing. What you ask here is not added to the Second Brain.”
+
+The answers are short (2–3 sentences). A reuse answer names where something was solved, but never says that it is compatible or verified for another app (the report's offline-support example). The drawn answer ends with “I haven't checked whether its code fits another app.”
+
+#### States
+
+The states are: first open, searching (Stop), answered, no matches, partial, partial now ready (Ask Again), unavailable (answer from list and plans), project removed after the answer (item greyed, Open disabled with reason), source changed since (marked, Ask Again), asked to change (hand-off), more than 5 sources, and the 1024 toggle.
+
+A dashboard failure never blocks Ask, and Ask never blocks project chats.
+
+#### Interactions
+
+- Send asks within the conversation's scope. The scope popup changes the scope for the next questions; earlier answers keep their own coverage lines.
+- Open opens the project (left window) and the file in Work at the first cited line. ‹ Overview or ⌃⌥0 returns with the conversation, scope, scroll position and focus kept.
+- Ask Again re-asks the same question once, as a new message, and never automatically.
+- Open {project} Chat opens that project's chat with the question as an unsent draft. It changes no phase and writes nothing.
+- New starts an empty conversation scoped to all projects.
+
+#### Accessibility
+
+- **Tab order:** ‹ Back to Lists (1024) → New → scope → conversation (one stop, ↑↓ between messages) → each Sources list (one stop, ↑↓, Return opens, Show N more last) → Question → Send.
+- **Scope popup:** focus goes to the first checked box; Escape returns focus to the button.
+- **Polite announcements:** “Searching 5 projects…”, “Answered · 3 sources in 2 projects”, “No matches in 5 projects.”, the partial line, and the new scope label.
+- **Accessible names:** each Open button is named “Open {file} in {project} at line {n}”, and each cite mark “Source {n}”.
+
+#### Responsive
+
+- **≥1100:** the 400 px pane sits beside the lists.
+- **1024:** a toolbar toggle replaces the lists, and ‹ Back to Lists returns.
+- **Phone:** Ask is its own screen. The back button reads ‹ Overview, the scope button is 44 px across the row with New beside it, the scope opens as a Search in sheet, and Open buttons are 44 px.
+- **320:** source paths break anywhere, and Open stays on the right of each item.
+
+#### Superseded earlier text (old → new)
+
+- None. Ask across projects is new, and the dashboard brief (design/briefs/project-work-dashboard.md) has no text about a dashboard conversation. The status button opening Overview instead of Activity is worker A's change.
+- Plan wording kept out of the UI: the report's “index”, “BM25”, “query” and “partition” never appear in UI copy. Their UI words are “search”, “Searching N projects” and “catching up after changes”.
+
+#### Plan 354 journeys → boards
+
+| Journey (plan 354 / retrieval report) | Boards |
+| --- | --- |
+| Dashboard can cite both authorized projects | R17_Ask, Ph17_Ask, R17_AskWalk 1 |
+| Explicit project filter narrows it | R17_AskScope, Ph17_AskScope, R17_AskWalk 2 |
+| Revoked/removed project disappears | R17_AskStates (removed), R17_AskWalk 3 |
+| Label partial search coverage honestly; missing index still permits conversation | R17_AskStates (partial, unavailable), R17_AskWalk 5–6 |
+| Stale source hash | R17_AskStates (changed since) |
+| Discovery is read-only, not approval to edit | R17_AskStates (asked to change), R17_AskWalk 7 |
+| Reload/reconnect preserves; two windows | R17_AskWalk 8–9 |
+| Phone and keyboard use | Ph17_*, R17_AskNarrow |
+| Search never publishes into the Second Brain | R17_AskStates (first open) |
+
+#### E2E steps
+
+1. Register Class Notes and Kanji Cards with fixtures that contain the unique markers `OFFLINE-CN` and `OFFLINE-KC`. Open `/overview` and ask the offline question. Expect two items whose project names are the two projects, and the line “Searched 5 projects”.
+2. Narrow the scope to Class Notes and ask again. Expect no `OFFLINE-KC` anywhere in the answer, sources or counts.
+3. Remove Kanji Cards. Expect its item to be greyed, its Open disabled, and the project absent from the scope popup.
+4. Edit docs/offline.md. Expect “changed since this answer” and Ask Again.
+5. Stop the search service and ask. Expect an answer with the unavailable line, and Send stays enabled.
+6. Send a change request. Expect the hand-off button. Click it and expect the project chat with the draft filled, no messages sent, and an unchanged `git status`.
+7. Open a source. Expect Work at line 12. Use ‹ Overview and expect focus on the same Open button.
+8. Reload, and open a second window. Expect the same conversation and scope in both.
+9. Run at 1024 and at the 390 phone width, and repeat steps 1, 2 and 7 with the keyboard only.
+
+#### Open product choices
+
+- Should a new conversation start from the last scope used, instead of all projects?
+- Should conversations be kept and listed (a history), or should there be only one current conversation plus New (as drawn)?
+- Should Open land in Page view (the rendered heading) instead of Source view for Markdown?
+- Should a removed project's source stay numbered and greyed (as drawn), or disappear with a count?
+- Should Ask Again re-ask only the missing project and merge, or everything (as drawn)?
+- Should there be a per-row “Ask about this project” in Overview's lists?
+- The JA name for Overview: drawn as 概要; worker A owns the name.
+
+#### Existing vs Proposed
+
+| Element | Existing | Proposed (round 17) |
+| --- | --- | --- |
+| Ask across projects pane | — | New: Overview's right pane; a toggle at 1024; its own screen on the phone |
+| SearchScope (button, popup, coverage line) | — | New card |
+| SourceList (+ cite marks, read-only line, hand-off) | — | New card |
+| Work: cited lines + ‹ Overview | Work Source view (round 15 `pw-src`) | Adds the `data-cited` marking and the ‹ Overview return |
+| Message, transcript, composer field, buttons | Existing | Reused; the Ask composer has no phase button, Attach or Run on its own |
+| Overview lists, toolbar, entry points | — | Worker A (drawn simply here as context) |
+
+### C · Project conversation scope and what Pi uses
+
+Boards (`gen/r17c.py`; layout `r17layout_c.json`):
+
+- R17_ProjectScope (1440×900)
+- R17_ContextReceipt (1440×900)
+- R17_ContextExisting (1440×900; Existing)
+- R17_ContextStates (1440×2480; stale, missing, catching up, unavailable, long, Japanese, 320 px)
+- R17_Context1024 (1024×900)
+- Ph17_ProjectScope and Ph17_ContextSheet (390×844)
+- R17_ContextStrings (1440×1300)
+- R17_ContextWalk (1440×520)
+
+Cards: **ContextReceipt** (new; README + preview, generated by `gen/ds17c.py`). ContextLine and Message each get a Round 17 section. CSS: `scripts/round17_c.css`, which adds `.pw-context__sep`, `.pw-context__found`, `.pw-receipt` and its parts. Append it to bundle.css so the preview renders.
+
+#### Existing vs Proposed
+
+| | Existing (round 11) | Proposed (round 17) |
+| --- | --- | --- |
+| Line | `Pi sees: … (rules) · … (plan) · … (task) +N Why?`; +N includes related files | the same deterministic items, a dotted separator, then “2 found”, then Why?; +N counts deterministic files only |
+| Why? | “Why Pi sees these N files”: one mixed list, with name, reason sentence and path | “What Pi uses for this message”: Searched: Class Notes only · Always with this request (solid box) · Found for this question (dotted box: file › heading · lines · read time · matched words) · Left out · Also read |
+| Retrieval failure | — | the line reads “search catching up” / “no search”; one dotted note in the receipt; Send stays enabled |
+| Changed sources | — | stale: “changed after Pi read it” + Ask Again; missing: “moved to Trash after Pi read it” |
+| Other projects | silent | one HarnessNotice under the answer, only when the message is about another project, with Ask in Overview |
+
+#### Markup and ids
+
+The line is `p.pw-context#chat-context`:
+
+- the existing items;
+- the existing `.pw-context__more`;
+- `span.pw-context__sep[aria-hidden]`;
+- `span.pw-context__found#context-found[data-state=found|stale|catching|unavailable|none][aria-label]`;
+- `button.pw-context__why[aria-haspopup=dialog][aria-expanded][aria-controls=context-receipt]`.
+
+The receipt is `section.pw-receipt#context-receipt[role=dialog][aria-labelledby=context-receipt-title]`, containing:
+
+- `h3#context-receipt-title`;
+- `p.pw-receipt__scope`;
+- optional `p.pw-receipt__state[role=status]` (with `--stale` for stale or missing, which contains `#context-ask-again`);
+- `section.pw-receipt__group--always > h4 + ol > li`;
+- `section.pw-receipt__group--found > h4 + ol#rc-found-list > li[data-state=current|stale|missing]` (`.pw-receipt__where`, `.pw-context__kind`, `.pw-receipt__when`, `.pw-receipt__why`, optional `.pw-receipt__flag`), then `p.pw-receipt__left` rows;
+- `p.pw-receipt__after`;
+- `p.pw-receipt__foot`.
+
+The boundary notice is `p.pw-notice[role=note]` holding `button#ask-in-overview[aria-describedby=ask-in-overview-why]`.
+
+On the phone, `.pw-receipt` goes inside `psheet('What Pi uses')`, with no h3 and rows of at least 44 px.
+
+#### Data (marked: none of this exists yet)
+
+- The job records `context_receipt`: `{scope, always[{path, reason, word?}], found[{path, section, lines|truncated_lines, read_at, revision, words[]}], left_out[{path, section}], search: ready|catching_up|unavailable, also_read[]}`. It comes from the selection receipt in docs/reports/scoped-context-retrieval-2026-10-20.md §6.
+- Stale or missing is computed when the receipt opens (revision ≠ the current file, or the file is in Trash) and is pushed live while the receipt is open.
+- The boundary notice needs a harness classification: the message names another registered project, or retrieval returned nothing while a project name matched. It is recorded on the job as `scope_notice: true`, so reload shows it once.
+- No score, rank, query text or engine field reaches the UI.
+
+#### Copy
+
+The exact copy is in the ContextReceipt README's Texts table and on R17_ContextStrings.
+
+#### Interactions
+
+- Why? toggles the receipt. Esc closes it, and focus returns to Why?
+- Show N More expands the found list in place.
+- Show (left out) lists names, which are not links Pi read.
+- Ask Again resends the same message text in the same phase, with a fresh selection. The earlier answer stays.
+- Ask in Overview opens /overview (⌃⌥0), focuses Ask across projects and fills it with the question, without sending.
+
+#### Accessibility
+
+- “N found” is text with a descriptive name. The dialog is labelled.
+- The stale banner uses role=status. A polite announcement is made only when a source goes stale while the receipt is open.
+- The Ask Again disabled reason is given through aria-describedby.
+
+#### Responsive
+
+- **≥1100**: the popover is 480 wide, anchored above Why?
+- **1024**: the same popover, anchored above Why? inside the chat. The line hides file names from the end, and “N found” and Why? never hide.
+- **320**: the line wraps (data-expanded), “2 found” stays whole, and the notice wraps with its button on its own row.
+- **Phone**: a sheet.
+
+#### Superseded earlier text (old → new)
+
+- Why? title: “Why Pi sees these N files” → “What Pi uses for this message”. The phone sheet becomes “What Pi uses”.
+- The reason word “related” (“Related: its name matches “subject””) → retired. These files now appear under “Found for this question” as “Matches “subject””, with the kind word “found”.
+- `+N` (“Show N more”) no longer counts related files.
+- Footer: “Chosen again for every message. Never vendor/, licences, build output or files over 40 KB.” → “Chosen again for every message. Never vendor/, licences, build output, files over 40 KB, or other projects.”
+- The round 11 notes line “one reason word per file … rules · plan · task · named · changed · related” → “rules · plan · task · named · changed · flow; found files are listed only in the receipt”.
+
+#### Plan 354 journeys → boards
+
+| Journey | Boards |
+| --- | --- |
+| Project chat cannot surface another project | R17_ProjectScope, Ph17_ProjectScope, R17_ContextWalk 2 |
+| Edits refresh context and stale sources are visible | R17_ContextStates (stale), Walk 3 |
+| Revoked or trashed content disappears | R17_ContextStates (missing) |
+| Reload or reconnect keeps the receipt | Walk 5 |
+| A missing index still permits conversation | R17_ContextStates (catching up, unavailable), Walk 4 |
+| Receipt transparency | R17_ContextReceipt, R17_Context1024, Ph17_ContextSheet |
+
+#### E2E steps
+
+1. Send “Where do we filter notes by subject?” → expect `#context-found` to read “2 found” → press Why? → expect the dialog “What Pi uses for this message”, the text “Searched: Class Notes only”, the headings “Always with this request · 3” and “Found for this question · 2” → press Esc → focus is on Why?
+2. Seed a unique marker in Pong. Ask about it in Class Notes → the answer does not contain the marker; one note “Pi searched Class Notes only…” appears → press Ask in Overview → the URL is /overview and the Ask field holds the question; no job is created.
+3. Edit app/subjects.js after the answer → open the receipt → the row is flagged “changed after Pi read it” → press Ask Again → a new job runs with the same text.
+4. Stop or break search → send → the answer arrives; `#context-found` reads “no search”; Send was enabled throughout.
+5. Reload → the receipt for that message has the same rows and read times.
+6. Use two windows → send in A → B updates its line; opening the receipt in A does not open it in B.
+
+#### Open product choices
+
+- Per-message receipt history (as drawn) vs the latest message only.
+- Ask Again: resend at once (as drawn) or put the text back in the composer.
+- Ask in Overview: prefill (as drawn) or send at once.
+- Show left-out names, or only their count.
+- The cap of 3 visible found rows.
+- Whether the boundary notice also appears when the person names something absent (not a project), or only for project names.
+
+#### Acceptance journeys (all parts, Given/When/Then; boards named)
+
+1. **Help needed across projects.** Given Class Notes has a question waiting and Pong a plan waiting, when I press ⌃⌥0, then Overview lists both under Needs you in kind order with Open Question and Open Plan; opening one lands on the authoritative card and the item stays until I answer it there (R17_Overview, R17_OverviewFollow, R17_OverviewWalk).
+2. **Resolved elsewhere.** Given Overview is open in two windows, when I answer the question in the project chat, then the item leaves both windows with “Class Notes: answered” announced once, and focus moves to the next item (R17_OverviewWindows).
+3. **Disconnected and recovered.** Given the connection drops, then the toolbar says “Not connected · showing 14:20”, rows are dotted and suffixed “at 14:20”; on reconnect one line “Reconnected · 2 changes since 14:20” (R17_OverviewStates, Ph17_OverviewStates).
+4. **Recorded failures vs requests waiting.** Given a request stopped by an error and was later retried successfully, then it is under Recorded problems only, not Needs you (R17_OverviewHistory).
+5. **Ask across projects.** Given 5 projects, when I ask “where do we handle offline sync?”, then the answer cites “Sources · 3 in 2 projects” with project › file › section · lines; Open shows the file read-only in that project's Work (R17_Ask, R17_AskSource).
+6. **Narrow the scope.** When I choose only Class Notes and Pong in “Searching all projects (5)”, then the button reads “Searching 2 projects” (one project: “Searching Class Notes only”) and the next answer cites only them (R17_AskScope, R17_AskNarrow).
+7. **Partial, none, unavailable.** “Searched 4 of 5 projects · Pong is catching up after changes”; “No matches in 5 projects.”; “Search isn't available right now. Pi answers from the project list and plans only.” Chat is never blocked (R17_AskStates, Ph17_AskScope).
+8. **Project boundary.** Given I ask in Class Notes about Pong, then the HarnessNotice says “Pi searched Class Notes only. To search every project, ask in Overview.” with Ask in Overview (R17_ProjectScope, Ph17_ProjectScope).
+9. **What Pi used.** When I press Why?, then “What Pi uses for this message” separates Always with this request from Found for this question, with read times, left-out and truncated items; a stale file offers Ask Again (R17_ContextReceipt, R17_ContextStates, Ph17_ContextSheet).
+10. **Reload, phone, keyboard.** After reload the same items and focus target return; on the phone Overview and Ask are separate screens with 44 px rows; ↑↓ moves within each list, Return opens (Ph17_Overview, Ph17_Ask, R17_OverviewWalk, R17_AskWalk, R17_ContextWalk).
