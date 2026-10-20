@@ -150,3 +150,9 @@ recorder/report consent and privacy limits, Preview ports and multi-user windows
 visual results in chat. This is a brief, not delivered designs or implemented controls. No external message was sent.
 
 Committed implementation: task 334 `fdeb821`; starter-check repair: task 335 `fa67055`.
+
+## Round 15 and approved rules
+
+Designer commit b99d59f is published on main and harness-next. Owner approved recording default-on, at most 20 flows for 7 days, recent=30 minutes. For repair: choose identity before next-free renumber, preserve both merged histories/steps, project Trash originals, explicit Apply Repair even unattended, and Ctrl+Alt+period/comma finding navigation.
+
+Task 333 storage foundation uses unchanged test-core 1d25d1a primitives (MIT license included), server-owned IDs/times, structural steps with input lengths only, project isolation, atomic writes and cross-instance locking. Expired/excess/cleared flows move to project-separated recording Trash under Workbench data. HTTP/Preview integration, visible controls, classifier context and reporting are still unfinished; this checkpoint changes no running app. Raw typed text remains excluded.

@@ -33,3 +33,7 @@ Then the corrected roadmap and tasks are shown, and after a reload the conversat
 Given two roadmap entries numbered 004 that point to different task files
 When the repair reaches them
 Then a card asks me which task keeps 004 instead of discarding or renumbering one
+
+## Owner decisions · 2026-10-19
+
+Round 15 is available locally. After the person chooses identity, renumber to the next free number. A merge preserves both step/history lists. Originals go to project Trash. Apply Repair always requires the person, including Run on its own. Approve ⌃⌥. and ⌃⌥, for next/previous findings.
