@@ -57,6 +57,21 @@ def verify_workflow():
     if not problems:
         print("✅ dogfood checks passed (scenarios, controls, flaky rules)")
 
+    # Explicit opt-in until the full multi-language audit integration is ready.
+    binary = os.environ.get('PI_RUFF_BINARY')
+    if binary:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from harness.quality import check
+        quality = check(os.getcwd(), binary)
+        if quality['status'] not in ('passed', 'not_applicable'):
+            errors.append(f"Ruff {quality['status']}: {quality.get('reason', '')} ({len(quality['findings'])} findings)")
+            for finding in quality['findings'][:20]:
+                errors.append(f"{finding['path']}:{finding['line']}: {finding['code']} {finding['message']}")
+        else:
+            print(f"✅ Ruff {quality['status']} ({quality['files']} Python files)")
+    else:
+        print('ℹ️ Ruff not run: set PI_RUFF_BINARY to the approved local binary (no automatic download).')
+
     # Run the Python and Node suites; any failure fails the gate.
     suites = [('unittest', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests'])] if os.path.isdir('tests') else []
     node_tests = sorted(glob.glob('tests/harness/*.test.mjs'))

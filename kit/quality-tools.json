@@ -1,0 +1,26 @@
+{
+  "ruff": {
+    "version": "0.17.1",
+    "license": "MIT",
+    "wheel": "ruff-0.17.1-py3-none-macosx_11_0_arm64.whl",
+    "bytes": 9270361,
+    "sha256": "29b454f18ca3eeaf37fbf140841dcf27d36109e29dee9aae8acecb68c26c6f74",
+    "rules": [
+      "F821",
+      "F822",
+      "F823",
+      "E9"
+    ],
+    "approval": "Person approved this wheel with a 25 MB limit on 2026-10-20; no automatic installation.",
+    "source": "https://pypi.org/project/ruff/0.17.1/"
+  },
+  "agentplay": {
+    "version": "0.2.1",
+    "license": "Apache-2.0",
+    "wheel": "agentplay-0.2.1-py3-none-any.whl",
+    "bytes": 890245,
+    "sha256": "57571417d1cdc77cd728b346560d0f87115e44f11b0827959351ac8be53fb47c",
+    "approval": "Person approved this wheel on 2026-10-20 for synthetic compatibility tests only.",
+    "source": "https://pypi.org/project/agentplay/0.2.1/"
+  }
+}

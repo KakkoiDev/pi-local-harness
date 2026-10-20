@@ -24,6 +24,8 @@ Sources reviewed: [Ruff](https://docs.astral.sh/ruff/), [ESLint](https://eslint.
 
 ## 2. Agentplay and an accurate tool-run audit (task350)
 
+**Owner clarification, 2026-10-20:** integrate the replay and evidence inspection neatly into the existing **Actions panel**, enhancing its log observability. The standalone upstream viewer is a compatibility proof, not the intended product experience. Keep project/request selection, live actions and their Gate outcomes coherent in that panel. New interactions still require the designer’s boards before frontend integration.
+
 **uvx is a tool runner**, equivalent to `uv tool run`, not the analyzer itself. The person identified **Agentplay**, whose documented viewer replays supported agent histories as timelines/maps with failures and tool activity. Its supported-agent list currently does not list Pi; investigate a Pi parser or its session-map interchange rather than assuming `uvx agentplay` directly understands WorkStation. Pin and review source/dependencies/licence before any approved installation. Use `AGENTPLAY_NO_NETWORK=1` and explicitly selected scratch inputs, not its default home-folder discovery.
 
 ### What is already built in

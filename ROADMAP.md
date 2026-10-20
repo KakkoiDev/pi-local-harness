@@ -417,3 +417,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [351-Trial Phonon-2 for local English transcription](tasks/351-phonon2-transcription-trial.md)
 
 - [x] [352-Normalize selected tool-run evidence](tasks/352-normalized-run-evidence.md)
+
+- [x] [353-Offline Ruff checks and Agentplay compatibility proof](tasks/353-approved-quality-and-trace-proofs.md)

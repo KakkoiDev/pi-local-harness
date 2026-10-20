@@ -340,3 +340,7 @@ Gate selects private structured observations and verified regression receipts au
 ### Internal selected-run evidence
 
 `harness.run_evidence.normalize(records, project=..., request=..., limit=10000)` accepts explicitly scoped host envelopes (`project`, `request`, `source`, `event`) for Gate ledger events or Pi RPC tool-start/end events. It performs no I/O or replay. Its metadata-only result omits arguments and output, hashes call IDs, and cites original input positions. Permission checks never prove a tool ran; missing and conflicting receipts remain explicit. This is an internal building block for task 350, not an available Agentplay viewer or complete trace export.
+
+### Optional offline Python correctness check
+
+Set `PI_RUFF_BINARY` to an explicitly approved local Ruff 0.17.1 binary when running `tests/verify_workflow.py`. Undefined-name/syntax findings, missing tools and scanner errors then fail verification. Without it the workflow says Ruff did not run; there is no automatic download or repair. Scope, exclusions, hashes and the separate synthetic Agentplay viewer proof are documented in [the approved-tools report](reports/approved-tools-2026-10-20.md). Publication and generated-project integration remain planned.
