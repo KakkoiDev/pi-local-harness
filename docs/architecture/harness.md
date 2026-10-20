@@ -63,3 +63,7 @@ Initial executable coverage: `tests/test_process_crash_recovery.py` has six proc
 The broader upstream-derived requirements are in [the conformance map](../reports/pi-durable-conformance-2026-10-20.md). Every in-scope case must eventually have an executable backend test; no blanket skips, xfails or “not applicable” to hide an unmet core contract. Browser tests then verify adapter journeys such as answering a card after reconnect. Headless passes never substitute for UI E2E, and UI passes never substitute for crash recovery.
 
 The entire library and full crash matrix remain task 357. Initial tests are task 358. Extraction must proceed incrementally under the existing browser golden journey; an independent minimal Python client plus the current frontend must exercise the same application service before claiming decoupling complete.
+
+## Scoped retrieval research
+
+See [scoped context retrieval](../reports/scoped-context-retrieval-2026-10-20.md) for dashboard-wide and project-only scope, dynamic context receipts, DuckDB constraints and proposed tests. This is research, not a shipped retrieval API.

@@ -429,3 +429,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [ ] [357-Extract the headless harness library and conformance suite](tasks/357-extract-headless-harness-library.md)
 
 - [x] [358-Run real process-crash tests in the backend suite](tasks/358-headless-process-crash-tests.md)
+
+- [x] [359-Research scoped project context retrieval](tasks/359-scoped-context-retrieval-research.md)

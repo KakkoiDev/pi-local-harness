@@ -51,3 +51,5 @@ Review and return handoff (2026-10-17):
 - [Harness philosophy and library architecture](architecture/harness.md): current storage/decision flow, UI-independent target and mandatory crash suite.
 - [Pi Durable conformance map](reports/pi-durable-conformance-2026-10-20.md): actual upstream test sources, executable coverage, gaps and exclusions.
 - [Local search study](reports/local-search-study-2026-10-20.md): DuckDB, QMD and SQLite FTS5; rebuildable indexes over authoritative Markdown.
+
+- [Scoped context retrieval research](reports/scoped-context-retrieval-2026-10-20.md): dashboard-wide versus project-only search, dynamic context, DuckDB evaluation and acceptance tests.
