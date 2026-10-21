@@ -32,7 +32,7 @@ A Pi message may end with one **VisualResult** card (an icon, an image, or a set
 
 Superseded (round 17 → round 18): “only when the message names another registered project or asks about something outside this one” → “only when the message explicitly names another registered project the person can open”. JA “Overview で質問” → “概要で質問”; “…Overview で質問してください。” → “…概要で質問してください。”. Description “Opens Overview with your question in Ask across projects. Nothing is sent until you press Send.” → “Opens Overview with your question in a conversation searching all projects. Nothing is sent until you press Send.”
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review.
 
@@ -56,3 +56,11 @@ Boards: R18A_ProjectMention, Ph18A_ProjectMention, R18A_ProjectChatWalk.
 - **Would supersede (round 18):** “only when the message explicitly names another registered project the person can open” → the (a)/(b) rule. Round 18's bare-name example “Did Pong already have a high-score list I can copy?” → “Did @Pong …” or “Did the Pong project …”.
 - **Removed in this revision:** “Notes” in quotes no longer counts.
 - **Alternative (not recommended):** only @-mentions count.
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Design only; not implemented. Boards: R19_ProjectMention, R19_ProjectChatResend, R19_ProjectChatReceipts.
+
+- **A7 · references.** The addendum's rule is settled (see Composer). A chip that disambiguates a duplicate name shows its folder: “@Notes · ~/school/Notes”. The boundary notice copy is unchanged.
+- **A8 · a resend is a new, linked request.** A resent message carries a link in its label, “· asked again from 14:31” (JA “· 14:31 からもう一度質問”), that scrolls to and focuses the original summary. It never replays tool steps, approves a plan or changes the phase.
+- **A9 · no fabricated provenance.** A Pi message from before receipts existed shows plain text, not a button: “Recorded before receipts were kept” (JA “Pi が使ったものの記録を始める前のメッセージ”), `p.pw-rcpt-none`. Nothing is reconstructed for it.

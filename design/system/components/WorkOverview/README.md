@@ -148,7 +148,7 @@ Superseded round 17 text (old → new):
 - Keyboard "In Projects, → moves to Open in Activity" → "→ moves through Ask About, Open in Activity and ⋯".
 - Open product choices 1–5 → resolved by decisions 1–5 (docs/plans/360); the section is closed.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_NewConversationKeys, R18A_CancelCheckNew, R18A_OverviewStrings, R18A_OverviewWalk, Ph18A_ServicesStopped, Ph18A_CancelRequest. CSS: `scripts/round18add_a.css` (addendum-scoped; no approved round 18 class changes).
 
@@ -162,11 +162,49 @@ Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_NewConversationK
   - **Count.** The Needs you count excludes services.
   - **Rows.** With Ollama stopped, rows read "State unknown while Ollama is stopped" (round 18). With Gate only, a running request reads "Waiting for Gate before its next tool step" (JA 次のツール手順の前に Gate を待っています), and idle rows stay "Idle".
   - **Would supersede (if approved).** Round 18's service item inside Needs you.
-  - **Alternative (not recommended).** Service items first under Needs you.
+  - Superseded: **Alternative (not recommended).** Service items first under Needs you. (not chosen in round 19)
 - **Q6.** In Overview, File › New File… is disabled ("Open a project to add a file."). New Task… is disabled until a project row is selected ("Select a project to add a task."); with a row selected it reads "New Task in Class Notes…". The Ask pane's New has no shortcut.
 - **Q10: Cancel Request….** It is never in Overview. Cancelling still leaves round 18's history row "Cancelled by you · 14:40" (JA あなたがキャンセル · 14:40).
 - **Q10: Check Again.** It belongs to Activity's service details: it asks the service once and never starts or restarts it. States:
   - "Checking…" (disabled, `aria-busy`);
-  - "Still stopped · checked 14:33", then disabled for 10 s, described by "Checked a moment ago.";
+  - Superseded: "Still stopped · checked 14:33", then disabled for 10 s, described by "Checked a moment ago."; (round 19 A1: no 10 s cooldown; one probe, repeat presses join it while pending)
   - or the service recovers.
 - **Q10: New marker.** Clearing it never resolves an item (see AttentionItem).
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Decided (round 19, owner-delegated 21 Oct 2026: A1, A6 Overview part, A10). Boards: R19_ServiceHealth, R19_OverviewSelection, R19_CancelRequest, R19_OverviewStrings, R19_OverviewWalk, Ph19_ServiceHealth, Ph19_CancelRequest. CSS: `scripts/round19_a.css` adds only new classes and modifiers.
+
+**Stopped services (A1)**
+- The section sits above Needs you, with one row per affected operation, oldest first. Examples:
+  - "studio.local not reachable · since 14:24 · Pi can’t answer in any project"
+  - "Gate stopped · since 14:27 · tool steps wait in every project"
+- Each row has **Open Details** → the service's details in Activity, where **Check Again** runs one read-only probe. "Checking…" is shared by every window, and repeat presses join the pending probe; it never starts or restarts anything. The result reads e.g. "Still not reachable · checked 14:33".
+- Unknown or stale health appears in its own section, **Service status unknown**, e.g. "Ollama · Service status unknown · last checked 14:20" (`.pw-svcrow--unknown`, dotted). Rows there read "State unknown until Ollama answers a check".
+- A row that is checking shows "Checking…" (`.pw-svcrow--checking`).
+- Needs you counts decisions only.
+
+**Explicit selection (A6)**
+- **Selecting.** Selecting is a separate, deliberate act: Space on the focused row, or a click on the row’s empty area (outside its link and buttons, e.g. left of Ask About). Clicking the project name or row link still opens the project chat at that request, and Return still opens (round 17). Hover and keyboard focus alone never select.
+- **Markup.** One selected row: `.pw-prow--selected` (inverse), `aria-selected="true"`, grid `aria-multiselectable="false"`.
+- **Projects note.** "Selected: Class Notes" (JA 選択中: Class Notes) / "No project selected" (JA プロジェクトは選択されていません).
+- **Menus.** The selection survives focus moving into menus and the Ask pane. File › New Task… names the project. At the action it is revalidated; if the project was removed or access ended: "Class Notes is no longer available. Nothing was created." (JA Class Notes は利用できなくなりました。何も作成していません。) Selection clears, focus goes to the Projects heading.
+- **Clearing.** Removal or revocation clears the selection immediately. Each window has its own selection, and reload clears it.
+
+**Round 17 unchanged.** The row link still opens the project chat at that request; selection is added beside it.
+
+**States**
+
+| State | Stopped services | Selection |
+| --- | --- | --- |
+| Idle | absent | "No project selected" |
+| Loading | rows wait for the Overview snapshot | — |
+| Empty | section absent | — |
+| Error | the rows themselves | — |
+| Disabled | — | New Task disabled without a selection |
+| Stale | the Service status unknown section | — |
+| Conflict | — | removed between menu and action (above) |
+
+**Persistence:** selection is per window, in memory only (not saved). Health comes from System 1 records.
+
+**Recording:** the WorkStation RecordingStatus sits in the menu bar above Overview (no toolbar slot); see that card.

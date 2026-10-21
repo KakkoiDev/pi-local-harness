@@ -1342,7 +1342,7 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-receipt__more .pw-btn{min-height:44px}
 }
 
-/* Round 18 addendum, proposed and awaiting approval (round18add_a, round18add_b, round18add_c): addendum-only classes */
+/* Round 18 addendum, settled or superseded in round 19 (round18add_a, round18add_b, round18add_c): addendum-only classes */
 /* ---- 2026-10-21 · Round 18 addendum A (proposed, awaiting approval): several blocking services, New File vs New Conversation, Cancel Request / Check Again / New marker ---- */
 
 /* New marker as a real, aria-hidden tag (addendum items only, .pw-attn--r18a; round 18's ::after marker keeps working everywhere else) */
@@ -1453,3 +1453,200 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-atlist__opt{min-height:44px;font-size:16px}
   .pw-field--rich{min-height:44px}
 }
+
+/* Round 19, decided (round19_a, round19_b, round19_c, round19_d): new classes and modifiers only */
+/* ---- 2026-10-21 · Round 19 A (decided, owner-delegated): service health per operation, explicit Overview selection, Cancel Request states ---- */
+/* Only new classes and new modifiers: every rule below is keyed on a class introduced in round 19. */
+
+/* Explicit project selection in Overview: click or Space selects; hover and focus do not. The selected row is inverse (classic selection) */
+.pw-prow--selected .pw-prow__main{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-prow--selected .pw-prow__main:hover{background:var(--selection-bg)}
+.pw-prow--selected .pw-needs{background:var(--selection-fg);color:var(--selection-bg)}
+.pw-prow--selected .pw-prow__unknown{color:inherit}
+
+/* Service health rows beyond "stopped": unknown or stale (dotted frame) and checking (one probe in flight) */
+.pw-svcrow--unknown{border-style:dotted}
+.pw-svcrow--checking .pw-svcrow__what{font-style:italic}
+
+/* Request state line at the request's own location (Activity detail, chat notice): cancelling, cancelled, already finished, failed */
+.pw-reqstate{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-reqstate__text{flex:1 1 220px;min-width:0}
+
+/* Round 19 boards' attention items: the request line wraps in narrow Needs you columns (keyed on a round 19 modifier, so round 18 items are unchanged) */
+.pw-attn--r19 .pw-attn__req{white-space:normal;min-width:0}
+
+/* Inverse appearance: --selection-bg is resolved on :root, so the selected row uses the inverted tokens directly */
+[data-theme="dark"] .pw-prow--selected .pw-prow__main,[data-theme="dark"] .pw-prow--selected .pw-prow__main:hover{background:var(--ink);color:var(--paper)}
+[data-theme="dark"] .pw-prow--selected .pw-needs{background:var(--paper);color:var(--ink)}
+/* ---- 2026-10-21 · Round 19 B (decided, owner-delegated): conversation actions, DraftVersions, ConversationTrash ---- */
+/* Only new classes; no existing class is redefined. Tokens only, 1-bit; Inverse via [data-theme="dark"] tokens. */
+
+/* Conversation actions: the ⋯ beside the conversation title (dashboard Ask pane; project chat reuses it) */
+.pw-convoact{position:relative;display:inline-flex;flex:none}
+.pw-convoact__btn{font:inherit;color:inherit;background:var(--paper);border:1px solid var(--ink);height:26px;width:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:default}
+.pw-convoact__btn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-convoact__btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pw-convoact .pw-menu{left:auto;right:0;top:calc(100% + 4px);min-width:220px}
+.pw-convoline{display:flex;gap:6px;flex:1 1 100%;min-width:0}
+.pw-convoline>.pw-convo{flex:1 1 auto}
+/* the history list ends with Trash */
+.pw-convo__trash{font:inherit;color:inherit;background:none;border:0;border-top:1px dotted var(--ink);min-height:28px;padding:0 12px 0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;cursor:default}
+.pw-convo__trash:hover,.pw-convo__trash:focus-visible,.pw-convo__trash[data-active="true"]{background:var(--selection-bg);color:var(--selection-fg);outline:none}
+
+/* DraftVersions: the version list above a composer (Ask pane and project chat) */
+.pw-draftv{margin:0;border:1px solid var(--ink);display:flex;flex-direction:column;font-family:var(--font-chrome);font-size:13px;line-height:18px;background:var(--paper);color:var(--ink)}
+.pw-draftv__head{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid var(--ink)}
+.pw-draftv__h{margin:0;font-size:13px;font-weight:600;flex:1 1 auto}
+.pw-draftv__head .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+.pw-draftv__hint{margin:0;padding:4px 8px;font-size:12px;line-height:16px;border-bottom:1px dotted var(--ink)}
+.pw-draftv__list{list-style:none;margin:0;padding:0;max-height:240px;overflow:auto}
+.pw-draftv__row{display:flex;flex-direction:column;gap:4px;padding:6px 8px;border-top:1px dotted var(--ink)}
+.pw-draftv__row:first-child{border-top:0}
+.pw-draftv__row[aria-current="true"]{box-shadow:inset 3px 0 0 var(--ink)}
+.pw-draftv__meta{margin:0;font-size:12px;line-height:16px;overflow-wrap:anywhere}
+.pw-draftv__meta b{font-weight:600}
+.pw-draftv__state{border:1px solid currentColor;padding:0 3px;font-size:11px;line-height:14px;white-space:nowrap}
+.pw-draftv__row[data-state="unsaved"] .pw-draftv__state,.pw-draftv__row[data-state="saving"] .pw-draftv__state{border-style:dotted}
+.pw-draftv__text{margin:0;font-family:var(--font-text);font-size:14px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.pw-draftv__actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pw-draftv__actions .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+.pw-draftv__inuse{font-size:12px;font-weight:600}
+.pw-draftv__offline{margin:0;display:flex;gap:6px;align-items:flex-start;border:1px dotted var(--ink);padding:6px 8px;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-draftv__offline svg{flex:none;margin-top:2px}
+
+/* ConversationTrash: Trash list, read-only detail, Restore (Ask pane and project chat) */
+.pw-trash{display:flex;flex-direction:column;min-height:0;flex:1;background:var(--paper);color:var(--ink);font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-trash__head{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--ink)}
+.pw-trash__head .pw-btn{min-height:24px;font-size:13px;padding:0 10px}
+.pw-trash__title{margin:0;font-size:13px;font-weight:600;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-trash__body{flex:1;min-height:0;overflow:auto}
+.pw-trash__note{margin:0;padding:8px 12px;font-size:12px;line-height:16px;border-bottom:1px dotted var(--ink)}
+.pw-trash__sub{margin:0;padding:8px 12px 4px;font-size:12px;font-weight:600}
+.pw-trash__list{list-style:none;margin:0;padding:0}
+.pw-trash__item{font:inherit;color:inherit;background:none;border:0;border-top:1px dotted var(--ink);width:100%;display:flex;flex-direction:column;align-items:stretch;gap:1px;padding:6px 12px;text-align:left;cursor:default;min-width:0}
+.pw-trash__item:hover,.pw-trash__item:focus-visible,.pw-trash__item[data-active="true"]{background:var(--selection-bg);color:var(--selection-fg);outline:none}
+.pw-trash__t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-trash__m{font-size:12px;line-height:16px;overflow-wrap:anywhere}
+.pw-trash__empty{margin:0;padding:24px 12px;font-size:13px;line-height:18px}
+.pw-trash__ro{margin:0;display:flex;gap:6px;align-items:flex-start;padding:6px 12px;border-bottom:1px solid var(--ink);font-size:12px;line-height:16px}
+.pw-trash__ro svg{flex:none;margin-top:2px}
+.pw-trash__detail{padding:16px;display:flex;flex-direction:column;gap:20px;font-family:var(--font-text);font-size:16px;line-height:1.45}
+.pw-trash__foot{border-top:1px solid var(--ink);padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.pw-trash__actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pw-trash__status{margin:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border:1px dotted var(--ink);padding:6px 8px;font-size:12px;line-height:16px}
+.pw-trash__status .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+
+@media (max-width: 759px){
+  .pw-convoact__btn{height:44px;width:44px}
+  .pw-convo__trash{min-height:44px;font-size:16px}
+  .pw-draftv{font-size:15px;line-height:20px}
+  .pw-draftv__h{font-size:15px}
+  .pw-draftv__head .pw-btn,.pw-draftv__actions .pw-btn{min-height:44px;font-size:15px}
+  .pw-draftv__meta,.pw-draftv__hint,.pw-draftv__offline{font-size:14px;line-height:18px}
+  .pw-draftv__text{font-size:16px}
+  .pw-trash{font-size:16px;line-height:20px}
+  .pw-trash__head .pw-btn{min-height:44px;font-size:16px}
+  .pw-trash__item{min-height:56px;padding:8px 16px}
+  .pw-trash__m,.pw-trash__note,.pw-trash__ro,.pw-trash__status{font-size:14px;line-height:18px}
+  .pw-trash__status .pw-btn{min-height:44px;font-size:15px}
+}
+/* ---- 2026-10-21 · Round 19 C (decided, owner-delegated): project chat — conversation title + actions, @ list states, resend rechecks, receipts without provenance ---- */
+/* Only new classes; no existing class is redefined. Tokens only, 1-bit; Inverse via [data-theme="dark"] tokens. Reuses B's .pw-convoact, .pw-convo__*, .pw-convorow*, .pw-trash*, .pw-draftv* as is. */
+
+/* the project chat's conversation title in the Chat toolbar, with B's Conversation actions ⋯ */
+.pw-chattitle{position:relative;flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:6px;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-chattitle__t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.pw-chattitle .pw-convo__pop{left:auto;right:0;width:340px}
+
+/* @ list: scrolling options, ambiguity list, composition */
+.pw-atlist__scroll{max-height:156px;overflow:auto;border-bottom:1px dotted var(--ink)}
+.pw-atlist__opt--long>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-atlist__opt--long>small{white-space:nowrap}
+.pw-atlist__q{margin:0;padding:4px 10px;font-size:12px;line-height:16px;border-bottom:1px dotted var(--ink)}
+.pw-ime{text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.pw-kbdph{flex:none;height:250px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--ink);background:repeating-linear-gradient(45deg,var(--paper) 0 6px,var(--ink-disabled) 6px 7px);font-family:var(--font-chrome);font-size:14px;color:var(--ink)}
+.pw-kbdph>span{background:var(--paper);padding:2px 8px;border:1px solid var(--ink)}
+
+/* a message sent before receipts were kept: plain text where the summary would be (never a button) */
+.pw-rcpt-none{margin:6px 0 0;font-family:var(--font-chrome);font-size:13px;line-height:18px;border:1px dotted var(--ink-disabled);padding:2px 8px;align-self:flex-start}
+
+/* "asked again from 14:31" link on a resent message */
+.pw-msg__link{font-family:var(--font-chrome);font-size:13px}
+
+@media (max-width: 759px){
+  .pw-chattitle{font-size:15px}
+  .pw-atlist__scroll{max-height:220px}
+  .pw-rcpt-none{font-size:14px;padding:6px 8px}
+}
+/* ---- 2026-10-21 · Round 19 D (decided, owner-delegated): recording on Pi WorkStation and the Preview ---- */
+/* Only new classes or new modifiers; no existing class is redefined. Tokens only, 1-bit; Inverse via [data-theme="dark"] tokens. */
+
+/* RecordingStatus, WorkStation: the same button as the Preview's, in the menu bar (left of the agent status) */
+.pw-recstat--bar{min-height:22px;height:22px;margin-right:10px;font-size:13px;padding:0 7px;max-width:340px;overflow:hidden;text-overflow:ellipsis}
+.pw-recstat--bar .pw-recstat__where{overflow:hidden;text-overflow:ellipsis}
+.pw-recstat__where{font-weight:400}
+/* states drawn with modifiers (the data-state words stay as in round 15, plus: init, unknown, lost, unavailable) */
+.pw-recstat--init::before{border-style:dotted;background:none}
+.pw-recstat--unknown{border-style:dashed}
+.pw-recstat--unknown::before{content:"?";width:auto;height:auto;border:0;border-radius:0;font-weight:600;line-height:1}
+.pw-recstat--lost{border-style:dotted}
+.pw-recstat--lost::before{background:none;border-style:dotted}
+.pw-recstat--unavailable::before{border-radius:0;transform:rotate(45deg);background:none}
+.pw-recstat--wrap{white-space:normal;height:auto;min-height:26px;text-align:left;padding:3px 8px}
+
+/* WorkStation popover additions: which surface and which history it fills */
+.pw-recpop__scope{margin:0;padding:6px 8px;border:1px solid var(--ink);font-size:13px;line-height:18px;display:flex;flex-direction:column;gap:2px}
+.pw-recpop__scope b{font-weight:600}
+.pw-recpop__other{margin:0;font-size:13px;line-height:18px;display:flex;gap:6px;align-items:flex-start}
+.pw-recpop__other .pw-recstat{flex:none}
+.pw-recpop__live{margin:0;font-size:12px;line-height:16px;font-style:italic}
+
+/* Phone: a slim strip under the phone bar while WorkStation recording is on, paused, or not confirmed */
+.pw-recbar{flex:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 12px;border-bottom:1px solid var(--ink);background:var(--paper);color:var(--ink);font-family:var(--font-chrome);font-size:15px;line-height:20px}
+.pw-recbar .pw-recstat{border:0;padding:0;min-height:44px;font-size:15px;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pw-recbar__more{flex:none;min-height:44px;min-width:44px;display:grid;place-content:center;font:inherit;color:inherit;background:none;border:0;border-left:1px dotted var(--ink)}
+
+/* RecordingHistory: three separated groups, one row per flow (one surface/window session) */
+.pw-rechist{display:flex;flex-direction:column;gap:0;font-family:var(--font-chrome);font-size:14px;line-height:19px;background:var(--paper);color:var(--ink)}
+.pw-rechist__group{border-top:1px solid var(--ink)}
+.pw-rechist__group:first-child{border-top:0}
+.pw-rechist__head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:8px 12px 6px}
+.pw-rechist__title{margin:0;font-size:14px;font-weight:600}
+.pw-rechist__note{font-size:12px;line-height:16px;flex:1 1 200px;min-width:0}
+.pw-rechist__list{list-style:none;margin:0;padding:0}
+.pw-recsess{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:6px 12px;border-top:1px dotted var(--ink)}
+.pw-recsess[aria-selected="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-recsess__what{font-weight:600;overflow-wrap:anywhere}
+.pw-recsess__when{font-variant-numeric:tabular-nums;font-size:13px}
+.pw-recsess__state{justify-self:end;border:1px solid currentColor;padding:0 4px;font-size:12px;line-height:16px;white-space:nowrap}
+.pw-recsess__state--dotted{border-style:dotted}
+.pw-recsess__note{grid-column:1/-1;font-size:12px;line-height:16px;overflow-wrap:anywhere}
+.pw-rechist__foot{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;border-top:1px solid var(--ink)}
+.pw-rechist--narrow .pw-recsess{grid-template-columns:minmax(0,1fr) auto}
+.pw-rechist--narrow .pw-recsess__when{grid-column:1}
+
+/* FlowAttachment and inspection: a gap, a truncation and coverage limits inside the step list */
+.pw-flow__gap{margin:0;padding:4px 10px;border-bottom:1px dotted var(--ink);font-size:12px;line-height:16px;font-style:italic}
+.pw-flow__limits{margin:0;padding:6px 10px;border-top:1px dotted var(--ink);font-size:12px;line-height:16px}
+.pw-flow__src{font-size:11px;line-height:14px;border:1px solid currentColor;padding:0 3px;margin-right:6px;white-space:nowrap}
+
+/* Choosing recordings: groups inside the evidence fieldset (destination named, outside/other unchecked) */
+.pw-evgroup{margin:8px 0 0;padding:4px 2px 2px;font-family:var(--font-chrome);font-size:13px;font-weight:600;border-top:1px solid var(--ink);display:flex;justify-content:space-between;gap:10px}
+.pw-evgroup small{font-weight:400;font-size:12px}
+.pw-destline{margin:0;padding:6px 8px;border:3px double var(--ink);font-family:var(--font-chrome);font-size:13px;line-height:18px}
+
+/* The exact redacted text an external report sends (read-only, scrolls) */
+.pw-payload{margin:0;padding:8px 10px;border:1px solid var(--ink);box-shadow:var(--shadow-field);background:var(--paper);color:var(--ink);font-family:var(--font-mono);font-size:12px;line-height:17px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto}
+.pw-payload mark{background:none;color:inherit;font-style:italic;text-decoration:underline dotted}
+
+@media (max-width:760px){
+  .pw-recstat--bar{min-height:var(--size-touch);height:auto;font-size:15px}
+  .pw-recsess{grid-template-columns:minmax(0,1fr) auto;padding:10px 12px}
+  .pw-recsess__when{grid-column:1}
+  .pw-payload{max-height:none;font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){
+  .pw-recstat--init::before{animation:none}
+}
+/* 320 px popover: the Preview line stacks */
+.pw-recpop--narrow .pw-recpop__other{flex-direction:column}

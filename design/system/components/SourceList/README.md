@@ -164,12 +164,22 @@ With an unavailable item the head drops the project count: “Sources · 3 · 1 
 | Open {file} in {project} at {section} | {project} の {file} を「{section}」で開く |
 | The cited section isn't in the current file; showing the file from the top. | 引用した節は現在のファイルにないため、先頭から表示しています。 |
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Nothing here is decided. Revised 21 Oct after review. Boards: R18A_AskRevoked, Ph18A_AskRevoked. CSS: `scripts/round18add_b.css` (`.pw-withheld`).
 
 **Q4 · Revoked project information (Recommended, revised).** When the person can no longer open a project an answer used (access ended — not a project the person removed themselves): the person's own question always stays visible; the generated answer is hidden as `div.pw-withheld[role=note]` “This answer used a project you can no longer open, so it's hidden.” (この回答には開けなくなったプロジェクトが使われていたため、非表示にしています。) + **Ask Again in {scope}** (Q5 label; disabled with “None of this conversation's projects can be searched now.” when nothing remains); the generated conversation title becomes “Conversation · 20 Oct 14:31” (会話 · 10月20日 14:31) in the popup, history list and phone. No Sources, coverage, Retry, project name, count or excerpt survives for that answer; answers that did not use the project stay. A project the person removed themselves keeps decision 11 (prose stays, “Source unavailable”).
 - Would supersede (round 18): “The answer's own prose is not rewritten (decision 11)” as a blanket rule → only for person-removed projects.
-- Alternative (not recommended · privacy risk): keep the prose and redact sources only.
+- Not chosen (round 19 · privacy risk): keep the prose and redact sources only.
 
 Data still missing (✱): per-answer `used_project_ids[]`; per-project loss reason `removed_by_person | access_ended`; display-time evaluation of the answer and the title.
+
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Brief: design/briefs/round-19-final-integration.md (A4). Boards: R19_AskRevoked, R19_AskScope, R19_AskTrash.
+
+- **Withheld at display and send time (A4).** Access ended: the person's question stays; the generated answer is replaced by `div.pw-withheld` “This answer used a project you can no longer open, so it's hidden.” + **Ask Again in {scope}**; the generated title becomes “Conversation · 20 Oct 14:31”. Same rule for snippets, search results, cached views, attachments and Trash. No Sources, coverage, Retry, names, counts or excerpts of that answer remain.
+- **Missing provenance:** “This answer can't be shown because its sources can't be checked.” (出典を確認できないため、この回答は表示できません。) — withheld from System 1 records alone; never ask a model whether disclosure is safe.
+- **Rechecks:** citation opening (Open on an unavailable source opens nothing; an open Page view is replaced by “Source unavailable”), retry targets, restore from the Trash.
+- **Removed by its owner** keeps decision 11 (prose stays, “Source unavailable”).

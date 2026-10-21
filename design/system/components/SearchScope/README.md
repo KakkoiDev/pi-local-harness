@@ -173,12 +173,22 @@ Retry sends at once, rechecks authorization at the click, leaves the composer's 
 | Ask About {project} | {project} について質問 |
 | Choose projects to search | 検索するプロジェクトを選択 |
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Nothing here is decided. Revised 21 Oct after review (no change to Q2 or Q5 content). Boards: R18A_AskAdded, R18A_AskRefresh, Ph18A_AskRefresh. CSS: `scripts/round18add_b.css`.
 
 **Q2 · Projects registered after an All Projects conversation began (Recommended = round 18 drawing kept).** The conversation keeps its starting set: “Searching 5 of 6 projects”; the popup lists the new project unchecked with “added 15:10” and “Added after this conversation started. Check it to search it here too.” Checking it is the only way the set widens (“Searching all projects (6)”; earlier answers keep their lines). New conversations start with all current projects. No transcript notice.
-- Alternative (not recommended): live “all” with `p.pw-askdivider[role=note]` “Pong Extra was added at 15:10 · later questions search it too” (15:10 に Pong Extra が追加されました · 以降の質問では検索します).
+- Not chosen (round 19): live “all” with `p.pw-askdivider[role=note]` “Pong Extra was added at 15:10 · later questions search it too” (15:10 に Pong Extra が追加されました · 以降の質問では検索します).
 
-**Q5 · Scope-correct refresh labels (Recommended).** The answer's ⋯ item `button.pw-menu__item.pw-refresh` names the current authorized scope — “Ask Again in All Projects (5)” / “Ask Again in 2 Projects” / “Ask Again in Class Notes” / “Ask Again in 5 Projects” (kept set) — described by “Searches the projects this conversation searches now.”; none left: `aria-disabled`, “None of this conversation's projects can be searched now.” The result is a new question “· asked again”; Retry unchanged. JA: すべてのプロジェクト（5）でもう一度質問 / 2 件のプロジェクトでもう一度質問 / Class Notes でもう一度質問 / この会話がいま検索するプロジェクトを検索します。 Phone: a sheet “This answer”.
+Superseded (round 19, see Round 19): **Q5 · Scope-correct refresh labels (Recommended).** The answer's ⋯ item `button.pw-menu__item.pw-refresh` names the current authorized scope — “Ask Again in All Projects (5)” / “Ask Again in 2 Projects” / “Ask Again in Class Notes” / “Ask Again in 5 Projects” (kept set) — described by “Searches the projects this conversation searches now.”; none left: `aria-disabled`, “None of this conversation's projects can be searched now.” The result is a new question “· asked again”; Retry unchanged. JA: すべてのプロジェクト（5）でもう一度質問 / 2 件のプロジェクトでもう一度質問 / Class Notes でもう一度質問 / この会話がいま検索するプロジェクトを検索します。 Phone: a sheet “This answer”.
 - Would supersede (round 18): “⋯ › Ask All Projects Again” and its narrowed variants.
+
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Brief: design/briefs/round-19-final-integration.md (A2, A5). Boards: R19_AskScope, R19_AskResend, R19_AskStrings, R19_AskWalk.
+
+- **Explicit scope (A2).** “Searching {n} of {m} projects”, m = authorized available projects; nothing about projects the person can't open. All Projects keeps its starting set; later projects are offered unchecked (“added 15:10”, “Added after this conversation started. Check it to search it here too.”). Removal or revocation takes effect at once: in the open popup the row leaves, focus moves to the next row, one polite “Search scope updated.” (検索範囲が更新されました。). Scope changes affect future sends, never historical coverage lines.
+- **Queued send rechecks** at dispatch: “Not sent: Pong is no longer available. Your question is still in the draft.” (送信していません: Pong は利用できなくなりました。質問は下書きに残っています。) — the question returns to the draft (another draft version if the field holds text); scope is never narrowed silently.
+- **Resend names its scope (A5).** “Ask Again in All Projects (5)” / “Ask Again in 2 Projects” / “Ask Again in Class Notes”. None authorized: **Ask Again** disabled, “No projects available to search.” (検索できるプロジェクトがありません。). Every scope project catching up: disabled, “Search is catching up in 2 projects. Try again shortly.” (2 件のプロジェクトで検索の準備中です。少し待ってからもう一度お試しください。). Retry (recorded inputs, round 18) and Ask Again (current files) never fall back to each other.
+- Superseded: the addendum's “None of this conversation's projects can be searched now.” and the disabled label “Ask Again in This Conversation” → the two A5 lines above.

@@ -3783,7 +3783,7 @@
    "y": 0,
    "w": 1440,
    "h": 3650,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q1 · Blocking per operation: Ollama blocks answers, Gate blocks tools; a Stopped services section above Needs you; services never counted in “need you”",
+   "title": "Round 18 addendum · Superseded by round 19 (A1), see R19_ServiceHealth · Q1 · Blocking per operation: Ollama blocks answers, Gate blocks tools; a Stopped services section above Needs you; services never counted in “need you”",
    "page": "r18a"
   },
   "Ph18A_ServicesStopped.dc.html": {
@@ -3791,7 +3791,7 @@
    "y": 0,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q1 · Phone: the status in two lines; Stopped services above Needs you",
+   "title": "Round 18 addendum · Superseded by round 19 (A1), see R19_ServiceHealth · Q1 · Phone: the status in two lines; Stopped services above Needs you",
    "page": "r18a"
   },
   "R18A_NewConversationKeys.dc.html": {
@@ -3799,7 +3799,7 @@
    "y": 0,
    "w": 1440,
    "h": 2490,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q6 · ⌃⌥N stays New File… everywhere; New Conversation has no shortcut (New button, popup’s first item); in Overview New File… is disabled, New Task… waits for a selected project",
+   "title": "Round 18 addendum · Superseded by round 19 (A6), see R19_OverviewSelection · Q6 · ⌃⌥N stays New File… everywhere; New Conversation has no shortcut (New button, popup’s first item); in Overview New File… is disabled, New Task… waits for a selected project",
    "page": "r18a"
   },
   "R18A_CancelCheckNew.dc.html": {
@@ -3807,7 +3807,7 @@
    "y": 3730,
    "w": 1440,
    "h": 3500,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q10 · Cancel Request… only where the interrupted request opens; Check Again asks once; “New” clears on focus or open, no timer",
+   "title": "Round 18 addendum · Superseded by round 19 (A1, A10), see R19_CancelRequest and R19_ServiceHealth · Q10 · Cancel Request… only where the interrupted request opens; Check Again asks once; “New” clears on focus or open, no timer",
    "page": "r18a"
   },
   "Ph18A_CancelRequest.dc.html": {
@@ -3815,7 +3815,7 @@
    "y": 3730,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q10 · Phone: Activity’s request detail; the alert as a sheet, Keep Request first and default",
+   "title": "Round 18 addendum · Settled in round 19 (A10) · Q10 · Phone: Activity’s request detail; the alert as a sheet, Keep Request first and default",
    "page": "r18a"
   },
   "R18A_OverviewStrings.dc.html": {
@@ -3823,7 +3823,7 @@
    "y": 3730,
    "w": 1440,
    "h": 1130,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Overview & status (Q1, Q6, Q10): English and Japanese strings",
+   "title": "Round 18 addendum · Superseded by round 19 (A1, A6, A10), see R19_OverviewStrings · Overview & status (Q1, Q6, Q10): English and Japanese strings",
    "page": "r18a"
   },
   "R18A_OverviewWalk.dc.html": {
@@ -3831,176 +3831,552 @@
    "y": 7310,
    "w": 1440,
    "h": 1140,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Overview & status walkthrough: Q1, Q6, Q10 as Given/When/Then (stable accessible names; reload, two windows, keyboard)",
+   "title": "Round 18 addendum · Superseded by round 19 (A1, A6, A10), see R19_OverviewWalk · Overview & status walkthrough: Q1, Q6, Q10 as Given/When/Then (stable accessible names; reload, two windows, keyboard)",
    "page": "r18a"
   },
   "R18A_AskAdded.dc.html": {
-   "x": 0,
-   "y": 8690,
+   "x": 1520,
+   "y": 7310,
    "w": 1440,
    "h": 2130,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q2 · A project registered after an All Projects conversation began: the conversation keeps its set (“Searching 5 of 6 projects”); Alternative: live “all” with a divider",
+   "title": "Round 18 addendum · Settled in round 19 (A2) · Q2 · A project registered after an All Projects conversation began: the conversation keeps its set (“Searching 5 of 6 projects”); Alternative: live “all” with a divider",
    "page": "r18a"
   },
   "R18A_AskDraft.dc.html": {
-   "x": 1520,
-   "y": 8690,
+   "x": 0,
+   "y": 9520,
    "w": 1440,
    "h": 2800,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q3 (revised) · Shared drafts: when two places changed a draft, both versions are kept until you choose — Use This Version · Use Other Version · Show Both; Discard Other Version… asks; Alternative: device-only",
+   "title": "Round 18 addendum · Superseded by round 19 (A3), see R19_AskDrafts · Q3 (revised) · Shared drafts: when two places changed a draft, both versions are kept until you choose — Use This Version · Use Other Version · Show Both; Discard Other Version… asks; Alternative: device-only",
    "page": "r18a"
   },
   "R18A_AskRevoked.dc.html": {
-   "x": 0,
-   "y": 11570,
+   "x": 1520,
+   "y": 9520,
    "w": 1440,
    "h": 2000,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q4 (revised) · Access to a cited project ended: your question stays; the generated answer and title are hidden; “Ask Again in {scope}”; a self-removed project keeps decision 11; Alternative: redact sources only",
+   "title": "Round 18 addendum · Superseded by round 19 (A4, A5), see R19_AskRevoked · Q4 (revised) · Access to a cited project ended: your question stays; the generated answer and title are hidden; “Ask Again in {scope}”; a self-removed project keeps decision 11; Alternative: redact sources only",
    "page": "r18a"
   },
   "R18A_AskRefresh.dc.html": {
-   "x": 1520,
-   "y": 11570,
+   "x": 0,
+   "y": 12400,
    "w": 1440,
    "h": 2660,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q5 · The full refresh names the conversation’s current scope: “Ask Again in All Projects (5)” / “in 2 Projects” / “in Class Notes”; disabled when none remains",
+   "title": "Round 18 addendum · Superseded by round 19 (A5), see R19_AskResend · Q5 · The full refresh names the conversation’s current scope: “Ask Again in All Projects (5)” / “in 2 Projects” / “in Class Notes”; disabled when none remains",
    "page": "r18a"
   },
   "R18A_AskNew.dc.html": {
-   "x": 0,
-   "y": 14310,
+   "x": 1520,
+   "y": 12400,
    "w": 1440,
    "h": 2000,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q6 · New Conversation has no keyboard shortcut (⌃⌥N stays New File…); reached by New and the popup’s first item; Alternative: ⌃⌥N in the Ask pane",
+   "title": "Round 18 addendum · Settled in round 19 (A6; the ⋯ moves beside the title, see R19_AskActions) · Q6 · New Conversation has no keyboard shortcut (⌃⌥N stays New File…); reached by New and the popup’s first item; Alternative: ⌃⌥N in the Ask pane",
    "page": "r18a"
   },
   "R18A_AskDelete.dc.html": {
-   "x": 1520,
-   "y": 14310,
+   "x": 0,
+   "y": 15140,
    "w": 1440,
    "h": 2080,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Delete Conversation (new): in the pane head’s ⋯ and on each history item; the alert (Cancel · Move to Trash); moved to the Trash with Undo",
+   "title": "Round 18 addendum · Superseded by round 19 (A6, A9), see R19_AskActions · Delete Conversation (new): in the pane head’s ⋯ and on each history item; the alert (Cancel · Move to Trash); moved to the Trash with Undo",
    "page": "r18a"
   },
   "Ph18A_AskDraft.dc.html": {
-   "x": 3040,
-   "y": 14310,
+   "x": 1520,
+   "y": 15140,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q3 (revised) · the draft was also changed elsewhere: both versions kept until you choose; 44 px choices",
+   "title": "Round 18 addendum · Superseded by round 19 (A3), see Ph19_AskDrafts · Phone · Q3 (revised) · the draft was also changed elsewhere: both versions kept until you choose; 44 px choices",
    "page": "r18a"
   },
   "Ph18A_AskRevoked.dc.html": {
-   "x": 0,
-   "y": 16470,
+   "x": 1990,
+   "y": 15140,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q4 (revised) · a withheld answer: your question kept, the title “Conversation · 20 Oct 14:31”, “Ask Again in All Projects (4)”",
+   "title": "Round 18 addendum · Settled in round 19 (A4) · Phone · Q4 (revised) · a withheld answer: your question kept, the title “Conversation · 20 Oct 14:31”, “Ask Again in All Projects (4)”",
    "page": "r18a"
   },
   "Ph18A_AskRefresh.dc.html": {
-   "x": 470,
-   "y": 16470,
+   "x": 0,
+   "y": 17300,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q5 · ⋯ opens a sheet with the scope-named item and its description",
+   "title": "Round 18 addendum · Superseded by round 19 (A5), see R19_AskResend · Phone · Q5 · ⋯ opens a sheet with the scope-named item and its description",
    "page": "r18a"
   },
   "Ph18A_AskDelete.dc.html": {
-   "x": 940,
-   "y": 16470,
+   "x": 470,
+   "y": 17300,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Delete Conversation: the alert (reached from the head’s ⋯ or an item’s 44 px ⋯ in the Conversations sheet); Cancel is the default",
+   "title": "Round 18 addendum · Superseded by round 19 (A9), see Ph19_AskActions · Phone · Delete Conversation: the alert (reached from the head’s ⋯ or an item’s 44 px ⋯ in the Conversations sheet); Cancel is the default",
    "page": "r18a"
   },
   "R18A_AskStrings.dc.html": {
-   "x": 0,
-   "y": 17394,
+   "x": 940,
+   "y": 17300,
    "w": 1440,
    "h": 1100,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Ask: English and Japanese strings for Q2–Q6 and Delete Conversation (B, revised 21 Oct)",
+   "title": "Round 18 addendum · Superseded by round 19, see R19_AskStrings · Ask: English and Japanese strings for Q2–Q6 and Delete Conversation (B, revised 21 Oct)",
    "page": "r18a"
   },
   "R18A_AskWalk.dc.html": {
-   "x": 1520,
-   "y": 17394,
+   "x": 0,
+   "y": 18480,
    "w": 1440,
    "h": 1640,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Ask: walkthrough for Q2–Q6 and Delete Conversation (stable accessible names in quotes; reload, two windows, keyboard)",
+   "title": "Round 18 addendum · Superseded by round 19, see R19_AskWalk · Ask: walkthrough for Q2–Q6 and Delete Conversation (stable accessible names in quotes; reload, two windows, keyboard)",
    "page": "r18a"
   },
   "R18A_ProjectMention.dc.html": {
-   "x": 0,
-   "y": 19274,
+   "x": 1520,
+   "y": 18480,
    "w": 1440,
    "h": 3470,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q7 · Explicit project references and the @ list (revised 21 Oct)",
+   "title": "Round 18 addendum · Settled in round 19 (A7) · Q7 · Explicit project references (revised 21 Oct): an @ chip or the exact name with the word project; quotes alone and ordinary words never trigger the boundary notice",
    "page": "r18a"
   },
   "Ph18A_ProjectMention.dc.html": {
-   "x": 1520,
-   "y": 19274,
+   "x": 3040,
+   "y": 18480,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q7 · @ list",
+   "title": "Round 18 addendum · Settled in round 19 (A7) · Phone · Q7 · @ opens “Projects you can open” above the field, full width (44 px rows; the phone has no room to follow the caret); tapping inserts the chip",
    "page": "r18a"
   },
   "R18A_AskAgainPhase.dc.html": {
-   "x": 1990,
-   "y": 19274,
+   "x": 0,
+   "y": 22030,
    "w": 1440,
    "h": 2600,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q8 · Ask Again with Current Files in the project’s phase now (revised 21 Oct)",
+   "title": "Round 18 addendum · Settled in round 19 (A8) · Q8 · Ask Again with Current Files answers in the project’s phase now and says so when it differs (revised 21 Oct): a waiting plan disables it only in Implementation",
    "page": "r18a"
   },
   "Ph18A_AskAgainPhase.dc.html": {
-   "x": 0,
-   "y": 22824,
+   "x": 1520,
+   "y": 22030,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q8 · phase line in the What Pi used sheet",
+   "title": "Round 18 addendum · Settled in round 19 (A8) · Phone · Q8 · the What Pi used sheet: the phase line under the banner; the button is 44 px",
    "page": "r18a"
   },
   "R18A_ReceiptLifetime.dc.html": {
-   "x": 470,
-   "y": 22824,
+   "x": 1990,
+   "y": 22030,
    "w": 1440,
-   "h": 4400,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q9 · Receipts live as long as their messages; delete moves to the Trash (revised 21 Oct)",
+   "h": 4100,
+   "title": "Round 18 addendum · Superseded by round 19 (A9), see R19_ProjectChatActions · Q9 · A receipt lives exactly as long as its message (revised 21 Oct): kept through compaction; clearing or deleting moves the conversation and its receipts to the Trash",
    "page": "r18a"
   },
   "Ph18A_ReceiptLifetime.dc.html": {
-   "x": 1990,
-   "y": 22824,
+   "x": 0,
+   "y": 26210,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q9 · receipts kept through compaction",
+   "title": "Round 18 addendum · Settled in round 19 (A9) · Phone · Q9 · the marker (summary text scrolled past) after a summarised answer whose summary still opens the What Pi used sheet",
    "page": "r18a"
   },
   "Ph18A_ConversationMenu.dc.html": {
-   "x": 0,
-   "y": 27304,
+   "x": 470,
+   "y": 26210,
    "w": 390,
    "h": 844,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q9 · Chat ▾ › Delete Conversation…",
+   "title": "Round 18 addendum · Superseded by round 19 (A6, A9), see Ph19_ProjectChatActions · Phone · Chat ▾ placement of Delete Conversation… withdrawn: round 9 keeps conversation commands out of the Agent and Chat ▾ menus",
    "page": "r18a"
   },
   "R18A_ProjectChatStrings.dc.html": {
-   "x": 470,
-   "y": 27304,
+   "x": 940,
+   "y": 26210,
    "w": 1440,
    "h": 1010,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q7–Q9 · Project chat: EN/JA strings",
+   "title": "Round 18 addendum · Superseded by round 19 (A6–A9), see R19_ProjectChatStrings · Q7–Q9 · Project chat: EN/JA strings",
    "page": "r18a"
   },
   "R18A_ProjectChatWalk.dc.html": {
-   "x": 1990,
-   "y": 27304,
+   "x": 0,
+   "y": 27300,
    "w": 1440,
-   "h": 820,
-   "title": "Round 18 addendum · Proposed, awaiting approval · Q7–Q9 · Project chat: walkthrough",
+   "h": 750,
+   "title": "Round 18 addendum · Superseded by round 19 (A6–A9), see R19_ProjectChatWalk · Q7–Q9 · Project chat: walkthrough (Given/When/Then, controls by accessible name)",
    "page": "r18a"
+  },
+  "R19_ServiceHealth.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 4760,
+   "title": "Round 19 · Decided · Service health per operation: several failures, remote provider, unknown/checking/stale, partial recovery, coalesced Check Again; services never counted in Needs you",
+   "page": "r19"
+  },
+  "Ph19_ServiceHealth.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · several failures: the aggregate status in two lines; Stopped services above Needs you",
+   "page": "r19"
+  },
+  "R19_OverviewSelection.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 1440,
+   "h": 3160,
+   "title": "Round 19 · Decided · Overview selection: Space or a click on a row’s empty area selects (the name link still opens; hover and focus never select); it survives menus; revalidated at the action; each window keeps its own",
+   "page": "r19"
+  },
+  "R19_CancelRequest.dc.html": {
+   "x": 0,
+   "y": 4840,
+   "w": 1440,
+   "h": 1790,
+   "title": "Round 19 · Decided · Cancel Request at the request’s own location: cancelling, cancelled, already finished, idempotent, failed; New clears only on deliberate focus or open",
+   "page": "r19"
+  },
+  "Ph19_CancelRequest.dc.html": {
+   "x": 1520,
+   "y": 4840,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Cancel Request failed at the request: nothing changed; Try Again",
+   "page": "r19"
+  },
+  "R19_OverviewStrings.dc.html": {
+   "x": 1990,
+   "y": 4840,
+   "w": 1440,
+   "h": 1200,
+   "title": "Round 19 · Decided · Overview, status and selection: English and Japanese strings (A1, A6, A10)",
+   "page": "r19"
+  },
+  "R19_OverviewWalk.dc.html": {
+   "x": 0,
+   "y": 6710,
+   "w": 1440,
+   "h": 1080,
+   "title": "Round 19 · Decided · Overview, status and selection walkthrough: acceptance groups 1, 5 and part of 14 (stable accessible names; two windows, reload, keyboard)",
+   "page": "r19"
+  },
+  "R19_AskScope.dc.html": {
+   "x": 0,
+   "y": 8030,
+   "w": 1440,
+   "h": 2240,
+   "title": "Round 19 · Decided · A2 · Explicit scope: “Searching 3 of 5 projects”; new projects offered unchecked; removal or revocation takes effect at once in selection, generation, queued send and citation opening",
+   "page": "r19"
+  },
+  "R19_AskResend.dc.html": {
+   "x": 1520,
+   "y": 8030,
+   "w": 1440,
+   "h": 1240,
+   "title": "Round 19 · Decided · A5 · Resend names its actual scope; no projects → disabled “No projects available to search.”; catching up is a different, transient reason",
+   "page": "r19"
+  },
+  "R19_AskDrafts.dc.html": {
+   "x": 0,
+   "y": 10350,
+   "w": 1440,
+   "h": 3060,
+   "title": "Round 19 · Decided · A3 · Drafts are versions on the host: “Draft versions · 3”, Saved / Saving… / Unsaved (offline) / Conflict; Use This Version, Discard… to the Trash; sending keeps the others",
+   "page": "r19"
+  },
+  "R19_AskActions.dc.html": {
+   "x": 1520,
+   "y": 10350,
+   "w": 1440,
+   "h": 3060,
+   "title": "Round 19 · Decided · A6/A9 · Conversation actions beside the title and on each history row; Delete Conversation… → Trash with Undo; refused while work runs; Trash ends the history list",
+   "page": "r19"
+  },
+  "R19_AskTrash.dc.html": {
+   "x": 0,
+   "y": 13490,
+   "w": 1440,
+   "h": 2070,
+   "title": "Round 19 · Decided · A9 · ConversationTrash: list → read-only detail → Restore; idempotent; conflict never overwrites; access rechecked (neutral title, withheld answer); no permanent delete",
+   "page": "r19"
+  },
+  "R19_AskRevoked.dc.html": {
+   "x": 1520,
+   "y": 13490,
+   "w": 1440,
+   "h": 1260,
+   "title": "Round 19 · Decided · A4 · Revoked content is withheld at display and send time: question kept, answer and title hidden (“Conversation · 20 Oct 14:31”); missing provenance withheld; owner removal keeps decision 11",
+   "page": "r19"
+  },
+  "Ph19_AskDrafts.dc.html": {
+   "x": 3040,
+   "y": 13490,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A3 · Draft versions above the composer: 44 px Use / Discard; the phone is one of the devices",
+   "page": "r19"
+  },
+  "Ph19_AskOffline.dc.html": {
+   "x": 0,
+   "y": 15640,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A3 · Offline: typing stays, Unsaved; offered as a version on reconnect",
+   "page": "r19"
+  },
+  "Ph19_AskActions.dc.html": {
+   "x": 470,
+   "y": 15640,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A6 · ⋯ beside the title opens “Conversation actions” as a sheet; Delete Conversation… then the same alert",
+   "page": "r19"
+  },
+  "Ph19_AskTrash.dc.html": {
+   "x": 940,
+   "y": 15640,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A9 · Trash as its own screen: 56 px items; detail and Restore as on the desk",
+   "page": "r19"
+  },
+  "R19_AskStrings.dc.html": {
+   "x": 0,
+   "y": 16564,
+   "w": 1440,
+   "h": 1460,
+   "title": "Round 19 · Decided · Ask, drafts, Trash: English and Japanese (キャンセル = cancel; 取り消す = undo only; not native-speaker reviewed)",
+   "page": "r19"
+  },
+  "R19_AskWalk.dc.html": {
+   "x": 1520,
+   "y": 16564,
+   "w": 1440,
+   "h": 1900,
+   "title": "Round 19 · Decided · Ask, drafts, Trash: Given/When/Then for acceptance groups 2, 3, 4 and 14 (stable accessible names in quotes)",
+   "page": "r19"
+  },
+  "R19_ProjectChatActions.dc.html": {
+   "x": 0,
+   "y": 18704,
+   "w": 1440,
+   "h": 5460,
+   "title": "Round 19 · Decided · A6 / A9 · Project chat: the conversation title and “Conversation actions” in the Chat toolbar; history rows; delete, refusal, Undo, Trash and Restore (B’s ConversationTrash)",
+   "page": "r19"
+  },
+  "Ph19_ProjectChatActions.dc.html": {
+   "x": 1520,
+   "y": 18704,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A6 · the conversation title under the bar with ⋯ (44 px); ⋯ opens “Conversation actions” as a sheet — not Chat ▾",
+   "page": "r19"
+  },
+  "Ph19_ProjectChatTrash.dc.html": {
+   "x": 1990,
+   "y": 18704,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A9 · Trash as its own screen (from Earlier Conversations… › Trash); detail and Restore as on the desk",
+   "page": "r19"
+  },
+  "R19_ProjectMention.dc.html": {
+   "x": 0,
+   "y": 24244,
+   "w": 1440,
+   "h": 2630,
+   "title": "Round 19 · Decided · A7 · Project references: @ list at the caret on wrapped lines, scrolling, IME, unauthorized and empty results; duplicate names get “Which Notes?”",
+   "page": "r19"
+  },
+  "Ph19_ProjectMention.dc.html": {
+   "x": 1520,
+   "y": 24244,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · A7 · with the touch keyboard up: the list sits above the field, full width, 44 px rows",
+   "page": "r19"
+  },
+  "R19_ProjectChatResend.dc.html": {
+   "x": 1990,
+   "y": 24244,
+   "w": 1440,
+   "h": 2620,
+   "title": "Round 19 · Decided · A8 · Ask Again with Current Files uses current permissions: three phases with a waiting plan; rechecks at submission; failures keep the text",
+   "page": "r19"
+  },
+  "R19_ProjectChatReceipts.dc.html": {
+   "x": 0,
+   "y": 26954,
+   "w": 1440,
+   "h": 3470,
+   "title": "Round 19 · Decided · A9 · Receipts follow messages: kept through compaction, flags still computed, back with Restore; “Recorded before receipts were kept” for older messages",
+   "page": "r19"
+  },
+  "R19_ProjectChatStrings.dc.html": {
+   "x": 1520,
+   "y": 26954,
+   "w": 1440,
+   "h": 1000,
+   "title": "Round 19 · Decided · Project chat (A6–A9): EN/JA strings (no native-speaker review claimed)",
+   "page": "r19"
+  },
+  "R19_ProjectChatWalk.dc.html": {
+   "x": 0,
+   "y": 30504,
+   "w": 1440,
+   "h": 800,
+   "title": "Round 19 · Decided · Project chat (A6–A9): walkthrough, acceptance groups 4 (project side), 6, 7, 8, 14",
+   "page": "r19"
+  },
+  "R19_RecFirstUse.dc.html": {
+   "x": 0,
+   "y": 31544,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 19 · Decided · B · Recording WorkStation is offered, never started: a quiet notice once, the menu-bar button, and the first-use explanation (Not Now is the default; Enable Recording starts it); the Preview keeps its own setting",
+   "page": "r19"
+  },
+  "R19_RecSurfaces.dc.html": {
+   "x": 1520,
+   "y": 31544,
+   "w": 1440,
+   "h": 2900,
+   "title": "Round 19 · Decided · B · The WorkStation recording button on Projects, project chat, Work (files), Settings and Overview: one per browser window, in the menu bar, naming the surface and where the steps go",
+   "page": "r19"
+  },
+  "R19_RecControl.dc.html": {
+   "x": 0,
+   "y": 34524,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 19 · Decided · B · The WorkStation popover: what this window records and where it goes; Stop Recording WorkStation stops only this surface; Stop All Recording stops every surface without deleting anything",
+   "page": "r19"
+  },
+  "R19_RecStop.dc.html": {
+   "x": 1520,
+   "y": 34524,
+   "w": 1440,
+   "h": 1240,
+   "title": "Round 19 · Decided · B · Stop one surface or all, mirrored across windows, reload, keyboard, and where the evidence lives for a remote device (group 9)",
+   "page": "r19"
+  },
+  "R19_RecCoverage.dc.html": {
+   "x": 0,
+   "y": 35844,
+   "w": 1440,
+   "h": 1190,
+   "title": "Round 19 · Decided · B · What is recorded: focus/blur, canvas clicks with coordinates, real key down/up, scroll and size; coverage limits shown; typed text and secrets absent at every stage (group 10)",
+   "page": "r19"
+  },
+  "R19_RecSessions.dc.html": {
+   "x": 1520,
+   "y": 35844,
+   "w": 1440,
+   "h": 920,
+   "title": "Round 19 · Decided · B · Flows are sessions: rotated on project or surface change, reload and reproduction; attribution fixed at capture; late, stale and spoofed batches refused (group 11)",
+   "page": "r19"
+  },
+  "R19_RecStates.dc.html": {
+   "x": 0,
+   "y": 37114,
+   "w": 1440,
+   "h": 1660,
+   "title": "Round 19 · Decided · B · Every recording state on both surfaces: initializing, paused, transport lost, unknown, unsupported Preview, storage full, truncation, restart and recovery; none blocks chat, answers or saves (group 12)",
+   "page": "r19"
+  },
+  "R19_RecHistory.dc.html": {
+   "x": 1520,
+   "y": 37114,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 19 · Decided · B · Recording History: WorkStation, Preview and outside-projects flows kept apart; each flow’s end, gap or truncation said; inspection is read-only",
+   "page": "r19"
+  },
+  "R19_RecAttach.dc.html": {
+   "x": 0,
+   "y": 38854,
+   "w": 1440,
+   "h": 900,
+   "title": "Round 19 · Decided · B · Mixed-surface evidence: you choose each flow; the destination project is named; outside-project and other-project flows are unchecked and never attached on their own",
+   "page": "r19"
+  },
+  "R19_RecEvidence.dc.html": {
+   "x": 1520,
+   "y": 38854,
+   "w": 1440,
+   "h": 2440,
+   "title": "Round 19 · Decided · B · Reproduce on both surfaces (Cancel / Done attaches without sending), remove before and after send, Clear by exact scope to the Trash, restore without restarting, and an external report only after its redacted text is reviewed (group 13)",
+   "page": "r19"
+  },
+  "R19_Rec1024.dc.html": {
+   "x": 3040,
+   "y": 38854,
+   "w": 1024,
+   "h": 900,
+   "title": "Round 19 · Decided · B · At 1024 the menu-bar button keeps “Recording WorkStation” and drops the project (its name keeps it); the Preview foot wraps",
+   "page": "r19"
+  },
+  "R19_RecResponsive.dc.html": {
+   "x": 0,
+   "y": 41374,
+   "w": 1440,
+   "h": 2120,
+   "title": "Round 19 · Decided · B · Recording at 320 px, Inverse (dark), long names and Japanese; focus, Escape/Tab and screen-reader rules (group 14)",
+   "page": "r19"
+  },
+  "Ph19_RecFirstUse.dc.html": {
+   "x": 1520,
+   "y": 41374,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Record what you do in Pi WorkStation?: the first-use sheet; Not Now first; nothing recorded before Enable",
+   "page": "r19"
+  },
+  "Ph19_RecStatus.dc.html": {
+   "x": 1990,
+   "y": 41374,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · the WorkStation strip under the phone bar while recording (44 px); it opens the recording sheet with where the evidence lives",
+   "page": "r19"
+  },
+  "Ph19_RecOverview.dc.html": {
+   "x": 0,
+   "y": 43574,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Overview: a stop from the desk is mirrored — the strip reads “WorkStation not recording” and one polite line says so; the strip stays once recording was enabled",
+   "page": "r19"
+  },
+  "Ph19_RecAttach.dc.html": {
+   "x": 470,
+   "y": 43574,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Attach recordings: the destination first; outside-project flows unchecked",
+   "page": "r19"
+  },
+  "Ph19_RecReport.dc.html": {
+   "x": 940,
+   "y": 43574,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Review what GitHub will receive: the exact redacted text, then Open Issue; Cancel first",
+   "page": "r19"
+  },
+  "R19_RecStrings.dc.html": {
+   "x": 0,
+   "y": 44498,
+   "w": 1440,
+   "h": 1900,
+   "title": "Round 19 · Decided · B · Recording on WorkStation and Preview: English and Japanese strings (no native-speaker review claimed)",
+   "page": "r19"
+  },
+  "R19_RecWalk.dc.html": {
+   "x": 1520,
+   "y": 44498,
+   "w": 1440,
+   "h": 1180,
+   "title": "Round 19 · Decided · B · Recording walkthrough: acceptance groups 9–13 and part of 14, Given/When/Then with stable accessible names",
+   "page": "r19"
   }
  },
  "createdOnFiles": {
@@ -4829,7 +5205,54 @@
   "Ph18A_ReceiptLifetime.dc.html",
   "Ph18A_ConversationMenu.dc.html",
   "R18A_ProjectChatStrings.dc.html",
-  "R18A_ProjectChatWalk.dc.html"
+  "R18A_ProjectChatWalk.dc.html",
+  "R19_ServiceHealth.dc.html",
+  "Ph19_ServiceHealth.dc.html",
+  "R19_OverviewSelection.dc.html",
+  "R19_CancelRequest.dc.html",
+  "Ph19_CancelRequest.dc.html",
+  "R19_OverviewStrings.dc.html",
+  "R19_OverviewWalk.dc.html",
+  "R19_AskScope.dc.html",
+  "R19_AskResend.dc.html",
+  "R19_AskDrafts.dc.html",
+  "R19_AskActions.dc.html",
+  "R19_AskTrash.dc.html",
+  "R19_AskRevoked.dc.html",
+  "Ph19_AskDrafts.dc.html",
+  "Ph19_AskOffline.dc.html",
+  "Ph19_AskActions.dc.html",
+  "Ph19_AskTrash.dc.html",
+  "R19_AskStrings.dc.html",
+  "R19_AskWalk.dc.html",
+  "R19_ProjectChatActions.dc.html",
+  "Ph19_ProjectChatActions.dc.html",
+  "Ph19_ProjectChatTrash.dc.html",
+  "R19_ProjectMention.dc.html",
+  "Ph19_ProjectMention.dc.html",
+  "R19_ProjectChatResend.dc.html",
+  "R19_ProjectChatReceipts.dc.html",
+  "R19_ProjectChatStrings.dc.html",
+  "R19_ProjectChatWalk.dc.html",
+  "R19_RecFirstUse.dc.html",
+  "R19_RecSurfaces.dc.html",
+  "R19_RecControl.dc.html",
+  "R19_RecStop.dc.html",
+  "R19_RecCoverage.dc.html",
+  "R19_RecSessions.dc.html",
+  "R19_RecStates.dc.html",
+  "R19_RecHistory.dc.html",
+  "R19_RecAttach.dc.html",
+  "R19_RecEvidence.dc.html",
+  "R19_Rec1024.dc.html",
+  "R19_RecResponsive.dc.html",
+  "Ph19_RecFirstUse.dc.html",
+  "Ph19_RecStatus.dc.html",
+  "Ph19_RecOverview.dc.html",
+  "Ph19_RecAttach.dc.html",
+  "Ph19_RecReport.dc.html",
+  "R19_RecStrings.dc.html",
+  "R19_RecWalk.dc.html"
  ],
  "pages": [
   {
@@ -4895,6 +5318,10 @@
   {
    "id": "r18a",
    "name": "Round 18 addendum: follow-up questions"
+  },
+  {
+   "id": "r19",
+   "name": "Round 19: final design integration"
   },
   {
    "id": "edit",

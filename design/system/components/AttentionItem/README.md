@@ -123,7 +123,7 @@ Superseded round 17 text (old → new): "Kinds (in this order) … service" last
 
 Walkthrough: Given focus is on home-server's check-in, When a Class Notes question arrives, Then it lists after Pong's question, focus and position stay, and "1 new item in Needs you" is announced once; When the focused Class Notes question is answered in another window, Then focus moves to the next item and "Class Notes: answered" is announced.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_CancelCheckNew.
 
@@ -136,5 +136,15 @@ Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_CancelCheckNew.
   - Screen readers hear it once, in "1 new item in Needs you".
   - Scoped CSS: `.pw-attn--r18a`. Round 18's `::after` marker keeps working elsewhere.
   - Would supersede (if approved): round 18's "until focused or 60 s".
-  - Alternative (not recommended): the 60 s timer.
+  - Superseded: Alternative (not recommended): the 60 s timer. (not chosen in round 19)
 - **Q10: Cancel Request.** It is never on an item; the item's ⋯ keeps only Open {X} and Open in New Window.
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Decided (round 19, A1 and A10).
+
+- **Services.** Services are never attention items.
+- **New tag.** It marks an item that arrived while this window was open. It clears only on deliberate focus (the person moves keyboard focus to it, or clicks) or on opening; hover, background refresh, reconnect and other windows never clear it. There is no timer.
+- **Clearing never resolves.** Clearing New never answers, acknowledges or resolves the item.
+- **Cancel Request.** It is never on an item.
+- **Round 19 board items.** They carry `.pw-attn--r19`, so the request line wraps; round 18 items are unchanged.

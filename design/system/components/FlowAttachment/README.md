@@ -59,3 +59,44 @@ Summary is a button (Space/Return toggles). Order: summary → steps (not focusa
 
 - The 30-minute window for “recent”.
 - Whether System 1 also attaches on a plain question about a screen (not a reported problem).
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Brief section B. Boards: R19_RecCoverage, R19_RecAttach, R19_RecEvidence, R19_RecSessions, Ph19_RecAttach. A message may now carry flows from **both surfaces**: Preview and WorkStation. Design only.
+
+### What attaches, and how
+
+- **Automatic** (round 15 rule, kept): only this project's recent flows (Preview, and WorkStation if enabled) when System 1 classifies the message as reporting a problem. Never outside-project flows, never another project's flows.
+- **Deliberate:** “Attach recordings” (from Attach…, the attachment foot's “Attach More…”, or Recording History's “Attach to Message…”): dialog `aria-labelledby="pick-title"`, `p.pw-destline` “Destination: Class Notes · this chat's draft. Attaching sends nothing; you send the message.”, then `fieldset.pw-evidence` with `p.pw-evgroup` headings: Class Notes · Preview (checked), Class Notes · WorkStation (checked), Outside projects · WorkStation (**unchecked**, “only if you choose it”), Other projects (**unchecked**, only projects the person can open). A live count “2 flows · 16 steps · to Class Notes”. Cancel · **Attach to Draft** (default). Attaching puts `.pw-chip`s on the draft; nothing is sent.
+- Each step row may carry `span.pw-flow__src` (Preview / WorkStation) when one attachment mixes surfaces; `p.pw-flow__gap` says a gap or truncation; `p.pw-flow__limits` says what isn't covered.
+
+### Removal
+
+- **Before Send:** the chip's ✕ (`aria-label="Remove {name}"`) leaves it out of that submission.
+- **After Send:** Remove from Message hides it and adds: “Removed from this message. Pi already received these steps with your message at 14:23 and its answer may use them; removing them here can't take that back. Later requests won't include them.” (JA: R19_RecStrings.)
+
+### States
+
+| State | What shows |
+| --- | --- |
+| Idle | the summary line, closed |
+| Loading | Not applicable: the steps come from the host with the message; a missing flow is “Missing” below |
+| Empty | Not applicable: an empty flow is never attached (round 15 notice offers Record It Again…) |
+| Missing / unavailable | “These steps are no longer available (cleared or expired).” — no step list, never reconstructed |
+| Stale | the list as recorded, with “Recorded 14:21–14:22” (never re-read live) |
+| Truncated / gap | `.pw-flow__gap` lines |
+| Access lost (restored or revoked project) | steps hidden: “This flow is from a project you can no longer open, so its steps stay hidden.” |
+| Disabled | Save as Test Draft… in Discussion (round 15) |
+| Conflict | Not applicable: attachments are per message |
+
+Inspection is read-only; selecting a step never runs anything. Save as Test Draft… still writes a failing draft needing assertions and normal phase/verification rules; a journey is not a passing test.
+
+### Focus
+
+Attach recordings opens with focus on the first checkbox; Cancel/Esc returns to the control that opened it; Attach to Draft returns focus to the composer field. After Remove from Message focus moves to the message (round 15).
+
+### Walkthrough (round 19)
+
+1. **Outside never auto-attaches** · Given Overview steps from 14:18 and Class Notes steps from 14:20 · When “The Add button didn't work.” is sent in Class Notes · Then only Class Notes' flows are attached.
+2. **Deliberate mixed selection** · When “Attach recordings”, check “This window · Overview”, “Attach to Draft” · Then the draft shows three chips and nothing is sent.
+3. **Remove before / after** · as above; after Send the note says it can't be taken back.

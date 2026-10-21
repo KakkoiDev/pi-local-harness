@@ -69,3 +69,90 @@ Retention: on this Mac, with this project only, 7 days, at most 20 flows (oldest
 
 - On by default (drawn) or off until turned on.
 - Retention: 7 days and 20 flows are proposals; the owner may set others.
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Brief `design/briefs/round-19-final-integration.md`, section B. Recording covers **both surfaces**: Pi WorkStation and the Preview. Boards: R19_RecFirstUse, R19_RecSurfaces, R19_RecControl, R19_RecStop, R19_RecStates, R19_RecSessions, R19_Rec1024, R19_RecResponsive, R19_RecStrings, R19_RecWalk, Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview. Capture lives in test-core; storage, permissions and presentation in WorkStation. Recording is evidence collection, never a grant of agent authority. Design only: nothing here claims the runtime exists.
+
+Settled from the round 15 open choices: the Preview stays **on by default per project** (unchanged, now always labelled); retention is **7 days, at most 20 flows**, per project, and the same limits separately for WorkStation per project and for a WorkStation-only **outside projects** history; “recent” stays 30 minutes. WorkStation recording is **off until the person presses Enable Recording**.
+
+### Two buttons, one per surface
+
+- **WorkStation:** `button.pw-recstat.pw-recstat--bar#ws-recording-status` in the menu bar, left of the agent status (one per browser window, so it sits over Projects, the project chat, Work/files, Settings and Overview; no extra toolbar slot in Overview). `aria-controls="ws-recording-popover"`. Text names the surface and where this window's steps go: “Recording WorkStation · Class Notes” / “· outside projects”. The destination is fixed per step at event time by the desk window it happened in (project window → that project; Overview, Projects, Settings → outside projects); the button shows the active window's destination. 1024: “Recording WorkStation” (destination stays in the accessible name). Long names ellipsize at 340 px.
+- **Preview:** the round 15 button keeps its place; its words now name the surface: “Recording Preview · 9 steps”, “Preview not recording”, “Preview not recording · app stopped”, “Preview can't be recorded”, “Preview recording paused”, “Starting Preview recording…”.
+- **Phone:** `div.pw-recbar` (44 px) under the phone bar from the moment WorkStation recording is enabled (on or off); it opens the sheet “Pi WorkStation recording”. Before enabling, the switch is in π › Settings… and the first-use sheet.
+- Neither button ever claims the other's state.
+
+### First use (WorkStation)
+
+A one-time HarnessNotice (role=note, no focus move) in the Projects window: “New: Pi WorkStation can record what you do in its windows, so Pi can see what led to a problem. It stays off until you turn it on.” · Recording Options… · Not Now. Pressing the WorkStation button (or Recording Options…, or Record WorkStation later) opens the dialog `#wsrec-first` “Record what you do in Pi WorkStation?” (Kept · Never kept · Where · How long; the Preview's own setting named) with **Not Now** (default, Esc) and **Enable Recording**. The choice is kept per person on the host (“locally”: on the computer running Pi WorkStation, not in browser storage). Nothing is captured before Enable.
+
+### Popover `#ws-recording-popover`
+
+Title “Recording Pi WorkStation · this window”; `.pw-recpop__scope` (Kept with: Class Notes, this window's project · Overview, Projects and Settings: outside projects, a separate history · This flow: since 14:31 · 42 steps); the facts; `.pw-recpop__other` showing the Preview's state; one help line. Buttons: **Stop Recording WorkStation** (on) / **Record WorkStation** (off) / **Try Again** (paused, lost) · **Stop All Recording** · **Recording History…** · **Report a Problem…**. Remote device (any browser that is not the host): “Recordings are kept on Aiko's MacBook, the computer running Pi WorkStation: not on this phone, not in a cloud service.” The Preview popover's Stop Recording becomes **Stop Recording Preview** and gains **Stop All Recording** and **Recording History…**.
+
+### States
+
+| State | WorkStation text | Preview text | Notes |
+| --- | --- | --- | --- |
+| Idle, never enabled / Not Now / stopped | WorkStation not recording | Preview not recording | Preview off only when the person stopped it |
+| Loading (initializing) | Starting WorkStation recording… | Starting Preview recording… | until the host opens a session / the bridge handshake answers; never “Recording” before it is true (`.pw-recstat--init`) |
+| On | Recording WorkStation · {project} | Recording Preview · {n} steps | |
+| Empty | Recording WorkStation · {project} (popover: “This flow: no steps yet”) | Recording Preview · no steps yet | |
+| Error: storage full/failing | WorkStation recording paused | Preview recording paused | notice + Try Again; chats, answers and saves unaffected |
+| Error: transport lost | WorkStation recording · not connected | (Preview follows the page) | `.pw-recstat--lost`; in-flight steps delivered only if the flow is still open, else a gap |
+| Stale / unknown | WorkStation recording status unknown | — | host hasn't confirmed; never shown as on (`.pw-recstat--unknown`) |
+| Unavailable | — | Preview can't be recorded | unsupported or injection-blocked page; never “on” (`.pw-recstat--unavailable`) |
+| Disabled | Not applicable: the button is never disabled; when the host is unreachable it opens the popover with the not-connected text | | |
+| Conflict | Stop in another window wins: mirrored to every window of the person; announced once “WorkStation recording stopped in another window.” | | |
+| Reproduction | Recording a reproduction · WorkStation | Recording a reproduction · Preview | ProblemReport |
+
+Restart: “Pi WorkStation restarted at 14:41. The flow before it ended there; recording continues in a new flow (recording again since 14:42).” Quota: oldest flow removed, said as “the limit, not a failure”.
+
+### Who may invoke, persistence, cancellation, focus
+
+- Enable Recording / Not Now / Stop / Record WorkStation: the signed-in person, for their own WorkStation recording. Preview switch: a person who may open the project. Stop All Recording: the signed-in person; stops their WorkStation recording and every Preview recording they can open; deletes nothing, starts nothing. All calls go through normal authentication and project authorization.
+- Persistence: the enable/stop choice and the flows live on the host (per person; per project or outside projects). Nothing in browser persistent storage.
+- Cancellation: Not Now cancels the first use; Esc closes the popover without change. Stop is immediate and not undoable (Record WorkStation starts a new session).
+- Focus: Esc/Tab-out returns focus to the button that opened the popover; Stop keeps focus on the same button; Stop All closes the popover and returns focus to the WorkStation button; toasts are polite and never focused.
+
+### Keyboard and screen readers
+
+Tab reaches the WorkStation button in the menu bar's status area before the agent status; Space/Return opens; Tab/⇧Tab inside; Esc closes. State changes are announced once through the button's name; steps are never announced; reduced motion: no animation (initializing is a dotted dot). The recorder only listens and never moves focus.
+
+### Texts (round 19)
+
+| English | 日本語 |
+| --- | --- |
+| Recording WorkStation · {project} | WorkStation を記録中 · {project} |
+| Recording WorkStation · outside projects | WorkStation を記録中 · プロジェクト外 |
+| WorkStation not recording | WorkStation は記録していません |
+| Starting WorkStation recording… | WorkStation の記録を開始中… |
+| WorkStation recording paused | WorkStation の記録を一時停止中 |
+| WorkStation recording · not connected | WorkStation の記録 · 接続していません |
+| WorkStation recording status unknown | WorkStation の記録状態は不明 |
+| Recording Preview · {n} steps | Preview を記録中 · {n} ステップ |
+| Preview not recording | Preview は記録していません |
+| Preview can't be recorded | Preview は記録できません |
+| Record what you do in Pi WorkStation? | Pi WorkStation での操作を記録しますか？ |
+| Enable Recording / Not Now | 記録を有効にする / 今はしない |
+| Stop Recording WorkStation / Stop Recording Preview / Stop All Recording | WorkStation の記録を止める / Preview の記録を止める / すべての記録を止める |
+| Record WorkStation / Recording History… | WorkStation を記録 / 記録の履歴… |
+| WorkStation recording stopped. The Preview is still recording. | WorkStation の記録を止めました。Preview は記録を続けています。 |
+| All recording stopped. What was recorded is kept. | すべての記録を止めました。記録済みの内容は残っています。 |
+
+Full list: R19_RecStrings. No native-speaker review claimed.
+
+### Changed text (round 15 → round 19)
+
+- Preview button “Recording · {n} steps” → “Recording Preview · {n} steps”; “Not recording” → “Preview not recording”; “Not recording · app stopped” → “Preview not recording · app stopped”; “Can't record this page” → “Preview can't be recorded” (popover keeps the reason); accessible name “Recording on: 9 steps from this project…” → “Recording Preview on: 9 steps from Class Notes. Recording options”.
+- Preview popover “Stop Recording” → “Stop Recording Preview”; adds Stop All Recording and Recording History….
+- “Open product choices” of round 15: settled as above (Superseded: “On by default (drawn) or off until turned on” — the Preview stays on; WorkStation is off until enabled).
+
+### Walkthrough (round 19)
+
+1. **Enable** · Given a person who never decided · When “WorkStation not recording”, then “Enable Recording” · Then “Starting WorkStation recording…”, then “Recording WorkStation · Class Notes”; nothing before Enable.
+2. **Decline and reload** · Given the first-use dialog · When “Not Now”, then reload · Then nothing is recorded and the button still reads “WorkStation not recording”.
+3. **Stop one, keyboard** · Given both surfaces recording · When Tab to the WorkStation button, Space, Return on “Stop Recording WorkStation” · Then the Preview still reads “Recording Preview · 9 steps”.
+4. **Stop all, two windows** · Given two windows · When “Stop All Recording” in one · Then both surfaces read not recording in both; the other window announces once; history kept.
+5. **Unknown is not on** · Given the host stops confirming · Then “WorkStation recording status unknown”, never “Recording WorkStation”.

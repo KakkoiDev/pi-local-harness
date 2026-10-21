@@ -31,16 +31,30 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 - Window › **Projects** (checkbox) at 1024: unchecked by default. Checking it opens the Projects window; once opened explicitly it stays open when the browser is resized to 1024, with its scroll, open groups and selection. Only its close box or unchecking hides it. Board R18_Overview1024, R18_OverviewWindows.
 - JA: Window › 「概要 · すべてのプロジェクト ⌃⌥0」; the StatusButton words follow StatusButton § Round 18.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review.
 
 - **Q6 (Recommended).**
   - ⌃⌥N stays **New File…** everywhere (round 13), including in the Ask pane.
   - In Overview, File › New File… is disabled with "Open a project to add a file.".
-  - New Task… is disabled until a project row is selected, with "Select a project to add a task." (JA タスクを追加するプロジェクトを選んでください。). With a row selected (the Projects grid's current row, kept when focus moves to the menu bar) it reads "New Task in Class Notes…" (JA Class Notes に新しいタスク…) ⌃⌥T and adds the task to that project.
+  - Superseded: New Task… is disabled until a project row is selected, with "Select a project to add a task." (JA タスクを追加するプロジェクトを選んでください。). With a row selected (the Projects grid's current row, kept when focus moves to the menu bar) it reads "New Task in Class Notes…" (JA Class Notes に新しいタスク…) ⌃⌥T and adds the task to that project. (round 19 A6: selection is explicit — Space, or a click on the row’s empty area; the focused row alone never selects)
   - New Conversation has no shortcut. It is reached with ⌃⌥0, then Tab to the pane's **New** button or the conversation popup's first item.
   - The Window menu is unchanged.
   - Would supersede (if approved): round 18's "⌃⌥N anywhere in the Ask pane = New Conversation" and its `aria-keyshortcuts`.
-  - Alternative (not recommended): "New Conversation ⌃⌥N (in Ask)".
+  - Superseded: Alternative (not recommended): "New Conversation ⌃⌥N (in Ask)". (not chosen in round 19)
   - Board: R18A_NewConversationKeys.
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Decided (round 19, A6).
+
+- **Shortcuts.** ⌃⌥N stays **New File…**; New Conversation has no shortcut.
+- **Overview's File menu.**
+  - New File… is disabled with "Open a project to add a file.".
+  - New Task… is disabled with "Select a project to add a task." until a project is explicitly selected (Space on the focused row, or a click on the row’s empty area); then it reads "New Task in {project}…".
+  - The selection survives focus into menus; Esc returns focus without changing it.
+  - Only the invoking window's selection is used, and it is revalidated at the action.
+- **Conversation commands** never go in the Agent or view menus (round 9). They live in the conversation's own ⋯ menu (workers B and C).
+
+Board: R19_OverviewSelection.

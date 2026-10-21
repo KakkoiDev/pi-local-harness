@@ -1,4 +1,6 @@
-# Round 18 addendum handoff: ten follow-up questions (proposed)
+# Round 18 addendum handoff: ten follow-up questions
+
+> **Status update, 21 Oct 2026:** settled or superseded by Round 19. The owner-delegated decision record is [round-19-final-integration](../../design/briefs/round-19-final-integration.md), and the design handoff is [round-19-design-2026-10-21](round-19-design-2026-10-21.md). Where this file and Round 19 differ, Round 19 wins. The text below is kept for history.
 
 Design only. **Every item here is a proposal awaiting the owner's approval, not a decision.** Round 18 and the twenty approved decisions in [plan 360](../plans/360-round-17-product-decisions.md) remain the specification until the owner approves a proposal.
 
@@ -8,7 +10,7 @@ A reviewer accepted the first recommendations' direction on 21 Oct, with correct
 
 ## Questions → artifacts → status
 
-All rows are **proposed, awaiting approval (revised after review)**.
+All rows were proposals (revised after review). **They are now decided in Round 19 (A1–A10)**, with the changes recorded there.
 
 | # | Question | Recommended (revision 2) | Alternative | Boards | Components |
 | --- | --- | --- | --- | --- | --- |

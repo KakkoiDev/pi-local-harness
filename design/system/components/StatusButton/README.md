@@ -30,16 +30,49 @@ While (2) holds nothing says Working, Idle or Ready anywhere (Agent row "Can’t
 
 Superseded (old → new): round 17 "otherwise as before (Ready, Working · 1 waiting, 1 waiting, Connection interrupted + Reconnect)" with a stopped service only counted in "need you" → the five-step priority above; a work-blocking service now changes the words.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
-Revised 21 Oct after review. Nothing here is decided. Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
+Revised 21 Oct after review; settled or superseded in round 19 (see Round 19 below). Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
 
 - **Recommended (Q1): blocking is per operation.** The selected model's server (Ollama) blocks generation; Gate blocks tool execution. A stopped Preview, speech or search shows only in its own feature and never changes this button. Priority is otherwise as round 18, with these words:
   - Ollama stopped: "Can’t run work · Ollama stopped" (round 18).
   - Gate only: "Can’t run tools · Gate stopped" (JA ツールを実行できません · Gate 停止中). aria-label: "Agent status: can’t run tools, Gate stopped, 2 need you. Open Overview".
-  - Both: "Can’t run work · Ollama and Gate stopped" (JA 作業を実行できません · Ollama と Gate が停止中). aria-label: "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview".
+  - Superseded: Both: "Can’t run work · Ollama and Gate stopped" (JA 作業を実行できません · Ollama と Gate が停止中). aria-label: "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview". (round 19 A1: two or more failures use the aggregate “Can’t run work · 2 services stopped”)
 - **The need-you count.** " · {n} need you" is appended only for requests waiting on a decision: questions, plans, check-ins, failed or interrupted requests. Stopped services are never counted.
 - **Recovery.** When one service answers again, "{service}: running again" is announced once and the button shows the words for what is still stopped.
 - **Phone.** The words wrap to two lines inside the 44 px button.
 - **Would supersede (if approved).** Round 18's "Non-blocking problems only add to the count" and the blocking service item counted in Needs you.
-- **Alternative (not recommended).** "Can’t run work · 2 services stopped · 2 need you" (the first addendum proposal).
+- Superseded: **Alternative (not recommended).** "Can’t run work · 2 services stopped · 2 need you" (the first addendum proposal). (round 19 A1 adopts these words for several failures; services still never go into Needs you)
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Decided in round 19 (owner-delegated, 21 Oct 2026; brief design/briefs/round-19-final-integration.md, A1). Boards: R19_ServiceHealth, Ph19_ServiceHealth.
+
+**Priority, highest first; one state is shown:**
+1. Connection interrupted.
+2. Definite failures:
+   - Two or more: "Can’t run work · 2 services stopped" (JA 作業を実行できません · 2 つのサービスが停止中).
+   - One generation failure: "Can’t run work · {provider} stopped", or for a remote provider "Can’t run work · {provider} not reachable" (JA 作業を実行できません · {provider} に接続できません).
+   - Tools: "Can’t run tools · Gate stopped".
+3. "Service status unknown" (JA サービスの状態は不明): health is unknown, checking or stale and nothing has definitely failed. It never says Working, Ready or stopped.
+4. Attention.
+5. Working / Waiting.
+6. Ready.
+
+**Rules**
+- " · {n} need you" is appended only for decisions; services are never counted.
+- The accessible name lists each failing operation, e.g. "Agent status: can’t run work, 2 services stopped: studio.local not reachable, Gate stopped, 2 need you. Open Overview".
+- The selected provider is whichever provider generation uses (local Ollama or remote, e.g. studio.local), from System 1 health records.
+- Partial recovery drops to the remaining words, with one "{service}: running again".
+- Phone: the words wrap to two lines inside the 44 px button.
+
+**States**
+- Idle: Ready.
+- Loading: N/A. The button shows the last known state; Overview freshness covers loading.
+- Empty: N/A.
+- Error: definite failures (above).
+- Disabled: N/A (always opens Overview).
+- Stale: "Service status unknown".
+- Conflict: N/A.
+
+**Who may invoke:** any signed-in person (it opens Overview).

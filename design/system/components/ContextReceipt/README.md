@@ -223,7 +223,7 @@ See R18_ContextWalk (11 stories): every message keeps its receipt · Show All ·
 - States row “Before sending: the line previews the selection for the draft … read times are absent until sent” → “Draft: no receipt”.
 - Open product choices of round 17 are all resolved (decisions 14–19); none remain for this card.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review.
 
@@ -249,3 +249,35 @@ Revised 21 Oct after review.
 Boards: R18A_AskAgainPhase, Ph18A_AskAgainPhase, R18A_ReceiptLifetime, Ph18A_ReceiptLifetime, Ph18A_ConversationMenu.
 
 Would supersede (round 18): “Pressing it sends at once, in the same conversation” → “…in the project's phase now, saying so when it differs”.
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Design only; not implemented. Boards: R19_ProjectChatResend, R19_ProjectChatReceipts, R19_ProjectChatActions, R19_ProjectChatWalk.
+
+**A8 · Ask Again with Current Files uses current permissions.**
+
+- **Phase:** it shows the phase it will use (the addendum's phase line).
+- **A waiting plan:** permits Discussion; permits Planning, with “A plan is waiting for your approval; this answer won’t replace it.”; blocks Implementation (disabled, “Answer the waiting plan first.”).
+- **Recheck at press:** phase, scope and authorization are rechecked when pressed. If the project moved to Implementation with a plan waiting since the receipt opened, the press is refused: “Not sent: the project is now in Implementation and a plan is waiting.” (role=alert in the banner). The button then turns disabled.
+- **Failure:** “Couldn’t ask again: the connection was interrupted. Nothing was sent.”, and the button is enabled again.
+- **No fallback:** it never falls back silently to anything else. Retry with recorded inputs is the dashboard's **Retry**, not offered here.
+
+| State | Ask Again with Current Files |
+| --- | --- |
+| Idle | Enabled. |
+| Loading | “Sending…”, disabled; repeat presses do nothing. |
+| Empty | Not applicable: there is always the original message text. |
+| Error | Couldn't ask again, as above. |
+| Disabled | Pi is answering; or Implementation with a plan waiting. |
+| Stale | The phase or scope changed: rechecked at press. |
+| Conflict | Not applicable: a resend never edits the original. |
+
+- **Search:** when search is catching up, the button stays enabled (the project is the scope), and the new receipt lists “Not searched: search was catching up”. “No projects available to search” never applies in project chat.
+- **Who:** the signed-in person, with access to the project. **Cancellation:** the new request is cancelled like any request, at its own location. **Focus:** stays on the button.
+
+**A9 · receipts follow messages.**
+
+- **Compaction** keeps receipts and evidence references. Changed and no-longer-available flags are still computed when a receipt opens; compaction never implies files are unchanged.
+- **Delete** moves the conversation with its receipts and draft versions to the conversation Trash (B's ConversationTrash).
+- **Restore** brings them back with access rechecked: a file the person can no longer open stays “File no longer available”.
+- **No provenance:** messages without a receipt say “Recorded before receipts were kept”.

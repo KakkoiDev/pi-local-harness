@@ -1745,7 +1745,7 @@ HTML nesting and `pw-` class definitions checked on all 41 boards and every card
 
 ## 2026-10-21 · Round 18 addendum: ten follow-up questions (proposed, awaiting owner approval)
 
-**Status: nothing in this section is approved.** It answers the ten “Genuinely new unresolved issues” in `docs/handoff/round-18-design-2026-10-20.md` with a **Recommended** proposal and, where useful, an **Alternative (not recommended)**. Until the owner approves a proposal, round 18 stays the specification; the twenty decisions of plan 360 are unchanged and nothing here contradicts them. No follow-up brief was in the repository (`design/briefs/round-18-follow-up-questions.md` does not exist), so the recommendations are the designer's.
+**Status (updated 21 Oct): settled or superseded by Round 19** (`design/briefs/round-19-final-integration.md`, owner-delegated). Where this section and Round 19 differ, Round 19 wins. The original status line follows for history: **Status: nothing in this section is approved.** It answers the ten “Genuinely new unresolved issues” in `docs/handoff/round-18-design-2026-10-20.md` with a **Recommended** proposal and, where useful, an **Alternative (not recommended)**. Until the owner approves a proposal, round 18 stays the specification; the twenty decisions of plan 360 are unchanged and nothing here contradicts them. No follow-up brief was in the repository (`design/briefs/round-18-follow-up-questions.md` does not exist), so the recommendations are the designer's.
 
 Boards: canvas page **Round 18 addendum: follow-up questions** (28 boards: 18 desk `R18A_`, 10 phone `Ph18A_`), every title starting “Round 18 addendum · Proposed, awaiting approval”. Drawn UI never states an approval status; captions do. Cards with a “Round 18 addendum (proposed, awaiting approval)” section: StatusButton, AttentionItem, WorkOverview, MenuBar, Menu, PhoneBar, ConversationList, SearchScope, SourceList, Composer, Message, ContextReceipt, CompactionMarker, ContextLine (no change). CSS: `round18add_a.css`, `round18add_b.css`, `round18add_c.css`, appended to the bundle and `components.css`; every rule uses an addendum-only class or modifier (`.pw-attn--r18a` and similar), so approved round 18 rendering is unchanged. Handoff: `docs/handoff/round-18-addendum-2026-10-21.md`.
 
@@ -1753,7 +1753,7 @@ Boards: canvas page **Round 18 addendum: follow-up questions** (28 boards: 18 de
 
 A reviewer accepted the first recommendations' direction with corrections on 21 Oct; the corrected version is now the **Recommended** drawing. It is still a proposal awaiting the owner's approval.
 
-| # | Question | Recommended (proposed, revised) | Alternative (not recommended) | Boards |
+| # | Question | Recommended (revision 2; see Round 19 for the decision) | Alternative (not chosen in round 19) | Boards |
 | --- | --- | --- | --- | --- |
 | 1 | Blocking services | Blocking is per operation: the selected model's server (Ollama) blocks generation, Gate blocks tool steps; Preview, speech and search failures stay in their own feature. “Can't run work · Ollama stopped”, “Can't run tools · Gate stopped”, “Can't run work · Ollama and Gate stopped”; “· 2 need you” counts only decisions. Overview shows **Stopped services** above **Needs you**, never counted in it | “Can't run work · 2 services stopped · 2 need you”, services inside Needs you | R18A_ServicesStopped, Ph18A_ServicesStopped |
 | 2 | Projects registered later | Keep the starting set: “Searching 5 of 6 projects”; the new project offered unchecked | Live “all” with a transcript divider | R18A_AskAdded |
@@ -2148,3 +2148,760 @@ The ten Given/When/Then stories are on R18A_ProjectChatWalk:
 #### Validation (what ran)
 
 HTML nesting and `pw-` class definitions on all 28 boards and every card preview (0 problems, 0 undefined classes); addendum CSS checked for redefinitions of existing classes (none after review); every board named here exists on the canvas; boards (desk, 1024 and 320 px cells, phone) and changed previews rendered and inspected; `tests.test_design_brand`, `tests.test_frontend`, `tests.test_web_robustness` pass. Not verifiable here: screen-reader output, real autosave and cross-window/device timing, popup and focus behaviour in a browser, Japanese review by a native speaker.
+
+## 2026-10-21 · Round 19: final design integration (decided, owner-delegated)
+
+**Decision record:** `design/briefs/round-19-final-integration.md` (21 Oct 2026). The owner delegated the selection of the recommendations. Its section A settles the ten round 18 addendum questions and the language rule; section B approves user-journey recording on Pi WorkStation and the Preview; section C is the acceptance matrix. It supersedes conflicting proposals in the round 18 addendum (revision 2, `64dad882`). The Constitution and the twenty round 17 decisions (plan 360) remain authoritative. These decisions authorize **design**; nothing here is implemented or tested at runtime because it is drawn.
+
+Boards: canvas page **Round 19: final design integration** (47 boards: 33 desk `R19_`, 14 phone `Ph19_`). The 28 round 18 addendum boards are retitled "Settled in round 19 (A*n*)" or "Superseded by round 19 (A*n*), see R19_…", and their "Alternative" cells read "Not chosen (round 19)". Ph18A_ConversationMenu is kept for history but superseded: round 9 keeps conversation commands out of the Agent and Chat ▾ menus.
+
+Cards:
+- **New:** DraftVersions, ConversationTrash, RecordingHistory.
+- **"Round 19 (decided, owner-delegated 21 Oct 2026)" sections:** StatusButton, WorkOverview, AttentionItem, MenuBar, Menu, PhoneBar, ConversationList, SearchScope, SourceList, Composer, Message, ContextReceipt, CompactionMarker, ContextLine, RecordingStatus, FlowAttachment, ProblemReport.
+- **Addendum sections** are renamed "settled or superseded in round 19", with superseded lines marked "Superseded:".
+
+CSS: `round19_a.css`, `round19_b.css`, `round19_c.css` and `round19_d.css` are appended to `bundle.css` and `components.css`. They contain only new classes or modifiers, and checks found no redefinition of an existing class, so approved designs render unchanged. Handoff: `docs/handoff/round-19-design-2026-10-21.md`.
+
+#### What changes against earlier rounds (only these areas)
+
+- **Status (A1):**
+  - Health is tracked per operation.
+  - The selected provider (local or remote) blocks generation, and Gate blocks tools.
+  - The aggregate for several failures is "Can't run work · 2 services stopped".
+  - "Service status unknown" is shown for unknown or stale health.
+  - Check Again is a single coalesced probe.
+  - Stopped services sit in their own section and are never counted in "need you".
+- **Scope, drafts, revoked content and resend:**
+  - Scope (A2): selected/available counts are explicit.
+  - Drafts (A3): drafts become a version list for any number of versions, with Discard to Trash.
+  - Revoked content (A4): withheld at display and send, including titles, snippets, exports, caches and attachments.
+  - Resend (A5): the label names the scope, and the action is disabled with "No projects available to search."
+- **Conversation menu (A6):** a "Conversation actions" ⋯ sits beside the title, and each history row has its own ⋯. These are never in the Agent menu or the phone's view menu (round 9).
+- **Overview (A6):** explicit selection by Space on the focused row or a click on the row's empty area. Round 17's click on the row link still opens the chat.
+- **Project chat:**
+  - @ references (A7): deterministic, with disambiguation among authorized projects, and IME-safe.
+  - Resend (A8): a waiting plan blocks only Implementation, and phase, scope and access are rechecked at submission.
+  - Delete (A9): moves the conversation, its messages, receipts and draft versions to the conversation Trash, with Undo. It is refused while work is active.
+- **Cancel and New (A10):** Cancel is idempotent and honest about its states, and clearing New never resolves the item.
+- **Language (A11):** 議論 / 計画 / 実装, キャンセル for cancel, 取り消し only for undo. R15_VisualWalk's 「話し合い」 became 「議論」.
+- **Recording (B):**
+  - WorkStation recording is opt-in, starting only after Enable Recording; Not Now is the default.
+  - There is one status button per window in the menu bar, plus Preview's own button, now "Recording Preview · …".
+  - Stop and Stop All Recording are separate; history is split by surface and bucket.
+  - Capture is privacy-safe and rejects late batches.
+  - The guarded Preview bridge is "unavailable", never "on", when blocked.
+  - External reports show the redacted payload before confirmation.
+
+#### Coverage matrix: section A (decisions)
+
+| Decision | Boards | Components | Strings |
+| --- | --- | --- | --- |
+| A1 Service health per operation | R19_ServiceHealth, Ph19_ServiceHealth; R18A_ServicesStopped (superseded) | StatusButton, WorkOverview, AttentionItem, PhoneBar | R19_OverviewStrings |
+| A2 Explicit scope | R19_AskScope; R18A_AskAdded (settled) | SearchScope | R19_AskStrings |
+| A3 Drafts as versions | R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_ProjectChatActions (project chat) | DraftVersions, Composer | R19_AskStrings, R19_ProjectChatStrings |
+| A4 Revoked content withheld | R19_AskRevoked, R19_AskScope, R19_AskTrash, R19_ProjectChatReceipts | SourceList, ConversationList, ConversationTrash, ContextReceipt | R19_AskStrings |
+| A5 Resend names its scope | R19_AskResend | SearchScope | R19_AskStrings |
+| A6 Command homes and selection | R19_AskActions, Ph19_AskActions, R19_ProjectChatActions, Ph19_ProjectChatActions, R19_OverviewSelection | ConversationList, Message, Menu, MenuBar, WorkOverview | all three strings boards |
+| A7 Explicit project references | R19_ProjectMention, Ph19_ProjectMention; R18A_ProjectMention (settled) | Composer, Message | R19_ProjectChatStrings |
+| A8 Resend with current permissions | R19_ProjectChatResend; R18A_AskAgainPhase (settled) | ContextReceipt, Message | R19_ProjectChatStrings |
+| A9 Receipts follow messages; Delete and Trash | R19_ProjectChatReceipts, R19_ProjectChatActions, Ph19_ProjectChatTrash, R19_AskActions, R19_AskTrash, Ph19_AskTrash | ContextReceipt, CompactionMarker, ConversationTrash | R19_ProjectChatStrings, R19_AskStrings |
+| A10 Cancel and New | R19_CancelRequest, Ph19_CancelRequest | AttentionItem, WorkOverview | R19_OverviewStrings |
+| A11 Language | all strings boards; R15_VisualWalk | all | R19_*Strings, R19_RecStrings |
+
+#### Coverage matrix: section B (recording)
+
+| Brief item | Boards | Components |
+| --- | --- | --- |
+| Storage, defaults, buckets, retention | R19_RecFirstUse, R19_RecHistory, Ph19_RecFirstUse | RecordingStatus, RecordingHistory |
+| Visible controls on every surface; Stop / Stop All | R19_RecSurfaces, R19_RecControl, R19_RecStop, Ph19_RecStatus, Ph19_RecOverview | RecordingStatus |
+| Host storage, remote-device explanation | R19_RecControl, Ph19_RecStatus, R19_RecFirstUse | RecordingStatus |
+| Flow and session boundaries, truncation | R19_RecSessions, R19_RecHistory | RecordingHistory, FlowAttachment |
+| Capture and privacy contract, coverage limits | R19_RecCoverage | RecordingStatus, FlowAttachment |
+| Attribution, late batches, mirrored stop, bridge | R19_RecSessions, R19_RecStates | RecordingStatus |
+| Inspect, attach, clear, reproduce | R19_RecHistory, R19_RecAttach, R19_RecEvidence, Ph19_RecAttach | RecordingHistory, FlowAttachment, ProblemReport |
+| Status states, accessibility, external report | R19_RecStates, R19_Rec1024, R19_RecResponsive, Ph19_RecReport | RecordingStatus, ProblemReport |
+
+#### Coverage matrix: section C (acceptance groups)
+
+| # | Group | Boards (journeys) | Components | Backend dependency (implementation) |
+| --- | --- | --- | --- | --- |
+| 1 | Two failed services, remote provider, unknown, partial recovery, concurrent Check Again | R19_ServiceHealth, Ph19_ServiceHealth (R19_OverviewWalk C1) | StatusButton, WorkOverview | Per-operation health record; coalesced read-only probe; decisions-only attention count |
+| 2 | Projects changing during selection, generation, queued send, citation viewing | R19_AskScope, R19_AskRevoked (R19_AskWalk G2) | SearchScope, SourceList | Scope as ids; access recheck at display, dispatch and citation; provenance `used_project_ids` |
+| 3 | Three conflicting drafts, offline, prefill conflict, discard/restore, send | R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline (R19_AskWalk G3) | DraftVersions | Revision-checked draft store with versions, push, Trash |
+| 4 | Conversation commands, delete refusal, delete/Undo, reload, Trash, restore conflict, redaction | R19_AskActions, R19_AskTrash, Ph19_AskActions, Ph19_AskTrash, R19_ProjectChatActions, Ph19_ProjectChatActions, Ph19_ProjectChatTrash (R19_AskWalk G4, R19_ProjectChatWalk) | ConversationList, ConversationTrash, Message | Transactional delete/restore; active-work query; idempotent restore; link-conflict detection |
+| 5 | Overview selection through menus, removal mid-action, no selection, per window | R19_OverviewSelection (R19_OverviewWalk C5) | WorkOverview, Menu, MenuBar | Create-task request carrying `project_id`, revalidated by the host |
+| 6 | Wrapped/IME @, duplicate names, keyboard dismissal, unauthorized/empty | R19_ProjectMention, Ph19_ProjectMention (R19_ProjectChatWalk) | Composer | Authorized project list; deterministic reference rule |
+| 7 | Current-phase resend in three phases, change before submission, no searchable projects, failed retry | R19_ProjectChatResend, R19_AskResend (R19_ProjectChatWalk, R19_AskWalk) | ContextReceipt, SearchScope | Submission recheck (phase, plan waiting, access); `resend_of` linking |
+| 8 | Receipt after compaction, changed/missing source, Trash/restore, revoked evidence | R19_ProjectChatReceipts (R19_ProjectChatWalk) | ContextReceipt, CompactionMarker | Receipts untouched by compaction; `receipt: none` for older messages |
+| 9 | Enable/decline, Preview independent, stop one/all, reload, remote device | R19_RecFirstUse, R19_RecControl, R19_RecStop, Ph19_RecFirstUse, Ph19_RecStatus (R19_RecWalk) | RecordingStatus | Per-person recording choice on the host; mirrored state stream |
+| 10 | Focus/blur, canvas click, key release, scroll; no secrets anywhere | R19_RecCoverage (R19_RecWalk) | RecordingStatus, FlowAttachment | Capture and host-side normalization/redaction |
+| 11 | Switch/reload/close with pending batches, spoofed messages, stop elsewhere, clear during delivery, new session | R19_RecSessions, R19_RecStates (R19_RecWalk) | RecordingStatus, RecordingHistory | Session tokens; late-batch rejection; bridge origin/source validation |
+| 12 | Quota/failure, unsupported Preview, offline, restart while answering | R19_RecStates (R19_RecWalk) | RecordingStatus | Storage-full and restart states; recorder isolated from chat |
+| 13 | Mixed-surface evidence, outside-project privacy, removal before/after send, Cancel/Done, failed report, redacted confirmation | R19_RecHistory, R19_RecAttach, R19_RecEvidence, Ph19_RecAttach, Ph19_RecReport (R19_RecWalk) | FlowAttachment, ProblemReport, RecordingHistory | Attachment record; server-rendered external payload with confirmed hash |
+| 14 | Focus restoration, Escape/Tab, long strings, 320/1024/desktop, dark, screen-reader status, no focus loops | 320, 1024 and dark (Inverse) cells on every part's boards; R19_Rec1024, R19_RecResponsive; all four walkthrough boards | all | None beyond the above; must be verified in the built app |
+
+### A · Overview, status and selection
+
+Brief: REPO/design/briefs/round-19-final-integration.md. This part covers A1, A6 (the Overview part) and A10, plus acceptance groups C1, C5 and part of C14.
+
+This is design only: nothing here claims runtime behaviour exists or was tested. Recording is part D; its WorkStation status sits in the menu bar above every window, Overview included.
+
+**Files**
+- Generator `gen/r19a.py`: it execs `gen/r18a_a.py`, then retitles the R18A boards and makes ids unique (`gen/uniqids.py`).
+- Card previews: `gen/ds19a.py`.
+- CSS: `scripts/round19_a.css`. It holds only new classes and modifiers (`pw-prow--selected`, `pw-svcrow--unknown`, `pw-svcrow--checking`, `pw-reqstate*`, `pw-attn--r19`); every rule is keyed on a round 19 class.
+- Layout: `r19layout_a.json`. Revised R18A boards: `r19revised_a.json`.
+
+**Validation (`r19check_a.py`)**
+- 0 HTML problems, 0 undefined `pw-` classes, 0 CSS redefinitions, and no duplicate ids across 7 R19 boards, 7 revised R18A boards and 6 card previews.
+- Every board was rendered with shot.py into `shots19a/` and its PNG read, covering desk, 1024, 320, phone and dark cells; heights were measured to fit.
+- Previews were checked with `dsshot.py` (bundle.css only) and with the round 17/18/19 CSS injected.
+
+#### Boards
+
+| Board | Size | Content |
+| --- | --- | --- |
+| R19_ServiceHealth | 1440×4760 | In context: the selected remote provider (studio.local) not reachable plus Gate stopped. Also: status priority, rules, partial recovery, unknown/stale, checking, concurrent Check Again (coalesced), 1024, 320, dark |
+| Ph19_ServiceHealth | 390×844 | Aggregate status in two lines; Stopped services above Needs you |
+| R19_OverviewSelection | 1440×3160 | In context with the File menu; menu states; no selection; removed between menu and action; two windows; rules; 320; dark |
+| R19_CancelRequest | 1440×1790 | Request detail idle, confirmation, cancelling, cancelled, already finished, idempotent, failed, dark; rules; New marker with hover and background refresh; rules |
+| Ph19_CancelRequest | 390×844 | Failed cancel on the phone, with Try Again |
+| R19_OverviewStrings | 1440×1200 | EN/JA, 33 strings |
+| R19_OverviewWalk | 1440×1080 | Given/When/Then for C1, C5 and C14 |
+
+**Revised R18A boards** (titles in `r19revised_a.json`; "Alternative (not recommended)" captions now read "Not chosen (round 19)"):
+
+| Board | New status |
+| --- | --- |
+| R18A_ServicesStopped | Superseded by round 19 (A1), see R19_ServiceHealth. Its alternative is recaptioned "Not chosen (round 19) · Service items inside Needs you (the aggregate words are adopted by A1…)". |
+| Ph18A_ServicesStopped | Superseded (A1) |
+| R18A_NewConversationKeys | Superseded (A6), see R19_OverviewSelection. Its menus match; the definition of "selected" changed. |
+| R18A_CancelCheckNew | Superseded (A1, A10), see R19_CancelRequest and R19_ServiceHealth (the 10 s cooldown is dropped; cancel states added) |
+| Ph18A_CancelRequest | Settled in round 19 (A10) |
+| R18A_OverviewStrings | Superseded (A1, A6, A10) |
+| R18A_OverviewWalk | Superseded (A1, A6, A10) |
+
+**Cards**
+
+StatusButton, WorkOverview, AttentionItem, MenuBar, Menu and PhoneBar each received:
+- the renamed heading "## Round 18 addendum (settled or superseded in round 19 — see Round 19)";
+- "Superseded:" marks on the changed lines;
+- a new "## Round 19 (decided, owner-delegated 21 Oct 2026)" section.
+
+Previews got appended "Round 19 · Decided" blocks: StatusButton (several / remote / unknown), WorkOverview (Stopped services, Service status unknown, selected row), Menu (three File menu states) and PhoneBar (aggregate in two lines).
+
+#### A1 · Service health per operation (C1)
+
+**Status priority.** One state is shown, highest first:
+1. Connection interrupted.
+2. Definite failures:
+   - Two or more: "Can’t run work · 2 services stopped" (JA 作業を実行できません · 2 つのサービスが停止中).
+   - One: "Can’t run work · {provider} stopped" (JA 作業を実行できません · {provider} 停止中), "Can’t run work · {provider} not reachable" (JA 作業を実行できません · {provider} に接続できません), or "Can’t run tools · Gate stopped" (JA ツールを実行できません · Gate 停止中).
+3. "Service status unknown" (JA サービスの状態は不明).
+4. Attention.
+5. Working / Waiting.
+6. Ready.
+
+" · {n} need you" (JA · 対応待ち {n} 件) is appended only for decisions.
+
+**Accessible name** for the aggregate: "Agent status: can’t run work, 2 services stopped: studio.local not reachable, Gate stopped, 2 need you. Open Overview" (JA エージェントの状態：作業を実行できません、2 つのサービスが停止中（studio.local に接続できません、Gate 停止中）、対応待ち 2 件。概要を開く).
+
+**Overview sections**
+- **Stopped services** (停止中のサービス) sits above Needs you, noted "Not counted in Needs you" (対応待ちには数えません). It has one row per affected operation, oldest first:
+  - "studio.local not reachable · since 14:24 · Pi can’t answer in any project" (studio.local に接続できません · 14:24 から · どのプロジェクトでも Pi は答えられません)
+  - "Gate stopped · since 14:27 · tool steps wait in every project" (round 18 addendum JA)
+
+  Each row has **Open Details**.
+- **Service status unknown** is its own section for unknown or stale health: "Ollama · Service status unknown · last checked 14:20" (Ollama · サービスの状態は不明 · 最終確認 14:20), with a dotted frame.
+
+**Project rows**
+- "State unknown while {provider} is not reachable" ({provider} に接続できないため状態不明), with queued "Queued: 2 requests · waiting for {provider}".
+- With only unknown health: "State unknown until Ollama answers a check" (Ollama が確認に応答するまで状態不明).
+- Gate only: round 18 addendum "Waiting for Gate before its next tool step"; idle rows stay "Idle".
+
+**Check Again** (on the service's details in Activity)
+- One read-only probe. While it is pending, every window shows "Checking…" (確認中…) with "One check is running; pressing again does nothing." (確認を 1 回実行中です。もう一度押しても何も起こりません。). Duplicate presses and other windows coalesce into it.
+- Result: "Still not reachable · checked 14:33" (まだ接続できません · 14:33 に確認), "Last checked 14:31" (最終確認 14:31), or recovery.
+- It never starts or restarts anything, and there is no cooldown.
+
+**Partial recovery.** One polite announcement, "{service}: running again" ({service}：再び動作しています). The row leaves, and the words fall to the remaining failure.
+
+**Other failures.** Preview, speech and search failures stay in their own features. A failed optional search is disclosed in Ask's coverage line (part B).
+
+**States**
+
+| State | What shows |
+| --- | --- |
+| Idle | Section absent |
+| Loading | Previous snapshot plus Overview freshness |
+| Empty | Absent |
+| Error | Rows |
+| Disabled | Check Again while pending |
+| Stale | Service status unknown |
+| Conflict | N/A (one probe, shared) |
+
+**Ownership and keyboard**
+- Who may invoke Check Again: any person signed in to this Pi WorkStation. It is read-only and does no restart.
+- Persistence: health comes from System 1 health records (host); no UI state is persisted.
+- Cancellation: N/A, since a probe can't be cancelled and is bounded by the host's timeout.
+- Focus: Check Again keeps focus while it is disabled-busy; the result goes to a polite status. If a focused row leaves on recovery, focus moves to the next row, else the Needs you heading.
+- Keyboard: each section is one Tab stop, ↑ ↓ to move, Return opens the details.
+
+**Responsive**
+- 1024: the sections stack above Needs you, and Ask is a toggle.
+- 320: rows stack.
+- Phone: the status uses two lines inside the 44 px button.
+- Dark: tokens only.
+
+#### A6 · Overview selection (C5)
+
+**Selecting and opening**
+- Selecting is a separate, deliberate act: Space on the focused row, or a click on the row’s empty area (outside its link and buttons, e.g. left of Ask About). Clicking the project name or row link still opens the project chat at that request, and Return still opens (round 17). Hover and keyboard focus alone never select.
+- Exactly one row is selected: `.pw-prow--selected` (inverse), `aria-selected="true"`, grid `aria-multiselectable="false"`.
+- The Projects note reads "Selected: Class Notes" (選択中: Class Notes) or "No project selected" (プロジェクトは選択されていません).
+
+**File menu**
+- File › New Task… is disabled with "Select a project to add a task." (タスクを追加するプロジェクトを選んでください。) until a row is selected; then it reads "New Task in Class Notes…" (Class Notes に新しいタスク…).
+- New File… stays disabled: "Open a project to add a file.".
+- ⌃⌥N stays New File…; New Conversation has no shortcut.
+
+**What keeps or clears the selection**
+- It survives focus moving into the menu bar, menus and the Ask pane; Esc returns focus without changing it.
+- **Revalidated at the action** (System 1 project record and access). If the project is gone: "Class Notes is no longer available. Nothing was created." (Class Notes は利用できなくなりました。何も作成していません。) appears as a status notice under the toolbar. Nothing is created, the selection clears, and focus goes to the Projects heading.
+- Removal or revocation clears the selection immediately, with no announcement unless the person acts.
+- Each window keeps its own selection, and reload clears it.
+
+**States**
+
+| State | What shows |
+| --- | --- |
+| Idle | No project selected |
+| Loading | Selection disabled until rows load |
+| Empty | No projects (round 17 empty state) |
+| Error | The removed notice |
+| Disabled | New Task without a selection |
+| Stale | When Overview is not connected, selection is kept but New Task is disabled with the round 17 stale reason. Gap → recommendation below. |
+| Conflict | Removed between menu and action |
+
+**Ownership and responsive**
+- Who may invoke: the signed-in person, for projects they can open.
+- Persistence: per window, in memory.
+- Phone: N/A (no File menu; New Task lives in the project's Work view).
+
+**Round 17 unchanged:** the row link (project name) and Return still open the project chat at that request.
+
+#### A10 · Cancel Request and the New marker (C14 part)
+
+**Cancel Request**
+- It appears only at the request's own location (Activity's request detail and the chat's interrupted notice), never in Overview.
+- The alert uses round 18 addendum copy, with JA キャンセル. Keep Request is the default and Escape.
+- The alert is bound to the request id: navigating away closes it without acting.
+
+**Cancel states**
+
+| State | English | Japanese |
+| --- | --- | --- |
+| Cancelling (disabled, busy) | "Cancelling…" / "Cancelling the request…" | キャンセル中… / 依頼をキャンセルしています… |
+| Cancelled | "Cancelled by you · 14:40." + "Changes made before the restart are still in the project." | — |
+| Already finished | "This request already finished at 14:38. Nothing was cancelled." | この依頼は 14:38 にすでに終了しています。何もキャンセルしていません。 |
+| Idempotent (pressed again, or another window) | "Already cancelled at 14:40." | 14:40 にキャンセル済みです。 |
+| Failed | "Couldn’t cancel: Pi WorkStation didn’t confirm. The request is still interrupted; nothing else changed." + **Try Again** | キャンセルできませんでした: Pi WorkStation から確認がありません。依頼は中断されたままで、ほかには何も変わっていません。 / もう一度試す |
+
+**After the result**
+- Focus goes to the request's heading.
+- Who may invoke: the signed-in person who can open the project.
+- Persistence: the request record in System 1.
+- Cancel never undoes completed effects.
+
+**New marker**
+- It clears only on deliberate focus or on opening.
+- Hover, background refresh, reconnect and other windows never clear it.
+- Clearing never answers, acknowledges or resolves the item.
+- There is no timer, and screen readers hear it once.
+
+#### Changed text (old → new)
+
+**Status**
+- Several failures: "Can’t run work · Ollama and Gate stopped · 2 need you" (R18A revision 2) → "Can’t run work · 2 services stopped · 2 need you".
+- One remote generation failure: (none) → "Can’t run work · studio.local not reachable".
+- Unknown health: (none) → "Service status unknown".
+
+**Check Again**
+- "Still stopped · checked 14:33", then disabled 10 s with "Checked a moment ago." → no cooldown. While pending, "Checking…" is coalesced across presses and windows.
+
+**Selection and the File menu**
+- "Selected" defined as "the Projects grid's current row, kept when focus moves to the menu bar" → explicit selection by Space or a click on the row’s empty area; focus alone never selects.
+
+**Cancel**
+- R18A alert JA 取り消す / 取り消し for cancel → キャンセル (already done in revision 2; confirmed).
+- Added states: Cancelling…, Already finished, Already cancelled, Couldn’t cancel.
+
+**New marker**
+- "clears on keyboard focus or open" → "clears on deliberate focus or open; hover and background refresh never clear it".
+
+**Labels**
+- "Round 18 addendum · Proposed, awaiting approval" → "Settled in round 19 (A10)" or "Superseded by round 19 (A…)".
+- "Alternative (not recommended)" → "Not chosen (round 19)".
+
+#### Data contracts and backend dependencies (implementation dependencies)
+
+- **Service health record per operation:** `{service_id, display_name, operation: "generation"|"tools", kind: "local"|"remote", state: "running"|"stopped"|"not_reachable"|"unknown", since, last_checked_at, stale_after}`. Which provider is selected comes from the person's model choice.
+- **Probe endpoint:** one probe per service. It is idempotent while pending (returns the in-flight probe id), read-only, and the result is pushed to every window.
+- **Overview projection:** stopped services kept separate from attention, with the attention count limited to decisions.
+- **Project row states:** `unknown(reason: service_id)` and `waiting_for_tools` (Gate).
+- **Selection:** client-side per window. At the action, the create-task request carries `project_id`, and the host revalidates existence and access before creating (it returns `project_unavailable`).
+- **Cancel endpoint for interrupted requests:** idempotent by request id. Its result is one of `cancelled(at)`, `already_finished(at)`, `already_cancelled(at)` or `error`; it never acts on another id.
+- **New marker:** client-side per window (window open time against attention `created_at`); no server field.
+
+#### Given/When/Then (stable names on R19_OverviewWalk)
+
+**C1, two failures with a remote provider** (R19_ServiceHealth, Ph19_ServiceHealth)
+- Given studio.local is not reachable and Gate is stopped, with 2 decisions waiting.
+- Then the button name is exact.
+- Then Stopped services (2) lists both rows.
+- Then Needs you reads 2.
+- Then no row says Working, Idle or Ready.
+
+**C1, concurrent Check Again** (R19_ServiceHealth)
+- When it is pressed twice in window 1 and once in window 2.
+- Then there is one probe and both windows show "Checking…".
+- Then both read "Still not reachable · checked 14:33".
+- Then nothing was restarted.
+
+**C1, partial recovery and unknown** (R19_ServiceHealth)
+- When Gate answers again: "Gate: running again" is announced once, and the button reads "Can’t run work · studio.local not reachable · 2 need you".
+- With only stale health: "Service status unknown · 2 need you".
+
+**C5, selection through menus** (R19_OverviewSelection)
+- When I press Space on Class Notes, press ↓ to Pong, then open File.
+- Then the note reads "Selected: Class Notes" and File shows "New Task in Class Notes…".
+- When I press Esc, Then focus returns to Pong.
+
+**C5, removed between menu and action** (R19_OverviewSelection)
+- Then the notice appears and nothing is created.
+- Then the selection is cleared and focus is on the Projects heading.
+
+**C5, two windows** (R19_OverviewSelection)
+- Window 2 creates the task in Pong only.
+- After reload, window 2 shows "No project selected".
+
+**C14, Cancel** (R19_CancelRequest, Ph19_CancelRequest)
+- Escape keeps the request and returns focus.
+- Cancelling… is shown, then "Cancelled by you · 14:40.".
+- A second window shows "Already cancelled at 14:40.".
+- A failure shows the failed state with Try Again.
+
+**C14, New marker** (R19_CancelRequest)
+- Hover and refresh leave New in place.
+- Keyboard focus clears it, and the item stays in Needs you.
+
+#### Unverified until built
+
+Real probe coalescing timing; cross-window propagation of health, cancel and New; screen-reader output of the status button's accessible name and the polite status lines; focus restoration after menus and alerts in real browsers; Space and empty-area-click selection with assistive technology.
+
+#### Gap → recommendation
+
+1. **Selection while Overview is not connected (stale).** Recommend: keep the selection but disable New Task with the existing stale reason until reconnected, then revalidate.
+2. **RecordingStatus in the Overview toolbar.** Not drawn here; part D places it in the menu bar. Recommend D places it after the freshness indicator, before Show.
+3. **Plain click to select.** Not adopted: round 17's row link keeps opening the chat. Recommendation only: if testing shows Space and empty-area clicks are hard to discover, consider a visible “Select” affordance per row rather than repurposing the click.
+4. **Remote provider naming.** The display name (e.g. studio.local) should come from the provider record, not the URL. Recommend a `display_name` field and never showing full URLs.
+5. **Dark cells drawn in a wrapper.** `--selection-bg` and `--selection-fg` are resolved on `:root`, so inside a `[data-theme="dark"]` wrapper (boards only) selected states draw light-on-light. The Show segment's "All" is affected (pre-existing). `round19_a.css` adds dark overrides for `.pw-prow--selected` only. In the app, `data-theme` sits on `<html>`, so this does not occur there. Recommendation: tokens.css should redefine `--selection-bg` and `--selection-fg` inside `[data-theme="dark"]` too.
+
+### B · Ask across projects, drafts and conversation Trash
+
+Design only. Nothing here is implemented or tested; real autosave, cross-window timing, screen-reader output and browser focus are unverified until built. Brief: `design/briefs/round-19-final-integration.md` (A2, A3, A4, A5, A6 dashboard part, A9; acceptance groups 2, 3, 4 and part of 14). Board titles “Round 19 · Decided · …”.
+
+Generator `gen/r19b.py` execs `gen/r18a_b.py` (which execs r18b/r17b/r13), regenerates the R18A boards, retitles them, then draws round 19. Run `PW_OUT=SP/out19b/`; copied to `cv/project/`: `R19_Ask*`, `Ph19_Ask*` and my revised `R18A_Ask*`/`Ph18A_Ask*` (not worker C's R18A_AskAgainPhase). CSS `scripts/round19_b.css`: only new classes (`.pw-convoact*`, `.pw-convoline`, `.pw-convo__trash`, `.pw-draftv*`, `.pw-trash*`); existing classes appear only as descendants of new ones. Validation `r19check_b.py`: 29 board files + 5 previews → 0 HTML problems, 0 undefined classes, 0 duplicate ids (a post-pass suffixes ids repeated across cells and rewires their references), 0 redefinitions. Remaining dangling `aria-controls` point at closed popups (`ask-convo-menu`, `ask-scope-pop`, a collapsed list), as in rounds 17–18. Every board and the five previews were rendered and read (`shots19b/`), including 320, 1024, phone and Inverse cells; previews were checked with round18_b/round18add_b/round19_b CSS injected (`round19_b.css` is now appended to the bundle).
+
+**Reused by part C by name:** DraftVersions = `section.pw-draftv` › `.pw-draftv__head` (`h4.pw-draftv__h`, Hide/Show) › `p.pw-draftv__hint` › `ol.pw-draftv__list` › `li.pw-draftv__row[data-state=saved|saving|unsaved|conflict][aria-current]` › `p.pw-draftv__meta` (b + `span.pw-draftv__state`) + `p.pw-draftv__text` + `.pw-draftv__actions` (`.pw-draftv__inuse`); `p.pw-draftv__offline`. ConversationTrash = `section.pw-trash` › `.pw-trash__head` (`h3.pw-trash__title`) › `.pw-trash__body` › `p.pw-trash__note`, `h4.pw-trash__sub`, `ul.pw-trash__list` › `button.pw-trash__item` (`.pw-trash__t`, `.pw-trash__m`), `p.pw-trash__empty`; detail `p.pw-trash__ro`, `.pw-trash__detail`, `.pw-trash__foot` (`p.pw-trash__status`, `.pw-trash__actions`). Conversation actions = `span.pw-convoact` › `button.pw-convoact__btn[aria-label="Conversation actions"]` + `.pw-menu`; history list end `button.pw-convo__trash`. Helpers in `gen/r19b.py`: `draftv`, `dv_row`, `OFFLINE`, `dvalert`, `trash_list`, `trash_detail`, `delalert`, `refusal`, `convoact`.
+
+#### Boards
+
+| Board | Size | Covers |
+| --- | --- | --- |
+| R19_AskScope | 1440×2240 | A2 · G2: counts, new project unchecked, revoked during selection / generation, queued send, citation opening; 320; Inverse |
+| R19_AskResend | 1440×1240 | A5: three labels, none, catching up, Retry vs Ask Again |
+| R19_AskDrafts | 1440×3060 | A3 · G3: three versions across two windows + phone, saving, offline, reconnect, send keeps, discard + toast, prefill conflict, collapsed; 320; Inverse |
+| R19_AskActions | 1440×3060 | A6/A9 · G4: actions beside title, row ⋯, Trash entry, delete alert, moved + Undo, refusal + Show Request, long title; 1024 |
+| R19_AskTrash | 1440×2070 | A9/A4 · G4: list, detail, idempotent, conflict, access ended, draft version, empty/loading/error; 320; Inverse |
+| R19_AskRevoked | 1440×1260 | A4 · G2: withheld answer + neutral title, missing provenance, title everywhere, owner removal (decision 11), retry recheck |
+| Ph19_AskDrafts | 390×844 | G3 phone versions |
+| Ph19_AskOffline | 390×844 | G3 phone offline |
+| Ph19_AskActions | 390×844 | G4 phone actions sheet |
+| Ph19_AskTrash | 390×844 | G4 phone Trash |
+| R19_AskStrings | 1440×1460 | EN/JA |
+| R19_AskWalk | 1440×1900 | G2, G3, G4, G14 journeys |
+
+Revised R18A boards (`r19revised_b.json`): R18A_AskAdded → “Settled in round 19 (A2)”; R18A_AskDraft, Ph18A_AskDraft → “Superseded by round 19 (A3), see R19_AskDrafts / Ph19_AskDrafts”; R18A_AskRevoked → “Superseded (A4, A5), see R19_AskRevoked”; Ph18A_AskRevoked → “Settled (A4)”; R18A_AskRefresh, Ph18A_AskRefresh → “Superseded (A5), see R19_AskResend”; R18A_AskNew → “Settled (A6; the ⋯ moves beside the title, see R19_AskActions)”; R18A_AskDelete → “Superseded (A6, A9), see R19_AskActions”; Ph18A_AskDelete → “Superseded (A9), see Ph19_AskActions”; R18A_AskStrings/R18A_AskWalk → “Superseded by round 19, see R19_AskStrings / R19_AskWalk”. “Alternative (not recommended)” captions → “Not chosen (round 19)”.
+
+#### Cards
+
+- **DraftVersions** (new; README + preview, height 840) and **ConversationTrash** (new; README + preview, height 1140).
+- **ConversationList**, **SearchScope**, **SourceList**: heading renamed “## Round 18 addendum (settled or superseded in round 19 — see Round 19)”, superseded lines prefixed “Superseded (round 19, see Round 19):”, alternatives “Not chosen (round 19)”, new “## Round 19 (decided, owner-delegated 21 Oct 2026)” section; previews get a labelled “Round 19 · decided” block (heights ConversationList 2130, SearchScope 1340, SourceList 1280) and the addendum block label now reads “settled or superseded in round 19”.
+
+#### Per decision
+
+#### A2 · Explicit scope (G2)
+- Copy: “Searching 3 of 6 projects” (m = authorized available); “Added after this conversation started. Check it to search it here too.”; “Search scope updated.” (検索範囲が更新されました。, polite, once); “Not sent: Pong is no longer available. Your question is still in the draft.” (送信していません: Pong は利用できなくなりました。質問は下書きに残っています。).
+- States: idle (button) · loading N/A (labels resolve with the pane) · empty N/A (at least one project or “Choose projects to search”) · error N/A (scope is local state; search errors use coverage lines) · disabled (Send disabled when no project selectable, round 18) · stale (a project added/removed while open: the popup updates in place, focus moves to the next row) · conflict N/A.
+- Who: the conversation's owner. Persistence: scope stored with the conversation (host). Cancellation: Escape closes the popup; changes apply to the next send. Focus: back to the scope button; on row removal, the next row.
+- Queued send: dispatch rechecks authorization and scope; if any selected project is unavailable, nothing is sent and the question returns to the draft (or becomes a draft version). Generation: display rechecks; an answer that used a now-revoked project is withheld. Citation opening: rechecks; nothing opens; an open Page view is replaced by “Source unavailable”.
+
+#### A3 · Drafts as versions (G3) — see DraftVersions README for the states table.
+- Who: the person on authorized devices/windows. Persistence: harness host, revision-checked; no browser persistent storage; Unsaved typing only in the open window. Cancellation: Discard… → Cancel (default); Undo on the toast. Focus: Use This Version → field; Discard → next control. Prefill never overwrites (round 18 notice).
+
+#### A4 · Revoked content withheld (G2, G4)
+- Copy: “Conversation · 20 Oct 14:31” (会話 · 10月20日 14:31); “This answer used a project you can no longer open, so it's hidden.”; “This answer can't be shown because its sources can't be checked.” (出典を確認できないため、この回答は表示できません。).
+- Applies to: answers, generated titles (button, history list, Trash, phone), snippets, search results, cached views, attachments; rechecked on display, send, retry, citation opening and restore. Owner removal keeps decision 11. The person's own questions always stay.
+
+#### A5 · Resend names its scope
+- “Ask Again in All Projects (5)” / “in 2 Projects” / “in Class Notes”; none: **Ask Again** disabled + “No projects available to search.”; all scope projects catching up: disabled + “Search is catching up in 2 projects. Try again shortly.”; partial catching up: enabled, the answer reports partial coverage with Retry. Retry (recorded inputs) ≠ Ask Again (current files); both create new linked requests; never replay tool effects.
+
+#### A6 · Conversation actions (dashboard) (G4)
+- “Conversation actions” ⋯ beside the title: New Conversation, Delete Conversation…; history row ⋯: Delete Conversation…; history list ends with Trash. Phone: ⋯ → sheet. Never Agent or Chat ▾ (round 9). Keyboard: Space/Return opens; ↑↓; Escape returns focus to ⋯; on history rows → opens the row menu, ← / Escape returns.
+- States: idle · disabled (Delete refused while active — alert, not a disabled item, so the reason is reachable) · loading/empty/error/stale/conflict N/A (a static menu).
+
+#### A9 · Trash (G4) — see ConversationTrash README.
+- Delete refused while a request runs or is queued (“This conversation has a request running or queued. Stop or cancel it first.” + **Show Request** · **OK**); Show Request scrolls to the running answer in this pane and focuses its Stop. Delete moves messages, receipts and draft versions as one operation; Undo toast; after reload, Restore from the Trash. Restore idempotent; conflict never overwrites; never resumes work; no permanent delete; no retention period.
+
+#### Changed text (old → new)
+
+- Addendum Q3 notice “This draft was also changed in another window at 14:52. Both versions are kept until you choose.” + Use This Version / Use Other Version / Show Both → **DraftVersions** list “Draft versions · {n}” with per-row Use This Version / Discard….
+- “Other version kept · Discard Other Version…” / “Discard the other draft version?” → “Discard this draft version?” / “It moves to the Trash. You can restore it from the Trash.” + toast “Draft version moved to the Trash.” · Undo.
+- Addendum delete body “It moves to the Trash with its messages and what Pi used for each. You can restore it from the Trash.” → “… with its messages, what Pi used for each and its draft versions. …”; JA “メッセージと、それぞれで Pi が使ったものと一緒に…” → “メッセージ、それぞれで Pi が使ったもの、下書きの版と一緒に…”.
+- Addendum placement “pane head's ⋯ (More for this conversation)” → “Conversation actions” ⋯ beside the title; menu gains **New Conversation**.
+- Addendum Q5 none “None of this conversation's projects can be searched now.” / label “Ask Again in This Conversation” → **Ask Again** disabled + “No projects available to search.”; new transient “Search is catching up in 2 projects. Try again shortly.”.
+- Round 18 “Searching 5 of 6 projects” semantics confirmed: m = authorized available.
+- Round 18 history list (no end entry) → ends with “Trash {n}”.
+- Round 18 addendum CSS header comment “(proposed, awaiting approval)” → “(settled or superseded in round 19…)”.
+
+#### Data contracts / backend dependencies
+
+- Conversation scope `{project_ids[], started_with[]}`; authorized-available set from System 1 at display and send time.
+- Queue dispatch authorization recheck; returned-question path into the draft store.
+- Draft store: per person + conversation, revision-checked saves, versions with source label, saved_at, state; push to open windows; Trash entries; no expiry.
+- Per-answer provenance `used_project_ids[]` (System 1); access-loss reason `removed_by_owner | access_ended`; `title_hidden`.
+- Conversation Trash: transactional delete/restore (messages, receipts, draft versions), id/link preservation, idempotent restore, link-conflict detection, active/queued-request check with a link to the request.
+- Search index readiness per project (for “catching up”).
+
+#### Journeys (R19_AskWalk)
+
+G2: new project offered; revoked during selection; during generation; queued send; citation opening. G3: three conflicting drafts; offline and reconnect; discard and restore; send keeps the rest; prefill conflict. G4: discover and delete; active work; reload; restore / again / conflict; redacted restore. G14: Escape returns focus to the opener; Tab never loops; long titles truncate with full accessible names; 320, 1024, phone and Inverse drawn.
+
+#### Coverage (sections A–C, B's part)
+
+| Item | Boards | Cards |
+| --- | --- | --- |
+| A2 | R19_AskScope, R18A_AskAdded (settled) | SearchScope |
+| A3 | R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline | DraftVersions |
+| A4 | R19_AskRevoked, R19_AskScope, R19_AskTrash | SourceList, ConversationList, ConversationTrash |
+| A5 | R19_AskResend | SearchScope |
+| A6 (dashboard) | R19_AskActions, Ph19_AskActions | ConversationList |
+| A9 | R19_AskActions, R19_AskTrash, Ph19_AskTrash | ConversationTrash |
+| A11 (JA) | R19_AskStrings | all |
+| C2 | R19_AskScope, R19_AskRevoked | SearchScope, SourceList |
+| C3 | R19_AskDrafts, Ph19_* | DraftVersions |
+| C4 | R19_AskActions, R19_AskTrash, Ph19_AskActions, Ph19_AskTrash | ConversationList, ConversationTrash |
+| C14 (part) | 320/1024/phone/Inverse cells; R19_AskWalk | all |
+
+#### Unverified
+
+Real autosave and revision timing, cross-window push, offline detection, screen-reader output, focus restoration in browsers, and that no draft reaches browser storage — all design statements until tested in the built app. JA strings are not native-speaker reviewed.
+
+#### Gap → recommendation
+
+- Closing a window with Unsaved (offline) typing loses it (no browser storage). → Recommend a native “leave page” warning while Unsaved text exists; no copy added.
+- Online save failure has no distinct state in the decided vocabulary. → Recommend “Not saved · Retry” (no copy adopted).
+- Restore of a draft version whose conversation is in the Trash. → Drawn as disabled with “Restore its conversation first.” (a small new string; review).
+- Dashboard conversations deleted on one device while another device shows them open. → Recommend the other window shows the Trash detail read-only (“In the Trash · read only…”); not drawn.
+- “Conversation restored.” toast is new copy (no Undo, since Undo of a restore would be another delete). Review.
+
+### C · Project chat
+
+This is design only; none of it is implemented, and no runtime behaviour was tested. Authority: design/briefs/round-19-final-integration.md, section A (settled), with acceptance groups 4 (project side), 6, 7, 8 and part of 14.
+
+**Files and checks**
+
+- Generator: `gen/r19c.py`. It execs `gen/r18a_c.py` with source edits: round 9 is restored, the approval labels are retired, and `Ph18A_ConversationMenu` is dropped. It also post-processes ids per cell. Run with `PW_OUT=out19c/`.
+- Previews: `gen/ds19c.py`. CSS: `scripts/round19_c.css` (new classes only).
+- Board CSS injects round17_*, round18_*, round18add_a/b/c, round19_b (B's shared cards) and round19_c.
+- Check: `r19check_c.py` finds 0 HTML problems (including duplicate attributes), 0 files with duplicate ids, 0 undefined `pw-` classes and 0 CSS redefinitions. It covers the 17 boards and 5 card previews.
+- Rendering: every board was rendered with `shot.py` and its PNG read, including 1024, 320, phone and dark cells.
+- dsshot: run for the five cards; `round19_b.css` and `round19_c.css` are now appended to the bundle, so the previews render with the bundle alone.
+
+#### Boards (r19layout_c.json)
+
+| Board | Size | Covers |
+| --- | --- | --- |
+| R19_ProjectChatActions | 1440×5460 | A6/A9: title + Conversation actions in the Chat toolbar, history list with row ⋯ and Trash, delete alert, refusal, toast/Undo, Trash list/detail/Restore (restoring, already back, conflict), Trash loading/empty/error, DraftVersions in project chat, 1024, dark, 320, JA |
+| Ph19_ProjectChatActions | 390×844 | ⋯ under the bar opens a “Conversation actions” sheet (not Chat ▾) |
+| Ph19_ProjectChatTrash | 390×844 | Trash as its own screen |
+| R19_ProjectMention | 1440×2630 | A7: caret anchoring, wrapped lines, scrolling list, IME composition, unauthorized/empty, “Which Notes?” disambiguation, chip with folder, keyboard/touch table, dark, 320 |
+| Ph19_ProjectMention | 390×844 | touch keyboard up: list above the field, 44 px rows |
+| R19_ProjectChatResend | 1440×2620 | A8: three phases with a waiting plan, recheck at press and at Send, failed send/resend keep text, linked resend, search catching up, dark, JA, 320 |
+| R19_ProjectChatReceipts | 1440×3470 | A9: compaction keeps receipts, changed flag above the marker, “Recorded before receipts were kept”, restore with access recheck, dark, 320 |
+| R19_ProjectChatStrings | 1440×1000 | EN/JA |
+| R19_ProjectChatWalk | 1440×800 | 10 Given/When/Then stories |
+
+#### Revised R18A boards (r19revised_c.json)
+
+- **Settled in round 19:** R18A_ProjectMention (A7), Ph18A_ProjectMention (A7), R18A_AskAgainPhase (A8), Ph18A_AskAgainPhase (A8), Ph18A_ReceiptLifetime (A9).
+- **Superseded:** R18A_ReceiptLifetime (A9, see R19_ProjectChatActions); R18A_ProjectChatStrings and R18A_ProjectChatWalk (A6–A9, see the R19 boards).
+- **Changes inside them:**
+  - The “Alternative (not recommended)” cells now read “Not chosen (round 19)”.
+  - The Agent-menu, Earlier Conversations ▸ and Chat ▾ delete cells are removed from R18A_ReceiptLifetime and replaced by one pointer cell.
+  - The R18A walkthrough's Agent stories are replaced by a pointer.
+- **Removed:** Ph18A_ConversationMenu (it put Delete Conversation… in Chat ▾, which round 9 forbids). It stays on the canvas for history, retitled as superseded.
+
+#### Cards
+
+Composer, Message, ContextReceipt, CompactionMarker and ContextLine:
+
+- The heading is renamed to “## Round 18 addendum (settled or superseded in round 19 — see Round 19)”, and the Agent/Chat ▾ lines in CompactionMarker are marked “Superseded:”.
+- Each card gains a “## Round 19 (decided, owner-delegated 21 Oct 2026)” section.
+- Round 19 preview blocks were appended to Composer (height 1070), Message (1420) and ContextReceipt (3420).
+- B's DraftVersions and ConversationTrash are referenced by name and reused by markup (`.pw-draftv*`, `.pw-trash*`, `.pw-convoact*`, `.pw-convo__*`, `.pw-convorow*`). I didn't edit them.
+
+#### A6 / A9 · Conversation actions in project chat (group 4, project side)
+
+**Placement and items**
+
+- **Where:** the title is a `span.pw-chattitle` holding `span.pw-chattitle__t`, “Conversation · 21 Oct 09:12” (JA “会話 · 10月21日 09:12”). Project chat titles are their start time; nothing is generated, so no revoked content can leak. B's `pw-convoact` ⋯ sits beside it, in the Chat window's toolbar between the view switch and the folder.
+- **Items:** New Conversation · Earlier Conversations… · Delete Conversation… (JA 新しい会話 · 以前の会話… · 会話を削除…).
+- **Never in Agent or Chat ▾.**
+- **Phone:** a 44 px ⋯ in a title row under the bar opens a sheet with the same three items.
+
+**Earlier Conversations…**
+
+- **List:** B's history list: “Conversations · newest first”; current row checked; each row has ⋯ (→ opens it) → Delete Conversation…; Return opens a row read only (round 9); the list ends with **Trash** + count.
+- **Delete:** B's alert “Delete “{title}”?” / “It moves to the Trash with its messages, what Pi used for each and its draft versions. You can restore it from the Trash.” / **Cancel** (default) · **Move to Trash**.
+- **Refused while a request is running or queued:** “This conversation has a request running or queued. Stop or cancel it first.” + **Show Request** (opens the request where it runs; nothing is cancelled implicitly) + OK. JA as in R19_ProjectChatStrings.
+- **After deleting:** the toast “Conversation moved to the Trash.” + **Undo** (⌘Z while it shows). The window shows an empty conversation, and the round 9 line keeps earlier ones reachable.
+- **Trash:** list → read-only detail (each answer keeps its receipt summary) → **Restore**. Restoring…, “This conversation is already back in your list.” + Open It, and “Can't restore: another conversation uses this link. Nothing was changed.” behave as B's ConversationTrash.
+
+**States**
+
+| State | What shows |
+| --- | --- |
+| Idle | menu closed |
+| Loading | Trash “Loading the Trash…” |
+| Empty | “The Trash is empty.” |
+| Error | “Couldn't load the Trash.” + Try Again |
+| Disabled | Not applicable: the items are always offered; delete is refused with a reason rather than disabled, so the reason is readable |
+| Stale | already back |
+| Conflict | link conflict |
+
+**Rules**
+
+- **Who:** the signed-in owner of the conversation in a project they can open.
+- **Persistence:** harness host; one transactional move of conversation, messages, receipts and draft versions; ids and links kept; no permanent delete; no retention.
+- **Cancellation:** delete never cancels work.
+- **Focus:** menus return focus to ⋯; the alert's Escape returns to ⋯ (or the row's ⋯); Restore moves focus to the restored conversation's composer; Undo leaves focus where it was.
+- **Responsive:** at 1024 the title truncates first, and ⋯, the view switch and Preview never hide; at 320 the title truncates.
+- **Dark:** tokens only.
+
+#### A7 · @ references (group 6)
+
+The addendum's rule is settled. An explicit reference is either:
+
+- an @ chip; or
+- the exact name with the word project: EN “the Notes project / Notes project / project Notes”, JA “Notes プロジェクト / プロジェクト Notes / 「Notes」プロジェクト”.
+
+Quotes alone never count, and recognition is a deterministic host rule. The list opens at the caret, in project chat only; comments are deferred.
+
+**States**
+
+| State | Behaviour |
+| --- | --- |
+| Idle | List closed. |
+| Loading | Not applicable: the list comes from the authorized project list already loaded. |
+| Empty | “No projects match “{text}”.” — the same for an unauthorized project (Tetris is never listed or confirmed). |
+| Error | The list doesn't open; @ stays text. |
+| Disabled | IME composition keeps it closed; after commit it opens filtered by the committed text (“「ノート」に一致するプロジェクトはありません。”). |
+| Stale | A project lost while open disappears; the choice moves. |
+| Conflict | Duplicate names: “Which Notes?” (JA “どの Notes ですか？”) + “Choose one to refer to it. Esc keeps your words; they won’t count as a project.”, listing only authorized matches with folders; the chip shows the folder (“@Notes · ~/school/Notes”). Unresolved text never adds the notice or widens anything. |
+
+**Layout and keyboard**
+
+- Wrapped lines: the list anchors to the caret's line.
+- More than six projects: the list scrolls (“Projects you can open · 8”), and long names truncate before folders.
+- ↑/↓ and Page Up/Down move the choice; Return or Tab insert (never send while open); Escape keeps the words.
+- If the caret scrolls out of view the list closes.
+- Touch: the list sits above the field, full width, with 44 px rows; on phone it isn't caret-anchored for lack of width.
+
+#### A8 · Resend with current permissions (group 7)
+
+- **Phase:** Ask Again with Current Files shows the phase it will use.
+- **A waiting plan:**
+  - Discussion: enabled.
+  - Planning: enabled, with “A plan is waiting for your approval; this answer won’t replace it.”
+  - Implementation: disabled, with “Answer the waiting plan first.”
+- **Recheck at press:** “Not sent: the project is now in Implementation and a plan is waiting.” (role=alert in the banner).
+- **Recheck at Send** (composer): “Not sent: the project is now in Implementation and a plan is waiting. Your message is still in the composer.” Without a waiting plan: “Not sent: the project is now in Planning. Your message is still in the composer; press Send to send it in Planning.”
+- **Failures:**
+  - Send: “Not sent: the connection was interrupted. Your message is still in the composer.” + Try Again.
+  - Resend: “Couldn’t ask again: the connection was interrupted. Nothing was sent.”
+  - No silent fallback.
+- **Linked request:** a resend is a new request linked by “· asked again from 14:31”. It never replays tool steps, approves a plan or changes the phase.
+- **No searchable projects:** not applicable in project chat (the project is the scope). With search catching up the action stays enabled, and its receipt shows “Not searched: search was catching up”.
+- **States:**
+
+| State | Ask Again with Current Files |
+| --- | --- |
+| Idle | Enabled. |
+| Loading | “Sending…”, disabled; repeat presses do nothing. |
+| Empty | Not applicable: the original text always exists. |
+| Error | As above. |
+| Disabled | Pi is answering, or Implementation with a plan waiting. |
+| Stale | Rechecked at press. |
+| Conflict | Not applicable: the original is never edited. |
+
+- **Who:** the person, with access. **Cancellation:** the new request is cancelled at its own location. **Focus:** stays on the button or field.
+
+#### A9 · Receipts follow messages (group 8)
+
+- **Compaction** keeps receipts and evidence references; “changed after Pi read it” is still computed when opened.
+- **Delete and restore:** delete moves receipts with the conversation; restore brings them back with access rechecked (a file you can no longer open stays “File no longer available”).
+- **No provenance:** messages with no receipt show plain text, “Recorded before receipts were kept” (JA “Pi が使ったものの記録を始める前のメッセージ”), as `p.pw-rcpt-none`, never a button and never reconstructed.
+
+#### Changed text (old → new)
+
+- Addendum (rev 2) “Agent › Delete Conversation… for the current one; Chat ▾ › Delete Conversation… on the phone” → Conversation actions ⋯ beside the title (phone: ⋯ → sheet).
+- Addendum “Agent › Earlier Conversations ▸, then → on an item opens Open Read Only · Delete Conversation…” → Conversation actions › Earlier Conversations… history list, row ⋯ → Delete Conversation…; Return opens it read only.
+- Addendum alert body “It moves to the Trash with its messages and what Pi used for each. You can restore it from the Trash.” → “…with its messages, what Pi used for each and its draft versions. You can restore it from the Trash.” (B).
+- Addendum project conversation title “Class Notes · 13 Oct 09:12” → “Conversation · 13 Oct 09:12” (the window title already names the project).
+- Addendum “Alternative (not recommended) · …” captions → “Not chosen (round 19) · …”.
+- Addendum Q8 “Planning … is a question for the owner” → settled: a waiting plan permits Discussion and Planning resends and blocks Implementation.
+- New: the “Which {Notes}?” list, the chip with folder, the “Not sent: …” rechecks, “Couldn't ask again…”, “· asked again from {time}”, “Recorded before receipts were kept”, “Sending…”.
+
+#### Data contracts (implementation dependencies)
+
+- **Project conversation record:** `{id, link, started_at, title: null|"Conversation · {start}"}`. Delete and restore are transactional over messages, receipts and draft versions, with idempotent restore keyed by id, link-conflict detection and access rechecked on list, detail and restore.
+- **Active work:** a query for the conversation (running or queued request ids) to refuse delete and power Show Request.
+- **Projects for the @ list:** the authorized project list with stable ids and folders; duplicate-name detection over authorized projects only.
+- **Explicit reference:** the host's reference rule over text plus chips (deterministic, EN/JA patterns) returning project ids, used for the boundary notice only. Never a scope or permission input.
+- **Submission:** a submission recheck returning `phase`, `plan_waiting`, `authorized` before sending (composer and resend), and a resend linked by `resend_of`. On failure the composer keeps its text (draft per B's DraftVersions).
+- **Receipts:** `context_receipt` untouched by compaction. Messages older than receipts carry `receipt: none` (shown as such, never synthesized).
+
+#### Given/When/Then
+
+The ten stories are on R19_ProjectChatWalk: group 4 (find commands; refused while working; delete/Undo/reload/Trash/Restore), group 6 (wrapped/IME; duplicate names, unauthorized), group 7 (three phases; change before submission; failed resend/send), group 8 (receipts after compaction), and group 14 (focus, reload).
+
+#### Unverified (until the built app is tested)
+
+Caret anchoring across wrapped and scrolled fields, IME composition events per browser, touch-keyboard viewport behaviour, focus return after menus, sheets and alerts, screen-reader output of the list, chips and alerts, cross-window restore idempotence, Undo timing, and autosave of the composer text on failed sends.
+
+#### Gap → recommendation
+
+- **Project removed by its owner:** what happens to that project's conversation Trash? → Recommend that the Trash travels with the project (removal keeps decision 11 for citations elsewhere), and say so in the remove-project confirmation. Not adopted here.
+- **The round 9 CompactionMarker text** that still mentions “Agent › Earlier Conversations ▸” → superseded by Round 19 wherever it appears in earlier sections of IMPLEMENTATION.md too (done in the card).
+- **Phone title row:** the phone has no room for the conversation title in the PhoneBar, so I drew a title row under the bar → recommend A (PhoneBar owner) confirm this placement.
+- **@ in comment composers:** deferred by A7 → keep listed as a later task.
+
+### D · Recording on Pi WorkStation and the Preview
+
+Decided, owner-delegated 21 Oct 2026 (brief `design/briefs/round-19-final-integration.md`, section B). Design only: nothing here claims the runtime exists or was tested. Capture belongs in test-core; storage, permissions and presentation in WorkStation. Recording is evidence collection, never a grant of agent authority.
+
+Boards (layout `r19layout_d.json`, reading order): R19_RecFirstUse (1440×900), R19_RecSurfaces (1440×2900), R19_RecControl (1440×900), R19_RecStop (1440×1240), R19_RecCoverage (1440×1190), R19_RecSessions (1440×920), R19_RecStates (1440×1660), R19_RecHistory (1440×900), R19_RecAttach (1440×900), R19_RecEvidence (1440×2440), R19_Rec1024 (1024×900), R19_RecResponsive (1440×2120), Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview, Ph19_RecAttach, Ph19_RecReport (390×844 each), R19_RecStrings (1440×1900), R19_RecWalk (1440×1180). No R18A boards in this area (`r19revised_d.json` is empty).
+Generator `gen/r19d.py` (execs `gen/r18a.py` for menu bar, Projects home, Overview and project chat helpers; borrows round 15 recording pieces from `gen/r15a.py`). Card previews `gen/ds19d.py`. CSS `scripts/round19_d.css` (new classes/modifiers only). Check `r19check_d.py`: 0 HTML problems, 0 undefined `pw-` classes, 0 CSS redefinitions, 0 duplicate ids (19 boards + 4 card previews).
+Cards: **RecordingStatus**, **FlowAttachment**, **ProblemReport** (each gains “## Round 19 (decided, owner-delegated 21 Oct 2026)”); new **RecordingHistory** (README + preview). Earned because round 15 had nowhere to list flows by surface, inspect them, or Clear by scope.
+
+#### Settled from round 15's open choices
+- Preview: stays **on by default, per project**, now always labelled by surface. Retention 7 days / at most 20 flows per project; “recent” = 30 minutes (unchanged).
+- WorkStation: the **same limits separately per project**, plus a WorkStation-only **outside projects** history (Overview, Projects, Settings). Neither is shared memory or automatic cross-project model context.
+- WorkStation is **off until Enable Recording**; the choice is kept per person on the host (“locally” read as: on the computer running Pi WorkStation, never browser storage, never a cloud service).
+- Superseded: round 15's “Also keep what I type during this recording” (proposed) is not drawn; typed text is never stored.
+
+#### Markup, classes, ids
+- WorkStation button: `button.pw-recstat.pw-recstat--bar#ws-recording-status[data-state=off|init|on|paused|lost|unknown|repro]` in `.pw-menubar`, before `#agent-status`; `aria-haspopup="dialog" aria-controls="ws-recording-popover"`; `span.pw-recstat__where` holds “· {project}”. Modifiers `--init` (dotted dot), `--lost` (dotted), `--unknown` (dashed, “?”), `--unavailable` (diamond, Preview), `--wrap`.
+- Popover `section.pw-recpop#ws-recording-popover[role=dialog][aria-label="Pi WorkStation recording"]` with `p.pw-recpop__scope`, `dl.pw-facts`, `p.pw-recpop__other` (the Preview's state), `.pw-recpop__live`; `.pw-recpop--narrow` stacks at 320 / phone.
+- First use: HarnessNotice in the Projects window (role=note), dialog `[aria-labelledby=wsrec-first-title]`, Not Now default.
+- Phone: `div.pw-recbar` (44 px) under `.pw-phonebar`, with `.pw-recbar__more`.
+- History: `div.pw-rechist` › `section.pw-rechist__group[aria-labelledby]` › `h3.pw-rechist__title`, `.pw-rechist__note`, `ul.pw-rechist__list[role=listbox]` › `li.pw-recsess[role=option]` (`__what`, `__when`, `__state`, `__state--dotted`, `__note`), `.pw-rechist__foot`, `.pw-rechist--narrow`.
+- Steps: `.pw-flow__gap`, `.pw-flow__limits`, `.pw-flow__src`. Choosing: `p.pw-evgroup`, `p.pw-destline`. External report: `pre.pw-payload` (`<mark>` = redaction, `tabindex=0`, `aria-label="Exactly what will be sent"`).
+
+#### Group 9 · enable/decline, Preview independent, stop one/all, reload, remote device
+Boards R19_RecFirstUse, R19_RecSurfaces, R19_RecControl, R19_RecStop, Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview.
+- Placement: one WorkStation button per browser window in the **menu bar**, left of the agent status → visible over Projects, project chat, Work (files), Settings and Overview. Each step's destination is fixed at event time by the desk window it happened in; the button names the active window's destination (“· Class Notes” / “· outside projects”). Overview needs **no toolbar slot** (part A draws no slot). 1024: “Recording WorkStation” (destination in the accessible name). Phone: strip under the phone bar once enabled; before that, π › Settings… and the first-use sheet.
+- First use: one-time notice “New: Pi WorkStation can record what you do in its windows, so Pi can see what led to a problem. It stays off until you turn it on.” · Recording Options… · Not Now; dialog “Record what you do in Pi WorkStation?” · **Not Now** (default, Esc) · **Enable Recording**. No modal at launch, no focus stealing.
+- Stop Recording WorkStation stops only WorkStation (toast “WorkStation recording stopped. The Preview is still recording.”); Stop Recording Preview only the Preview; **Stop All Recording** stops both everywhere for the person, deletes nothing (“All recording stopped. What was recorded is kept.”). Mirrored to other windows; announced once “WorkStation recording stopped in another window.”
+- Reload: the previous flow ends; “Starting WorkStation recording…” until the host confirms a new session. Not Now / Stop survive reload.
+- Remote device: “Recordings are kept on Aiko's MacBook, the computer running Pi WorkStation: not on this phone, not in a cloud service.” Stop and Clear act there.
+
+#### Group 10 · coverage and privacy
+Board R19_RecCoverage. Recorded: structural focus/blur, pointer clicks (canvas target + coordinates), supported key down/up from real events (letters/digits only as “a character key”; shortcuts keep modifiers), scroll, viewport. Coverage limits shown per flow (“Not covered: what the canvas draws…, shadow content, frames from other sites, browser chrome, native dialogs. Exact replay is not promised.”). Never at any stage (captured, transported, stored, attached, exported): typed text, passwords, chat/document contents, clipboard, private labels, sensitive key sequences, full URLs/queries, secret-bearing attributes, file contents, private paths. Sensitive fields are **omitted** (“A protected field (nothing recorded)”), never masked with their names. Opt-out (Stop, Not Now, Preview switch) applies in the page before transport. Host normalizes and redacts again; app-origin messages untrusted.
+
+#### Group 11 · sessions, attribution, late/stale/spoofed batches
+Board R19_RecSessions. A flow = one surface/window session, rotated on project/surface change, reload, Preview close, reproduction start. Batches carry project/surface/session IDs fixed at capture; pending steps never move to the next project. The host refuses batches after Stop, Clear or access loss, and from ended sessions; resume always opens a new session. Preview bridge: origin + source + host-issued session token checked; no host secret injected; ignored messages counted once in the flow's details (“2 messages were ignored: they didn't come from this Preview's current session.”).
+
+#### Group 12 · failures never block
+Board R19_RecStates. Storage full → “WorkStation recording paused: Aiko's MacBook is out of space for recordings. Your chats, answers and saves work as before; nothing waits for recording.” Try Again. Transport lost → “WorkStation recording · not connected” + gap. Unknown → “WorkStation recording status unknown” (never “Recording”). Unsupported / injection-blocked Preview → “Preview can't be recorded” (never on). Restart → flow ends, new flow (“recording again since 14:42”). Quota → oldest flow removed, said as the limit. Server restart while a question waits: question, answer and draft kept.
+
+#### Group 13 · evidence
+Boards R19_RecAttach, R19_RecEvidence, R19_RecHistory, Ph19_RecAttach, Ph19_RecReport. Automatic attach only for this project's recent flows; “Attach recordings” names the **destination**, lists Class Notes flows checked, outside-project and other-project flows unchecked (“only if you choose it”); Attach to Draft sends nothing. Remove before Send excludes; after Send: “…removing them here can't take that back. Later requests won't include them.” Record It Again… names both surfaces and the destination; Done attaches unsent; Cancel attaches nothing. Clear names its exact scope → Trash (Undo) → Restore (does not restart recording; current access applied; sent copies retained and said). External: “Review what GitHub will receive” shows the exact redacted payload; Cancel default; failure keeps the draft.
+
+#### Group 14 (part) · focus, keyboard, responsive, dark, long strings, SR
+Board R19_RecResponsive (+ R19_Rec1024, Inverse cells in R19_RecCoverage and R19_RecResponsive). Esc/Tab-out return focus to the opener; first-use focus on Not Now; Cancel default where something moves or leaves; toasts polite, unfocused; state announced once via the button name; steps never announced; banner updates ≤ every 5 steps; recorder never calls focus() (no loops); no animation (reduced motion); phone strip in the safe area. Long names ellipsize at 340 px with full name in the accessible name.
+
+#### States (per component)
+| Component | Idle | Loading | Empty | Error | Disabled | Stale | Conflict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| WorkStation button | not recording | Starting… | on, “no steps yet” in popover | paused / not connected | N/A: never disabled | status unknown | stop in another window wins, mirrored |
+| Preview button | round 15 | Starting Preview recording… | no steps yet | paused | N/A | N/A (bridge re-handshake → init) | as above |
+| First-use dialog | shown once | N/A: local text | N/A | Enable fails → stays “WorkStation not recording” + notice “Couldn't start recording on Aiko's MacBook. Nothing was recorded.” Try Again | N/A | N/A | another window enabled first → dialog closes, button shows on |
+| RecordingHistory | groups | Loading recordings… | per-group empty text | Couldn't load… Try Again | Attach/Clear without selection | row leaves with one polite line | N/A (read-only; host idempotent) |
+| Attach recordings | list | N/A (host list with dialog) | “No recordings to attach.” | load failure as History | Attach to Draft with nothing checked | flow cleared meanwhile: row “no longer available”, unchecked | N/A |
+| Clear / Restore | scope list | busy on Move to Trash | scope empty → disabled | “Couldn't move them. Nothing was changed.” | | restore of already-restored → “These flows are already back.” | idempotent |
+| External review | payload | Opening the issue… | N/A | failed send | Submit unavailable (round 15 reasons) | flow cleared → row unchecked | N/A |
+
+#### Who may invoke · persistence · cancellation · focus destination
+- Enable / Not Now / Stop / Record WorkStation: the signed-in person, for their own WorkStation recording. Preview switch: anyone who may open the project. Stop All: the person; their WorkStation + every Preview they can open. History/Attach/Clear/Restore: the person, for flows of projects they may open plus their outside-projects history. External submit: as round 15 (repo + `gh`). All recorder APIs use normal person authentication and project authorization.
+- Persistence: host only (choice per person; flows per person × project/outside × surface). Nothing in browser persistent storage. Clear → that bucket's Trash (no permanent delete, no new retention).
+- Cancellation: Not Now; Esc on popover/dialogs; reproduction Cancel (nothing attached); Stop is immediate (no undo; Record starts a new session); Clear has Undo then Restore.
+- Focus: opener after popovers/dialogs; Stop keeps focus on the button; Stop All → WorkStation button; Attach to Draft → composer field; Done (reproduction) → the opener (chat notice or report dialog).
+
+#### Exact strings
+EN/JA in R19_RecStrings and the card sections (no native-speaker review claimed). JA: Trash move uses B's “ゴミ箱に移動” (round 15's “ゴミ箱に移す” changes); Restore “元に戻す”; cancel = キャンセル.
+
+#### Changed text (old → new)
+- Preview button “Recording · {n} steps” → “Recording Preview · {n} steps”; “Recording · no steps yet” → “Recording Preview · no steps yet”; “Not recording” → “Preview not recording”; “Not recording · app stopped” → “Preview not recording · app stopped”; “Can't record this page” / “Not recording · terminal app” → “Preview can't be recorded” (popover keeps the reason); “Recording paused” → “Preview recording paused”; accessible name “Recording on: {n} steps from this project. Recording options” → “Recording Preview on: {n} steps from {project}. Recording options”.
+- Preview popover “Stop Recording” → “Stop Recording Preview”; adds “Stop All Recording”, “Recording History…”; Clear History… moves into Recording History (Clear…).
+- ProblemReport: the Submit confirmation alert “Open an issue in {repo} on GitHub?” → the review step “Review what GitHub will receive” (destination line + exact payload; Cancel default · Open Issue). Failure line adds “Check GitHub before trying again in case it arrived.”
+- “Also keep what I type during this recording” (round 15 proposed) → removed.
+- Settings gains a “Recording” group: “Record what I do in Pi WorkStation” + Recording History…; Project › Settings… keeps “Record what I do in the Preview”.
+- JA “ゴミ箱に移す” → “ゴミ箱に移動”.
+
+#### Data contracts / backend dependencies (implementation dependencies)
+- Recording choice: `{"person", "workstation_recording": "undecided|enabled|declined|stopped", "changed_at"}` on the host.
+- Session: `{"session_id", "surface": "workstation|preview", "window_id", "device", "bucket": {"project": id} | "outside", "started_at", "ended_at", "end_reason": "stop|stop_all|project_change|reload|preview_closed|restart|limit|clear|access_lost", "token"}`.
+- Batch: `{"session_id", "token", "seq", "events": [{"t", "kind": "focus|blur|click|key|scroll|viewport|load", "target": "<role · window or structural selector>", "x"?, "y"?, "key"?: "char|Enter|Escape|Tab|Arrow*|<shortcut>", "phase"?: "down|up"}]}`; host rejects unknown/ended sessions, wrong origin/source, after stop/clear/access loss.
+- Flow record: adds `{"surface", "bucket", "truncated_at"?, "gaps": [{"from", "to"}], "ignored_messages": n, "late_rejected": n, "coverage": ["canvas_internals", "shadow", "cross_origin_frames", "browser_chrome", "native_dialogs"]}` to round 15's shape.
+- Attachment: `{"message_id", "session_ids": [...], "destination_project", "removed_at"?, "sent_before_removal": bool}`.
+- Clear/Trash: `{"scope": {"bucket", "surface"}, "flow_ids", "trashed_at", "restored_at"?}`; restore idempotent; access rechecked at open.
+- External report: server renders the payload text; the confirmed hash must match what is sent.
+- Mirrored state: a per-person event stream to all their windows (same channel as chat state).
+
+#### Given/When/Then
+R19_RecWalk (21 stories, groups 9–14) and the cards' walkthroughs.
+
+#### Unverified (until built and tested)
+Real capture coverage per browser; key-up fidelity; bridge origin/source/token security; cross-window mirroring latency; late-batch rejection timing; storage-full behaviour; screen-reader output; focus behaviour in browsers; reduced motion; phone safe areas.
+
+#### Gap → recommendation
+- **Per-flow bound and host batch/time limits** are host-controlled and unspecified (drawn as “limit reached” only) → set in the implementation spec; show truncation, never a number we can't guarantee.
+- **Where the first-use offer appears on the phone** before enabling (no strip yet) → π › Settings… row plus the one-time notice in the chat screen; no new screen.
+- **WorkStation recording of Pi's own windows on another person's device** (shared/multi-person) is not described in the brief → keep per-person only; no shared recording.
+- **Save as Test Draft… for WorkStation flows** (tests of the workbench itself belong to pi-local-harness) → offer it only for Preview flows until the owner decides.
+- **Retention of Trash for recordings** → reuse the existing Trash rules (no new retention, per brief).
+- **Overview toolbar slot** is unnecessary: the WorkStation control lives in the menu bar above Overview.
+
+#### Validation (what ran)
+
+- **HTML and classes:** nesting and `pw-` class definitions checked on all 47 round 19 boards, the 28 revised addendum boards and every card preview: 0 problems, 0 undefined classes.
+- **CSS isolation:** no round 19 rule redefines an existing class, and no class is shared between the four round 19 CSS files.
+- **Duplicate ids:** none on round 19 boards. The six revised R18A_Ask* boards repeat ids across their multi-cell drawings; that was already true in the addendum.
+- **References:** every board named in this section exists on the canvas, and no "awaiting approval" text remains on the addendum boards.
+- **Renders:** desk, 1024, 320, phone and dark cells were inspected, together with the new and changed previews.
+- **Canvas artifact:** The canvas artifact can hold at most 511 files per version and already holds 486, so the 47 round 19 boards are published only in this repository. The artifact received the retitled addendum boards and a `canvas.json` without the round 19 page.
+- **Tests:** `tests.test_design_brand`, `tests.test_frontend` and `tests.test_web_robustness` pass.
+- **Not verified, needs the built app:** real autosave and revision checks, cross-window timing and mirroring, screen-reader output, browser focus restoration and IME events, caret anchoring, the Preview bridge's origin/source security, capture coverage per browser, late-batch rejection, reduced motion and safe areas. The Japanese has had no native-speaker review.

@@ -75,3 +75,43 @@ Focus starts in What went wrong. Tab: What went wrong → What you expected → 
 - Don't submit anything on open, on Save Draft or on Ask Pi.
 - Don't include the app output unless the person checks it.
 - Don't add a policy question (“How should Pi proceed…?”).
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Brief section B. Boards: R19_RecEvidence, R19_RecStates, Ph19_RecReport. Design only.
+
+### Evidence from both surfaces
+
+The evidence fieldset lists Preview and WorkStation flows of the destination project separately (WorkStation only if enabled); “Choose Recordings…” opens the same Attach recordings list as FlowAttachment (outside-project and other-project flows unchecked, destination named).
+
+### Record It Again… (mixed surfaces)
+
+The start dialog gains “Record in”: ☑ The Preview of Class Notes · ☑ Pi WorkStation · this window (disabled with “WorkStation recording is off. Enable Recording… explains it first.” when not enabled) and `p.pw-destline` “Destination: Class Notes · this chat's draft (not sent)”. Each surface gets a **new** flow only for the reproduction. Banner: “Recording a reproduction · WorkStation” + “Preview and WorkStation · 5 steps so far…”; Done focused. **Done** attaches both new flows to the draft, unsent: “The new steps are attached to your draft: Preview · 4 steps and WorkStation · 3 steps. Nothing was sent; send it when you're ready.” **Cancel**: “Reproduction cancelled: nothing attached, your draft unchanged. Recording is back as it was.” Drafts, attachments and waiting questions are preserved either way. Superseded (round 15): “Also keep what I type during this recording” — not drawn in round 19; typed text is never stored.
+
+### External report: redacted payload first
+
+Submit to GitHub… now opens “Review what GitHub will receive” (`aria-labelledby="ext-title"`): `p.pw-destline` (repository, public or private), `pre.pw-payload` with the **exact** redacted text (scrolls; `<mark>` marks redactions), “This is the exact text, already redacted. Nothing else is sent…”, then Back · **Cancel** (default) · Open Issue. This replaces the round 15 confirmation alert as the confirming step (Superseded: “Open an issue in {repo} on GitHub?” alert — its words move into the destination line). Failure: “Couldn't open the issue: GitHub didn't answer within 20 seconds. Your report is saved as a draft. Check GitHub before trying again in case it arrived.” Try Again.
+
+### Clear (from Recording History or the recording popovers)
+
+“Clear Recordings” names its exact scope (Class Notes · WorkStation · 6 flows / Class Notes · Preview / both / Outside projects · WorkStation) → alert “Move Class Notes' WorkStation recordings to the Trash?” with “…Recording goes on; steps still on their way are not kept. Copies already sent stay where they are: 2 messages in this chat and issue #14 on GitHub keep their steps.” Cancel (default) · Move to Trash → toast “6 flows moved to the Trash.” Undo. Restore from the Trash never restarts recording (“6 flows restored. Recording wasn't restarted…”) and applies current access (flows of a project no longer open stay hidden).
+
+### States
+
+| State | What changes |
+| --- | --- |
+| Idle / preparing | as round 15 |
+| Loading | “Opening the issue…” on Open Issue (busy, disabled); Esc does nothing until it returns |
+| Empty | no flow: the row is disabled with Record It Again… (round 15) |
+| Error | failed send (above); recorder failures never block the report or chat |
+| Disabled | Submit unavailable reasons (round 15); WorkStation row disabled when not enabled |
+| Stale | a flow cleared or expired after the report opened: its row reads “no longer available” and is unchecked |
+| Conflict | Not applicable: one report per dialog; drafts are separate items |
+
+Who may invoke: the signed-in person with access to the project; Submit also needs the project's repository and `gh` signed in. Persistence: report drafts on the host with the project (round 15). Focus: Review opens on the payload (`tabindex=0`); Cancel/Back return to the report dialog's Submit button.
+
+### Walkthrough (round 19)
+
+1. **Redacted text first** · Given a report with Preview and WorkStation flows · When “Submit to GitHub…” · Then the exact text shows with “(text not recorded)” marks, the public repository is named, Cancel is the default.
+2. **Reproduce both, Done** · Given a draft and a waiting question · When “Record It Again…”, “Start Recording”, “Done” · Then two new flows are attached unsent; the question still waits.
+3. **Clear by scope, restore** · When “Clear…” on Class Notes · WorkStation, “Move to Trash”, then “Restore” · Then the flows return, recording is not restarted, sent copies were never touched.

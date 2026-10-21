@@ -15,10 +15,19 @@ The menu bar at 760px and below: π (opens the π sheet), the current view as a 
 - Round 17 (proposed, plan 354): the View popup lists **Overview · all** first after the separator, then Activity · all and Gate · all; the π sheet's **Agent** group starts with **Overview › 5 need you · 1 working** ("Nothing needs you" when none). The StatusButton opens the Overview screen. An item opened from Overview shows "‹ Overview" in place of π and the view popup. Boards Ph17_Overview, Ph17_OverviewItem, Ph17_Entry, Ph17_EntryPi.
 - Round 18 (proposed, decision 4): with a work-blocking service down the StatusButton reads "Can’t run work · Ollama stopped · 2 need you" in two lines inside the 44 px button (`.pw-statusbtn--wrap`); the view popup button keeps its label. Overview rows add **Ask About {project}**, **Open in Activity** and ⋯ as 44 px buttons; a row's ⋯ is a sheet (Open Chat · Ask About {project} · Open in Activity) with no Open in New Window (one window on the phone). Boards Ph18_Overview, Ph18_OverviewService, Ph18_OverviewRowMenu, Ph18_OverviewHistory.
 
-## Round 18 addendum (proposed, awaiting approval)
+## Round 18 addendum (settled or superseded in round 19 — see Round 19)
 
 Revised 21 Oct after review.
 
-- **Q1.** "Can’t run work · Ollama and Gate stopped · 2 need you" wraps to two lines in the 44 px StatusButton (Ph18A_ServicesStopped). The Overview screen shows Stopped services above Needs you.
+- Superseded: **Q1.** "Can’t run work · Ollama and Gate stopped · 2 need you" wraps to two lines in the 44 px StatusButton (Ph18A_ServicesStopped). The Overview screen shows Stopped services above Needs you. (round 19 A1: “Can’t run work · 2 services stopped · 2 need you”)
 - **Q6.** Nothing changes on the phone, which has no keyboard shortcuts.
 - **Q10.** On the phone, Cancel Request… (JA 依頼をキャンセル…) sits in Activity's request detail. Its alert is a sheet with **Keep Request** first and default, then **Cancel Request** (Ph18A_CancelRequest).
+
+## Round 19 (decided, owner-delegated 21 Oct 2026)
+
+Decided (round 19, A1).
+
+- The StatusButton shows the aggregate "Can’t run work · 2 services stopped · 2 need you" on two lines inside 44 px (Ph19_ServiceHealth).
+- Cancel Request failure on the phone: the request detail shows the failed state and **Try Again** (Ph19_CancelRequest).
+- Selection (A6) is not applicable on the phone: there is no File menu, and New Task lives in the project's Work view.
+- Recording status: see the RecordingStatus card (round 19: a 44 px strip under the phone bar once WorkStation recording is enabled).
