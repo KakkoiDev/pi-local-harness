@@ -33,11 +33,14 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 
 ## Round 18 addendum (proposed, awaiting approval)
 
+Revised 21 Oct after review.
+
 - **Q6 (Recommended).**
-  - ⌃⌥N stays **New File…** everywhere (round 13), including while focus is in the Ask pane.
-  - In Overview, File › New File… is disabled with the note "Open a project to add a file." (`aria-describedby`), and New Task… with "Open a project to add a task." (A's extension).
-  - New Conversation has no shortcut. It is reached with ⌃⌥0, then Tab to the pane's **New** button or to the conversation popup's first item.
+  - ⌃⌥N stays **New File…** everywhere (round 13), including in the Ask pane.
+  - In Overview, File › New File… is disabled with "Open a project to add a file.".
+  - New Task… is disabled until a project row is selected, with "Select a project to add a task." (JA タスクを追加するプロジェクトを選んでください。). With a row selected (the Projects grid's current row, kept when focus moves to the menu bar) it reads "New Task in Class Notes…" (JA Class Notes に新しいタスク…) ⌃⌥T and adds the task to that project.
+  - New Conversation has no shortcut. It is reached with ⌃⌥0, then Tab to the pane's **New** button or the conversation popup's first item.
   - The Window menu is unchanged.
-  - **Would supersede:** round 18's "⌃⌥N anywhere in the Ask pane = New Conversation" and the `aria-keyshortcuts="Control+Alt+N"` on New and on the popup item.
-  - **Alternative (not recommended):** File lists "New Conversation ⌃⌥N (in Ask)".
+  - Would supersede (if approved): round 18's "⌃⌥N anywhere in the Ask pane = New Conversation" and its `aria-keyshortcuts`.
+  - Alternative (not recommended): "New Conversation ⌃⌥N (in Ask)".
   - Board: R18A_NewConversationKeys.

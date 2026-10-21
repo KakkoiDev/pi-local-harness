@@ -655,6 +655,20 @@
 
 /* Addendum items only: the request line wraps in narrow Needs you columns instead of running under the Open label */
 .pw-attn--r18a .pw-attn__req{white-space:normal;min-width:0}
+
+/* Stopped services (Q1, revised 21 Oct): a section above Needs you, one row per stopped blocking service; never counted in Needs you */
+.pw-svclist{list-style:none;margin:0;padding:0 8px 8px;display:flex;flex-direction:column;gap:4px}
+.pw-svcrow{display:grid;grid-template-columns:160px minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:7px 8px;border:2px solid var(--ink);color:var(--ink);text-decoration:none;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-svcrow:hover{background:var(--wash)}
+.pw-svcrow:focus-visible,.pw-svcrow[data-focus]{outline:2px solid var(--ink);outline-offset:2px}
+.pw-svcrow__name{display:inline-flex;align-items:center;gap:6px}
+.pw-svcrow__name b{font-weight:600}
+.pw-svcrow__what{min-width:0}
+.pw-ov--narrow .pw-svcrow{grid-template-columns:minmax(0,1fr)}
+.pw-ov--narrow .pw-svcrow .pw-attn__open{justify-self:end}
+.pw-ov--phone .pw-svcrow{min-height:var(--size-touch);font-size:15px}
+@media (max-width:560px){.pw-svcrow{grid-template-columns:minmax(0,1fr)}.pw-svcrow .pw-attn__open{justify-self:end}}
+.pw-ovsec--svc{border-bottom:3px double var(--ink)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu" aria-label="View: Activity">Activity<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" id="agent-status" class="pw-statusbtn pw-statusbtn--attention" data-state="rest" aria-label="Agent status: 2 need you. Open Overview" style="margin-right: 4px"><span id="agent-state" role="status">2 need you</span></button></nav><div style="flex: 1; opacity: .3; padding: 12px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-chrome)"><p style="margin: 0; font-weight: 600">pi-local-harness · Request 14:20 · task 3 Stuck detection</p><p style="margin: 0">Interrupted by a restart at 14:31.</p><div class="pw-reqactions"><button class="pw-btn pw-btn--touch">Ask Pi to Retry…</button><button class="pw-btn pw-btn--touch" aria-haspopup="dialog">Cancel Request…</button></div></div><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div><section class="pw-sheet" role="dialog" aria-modal="true" aria-label="Cancel the interrupted request from 14:20?" style="position: absolute; top: 470px; bottom: 0; max-height: none; padding-bottom: 34px; overflow: auto; gap: 12px"><div class="pw-sheet__head"><h2 class="pw-dialog__title">Cancel the interrupted request from 14:20?</h2><button class="pw-btn pw-btn--plain pw-btn--touch">Keep</button></div><p style="margin: 0; font-family: var(--font-text); font-size: 17px; line-height: 1.4">Pi won’t continue it. Changes made before the restart stay in the project; nothing is undone.</p><div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px"><button class="pw-btn pw-btn--touch pw-btn--default">Keep Request</button><button class="pw-btn pw-btn--touch">Cancel Request</button></div></section></div>

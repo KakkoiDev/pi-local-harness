@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Round 18 addendum · Proposed, awaiting approval · Ask: English and Japanese strings for Q2–Q6 (B)</title>
+<title>Round 18 addendum · Proposed, awaiting approval · Ask: English and Japanese strings for Q2–Q6 and Delete Conversation (B, revised 21 Oct)</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
 </head>
@@ -750,11 +750,34 @@
   .pw-withheld .pw-btn{min-height:44px;font-size:16px}
   .pw-askdivider{font-size:14px;line-height:18px}
 }
+
+/* ---- Revision 2 (21 Oct, after review; still proposed) ---- */
+/* Q3 · Show Both: the two kept versions side by side in the notice */
+.pw-draftver{border:1px dotted var(--ink);padding:6px 8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pw-draftver__h{margin:0;font-size:12px;font-weight:600}
+.pw-draftver__t{margin:0;font-family:var(--font-text);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.pw-draftver .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+/* Delete Conversation · the pane head's ⋯ and a ⋯ per history item */
+.pw-askmore{position:relative;display:inline-flex}
+.pw-askmore>button{font:inherit;color:inherit;background:none;border:1px solid transparent;height:24px;padding:0 4px;display:inline-flex;align-items:center;cursor:default}
+.pw-askmore>button[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-askmore>button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.pw-askmore .pw-menu{left:auto;right:0;min-width:220px}
+.pw-convorow{position:relative;display:flex;align-items:stretch;min-width:0}
+.pw-convorow>.pw-convo__item{flex:1 1 auto;min-width:0}
+.pw-convorow__more{font:inherit;color:inherit;background:none;border:0;width:28px;flex:none;display:flex;align-items:center;justify-content:center;cursor:default}
+.pw-convorow__more:hover,.pw-convorow__more:focus-visible,.pw-convorow__more[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg);outline:none}
+.pw-convorow .pw-menu{left:auto;right:4px;top:calc(100% - 4px);min-width:200px}
+@media (max-width: 759px){
+  .pw-convorow__more{width:44px}
+  .pw-draftver__t{font-size:16px}
+  .pw-draftver .pw-btn{min-height:44px;font-size:15px}
+}
 </style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 740px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; align-items: flex-start; color: #000"><div style="display: flex; flex-direction: column; gap: 8px; width: 1300px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">Strings (proposals; “Q… alt” rows belong to the Alternatives)</p><div class="pw-window" style="padding: 16px 18px"><div class="pw-transcript" style="padding: 0; gap: 16px"><table class="pw-keys" style="width: 100%"><thead><tr><th>English</th><th>日本語</th></tr></thead><tbody><tr><td>Q2 · Searching {n} of {m} projects</td><td lang="ja">{m} 件中 {n} 件のプロジェクトを検索</td></tr><tr><td>Q2 · Added after this conversation started. Check it to search it here too.</td><td lang="ja">この会話の開始後に追加されました。この会話でも検索するにはチェックしてください。</td></tr><tr><td>Q2 alt · {project} was added at {time} · later questions search it too</td><td lang="ja">{time} に {project} が追加されました · 以降の質問では検索します</td></tr><tr><td>Q3 · This draft changed in another window at {time}.</td><td lang="ja">この下書きは {time} に別のウインドウで変更されました。</td></tr><tr><td>Q3 · Use Newer Draft</td><td lang="ja">新しい下書きを使う</td></tr><tr><td>Q3 · Keep This Version</td><td lang="ja">この版を残す</td></tr><tr><td>Q3 · Earlier draft kept · Restore</td><td lang="ja">前の下書きを保持 · 元に戻す</td></tr><tr><td>Q3 · Using the draft from {time} · earlier draft kept (announcement)</td><td lang="ja">{time} の下書きを使います · 前の下書きを保持（読み上げ）</td></tr><tr><td>Q3 alt · Drafts aren’t shared between devices.</td><td lang="ja">下書きはデバイス間で共有されません。</td></tr><tr><td>Q4 · This answer used a project you can no longer open, so it’s hidden.</td><td lang="ja">この回答には開けなくなったプロジェクトが使われていたため、非表示にしています。</td></tr><tr><td>Q5 · Ask Again in All Projects ({n})</td><td lang="ja">すべてのプロジェクト（{n}）でもう一度質問</td></tr><tr><td>Q5 · Ask Again in {n} Projects</td><td lang="ja">{n} 件のプロジェクトでもう一度質問</td></tr><tr><td>Q5 · Ask Again in {project}</td><td lang="ja">{project} でもう一度質問</td></tr><tr><td>Q5 · Ask Again in This Conversation (disabled label)</td><td lang="ja">この会話でもう一度質問</td></tr><tr><td>Q5 · Searches the projects this conversation searches now.</td><td lang="ja">この会話がいま検索するプロジェクトを検索します。</td></tr><tr><td>Q5 · None of this conversation’s projects can be searched now.</td><td lang="ja">この会話のプロジェクトは現在どれも検索できません。</td></tr><tr><td>Q5 · asked again</td><td lang="ja">もう一度質問</td></tr><tr><td>Q6 · New Conversation (no shortcut)</td><td lang="ja">新しい会話</td></tr><tr><td>Q6 alt · New Conversation ⌃⌥N (in Ask)</td><td lang="ja">新しい会話 ⌃⌥N（質問ペイン内）</td></tr></tbody></table></div></div></div></div>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1100px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; align-items: flex-start; color: #000"><div style="display: flex; flex-direction: column; gap: 8px; width: 1300px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">Strings (proposals; “Q… alt” rows belong to the Alternatives)</p><div class="pw-window" style="padding: 16px 18px"><div class="pw-transcript" style="padding: 0; gap: 16px"><table class="pw-keys" style="width: 100%"><thead><tr><th>English</th><th>日本語</th></tr></thead><tbody><tr><td>Q2 · Searching {n} of {m} projects</td><td lang="ja">{m} 件中 {n} 件のプロジェクトを検索</td></tr><tr><td>Q2 · Added after this conversation started. Check it to search it here too.</td><td lang="ja">この会話の開始後に追加されました。この会話でも検索するにはチェックしてください。</td></tr><tr><td>Q2 alt · {project} was added at {time} · later questions search it too</td><td lang="ja">{time} に {project} が追加されました · 以降の質問では検索します</td></tr><tr><td>Q3 · This draft was also changed in another window at {time}. Both versions are kept until you choose.</td><td lang="ja">この下書きは {time} に別のウインドウでも変更されました。どちらかを選ぶまで両方を残します。</td></tr><tr><td>Q3 · Use This Version</td><td lang="ja">この版を使う</td></tr><tr><td>Q3 · Use Other Version</td><td lang="ja">もう一方の版を使う</td></tr><tr><td>Q3 · Show Both</td><td lang="ja">両方を表示</td></tr><tr><td>Q3 · This window · {time} / Other window · {time}</td><td lang="ja">このウインドウ · {time} / 別のウインドウ · {time}</td></tr><tr><td>Q3 · Other version kept</td><td lang="ja">もう一方の版を残しています</td></tr><tr><td>Q3 · Discard Other Version…</td><td lang="ja">もう一方の版を破棄…</td></tr><tr><td>Q3 · Discard the other draft version? · Cancel · Discard</td><td lang="ja">もう一方の下書きの版を破棄しますか？ · キャンセル · 破棄</td></tr><tr><td>Q3 · Using this version · other version kept (announcement)</td><td lang="ja">この版を使います · もう一方の版を残しています（読み上げ）</td></tr><tr><td>Q3 alt · Drafts aren’t shared between devices.</td><td lang="ja">下書きはデバイス間で共有されません。</td></tr><tr><td>Q4 · This answer used a project you can no longer open, so it’s hidden.</td><td lang="ja">この回答には開けなくなったプロジェクトが使われていたため、非表示にしています。</td></tr><tr><td>Q4 · Conversation · {date} {time} (replaces a hidden generated title)</td><td lang="ja">会話 · {date} {time}（例: 会話 · 10月20日 14:31）</td></tr><tr><td>Q5 · Ask Again in All Projects ({n})</td><td lang="ja">すべてのプロジェクト（{n}）でもう一度質問</td></tr><tr><td>Q5 · Ask Again in {n} Projects</td><td lang="ja">{n} 件のプロジェクトでもう一度質問</td></tr><tr><td>Q5 · Ask Again in {project}</td><td lang="ja">{project} でもう一度質問</td></tr><tr><td>Q5 · Ask Again in This Conversation (disabled label)</td><td lang="ja">この会話でもう一度質問</td></tr><tr><td>Q5 · Searches the projects this conversation searches now.</td><td lang="ja">この会話がいま検索するプロジェクトを検索します。</td></tr><tr><td>Q5 · None of this conversation’s projects can be searched now.</td><td lang="ja">この会話のプロジェクトは現在どれも検索できません。</td></tr><tr><td>Q5 · asked again</td><td lang="ja">もう一度質問</td></tr><tr><td>Q6 · New Conversation (no shortcut)</td><td lang="ja">新しい会話</td></tr><tr><td>Delete · More for this conversation / More for {title}</td><td lang="ja">この会話のその他の操作 / {title} のその他の操作</td></tr><tr><td>Delete · Delete Conversation…</td><td lang="ja">会話を削除…</td></tr><tr><td>Delete · Delete “{title}”?</td><td lang="ja">「{title}」を削除しますか？</td></tr><tr><td>Delete · It moves to the Trash with its messages and what Pi used for each. You can restore it from the Trash.</td><td lang="ja">メッセージと、それぞれで Pi が使ったものと一緒にゴミ箱に移動します。ゴミ箱から元に戻せます。</td></tr><tr><td>Delete · Cancel · Move to Trash</td><td lang="ja">キャンセル · ゴミ箱に移動</td></tr><tr><td>Delete · Conversation moved to the Trash. · Undo</td><td lang="ja">会話をゴミ箱に移動しました。 · 取り消す</td></tr><tr><td>Q6 alt · New Conversation ⌃⌥N (in Ask)</td><td lang="ja">新しい会話 ⌃⌥N（質問ペイン内）</td></tr></tbody></table></div></div></div></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 740}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

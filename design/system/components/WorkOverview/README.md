@@ -150,18 +150,23 @@ Superseded round 17 text (old → new):
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-Boards: R18A_ServicesStopped, R18A_NewConversationKeys, R18A_CancelCheckNew, R18A_OverviewStrings, R18A_OverviewWalk, Ph18A_ServicesStopped, Ph18A_CancelRequest. CSS: `scripts/round18add_a.css`.
+Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_NewConversationKeys, R18A_CancelCheckNew, R18A_OverviewStrings, R18A_OverviewWalk, Ph18A_ServicesStopped, Ph18A_CancelRequest. CSS: `scripts/round18add_a.css` (addendum-scoped; no approved round 18 class changes).
 
-- **Q1, several blocking services.**
-  - Each project row reads "State unknown while 2 services are stopped" (JA 2 つのサービスが停止中のため状態不明); queued work reads "Queued: 2 requests · waiting for services" (JA 待機中：リクエスト 2 件 · サービスを待っています).
-  - The Projects count reads "5 · 2 queued · state unknown while 2 services are stopped". The Agent row reads "Can’t run work · 2 need you"; the Activity row reads "2 queued · 2 services stopped".
-  - The infobar reads "Ollama stopped at 14:24 and Gate at 14:27, so Pi can’t run work in any project. What each project is doing can’t be known until both answer; the queue is kept."
-  - **Alternative (not recommended):** "Ollama stopped +1".
-- **Q6, ⌃⌥N.** In Overview, File › New File… ⌃⌥N is disabled with the reason "Open a project to add a file." In the Ask pane head, **New** has no shortcut.
-- **Q10, Cancel Request…** It is never in Overview. Cancelling still leaves round 18's history row "Cancelled by you · 14:40".
-- **Q10, Check Again.** Proposed for Activity's service details: it asks the service once and never starts or restarts it. States:
+- **Q1: Stopped services (Recommended).**
+  - **Layout.** A section above Needs you, `section.pw-ovsec.pw-ovsec--svc`, with h2 **Stopped services** (JA 停止中のサービス) and the note "Not counted in Needs you". Inside, `ul.pw-svclist` of `a.pw-svcrow`, one per stopped blocking service, oldest stop first:
+    - "Ollama stopped · since 14:24 · Pi can’t answer in any project" (JA Ollama 停止中 · 14:24 から · どのプロジェクトでも Pi は答えられません)
+    - "Gate stopped · since 14:27 · tool steps wait in every project" (JA Gate 停止中 · 14:27 から · どのプロジェクトでもツールの手順は待機します)
+
+    Each row has **Open Details** and an accessible name such as "Ollama stopped since 14:24. Pi can’t answer in any project. Open Details".
+  - **Keyboard.** The list is one Tab stop, with ↑ ↓ to move.
+  - **Count.** The Needs you count excludes services.
+  - **Rows.** With Ollama stopped, rows read "State unknown while Ollama is stopped" (round 18). With Gate only, a running request reads "Waiting for Gate before its next tool step" (JA 次のツール手順の前に Gate を待っています), and idle rows stay "Idle".
+  - **Would supersede (if approved).** Round 18's service item inside Needs you.
+  - **Alternative (not recommended).** Service items first under Needs you.
+- **Q6.** In Overview, File › New File… is disabled ("Open a project to add a file."). New Task… is disabled until a project row is selected ("Select a project to add a task."); with a row selected it reads "New Task in Class Notes…". The Ask pane's New has no shortcut.
+- **Q10: Cancel Request….** It is never in Overview. Cancelling still leaves round 18's history row "Cancelled by you · 14:40" (JA あなたがキャンセル · 14:40).
+- **Q10: Check Again.** It belongs to Activity's service details: it asks the service once and never starts or restarts it. States:
   - "Checking…" (disabled, `aria-busy`);
   - "Still stopped · checked 14:33", then disabled for 10 s, described by "Checked a moment ago.";
   - or the service recovers.
-- **Q10, New marker.** It has no timer (see AttentionItem).
-- **CSS.** All addendum styling is scoped to `.pw-attn--r18a`, which is set only on addendum items. On those items `.pw-attn__req` wraps in narrow columns and the round 18 `::after` marker is off. Round 18's own CSS, including its New marker, is unchanged everywhere else.
+- **Q10: New marker.** Clearing it never resolves an item (see AttentionItem).

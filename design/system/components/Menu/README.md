@@ -19,4 +19,11 @@ A pull-down menu under a menu-bar title, and the same list inside the phone's π
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-- **Q6.** The File menu in Overview: New Project… ⌃⌥⇧N, Add Existing Folder… ⌃⌥O, separator, then New File… ⌃⌥N disabled with `.pw-menu__note` "Open a project to add a file." and New Task… ⌃⌥T disabled with "Open a project to add a task.". In a project, both are enabled. The conversation popup's first item is "New Conversation", with no key text and no `aria-keyshortcuts`. **Alternative (not recommended):** a "New Conversation ⌃⌥N (in Ask)" item. The preview block is labelled. Board: R18A_NewConversationKeys.
+Revised 21 Oct after review.
+
+- **Q6.** The File menu in Overview has three states (preview block):
+  - Nothing selected: New File… ⌃⌥N disabled with `.pw-menu__note` "Open a project to add a file."; New Task… ⌃⌥T disabled with "Select a project to add a task.".
+  - Class Notes row selected: "New Task in Class Notes…" ⌃⌥T enabled; New File… still disabled.
+  - In a project: both enabled.
+
+  The conversation popup's first item is "New Conversation", with no key text and no `aria-keyshortcuts`. Alternative (not recommended): "New Conversation ⌃⌥N (in Ask)". Board: R18A_NewConversationKeys.

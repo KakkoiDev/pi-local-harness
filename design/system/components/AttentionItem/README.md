@@ -125,14 +125,16 @@ Walkthrough: Given focus is on home-server's check-in, When a Class Notes questi
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-Boards: R18A_ServicesStopped, R18A_CancelCheckNew.
+Revised 21 Oct after review. Boards: R18A_ServicesStopped, R18A_CancelCheckNew.
 
-- **Q1 (Recommended).** Needs you lists one Service item per stopped service, all first, oldest stop first: "Service problem · Ollama stopped" (14:24), then "Service problem · Gate stopped" (14:27, "Command gate · Gate", text "Gate stopped answering at 14:27. Pi can’t run commands in any project until it answers again."). Each item opens its own details. When one service recovers, its item leaves with "{service}: running again".
-- **Q10, New marker (Recommended).**
-  - A "New" tag (JA 新着), drawn as `span.pw-attn__new[aria-hidden=true]` after the request, appears on an item that arrived while this window was open.
-  - The tag clears once the item has had keyboard focus or has been opened, or when the window closes. There is no timer.
+- **Q1: services are no longer attention items.** Stopped blocking services move to WorkOverview's **Stopped services** section, and the Needs you count excludes them.
+  - Would supersede (if approved): round 18's service item first under Needs you ("Service problem · Ollama stopped"), and non-blocking service items such as "Service problem · Preview stopped". Preview, speech and search failures show only in their own feature.
+- **Q10: New marker (Recommended).** A "New" tag (JA 新着), `span.pw-attn__new[aria-hidden=true]`, sits after the request line on an item that arrived while this window was open.
+  - It clears when the item has had keyboard focus or been opened, or when the window closes. There is no timer.
+  - Clearing is visual only. It never resolves, answers, approves or hides the item; the item stays in Needs you until its authoritative card resolves.
   - Items present when the window opened are never marked, and each window keeps its own marks.
-  - Screen readers hear it only once, in "1 new item in Needs you".
-  - **Would supersede (if approved):** round 18's "New items carry `[data-new]` ('New' tag after the request) until focused or 60 s", and its CSS `::after` tag. Until then the proposal's CSS is scoped to `.pw-attn--r18a` (addendum items only), and round 18's marker keeps working everywhere else.
-  - **Alternative (not recommended):** the 60 s timer.
-- **Q10, Cancel Request.** It is never on an item. The item's ⋯ keeps only Open {X} and Open in New Window.
+  - Screen readers hear it once, in "1 new item in Needs you".
+  - Scoped CSS: `.pw-attn--r18a`. Round 18's `::after` marker keeps working elsewhere.
+  - Would supersede (if approved): round 18's "until focused or 60 s".
+  - Alternative (not recommended): the 60 s timer.
+- **Q10: Cancel Request.** It is never on an item; the item's ⋯ keeps only Open {X} and Open in New Window.

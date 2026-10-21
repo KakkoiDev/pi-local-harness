@@ -43,4 +43,6 @@ Superseded (round 17 → round 18): `.pw-context__found` (“2 found”, “none
 
 ## Round 18 addendum (proposed, awaiting approval)
 
+Revised 21 Oct after review.
+
 No change for Q7–Q9: the line before sending still ends “Searched: Class Notes only”. An @-mention chip in the draft doesn't widen what Pi sees or searches. It only marks the message as naming another project, so the boundary notice can follow the answer (see Message, Composer).

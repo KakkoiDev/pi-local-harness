@@ -17,6 +17,8 @@ The menu bar at 760px and below: π (opens the π sheet), the current view as a 
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-- **Q1.** "Can’t run work · 2 services stopped · 2 need you" wraps to two lines in the 44 px StatusButton (Ph18A_ServicesStopped).
+Revised 21 Oct after review.
+
+- **Q1.** "Can’t run work · Ollama and Gate stopped · 2 need you" wraps to two lines in the 44 px StatusButton (Ph18A_ServicesStopped). The Overview screen shows Stopped services above Needs you.
 - **Q6.** Nothing changes on the phone, which has no keyboard shortcuts.
-- **Q10.** On the phone, Cancel Request… sits in Activity's request detail; its alert is a sheet with **Keep Request** first and default, then **Cancel Request** (Ph18A_CancelRequest).
+- **Q10.** On the phone, Cancel Request… (JA 依頼をキャンセル…) sits in Activity's request detail. Its alert is a sheet with **Keep Request** first and default, then **Cancel Request** (Ph18A_CancelRequest).

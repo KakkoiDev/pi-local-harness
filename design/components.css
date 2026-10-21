@@ -1362,6 +1362,20 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
 
 /* Addendum items only: the request line wraps in narrow Needs you columns instead of running under the Open label */
 .pw-attn--r18a .pw-attn__req{white-space:normal;min-width:0}
+
+/* Stopped services (Q1, revised 21 Oct): a section above Needs you, one row per stopped blocking service; never counted in Needs you */
+.pw-svclist{list-style:none;margin:0;padding:0 8px 8px;display:flex;flex-direction:column;gap:4px}
+.pw-svcrow{display:grid;grid-template-columns:160px minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:7px 8px;border:2px solid var(--ink);color:var(--ink);text-decoration:none;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-svcrow:hover{background:var(--wash)}
+.pw-svcrow:focus-visible,.pw-svcrow[data-focus]{outline:2px solid var(--ink);outline-offset:2px}
+.pw-svcrow__name{display:inline-flex;align-items:center;gap:6px}
+.pw-svcrow__name b{font-weight:600}
+.pw-svcrow__what{min-width:0}
+.pw-ov--narrow .pw-svcrow{grid-template-columns:minmax(0,1fr)}
+.pw-ov--narrow .pw-svcrow .pw-attn__open{justify-self:end}
+.pw-ov--phone .pw-svcrow{min-height:var(--size-touch);font-size:15px}
+@media (max-width:560px){.pw-svcrow{grid-template-columns:minmax(0,1fr)}.pw-svcrow .pw-attn__open{justify-self:end}}
+.pw-ovsec--svc{border-bottom:3px double var(--ink)}
 /* ---- 2026-10-21 · Round 18 addendum B (proposed, awaiting approval): shared drafts, withheld answers, scope-named refresh, live-all divider ---- */
 
 /* Q3 · the version not chosen is kept once, until the next send */
@@ -1389,6 +1403,29 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-withheld{font-size:15px;line-height:20px;padding:10px 12px}
   .pw-withheld .pw-btn{min-height:44px;font-size:16px}
   .pw-askdivider{font-size:14px;line-height:18px}
+}
+
+/* ---- Revision 2 (21 Oct, after review; still proposed) ---- */
+/* Q3 · Show Both: the two kept versions side by side in the notice */
+.pw-draftver{border:1px dotted var(--ink);padding:6px 8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pw-draftver__h{margin:0;font-size:12px;font-weight:600}
+.pw-draftver__t{margin:0;font-family:var(--font-text);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.pw-draftver .pw-btn{min-height:22px;font-size:12px;padding:0 8px}
+/* Delete Conversation · the pane head's ⋯ and a ⋯ per history item */
+.pw-askmore{position:relative;display:inline-flex}
+.pw-askmore>button{font:inherit;color:inherit;background:none;border:1px solid transparent;height:24px;padding:0 4px;display:inline-flex;align-items:center;cursor:default}
+.pw-askmore>button[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-askmore>button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.pw-askmore .pw-menu{left:auto;right:0;min-width:220px}
+.pw-convorow{position:relative;display:flex;align-items:stretch;min-width:0}
+.pw-convorow>.pw-convo__item{flex:1 1 auto;min-width:0}
+.pw-convorow__more{font:inherit;color:inherit;background:none;border:0;width:28px;flex:none;display:flex;align-items:center;justify-content:center;cursor:default}
+.pw-convorow__more:hover,.pw-convorow__more:focus-visible,.pw-convorow__more[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg);outline:none}
+.pw-convorow .pw-menu{left:auto;right:4px;top:calc(100% - 4px);min-width:200px}
+@media (max-width: 759px){
+  .pw-convorow__more{width:44px}
+  .pw-draftver__t{font-size:16px}
+  .pw-draftver .pw-btn{min-height:44px;font-size:15px}
 }
 /* Round 18 addendum · C (proposed, awaiting approval): @ project mentions (Composer), phase note on Ask Again with Current Files (ContextReceipt), receipts kept through compaction (CompactionMarker) */
 .pw-field--rich{display:block;min-height:52px;padding:6px 8px;white-space:pre-wrap;font-family:var(--font-text);font-size:16px;line-height:24px;box-sizing:border-box;cursor:text}

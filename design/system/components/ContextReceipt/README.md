@@ -225,8 +225,27 @@ See R18_ContextWalk (11 stories): every message keeps its receipt · Show All ·
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-**Q8 · phase changes before resending.** Proposed: **Ask Again with Current Files** always resends in the project's phase now, and never changes phase. When that phase differs from the message's, a bold line follows the round 18 description and is also in the button's `aria-describedby`: “Pi will answer in Planning, the project’s phase now (this message was in Discussion).” (JA “Pi はいまのフェーズ「計画」で答えます（このメッセージは「議論」でした）。”). There is no extra confirmation. While a phase change or approval card is waiting, the button is disabled and described by “Answer the waiting plan first.” (JA “待っている計画に先に答えてください。”). Round 18's “Pi is answering…” disabled state is unchanged. At 320 px and on the phone the button wraps to its own row (`.pw-receipt__state--wrap`). Boards: R18A_AskAgainPhase, Ph18A_AskAgainPhase. Alternative (not recommended): an alert “Ask again in Planning?” / “This message was in Discussion.” / Cancel · Ask Again.
+Revised 21 Oct after review.
 
-**Q9 · lifetime.** Proposed: a receipt lives exactly as long as its message. It is kept through compaction, moves with the conversation to Earlier Conversations on New Conversation, and is deleted only with the conversation. No separate retention policy. See CompactionMarker. Boards: R18A_ReceiptLifetime, Ph18A_ReceiptLifetime.
+**Q8 · phase changes before resending.** Proposed: **Ask Again with Current Files** always resends in the project's phase now and never changes phase.
 
-Would supersede (round 18): “Pressing it sends at once, in the same conversation” → “…in the project's phase now, saying so when it differs”. The round 18 open issues “phase for Ask Again with Current Files” and “receipt lifetime” would be closed.
+- **Phase line:** when the phase differs from the message's, a bold line follows the round 18 description and is also in the button's `aria-describedby`: “Pi will answer in Planning, the project’s phase now (this message was in Discussion).” (JA “Pi はいまのフェーズ「計画」で答えます（このメッセージは「議論」でした）。”). There is no confirmation.
+- **A waiting plan blocks only implementation:**
+  - **Implementation** (実装) with a plan waiting: disabled, described by “Answer the waiting plan first.” (JA “待っている計画に先に答えてください。”).
+  - **Discussion** (議論): enabled.
+  - **Planning** (計画): enabled, with the extra description “A plan is waiting for your approval; this answer won’t replace it.” (JA “承認待ちのプランがあります。この回答で置き換わることはありません。”). Whether Planning should allow it is a question for the owner.
+- **Unchanged:** round 18's “Pi is answering…” disabled state.
+- **Narrow widths:** at 320 px and on the phone the button wraps to its own row (`.pw-receipt__state--wrap`).
+- **Alternative (not recommended):** an alert “Ask again in Planning?” / “This message was in Discussion.” / Cancel · Ask Again.
+
+**Q9 · lifetime.** Proposed: a receipt lives exactly as long as its message.
+
+- **Compaction:** receipts are kept.
+- **New Conversation…:** the conversation stays read only with its receipts.
+- **Clearing or Delete Conversation…:** moves the conversation to the Trash with its messages and receipts; restoring brings both back.
+- **Retention:** no separate retention policy.
+- See CompactionMarker.
+
+Boards: R18A_AskAgainPhase, Ph18A_AskAgainPhase, R18A_ReceiptLifetime, Ph18A_ReceiptLifetime, Ph18A_ConversationMenu.
+
+Would supersede (round 18): “Pressing it sends at once, in the same conversation” → “…in the project's phase now, saying so when it differs”.

@@ -34,13 +34,25 @@ Superseded (round 17 → round 18): “only when the message names another regis
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-**Q7 · explicit references to projects named with ordinary words.** Proposed: a project counts as explicitly referenced, and gets the round 18 boundary notice (copy unchanged), only in these cases:
+Revised 21 Oct after review.
 
-- (a) An @-mention chip chosen from the composer's @ list.
-- (b) Its exact registered name next to the word *project*: “the Notes project”, “Notes project”, “project Notes”, or in quotes, “Notes”. In Japanese: 「Notes」プロジェクト, Notes プロジェクト.
+**Q7 · explicit references.** Proposed: a project counts as explicitly referenced, and the round 18 boundary notice follows the answer (copy unchanged), only in two cases:
 
-Case and spacing must match the registered name. “my notes”, “search the notes”, “the notes project” and a bare “Pong” never trigger it. Neither does a name that isn't one of the person's projects, or this chat's own project. Boards: R18A_ProjectMention, Ph18A_ProjectMention, R18A_ProjectChatWalk.
+- **(a)** An @-mention chip chosen from the composer's @ list.
+- **(b)** Its exact registered name with the word *project*: “the Notes project”, “Notes project”, “project Notes”. JA: Notes プロジェクト, プロジェクト Notes, 「Notes」プロジェクト.
 
-- A sent chip shows in the person's message as `span.pw-mention` (“@Pong”). If the project is later removed or can't be opened, the chip keeps the person's words with a dotted outline (`.pw-mention--gone`) and has no link. The notice already names nothing.
-- Would supersede (round 18): “only when the message explicitly names another registered project the person can open” → the rule (a)/(b) above. Round 18's example “Did Pong already have a high-score list I can copy?” (bare name) → “Did @Pong …” or “Did the Pong project …”.
-- Alternative (not recommended): only @-mentions count. A person who types names never learns about Ask in Overview.
+Case and spacing must match. These never select a project:
+
+- quoted words alone (“Notes”);
+- ordinary words (“my notes”, “search the notes”);
+- a wrong case (“the notes project”);
+- a bare “Pong”;
+- a name that isn't one of the person's projects;
+- this chat's own project.
+
+Boards: R18A_ProjectMention, Ph18A_ProjectMention, R18A_ProjectChatWalk.
+
+- **Chips in messages:** a sent chip shows as `span.pw-mention` (“@Pong”). If the project is later removed or can't be opened, the chip keeps the person's words with a dotted outline (`.pw-mention--gone`) and no link.
+- **Would supersede (round 18):** “only when the message explicitly names another registered project the person can open” → the (a)/(b) rule. Round 18's bare-name example “Did Pong already have a high-score list I can copy?” → “Did @Pong …” or “Did the Pong project …”.
+- **Removed in this revision:** “Notes” in quotes no longer counts.
+- **Alternative (not recommended):** only @-mentions count.

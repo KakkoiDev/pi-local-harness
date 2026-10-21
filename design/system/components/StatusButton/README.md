@@ -32,8 +32,14 @@ Superseded (old → new): round 17 "otherwise as before (Ready, Working · 1 wai
 
 ## Round 18 addendum (proposed, awaiting approval)
 
-Nothing here is decided. Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
+Revised 21 Oct after review. Nothing here is decided. Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
 
-- **Recommended (Q1).** With two or more blocking services down, the button reads "Can’t run work · 2 services stopped · 2 need you" (JA 作業を実行できません · 2 つのサービスが停止中 · 対応待ち 2 件). Its accessible name lists the services by name, oldest stop first: "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview" (JA エージェントの状態: 作業を実行できません。Ollama と Gate が停止中、対応待ち 2 件。概要を開く). With one service down, the round 18 words are unchanged. When one service recovers, "Gate: running again" is announced once and the button returns to the one-service words. Phone: the words wrap to two lines inside the 44 px button.
-- **Would supersede:** nothing in round 18. It adds the case of two or more services, which round 18 left open.
-- **Alternative (not recommended):** "Can’t run work · Ollama stopped +1" (name the first service and count the rest).
+- **Recommended (Q1): blocking is per operation.** The selected model's server (Ollama) blocks generation; Gate blocks tool execution. A stopped Preview, speech or search shows only in its own feature and never changes this button. Priority is otherwise as round 18, with these words:
+  - Ollama stopped: "Can’t run work · Ollama stopped" (round 18).
+  - Gate only: "Can’t run tools · Gate stopped" (JA ツールを実行できません · Gate 停止中). aria-label: "Agent status: can’t run tools, Gate stopped, 2 need you. Open Overview".
+  - Both: "Can’t run work · Ollama and Gate stopped" (JA 作業を実行できません · Ollama と Gate が停止中). aria-label: "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview".
+- **The need-you count.** " · {n} need you" is appended only for requests waiting on a decision: questions, plans, check-ins, failed or interrupted requests. Stopped services are never counted.
+- **Recovery.** When one service answers again, "{service}: running again" is announced once and the button shows the words for what is still stopped.
+- **Phone.** The words wrap to two lines inside the 44 px button.
+- **Would supersede (if approved).** Round 18's "Non-blocking problems only add to the count" and the blocking service item counted in Needs you.
+- **Alternative (not recommended).** "Can’t run work · 2 services stopped · 2 need you" (the first addendum proposal).
