@@ -9,10 +9,10 @@ of a checklist: done ✓, in progress, waiting).
 Today the person sees the phase and, at the end of a task, its check-in card. While Pi builds three approved tasks
 nothing says which one it is on, what is done and what comes next, or how far the task in progress has got.
 
-- [ ] Red (unit): Gate's phase reply carries the building progress: each approved task with its state (done, in
+- [x] Red (unit): Gate's phase reply carries the building progress: each approved task with its state (done, in
   progress, waiting for your check, next) and the task in progress with its steps (the task file's checkboxes, ticked or
   not); nothing while planning or when no plan is approved (`tests/test_plan_progress.py`).
-- [ ] Gate: `Paperwork.progress(root)` and `phase()` returning it as `progress` (back end; no UI yet).
+- [x] Gate: `Paperwork.build_progress(root)` and `phase()` returning it as `progress` (back end; no UI yet).
 - [ ] Designer: `design/briefs/plan-checklist.md`, the checklist above the composer, desktop and phone.
 - [ ] Web: draw the checklist from `progress` and refresh it when a tool call changes a task file or the plan moves
   on (after the canvas).
@@ -40,3 +40,8 @@ Then that task's row says it waits for my check and the next task is not started
 Given a narrow screen and Pi building the second of three tasks
 When I tap the line that says Task 2 of 3
 Then the full checklist opens, and the same control closes it
+
+## Progress
+
+- 2026-10-22: back end done and tested (`build_progress`, `progress` in the phase reply; 8 unit tests, full Python
+  suite green). Not done: the web checklist, its stories and the browser suites; they wait for the canvas.

@@ -369,7 +369,43 @@ class Paperwork:
                 text=file.read_text(encoding='utf-8');title=re.search(r'^# (?:\d+: )?(.+)',text,re.M);done=re.search(r'^Done when:\s*(.+)',text,re.M)
                 tasks.append({'path':path,'title':title[1] if title else path,'done_when':done[1] if done else ''})
             card={'check_in':plan['card']} if plan.get('check_in') and plan.get('card') else {}  # task 260: a reload can show the waiting check-in
-            return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished')),**card}
+            return {**value,'tasks':tasks,'pending':bool(plan.get('pending') or plan.get('finished') and plan.get('waiting')),'finished':bool(plan.get('finished')),**card,'progress':self.build_progress(root)}
+
+    def build_progress(self, root):
+        """Task 362: the approved plan as a checklist while it is built, or None outside a build.
+        Each task: done / accepted_anyway / in_progress / check_in / next; the task in progress also carries its steps
+        (the task file's checkboxes above its Progress log)."""
+        from .checkins import LABEL
+        root=Path(root).resolve();plan=self.plan_state(root)
+        paths=plan.get('tasks') or []
+        if not plan.get('approved') or plan.get('pending') or not paths:return None
+        index=plan.get('index',0);finished=bool(plan.get('finished'))
+        roadmap=(root/'ROADMAP.md').read_text(encoding='utf-8') if (root/'ROADMAP.md').is_file() else ''
+        tasks=[]
+        for number,path in enumerate(paths):
+            file=(root/path).resolve()
+            if not file.is_relative_to(root) or (root/path).is_symlink():raise ValueError('The plan links outside this project.')
+            text=file.read_text(encoding='utf-8') if file.is_file() else ''
+            title=re.search(r'^# (?:\d+: )?(.+)',text,re.M)
+            if finished or number<index:
+                anyway=any(f']({path})' in line and LABEL in line for line in roadmap.splitlines())
+                state='accepted_anyway' if anyway else 'done'
+            elif number==index:state='check_in' if plan.get('check_in') else 'in_progress'
+            else:state='next'
+            item={'path':path,'title':title[1].strip() if title else path,'state':state}
+            if state in ('in_progress','check_in'):item['steps']=self.task_steps(text)
+            tasks.append(item)
+        return {'total':len(paths),'current':min(index,len(paths)-1),'finished':finished,'tasks':tasks}
+
+    @staticmethod
+    def task_steps(text):
+        """The checkboxes of a task file above its Progress log; a box's continuation lines (indented) join it."""
+        steps=[]
+        for line in re.split(r'^## Progress',text,maxsplit=1,flags=re.M)[0].splitlines():
+            box=re.match(r'^- \[([ xX])\] (.*)',line)
+            if box:steps.append({'text':box[2].strip(),'done':box[1]!=' '})
+            elif steps and line.startswith('  ') and line.strip():steps[-1]['text']+=' '+line.strip()
+        return steps
 
     def start_building(self, root, selected=None, request=None):
         """Explicit Start Building confirmation, separate from choosing a phase."""
