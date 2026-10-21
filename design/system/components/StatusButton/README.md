@@ -29,3 +29,11 @@ Highest first; only one is shown:
 While (2) holds nothing says Working, Idle or Ready anywhere (Agent row "Can’t run work · 2 need you", Activity row "2 queued · Ollama stopped", project lists "state unknown"). When Ollama answers: "Ollama: running again" (polite), the item leaves, history "Recovered at …". Phone: the same words wrap to two lines inside the 44 px button (`.pw-statusbtn--wrap`, max 236 px). Boards R18_OverviewStatus, R18_OverviewService, Ph18_OverviewService.
 
 Superseded (old → new): round 17 "otherwise as before (Ready, Working · 1 waiting, 1 waiting, Connection interrupted + Reconnect)" with a stopped service only counted in "need you" → the five-step priority above; a work-blocking service now changes the words.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Nothing here is decided. Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
+
+- **Recommended (Q1).** With two or more blocking services down, the button reads "Can’t run work · 2 services stopped · 2 need you" (JA 作業を実行できません · 2 つのサービスが停止中 · 対応待ち 2 件). Its accessible name lists the services by name, oldest stop first: "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview" (JA エージェントの状態: 作業を実行できません。Ollama と Gate が停止中、対応待ち 2 件。概要を開く). With one service down, the round 18 words are unchanged. When one service recovers, "Gate: running again" is announced once and the button returns to the one-service words. Phone: the words wrap to two lines inside the 44 px button.
+- **Would supersede:** nothing in round 18. It adds the case of two or more services, which round 18 left open.
+- **Alternative (not recommended):** "Can’t run work · Ollama stopped +1" (name the first service and count the rest).

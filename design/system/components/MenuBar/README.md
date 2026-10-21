@@ -30,3 +30,14 @@ The one menu bar at the top of the page: the π menu, File, Edit, View, Project,
 
 - Window › **Projects** (checkbox) at 1024: unchecked by default. Checking it opens the Projects window; once opened explicitly it stays open when the browser is resized to 1024, with its scroll, open groups and selection. Only its close box or unchecking hides it. Board R18_Overview1024, R18_OverviewWindows.
 - JA: Window › 「概要 · すべてのプロジェクト ⌃⌥0」; the StatusButton words follow StatusButton § Round 18.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+- **Q6 (Recommended).**
+  - ⌃⌥N stays **New File…** everywhere (round 13), including while focus is in the Ask pane.
+  - In Overview, File › New File… is disabled with the note "Open a project to add a file." (`aria-describedby`), and New Task… with "Open a project to add a task." (A's extension).
+  - New Conversation has no shortcut. It is reached with ⌃⌥0, then Tab to the pane's **New** button or to the conversation popup's first item.
+  - The Window menu is unchanged.
+  - **Would supersede:** round 18's "⌃⌥N anywhere in the Ask pane = New Conversation" and the `aria-keyshortcuts="Control+Alt+N"` on New and on the popup item.
+  - **Alternative (not recommended):** File lists "New Conversation ⌃⌥N (in Ask)".
+  - Board: R18A_NewConversationKeys.

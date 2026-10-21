@@ -225,8 +225,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-20T13:00:00Z",
+  "at": "2026-10-21T01:00:00Z",
   "via": "Claude (Cowork)",
-  "note": "Round 18: Overview and scoped context finalized from plan 360 (service status priority, conversation history, selective retry, Page-view citations, per-message receipts); new ConversationList card; ContextMeter, VisualResult and Dialog repairs."
+  "note": "Round 18 addendum (proposed, awaiting approval): ten follow-up questions with recommended and alternative designs; addendum sections in 14 cards; no approved behaviour changed."
  }
 }

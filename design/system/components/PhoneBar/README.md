@@ -14,3 +14,9 @@ The menu bar at 760px and below: π (opens the π sheet), the current view as a 
 - Round 9: the π sheet adds **Check for Updates…** (“● New version”, and a dot on π) and **Add to Home Screen…** (only away from the Mac). Chat's view menu shows the views only.
 - Round 17 (proposed, plan 354): the View popup lists **Overview · all** first after the separator, then Activity · all and Gate · all; the π sheet's **Agent** group starts with **Overview › 5 need you · 1 working** ("Nothing needs you" when none). The StatusButton opens the Overview screen. An item opened from Overview shows "‹ Overview" in place of π and the view popup. Boards Ph17_Overview, Ph17_OverviewItem, Ph17_Entry, Ph17_EntryPi.
 - Round 18 (proposed, decision 4): with a work-blocking service down the StatusButton reads "Can’t run work · Ollama stopped · 2 need you" in two lines inside the 44 px button (`.pw-statusbtn--wrap`); the view popup button keeps its label. Overview rows add **Ask About {project}**, **Open in Activity** and ⋯ as 44 px buttons; a row's ⋯ is a sheet (Open Chat · Ask About {project} · Open in Activity) with no Open in New Window (one window on the phone). Boards Ph18_Overview, Ph18_OverviewService, Ph18_OverviewRowMenu, Ph18_OverviewHistory.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+- **Q1.** "Can’t run work · 2 services stopped · 2 need you" wraps to two lines in the 44 px StatusButton (Ph18A_ServicesStopped).
+- **Q6.** Nothing changes on the phone, which has no keyboard shortcuts.
+- **Q10.** On the phone, Cancel Request… sits in Activity's request detail; its alert is a sheet with **Keep Request** first and default, then **Cancel Request** (Ph18A_CancelRequest).

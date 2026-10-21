@@ -163,3 +163,13 @@ With an unavailable item the head drops the project count: “Sources · 3 · 1 
 | Sources · {n} · {k} unavailable | 出典 · {n} 件 · {k} 件は利用できません |
 | Open {file} in {project} at {section} | {project} の {file} を「{section}」で開く |
 | The cited section isn't in the current file; showing the file from the top. | 引用した節は現在のファイルにないため、先頭から表示しています。 |
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Nothing here is decided. Boards: R18A_AskRevoked, Ph18A_AskRevoked. CSS: `scripts/round18add_b.css` (`.pw-withheld`).
+
+**Q4 · Revoked project information in answer prose (Recommended).** When the person can no longer open a project an answer cited (access ended — not a project the person removed themselves), the host withholds that whole answer and keeps the question: `div.pw-withheld[role=note]` “This answer used a project you can no longer open, so it's hidden.” (この回答には開けなくなったプロジェクトが使われていたため、非表示にしています。) + **Ask Again in {scope}** (the Q5 label, e.g. “Ask Again in All Projects (4)”, “Ask Again in Class Notes”; disabled with “None of this conversation's projects can be searched now.” when nothing remains). No project name, count, Sources, coverage, Retry or excerpt remains for that answer. Later answers that did not use the project are unchanged. If the person removed the project from Pi WorkStation themselves, decision 11 applies unchanged (prose stays, the item becomes “Source unavailable”).
+- Would supersede (round 18): “The answer's own prose is not rewritten (decision 11)” applied to every case → only to projects the person removed; access ending withholds the answer.
+- Alternative (not recommended · privacy risk): keep the prose and redact the sources only (the round 18 drawing); the prose still names the project and describes its contents.
+
+Data still missing (✱): per-answer `used_project_ids[]` and a per-project reason for loss of access (`removed_by_person` vs `access_ended`), evaluated at display time.

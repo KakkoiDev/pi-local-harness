@@ -122,3 +122,17 @@ Polite, once per change: "{project}: answered.", "…: plan approved.", "…: co
 Superseded round 17 text (old → new): "Kinds (in this order) … service" last → blocking service first; "{project}: answered. {n} need you." → "{project}: answered"; "New attention: 'Pong: waiting for your answer.'" → "1 new item in Needs you"; Keyboard "⌘Return (Ctrl+Return) opens in a new browser window" now has the visible ⋯ › Open in New Window; Open product choices 1–2 → resolved (decisions 6, 7).
 
 Walkthrough: Given focus is on home-server's check-in, When a Class Notes question arrives, Then it lists after Pong's question, focus and position stay, and "1 new item in Needs you" is announced once; When the focused Class Notes question is answered in another window, Then focus moves to the next item and "Class Notes: answered" is announced.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Boards: R18A_ServicesStopped, R18A_CancelCheckNew.
+
+- **Q1 (Recommended).** Needs you lists one Service item per stopped service, all first, oldest stop first: "Service problem · Ollama stopped" (14:24), then "Service problem · Gate stopped" (14:27, "Command gate · Gate", text "Gate stopped answering at 14:27. Pi can’t run commands in any project until it answers again."). Each item opens its own details. When one service recovers, its item leaves with "{service}: running again".
+- **Q10, New marker (Recommended).**
+  - A "New" tag (JA 新着), drawn as `span.pw-attn__new[aria-hidden=true]` after the request, appears on an item that arrived while this window was open.
+  - The tag clears once the item has had keyboard focus or has been opened, or when the window closes. There is no timer.
+  - Items present when the window opened are never marked, and each window keeps its own marks.
+  - Screen readers hear it only once, in "1 new item in Needs you".
+  - **Would supersede (if approved):** round 18's "New items carry `[data-new]` ('New' tag after the request) until focused or 60 s", and its CSS `::after` tag. Until then the proposal's CSS is scoped to `.pw-attn--r18a` (addendum items only), and round 18's marker keeps working everywhere else.
+  - **Alternative (not recommended):** the 60 s timer.
+- **Q10, Cancel Request.** It is never on an item. The item's ⋯ keeps only Open {X} and Open in New Window.

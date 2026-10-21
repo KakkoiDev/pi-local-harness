@@ -172,3 +172,13 @@ Retry sends at once, rechecks authorization at the click, leaves the composer's 
 | Ask All Projects Again | すべてのプロジェクトでもう一度質問 |
 | Ask About {project} | {project} について質問 |
 | Choose projects to search | 検索するプロジェクトを選択 |
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Nothing here is decided. Boards: R18A_AskAdded, R18A_AskRefresh, Ph18A_AskRefresh. CSS: `scripts/round18add_b.css`.
+
+**Q2 · Projects registered after an All Projects conversation began (Recommended = round 18 drawing kept).** The conversation keeps the set it started with: the button reads “Searching 5 of 6 projects”; the popup lists the new project unchecked with “added 15:10” and “Added after this conversation started. Check it to search it here too.” Checking it is the only way the set widens (then “Searching all projects (6)”; only later answers search it). New conversations always start with all current projects. No notice in the transcript.
+- Alternative (not recommended): “all” stays live and a one-line divider appears in the transcript, `p.pw-askdivider[role=note]` “Pong Extra was added at 15:10 · later questions search it too” (15:10 に Pong Extra が追加されました · 以降の質問では検索します).
+
+**Q5 · Scope-correct refresh labels (Recommended).** The answer's ⋯ item `button.pw-menu__item.pw-refresh` names the conversation's current, authorized scope — “Ask Again in All Projects (5)” / “Ask Again in 2 Projects” / “Ask Again in Class Notes” (and “Ask Again in 5 Projects” for a kept set under Q2) — described by `span.pw-refresh__d` “Searches the projects this conversation searches now.” (`aria-describedby`). If none remains: `aria-disabled="true"`, described by “None of this conversation's projects can be searched now.” The result is a new question “· asked again” and a new answer; Retry (decision 12) is unchanged. JA: すべてのプロジェクト（5）でもう一度質問 / 2 件のプロジェクトでもう一度質問 / Class Notes でもう一度質問 / この会話がいま検索するプロジェクトを検索します。 Phone: ⋯ opens a sheet “This answer” with the item and its description.
+- Would supersede (round 18): “⋯ › Ask All Projects Again … in a narrowed conversation the item reads Ask Again in 2 Projects / Ask Again in Class Notes” → always scope-named.

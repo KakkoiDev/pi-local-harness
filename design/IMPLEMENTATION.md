@@ -1742,3 +1742,383 @@ Given/When/Then for each story with accessible names is on **R18_ContextWalk**:
 #### Validation (what ran)
 
 HTML nesting and `pw-` class definitions checked on all 41 boards and every card preview (0 problems, 0 undefined classes, including the ContextMeter and VisualResult repairs); every board named in this section exists on the canvas; boards and previews were rendered and inspected; `tests.test_design_brand`, `tests.test_frontend` and `tests.test_web_robustness` pass. Not verifiable here: screen-reader output, real browser popup blocking and keyboard behavior, which need the built frontend.
+
+## 2026-10-21 · Round 18 addendum: ten follow-up questions (proposed, awaiting owner approval)
+
+**Status: nothing in this section is approved.** It answers the ten “Genuinely new unresolved issues” in `docs/handoff/round-18-design-2026-10-20.md` with a **Recommended** proposal and, where useful, an **Alternative (not recommended)**. Until the owner approves a proposal, round 18 stays the specification; the twenty decisions of plan 360 are unchanged and nothing here contradicts them. No follow-up brief was in the repository (`design/briefs/round-18-follow-up-questions.md` does not exist), so the recommendations are the designer's.
+
+Boards: canvas page **Round 18 addendum: follow-up questions** (25 boards: 18 desk `R18A_`, 7 phone `Ph18A_`), every title starting “Round 18 addendum · Proposed, awaiting approval”. Drawn UI never states an approval status; captions do. Cards with a “Round 18 addendum (proposed, awaiting approval)” section: StatusButton, AttentionItem, WorkOverview, MenuBar, Menu, PhoneBar, ConversationList, SearchScope, SourceList, Composer, Message, ContextReceipt, CompactionMarker, ContextLine (no change). CSS: `round18add_a.css`, `round18add_b.css`, `round18add_c.css`, appended to the bundle and `components.css`; every rule uses an addendum-only class or modifier (`.pw-attn--r18a` and similar), so approved round 18 rendering is unchanged. Handoff: `docs/handoff/round-18-addendum-2026-10-21.md`.
+
+#### The ten questions at a glance
+
+| # | Question | Recommended (proposed) | Alternative (not recommended) | Boards |
+| --- | --- | --- | --- | --- |
+| 1 | Several blocking services | “Can't run work · 2 services stopped · 2 need you”; one Service item per stopped service, oldest first; aria-label names each service | “Can't run work · Ollama stopped +1” | R18A_ServicesStopped, Ph18A_ServicesStopped |
+| 2 | Projects registered after an All Projects conversation began | Keep the starting set: “Searching 5 of 6 projects”; the popup offers the new project unchecked | Live “all” with a transcript divider | R18A_AskAdded |
+| 3 | Shared drafts and conflicting edits | Saved per conversation and person; notice “This draft changed in another window at 14:52.” Use Newer Draft · Keep This Version; the other version kept once (Restore) | Device-only drafts | R18A_AskDraft, Ph18A_AskDraft |
+| 4 | Revoked project information in prose | Withhold the whole answer when access ended: “This answer used a project you can no longer open, so it's hidden.” + Ask Again in {scope}; decision 11 unchanged when the person removed the project | Keep prose, redact sources (privacy risk) | R18A_AskRevoked, Ph18A_AskRevoked |
+| 5 | Scope-correct refresh labels | “Ask Again in All Projects (5)” / “in 2 Projects” / “in Class Notes”; disabled when none remains | — | R18A_AskRefresh, Ph18A_AskRefresh |
+| 6 | New Conversation vs New File | ⌃⌥N stays New File…; New Conversation has no shortcut (New button, popup item); New File… disabled in Overview with its reason | ⌃⌥N = New Conversation only while focus is in Ask | R18A_NewConversationKeys, R18A_AskNew |
+| 7 | Projects named with ordinary words | Explicit only via an @ chip or the exact name next to “project” or in quotes; case must match | @ chips only | R18A_ProjectMention, Ph18A_ProjectMention |
+| 8 | Phase changes before resending | Resend in today's phase and say so: “Pi will answer in Planning, the project's phase now (this message was in Discussion).”; disabled while a plan waits | Confirmation alert | R18A_AskAgainPhase, Ph18A_AskAgainPhase |
+| 9 | Receipt lifetime | A receipt lives as long as its message; compaction keeps them (marker line); deleting a conversation deletes them | Dropped at compaction | R18A_ReceiptLifetime, Ph18A_ReceiptLifetime |
+| 10 | Cancel Request, Check Again, New marker | Cancel Request… only where an interrupted request opens (alert, Keep Request default); Check Again probes once, never restarts, 10 s cooldown; New tag clears on focus/open/close, no timer | 60 s timer for New | R18A_CancelCheckNew, Ph18A_CancelRequest |
+
+Strings and walkthroughs: R18A_OverviewStrings, R18A_AskStrings, R18A_ProjectChatStrings; R18A_OverviewWalk, R18A_AskWalk, R18A_ProjectChatWalk.
+
+### A · Overview and status (Q1, Q6 menus, Q10)
+
+**Status:** these are proposals, none of them decisions, and nothing here contradicts the 20 approved decisions in docs/plans/360. Every board title starts "Round 18 addendum · Proposed, awaiting approval · …". Cell captions start "Recommended · …" or "Alternative (not recommended) · …", and the drawn UI never states an approval status.
+
+**Files:**
+- Generator: `gen/r18a_a.py`, which execs `gen/r18a.py`.
+- Preview blocks: `gen/ds18a_a.py` (append-only, labelled, idempotent).
+- CSS scoping: every addendum attention item carries the modifier `.pw-attn--r18a`, added by both generators. All addendum overrides of round 18 classes (the request line wrapping, the `::after` New marker off) apply only under that modifier, so round 18's approved boards and previews are unchanged once the CSS is appended to bundle.css.
+- CSS: `scripts/round18add_a.css`.
+- Layout: `r18Alayout_a.json`.
+
+**Validation:** `r18Acheck_a.py` reports 0 HTML problems and 0 undefined `pw-` classes across 7 boards and 6 card previews. All boards were rendered with shot.py into `shots18A/` and their PNGs read; overflow, clipping and overlap were fixed. Board heights were measured. dsshot was run for StatusButton, AttentionItem, Menu and PhoneBar.
+
+#### Boards (reading order)
+
+| Board | Size | Content |
+| --- | --- | --- |
+| R18A_ServicesStopped | 1440×3340 | Q1: desk in context; recovery sequence; after Gate recovers; rules; 320 px; Alternative |
+| Ph18A_ServicesStopped | 390×844 | Q1 phone: two-line status, both Service items first |
+| R18A_NewConversationKeys | 1440×2080 | Q6: File menu open in Overview (New File… disabled + reason); project File menu; Ask head; conversation popup without key; rules; Alternative; 1024 |
+| R18A_CancelCheckNew | 1440×3500 | Q10: Activity request detail; chat interrupted notice; alert; after-cancel history; no Cancel in Overview; Check Again 4 states + rules; New marker 3 states + rules; Alternative (60 s); 320 px |
+| Ph18A_CancelRequest | 390×844 | Q10 phone: the alert as a sheet |
+| R18A_OverviewStrings | 1440×950 | EN/JA (26 strings) |
+| R18A_OverviewWalk | 1440×990 | Given/When/Then: reload, two windows, keyboard |
+
+#### Q1 · Several blocking services
+
+**Recommended**
+
+| Element | English | Japanese |
+| --- | --- | --- |
+| Button | "Can’t run work · 2 services stopped · 2 need you" | 作業を実行できません · 2 つのサービスが停止中 · 対応待ち 2 件 |
+| aria-label | "Agent status: can’t run work, Ollama and Gate stopped, 2 need you. Open Overview" | エージェントの状態: 作業を実行できません。Ollama と Gate が停止中、対応待ち 2 件。概要を開く |
+| Rows | "State unknown while 2 services are stopped" | 2 つのサービスが停止中のため状態不明 |
+| Queued | "Queued: 2 requests · waiting for services" | 待機中：リクエスト 2 件 · サービスを待っています |
+| Second service item | "Service problem · Gate stopped" (request line "Command gate · Gate") | サービスの問題 · Gate 停止中 |
+| Agent row | "Can’t run work · 2 need you" | — |
+| Activity row | "2 queued · 2 services stopped" | 待機中 2 件 · 2 つのサービスが停止中 |
+
+- **Single service.** With only one service stopped, the round 18 copy is unchanged.
+- **Needs you order.** One Service item per stopped service. All of them come first, oldest stop first (Ollama 14:24, then Gate 14:27), and each opens its own details.
+- **Count.** "2 need you" excludes the blocking service items, as in round 18.
+- **Recovery of one service.** One polite announcement, "Gate: running again". The item leaves, and the button returns to "Can’t run work · Ollama stopped · 2 need you".
+- **Two windows.** Both windows update; each keeps its own focus. Nothing says Working, Idle or Ready (decision 4).
+- **Accessibility.** The accessible name lists the services by name. The visible text counts them.
+- **Phone.** The button text uses two lines inside the 44 px button (`.pw-statusbtn--wrap`). Both Service items come first.
+- **Alternative (not recommended).** "Can’t run work · Ollama stopped +1".
+- **Would supersede.** Nothing; this fills round 18's open issue 1.
+- **✱ Data still missing.** A list of service health records (`service`, `stopped_at`, `blocking`), ordered by `stopped_at`. The Gate service health record does not exist yet.
+- **Unverified.** Whether a stopped Gate actually blocks all work. The drawing treats it as blocking, as the spec's example does; the host must decide which services are blocking.
+
+#### Q6 · New File vs New Conversation (menus; worker B owns the pane)
+
+**Recommended**
+- **⌃⌥N.** It stays **New File…** everywhere (round 13), including while focus is in the Ask pane, where it inserts nothing and starts no conversation.
+- **File menu in Overview.** **New File…** ⌃⌥N is `aria-disabled`, with the note "Open a project to add a file." (JA ファイルを追加するには、プロジェクトを開いてください。) linked by `aria-describedby`.
+- **New Task….** Drawn disabled with "Open a project to add a task." (JA タスクを追加するには、プロジェクトを開いてください。). This is my extension; the spec only names New File.
+- **New Conversation.** It has no shortcut. It is reached by keyboard with ⌃⌥0 then Tab: to the pane's **New** button (accessible name "New Conversation", no `aria-keyshortcuts`), or to the conversation popup's first item (no "⌃⌥N" key text).
+- **Window menu.** Unchanged.
+- **Phone.** No change, since it has no shortcuts.
+- **1024.** With the Ask toggle on, Tab from the toggle reaches New, then the conversation popup, the scope and Question.
+- **Alternative (not recommended).** ⌃⌥N means New Conversation only while focus is in the Ask pane. The File menu then lists "New Conversation ⌃⌥N (in Ask)" (JA 新しい会話 ⌃⌥N（質問ペイン内）).
+- **Would supersede.**
+  - Round 18 IMPLEMENTATION's "⌃⌥N anywhere in the Ask pane = New Conversation".
+  - The pane head's "New" with ⌃⌥N.
+  - The ConversationList popup's "New Conversation ⌃⌥N".
+  - Worker B's handoff item 5 ("Overview's File menu should show New Conversation ⌃⌥N if wanted").
+- **✱ Data still missing.** None; this is UI only.
+
+#### Q10 · Cancel Request, Check Again, New marker
+
+**Cancel Request… (Recommended)**
+- **Where it appears.** Only for an interrupted request, and only where the request opens:
+  - Activity's request detail, next to Ask Pi to Retry…;
+  - the project chat's interrupted notice, drawn on the round 5 interrupted marking.
+
+  It never appears in Overview; the item's ⋯ keeps Open Request and Open in New Window.
+- **Alert copy.**
+
+  | Element | English | Japanese |
+  | --- | --- | --- |
+  | Title | "Cancel the interrupted request from 14:20?" | 14:20 の中断された依頼を取り消しますか？ |
+  | Body | "Pi won’t continue it. Changes made before the restart stay in the project; nothing is undone." | Pi は続きを行いません。再起動前の変更はプロジェクトに残り、元には戻りません。 |
+  | Default button (also Escape) | **Keep Request** | 依頼を残す |
+  | Other button | **Cancel Request** | 依頼を取り消す |
+
+- **Focus.** Focus starts on Keep Request. If the request is kept, focus returns to Cancel Request….
+- **Result.**
+  - The item leaves, announced "pi-local-harness: cancelled".
+  - Overview's history shows "Cancelled by you · 14:40" and "Changes made before the restart are still in the project." (round 18).
+  - Activity marks the request Cancelled, and the chat notice reads "Cancelled by you at 14:40".
+- **Phone.** The alert is a sheet, with Keep Request first and default.
+- **Would supersede.**
+  - Round 18's alert "Cancel this interrupted request?" / "Pi won’t continue task 3 of pi-local-harness. Changes made before the restart are still in the project; nothing is undone." → the addendum copy above.
+  - The Japanese wording キャンセル/リクエスト → 取り消す/依頼 in this alert only.
+- **✱ Data still missing.** A cancel endpoint for interrupted requests (only queued-job cancel exists), and a `cancelled` state with `cancelled_by` and `cancelled_at`.
+- **Open point.** The JA history row stays round 18's "あなたがキャンセル · 14:40". Should it switch to 取り消し for consistency? (lead)
+
+**Check Again (Recommended)**
+- **Behaviour.** On Activity's service details. It asks the service once and never starts or restarts it.
+- **States.**
+
+  | State | English | Japanese |
+  | --- | --- | --- |
+  | At rest | "Check Again" | もう一度確認 |
+  | Checking (disabled, `aria-busy="true"`) | "Checking…" | 確認中… |
+  | Still stopped (polite status) | "Still stopped · checked 14:33" | まだ停止中 · 14:33 に確認 |
+  | Disabled for 10 s after a check | "Checked a moment ago." (via `aria-describedby`) | 少し前に確認しました。 |
+  | Service recovered | "Ollama is running again · 14:34" | Ollama は再び動作しています · 14:34 |
+
+- **Recovery.** If the service recovers, the item leaves with "Ollama: running again".
+- **Wording changed from round 18.** The help says "…then Check Again." Round 18's text had already dropped "checks again every 10 seconds"; no automatic re-check is promised.
+- **✱ Data still missing.** A one-shot service probe endpoint and its `checked_at`.
+
+**New marker (Recommended)**
+- **Markup.** `span.pw-attn__new[aria-hidden=true]` "New" (JA 新着) after the request line.
+- **When it appears.** On an item that arrived while this window was open. Items present at window open are never marked. Marks are per window; a reload counts as a new window open.
+- **When it clears.** After the item has had keyboard focus or been opened, or when the window closes. There is no timer.
+- **Screen readers.** They hear it once, in "1 new item in Needs you".
+- **Alternative (not recommended).** The 60 s timer.
+- **Would supersede.**
+  - Round 18's "until focused or 60 s".
+  - Round 18's `.pw-attn[data-new] .pw-attn__req::after`, if approved. For now `round18add_a.css` turns it off only on `.pw-attn--r18a` items.
+- **✱ Data still missing.** None from the server: the window's open time against the item's `created_at`, which round 18 already lists.
+
+#### Acceptance journeys (stable names are on R18A_OverviewWalk)
+
+1. **Q1, two services stopped.** Boards: R18A_ServicesStopped, Ph18A_ServicesStopped.
+   - The button name is exact.
+   - The two Service items come first, oldest first.
+   - Every row reads "State unknown while 2 services are stopped".
+2. **Q1, one recovers, in two windows.** Board: R18A_ServicesStopped.
+   - "Gate: running again" is announced once in each window.
+   - The button shows the one-service words.
+   - Each window keeps its focus.
+   - After reload, the state is the same.
+3. **Q6, ⌃⌥N in the Ask Question field.** Board: R18A_NewConversationKeys.
+   - Nothing is inserted and no new conversation starts.
+   - New File… is disabled with its reason.
+   - In a project, ⌃⌥N opens New File… as today.
+4. **Q6, New Conversation by keyboard.** Board: R18A_NewConversationKeys.
+   - ⌃⌥0, then Tab to "New Conversation", then Return starts a new conversation reading "Searching all projects (5)", with focus in Question.
+5. **Q10, Cancel: Escape keeps, then cancel.** Boards: R18A_CancelCheckNew, Ph18A_CancelRequest.
+   - Escape closes the alert, nothing changes, and focus returns to "Cancel Request…".
+   - Confirming leaves the history row and the announcement.
+   - Overview's ⋯ never offers Cancel.
+6. **Q10, Check Again.** Board: R18A_CancelCheckNew.
+   - The button reads "Checking…", then "Still stopped · checked 14:33".
+   - It is disabled for 10 s, described by "Checked a moment ago.".
+   - Ollama is never started.
+7. **Q10, New marker.** Board: R18A_CancelCheckNew.
+   - Window 1 marks the 14:44 arrival and announces it once.
+   - Window 2, opened later, marks nothing.
+   - Focusing the item clears the tag.
+   - After reload, nothing is marked.
+
+#### Open points for the lead
+
+1. **New Task… in Overview.** Disabling it with "Open a project to add a task." is my extension; Rename Project… isn't drawn in this File menu. Confirm or drop.
+2. **JA wording.** Should the "Cancelled by you · 14:40" history row adopt 取り消し (the addendum's alert uses 依頼を取り消す; round 18 used キャンセル)?
+3. **Which services block work.** It is the host's call (Gate is drawn as blocking, per the spec's example).
+4. **Card previews.** The previews use `.pw-attn__new` from `round18add_a.css`. dsshot renders with bundle.css only, so the tag shows unstyled until the lead appends the CSS to bundle.css.
+
+### B · Ask across projects (Q2–Q6)
+
+Nothing here is a decision; none of it ships. Every board title starts “Round 18 addendum · Proposed, awaiting approval · …”; approval status appears only in titles, captions and docs, never inside drawn UI. Each question: Recommended in context (Overview window with the Ask pane) + states + a 320 px cell + a labelled “Alternative (not recommended) · …” cell where the spec lists one (Q5 has none). The 20 approved decisions are untouched; Q4 narrows how decision 11 is applied (only to projects the person removed), it does not reverse it.
+
+Generator `gen/r18a_b.py` execs `gen/r18b.py` (minus its preview section) and overrides three helpers for every pane drawn: `NEWBTN` and `convo_menu` (Q6: no ⌃⌥N) and `more` (Q5: scope-named item with description). Run with `PW_OUT=SP/out18Ab/`; only `R18A_Ask*`/`Ph18A_Ask*` copied to `cv/project/`. CSS `scripts/round18add_b.css` (`.pw-askkept`, `.pw-withheld*`, `.pw-refresh*`, `.pw-askdivider`), injected with round17_*/round18_* CSS. Layout `r18Alayout_b.json`. Validation `r18Acheck_b.py`: 0 HTML problems, 0 undefined `pw-` classes (10 boards + 3 previews). Every board and the three previews render-checked and read (`shots18b/`).
+
+#### Boards
+
+| Board | Size | Question |
+| --- | --- | --- |
+| R18A_AskAdded | 1440×2130 | Q2 |
+| R18A_AskDraft | 1440×2130 | Q3 |
+| R18A_AskRevoked | 1440×2040 | Q4 |
+| R18A_AskRefresh | 1440×2660 | Q5 |
+| R18A_AskNew | 1440×2000 | Q6 |
+| Ph18A_AskDraft | 390×844 | Q3 phone |
+| Ph18A_AskRevoked | 390×844 | Q4 phone |
+| Ph18A_AskRefresh | 390×844 | Q5 phone (⋯ as a sheet) |
+| R18A_AskStrings | 1440×740 | EN/JA |
+| R18A_AskWalk | 1440×1240 | Given/When/Then |
+
+Q2 and Q6 have no phone board: the phone shows the same scope sheet and pane head as round 18 (Ph17_AskScope, Ph18_AskHistory), minus the key text.
+
+#### Q2 · Projects registered after an All Projects conversation began
+
+- **Recommended** (keeps round 18): the conversation keeps its starting set. Scope “Searching 5 of 6 projects” ({m} 件中 {n} 件のプロジェクトを検索); popup lists Pong Extra unchecked, “added 15:10”, and “Added after this conversation started. Check it to search it here too.” (この会話の開始後に追加されました。この会話でも検索するにはチェックしてください。). Checking it → “Searching all projects (6)”; earlier answers keep “Searched 5 projects”. New conversations start with all current projects (“Searching all projects (6)”). No transcript notice. Overview's Projects list shows 6. Keyboard and focus as SearchScope; the new row is announced with its description.
+- **Alternative**: live “all”; `p.pw-askdivider[role=note]` “Pong Extra was added at 15:10 · later questions search it too” (15:10 に Pong Extra が追加されました · 以降の質問では検索します). Not recommended: scope widens without the person choosing.
+- Supersedes nothing (confirms round 18 open issue 1's drawing).
+- ✱ conversation scope stored as explicit project ids + `all_at_start`; project `registered_at`.
+
+#### Q3 · Shared drafts and conflicting edits
+
+- **Recommended**: the draft belongs to the conversation and the person, saved by Pi WorkStation 1 s after typing stops (reloads, windows, phone). If this window's draft is behind a newer save and the person types or focuses Question: notice above the composer “This draft changed in another window at 14:52.” + **Use Newer Draft** (default, focus, Return) + **Keep This Version** (Escape). Question is read-only (`readonly`, `aria-readonly`) until a choice; the triggering keystroke is not applied. The version not chosen is kept once: “Earlier draft kept · Restore” (`role=status`; Restore swaps) until the next Send. Never merged; never sent. Keeping this version saves it, so it becomes the newest and the other window gets the notice on its next type/focus. Announcement: “Using the draft from 14:52 · earlier draft kept” ({time} の下書きを使います · 前の下書きを保持). Phone: buttons stacked 44 px; the notice appears the same way when the phone is behind.
+- JA: この下書きは 14:52 に別のウインドウで変更されました。 / 新しい下書きを使う / この版を残す / 前の下書きを保持 · 元に戻す.
+- **Alternative**: device-only drafts, help line “Drafts aren't shared between devices.” (下書きはデバイス間で共有されません。); no notice; two windows on one device need last-edit-wins.
+- Supersedes round 18 open issue 2 / ConversationList data note “drawn: last edit wins when the other window is not focused”.
+- ✱ draft record `{conversation_id, person_id, text, saved_at, window_id}`; push of “newer save” to open windows; one kept earlier version cleared on send.
+
+#### Q4 · Revoked project information in answer prose
+
+- **Recommended**: access to a cited project ended (not removed by the person) → the whole answer is withheld; the question stays. `div.pw-withheld[role=note]` “This answer used a project you can no longer open, so it's hidden.” + **Ask Again in {scope}** (Q5 label: “Ask Again in All Projects (4)”, “Ask Again in Class Notes”; disabled + “None of this conversation's projects can be searched now.” when nothing remains). No name, count, Sources, coverage, Retry or excerpt survives for that answer; Overview's lists, the scope label and counts drop the project too. Later answers that did not use it stay. A project the person removed themselves → decision 11 unchanged (prose stays, “Source unavailable”), drawn as the contrast cell. Ask Again sends the kept question once as a new question “· asked again”.
+- **Alternative** (privacy risk): keep prose, redact sources only (round 18 drawing).
+- Supersedes round 18 “The answer's own prose is not rewritten (decision 11)” as a blanket rule → applies only to person-removed projects.
+- ✱ per-answer `used_project_ids[]`; per-project loss reason `removed_by_person | access_ended`; display-time evaluation.
+
+#### Q5 · Scope-correct refresh labels
+
+- **Recommended**: ⋯ (“More for this answer”) item names the conversation's current authorized scope: “Ask Again in All Projects (5)” / “Ask Again in 2 Projects” / “Ask Again in Class Notes” / “Ask Again in 5 Projects” (kept set under Q2), with description “Searches the projects this conversation searches now.” (`aria-describedby`). None remaining: `aria-disabled`, described by “None of this conversation's projects can be searched now.” (drawn with the label “Ask Again in This Conversation”, a B proposal). Result: new question “· asked again” + new answer; the first stays. Retry unchanged and separate. Phone: ⋯ opens a sheet “This answer” with the 56 px item. Keyboard: Space/Return opens, ↓ to the item, Escape closes back to ⋯.
+- JA: すべてのプロジェクト（5）でもう一度質問 / 2 件のプロジェクトでもう一度質問 / Class Notes でもう一度質問 / この会話がいま検索するプロジェクトを検索します。 / この会話のプロジェクトは現在どれも検索できません。
+- Supersedes round 18 “Ask All Projects Again” (and its narrowed variants).
+- ✱ none beyond round 18 (scope labels resolved at display time).
+
+#### Q6 · New Conversation vs New File (pane side)
+
+- **Recommended**: no shortcut for New Conversation. `aria-keyshortcuts` and the “⌃⌥N” key text removed from the head's New (accessible name “New Conversation”) and the popup's first item. Path: ⌃⌥0, then Tab to New or the popup. ⌃⌥N in the Ask pane does nothing and types nothing; File › New File… in Overview is disabled with “Open a project to add a file.” (worker A draws menus).
+- **Alternative**: round 18 drawing, ⌃⌥N in the Ask pane only; menu “New Conversation ⌃⌥N (in Ask)” (新しい会話 ⌃⌥N（質問ペイン内）).
+- Supersedes round 18 ConversationList “New Conversation (menu, New, ⌃⌥N)” and the keyboard note “⌃⌥N works while focus is anywhere in the Ask pane”.
+
+#### Acceptance journeys (R18A_AskWalk)
+
+Q2 kept set; Q2 widen on purpose; Q3 two windows; Q3 keep and restore; Q3 reload and phone; Q4 access ended; Q4 removed by me; Q5 scope-named refresh; Q5 none left; Q6 no shortcut. Stable accessible names in quotes on the board.
+
+#### Cards
+
+ConversationList (Q3, Q6), SearchScope (Q2, Q5), SourceList (Q4): each README gets “## Round 18 addendum (proposed, awaiting approval)”; each preview gets an appended, labelled block (`<!-- round18-addendum-b base=N -->`; heights ConversationList 650→1030, SearchScope 820→1180, SourceList 640→1080). Previews were checked with round18add_b.css injected; plain `dsshot.py` shows those blocks unstyled until the lead appends round18add_b.css to bundle.css.
+
+#### Open points / unverified
+
+- Q4: a conversation's title (and the person's own question) can name the now-unavailable project; drawn kept as the person wrote/saw it. Needs a rule.
+- Q5: the disabled label “Ask Again in This Conversation” is B's wording, not in the spec.
+- Q3: what happens if both windows type within the same second (both saves race) — drawn as “newest save wins, the other gets the notice”; needs the store's ordering guarantee.
+- Not verified: real autosave timing, cross-device push, screen-reader output (designs only).
+
+### C · Project chat (Q7–Q9)
+
+Nothing here is a decision. It doesn't contradict the 20 approved decisions: Q7 defines “explicitly referenced” for decision 19, Q8 refines decision 15's “never changes phase” for the project-chat resend, and Q9 keeps decision 14's per-request receipts and sets no retention policy (decision 9).
+
+- Generator: `gen/r18a_c.py` (execs the pieces of `gen/r18c.py`). Run with `PW_OUT=out18Ac/`.
+- Previews: `gen/ds18a_c.py`. CSS: `scripts/round18add_c.css`. Layout: `r18Alayout_c.json`.
+- Check: `r18Acheck_c.py` finds 0 HTML problems and 0 undefined `pw-` classes in the 8 boards and the 5 card previews. No duplicate ids.
+- Every board was rendered with `shot.py` and its PNG read. The previews were rendered with all round 17/18 CSS plus round18add_c.css, and with `dsshot.py`.
+- The lead must append `round18add_c.css` to bundle.css, or the previews render the new classes unstyled.
+
+| Board | Size |
+| --- | --- |
+| R18A_ProjectMention | 1440×3430 |
+| Ph18A_ProjectMention | 390×844 |
+| R18A_AskAgainPhase | 1440×2190 |
+| Ph18A_AskAgainPhase | 390×844 |
+| R18A_ReceiptLifetime | 1440×4090 |
+| Ph18A_ReceiptLifetime | 390×844 |
+| R18A_ProjectChatStrings | 1440×810 |
+| R18A_ProjectChatWalk | 1440×720 |
+
+Each desk board opens with the Recommended design drawn in context (a project window plus a chat window), then its states, an “Alternative (not recommended) · …” cell and a 320 px cell.
+
+Cards, each with a “## Round 18 addendum (proposed, awaiting approval)” section:
+
+| Card | README | Preview |
+| --- | --- | --- |
+| Composer | @ list | labelled block appended, height 650 |
+| Message | Q7 rule, chips | block appended, height 930 |
+| ContextReceipt | Q8, Q9 | block appended, height 2900 |
+| CompactionMarker | Q9 | block appended, height 460 |
+| ContextLine | “no change” note | none |
+
+#### Q7 · Explicit references (R18A_ProjectMention, Ph18A_ProjectMention, Walk 1–4)
+
+**Recommended.** A project is explicitly referenced only in these cases:
+
+- (a) An @-mention chip chosen from the composer's @ list.
+- (b) Its exact registered name next to “project”: “the Notes project”, “Notes project”, “project Notes”, or “Notes” in quotes. In Japanese: 「Notes」プロジェクト, Notes プロジェクト.
+
+Case and spacing must match. These never trigger it:
+
+- “my notes” and “search the notes”;
+- “the notes project” (wrong case);
+- a bare “Pong”;
+- a name that isn't one of the person's projects (“Tetris”);
+- this chat's own project.
+
+The boundary notice copy is unchanged.
+
+- **The @ list:** listbox “Projects you can open” (開けるプロジェクト). It lists the other registered projects the person can open, with their folders. Typing filters it. With no match it says “No projects match “{text}”.” (「{text}」に一致するプロジェクトはありません。). The foot reads “↑↓ to choose · Return to insert · Esc to close” (↑↓ で選択 · Return で挿入 · Esc で閉じる).
+- **Keyboard:** @ at the start of a word opens the list. ↑/↓ move the choice through aria-activedescendant, and focus stays in the field. Return or Tab inserts the chip plus a space; Return never sends while the list is open. Esc closes the list and leaves “@…” as text. Backspace removes a chip whole.
+- **Markup:** `div.pw-field--rich#prompt[role=textbox][contenteditable][aria-multiline][aria-autocomplete=list][aria-controls=at-list][aria-expanded][aria-activedescendant]`, `div.pw-atlist#at-list[role=listbox]`, and `span.pw-mention[contenteditable=false][data-project-id]`.
+- **Later:** once a mentioned project is removed or can't be opened, the chip keeps the person's words with a dotted outline and points nowhere.
+- **Phone:** the list sits above the field with 44 px rows; tapping inserts the chip.
+- **Alternative:** only @-mentions count. Drawn as a typed “the Notes project” that gets no notice.
+- **Would supersede:**
+  - Round 18 “only when the message explicitly names another registered project the person can open” → the (a)/(b) rule.
+  - The round 18 examples “Did Pong already have a high-score list I can copy?” (R18_ProjectScope, R18_ProjectScopeStates, R18_ContextWalk 8) → “Did @Pong …” or “Did the Pong project …”. Under this proposal the bare name would get no notice.
+  - The plain textarea → the rich field.
+- **✱ Data still missing:**
+  - The message stores mentions as `{project_id, label_at_send}`. The display reads the label from the person's own text.
+  - The harness's reference rule runs on the host with the registry and the person's authorization at send time, and records `scope_notice: {project_id}`.
+  - A project-list endpoint for the @ list, filtered by authorization and excluding the current project.
+
+#### Q8 · Phase before Ask Again with Current Files (R18A_AskAgainPhase, Ph18A_AskAgainPhase, Walk 5–6)
+
+**Recommended.** The resend always uses the project's phase now and never changes phase. When the phase differs from the message's, a bold line follows round 18's description and is added to the button's aria-describedby: “Pi will answer in Planning, the project’s phase now (this message was in Discussion).” (Pi はいまのフェーズ「計画」で答えます（このメッセージは「議論」でした）。). There is no confirmation.
+
+- **Disabled:** while a phase change or approval card waits, the button is disabled with “Answer the waiting plan first.” (待っている計画に先に答えてください。). This JA is C's proposal; the spec gives none.
+- **Unchanged:** round 18's “Pi is answering. Ask again when it’s done.”
+- **After pressing:** a new message in Planning with its own receipt. The old answer, receipt and banner stay.
+- **320 px and phone:** the button wraps to its own row (`.pw-receipt__state--wrap`) and is 44 px on the phone.
+- **Alternative:** an alert “Ask again in Planning?” / “This message was in Discussion.” / Cancel · Ask Again. JA “「計画」でもう一度質問しますか？” / “このメッセージは「議論」でした。” / キャンセル · もう一度質問.
+- **Would supersede:** round 18 “Pressing it sends at once, in the same conversation” → “…in the project's phase now, saying so when it differs”. It also closes round 18 open issue 2.
+- **✱ Data still missing:** the job records `phase_at_send`. The resend request carries `resend_of`, and the host takes the current phase and refuses while an approval or phase card is pending.
+
+#### Q9 · Receipt lifetime (R18A_ReceiptLifetime, Ph18A_ReceiptLifetime, Walk 7–8)
+
+**Recommended.** A receipt lives exactly as long as its message.
+
+- **Compaction:** the transcript and its receipts stay. The marker body gains a bold line, “Receipts above still show what Pi had when it answered.” (上の記録は、Pi が答えたときに使ったものをそのまま示します。).
+- **New Conversation:** the conversation and its receipts move to Earlier Conversations, read only, and the receipts still open.
+- **Delete Conversation…** (a new button in the read-only bar) opens an alert:
+  - EN: “Delete the earlier conversation from 13 Oct?” / “Deletes 14 messages and what Pi used for each.” / **Delete** (`pw-dialog__danger`) · **Cancel** (default; Esc).
+  - JA: “10月13日の以前の会話を削除しますか？” / “14 件のメッセージと、それぞれで Pi が使ったものを削除します。” / 削除 · キャンセル.
+- **No retention policy** is set.
+- **Narrow widths:** `.pw-compacted--wrap` lets the label wrap, with the double rules drawn above and below.
+- **Alternative:** receipts dropped at compaction. The summaries above disappear and the marker says “What Pi used before 14:01 isn’t kept.” (14:01 より前に Pi が使ったものは保存していません。).
+- **Would supersede:** it closes round 18 open issue 3. The CompactionMarker body gains one line.
+- **✱ Data still missing:**
+  - Compaction must not touch `context_receipt` records.
+  - The earlier-conversation record keeps its jobs' receipts.
+  - A delete-conversation operation that removes messages and receipts together (a delete command doesn't exist yet).
+
+#### Acceptance journeys
+
+The nine Given/When/Then stories with accessible names are on R18A_ProjectChatWalk:
+
+1. @ inserts a chip.
+2. Explicit reference → notice.
+3. Ordinary words → no notice.
+4. Reload and two windows.
+5. Resend in today's phase.
+6. A plan is waiting.
+7. Compaction keeps receipts.
+8. New Conversation and delete.
+9. Keyboard and phone.
+
+#### Unverified and open points
+
+- **JA phase names.** The spec's copy uses 「計画」 and 「議論」. One earlier board (r15d) calls Discussion 「話し合い」. The JA phase names should be checked against the PhaseControl strings before shipping.
+- **New JA for existing copy.** The CompactionMarker had no JA before, so its JA here is new and needs review.
+- **Delete is new.** The Delete Conversation command and its alert are new in this proposal. Where else it appears (Agent › Earlier Conversations ▸, the phone view menu) is not drawn.
+- **Where the @ list sits.** It is drawn at the composer's left edge, not at the caret. Whether it follows the caret is open.
+- **@ elsewhere.** @-mentions in comment composers (Review window) are not proposed.
+
+#### Validation (what ran)
+
+HTML nesting and `pw-` class definitions on all 25 boards and every card preview (0 problems, 0 undefined classes); addendum CSS checked for redefinitions of existing classes (none after review); every board named here exists on the canvas; boards (desk, 1024 and 320 px cells, phone) and changed previews rendered and inspected; `tests.test_design_brand`, `tests.test_frontend`, `tests.test_web_robustness` pass. Not verifiable here: screen-reader output, real autosave and cross-window/device timing, popup and focus behaviour in a browser, Japanese review by a native speaker.

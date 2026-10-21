@@ -3777,6 +3777,206 @@
    "h": 840,
    "title": "Round 18 · Proposed · Project conversation and receipts: walkthrough",
    "page": "r18"
+  },
+  "R18A_ServicesStopped.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3340,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q1 · Several blocking services: “Can’t run work · 2 services stopped · 2 need you”; one Service item per service, oldest stop first",
+   "page": "r18a"
+  },
+  "Ph18A_ServicesStopped.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q1 · Phone: the status in two lines; both Service items first",
+   "page": "r18a"
+  },
+  "R18A_NewConversationKeys.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 1440,
+   "h": 2080,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q6 · ⌃⌥N stays New File… everywhere; New Conversation has no shortcut (New button, popup’s first item); in Overview New File… is disabled",
+   "page": "r18a"
+  },
+  "R18A_CancelCheckNew.dc.html": {
+   "x": 0,
+   "y": 3420,
+   "w": 1440,
+   "h": 3500,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q10 · Cancel Request… only where the interrupted request opens; Check Again asks once; “New” clears on focus or open, no timer",
+   "page": "r18a"
+  },
+  "Ph18A_CancelRequest.dc.html": {
+   "x": 1520,
+   "y": 3420,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q10 · Phone: Activity’s request detail; the alert as a sheet, Keep Request first and default",
+   "page": "r18a"
+  },
+  "R18A_OverviewStrings.dc.html": {
+   "x": 1990,
+   "y": 3420,
+   "w": 1440,
+   "h": 950,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Overview & status (Q1, Q6, Q10): English and Japanese strings",
+   "page": "r18a"
+  },
+  "R18A_OverviewWalk.dc.html": {
+   "x": 0,
+   "y": 7000,
+   "w": 1440,
+   "h": 990,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Overview & status walkthrough: Q1, Q6, Q10 as Given/When/Then (stable accessible names; reload, two windows, keyboard)",
+   "page": "r18a"
+  },
+  "R18A_AskAdded.dc.html": {
+   "x": 0,
+   "y": 8230,
+   "w": 1440,
+   "h": 2130,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q2 · A project registered after an All Projects conversation began: the conversation keeps its set (“Searching 5 of 6 projects”); Alternative: live “all” with a divider",
+   "page": "r18a"
+  },
+  "R18A_AskDraft.dc.html": {
+   "x": 1520,
+   "y": 8230,
+   "w": 1440,
+   "h": 2130,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q3 · Shared drafts: saved per conversation and person; a newer save from elsewhere → “This draft changed in another window at 14:52.” Use Newer Draft · Keep This Version; Alternative: device-only",
+   "page": "r18a"
+  },
+  "R18A_AskRevoked.dc.html": {
+   "x": 0,
+   "y": 10440,
+   "w": 1440,
+   "h": 2040,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q4 · Access to a cited project ended: the whole answer is withheld, the question kept, “Ask Again in {scope}”; a self-removed project keeps decision 11; Alternative: redact sources only",
+   "page": "r18a"
+  },
+  "R18A_AskRefresh.dc.html": {
+   "x": 1520,
+   "y": 10440,
+   "w": 1440,
+   "h": 2660,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q5 · The full refresh names the conversation’s current scope: “Ask Again in All Projects (5)” / “in 2 Projects” / “in Class Notes”; disabled when none remains",
+   "page": "r18a"
+  },
+  "R18A_AskNew.dc.html": {
+   "x": 0,
+   "y": 13180,
+   "w": 1440,
+   "h": 2000,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q6 · New Conversation has no keyboard shortcut (⌃⌥N stays New File…); reached by New and the popup’s first item; Alternative: ⌃⌥N in the Ask pane",
+   "page": "r18a"
+  },
+  "Ph18A_AskDraft.dc.html": {
+   "x": 1520,
+   "y": 13180,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q3 · the draft changed in another window: 44 px choices; the phone shares the person’s drafts",
+   "page": "r18a"
+  },
+  "Ph18A_AskRevoked.dc.html": {
+   "x": 1990,
+   "y": 13180,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q4 · a withheld answer: the question kept, “Ask Again in All Projects (4)”",
+   "page": "r18a"
+  },
+  "Ph18A_AskRefresh.dc.html": {
+   "x": 0,
+   "y": 15260,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q5 · ⋯ opens a sheet with the scope-named item and its description",
+   "page": "r18a"
+  },
+  "R18A_AskStrings.dc.html": {
+   "x": 470,
+   "y": 15260,
+   "w": 1440,
+   "h": 740,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Ask: English and Japanese strings for Q2–Q6 (B)",
+   "page": "r18a"
+  },
+  "R18A_AskWalk.dc.html": {
+   "x": 1990,
+   "y": 15260,
+   "w": 1440,
+   "h": 1240,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Ask: walkthrough for Q2–Q6 (stable accessible names in quotes; reload, two windows, keyboard)",
+   "page": "r18a"
+  },
+  "R18A_ProjectMention.dc.html": {
+   "x": 0,
+   "y": 16740,
+   "w": 1440,
+   "h": 3430,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q7 · Explicit project references and the @ list",
+   "page": "r18a"
+  },
+  "Ph18A_ProjectMention.dc.html": {
+   "x": 1520,
+   "y": 16740,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q7 · @ list",
+   "page": "r18a"
+  },
+  "R18A_AskAgainPhase.dc.html": {
+   "x": 1990,
+   "y": 16740,
+   "w": 1440,
+   "h": 2190,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q8 · Ask Again with Current Files in the project’s phase now",
+   "page": "r18a"
+  },
+  "Ph18A_AskAgainPhase.dc.html": {
+   "x": 0,
+   "y": 20250,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q8 · phase line in the What Pi used sheet",
+   "page": "r18a"
+  },
+  "R18A_ReceiptLifetime.dc.html": {
+   "x": 470,
+   "y": 20250,
+   "w": 1440,
+   "h": 4090,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q9 · Receipts live as long as their messages",
+   "page": "r18a"
+  },
+  "Ph18A_ReceiptLifetime.dc.html": {
+   "x": 1990,
+   "y": 20250,
+   "w": 390,
+   "h": 844,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Phone · Q9 · receipts kept through compaction",
+   "page": "r18a"
+  },
+  "R18A_ProjectChatStrings.dc.html": {
+   "x": 0,
+   "y": 24420,
+   "w": 1440,
+   "h": 810,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q7–Q9 · Project chat: EN/JA strings",
+   "page": "r18a"
+  },
+  "R18A_ProjectChatWalk.dc.html": {
+   "x": 1520,
+   "y": 24420,
+   "w": 1440,
+   "h": 720,
+   "title": "Round 18 addendum · Proposed, awaiting approval · Q7–Q9 · Project chat: walkthrough",
+   "page": "r18a"
   }
  },
  "createdOnFiles": {
@@ -4577,7 +4777,32 @@
   "Ph18_ProjectScope.dc.html",
   "Ph18_ContextSheet.dc.html",
   "R18_ContextStrings.dc.html",
-  "R18_ContextWalk.dc.html"
+  "R18_ContextWalk.dc.html",
+  "R18A_ServicesStopped.dc.html",
+  "Ph18A_ServicesStopped.dc.html",
+  "R18A_NewConversationKeys.dc.html",
+  "R18A_CancelCheckNew.dc.html",
+  "Ph18A_CancelRequest.dc.html",
+  "R18A_OverviewStrings.dc.html",
+  "R18A_OverviewWalk.dc.html",
+  "R18A_AskAdded.dc.html",
+  "R18A_AskDraft.dc.html",
+  "R18A_AskRevoked.dc.html",
+  "R18A_AskRefresh.dc.html",
+  "R18A_AskNew.dc.html",
+  "Ph18A_AskDraft.dc.html",
+  "Ph18A_AskRevoked.dc.html",
+  "Ph18A_AskRefresh.dc.html",
+  "R18A_AskStrings.dc.html",
+  "R18A_AskWalk.dc.html",
+  "R18A_ProjectMention.dc.html",
+  "Ph18A_ProjectMention.dc.html",
+  "R18A_AskAgainPhase.dc.html",
+  "Ph18A_AskAgainPhase.dc.html",
+  "R18A_ReceiptLifetime.dc.html",
+  "Ph18A_ReceiptLifetime.dc.html",
+  "R18A_ProjectChatStrings.dc.html",
+  "R18A_ProjectChatWalk.dc.html"
  ],
  "pages": [
   {
@@ -4639,6 +4864,10 @@
   {
    "id": "r18",
    "name": "Round 18: Overview decisions"
+  },
+  {
+   "id": "r18a",
+   "name": "Round 18 addendum: follow-up questions"
   },
   {
    "id": "edit",

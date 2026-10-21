@@ -31,3 +31,16 @@ A Pi message may end with one **VisualResult** card (an icon, an image, or a set
 - Phone: the summary and Ask in Overview are 44 px. Boards: R18_ProjectScope, R18_ProjectScopeStates, Ph18_ProjectScope.
 
 Superseded (round 17 → round 18): “only when the message names another registered project or asks about something outside this one” → “only when the message explicitly names another registered project the person can open”. JA “Overview で質問” → “概要で質問”; “…Overview で質問してください。” → “…概要で質問してください。”. Description “Opens Overview with your question in Ask across projects. Nothing is sent until you press Send.” → “Opens Overview with your question in a conversation searching all projects. Nothing is sent until you press Send.”
+
+## Round 18 addendum (proposed, awaiting approval)
+
+**Q7 · explicit references to projects named with ordinary words.** Proposed: a project counts as explicitly referenced, and gets the round 18 boundary notice (copy unchanged), only in these cases:
+
+- (a) An @-mention chip chosen from the composer's @ list.
+- (b) Its exact registered name next to the word *project*: “the Notes project”, “Notes project”, “project Notes”, or in quotes, “Notes”. In Japanese: 「Notes」プロジェクト, Notes プロジェクト.
+
+Case and spacing must match the registered name. “my notes”, “search the notes”, “the notes project” and a bare “Pong” never trigger it. Neither does a name that isn't one of the person's projects, or this chat's own project. Boards: R18A_ProjectMention, Ph18A_ProjectMention, R18A_ProjectChatWalk.
+
+- A sent chip shows in the person's message as `span.pw-mention` (“@Pong”). If the project is later removed or can't be opened, the chip keeps the person's words with a dotted outline (`.pw-mention--gone`) and has no link. The notice already names nothing.
+- Would supersede (round 18): “only when the message explicitly names another registered project the person can open” → the rule (a)/(b) above. Round 18's example “Did Pong already have a high-score list I can copy?” (bare name) → “Did @Pong …” or “Did the Pong project …”.
+- Alternative (not recommended): only @-mentions count. A person who types names never learns about Ask in Overview.

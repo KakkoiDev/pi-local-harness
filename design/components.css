@@ -1341,3 +1341,78 @@ dialog.pw-dialog::backdrop{background:repeating-conic-gradient(var(--desk-dot,#0
   .pw-receipt__recorded,.pw-receipt__never{margin-left:0;margin-right:0}
   .pw-receipt__more .pw-btn{min-height:44px}
 }
+
+/* Round 18 addendum, proposed and awaiting approval (round18add_a, round18add_b, round18add_c): addendum-only classes */
+/* ---- 2026-10-21 · Round 18 addendum A (proposed, awaiting approval): several blocking services, New File vs New Conversation, Cancel Request / Check Again / New marker ---- */
+
+/* New marker as a real, aria-hidden tag (addendum items only, .pw-attn--r18a; round 18's ::after marker keeps working everywhere else) */
+.pw-attn--r18a[data-new] .pw-attn__req::after{content:none}
+.pw-attn__new{display:inline-block;margin-left:6px;border:1px solid currentColor;padding:0 4px;font-size:11px;line-height:14px;font-weight:400;white-space:nowrap}
+
+/* Check Again on a service's details: the result line under the button */
+.pw-svccheck{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.pw-svccheck__result{font-family:var(--font-chrome);font-size:13px}
+.pw-svccheck .pw-btn[aria-busy="true"]{border-style:dotted}
+
+/* Request actions under the interrupted notice and in Activity's request detail */
+.pw-reqactions{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Board-only frame for an Alternative (not recommended) cell */
+.pw-altframe{border:1px dashed var(--ink);padding:10px 12px;background:var(--paper);display:flex;flex-direction:column;gap:8px}
+
+/* Addendum items only: the request line wraps in narrow Needs you columns instead of running under the Open label */
+.pw-attn--r18a .pw-attn__req{white-space:normal;min-width:0}
+/* ---- 2026-10-21 · Round 18 addendum B (proposed, awaiting approval): shared drafts, withheld answers, scope-named refresh, live-all divider ---- */
+
+/* Q3 · the version not chosen is kept once, until the next send */
+.pw-askkept{margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-askkept .pw-btn{min-height:20px;font-size:12px;padding:0 8px}
+
+/* Q4 · an answer withheld because it used a project the person can no longer open */
+.pw-withheld{margin:0;border:1px dotted var(--ink);padding:8px 10px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-withheld__t{margin:0;display:flex;gap:6px;align-items:flex-start}
+.pw-withheld__t svg{flex:none;margin-top:3px}
+.pw-withheld .pw-btn{min-height:24px;font-size:13px;padding:0 10px}
+
+/* Q5 · the ⋯ refresh item names the scope and carries its description */
+.pw-menu__item.pw-refresh{height:auto;min-height:26px;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding-top:4px;padding-bottom:5px;white-space:normal}
+.pw-refresh__d{font-size:12px;line-height:16px}
+
+/* Q2 alternative · a one-line divider in the transcript when “all” stays live */
+.pw-askdivider{margin:0;display:flex;align-items:center;gap:8px;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-askdivider::before,.pw-askdivider::after{content:"";flex:1 1 16px;border-top:1px dotted var(--ink)}
+.pw-askdivider>span{flex:0 1 auto;text-align:center}
+
+@media (max-width: 759px){
+  .pw-askkept{font-size:15px;line-height:20px}
+  .pw-askkept .pw-btn{min-height:44px;font-size:15px}
+  .pw-withheld{font-size:15px;line-height:20px;padding:10px 12px}
+  .pw-withheld .pw-btn{min-height:44px;font-size:16px}
+  .pw-askdivider{font-size:14px;line-height:18px}
+}
+/* Round 18 addendum · C (proposed, awaiting approval): @ project mentions (Composer), phase note on Ask Again with Current Files (ContextReceipt), receipts kept through compaction (CompactionMarker) */
+.pw-field--rich{display:block;min-height:52px;padding:6px 8px;white-space:pre-wrap;font-family:var(--font-text);font-size:16px;line-height:24px;box-sizing:border-box;cursor:text}
+.pw-mention{display:inline-block;border:1px solid var(--ink);padding:0 4px;font-family:var(--font-chrome);font-size:14px;line-height:18px;white-space:nowrap;vertical-align:baseline}
+.pw-mention--gone{border-style:dotted}
+
+.pw-atlist{position:absolute;left:16px;bottom:100%;margin-bottom:4px;z-index:4;width:320px;background:var(--paper);color:var(--ink);border:1px solid var(--ink);box-shadow:var(--shadow-popup);padding:0 0 4px;font-family:var(--font-chrome);font-size:14px;line-height:18px}
+.pw-atlist__head{margin:0;padding:4px 10px;font-size:12px;font-weight:600;border-bottom:1px dotted var(--ink)}
+.pw-atlist__opt{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:3px 10px;min-height:24px}
+.pw-atlist__opt small{font-family:var(--font-mono);font-size:12px}
+.pw-atlist__opt[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.pw-atlist__empty{margin:0;padding:6px 10px;font-size:13px}
+.pw-atlist__foot{margin:0;padding:4px 10px 0;border-top:1px dotted var(--ink);font-size:12px}
+.pw-atlist--static{position:static;margin:0;box-shadow:none}
+
+.pw-receipt__phase{font-weight:600}
+.pw-receipt__state--wrap{flex-wrap:wrap}
+.pw-receipt__state--wrap>.pw-btn{margin-left:22px}
+.pw-compacted--wrap .pw-compacted__label{white-space:normal}
+.pw-compacted--wrap>summary{border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:4px 0}
+.pw-compacted--wrap>summary::before,.pw-compacted--wrap>summary::after{display:none}
+
+@media (max-width:760px){
+  .pw-atlist{position:static;width:auto;box-shadow:none;margin:0 0 8px}
+  .pw-atlist__opt{min-height:44px;font-size:16px}
+  .pw-field--rich{min-height:44px}
+}

@@ -86,3 +86,17 @@ The button fills the first row under the bar (44 px) with **New** beside it; the
 4. Given the same notice. When I press “Replace with New Question”. Then the draft is gone, the scope reads “Searching Class Notes only”, and nothing was sent.
 5. Given two windows. When I switch conversations in one. Then the other keeps its own current conversation.
 6. Given a reload. Then the same conversation is current, and every scope and draft is as before.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Nothing here is decided. Boards: R18A_AskDraft, R18A_AskNew, Ph18A_AskDraft, R18A_AskStrings, R18A_AskWalk. CSS: `scripts/round18add_b.css` (`.pw-askkept`).
+
+**Q3 · Shared drafts (Recommended).** A draft belongs to its conversation and to the person, saved by Pi WorkStation 1 s after typing stops, so it follows reloads, windows and the phone. When this window's draft is behind a newer save from elsewhere and the person types or focuses Question, the notice `div.pw-asknotice[role=group][aria-labelledby=ask-dchg-t]` appears above the composer: “This draft changed in another window at 14:52.” + **Use Newer Draft** (default, focused, Return) + **Keep This Version** (Escape). Question is `readonly` until a choice, and the keystroke that triggered the notice is not applied. The version not chosen is kept once: `p.pw-askkept[role=status]` “Earlier draft kept · **Restore**” (Restore swaps the two) until the next Send. Text is never merged; nothing is sent. Announcement: “Using the draft from 14:52 · earlier draft kept”. Phone: the two buttons stack at 44 px. JA: この下書きは 14:52 に別のウインドウで変更されました。 / 新しい下書きを使う / この版を残す / 前の下書きを保持 · 元に戻す.
+- Would supersede (round 18): “Draft store per conversation … open issue 2 (drawn: last edit wins when the other window is not focused)” → the saved-per-person rule above with the notice.
+- Alternative (not recommended): drafts stay on each device only; a help line under the read-only line, “Drafts aren't shared between devices.” (下書きはデバイス間で共有されません。); no notice; two windows on one device still need last-edit-wins.
+
+**Q6 · New Conversation without a shortcut (Recommended).** ⌃⌥N stays **New File…** everywhere (round 13). The head's **New** keeps the accessible name “New Conversation” with no `aria-keyshortcuts`; the popup's first item `button.pw-convo__new` reads “New Conversation” with no key text. Keyboard path: ⌃⌥0, then Tab to New (or to the conversation popup, first item). ⌃⌥N in the Ask pane does nothing and types nothing; Overview's File › New File… is disabled with “Open a project to add a file.” (worker A).
+- Would supersede (round 18): “New Conversation ⌃⌥N … ⌃⌥N works while focus is anywhere in the Ask pane” → no shortcut.
+- Alternative (not recommended): the round 18 drawing (⌃⌥N in the Ask pane only), shown in the menu as “New Conversation ⌃⌥N (in Ask)”.
+
+Data still missing (✱): a per-person draft record `{conversation_id, text, saved_at, saved_by_window}` and a “newer than mine” signal to each open window; the one kept earlier version.

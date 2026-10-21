@@ -40,3 +40,7 @@ Superseded: “Why Pi sees these N files” → “What Pi uses for this message
 - The receipt of each sent message is reached from the summary under its answer (see ContextReceipt, Message).
 
 Superseded (round 17 → round 18): `.pw-context__found` (“2 found”, “none found”, “search catching up”, “no search”) on the composer line → `.pw-context__scope` “Searched: Class Notes only” (+ “· search catching up” / “· no search”); the found count now lives in each answer's summary. Why? `aria-controls="context-receipt"` → `"context-before-send"`; it opens “What Pi will use when you send” instead of the latest receipt.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+No change for Q7–Q9: the line before sending still ends “Searched: Class Notes only”. An @-mention chip in the draft doesn't widen what Pi sees or searches. It only marks the message as naming another project, so the boundary notice can follow the answer (see Message, Composer).

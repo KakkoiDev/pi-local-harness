@@ -222,3 +222,11 @@ See R18_ContextWalk (11 stories): every message keeps its receipt · Show All ·
 - “Search is catching up after changes; Pi used the files it chose without search.” (receipt) → Left out reason “Not searched: search was catching up”. “Search isn’t available right now; … You can still send.” (receipt) → “Search unavailable for this message”. The live states stay on the composer line.
 - States row “Before sending: the line previews the selection for the draft … read times are absent until sent” → “Draft: no receipt”.
 - Open product choices of round 17 are all resolved (decisions 14–19); none remain for this card.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+**Q8 · phase changes before resending.** Proposed: **Ask Again with Current Files** always resends in the project's phase now, and never changes phase. When that phase differs from the message's, a bold line follows the round 18 description and is also in the button's `aria-describedby`: “Pi will answer in Planning, the project’s phase now (this message was in Discussion).” (JA “Pi はいまのフェーズ「計画」で答えます（このメッセージは「議論」でした）。”). There is no extra confirmation. While a phase change or approval card is waiting, the button is disabled and described by “Answer the waiting plan first.” (JA “待っている計画に先に答えてください。”). Round 18's “Pi is answering…” disabled state is unchanged. At 320 px and on the phone the button wraps to its own row (`.pw-receipt__state--wrap`). Boards: R18A_AskAgainPhase, Ph18A_AskAgainPhase. Alternative (not recommended): an alert “Ask again in Planning?” / “This message was in Discussion.” / Cancel · Ask Again.
+
+**Q9 · lifetime.** Proposed: a receipt lives exactly as long as its message. It is kept through compaction, moves with the conversation to Earlier Conversations on New Conversation, and is deleted only with the conversation. No separate retention policy. See CompactionMarker. Boards: R18A_ReceiptLifetime, Ph18A_ReceiptLifetime.
+
+Would supersede (round 18): “Pressing it sends at once, in the same conversation” → “…in the project's phase now, saying so when it differs”. The round 18 open issues “phase for Ask Again with Current Files” and “receipt lifetime” would be closed.

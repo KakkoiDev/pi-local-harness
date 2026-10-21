@@ -147,3 +147,21 @@ Superseded round 17 text (old → new):
 - "Show … Saved per window." → kept per window across reload; a second window keeps its own.
 - Keyboard "In Projects, → moves to Open in Activity" → "→ moves through Ask About, Open in Activity and ⋯".
 - Open product choices 1–5 → resolved by decisions 1–5 (docs/plans/360); the section is closed.
+
+## Round 18 addendum (proposed, awaiting approval)
+
+Boards: R18A_ServicesStopped, R18A_NewConversationKeys, R18A_CancelCheckNew, R18A_OverviewStrings, R18A_OverviewWalk, Ph18A_ServicesStopped, Ph18A_CancelRequest. CSS: `scripts/round18add_a.css`.
+
+- **Q1, several blocking services.**
+  - Each project row reads "State unknown while 2 services are stopped" (JA 2 つのサービスが停止中のため状態不明); queued work reads "Queued: 2 requests · waiting for services" (JA 待機中：リクエスト 2 件 · サービスを待っています).
+  - The Projects count reads "5 · 2 queued · state unknown while 2 services are stopped". The Agent row reads "Can’t run work · 2 need you"; the Activity row reads "2 queued · 2 services stopped".
+  - The infobar reads "Ollama stopped at 14:24 and Gate at 14:27, so Pi can’t run work in any project. What each project is doing can’t be known until both answer; the queue is kept."
+  - **Alternative (not recommended):** "Ollama stopped +1".
+- **Q6, ⌃⌥N.** In Overview, File › New File… ⌃⌥N is disabled with the reason "Open a project to add a file." In the Ask pane head, **New** has no shortcut.
+- **Q10, Cancel Request…** It is never in Overview. Cancelling still leaves round 18's history row "Cancelled by you · 14:40".
+- **Q10, Check Again.** Proposed for Activity's service details: it asks the service once and never starts or restarts it. States:
+  - "Checking…" (disabled, `aria-busy`);
+  - "Still stopped · checked 14:33", then disabled for 10 s, described by "Checked a moment ago.";
+  - or the service recovers.
+- **Q10, New marker.** It has no timer (see AttentionItem).
+- **CSS.** All addendum styling is scoped to `.pw-attn--r18a`, which is set only on addendum items. On those items `.pw-attn__req` wraps in narrow columns and the round 18 `::after` marker is off. Round 18's own CSS, including its New marker, is unchanged everywhere else.
