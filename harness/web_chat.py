@@ -221,7 +221,10 @@ def readable_error(text):
     """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
     missing=re.search(r"model '([^']+)' not found",str(text))
     if missing:return f'The model “{missing.group(1)}” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull {missing.group(1)}`.'
-    if str(text).startswith('Ollama is not answering'):return str(text)  # already said (the failure path says it once more)
+    if str(text).startswith(('Ollama is not answering','Colibri is not answering')):return str(text)  # already said (the failure path says it once more)
+    colibri=models.colibri_url().split('://',1)[-1]
+    if colibri in str(text) and re.search(r'ECONNREFUSED|Connection error|fetch failed|connect ECONN|socket hang up|other side closed',str(text),re.I):
+        return f'Colibri is not answering at {colibri} ({str(text).strip()[:200]}). Start it there (`coli serve --port {colibri.rsplit(":",1)[-1]}` with your model), or choose an Ollama model, then Retry.'
     if re.search(r'ECONNREFUSED|Connection error|fetch failed|connect ECONN|socket hang up|other side closed',str(text),re.I):
         return f'Ollama is not answering ({str(text).strip()[:200]}). Start Ollama (open the Ollama app, or run `ollama serve`), then Retry.'
     return str(text)
@@ -231,7 +234,7 @@ def pi_command(session, choice=None):
     choice=choice or {'model':MODEL,'effort':os.getenv('PI_WEB_EFFORT','high')}
     return [os.getenv('PI_BINARY','pi'),'--offline','--mode','rpc',  # PI_BINARY, as the bench and the settings say (it was ignored: found by the phone audit)
         '--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),
-        *(['--session',str(session)] if session else ['--no-session']),'--provider',PROVIDER,'--model',choice['model'],'--thinking',choice['effort']]
+        *(['--session',str(session)] if session else ['--no-session']),'--provider',choice.get('provider',PROVIDER),'--model',choice['model'],'--thinking',choice['effort']]
 
 def migrate_session(session, folder):
     """Task 262 (review P0-3): Pi 1.1.0 works in the folder its session header names ({"type":"session",…,"cwd":…}),
@@ -290,7 +293,7 @@ def verification_note(before, after):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
+        self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False;self._colibri={};self._colibri_at=-1e9;self._colibri_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.recording_run=secrets.token_hex(16)
         self.recordings=Recordings(self.documents.root/'.action-recordings')
@@ -325,8 +328,15 @@ class WebChat:
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
-    def capabilities(self, model):
-        """The model's capabilities; None when Ollama answered and the model is not installed; assumed when Ollama is unreachable."""
+    def capabilities(self, model, provider=None):
+        """The model's capabilities; None when its server answered and the model is not there; assumed when the server is unreachable."""
+        if provider=='colibri':  # task 294: the same minute-long cache, for the Colibri server
+            if model not in self._colibri and time.monotonic()-self._colibri_at>60:
+                self._colibri_at=time.monotonic()
+                try:self._colibri={item['id']:item for item in models.colibri_models()};self._colibri_listed=True
+                except (OSError,ValueError):self._colibri_listed=False
+            if model in self._colibri:return self._colibri[model]
+            return None if self._colibri_listed else models.assumed(model,'colibri')
         if model not in self._capabilities and time.monotonic()-self._capabilities_at>60:
             self._capabilities_at=time.monotonic()
             try:self._capabilities={item['id']:item for item in models.local_models()};self._ollama_listed=True
@@ -335,19 +345,46 @@ class WebChat:
         return None if self._ollama_listed else models.assumed(model)
     def choice(self):
         return models.effective(models.current(self.documents.root,os.getenv('PI_WEB_EFFORT','high')),self.capabilities)
+    def listed_models(self):
+        """Every model Pi can use, from Ollama and Colibri (task 294), and why a server is missing from the list.
+        Ollama unreachable and Colibri too: the OSError of Ollama's listing (the 503 as before)."""
+        unavailable={};listed=[]
+        try:ollama=models.local_models();self._capabilities={item['id']:item for item in ollama};self._capabilities_at=time.monotonic();self._ollama_listed=True;listed+=ollama
+        except OSError as error:ollama_error=error;unavailable['ollama']=f'Ollama is not reachable at {models.ollama_url()}: {error}'
+        try:colibri=models.colibri_models();self._colibri={item['id']:item for item in colibri};self._colibri_at=time.monotonic();self._colibri_listed=True;listed+=colibri
+        except (OSError,ValueError) as error:unavailable['colibri']=f'Colibri is not running at {models.colibri_url()} ({error}). Start it with `coli serve --port {models.colibri_url().rsplit(":",1)[-1]}`.'
+        if 'ollama' in unavailable and 'colibri' in unavailable:raise ollama_error
+        return listed,unavailable
     def model_list(self):
-        listed=models.local_models();self._capabilities={item['id']:item for item in listed};self._capabilities_at=time.monotonic();self._ollama_listed=True
+        listed,unavailable=self.listed_models()
         current=capability.keys()  # task 161: whether each model answers two requests at once (parallel, one at a time, unknown)
-        return {'models':[{**item,'at_once':'checking' if self.measuring==item['id'] else capability.known(self.documents.root,item['id'],current)} for item in listed],'current':self.choice()}
-    def choose_model(self, model):
-        listed={item['id']:item for item in models.local_models()}
-        if model not in listed:raise ValueError(f'“{model}” is not installed in Ollama')
-        if not listed[model]['tools']:raise ValueError(f'“{model}” cannot use tools, so Pi cannot work with it')
+        def at_once(item):
+            if item.get('provider')=='colibri':return 'unknown'  # measured through Ollama only
+            return 'checking' if self.measuring==item['id'] else capability.known(self.documents.root,item['id'],current)
+        return {'models':[{**item,'at_once':at_once(item)} for item in listed],'unavailable':unavailable,'current':self.choice()}
+    def choose_model(self, model, provider=None):
+        if provider not in (None,*models.PROVIDERS):raise ValueError(f'Unknown model provider “{provider}”: ollama or colibri.')
+        try:listed,unavailable=self.listed_models()
+        except OSError:listed,unavailable=[],{'ollama':'Ollama is not reachable','colibri':'Colibri is not running'}
+        found=[item for item in listed if item['id']==model and provider in (None,item['provider'])]
+        if not found:
+            if provider=='colibri':raise ValueError(unavailable.get('colibri') or f'Colibri at {models.colibri_url()} does not serve “{model}”')
+            raise ValueError(f'“{model}” is not installed in Ollama')
+        item=found[0];provider=item['provider']
+        if not item['tools']:raise ValueError(f'“{model}” cannot use tools, so Pi cannot work with it' + (' (Colibri does not say this family calls tools)' if item.get('family')=='unknown' else ''))
+        if provider=='colibri':  # one model per Colibri server: nothing to load or unload; Ollama keeps its model
+            with self.lock:
+                if self.switching:raise ValueError('Already switching models')
+                if self.active or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
+            models.save(self.documents.root,model=model,provider='colibri');return self.choice()
+        listed={entry['id']:entry for entry in listed if entry['provider']=='ollama'}
         with self.lock:  # claimed atomically: while switching, busy() holds the queue back (no job starts on the old model)
             if self.switching:raise ValueError('Already switching models')
             if self.active or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
             self.switching=model
-        try:models.switch(models.current(self.documents.root)['model'],model);models.save(self.documents.root,model=model)
+        try:
+            before=models.current(self.documents.root)
+            models.switch(before['model'] if before['provider']=='ollama' else None,model);models.save(self.documents.root,model=model)
         finally:
             with self.lock:self.switching=None
         self._capabilities=listed;self._capabilities_at=time.monotonic();self._ollama_listed=True
@@ -771,7 +808,7 @@ class WebChat:
             token_file=folder/f'.gate-token-{job or uuid.uuid4().hex}'
             descriptor=os.open(token_file,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
             with os.fdopen(descriptor,'w') as handle:handle.write(self.gate_token or '')
-            env={**{key:value for key,value in os.environ.items() if key not in ('PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE')},'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN_FILE':str(token_file),'PI_WEB_PORT':str(self.web_port)}
+            env={**{key:value for key,value in os.environ.items() if key not in ('PI_HARNESS_TOKEN','PI_HARNESS_TOKEN_FILE')},'PI_HARNESS_LANGUAGE':self.updates.settings()['language'],'PI_HARNESS_LOCK_HELD':'1','PI_HARNESS_JOB':key,'PI_HARNESS_TURN_URL':f'http://127.0.0.1:{self.web_port}/api/turn?job={key}' if role!='chat' and job else '','PI_HARNESS_PROVIDER':choice.get('provider',PROVIDER),'PI_HARNESS_MODEL':choice['model'],'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else '','PI_HARNESS_CONTEXT':str(context_file) if context_file else '','PI_HARNESS_MEMORY':str(self.documents.root/'AGENTS.md'),'PI_AGENT_DATA':str(self.documents.root),'PI_HARNESS_SHARED_PORT':str(self.gate_port),'PI_HARNESS_TOKEN_FILE':str(token_file),'PI_WEB_PORT':str(self.web_port)}
             diagnostics=tempfile.TemporaryFile(mode='w+t')
             process=subprocess.Popen(command,cwd=str(self.documents.project_path(project)) if project else os.getenv('PI_WEB_CWD',str(Path.home())),env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=diagnostics,text=True,start_new_session=True)  # its own group: what it leaves running stops with it
             with self.lock:
@@ -1178,7 +1215,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/jobs/create':self.reply(self.chat.enqueue(data));return
             if path=='/api/choices/answer':self.reply(self.chat.answer_choice(data['project'],data));return  # task 290
             if path=='/api/decisions/change':self.reply(decision_rows.change_answer(self.chat,data['project'],data));return  # task 273: Change… on a decision row
-            if path=='/api/model':self.reply(self.chat.choose_model(data.get('model')));return
+            if path=='/api/model':self.reply(self.chat.choose_model(data.get('model'),data.get('provider')));return
             if path=='/api/effort':self.reply(self.chat.choose_effort(data.get('effort')));return
             if path=='/api/jobs/cancel':self.reply(self.chat.queue.cancel(data['id']));return
             waiting=re.fullmatch(r'/api/jobs/([0-9a-f]{32})/(edit|remove)',path)  # task 325: a waiting message, edited or removed

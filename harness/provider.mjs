@@ -18,3 +18,18 @@ export function localModels(config = {}) {
     input:(known ? process.env.PI_HARNESS_MODEL_VISION === '1' : id.startsWith('gemma4'))?['text','image']:(original.input || ['text'])};
   }).map(model=>model.reasoning ? {thinkingLevelMap:OLLAMA_LEVELS, ...model} : model)};
 }
+// Task 294: a Colibri server (`coli serve`) is OpenAI-compatible and takes any key. One model per server; the person
+// starts it on colibri_url (default 127.0.0.1:8100, never Gate's 8000). plh does not drive Colibri's thinking.
+export function colibriModels(config = {}) {
+ const url = (process.env.PI_COLIBRI_URL || 'http://127.0.0.1:8100').replace(/\/+$/, '');
+ const models = config.models || [];
+ const chosen = process.env.PI_HARNESS_PROVIDER === 'colibri' ? process.env.PI_HARNESS_MODEL : '';
+ const ids = new Set([...models.map(model=>model.id), ...(chosen ? [chosen] : [])]);
+ return { ...config, api: config.api || 'openai-completions', apiKey: config.apiKey || 'colibri', baseUrl: config.baseUrl || `${url}/v1`,
+  models: [...ids].map(id=>{
+   const original = models.find(model=>model.id===id) || {};
+   const vision = id === chosen ? process.env.PI_HARNESS_MODEL_VISION === '1' : (original.input || []).includes('image');
+   return {name:id, contextWindow:32768, maxTokens:8192, cost:{input:0,output:0,cacheRead:0,cacheWrite:0}, ...original, id, reasoning:false,
+    input: vision ? ['text','image'] : ['text']};
+  })};
+}

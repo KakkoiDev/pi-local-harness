@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomUUID } from 'node:crypto';
-import { localModels } from './provider.mjs';
+import { localModels, colibriModels } from './provider.mjs';
 import { attachMedia } from './media.mjs';
 import { AgentLock } from './agent-lock.mjs';
 import { installStartupDisplay, startupLines } from './startup-display.mjs';
@@ -76,6 +76,9 @@ export default function harness(pi, dependencies = {}) {
   let config = {};
   try { config = JSON.parse(readFileSync(join(agentDir, 'models.json'), 'utf8')).providers?.ollama || {}; } catch {}
   pi.registerProvider?.('ollama', localModels(config));
+  let colibri = {}; // task 294: models served by Colibri, beside Ollama's (no tool-repair proxy: Colibri parses tool calls itself)
+  try { colibri = JSON.parse(readFileSync(join(agentDir, 'models.json'), 'utf8')).providers?.colibri || {}; } catch {}
+  pi.registerProvider?.('colibri', colibriModels(colibri));
   const toolRepair = installToolRepair(pi, { config, localModels, bare, request: () => requestId }); // task 326: through the repair proxy
   const transcribe = dependencies.transcribe || (async path => {
     const { stdout } = await promisify(execFile)('uv', ['run', '--python', '3.12', `${moduleRoot}harness/transcribe.py`, path], { timeout: 180000, maxBuffer: 1024 * 1024 });

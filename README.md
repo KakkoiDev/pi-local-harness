@@ -43,7 +43,8 @@ needs: everything is plain, editable code in your project.
 ## Get started
 
 You need a Mac, [Ollama](https://ollama.com) with a model, Python 3, [uv](https://docs.astral.sh/uv/), git, and
-Pi's `pi` command. Linux and Windows are planned.
+Pi's `pi` command. Linux and Windows are planned. Optional: a [Colibri](https://github.com/JustVugg/colibri) server
+(`coli serve --port 8100`) adds its large model beside Ollama's ([harness/README.md](harness/README.md)).
 
 ```sh
 git clone https://github.com/KakkoiDev/pi-local-harness.git

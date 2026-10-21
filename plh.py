@@ -81,12 +81,12 @@ def main():
     memory=directory/'AGENTS.md'
     if not memory.exists():memory.write_text((ROOT/'harness/AGENTS.md').read_text())
     # The model and thinking level chosen in the web menu bar (task 147), else harness/model.json's default and config.json's effort.
-    def capabilities(model):  # None: Ollama answered and the model is not installed (effective() falls back to the default)
-        try:return next((item for item in models.local_models() if item['id']==model),None)
-        except OSError:return models.assumed(model)
+    def capabilities(model, provider=models.PROVIDER):  # None: the server answered and the model is not there (effective() falls back to the default)
+        try:return next((item for item in (models.colibri_models() if provider=='colibri' else models.local_models()) if item['id']==model),None)
+        except (OSError,ValueError):return models.assumed(model,provider)
     choice=models.effective(models.current(directory,settings['effort']),capabilities);provider,model,effort=choice['provider'],choice['model'],choice['effort']
     env={**environment(settings),**os.environ,'PI_AGENT_DATA':str(directory),'PI_HARNESS_MEMORY':str(memory),'PI_WEB_EFFORT':settings['effort'],
-         'PI_HARNESS_MODEL':model,'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else ''}
+         'PI_HARNESS_PROVIDER':provider,'PI_HARNESS_MODEL':model,'PI_HARNESS_MODEL_THINKING':'1' if choice['thinking'] else '','PI_HARNESS_MODEL_VISION':'1' if choice['vision'] else ''}
     os.chdir(Path.home())
     arguments=['pi','--offline','--no-extensions','--extension',str(ROOT/'.pi/extensions/local-harness.ts'),'--provider',provider,'--model',model,'--thinking',effort,*sys.argv[1:]]
     os.execvpe('pi',arguments,env)

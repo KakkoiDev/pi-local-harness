@@ -182,11 +182,18 @@ class Console:
     def models(self):
         effort = self.config()['values']['effort']
         choice = models.current(self.data, effort)
+        colibri = self.colibri_models(choice)  # task 294: what a Colibri server serves, beside Ollama
         try: installed = models.local_models()
-        except (OSError, ValueError): return {'ollama': False, 'choice': choice, 'default': models.MODEL, 'models': []}
+        except (OSError, ValueError): return {'ollama': False, 'choice': choice, 'default': models.MODEL, 'models': [], 'colibri': colibri}
         current = capability.keys()
-        for item in installed: item['chosen'] = item['id'] == choice['model']; item['at_once'] = capability.known(self.data, item['id'], current)
-        return {'ollama': True, 'choice': choice, 'default': models.MODEL, 'models': installed}
+        for item in installed: item['chosen'] = item['id'] == choice['model'] and choice['provider'] == 'ollama'; item['at_once'] = capability.known(self.data, item['id'], current)
+        return {'ollama': True, 'choice': choice, 'default': models.MODEL, 'models': installed, 'colibri': colibri}
+
+    def colibri_models(self, choice):
+        try: served = models.colibri_models()
+        except (OSError, ValueError) as error: return {'url': models.colibri_url(), 'running': False, 'reason': str(error), 'models': []}
+        for item in served: item['chosen'] = item['id'] == choice['model'] and choice['provider'] == 'colibri'
+        return {'url': models.colibri_url(), 'running': True, 'models': served}
 
     def ollama_info(self):
         """Ollama's version, address, models folder, parallel slots and loaded models."""
@@ -582,12 +589,12 @@ def build(console, command, args, yes=False):
         return changed(console.choose_model(args[1], args[2] if len(args) > 2 else None, yes))
     if command == 'models':
         value = console.models()
-        if not value['ollama']: return value, view('Models', {'kind': 'lines', 'lines': [f"✗ Ollama does not answer at {models.ollama_url()}.", f"Chosen: {value['choice']['model']}"]}, hint='/doctor')
+        if not value['ollama']: return value, view('Models', {'kind': 'lines', 'lines': [f"✗ Ollama does not answer at {models.ollama_url()}.", f"Chosen: {value['choice']['model']}"]}, *colibri_parts(value['colibri']), hint='/doctor')
         loaded = set(console.ollama_info().get('loaded') or [])
         can = lambda item: '✗ no tools' if not item['tools'] else ' · '.join(word for word in [('thinks' if item['thinking'] else 'no thinking'), item['vision'] and 'sees', {'parallel': 'parallel', 'partly parallel': 'one at a time', 'one at a time': 'one at a time', 'checking': 'checking…'}.get(item['at_once'])] if word)
         table = {'kind': 'table', 'columns': ['MODEL', 'SIZE', 'CAN', ''], 'flex': 2, 'dim': [3],
                  'rows': [[('● ' if item['chosen'] else '  ') + item['id'], f"{item['size'] / 1e9:.0f} GB", can(item), 'in memory' if item['id'] in loaded else ''] for item in value['models']]}
-        return value, view('Models', table, hint='/models use <name> · /models check · /models pull <name> · /models remove <name>')
+        return value, view('Models', table, *colibri_parts(value['colibri']), hint='/models use <name> · /models check · /models pull <name> · /models remove <name>')
     if command == 'ollama':
         value = console.ollama_info()
         return value, view('Ollama', kv(['Running', ('✓ answers at ' if value['running'] else '✗ does not answer at ') + value['url']], ['Version', value['version'] or '—'], ['Models', value['models_folder']],
@@ -776,6 +783,16 @@ def guide(words):
         return {'sections': found}, view('Guide · ' + (found[0].splitlines()[0][3:].rstrip('?') if len(found) == 1 else ' '.join(words)), *parts, hint='Ask in words for more, or /guide for every topic')
     questions = [section.splitlines()[0][3:] for section in sections]
     return {'sections': [], 'questions': questions}, view('Guide', {'kind': 'lines', 'lines': [f"Nothing in the guide matches “{' '.join(words)}”. Its questions:", *['  ' + question for question in questions]]}, hint='/guide <words>')
+
+def colibri_parts(colibri):
+    """Task 294: the Colibri models in /models (text only; choosing one is in the web menu bar)."""
+    if not colibri['running']:
+        return [{'kind': 'lines', 'lines': [f"Colibri: not running at {colibri['url']} (start it with `coli serve --port {colibri['url'].rsplit(':', 1)[-1]}`)."]}]
+    can = lambda item: ('tools' if item['tools'] else '✗ no tools' + (' (unknown family)' if item.get('family') == 'unknown' else '')) + (' · sees' if item['vision'] else '')
+    return [{'kind': 'lines', 'lines': [f"Colibri at {colibri['url']}:"]},
+            {'kind': 'table', 'columns': ['MODEL', 'CAN'], 'flex': 1, 'rows': [[('● ' if item['chosen'] else '  ') + item['id'], can(item)] for item in colibri['models']],
+             'empty': 'Colibri serves no model.'}]
+
 
 def check_models(console, args):
     """/models check [name] [--all] [--force]: measure whether models answer two requests at once (plan 156 § 7)."""

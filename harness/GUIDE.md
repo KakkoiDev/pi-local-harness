@@ -113,6 +113,16 @@ In the menu bar, click the model name or the thinking level and choose. Switchin
 memory. In terminal Pi: `/models` lists the installed models and what they can do, `/models use <name> [effort]` switches
 (it asks first). The model menu also says whether a model answers two requests at once ("parallel" or "one at a time").
 
+## Can I use a model served by Colibri?
+
+Yes, beside Ollama's. [Colibri](https://github.com/JustVugg/colibri) runs very large models (GLM-5.x, DeepSeek V4,
+Kimi K3, Qwen3.6/3.8) from the SSD. Start its server yourself on port 8100: `coli serve --port 8100` with your model
+(another address: the `colibri_url` setting; never 8000, Gate's port). `/models` then lists it under "Colibri at …";
+if Colibri is not running, `/models` says so and how to start it. Pi can work only with a model that calls tools: GLM,
+DeepSeek V4, Kimi K3, Qwen3.6 and Qwen3.8 do; OLMoE and Inkling do not, and a family Pi does not know is treated as no
+tools. Big models are slow on a Mac (GLM-5.3 writes about 0.4 to 1.9 tokens per second), so a task can take hours.
+Choosing it in the web model menu is coming; today the web API (`POST /api/model` with `"provider": "colibri"`) does it.
+
 ## How do I get a new model, or remove one?
 
 In terminal Pi: `/models pull <name>` downloads it (large models are many GB), `/models remove <name>` moves it to the

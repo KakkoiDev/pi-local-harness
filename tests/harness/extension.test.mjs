@@ -362,7 +362,7 @@ test('a request that names an App Block gets its card, the foundation and the ap
 
 for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} recovery keeps its request until the resumed turn settles (task 227)`, async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-recovery-request-')),saved={...process.env},fetchBefore=globalThis.fetch;
- Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_WEB_DATA:join(dir,'web'),PI_TRASH_DIR:join(dir,'trash'),PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_WEB_DATA:join(dir,'web'),PI_TRASH_DIR:join(dir,'trash'),PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_COLIBRI_URL:'http://127.0.0.1:9',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
  writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
  const handlers={},calls=[],messages=[],notices=[];let tick,compact,changed=false,verified=false;
  globalThis.fetch=async(url,options)=>{

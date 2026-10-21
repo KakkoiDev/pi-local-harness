@@ -5,7 +5,7 @@ Kind: code
 GPT-Sol's report, owner request 2026-10-18 (task 258 recorded it): support models served by
 https://github.com/JustVugg/colibri alongside Ollama and online providers.
 
-- [ ] Inspect a local Colibri install read-only, if any; pin the tested upstream revision; ask before any download
+- [x] Inspect a local Colibri install read-only, if any; pin the tested upstream revision; ask before any download
   (runtime, build dependencies, weights) with versions and sizes.
 - [ ] Select the Colibri endpoint and an installed model without changing the current provider; a free port (its example
   uses 8000, Gate's port); never stop an unrelated service.
@@ -23,15 +23,15 @@ plh does not start or stop Colibri, as with Ollama.
 
 Back end (this round, no UI):
 
-- [ ] Red (unit): a stub Colibri server; `/api/models` lists its models with provider `colibri` beside Ollama's; an
+- [x] Red (unit): a stub Colibri server; `/api/models` lists its models with provider `colibri` beside Ollama's; an
   unreachable Colibri leaves Ollama's list intact and says why; the choice saves provider and model; Pi starts with
   `--provider colibri`; a Colibri model without tools is refused like an Ollama one (`tests/test_colibri_models.py`).
-- [ ] Red (node): the extension registers a `colibri` provider at the Colibri URL with the listed models.
-- [ ] Settings: `colibri_url` (env `PI_COLIBRI_URL`, default `http://127.0.0.1:8100`), validated like `ollama_url`.
-- [ ] `harness/model.py`: Colibri discovery and capabilities, provider in the saved choice, switching without Ollama's
+- [x] Red (node): the extension registers a `colibri` provider at the Colibri URL with the listed models.
+- [x] Settings: `colibri_url` (env `PI_COLIBRI_URL`, default `http://127.0.0.1:8100`), validated like `ollama_url`.
+- [x] `harness/model.py`: Colibri discovery and capabilities, provider in the saved choice, switching without Ollama's
   keep_alive.
-- [ ] `harness/web_chat.py`: the model list and choice use the provider; connection errors name Colibri.
-- [ ] `harness/provider.mjs` / `harness/extension.mjs`: register `colibri` (OpenAI completions API, any key).
+- [x] `harness/web_chat.py`: the model list and choice use the provider; connection errors name Colibri.
+- [x] `harness/provider.mjs` / `harness/extension.mjs`: register `colibri` (OpenAI completions API, any key).
 - [ ] Designer: `design/briefs/colibri-models.md` (the model menu with Colibri, its unreachable state, slow-model note).
 - [ ] UI and the three stories after the canvas; docs (README, reference, harness/README, GUIDE).
 
@@ -52,3 +52,17 @@ Then the chat says the model cannot use tools and names what to choose instead
 Given Pi is answering through a Colibri model
 When the Colibri server stops
 Then the chat says the connection to Colibri was lost and offers Retry, and the chat goes on after it
+
+## Progress
+
+- 2026-10-22: back end done, no UI. `colibri_url` / `PI_COLIBRI_URL` (default `http://127.0.0.1:8100`); Colibri
+  discovery from `/v1/models` with tool support from the family; `/api/models` lists both providers with `provider`
+  and `unavailable`; `POST /api/model` takes `provider`; the choice saves `{provider, model, effort}` (old files mean
+  Ollama); Pi and terminal Pi start with `--provider colibri`; the extension registers a `colibri` provider; terminal
+  `/models` lists Colibri's models or says it is not running; connection errors name Colibri. Tests: 18 in
+  `tests/test_colibri_models.py`, 5 in `tests/harness/colibri-provider.test.mjs`; every suite's Colibri address is a
+  closed port. Green: Python suite (1051 tests), `tests/verify_workflow.py` (dogfood, node --test, unittest).
+- Not done or not verified: the browser suites did not run on this machine (Playwright not installed: "Not run");
+  the model menu's Colibri group and the three stories wait for the canvas (`design/briefs/colibri-models.md`);
+  streaming, tool round trips, cancellation and connection loss against a real `coli serve` are untested (live smoke
+  test only with the owner's yes).

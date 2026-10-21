@@ -164,6 +164,8 @@ menu bar (click the model name or "High thinking"): the menus list the installed
 models, switching unloads the previous model so only one stays in memory, and a model that
 does not think dims the thinking menu. The choice is saved in `model.json` in the data
 directory and used by terminal Pi (from its next start) and browser workers.
+A Colibri server (`coli serve`, task 294) the person starts adds its model to the list: `colibri_url`
+(`PI_COLIBRI_URL`, default `http://127.0.0.1:8100`) says where it answers; plh never starts or stops it.
 `harness/model.json` is the default model (`ollama/gemma4:26b-mlx`); a `model` in
 `config.json` is not supported and stops `plh` with an error. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;

@@ -16,7 +16,7 @@ const readline = require('node:readline');
   const fake = join(directory, 'pi');
   writeFileSync(fake, `#!${python}\n` + readFileSync('tests/fixtures/fake-pi.py', 'utf8')); chmodSync(fake, 0o755);
   const env = { ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))), // never the live harness
-    PATH: directory + ':' + process.env.PATH, PI_TAILSCALE: 'false', PI_TRASH_DIR: join(directory, 'Trash'), PI_GATE_PORT: '0', PI_OLLAMA_URL: 'http://127.0.0.1:9',
+    PATH: directory + ':' + process.env.PATH, PI_TAILSCALE: 'false', PI_TRASH_DIR: join(directory, 'Trash'), PI_GATE_PORT: '0', PI_OLLAMA_URL: 'http://127.0.0.1:9', PI_COLIBRI_URL: 'http://127.0.0.1:9',
     PI_WEB_PORT: '0', PI_AGENT_DATA: join(directory, 'workspace'), PI_WEB_DATA: join(directory, 'data'), PI_HARNESS_LOG_FILE: join(directory, 'audit.log') };
   const server = spawn('python3', [join(process.env.PI_TEST_RUNTIME || '.', 'harness/services.py')], { env, stdio: ['ignore', 'pipe', 'pipe'] });
   let browser;

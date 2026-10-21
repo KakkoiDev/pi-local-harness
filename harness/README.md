@@ -33,6 +33,7 @@ applies the next time plh starts). A variable already set in your shell wins ove
 | `model_turn_seconds` | `PI_HARNESS_MODEL_TURN_SECONDS` | 300 | A model turn after a tool result, or one the harness starts (a wake-up, the next approved task), may take this long before its first output; then the request fails and the next one starts (task 327) |
 | `hang_seconds` | `PI_HANG_MS` (×1000) | 60 | Thought-phase inactivity before abort, compact and re-ask |
 | `ollama_url` | `PI_OLLAMA_URL` | http://127.0.0.1:11434 | Where Ollama answers |
+| `colibri_url` | `PI_COLIBRI_URL` | http://127.0.0.1:8100 | Where a Colibri server answers (`coli serve`); its models join the model list (task 294). Not 8000, Gate's port |
 | `tool_repair`, `tool_repair_port` | `PI_TOOL_REPAIR`, `PI_TOOL_REPAIR_PORT` | true, 0 | Pi reaches Ollama through the tool-call repair proxy (task 326); 0 chooses its port |
 | `gate_auth` | `PI_GATE_AUTH` | admin | Gate profile; both enforce destructive-shell rules |
 | `whisper_model` | `PI_WHISPER_MODEL` | whisper-base-mlx | Transcription model |
@@ -48,7 +49,20 @@ another installed Ollama model and the thinking level in the web menu bar; the c
 (`harness/model.py`: `current()`, `effective()`). Switching unloads the previous model
 (`keep_alive: 0`) before loading the new one. `config.json` cannot set the model; its `effort`
 is the default thinking level (`PI_WEB_EFFORT`). `PI_OLLAMA_URL` points at a different Ollama
-(tests use a closed port). Extra `plh` arguments such as `--model` still reach the
+(tests use a closed port).
+
+**Models served by Colibri (task 294).** [Colibri](https://github.com/JustVugg/colibri) runs large mixture-of-experts
+models (GLM-5.x, DeepSeek V4, Kimi K3, Qwen3.6/3.8) from the SSD through its own OpenAI-compatible server. plh never
+starts or stops it: run `coli serve --port 8100` yourself (or set `colibri_url`). `/api/models` and `/models` then list
+its model beside Ollama's, each with `provider` (`ollama` or `colibri`); a Colibri server that does not answer is said
+in `unavailable`, Ollama's list stays. Tool support comes from the model family as Colibri documents it (GLM, DeepSeek
+V4, Kimi K3, Qwen3.6, Qwen3.8 call tools; OLMoE and Inkling do not; any other family is reported as unknown and without
+tools). Choosing a Colibri model saves `{provider, model, effort}` in `<data>/model.json` and does not touch Ollama's
+memory; an older file without `provider` means Ollama. Pi talks to it as the `colibri` provider
+(`harness/provider.mjs` `colibriModels()`, any API key, no tool-repair proxy) and runs with thinking off. A big model is
+slow on a Mac (GLM-5.3: 0.4 to 1.9 tokens per second); raise `model_start_seconds` and `model_turn_seconds` for it.
+The model menu does not show the Colibri group yet (designer brief `design/briefs/colibri-models.md`); the API, terminal
+`/models` and the choice work. Extra `plh` arguments such as `--model` still reach the
 terminal Pi for that one session only. `PI_WEB_CWD` is retained only for legacy
 nonproject sessions; project jobs always use their registered folder.
 

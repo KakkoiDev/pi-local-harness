@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))  # `from harness imp
 for name in [key for key in os.environ if key.startswith(('PI_HARNESS_', 'PI_WEB_REMOTE_'))] + ['PI_AGENT_DATA', 'PI_WEB_DATA', 'PI_WEB_EFFORT', 'PI_WEB_PORT', 'PI_GATE_PORT', 'PI_CODING_AGENT_DIR']:
     os.environ.pop(name, None)
 os.environ['PI_OLLAMA_URL'] = 'http://127.0.0.1:9'  # a closed port: model capabilities fall back to the known default
+os.environ['PI_COLIBRI_URL'] = 'http://127.0.0.1:9'  # task 294: never a real Colibri server (`coli serve`)
 os.environ['PI_TAILSCALE'] = 'false'                 # never the real tailscale binary
 import tempfile  # noqa: E402
 os.environ['PI_TRASH_DIR'] = tempfile.mkdtemp(prefix='pi-test-trash-')  # Move Project to Trash never reaches the Finder
