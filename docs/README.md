@@ -55,3 +55,5 @@ Review and return handoff (2026-10-17):
 - [Scoped context retrieval research](reports/scoped-context-retrieval-2026-10-20.md): dashboard-wide versus project-only search, dynamic context, DuckDB evaluation and acceptance tests.
 
 - [Round17 product decisions](plans/360-round-17-product-decisions.md) and [round18 designer prompt](../design/briefs/round-18-overview-decisions.md): all 20 questions resolved under owner delegation.
+
+- [Round18 follow-up questions and agent prompt](../design/briefs/round-18-follow-up-questions.md): historical questions, now superseded by the owner-delegated round19 decisions.

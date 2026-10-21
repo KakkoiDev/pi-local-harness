@@ -125,3 +125,7 @@ The walk boards (R18_OverviewWalk, R18_AskWalk, R18_ContextWalk) give the stable
     - Cancel Request… for interrupted requests in Activity, with a confirmation that defaults to Keep Request.
     - Check Again on a service detail.
     - A “New” tag on a newly arrived item, kept until it is focused or 60 seconds pass.
+
+## Follow-up review brief (21 October 2026)
+
+The owner requested a round18 follow-up covering all ten issues above. See [the agent brief](../../design/briefs/round-18-follow-up-questions.md) for proposed answers, design/validation work and commit/push instructions. These proposals await owner approval; adding the brief does not approve them.
