@@ -424,3 +424,18 @@ US-350: terminal: a missing plan is retried once and approval still waits for me
 Given a registered scratch project in the existing data location
 When I open About, reload and render terminal startup
 Then the product is Pi WorkStation, Japanese copy uses the same name, and the project keeps its ID and path
+
+### US-352 Preview records focus and canvas clicks and stopping rejects late actions
+Given a registered scratch project with an app running in Preview
+When I focus an input, click a canvas, stop recording, reload, enable recording and clear history
+Then safe structural focus and click steps are retained, stopped actions are refused, and history moves to Trash
+
+### US-353 WorkStation recording requires opt-in and never blocks conversation
+Given a scratch WorkStation on the Projects screen
+When I enable WorkStation recording, switch into a project, then stop it or its storage becomes unavailable
+Then structural actions stay in their original scope, stopping is independent of Preview, and I can still send a message
+
+### US-354 A late chat load preserves the phone menu I just opened
+Given startup is waiting for the selected conversation
+When I open the phone project menu before that conversation finishes loading
+Then the menu stays open and New Project remains usable

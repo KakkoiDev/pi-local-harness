@@ -14,6 +14,7 @@ from harness import model as models
 from harness.work_queue import WorkQueue, QueueRefusal, display_text
 from harness.canary import strip_canary
 from harness.preview import Previews
+from harness.recordings import Recordings
 from harness import undo as undoing
 from harness import laya, theme
 from harness.decision_log import record
@@ -291,6 +292,9 @@ class WebChat:
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
         self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
+        self.recording_run=secrets.token_hex(16)
+        self.recordings=Recordings(self.documents.root/'.action-recordings')
+        self.workstation_recordings=Recordings(self.documents.root/'.ws-action-recordings', default_enabled=False, shared_settings=True)
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode)
         from harness.web_updates import UpdateService
         from harness.admin import update_source
@@ -298,6 +302,26 @@ class WebChat:
         self.previews=Previews(self.documents.root/'.previews',origins=(f'http://127.0.0.1:{web_port}',f'http://localhost:{web_port}') if web_port else ())  # plan 198: the project's app beside the chat
         from harness.theme_fonts import Fonts
         self.fonts=Fonts(self.documents.root)  # task 312: the Google Fonts list, cached in the data folder
+    def recording(self, data):
+        project = data.get('project')
+        surface = data.get('surface', 'preview')
+        if surface not in ('preview', 'workstation'): raise ValueError('Invalid recording surface.')
+        if project is not None: self.documents.project_path(project)
+        elif surface != 'workstation': raise ValueError('Choose a recording project.')
+        store = self.workstation_recordings if surface == 'workstation' else self.recordings
+        project = project or 'outside-projects'
+        action = data.get('action', 'status')
+        if action == 'append':
+            if type(data.get('generation')) is not int: raise ValueError('Recording generation is required.')
+            if data.get('run') != self.recording_run: return {'flow': None}
+            return {'flow': store.append(project, data.get('flow'), flow_id=data.get('flow_id'), generation=data['generation'], session=self.recording_run)}
+        if action == 'recent': return {'flow': store.recent(project)}
+        if action == 'enabled': store.set_enabled(project, data.get('enabled'))
+        elif action == 'clear': store.clear(project)
+        elif action == 'notice': store.dismiss_notice(project)
+        elif action != 'status': raise ValueError('Unknown recording action.')
+        return {**store.status(project), 'run': self.recording_run}
+
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama
     # cannot stall every request.
@@ -956,7 +980,7 @@ class WebHandler(BaseHTTPRequestHandler):
     # Task 261: the person's controls carry this run's secret, which only the served page holds (a meta tag): a local
     # process posting to the workbench, such as a test the model wrote, cannot approve, accept or switch on its own.
     person_secret=secrets.token_urlsafe(32)
-    PERSON_ROUTES=frozenset({'/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox','/api/projects/packages'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
+    PERSON_ROUTES=frozenset({'/api/recordings','/api/choices/answer','/api/phase','/api/phase/build','/api/plan/wait','/api/auto','/api/tasks/reopen','/api/theme/open','/api/theme/save','/api/theme/add','/api/decisions/change','/api/projects/start','/api/projects/capability','/api/projects/sandbox','/api/projects/packages'})  # task 312: the theme panel is the person's; round 12: Create and Add a Capability… too
     def person_only(self, path, data):
         if path in self.PERSON_ROUTES or re.fullmatch(r'/api/conversations/[0-9a-f]{32}/check-in/(?:accept|accept-anyway|stop)',path):return True
         if re.fullmatch(r'/api/jobs/[0-9a-f]{32}/(?:edit|remove)',path):return True  # task 325: only the person changes what waits for Pi
@@ -1000,6 +1024,7 @@ class WebHandler(BaseHTTPRequestHandler):
             if path=='/api/updates':self.reply(self.chat.updates.daily());return
             if path=='/api/settings':self.reply(self.chat.updates.settings());return
             if path=='/api/workspace':self.reply(self.chat.workspace());return
+            if path=='/api/recordings':self.reply(self.chat.recording({'project':parse_qs(urlparse(self.path).query)['project'][0]}));return
             if path=='/api/preview':self.reply(self.chat.preview(parse_qs(urlparse(self.path).query)['project'][0],'status'));return
             if path=='/api/phase':self.reply(self.chat.ledger.paperwork.phase(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return
             if path=='/api/theme':self.reply(theme.state(self.chat.documents.project_path(parse_qs(urlparse(self.path).query)['project'][0])));return  # task 312
@@ -1041,7 +1066,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 # Text/HTML/code downloads must never execute as same-origin pages.
                 disposition='inline' if mime.startswith(('image/','audio/')) and mime!='image/svg+xml' else 'attachment'
             else:
-                allowed={'/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
+                allowed={'/js/workstation-recording.mjs':'js/workstation-recording.mjs','/harness/vendor/test_core_recording/recorder.mjs':'harness/vendor/test_core_recording/recorder.mjs','/js/recording.mjs':'js/recording.mjs','/':'index.html','/index.html':'index.html','/chat.css':'chat.css','/js/chat.mjs':'js/chat.mjs','/js/check-ins.mjs':'js/check-ins.mjs','/js/scope-cards.mjs':'js/scope-cards.mjs','/js/refusals.mjs':'js/refusals.mjs','/js/shortcuts.mjs':'js/shortcuts.mjs','/js/work-links.mjs':'js/work-links.mjs','/js/choice-text.mjs':'js/choice-text.mjs','/js/chat-state.mjs':'js/chat-state.mjs','/js/drafts.mjs':'js/drafts.mjs','/js/ui.mjs':'js/ui.mjs','/js/workspace.mjs':'js/workspace.mjs','/js/markdown-blocks.mjs':'js/markdown-blocks.mjs','/js/message-markdown.mjs':'js/message-markdown.mjs','/js/router.mjs':'js/router.mjs','/js/dictation.mjs':'js/dictation.mjs','/js/context-line.mjs':'js/context-line.mjs','/harness/vendor/qrcode.mjs':'harness/vendor/qrcode.mjs','/js/files-window.mjs':'js/files-window.mjs','/js/preview.mjs':'js/preview.mjs','/js/i18n.mjs':'js/i18n.mjs','/messages/ja.json':'messages/ja.json','/js/updates-window.mjs':'js/updates-window.mjs', '/js/phases.mjs':'js/phases.mjs', '/js/plan-cards.mjs':'js/plan-cards.mjs','/js/done-row.mjs':'js/done-row.mjs','/js/menubar.mjs':'js/menubar.mjs','/js/dialogs.mjs':'js/dialogs.mjs','/js/theme-panel.mjs':'js/theme-panel.mjs','/js/theme-colors.mjs':'js/theme-colors.mjs','/js/project-start.mjs':'js/project-start.mjs','/design/icons.mjs':'design/icons.mjs','/design/tokens.css':'design/tokens.css','/design/components.css':'design/components.css',**{f'/design/app-icons/{name}':f'design/app-icons/{name}' for name in ('manifest.webmanifest','pi-16.png','pi-32.png','pi-180.png','pi-192.png','pi-512.png','pi-192-dark.png')},**{f'/fonts/{name}.woff2':f'fonts/{name}.woff2' for name in FONTS}}
                 allowed.update({f'/js/{name}.mjs':f'js/{name}.mjs' for name in ('notices','decision-row','test-sandbox','queue-list','near-note','install-packages')})  # round 12: HarnessNotice, CutLine, DecisionRow
                 # App paths (js/router.mjs): /projects and /p/<project>/<view>[/<file>] load the workbench.
                 if path in ('/projects','/activity','/gate') or re.fullmatch(r'/p/[^/]+/(chat|work|activity|gate)(/.*)?',path):path='/'
@@ -1065,13 +1090,16 @@ class WebHandler(BaseHTTPRequestHandler):
         if not self.trusted():self.reply({'error':self.refusal()},403);return
         streaming=False
         try:
+            path=urlparse(self.path).path
             size=int(self.headers.get('Content-Length','0'))
+            if path=='/api/recordings' and size>65536:raise ValueError('Recording batch exceeds 64 KiB')
             if size<0 or size>32*1024*1024:raise ValueError('Request exceeds 32 MiB')
             data=json.loads(self.rfile.read(size))
             if not isinstance(data,dict):raise ValueError('Request must be a JSON object')
             path=urlparse(self.path).path
             if self.person_only(path,data) and not self.person():
                 self.reply({'error':'Only the person’s controls in the workbench page can do this. Reload the page and try again.','stale':True},403);return  # round 12 (R12_Grant): the page says it is out of date and offers Reload Page
+            if path=='/api/recordings':self.reply(self.chat.recording(data));return
             if path=='/api/phase/build':
                 root=self.chat.documents.project_path(data['project'])
                 planned=next((message.get('request') for message in reversed(self.chat.project_chat(data['project'])['messages']) if message.get('plan')),None)  # task 273: the approval joins the plan's answer

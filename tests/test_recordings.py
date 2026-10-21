@@ -91,3 +91,27 @@ class RecordingsTest(unittest.TestCase):
         self.assertEqual(found['at'], self.now)
         self.assertEqual(len(found['steps']), 1)
         self.assertNotIn('9999', json.dumps(found))
+
+    def test_session_batches_accumulate_and_clear_or_restart_rejects_old_generation(self):
+        generation = self.store.status('alpha')['generation']
+        flow = self.store.append('alpha', self.flow, generation=generation)
+        same = self.store.append('alpha', self.flow, flow_id=flow['id'], generation=generation)
+        self.assertEqual(same['id'], flow['id'])
+        self.assertEqual(len(same['steps']), 2)
+        self.store.clear('alpha')
+        self.assertIsNone(self.store.append('alpha', self.flow, generation=generation))
+        generation = self.store.status('alpha')['generation']
+        self.store.set_enabled('alpha', False)
+        self.store.set_enabled('alpha', True)
+        self.assertIsNone(self.store.append('alpha', self.flow, generation=generation))
+
+    def test_batches_are_atomic_and_full_flows_do_not_evict_first_events(self):
+        with self.assertRaises(ValueError):
+            self.store.append('alpha', {'steps': self.flow['steps']*51}, generation=0)
+        self.assertEqual(self.store.history('alpha'), [])
+        flow = self.store.append('alpha', self.flow)
+        for _ in range(10):
+            flow = self.store.append('alpha', {'steps': self.flow['steps']*50}, flow_id=flow['id'])
+        self.assertEqual(len(flow['steps']), 500)
+        self.assertTrue(flow['truncated'])
+        self.assertEqual(len(self.store.history('alpha')), 1)

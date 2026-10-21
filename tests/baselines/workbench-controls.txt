@@ -72,7 +72,6 @@ uncovered button:explore an image
 uncovered button:listen to a recording
 uncovered button:modelone in memory at a time
 uncovered button:next
-uncovered button:ok
 uncovered button:open again
 uncovered button:open app
 uncovered button:open in browser

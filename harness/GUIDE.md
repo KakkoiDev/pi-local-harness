@@ -286,3 +286,13 @@ does not have, missing labels, charts without a table, hard-coded colours and CD
 For a planning request in Planning, the harness asks Pi once to call `propose_plan` if no plan was submitted. This
 keeps the same request and does not approve the plan. Stop, a pending question, a pending plan and returning to
 Discussion prevent that retry. A real-model success still depends on the model following the tool instruction.
+
+## Are my clicks and focus changes recorded?
+
+Preview recording starts on for each project and shows its status beside Stop. Its first-use notice explains what is kept. Open the recording status to stop it or clear history to recording Trash. WorkStation recording is separate and starts off. Use its menu-bar recording button or Settings › Recording Options… to review the explanation and enable it. On a phone, use Settings before enabling. This checkpoint uses a shared local profile: anyone using it shares its recording choice and history.
+
+Only structural actions, focus changes, supported navigation keys and redacted input lengths are captured. Typed text, passwords, chat/document contents, labels and full URLs are excluded. Unsupported pages may not record. These are lossy traces, not video or guaranteed replay. A recorder failure does not block messages or answers.
+
+History stays on the host with its project. WorkStation actions outside projects use separate storage. Limits: 7 days, 20 flows per bucket, 500 actions per flow, 50 actions and 64 KiB per delivered batch. A full flow stops saving and says so. Disabling preserves history; clearing moves it to recording Trash and invalidates late delivery. Reload starts a new flow when recording is enabled.
+
+The history browser, report/reproduction attachments and automatic context selection remain under implementation. This checkpoint never automatically sends recordings to Pi, publishes them or executes recorded actions.

@@ -1,6 +1,7 @@
 // The Preview (round 7, PreviewWindow card; boards P_Beside … P_Japanese): the project's own app, live, beside the chat.
 // One body with two homes: its own window to the right of the chat while the chat keeps 480px, else a third view of
 // the main window (Chat · Work · Preview ⌥⌘P). The harness runs the app (harness/preview.py); this file shows it.
+import { installRecording } from './recording.mjs';
 import { readState, writeState } from './ui.mjs';
 /* Task 304: the app runs in a sandboxed frame with its own origin (another port): scripts, forms, dialogs and links in a new tab work, but it can never navigate the workbench page itself (no top navigation). */
 export const APP_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads';
@@ -87,9 +88,10 @@ export function installPreview({ api, project, send, showView, view, working, on
     else await (await import('./dialogs.mjs')).ask({ icon: 'note', message: 'The app could not be opened on a phone.', detail: found.problem || '', danger: 'Cancel', safe: 'OK', plain: true });
     return null;
   }
-  const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
+  const recording = installRecording({ api, project, iframe, available: () => status.state === 'running' && !status.terminal && !REMOTE });
+  const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser);
   const themeNote = node('p', 'pw-preview__note pw-preview__note--theme', '◐ Showing the unsaved theme · Save or Discard in the chat'); themeNote.hidden = true;  // task 312, round 12
-  body.append(bar1, bar2, note, themeNote, stage,keys, foot);
+  body.append(bar1, bar2, note, themeNote, recording.notice, stage,keys, foot);
   // Task 312: the theme panel's changes go to the helper the Preview's proxy adds to the app (harness/theme-helper.js);
   // each page it loads says it is ready, and gets the panel's last changes again.
   let themeMaps = null;
@@ -155,7 +157,7 @@ export function installPreview({ api, project, send, showView, view, working, on
       if (fixing && status.state === 'running') fixing = false; // the reloader brought it back after Pi's fix
       if (fixing && status.state === 'stopped' && !(await working())) { fixing = false; status = await api('/api/preview/start', { project: current.id }); }
     } catch (error) { status = { state: 'none', kind: 'error', message: error.message }; }
-    draw();
+    draw(); void recording.refresh();
     if (visible()) timer = setTimeout(refresh, status.state === 'running' ? 2000 : 1000);
   }
   async function restart(){await stop();await start();}
@@ -188,8 +190,8 @@ export function installPreview({ api, project, send, showView, view, working, on
     // Ph8_Preview (round 8): on a phone the app takes the width; the foot is the state, Stop / Start and Open App. The app's
     // language moved to Preview's view menu (Ph8_PreviewMenu).
     const small = phoneScreen(); bar2.hidden = small;
-    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), openApp);
-    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(terminal?terminalSizes.element:sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
+    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, recording.status, node('span', 'pw-preview__gap'), openApp);
+    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(terminal?terminalSizes.element:sizes.element, languages.element); foot.replaceChildren(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
     const word = { running: 'Running', starting: 'Starting…', stopped: 'Stopped' }[status.state] || (status.stopped ? 'Stopped' : 'No app');
     state.replaceChildren(glyph(status.state === 'running' ? 'running' : status.state === 'starting' ? 'starting' : status.state === 'stopped' || status.stopped ? 'stopped' : 'none'), word);
     stopStart.textContent = running || status.state === 'starting' ? 'Stop' : 'Start';
@@ -245,6 +247,7 @@ export function installPreview({ api, project, send, showView, view, working, on
   // A project change: its own Preview state (open or closed, size, language, page). The first time a project has an
   // app, the Preview opens by itself, once (P_Answers).
   async function projectChanged() {
+    recording.changed();
     clearTimeout(timer); status = { state: 'none' }; lastNote = ''; loadedSrc = ''; fixing = false; asked = false;
     const current = project(); if (!current) { beside.hidden = true; return; }
     try { status = await api(`/api/preview?project=${encodeURIComponent(current.id)}`); } catch { status = { state: 'none' }; }

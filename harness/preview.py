@@ -90,7 +90,7 @@ HOP = {'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 
 def inject(page):
     """The helper's script tag at the top of an HTML page: in <head>, else after <html> or the doctype (never before
     the doctype, which would put the page in quirks mode)."""
-    tag = f'<script src="{HELPER_PATH}"></script>'.encode()
+    tag = f'<script src="{HELPER_PATH}"></script><script type="module" src="/__pi-workbench/recording.mjs"></script>'.encode()
     for pattern in (rb'<head\b[^>]*>', rb'<html\b[^>]*>', rb'<!doctype[^>]*>'):
         found = re.search(pattern, page, re.I)
         if found: return page[:found.end()] + tag + page[found.end():]
@@ -107,13 +107,22 @@ class Frame:
         from harness.theme import ALLOWED
         helper = HELPER.read_text(encoding='utf-8').replace('__ORIGINS__', json.dumps(list(origins))).replace('__TOKENS__', json.dumps(list(ALLOWED))).encode()
 
+        recording = Path(__file__).with_name('recording-helper.mjs').read_text().replace('__ORIGINS__', json.dumps(list(origins))).encode()
+        core = (Path(__file__).parent/'vendor/test_core_recording/recorder.mjs').read_bytes()
+
         class Handler(BaseHTTPRequestHandler):
             protocol_version = 'HTTP/1.0'  # one response per connection: a stream (server-sent events) ends when the app's does
             def log_message(self, *args): pass
             def relay(self):
                 from harness.preview_files import loopback
                 if not loopback(self.headers.get('Host')): self.send_error(403, 'This preview answers only on this computer'); return  # task 304: no DNS rebinding
-                if self.path.split('?', 1)[0] == HELPER_PATH:
+                resource = self.path.split('?', 1)[0]
+                if resource in ('/__pi-workbench/recording.mjs', '/__pi-workbench/recorder-core.mjs'):
+                    body = recording if resource.endswith('/recording.mjs') else core
+                    self.send_response(200); self.send_header('Content-Type', 'text/javascript; charset=utf-8'); self.send_header('Content-Length', str(len(body))); self.send_header('Cache-Control', 'no-store'); self.send_header('X-Content-Type-Options', 'nosniff'); self.end_headers()
+                    if self.command != 'HEAD': self.wfile.write(body)
+                    return
+                if resource == HELPER_PATH:
                     self.send_response(200); self.send_header('Content-Type', 'text/javascript; charset=utf-8'); self.send_header('Content-Length', str(len(helper)))
                     self.send_header('Cache-Control', 'no-store'); self.send_header('X-Content-Type-Options', 'nosniff'); self.end_headers(); self.wfile.write(helper); return
                 size = int(self.headers.get('Content-Length') or 0)

@@ -57,7 +57,7 @@ export function installRecorder({ post, root = globalThis.document, enabled = tr
   }
   const target = event => event.composedPath?.()[0] || event.target;
   for (const [type, kind] of [['click', 'click'], ['dblclick', 'doubleClick']]) listen(type, event => {
-    const element = target(event)?.closest?.('button,a,input,select,textarea,summary,[role],[tabindex]');
+    const element = target(event);
     const selectors = selectorsFor(element, root);
     if (selectors.length) {
       const rect = element.getBoundingClientRect();
@@ -70,9 +70,13 @@ export function installRecorder({ post, root = globalThis.document, enabled = tr
     const selectors = selectorsFor(element, root);
     if (selectors.length) push({ type: 'change', selectors, value: { redacted: true, length: [...String(element.value ?? element.textContent ?? '')].length } });
   });
-  listen('keydown', event => {
+  for (const [type, kind] of [['focusin', 'focus'], ['focusout', 'blur']]) listen(type, event => {
+    const selectors = selectorsFor(target(event), root);
+    if (selectors.length) push({ type: kind, selectors });
+  });
+  for (const [type, kind] of [['keydown', 'keyDown'], ['keyup', 'keyUp']]) listen(type, event => {
     if (event.isComposing || event.keyCode === 229 || isSecret(target(event)) || !KEYS.has(event.key)) return;
-    push({ type: 'keyDown', key: event.key }); push({ type: 'keyUp', key: event.key });
+    push({ type: kind, key: event.key });
   });
   return {
     flush,

@@ -210,8 +210,8 @@ class HelperTest(unittest.TestCase):
 
     def test_pages_get_the_helper_and_everything_else_passes_through(self):
         page = self.get('/')
-        self.assertIn(f'<head><script src="{HELPER_PATH}"></script><title>', page); self.assertEqual(self.get('/app.css'), 'body{}')
-        self.assertEqual(inject(b'<!doctype html><p>x'), b'<!doctype html><script src="' + HELPER_PATH.encode() + b'"></script><p>x', 'never before the doctype')
+        self.assertIn(f'<head><script src="{HELPER_PATH}"></script><script type="module" src="/__pi-workbench/recording.mjs"></script><title>', page); self.assertEqual(self.get('/app.css'), 'body{}')
+        self.assertEqual(inject(b'<!doctype html><p>x'), b'<!doctype html><script src="' + HELPER_PATH.encode() + b'"></script><script type="module" src="/__pi-workbench/recording.mjs"></script><p>x', 'never before the doctype')
 
     @unittest.skipUnless(shutil.which('node'), 'node runs the helper')
     def test_the_helper_refuses_other_origins_other_windows_and_unknown_tokens(self):

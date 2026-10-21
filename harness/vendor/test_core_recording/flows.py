@@ -50,7 +50,7 @@ def clean_flow(flow, *, max_steps=500):
             raise ValueError('Each recorded step must be an object.')
         kind = raw.get('type')
         step = {'type': kind}
-        if kind in ('click', 'doubleClick', 'hover', 'change', 'waitForElement'):
+        if kind in ('click', 'doubleClick', 'hover', 'change', 'waitForElement', 'focus', 'blur'):
             supplied = raw.get('selectors', [])
             if not isinstance(supplied, list):
                 continue
@@ -104,8 +104,8 @@ def convert(flow, *, target='python'):
         locator = f'page.locator({quote(step["selectors"][0][0])})' if 'selectors' in step else ''
         if kind == 'navigate':
             code = 'page.goto(base)' if py else 'await page.goto(baseURL);'
-        elif kind in ('click', 'doubleClick', 'hover', 'waitForElement'):
-            action = {'click': 'click', 'doubleClick': 'dblclick', 'hover': 'hover', 'waitForElement': 'wait_for' if py else 'waitFor'}[kind]
+        elif kind in ('click', 'doubleClick', 'hover', 'waitForElement', 'focus', 'blur'):
+            action = {'click': 'click', 'doubleClick': 'dblclick', 'hover': 'hover', 'focus': 'focus', 'blur': 'blur', 'waitForElement': 'wait_for' if py else 'waitFor'}[kind]
             code = f'{locator}.{action}()' if py else f'await {locator}.{action}();'
         elif kind == 'change':
             code = ('#' if py else '//') + ' Supply a synthetic value for the redacted input; never paste private text.'

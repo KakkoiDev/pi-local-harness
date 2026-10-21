@@ -17,13 +17,14 @@ DAY = 24 * 60 * 60
 
 
 class Recordings:
-    def __init__(self, root, *, clock=time.time):
+    def __init__(self, root, *, clock=time.time, default_enabled=True, shared_settings=False):
         self.root, self.clock = Path(root).resolve(), clock
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.default_enabled, self.shared_settings = default_enabled, shared_settings
 
     def directory(self, kind, project):
         if not isinstance(project, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,160}', project):
             raise ValueError('Invalid recording project.')
+        self.root.mkdir(parents=True, exist_ok=True)
         directory = self.root/kind/project
         for path in (self.root/kind, directory):
             if path.is_symlink(): raise ValueError('Recording directory must not be a link.')
@@ -33,7 +34,7 @@ class Recordings:
     @contextmanager
     def locked(self, project):
         directory = self.directory('recordings', project)
-        descriptor = os.open(directory/'.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+        descriptor = os.open((self.root if self.shared_settings else directory)/'.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         with os.fdopen(descriptor, 'r+') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             yield directory
@@ -54,15 +55,25 @@ class Recordings:
             json.dump(value, target, ensure_ascii=True); target.flush(); os.fsync(target.fileno())
         os.replace(temporary, path)
 
+    def settings_path(self, directory):
+        return (self.root if self.shared_settings else directory)/'settings.json'
+
+    def settings(self, directory):
+        path = self.settings_path(directory)
+        return self.read(path) if path.exists() or path.is_symlink() else {'enabled': self.default_enabled, 'generation': 0}
+
     def enabled(self, directory):
-        path = directory/'settings.json'
-        if not path.exists() and not path.is_symlink(): return True
-        return self.read(path).get('enabled') is True
+        return self.settings(directory).get('enabled') is True
 
     def set_enabled(self, project, value):
         if type(value) is not bool: raise ValueError('Recording needs an on or off value.')
         with self.locked(project) as directory:
-            self.write(directory/'settings.json', {'enabled': value})
+            settings = self.settings(directory)
+            self.write(self.settings_path(directory), {**settings, 'enabled': value, 'notice_seen': True, 'ever_enabled': settings.get('ever_enabled', False) or value, 'generation': settings.get('generation', 0)+1})
+
+    def dismiss_notice(self, project):
+        with self.locked(project) as directory:
+            self.write(self.settings_path(directory), {**self.settings(directory), 'notice_seen': True})
 
     def retire(self, project, path):
         trash = self.directory('recording-trash', project)
@@ -83,14 +94,32 @@ class Recordings:
             path, _ = flows.pop(0); self.retire(project, path)
         return [value for _, value in flows]
 
-    def append(self, project, flow):
+    def append(self, project, flow, *, flow_id=None, generation=None, session=None):
+        if not isinstance(flow, dict) or not isinstance(flow.get('steps'), list):
+            raise ValueError('Recording needs a list of actions.')
+        if generation is not None and len(flow['steps']) > 50:
+            raise ValueError('Recording batch exceeds 50 actions.')
         sanitized = clean_flow(flow, max_steps=500)
-        # Only the server assigns identity, time and project. Never preserve URL origins.
         sanitized['steps'] = [step for step in sanitized['steps'] if step['type'] != 'navigate']
+        if flow_id is not None and (not isinstance(flow_id, str) or not re.fullmatch(r'[0-9a-f]{32}', flow_id)):
+            raise ValueError('Invalid recording flow.')
         with self.locked(project) as directory:
+            settings = self.settings(directory)
             if not self.enabled(directory): return None
+            if generation is not None and (type(generation) is not int or generation != settings.get('generation', 0)):
+                return None
             if not sanitized['steps']: return None
-            value = {'id': uuid.uuid4().hex, 'at': self.clock(), 'steps': sanitized['steps']}
+            if flow_id:
+                path = directory/('flow-'+flow_id+'.json')
+                if not path.exists(): return None
+                value = self.read(path)
+                if value.get('generation', 0) != settings.get('generation', 0) or value.get('session') != session: return None
+                if value.get('truncated'): return value
+                room = max(0, 500-len(value['steps']))
+                value['steps'].extend(sanitized['steps'][:room])
+            else:
+                value = {'id': uuid.uuid4().hex, 'at': self.clock(), 'generation': settings.get('generation', 0), 'session': session, 'steps': sanitized['steps']}
+            value['truncated'] = len(value['steps']) >= 500
             self.write(directory/('flow-'+value['id']+'.json'), value)
             self.retained(project, directory)
             return value
@@ -107,8 +136,10 @@ class Recordings:
     def status(self, project):
         with self.locked(project) as directory:
             flows = self.retained(project, directory)
-            return {'enabled': self.enabled(directory), 'flows': len(flows), 'steps': sum(len(flow['steps']) for flow in flows)}
+            return {'enabled': self.enabled(directory), 'ever_enabled': self.settings(directory).get('ever_enabled') is True, 'notice_seen': self.settings(directory).get('notice_seen') is True, 'generation': self.settings(directory).get('generation', 0), 'flows': len(flows), 'steps': sum(len(flow['steps']) for flow in flows)}
 
     def clear(self, project):
         with self.locked(project) as directory:
+            settings = self.settings(directory)
+            self.write(self.settings_path(directory), {**settings, 'generation': settings.get('generation', 0)+1})
             for path in directory.glob('flow-*.json'): self.retire(project, path)
