@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Phone · Cancel Request failed at the request: nothing changed; Try Again</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -688,10 +688,13 @@
 
 /* Round 19 boards' attention items: the request line wraps in narrow Needs you columns (keyed on a round 19 modifier, so round 18 items are unchanged) */
 .pw-attn--r19 .pw-attn__req{white-space:normal;min-width:0}
-
-/* Inverse appearance: --selection-bg is resolved on :root, so the selected row uses the inverted tokens directly */
-[data-theme="dark"] .pw-prow--selected .pw-prow__main,[data-theme="dark"] .pw-prow--selected .pw-prow__main:hover{background:var(--ink);color:var(--paper)}
-[data-theme="dark"] .pw-prow--selected .pw-needs{background:var(--paper);color:var(--ink)}
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu" aria-label="View: Activity">Activity<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" id="agent-status" class="pw-statusbtn pw-statusbtn--attention" data-state="rest" aria-label="Agent status: 2 need you. Open Overview" style="margin-right: 4px"><span id="agent-state" role="status">2 need you</span></button></nav><div style="padding: 12px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-chrome); font-size: 16px"><p style="margin: 0; font-weight: 600">pi-local-harness · Request 14:20 · task 3 Stuck detection</p><p style="margin: 0; font-family: var(--font-text); font-size: 17px">Interrupted by a restart at 14:31.</p><div class="pw-reqstate" style="font-size: 16px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 .8 15.4 14.5H.6z" fill="none" stroke="currentColor"/><path d="M8 5.5v4.5M8 11.5v1.5" stroke="currentColor" stroke-width="1.5"/></svg><span class="pw-reqstate__text" role="status">Couldn’t cancel: Pi WorkStation didn’t confirm. The request is still interrupted; nothing else changed.</span></div><button class="pw-btn pw-btn--touch">Try Again</button><button class="pw-btn pw-btn--touch">Ask Pi to Retry…</button></div></div>

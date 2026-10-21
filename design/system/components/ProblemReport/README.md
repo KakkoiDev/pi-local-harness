@@ -115,3 +115,12 @@ Who may invoke: the signed-in person with access to the project; Submit also nee
 1. **Redacted text first** · Given a report with Preview and WorkStation flows · When “Submit to GitHub…” · Then the exact text shows with “(text not recorded)” marks, the public repository is named, Cancel is the default.
 2. **Reproduce both, Done** · Given a draft and a waiting question · When “Record It Again…”, “Start Recording”, “Done” · Then two new flows are attached unsent; the question still waits.
 3. **Clear by scope, restore** · When “Clear…” on Class Notes · WorkStation, “Move to Trash”, then “Restore” · Then the flows return, recording is not restarted, sent copies were never touched.
+
+### Follow-up decisions (21 Oct)
+
+Decisions 8, 10 and 11. Boards: R19_RecLimits, R19_RecIdentity, R19_RecTestDrafts.
+
+- Record It Again… starts a **new flow per surface** (decision 8 allows a reproduction to start one); it never extends a full flow. If the current flow is full, the evidence row reads “Truncated · 500 steps” and Record It Again… is the way to get the later steps.
+- The report's evidence rows and the external payload show gaps and truncation as recorded (“Some steps couldn't be kept (too many at once). Recording continues.”, “Truncated · 500 steps”); nothing is filled in.
+- Reports belong to the identity that made them (decision 10): a shared-profile draft is visible to anyone using that profile, and the dialog's destination line adds “From: Shared profile on this computer”. Switching identity keeps saved drafts with their identity; an open, unsaved report dialog is closed with the switch (its text is not carried across).
+- Save as Test Draft… from a report: only when every included flow is Preview-only (decision 11); otherwise absent, with “Test drafts are available for Preview steps only.”

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Phone · A9 · Trash as its own screen (from Earlier Conversations… › Trash); detail and Restore as on the desk</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -849,6 +849,23 @@
   .pw-trash__m,.pw-trash__note,.pw-trash__ro,.pw-trash__status{font-size:14px;line-height:18px}
   .pw-trash__status .pw-btn{min-height:44px;font-size:15px}
 }
+
+/* ---- Round 19 follow-up (21 Oct, decisions 1–4, 13): additive only ---- */
+/* Unsaved help line under the draft; Not saved + Retry on a version row */
+.pw-draftv__help{margin:0;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-draftv__row[data-state="failed"] .pw-draftv__state{border-width:2px;font-weight:600}
+.pw-draftv--ro .pw-draftv__row{padding-bottom:8px}
+/* Trash: a notice at the top of a detail (deleted in another window; restore failed) */
+.pw-trash__notice{margin:0;display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-trash__notice p{margin:0}
+.pw-trash__notice b{font-weight:600}
+/* Trash: the Removed projects group (read only) */
+.pw-trash__item[aria-disabled="true"] .pw-trash__m{font-style:italic}
+.pw-trash__why{margin:0;font-size:12px;line-height:16px}
+@media (max-width: 759px){
+  .pw-draftv__help{font-size:14px;line-height:18px}
+  .pw-trash__notice{font-size:15px;line-height:20px;padding:10px 16px}
+}
 /* ---- 2026-10-21 · Round 19 C (decided, owner-delegated): project chat — conversation title + actions, @ list states, resend rechecks, receipts without provenance ---- */
 /* Only new classes; no existing class is redefined. Tokens only, 1-bit; Inverse via [data-theme="dark"] tokens. Reuses B's .pw-convoact, .pw-convo__*, .pw-convorow*, .pw-trash*, .pw-draftv* as is. */
 
@@ -872,11 +889,28 @@
 /* "asked again from 14:31" link on a resent message */
 .pw-msg__link{font-family:var(--font-chrome);font-size:13px}
 
+/* ---- Round 19 follow-up (21 Oct, decision 7): the phone title row under the PhoneBar ---- */
+.pw-chattitle__row{flex:none;display:flex;padding:0;border-bottom:1px solid var(--ink);background:var(--paper)}
+.pw-chattitle__btn{font:inherit;font-family:var(--font-chrome);font-size:15px;line-height:20px;color:var(--ink);background:none;border:0;min-height:44px;width:100%;min-width:0;display:flex;align-items:center;gap:8px;padding:0 16px;text-align:left;cursor:default}
+.pw-chattitle__btn>svg{flex:none;margin-left:auto}
+.pw-chattitle__btn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-chattitle__btn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.pw-chattitle__sheethead{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pw-chattitle__sub{margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-chattitle__full{white-space:normal;overflow-wrap:anywhere}
+
 @media (max-width: 759px){
   .pw-chattitle{font-size:15px}
   .pw-atlist__scroll{max-height:220px}
   .pw-rcpt-none{font-size:14px;padding:6px 8px}
 }
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: Ready. Open Activity" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span role="status">Ready</span></button></nav><div style="flex: 1; min-height: 0; display: flex; flex-direction: column"><section class="pw-trash" aria-labelledby="pptr-h"><div class="pw-trash__head"><button type="button" class="pw-btn">‹ Conversations</button><h3 class="pw-trash__title" id="pptr-h">Trash</h3></div><div class="pw-trash__body"><p class="pw-trash__note">Deleted conversations and draft versions stay here until you restore them.</p><h4 class="pw-trash__sub" id="pptr-c">Conversations · 1</h4><ul class="pw-trash__list" aria-labelledby="pptr-c"><li><button type="button" class="pw-trash__item"><span class="pw-trash__t">Conversation · 13 Oct 09:12</span><span class="pw-trash__m">deleted Today 15:20 · 14 messages</span></button></li></ul><h4 class="pw-trash__sub" id="pptr-d">Draft versions · 1</h4><ul class="pw-trash__list" aria-labelledby="pptr-d"><li><button type="button" class="pw-trash__item"><span class="pw-trash__t">Draft version · iPhone · saved 14:55</span><span class="pw-trash__m">Conversation · 21 Oct 09:12 · discarded Today 15:02</span></button></li></ul></div></section></div></div>

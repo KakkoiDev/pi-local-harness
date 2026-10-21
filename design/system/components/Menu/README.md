@@ -36,3 +36,9 @@ Decided (round 19, A6). The File menu in Overview (preview block) has three stat
 - Pong selected in another window: "New Task in Pong…".
 
 Disabled items keep `.pw-menu__note` reasons linked by `aria-describedby`. Board: R19_OverviewSelection.
+
+### Follow-up decisions (21 Oct)
+
+Decision 5. The stale File menu item reads "New Task in Class Notes…", disabled, with the `.pw-menu__note` "Reconnect to add a task. The selection is checked again first." (board R19_OverviewSelection).
+
+Decision 4. The Project menu keeps Remove from List… (round 8), which now opens the revised confirmation (board R19_ProjectRemove).

@@ -100,3 +100,12 @@ Attach recordings opens with focus on the first checkbox; Cancel/Esc returns to 
 1. **Outside never auto-attaches** · Given Overview steps from 14:18 and Class Notes steps from 14:20 · When “The Add button didn't work.” is sent in Class Notes · Then only Class Notes' flows are attached.
 2. **Deliberate mixed selection** · When “Attach recordings”, check “This window · Overview”, “Attach to Draft” · Then the draft shows three chips and nothing is sent.
 3. **Remove before / after** · as above; after Send the note says it can't be taken back.
+
+### Follow-up decisions (21 Oct)
+
+Decisions 8 and 11. Boards: R19_RecLimits, R19_RecTestDrafts.
+
+- **Gap from an oversized batch (8):** a batch over 50 events or 64 KiB is rejected whole by the host; the step list shows `p.pw-flow__gap` “{from}–{to} · Some steps couldn't be kept (too many at once). Recording continues.” (JA “一度に多すぎたため、一部の操作を残せませんでした。記録は続いています。”) and later steps continue under it with continuous numbering. **Full flow:** the last line reads “Truncated · 500 steps: this flow is full since 14:29. Later steps in it were not kept; the first 500 are all here.” (JA “打ち切り · 500 ステップ”). Earlier steps are never evicted.
+- **Test drafts (11):** Save as Test Draft… appears only on a flow whose steps all come from the Preview. On a mixed or WorkStation-only flow the button is **absent** (not disabled) and the flow's details say “Test drafts are available for Preview steps only.” (JA “テストの下書きは Preview の操作だけで作れます。”). Such flows stay inspectable and attachable. Test drafts fail until an outcome is written, follow the phase gates (Discussion: disabled, round 15 reason) and never replay anything; a capture is never a passing test. Superseded: round 19's line “Save as Test Draft… still writes a failing draft…” applies to Preview-only flows only.
+
+Focus: unchanged (the absent button simply isn't in the Tab order). Walkthrough: **Mixed flow** · Given a flow with Preview and WorkStation steps · When it opens · Then no Save as Test Draft…, and the reason line shows. **Gap then capture** · Given an oversized batch at 14:20:11 · Then the gap line shows and steps 4–6 follow it.

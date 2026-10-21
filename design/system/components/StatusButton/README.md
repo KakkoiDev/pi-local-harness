@@ -61,8 +61,8 @@ Decided in round 19 (owner-delegated, 21 Oct 2026; brief design/briefs/round-19-
 
 **Rules**
 - " · {n} need you" is appended only for decisions; services are never counted.
-- The accessible name lists each failing operation, e.g. "Agent status: can’t run work, 2 services stopped: studio.local not reachable, Gate stopped, 2 need you. Open Overview".
-- The selected provider is whichever provider generation uses (local Ollama or remote, e.g. studio.local), from System 1 health records.
+- The accessible name lists each failing operation, e.g. "Agent status: can’t run work, 2 services stopped: Studio Mac not reachable, Gate stopped, 2 need you. Open Overview".
+- The selected provider is whichever provider generation uses (local Ollama or remote, e.g. Studio Mac), from System 1 health records.
 - Partial recovery drops to the remaining words, with one "{service}: running again".
 - Phone: the words wrap to two lines inside the 44 px button.
 
@@ -76,3 +76,15 @@ Decided in round 19 (owner-delegated, 21 Oct 2026; brief design/briefs/round-19-
 - Conflict: N/A.
 
 **Who may invoke:** any signed-in person (it opens Overview).
+
+### Follow-up decisions (21 Oct)
+
+Decision 6: provider names.
+- Status and accessible names use the provider's configured, non-secret name, e.g. "Can’t run work · Studio Mac not reachable".
+- With no configured name, they use the fallback "Model provider" (JA モデルプロバイダー): "Can’t run work · Model provider not reachable".
+- Never a host name, URL, port, query or credential. Configured names are rendered as text, never markup.
+- Who may invoke: N/A (display). Persistence: provider record on the host. Focus: unchanged.
+
+Decision 5: while Overview is not connected, "Connection interrupted" wins and no cached health is shown as current.
+
+Given/When/Then: Given the selected provider is named Studio Mac and stops answering, Then the button reads "Can’t run work · Studio Mac not reachable"; with no name, "Can’t run work · Model provider not reachable". Board: R19_ServiceHealth.

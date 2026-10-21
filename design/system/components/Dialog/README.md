@@ -37,3 +37,23 @@ A Note alert “A new version of Pi Workbench is ready”, the versions, up to 2
 ## Round 18: `.pw-dialog__head`
 
 A dialog whose body is edge to edge (VisualResult's Inspect, `padding: 0` on `.pw-dialog`) puts its title in `div.pw-dialog__head`: a flex row, 10 px × 14 px padding, a 1 px ink rule below, gap `--space-2`; `.pw-dialog__title` inside it takes the remaining width and loses its margin; buttons (Close) follow the title. Ordinary padded dialogs keep `.pw-dialog__title` directly, unchanged. Defined in `scripts/round18_fix.css` (end of the bundle); nothing global changes.
+
+## Round 19 follow-up (decided, 21 Oct 2026: decision 4)
+
+**Remove from List…** is a Note alert, opened from Project › Remove from List… or the row's ⋯ in Projects; on the phone it is a sheet.
+- Title: "Remove “Class Notes” from the list?" (JA 「Class Notes」を一覧から外しますか？)
+- Body: "The folder stays on your Mac with its files; nothing is moved or deleted. Pi WorkStation keeps its conversations and their Trash with this project. Add the same folder again with Add Existing Folder… to connect them again." (JA フォルダとファイルはこの Mac にそのまま残り、移動も削除もされません。Pi WorkStation はこのプロジェクトの会話とそのゴミ箱を保持します。同じフォルダを「既存のフォルダを追加…」でもう一度追加すると、再びつながります。)
+- Buttons: Cancel · **Remove** (default; JA 外す). Escape is Cancel.
+- After Remove: the toast "Removed “Class Notes” from the list." + Undo ⌘Z (round 8). Focus moves to the next project row.
+
+**Rules**
+- Never moves or deletes the folder.
+- The retained records are keyed by the stable project id, with removal metadata, on the host.
+- Add Existing Folder… reconnects them only for the same recorded id: "Class Notes was here before. Its earlier conversations and Trash are connected again." A reused name or path is not identity: "A different project used this name before. Its history isn’t connected."
+- Revoked access stays withheld.
+
+**Who may invoke:** the project's owner. **Cancellation:** Cancel or Escape; Undo after Remove.
+
+**Given/When/Then:** Given Class Notes is removed and its folder is added again with the same recorded id, Then its earlier conversations and Trash are connected again. Given a new folder with the same name but no matching id, Then the history is not connected.
+
+Boards: R19_ProjectRemove, Ph19_ProjectRemove. JA has not been reviewed by a native speaker.

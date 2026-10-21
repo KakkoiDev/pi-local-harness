@@ -58,3 +58,13 @@ Decided (round 19, A6).
 - **Conversation commands** never go in the Agent or view menus (round 9). They live in the conversation's own ⋯ menu (workers B and C).
 
 Board: R19_OverviewSelection.
+
+### Follow-up decisions (21 Oct)
+
+Decision 5. While Overview is not connected, File › "New Task in Class Notes…" stays disabled with "Reconnect to add a task. The selection is checked again first.". On reconnect it is revalidated before it is enabled.
+
+Decision 4. Project › **Remove from List…** asks first (see Dialog § Round 19 follow-up). File › **Add Existing Folder…** reconnects the retained history only when the folder's recorded project id matches; the result is a polite status:
+- "Class Notes was here before. Its earlier conversations and Trash are connected again."
+- "A different project used this name before. Its history isn’t connected."
+
+Boards: R19_OverviewSelection, R19_ProjectRemove.

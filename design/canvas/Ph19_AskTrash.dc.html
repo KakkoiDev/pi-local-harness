@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Phone · A9 · Trash as its own screen: 56 px items; detail and Restore as on the desk</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -845,6 +845,30 @@
   .pw-trash__m,.pw-trash__note,.pw-trash__ro,.pw-trash__status{font-size:14px;line-height:18px}
   .pw-trash__status .pw-btn{min-height:44px;font-size:15px}
 }
+
+/* ---- Round 19 follow-up (21 Oct, decisions 1–4, 13): additive only ---- */
+/* Unsaved help line under the draft; Not saved + Retry on a version row */
+.pw-draftv__help{margin:0;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-draftv__row[data-state="failed"] .pw-draftv__state{border-width:2px;font-weight:600}
+.pw-draftv--ro .pw-draftv__row{padding-bottom:8px}
+/* Trash: a notice at the top of a detail (deleted in another window; restore failed) */
+.pw-trash__notice{margin:0;display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-trash__notice p{margin:0}
+.pw-trash__notice b{font-weight:600}
+/* Trash: the Removed projects group (read only) */
+.pw-trash__item[aria-disabled="true"] .pw-trash__m{font-style:italic}
+.pw-trash__why{margin:0;font-size:12px;line-height:16px}
+@media (max-width: 759px){
+  .pw-draftv__help{font-size:14px;line-height:18px}
+  .pw-trash__notice{font-size:15px;line-height:20px;padding:10px 16px}
+}
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><a href="#" class="pw-phonebar__btn" style="text-decoration: none"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M10.5 2.5 5 8l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Overview</a><span style="flex: 1"></span><button type="button" class="pw-statusbtn" aria-label="Agent status: 2 need you, working on Class Notes. Open Overview" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor"/><path d="M5.8 6.2a2.2 2.2 0 1 1 3 2c-.6.3-.8.7-.8 1.3v.5M8 11.6v1.4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span role="status">2 need you</span></button></nav><section class="pw-ask" aria-label="Ask across projects" style="flex: 1; min-height: 0; border: 0; display: flex; flex-direction: column"><section class="pw-trash" aria-labelledby="tr-h"><div class="pw-trash__head"><button type="button" class="pw-btn">‹ Conversations</button><h3 class="pw-trash__title" id="tr-h">Trash</h3></div><div class="pw-trash__body"><p class="pw-trash__note">Deleted conversations and draft versions stay here until you restore them.</p><h4 class="pw-trash__sub" id="tr-c">Conversations · 2</h4><ul class="pw-trash__list" aria-labelledby="tr-c"><li><button type="button" class="pw-trash__item"><span class="pw-trash__t">Offline sync across apps</span><span class="pw-trash__m">All projects (5) · deleted Today 15:20 · 4 messages</span></button></li><li><button type="button" class="pw-trash__item"><span class="pw-trash__t">Conversation · 20 Oct 10:02</span><span class="pw-trash__m">deleted Yesterday 09:12 · 2 messages</span></button></li></ul><h4 class="pw-trash__sub" id="tr-d">Draft versions · 1</h4><ul class="pw-trash__list" aria-labelledby="tr-d"><li><button type="button" class="pw-trash__item"><span class="pw-trash__t">Draft version · iPhone · saved 14:55</span><span class="pw-trash__m">Conflicts in two apps · discarded Today 15:02</span></button></li></ul></div></section></section></div>

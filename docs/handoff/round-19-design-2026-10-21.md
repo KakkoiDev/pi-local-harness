@@ -2,127 +2,132 @@
 
 Design only. Nothing here has been implemented, and no runtime behaviour has been tested. A clean design review is not evidence that the behaviour exists.
 
-The decision record is [round-19-final-integration](../../design/briefs/round-19-final-integration.md) (21 Oct 2026, owner-delegated). It settles the ten round 18 addendum questions and the language rule (section A), and approves user-journey recording on Pi WorkStation and the Preview (section B). It supersedes conflicting addendum proposals (`64dad882`). The Constitution and the twenty round 17 decisions in [plan 360](../plans/360-round-17-product-decisions.md) remain authoritative.
+## Decision records (owner-delegated, 21 Oct 2026)
 
-The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19". It holds the coverage matrices for sections A–C, the per-part states tables, who may invoke each action, persistence boundaries, cancellation, focus destinations, keyboard, responsive behaviour, exact EN/JA, the changed-text lists, data contracts and Given/When/Then journeys.
+- [round-19-final-integration](../../design/briefs/round-19-final-integration.md):
+  - Section A settles the ten round 18 addendum questions and the language rule.
+  - Section B approves user-journey recording on Pi WorkStation and the Preview.
+  - Section C lists the 14 acceptance groups.
+- [round-19-follow-up-decisions](../../design/briefs/round-19-follow-up-decisions.md): decisions 1–15 close every gap reported after `01070dd1`.
 
-## Status of earlier proposals
+These supersede conflicting round 18 addendum proposals (`64dad882`). The Constitution and the twenty round 17 decisions in [plan 360](../plans/360-round-17-product-decisions.md) remain authoritative.
+
+The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19". It holds:
+
+- the A–C coverage matrices, and the 1–15 decision map;
+- per-part states, who may invoke each action, persistence, cancellation and focus destinations;
+- keyboard, responsive behaviour and exact EN/JA;
+- changed text, implementation dependencies and Given/When/Then journeys.
+
+## Canvases
+
+| Canvas | Manifest | Holds |
+| --- | --- | --- |
+| Pi Workbench — Desktop Interface | `design/canvas/canvas.json` | Rounds up to 18 and the round 18 addendum (484 boards). **Not synchronized with round 19.** |
+| Pi WorkStation — Round 19 onward | `design/canvas/canvas-round19.json` | Round 19 (61 boards), in four pages |
+
+`design/canvas/INDEX.md` lists both, with their links. Every board file stays in `design/canvas/`. Nothing was deleted or pruned from the first canvas. Its only changes this pass are the six R18A_Ask* boards with duplicate ids fixed and the earlier retitling.
+
+## Status
 
 | Item | Status |
 | --- | --- |
-| Round 18 addendum Q1–Q10 and Delete Conversation | **Decided** in round 19 (A1–A10). The addendum boards are retitled "Settled in round 19 (A*n*)" or "Superseded by round 19 (A*n*), see R19_…"; their Alternative cells read "Not chosen (round 19)" |
-| Addendum placement of Delete Conversation in Agent and phone Chat ▾ | **Withdrawn**: round 9 keeps conversation commands out of those menus. Ph18A_ConversationMenu is kept for history and marked superseded |
-| Recording (round 15 RecordingStatus, FlowAttachment, ProblemReport) | **Extended** for WorkStation and Preview (section B); the new RecordingHistory card was added |
-| Japanese | 議論 / 計画 / 実装; キャンセル for cancel; 取り消し only for undo. Not reviewed by a native speaker |
+| Round 18 addendum Q1–Q10 and Delete Conversation | Decided in round 19 (A1–A10). The addendum boards are retitled "Settled" or "Superseded"; their alternatives read "Not chosen (round 19)". |
+| Gaps reported after `01070dd1` | Decided by follow-up decisions 1–15. The obsolete "Gap → recommendation" labels are replaced by the decided rules in the cards and the spec. |
+| Delete Conversation in the Agent or phone Chat ▾ menu | Withdrawn (round 9). Ph18A_ConversationMenu is kept for history and marked superseded. |
+| Japanese | 議論 / 計画 / 実装; キャンセル for cancel; 取り消し only for undo; 元に戻す for restore. **No native-speaker review has taken place.** |
 
-## Changed files
+## Follow-up decisions → boards
 
-- `design/briefs/round-19-final-integration.md`: the decision record, as supplied.
-- `design/canvas/`:
-  - 47 new boards (33 `R19_`, 14 `Ph19_`) on the page "Round 19: final design integration".
-  - The 28 round 18 addendum boards, retitled and partly revised.
-  - `canvas.json`.
-- `design/system/components/`:
-  - New cards: DraftVersions, ConversationTrash, RecordingHistory.
-  - New "Round 19" sections in StatusButton, WorkOverview, AttentionItem, MenuBar, Menu, PhoneBar, ConversationList, SearchScope, SourceList, Composer, Message, ContextReceipt, CompactionMarker, ContextLine, RecordingStatus, FlowAttachment and ProblemReport.
-  - Previews updated where the look changes.
-  - `bundle.css`.
-- `design/components.css`: the `round19_a`…`round19_d` CSS appended. All of it is new classes or modifiers; nothing is redefined.
-- `design/system/design-system.json`, `design/IMPLEMENTATION.md`, `design/README.md`, `docs/handoff/round-18-addendum-2026-10-21.md` (status updated) and this file.
-
-## Coverage: the 14 acceptance groups
-
-| # | Boards (journeys) | Components |
+| # | Boards | Components |
 | --- | --- | --- |
-| 1 | R19_ServiceHealth, Ph19_ServiceHealth (R19_OverviewWalk) | StatusButton, WorkOverview |
-| 2 | R19_AskScope, R19_AskRevoked (R19_AskWalk) | SearchScope, SourceList |
-| 3 | R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline (R19_AskWalk) | DraftVersions |
-| 4 | R19_AskActions, R19_AskTrash, Ph19_AskActions, Ph19_AskTrash, R19_ProjectChatActions, Ph19_ProjectChatActions, Ph19_ProjectChatTrash (R19_AskWalk, R19_ProjectChatWalk) | ConversationList, ConversationTrash, Message |
-| 5 | R19_OverviewSelection (R19_OverviewWalk) | WorkOverview, Menu, MenuBar |
-| 6 | R19_ProjectMention, Ph19_ProjectMention (R19_ProjectChatWalk) | Composer |
-| 7 | R19_ProjectChatResend, R19_AskResend (R19_ProjectChatWalk, R19_AskWalk) | ContextReceipt, SearchScope |
-| 8 | R19_ProjectChatReceipts (R19_ProjectChatWalk) | ContextReceipt, CompactionMarker |
-| 9 | R19_RecFirstUse, R19_RecControl, R19_RecStop, Ph19_RecFirstUse, Ph19_RecStatus (R19_RecWalk) | RecordingStatus |
-| 10 | R19_RecCoverage (R19_RecWalk) | RecordingStatus, FlowAttachment |
-| 11 | R19_RecSessions, R19_RecStates (R19_RecWalk) | RecordingStatus, RecordingHistory |
-| 12 | R19_RecStates (R19_RecWalk) | RecordingStatus |
-| 13 | R19_RecHistory, R19_RecAttach, R19_RecEvidence, Ph19_RecAttach, Ph19_RecReport (R19_RecWalk) | FlowAttachment, ProblemReport, RecordingHistory |
-| 14 | 320, 1024 and dark (Inverse) cells across all parts; R19_Rec1024, R19_RecResponsive; all four walkthroughs | all |
+| 1 Unsaved | R19_AskUnsaved, R19_AskDrafts, Ph19_AskOffline, R19_ProjectChatUnsaved | DraftVersions, Composer |
+| 2 Not saved / Retry | R19_AskUnsaved, R19_ProjectChatUnsaved | DraftVersions, Composer |
+| 3 Deleted in another window | R19_AskRemote, Ph19_AskRemote, R19_ProjectChatUnsaved, Ph19_ProjectChatDeleted | ConversationTrash, DraftVersions, Composer |
+| 4 Project removed or re-registered | R19_ProjectRemove, Ph19_ProjectRemove, R19_AskRemoved | Dialog, Menu, ConversationTrash |
+| 5 Stale selection | R19_OverviewSelection, R19_ServiceHealth | WorkOverview, Menu, MenuBar |
+| 6 Provider names | R19_ServiceHealth, Ph19_ServiceHealth | StatusButton, WorkOverview |
+| 7 Phone title row | R19_PhoneTitleRow, Ph19_ProjectChatActions | Message, ConversationList |
+| 8 Recorder limits | R19_RecLimits, R19_RecStates, R19_RecHistory | RecordingStatus, RecordingHistory, FlowAttachment |
+| 9 Phone opt-in | Ph19_RecOptIn, Ph19_RecSettings, R19_RecIdentity | RecordingStatus |
+| 10 Identity, shared profile | R19_RecIdentity | RecordingStatus, RecordingHistory |
+| 11 Preview-only test drafts | R19_RecTestDrafts, R19_RecHistory | FlowAttachment, RecordingHistory |
+| 12 Theme wrappers, duplicate ids | Dark and light cells on R19_OverviewSelection, R19_AskRemoved, R19_PhoneTitleRow, R19_ProjectChatUnsaved and R19_RecResponsive; the six R18A_Ask* boards | All, via `round19_theme.css` |
+| 13 Restore copy | R19_AskRemote, R19_AskTrash, R19_ProjectChatUnsaved | ConversationTrash, ContextReceipt |
+| 14 Second canvas | `canvas-round19.json`, INDEX.md | — |
+| 15 @ in comments deferred | R19_ProjectMention (note) | Composer |
 
-Exact strings are on R19_OverviewStrings, R19_AskStrings, R19_ProjectChatStrings and R19_RecStrings.
+The 14 acceptance groups map to boards in the IMPLEMENTATION.md matrix. Strings are on R19_OverviewStrings, R19_AskStrings, R19_ProjectChatStrings and R19_RecStrings. Journeys are on R19_OverviewWalk, R19_AskWalk, R19_ProjectChatWalk and R19_RecWalk.
 
-## Implementation dependencies (behaviour specified; data or services missing)
+## Changed files (this pass)
 
-- **Service health:** a per-operation record `{service_id, display_name, operation, kind, state, since, last_checked_at, stale_after}`, plus a read-only probe that is coalesced while pending and pushed to every window. The attention count covers decisions only.
-- **Scope and access:** scope stored as project ids; authorization rechecked at display, at queued dispatch, at citation opening, at restore and at retry. Per-answer provenance `used_project_ids[]`, a loss reason `removed_by_owner | access_ended`, and `title_hidden`. Generated content without provenance is withheld.
-- **Drafts:** a revision-checked store per person and conversation, holding versions labelled by source, save time and state. It pushes to open windows, keeps discarded versions in Trash, never expires them, and never falls back to browser storage.
-- **Conversation Trash:**
-  - Delete and restore are transactional over messages, receipts and draft versions, and preserve ids and links.
-  - Restore is idempotent, detects link conflicts, and rechecks access.
-  - An active-work query refuses deletion and powers Show Request.
-- **Overview:**
-  - Create-task carries `project_id` and is revalidated by the host (`project_unavailable`).
-  - Cancel is idempotent by request id (`cancelled`, `already_finished`, `already_cancelled`, `error`).
-  - The New marker is client-side, per window.
-- **Project chat:**
-  - Authorized project list for the @ list.
-  - A deterministic EN/JA reference rule on the host, used only for the boundary notice.
-  - A submission recheck of phase, plan waiting and access.
-  - `resend_of` linking.
-  - Receipts untouched by compaction; `receipt: none` for older messages.
+- **Decision record:** `design/briefs/round-19-follow-up-decisions.md` (as supplied, with a note on where its references live).
+- **`design/canvas/`:**
+  - 14 new round 19 boards. The other 47 were updated: all of them now load `round19_theme.css` and link the second canvas's stylesheet copy, and several carry the follow-up content.
+  - The six R18A_Ask* boards with duplicate ids fixed.
+  - `canvas.json`, now the first canvas's manifest again, without round 19.
+  - `canvas-round19.json` (new), `INDEX.md` (new) and `_blob/6b8d723e397cc49af3680173bfa74436.css`, a copy of the shared stylesheet under the second canvas's id.
+- **`design/system/components/`:** follow-up sections in DraftVersions, ConversationTrash, ConversationList, Composer, Message, ContextReceipt, StatusButton, WorkOverview, Menu, MenuBar, Dialog, RecordingStatus, RecordingHistory, FlowAttachment and ProblemReport, with their previews.
+- **CSS:** `bundle.css` and `design/components.css` carry the `round19_*` blocks and the new `round19_theme` block.
+- **Other:** `design-system.json`, `design/IMPLEMENTATION.md`, `design/README.md` and this file.
+
+## Implementation dependencies (behaviour specified; to build)
+
+- **Drafts:** a host draft store with revisions and versions, and one save in flight per draft. Late acknowledgements are matched to their revision, and a newer remote save becomes a conflict. Unsaved state is client-side, with `beforeunload` only while it exists. No browser persistence.
+- **Trash:**
+  - A conversation-deleted event pushed to open windows; late saves are refused for a trashed conversation.
+  - Unsaved text kept as a draft version attached to the trashed conversation.
+  - Transactional restore, with failure leaving the Trash item and its drafts intact.
+- **Projects:**
+  - A stable project id recorded with the folder.
+  - Retained conversations and Trash keyed by that id, with removal metadata.
+  - An identity comparison on Add Existing Folder…; names and paths are never trusted.
+  - Access checks still applied to retained data.
+- **Overview and status:**
+  - The selection is kept per window with a staleness time and revalidated on reconnect and at submission.
+  - Cached health is shown with its time.
+  - A configured, non-secret provider display name, with the fallback "Model provider".
 - **Recording:**
-  - A per-person recording choice on the host.
-  - Session records with token and bucket, rotated at the defined boundaries.
-  - Batch validation that rejects late, ended and spoofed batches, plus bridge origin/source checks.
-  - Host-side normalization and redaction; coverage and truncation fields.
-  - Attachment records; Trash for cleared flows.
-  - A server-rendered external report payload whose confirmed hash must match what is sent.
-  - A mirrored state stream to every window.
+  - Host counters and atomic validation of the 500/50/64 KiB limits before any write.
+  - Rejections reported so the gap can be drawn, and `truncated_at` set on full flows.
+  - Consent stored per authenticated person or per shared local profile, mirrored to that person's windows.
+  - A profile or session switch closes capture and clears client buffers.
+  - Test-draft generation offered only for Preview-only flows.
 
-## Checks run
+These are implementation work for behaviour already decided. They are not product questions.
 
-- **HTML and classes:** nesting and `pw-` class definitions on all 47 round 19 boards, the 28 revised addendum boards and every card preview: 0 problems, 0 undefined classes.
-- **CSS isolation:** no round 19 rule redefines an existing class, and no class is shared between the four round 19 CSS files.
-- **Duplicate ids:** none on round 19 boards. Six revised `R18A_Ask*` boards repeat ids across their multi-cell drawings; this was already the case in the addendum.
-- **References and labels:** every board reference exists; no "awaiting approval" text is left on addendum boards; no personal names in round 19 samples (Aiko's MacBook is used as the host example).
-- **Renders:** desk, 1024, 320, phone and dark cells, plus the new and changed previews.
+## Static design checks that ran
+
+- **HTML and classes:** nesting and `pw-` class definitions on all 61 round 19 boards, the 28 addendum boards and every card preview: 0 problems, 0 undefined classes.
+- **CSS isolation:** no round 19 rule redefines an existing class. `round19_theme.css` only re-derives two tokens on theme wrappers, which compute identically on `<html>`, so app rendering is unchanged.
+- **Duplicate ids:** none on round 19 or addendum boards. PhaseControl and PreviewWindow previews, which were not touched this round, still repeat an id across their state samples.
+- **References:** board references, both manifests and INDEX.md agree.
+- **Renders:** desk, 1024, 320, phone, and dark and light wrappers on the new and changed boards and previews.
 - **Tests:** `python3 -m unittest tests.test_design_brand tests.test_frontend tests.test_web_robustness`.
 
-## Unverified until the built app is tested
+## Runtime behaviour still unverified (needs the built app)
 
-- Real autosave and revision checks.
-- Cross-window timing and mirroring.
-- Screen-reader output.
-- Browser focus restoration.
-- IME composition and caret anchoring.
-- Touch-keyboard viewport behaviour.
-- Preview bridge security (origin, source, token).
+- Autosave timing, revision checks and late acknowledgements.
+- The browser leave-page warning, and mobile page eviction (documented as a limitation).
+- Cross-window deletion events and consent mirroring.
+- Host enforcement of the recorder limits and atomic rejection.
+- Profile and session switching.
+- Preview bridge security.
 - Capture coverage and key-up fidelity per browser.
-- Late-batch rejection timing.
-- Storage-full behaviour.
-- Reduced motion and safe areas.
-- The Japanese wording, which has had no native-speaker review.
+- IME composition and caret anchoring.
+- Screen-reader output, focus restoration, reduced motion and safe areas.
+- Theme wrappers in the built app.
 
-## Newly discovered gaps (recommendations only; not adopted)
+## Genuinely new ambiguities (recommendations; not adopted)
 
-1. **Offline typing lost when a window closes.** Unsaved typing can be lost if the window is closed while offline, because browser storage is excluded. Recommend a native "leave page" warning while Unsaved text exists.
-2. **Online save failure.** It has no state in the decided vocabulary. Recommend "Not saved · Retry".
-3. **Deleted on another device.** A conversation deleted on one device while it is open on another. Recommend that the other window switch to the read-only Trash detail.
-4. **A project removed by its owner.** It is unspecified what happens to that project's conversation Trash. Recommend that the Trash travels with the project, and that the remove-project confirmation says so.
-5. **Selection while Overview is disconnected.** Recommend keeping the selection, disabling New Task with the stale reason, and revalidating on reconnect.
-6. **Remote provider display.** Recommend a `display_name` from the provider record; never show a URL.
-7. **Phone conversation title.** It has no room in the PhoneBar and is drawn as a row under it. Recommend confirming that placement.
-8. **Recording limits.** Per-flow and batch limits are host-controlled and unspecified. Recommend setting them in the implementation spec; the UI only shows "Truncated".
-9. **Recording on the phone before enabling.** Recommend a π › Settings… row plus a one-time notice, with no new screen.
-10. **Shared or multi-person devices.** Recording on them isn't covered. Recommend per-person recording only.
-11. **Save as Test Draft for WorkStation flows.** Recommend offering it for Preview flows only until the owner decides.
-12. **Dark tokens in boards.** `--selection-bg` and `--selection-fg` aren't redefined inside a `[data-theme="dark"]` wrapper. This affects drawings only, since the app sets the theme on `<html>`. Recommend adding them to the dark block of `tokens.css`.
-13. **New strings needing review:** "Restore its conversation first." and "Conversation restored.".
-14. **@ in comment composers** stays deferred, per A7.
+1. **Remove from List… failure** has no copy. Recommend "Couldn't remove "Class Notes". Nothing changed." (「Class Notes」を外せませんでした。何も変更していません。) with Try Again, keeping the project listed.
+2. **Alert icons in dark wrappers.** They hard-code a white fill. Recommend that the shared icon set use theme colours. This is fixed only on R19_ProjectRemove.
+3. **Kept draft version time.** A draft version kept from a remote deletion shows "saved 15:21". Recommend "kept 15:21" only if the host records the two times separately.
+4. **Full flow while recording stays on.** No "Start New Flow" button was drawn. Recommend keeping it that way: the existing new-session paths are listed in the popover.
+5. **Shared-profile report drafts** are visible to anyone using that profile. Recommend saying so in the report dialog ("From: Shared profile on this computer"), with no new control.
+6. **Single draft version.** The version list now appears for a single version whenever it isn't Saved; this is a presentation choice. Recommend confirming it, and the label "Removed from the list" (一覧から外したプロジェクト) for the removed-projects Trash group.
 
 ## Remaining blockers
 
-- **Canvas artifact limit:** the design canvas artifact holds at most 511 files per version and already has 486. The 47 round 19 boards therefore exist only in this repository; the artifact received the retitled addendum boards and a `canvas.json` without the round 19 page. Recommendation: the owner either approves moving archived pages (for example "Archive — not chosen") out of the artifact, or a second canvas artifact for rounds 19 and later. Nothing was deleted without instruction.
-
-- **Push:** this session cannot push to the repository, and the linked Mac clone has no GitHub credentials. The branch must be pushed by the owner.
-- **Runtime:** every implementation dependency above is unimplemented.
+- **Push:** this session cannot push to the repository, and the linked Mac clone has no GitHub credentials. The owner pushes `design/round-19`.
+- **Runtime:** every implementation dependency above is unbuilt.

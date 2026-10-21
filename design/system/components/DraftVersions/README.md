@@ -10,7 +10,7 @@ Boards: R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_AskTrash (draft vers
 - Head `.pw-draftv__head`: `h4.pw-draftv__h` “Draft versions · 3” + a **Hide** / **Show** button (`aria-expanded`, `aria-controls` the list).
 - Hint `p.pw-draftv__hint`: “Use a version to edit and send it. The others stay until you discard them.”
 - List `ol.pw-draftv__list` (scrolls past 240 px) of `li.pw-draftv__row[data-state]`:
-  - `p.pw-draftv__meta`: **device or window** · “saved 14:52” · `span.pw-draftv__state` (Saved · Saving… · Unsaved (offline) · Conflict);
+  - `p.pw-draftv__meta`: **device or window** · “saved 14:52” · `span.pw-draftv__state` (Saved · Saving… · Unsaved · Not saved · Conflict);
   - `p.pw-draftv__text`: the version's text, two lines at most (the person's own words);
   - `.pw-draftv__actions`: **Use This Version** and **Discard…** — or, on the version in the field, the label “In use” (`aria-current="true"`, a 3 px rule) and no buttons.
 - Offline line `p.pw-draftv__offline[role=status]`: “You're offline. Your typing is kept here as Unsaved and will be offered as a version when you reconnect.”
@@ -20,15 +20,15 @@ Boards: R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_AskTrash (draft vers
 
 | State | What shows |
 | --- | --- |
-| Idle (one version) | No list. The field holds the draft. |
+| Idle (one version, Saved) | No list. The field holds the draft. With one version that isn't Saved (Saving…, Unsaved, Not saved) the list shows that one row so its state is visible. |
 | Loading | “Draft versions · …” head only, the list replaced by nothing until loaded; the field stays usable. |
 | Empty | Not applicable — with no versions the card is not shown. |
 | Saving | The in-use row reads “Saving…” (dotted badge); “Saved” when the host confirms. |
-| Error (save failed while online) | The in-use row keeps “Saving…” while the host retries; the text stays in the field. Gap → recommendation: a distinct “Not saved · Retry” state (no copy decided in round 19). |
+| Error (save failed while online) | The in-use row reads “Not saved” with **Retry**; the text stays in the field (follow-up decision 2). |
 | Disabled | Use This Version is not offered on the in-use row; Discard… is not offered on it either (use another version first). |
 | Stale | Another device saved: the list updates in place, focus is not moved, one polite announcement “Draft versions · 3”. |
 | Conflict | Two or more versions with “Conflict”; any number allowed. Nothing merges or expires. |
-| Offline | The offline line; typing continues; the in-use row reads “Unsaved (offline)”. Nothing goes to browser persistent storage. On reconnect the Unsaved text is saved as a new version. |
+| Offline | The offline line; typing continues; the in-use row reads “Unsaved”, and the help line sits under the draft. Nothing goes to browser persistent storage. On reconnect the Unsaved text is saved as a new version. |
 
 ## Rules
 
@@ -48,7 +48,7 @@ Boards: R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_AskTrash (draft vers
 | Use a version to edit and send it. The others stay until you discard them. | 版を選ぶと編集して送信できます。ほかの版は破棄するまで残ります。 |
 | This window / Mac · window 2 / iPhone / This phone | このウインドウ / Mac · ウインドウ 2 / iPhone / この電話 |
 | saved {time} | {time} に保存 |
-| Saved · Saving… · Unsaved (offline) · Conflict | 保存済み · 保存中… · 未保存（オフライン） · 競合 |
+| Saved · Saving… · Unsaved · Not saved · Conflict | 保存済み · 保存中… · 未保存 · 保存されていません · 競合 |
 | In use | 使用中 |
 | Use This Version | この版を使う |
 | Discard… | 破棄… |
@@ -87,6 +87,19 @@ Tokens only; the in-use rule and badges use `currentColor`.
 ## Walkthrough (Given / When / Then)
 
 1. Given this window, Mac window 2 and the iPhone saved different drafts. When I focus “Question”. Then “Draft versions · 3” lists all three with save times and “Conflict”; mine is “In use”.
-2. Given I'm offline. When I type. Then the offline line shows and my row reads “Unsaved (offline)”; on reconnect it becomes a version.
+2. Given I'm offline. When I type. Then the offline line shows and my row reads “Unsaved”; on reconnect it becomes a version.
 3. Given three versions. When I press “Discard iPhone version…” and “Discard”. Then it moves to the Trash and “Draft version moved to the Trash.” offers “Undo”.
 4. Given three versions. When I press “Send”. Then my text is sent and “Draft versions · 2” remains.
+
+### Follow-up decisions (21 Oct)
+
+Decision record: design/briefs/round-19-follow-up-decisions.md (1, 2, 3, 12). Boards: R19_AskUnsaved, R19_AskRemote, Ph19_AskOffline, Ph19_AskRemote. New classes (additive): `p.pw-draftv__help`, `li.pw-draftv__row[data-state="failed"]`, `.pw-draftv--ro`.
+
+- **Unsaved (1).** State word “Unsaved” (未保存). While Unsaved text exists: the help line `p.pw-draftv__help#dv-help` under the draft (the field's `aria-describedby` includes it) — “Unsaved text stays in this window. If the browser or phone closes the page, it can be lost.” (未保存の文字はこのウインドウに残ります。ブラウザーや電話がページを閉じると失われることがあります。) — and the browser's own leave-page warning is registered (no custom copy; best effort; no promise against crashes, killed tabs or phone eviction). Persisted to the host whenever reachable; never to browser persistent storage. In-app navigation keeps the text in this window's memory; a failed or cancelled navigation never clears it.
+- **Online save failure (2).** “Not saved” (保存されていません) + **Retry** (再試行) on the in-use row; the buffer is kept; Retry is revision-checked. Only one save is in flight (“Saving…”); no second simultaneous save. An acknowledgement for an older revision never marks newer text “Saved” (it stays “Saving…”, or “Unsaved” offline). Newer remote data → both kept as “Conflict” versions; neither overwritten.
+- **Deleted in another window (3).** The composer is replaced by ConversationTrash's read-only detail; unsaved text is stored as a draft version with the trashed conversation (shown read only, `.pw-draftv--ro`, no actions); late or retried saves are never sent.
+- **Theme (12).** Dark and light wrappers render selection from the wrapper's own ink/paper (round19_theme.css); preview shows both.
+- Who: the signed-in person. Persistence: host. Cancellation: Retry can be pressed again; nothing is discarded implicitly. Focus: stays in the field; Retry is reached by Tab from the list.
+- States add: Not saved (error) as above; the single-version rule above.
+
+Given/When/Then: (1) Given Unsaved text, When I close the tab, Then the browser's own warning appears (best effort). (2) Given revision 6 saving, When I type and revision 6 is acknowledged, Then my row stays “Saving…”. (3) Given a failed save, When I press “Retry” and a newer version exists, Then both are “Conflict”. (4) Given unsaved text, When another window deletes the conversation, Then my text is kept as a draft version with it.

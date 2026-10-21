@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Phone · Record what you do in Pi WorkStation?: the first-use sheet; Not Now first; nothing recorded before Enable</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -798,6 +798,19 @@
 }
 /* 320 px popover: the Preview line stacks */
 .pw-recpop--narrow .pw-recpop__other{flex-direction:column}
+/* Follow-up decision 8: a full flow (500 steps) — dotted, hollow; nothing more is accepted into it */
+.pw-recstat--full{border-style:dotted}
+.pw-recstat--full::before{background:none;border-radius:0}
+/* Follow-up decision 10: who the recording belongs to (person or the shared local profile) */
+.pw-recwho{margin:0;padding:4px 8px;border:1px dotted var(--ink);font-size:13px;line-height:18px}
+.pw-recwho b{font-weight:600}
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu" aria-label="View: Chat">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" id="agent-status" class="pw-statusbtn" data-state="rest" aria-label="Agent status: Ready. Open Overview" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span id="agent-state" role="status">Ready</span></button></nav><div style="flex: 1; opacity: .3"></div><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div><section class="pw-sheet" role="dialog" aria-modal="true" aria-label="Record what you do in Pi WorkStation?" style="position: absolute; top: 96px; bottom: 0; max-height: none; padding-bottom: 34px; overflow: auto; gap: 12px"><div class="pw-sheet__head"><h2 class="pw-dialog__title">Record what you do in Pi WorkStation?</h2><button class="pw-btn pw-btn--plain pw-btn--touch">Close</button></div><dl class="pw-facts" style="font-size: 15px; line-height: 21px"><dt>Kept</dt><dd>The control you used, by its role and window (“Send button · Chat window”); focus moving; clicks, with the spot inside a canvas; which keys went down and up (Return, Esc, ⌃⌥1; a letter or digit is only “a character key”); scrolling and window size.</dd><dt>Never kept</dt><dd>What you type, passwords, chat and document text, the clipboard, file contents and paths, names you gave things, full addresses.</dd><dt>Where</dt><dd>On Aiko’s MacBook, the computer running Pi WorkStation. Nothing is uploaded; no project sees another’s.</dd><dt>How long</dt><dd>Each project, and outside projects: 7 days, at most 20 flows; the oldest go first.</dd></dl><p class="pw-help" style="margin: 0; font-size: 14px">Nothing is recorded until you tap Enable Recording. The Preview keeps its own setting.</p><div style="display: flex; flex-direction: column; gap: 8px"><button class="pw-btn pw-btn--touch pw-btn--default">Not Now</button><button class="pw-btn pw-btn--touch">Enable Recording</button></div></section></div>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Project chat (A6–A9): EN/JA strings (no native-speaker review claimed)</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -849,6 +849,23 @@
   .pw-trash__m,.pw-trash__note,.pw-trash__ro,.pw-trash__status{font-size:14px;line-height:18px}
   .pw-trash__status .pw-btn{min-height:44px;font-size:15px}
 }
+
+/* ---- Round 19 follow-up (21 Oct, decisions 1–4, 13): additive only ---- */
+/* Unsaved help line under the draft; Not saved + Retry on a version row */
+.pw-draftv__help{margin:0;font-family:var(--font-chrome);font-size:12px;line-height:16px}
+.pw-draftv__row[data-state="failed"] .pw-draftv__state{border-width:2px;font-weight:600}
+.pw-draftv--ro .pw-draftv__row{padding-bottom:8px}
+/* Trash: a notice at the top of a detail (deleted in another window; restore failed) */
+.pw-trash__notice{margin:0;display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-bottom:1px solid var(--ink);font-size:13px;line-height:18px}
+.pw-trash__notice p{margin:0}
+.pw-trash__notice b{font-weight:600}
+/* Trash: the Removed projects group (read only) */
+.pw-trash__item[aria-disabled="true"] .pw-trash__m{font-style:italic}
+.pw-trash__why{margin:0;font-size:12px;line-height:16px}
+@media (max-width: 759px){
+  .pw-draftv__help{font-size:14px;line-height:18px}
+  .pw-trash__notice{font-size:15px;line-height:20px;padding:10px 16px}
+}
 /* ---- 2026-10-21 · Round 19 C (decided, owner-delegated): project chat — conversation title + actions, @ list states, resend rechecks, receipts without provenance ---- */
 /* Only new classes; no existing class is redefined. Tokens only, 1-bit; Inverse via [data-theme="dark"] tokens. Reuses B's .pw-convoact, .pw-convo__*, .pw-convorow*, .pw-trash*, .pw-draftv* as is. */
 
@@ -872,16 +889,33 @@
 /* "asked again from 14:31" link on a resent message */
 .pw-msg__link{font-family:var(--font-chrome);font-size:13px}
 
+/* ---- Round 19 follow-up (21 Oct, decision 7): the phone title row under the PhoneBar ---- */
+.pw-chattitle__row{flex:none;display:flex;padding:0;border-bottom:1px solid var(--ink);background:var(--paper)}
+.pw-chattitle__btn{font:inherit;font-family:var(--font-chrome);font-size:15px;line-height:20px;color:var(--ink);background:none;border:0;min-height:44px;width:100%;min-width:0;display:flex;align-items:center;gap:8px;padding:0 16px;text-align:left;cursor:default}
+.pw-chattitle__btn>svg{flex:none;margin-left:auto}
+.pw-chattitle__btn[aria-expanded="true"]{background:var(--selection-bg);color:var(--selection-fg)}
+.pw-chattitle__btn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.pw-chattitle__sheethead{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pw-chattitle__sub{margin:0;font-family:var(--font-chrome);font-size:13px;line-height:18px}
+.pw-chattitle__full{white-space:normal;overflow-wrap:anywhere}
+
 @media (max-width: 759px){
   .pw-chattitle{font-size:15px}
   .pw-atlist__scroll{max-height:220px}
   .pw-rcpt-none{font-size:14px;padding:6px 8px}
 }
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
-<div class="pw-root pw-desk" style="width: 1440px; height: 1000px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; align-items: flex-start; color: #000"><div style="display: flex; flex-direction: column; gap: 8px; width: 1300px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">Texts</p><div class="pw-window" style="padding: 16px 18px"><div class="pw-transcript" style="padding: 0; gap: 16px"><table class="pw-keys"><thead><tr><th>English</th><th>日本語</th></tr></thead><tbody><tr><td>Conversation actions (⋯, accessible name)</td><td lang="ja">会話の操作</td></tr><tr><td>New Conversation · Earlier Conversations… · Delete Conversation…</td><td lang="ja">新しい会話 · 以前の会話… · 会話を削除…</td></tr><tr><td>Conversation · {21 Oct 09:12} (project chat title: its start time)</td><td lang="ja">会話 · {10月21日 09:12}</td></tr><tr><td>Conversations · newest first · Trash</td><td lang="ja">会話 · 新しい順 · ゴミ箱</td></tr><tr><td>More for {title} (row ⋯)</td><td lang="ja">{title} のその他の操作</td></tr><tr><td>Delete “{title}”? / It moves to the Trash with its messages, what Pi used for each and its draft versions. You can restore it from the Trash. / Cancel · Move to Trash (B)</td><td lang="ja">「{title}」を削除しますか？ / メッセージ、それぞれで Pi が使ったもの、下書きの版と一緒にゴミ箱に移動します。ゴミ箱から元に戻せます。 / キャンセル · ゴミ箱に移動</td></tr><tr><td>This conversation has a request running or queued. Stop or cancel it first. · Show Request · OK</td><td lang="ja">この会話には実行中または待機中の依頼があります。先に停止するかキャンセルしてください。 · 依頼を表示 · OK</td></tr><tr><td>Conversation moved to the Trash. · Undo (B)</td><td lang="ja">会話をゴミ箱に移動しました。 · 取り消す</td></tr><tr><td>Restore · already back · conflict (B’s ConversationTrash strings)</td><td lang="ja">元に戻す · （B の ConversationTrash の文言）</td></tr><tr><td>Projects you can open · {n} (list name when it scrolls)</td><td lang="ja">開けるプロジェクト · {n}</td></tr><tr><td>Which {Notes}?</td><td lang="ja">どの {Notes} ですか？</td></tr><tr><td>Choose one to refer to it. Esc keeps your words; they won’t count as a project.</td><td lang="ja">1 つ選ぶとそのプロジェクトを指します。Esc で入力はそのまま残り、プロジェクトとしては扱いません。</td></tr><tr><td>No projects match “{text}”.</td><td lang="ja">「{text}」に一致するプロジェクトはありません。</td></tr><tr><td>@{Notes} · {~/school/Notes} (chip when names repeat)</td><td lang="ja">@{Notes} · {~/school/Notes}</td></tr><tr><td>Not sent: the project is now in Implementation and a plan is waiting. Your message is still in the composer.</td><td lang="ja">送信していません: プロジェクトはいま「実装」で、プランが承認待ちです。メッセージは入力欄に残っています。</td></tr><tr><td>Not sent: the project is now in Planning. Your message is still in the composer; press Send to send it in Planning.</td><td lang="ja">送信していません: プロジェクトはいま「計画」です。メッセージは入力欄に残っています。「計画」で送るには送信を押してください。</td></tr><tr><td>Not sent: the connection was interrupted. Your message is still in the composer. · Try Again</td><td lang="ja">送信していません: 接続が中断されました。メッセージは入力欄に残っています。 · もう一度試す</td></tr><tr><td>Not sent: the project is now in Implementation and a plan is waiting.</td><td lang="ja">送信していません: プロジェクトはいま「実装」で、プランが承認待ちです。</td></tr><tr><td>Couldn’t ask again: the connection was interrupted. Nothing was sent.</td><td lang="ja">もう一度質問できませんでした: 接続が中断されました。何も送信していません。</td></tr><tr><td>· asked again from {14:31} (link on a resent message)</td><td lang="ja">· {14:31} からもう一度質問</td></tr><tr><td>A plan is waiting for your approval; this answer won’t replace it. (addendum, kept)</td><td lang="ja">承認待ちのプランがあります。この回答で置き換わることはありません。</td></tr><tr><td>Answer the waiting plan first. (Implementation only)</td><td lang="ja">待っている計画に先に答えてください。</td></tr><tr><td>Recorded before receipts were kept</td><td lang="ja">Pi が使ったものの記録を始める前のメッセージ</td></tr><tr><td>Sending… (Ask Again with Current Files while pending; repeat presses do nothing)</td><td lang="ja">送信しています…</td></tr><tr><td>Receipts above still show what Pi had when it answered. (addendum, kept)</td><td lang="ja">上の記録は、Pi が答えたときに使ったものをそのまま示します。</td></tr></tbody></table></div></div></div></div>
+<div class="pw-root pw-desk" style="width: 1440px; height: 1300px; box-sizing: border-box; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; align-content: flex-start; align-items: flex-start; color: #000"><div style="display: flex; flex-direction: column; gap: 8px; width: 1300px"><p class="pw-label" style="margin: 0; align-self: flex-start; background: #fff; padding: 0 6px">Texts</p><div class="pw-window" style="padding: 16px 18px"><div class="pw-transcript" style="padding: 0; gap: 16px"><table class="pw-keys"><thead><tr><th>English</th><th>日本語</th></tr></thead><tbody><tr><td>Conversation actions (⋯, accessible name)</td><td lang="ja">会話の操作</td></tr><tr><td>New Conversation · Earlier Conversations… · Delete Conversation…</td><td lang="ja">新しい会話 · 以前の会話… · 会話を削除…</td></tr><tr><td>Conversation · {21 Oct 09:12} (project chat title: its start time)</td><td lang="ja">会話 · {10月21日 09:12}</td></tr><tr><td>Conversations · newest first · Trash</td><td lang="ja">会話 · 新しい順 · ゴミ箱</td></tr><tr><td>More for {title} (row ⋯)</td><td lang="ja">{title} のその他の操作</td></tr><tr><td>Delete “{title}”? / It moves to the Trash with its messages, what Pi used for each and its draft versions. You can restore it from the Trash. / Cancel · Move to Trash (B)</td><td lang="ja">「{title}」を削除しますか？ / メッセージ、それぞれで Pi が使ったもの、下書きの版と一緒にゴミ箱に移動します。ゴミ箱から元に戻せます。 / キャンセル · ゴミ箱に移動</td></tr><tr><td>This conversation has a request running or queued. Stop or cancel it first. · Show Request · OK</td><td lang="ja">この会話には実行中または待機中の依頼があります。先に停止するかキャンセルしてください。 · 依頼を表示 · OK</td></tr><tr><td>Conversation moved to the Trash. · Undo (B)</td><td lang="ja">会話をゴミ箱に移動しました。 · 取り消す</td></tr><tr><td>Restore · already back · conflict (B’s ConversationTrash strings)</td><td lang="ja">元に戻す · （B の ConversationTrash の文言）</td></tr><tr><td>Projects you can open · {n} (list name when it scrolls)</td><td lang="ja">開けるプロジェクト · {n}</td></tr><tr><td>Which {Notes}?</td><td lang="ja">どの {Notes} ですか？</td></tr><tr><td>Choose one to refer to it. Esc keeps your words; they won’t count as a project.</td><td lang="ja">1 つ選ぶとそのプロジェクトを指します。Esc で入力はそのまま残り、プロジェクトとしては扱いません。</td></tr><tr><td>No projects match “{text}”.</td><td lang="ja">「{text}」に一致するプロジェクトはありません。</td></tr><tr><td>@{Notes} · {~/school/Notes} (chip when names repeat)</td><td lang="ja">@{Notes} · {~/school/Notes}</td></tr><tr><td>Not sent: the project is now in Implementation and a plan is waiting. Your message is still in the composer.</td><td lang="ja">送信していません: プロジェクトはいま「実装」で、プランが承認待ちです。メッセージは入力欄に残っています。</td></tr><tr><td>Not sent: the project is now in Planning. Your message is still in the composer; press Send to send it in Planning.</td><td lang="ja">送信していません: プロジェクトはいま「計画」です。メッセージは入力欄に残っています。「計画」で送るには送信を押してください。</td></tr><tr><td>Not sent: the connection was interrupted. Your message is still in the composer. · Try Again</td><td lang="ja">送信していません: 接続が中断されました。メッセージは入力欄に残っています。 · もう一度試す</td></tr><tr><td>Not sent: the project is now in Implementation and a plan is waiting.</td><td lang="ja">送信していません: プロジェクトはいま「実装」で、プランが承認待ちです。</td></tr><tr><td>Couldn’t ask again: the connection was interrupted. Nothing was sent.</td><td lang="ja">もう一度質問できませんでした: 接続が中断されました。何も送信していません。</td></tr><tr><td>· asked again from {14:31} (link on a resent message)</td><td lang="ja">· {14:31} からもう一度質問</td></tr><tr><td>A plan is waiting for your approval; this answer won’t replace it. (addendum, kept)</td><td lang="ja">承認待ちのプランがあります。この回答で置き換わることはありません。</td></tr><tr><td>Answer the waiting plan first. (Implementation only)</td><td lang="ja">待っている計画に先に答えてください。</td></tr><tr><td>Recorded before receipts were kept</td><td lang="ja">Pi が使ったものの記録を始める前のメッセージ</td></tr><tr><td>Sending… (Ask Again with Current Files while pending; repeat presses do nothing)</td><td lang="ja">送信しています…</td></tr><tr><td>Receipts above still show what Pi had when it answered. (addendum, kept)</td><td lang="ja">上の記録は、Pi が答えたときに使ったものをそのまま示します。</td></tr><tr><td>F1 · Unsaved</td><td lang="ja">未保存</td></tr><tr><td>F1 · Unsaved text stays in this window. If the browser or phone closes the page, it can be lost.</td><td lang="ja">未保存の文字はこのウインドウに残ります。ブラウザーや電話がページを閉じると失われることがあります。</td></tr><tr><td>F1 · leave-page warning: the browser’s own dialog (no Pi copy)</td><td lang="ja">（ブラウザー自身のダイアログ。Pi の文言はありません）</td></tr><tr><td>F2 · Saving… · Not saved · Retry</td><td lang="ja">保存中… · 保存されていません · 再試行</td></tr><tr><td>F3 · This conversation was moved to the Trash in another window.</td><td lang="ja">この会話は別のウインドウでゴミ箱に移動されました。</td></tr><tr><td>F3 · Your unsaved text is kept as a draft version with it.</td><td lang="ja">未保存の文字は、下書きの版として一緒に残しています。</td></tr><tr><td>F13 · Restore the conversation first. · Conversation restored.</td><td lang="ja">先に会話を元に戻してください。 · 会話を元に戻しました。</td></tr><tr><td>F13 · Couldn’t restore. It’s still in the Trash, with its draft versions. · Try Again</td><td lang="ja">元に戻せませんでした。下書きの版と一緒にゴミ箱に残っています。 · 再試行</td></tr><tr><td>F7 · Conversation actions: {full title} (phone title row, accessible name)</td><td lang="ja">会話の操作: {title}</td></tr></tbody></table></div></div></div></div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
 class Component extends DCLogic {
 renderVals() { return {}; }
 }

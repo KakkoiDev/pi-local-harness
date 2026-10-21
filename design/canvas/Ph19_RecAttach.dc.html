@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Round 19 · Decided · Phone · Attach recordings: the destination first; outside-project flows unchecked</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="/_blob/0a58a7bd56eede27d7d5c52f8a4dd6da">
+<link rel="stylesheet" href="/_blob/6b8d723e397cc49af3680173bfa74436">
 </head>
 <body>
 <x-dc>
@@ -798,6 +798,19 @@
 }
 /* 320 px popover: the Preview line stacks */
 .pw-recpop--narrow .pw-recpop__other{flex-direction:column}
+/* Follow-up decision 8: a full flow (500 steps) — dotted, hollow; nothing more is accepted into it */
+.pw-recstat--full{border-style:dotted}
+.pw-recstat--full::before{background:none;border-radius:0}
+/* Follow-up decision 10: who the recording belongs to (person or the shared local profile) */
+.pw-recwho{margin:0;padding:4px 8px;border:1px dotted var(--ink);font-size:13px;line-height:18px}
+.pw-recwho b{font-weight:600}
+/* ---- Round 19 follow-up (decision 12): theme wrappers ----
+   tokens.css derives --selection-bg/--selection-fg from --ink/--paper on :root. A nested
+   [data-theme] wrapper (design boards and card previews draw dark and light cells side by side)
+   re-defines --ink/--paper but inherits the selection pair already computed at :root, so
+   selected states drew light-on-light. Re-derive the pair on every theme wrapper. On <html>
+   (the app) the result is identical to :root's, so application rendering does not change. */
+[data-theme="dark"],[data-theme="light"]{--selection-bg:var(--ink);--selection-fg:var(--paper)}
 </style>
 </helmet>
 <div class="pw-root" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #fff; color: #000; display: flex; flex-direction: column"><div style="height: 44px; flex: none"></div><nav class="pw-phonebar" aria-label="Menu bar"><button class="pw-phonebar__btn" aria-label="Pi menu: projects and commands" style="font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px">π</button><button class="pw-phonebar__btn" aria-haspopup="menu" aria-label="View: Chat">Chat<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3.5 6h9L8 11z" fill="currentColor"/></svg></button><span style="flex: 1"></span><button type="button" id="agent-status" class="pw-statusbtn" data-state="rest" aria-label="Agent status: Ready. Open Overview" style="margin-right: 4px"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M2 8.5 6 12.5 14 3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span id="agent-state" role="status">Ready</span></button></nav><div class="pw-recbar"><button type="button" class="pw-recstat pw-recstat--bar" id="ph-ws-rec" data-state="on" aria-haspopup="dialog" aria-expanded="false" aria-controls="ws-recording-popover" aria-label="Recording WorkStation on in this window, kept with Class Notes. Recording options">Recording WorkStation <span class="pw-recstat__where">· Class Notes</span></button><button class="pw-recbar__more" aria-label="Recording options" aria-haspopup="dialog"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M5.5 3.5 10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button></div><div style="flex: 1; opacity: .3"></div><div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div><section class="pw-sheet" role="dialog" aria-modal="true" aria-label="Attach recordings" style="position: absolute; top: 150px; bottom: 0; max-height: none; padding-bottom: 34px; overflow: auto; gap: 12px"><div class="pw-sheet__head"><h2 class="pw-dialog__title">Attach recordings</h2><button class="pw-btn pw-btn--plain pw-btn--touch">Cancel</button></div><p class="pw-destline" style="font-size: 15px"><b style="font-weight: 600">Destination:</b> Class Notes · this chat’s draft. Attaching sends nothing.</p><fieldset class="pw-evidence"><legend>Recordings you can attach</legend><p class="pw-evgroup">Class Notes</p><label class="pw-evrow"><input type="checkbox" class="pw-check" checked><span>Preview · 9 steps</span><a href="#" class="pw-link">Inspect</a><small>14:21–14:22</small></label><label class="pw-evrow"><input type="checkbox" class="pw-check" checked><span>WorkStation · this phone · 7 steps</span><a href="#" class="pw-link">Inspect</a><small>14:20–14:20</small></label><p class="pw-evgroup">Outside projects<small>only if you choose it</small></p><label class="pw-evrow"><input type="checkbox" class="pw-check"><span>Overview · 6 steps</span><a href="#" class="pw-link">Inspect</a><small>14:18–14:20</small></label></fieldset><button class="pw-btn pw-btn--touch pw-btn--default">Attach to Draft</button></section></div>

@@ -115,3 +115,12 @@ Brief: design/briefs/round-19-final-integration.md (A3, A4, A6, A9). Design only
 - **Drafts (A3)** use DraftVersions; the history row's “Draft” tag means the conversation has at least one draft version.
 - States: idle/loading (list loads with the pane)/empty (only New Conversation and Trash)/error (Not applicable — the list is part of the pane load)/disabled (Delete refused while active)/stale (rows update in place, focus kept)/conflict (Not applicable — conversations don't conflict; drafts do).
 - JA: 会話の操作 / 新しい会話 / 会話を削除… / ゴミ箱 / 「{title}」を削除しますか？ / キャンセル / ゴミ箱に移動 / 会話をゴミ箱に移動しました。 / 取り消す.
+
+### Follow-up decisions (21 Oct)
+
+Decision record: design/briefs/round-19-follow-up-decisions.md (1, 3, 12). Boards: R19_AskUnsaved, R19_AskRemote, R19_AskRemoved.
+
+- **Switching with unsaved text (1).** Choosing another conversation in the popup keeps this conversation's Unsaved text in the window's memory; returning shows it as Unsaved with the help line. Closing or reloading the page triggers only the browser's own leave-page warning (best effort).
+- **Deleted elsewhere (3).** If the open conversation is moved to the Trash in another window, the pane switches to ConversationTrash's read-only detail (not to the next conversation, as it does after your own delete), so unsaved text is visibly kept. The history list drops the row; Trash's count increases.
+- **Theme (12).** Selected rows in the popup use the wrapper's own ink/paper in dark and light wrappers.
+- Phone title row (decision 7) is worker C's (Message card) and reuses the “Conversation actions” anatomy above unchanged.

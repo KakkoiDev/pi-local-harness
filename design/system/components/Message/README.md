@@ -64,3 +64,16 @@ Design only; not implemented. Boards: R19_ProjectMention, R19_ProjectChatResend,
 - **A7 · references.** The addendum's rule is settled (see Composer). A chip that disambiguates a duplicate name shows its folder: “@Notes · ~/school/Notes”. The boundary notice copy is unchanged.
 - **A8 · a resend is a new, linked request.** A resent message carries a link in its label, “· asked again from 14:31” (JA “· 14:31 からもう一度質問”), that scrolls to and focuses the original summary. It never replays tool steps, approves a plan or changes the phase.
 - **A9 · no fabricated provenance.** A Pi message from before receipts existed shows plain text, not a button: “Recorded before receipts were kept” (JA “Pi が使ったものの記録を始める前のメッセージ”), `p.pw-rcpt-none`. Nothing is reconstructed for it.
+
+### Follow-up decisions (21 Oct)
+
+**7 · The phone title row.** On the phone, a project chat (and, by the same rule, a dashboard conversation) shows its title in the row below the PhoneBar. The PhoneBar itself is unchanged. Boards: R19_PhoneTitleRow, Ph19_ProjectChatActions.
+
+- **The row:** one 44 px button, `div.pw-chattitle__row > button.pw-chattitle__btn[aria-haspopup=dialog][aria-expanded]`, holding `span.pw-chattitle__t` (one line, end ellipsis) and the ⋯ glyph, which never truncates.
+- **Its accessible name** carries the full title: “Conversation actions: {full title}” (JA “会話の操作: {title}”).
+- **Pressing it** opens the sheet whose head shows “Conversation actions” over the **full title, wrapped**. The items are those of B's ConversationList “Conversation actions” anatomy: New Conversation · Earlier Conversations… · Delete Conversation…. Cancel returns focus to the row.
+- **Redaction:** when a generated title is withheld (decision A4), the row, its name and the sheet all show the neutral “Conversation · {date time}”.
+- **Title text** is rendered as text, never markup.
+- **Placement:** never in the π sheet, Agent or Chat ▾ (round 9).
+- **Sizes:** at 320 px and with 200 % text it stays one line with an ellipsis; the button grows in height and never wraps under the bar.
+- **Who:** anyone viewing the conversation. **Focus:** sheet → Cancel or Escape → back to the row.

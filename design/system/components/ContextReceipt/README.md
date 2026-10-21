@@ -281,3 +281,9 @@ Design only; not implemented. Boards: R19_ProjectChatResend, R19_ProjectChatRece
 - **Delete** moves the conversation with its receipts and draft versions to the conversation Trash (B's ConversationTrash).
 - **Restore** brings them back with access rechecked: a file the person can no longer open stays “File no longer available”.
 - **No provenance:** messages without a receipt say “Recorded before receipts were kept”.
+
+### Follow-up decisions (21 Oct)
+
+- **Receipts and Trash.** When a conversation is moved to the Trash in another window (decision 3), its messages keep their receipt summaries in the read-only Trash detail; they open as before.
+- **Restore copy:** “Conversation restored.” (JA 会話を元に戻しました。). A draft version whose conversation is still in the Trash shows a disabled Restore with “Restore the conversation first.” (JA 先に会話を元に戻してください。). A failed restore shows “Couldn't restore. It's still in the Trash, with its draft versions.” + **Try Again** (JA 元に戻せませんでした。下書きの版と一緒にゴミ箱に残っています。 / 再試行); the item and its draft versions stay.
+- **Theme:** dark and light wrapper cells with selected states are drawn on R19_ProjectChatUnsaved and R19_PhoneTitleRow (decision 12; `scripts/round19_theme.css`).

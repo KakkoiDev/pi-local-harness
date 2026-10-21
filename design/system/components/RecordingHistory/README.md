@@ -62,3 +62,16 @@ Clear… names its exact scope (radio list), then the alert “Move {project}'s 
 2. **Honest ends** · Given a flow cut by a restart and one past its limit · Then “Ended by a restart” and “Truncated” show with their notes.
 3. **Clear and restore** · When “Clear…”, “Class Notes · WorkStation”, “Move to Trash”, then Trash › “Restore” · Then the flows return and the WorkStation button still reads what it read before.
 4. **Reload and second window** · Given the window open in two browser windows · When one clears · Then the other drops the rows with one polite line.
+
+## Round 19 follow-up
+
+### Follow-up decisions (21 Oct)
+
+Decisions 8, 10, 11, 12. Boards: R19_RecLimits, R19_RecIdentity, R19_RecTestDrafts, R19_RecResponsive.
+
+- A full flow's row: `.pw-recsess__state--dotted` “Truncated · 500 steps” with “Full at 14:29: later steps in this flow were not kept; nothing earlier was removed.” A flow with a rejected batch shows its gap (“Gap 14:20”) the same way. Never more than 20 flows per bucket; no automatic replacement flows.
+- History lists only the current identity's flows (the signed-in person, or the shared profile on this computer, named in the infobar: “For: Shared profile on this computer”). A switch reloads the list for the new identity; nothing crosses.
+- Inspect on a WorkStation-only or mixed flow shows “Test drafts are available for Preview steps only.” instead of Save as Test Draft….
+- Theme wrappers: the selected row uses `--selection-bg/--selection-fg` re-derived per `[data-theme]` wrapper (`round19_theme.css`); drawn dark and light side by side.
+
+Walkthrough: **Truncated** · Given a 500-step flow · Then its row reads “Truncated · 500 steps” and Inspect lists 500 steps with the truncation line. **Identity** · Given Aiko signs out · Then the window shows the shared profile's history only.

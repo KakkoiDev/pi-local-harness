@@ -63,3 +63,28 @@ Design only; not implemented. Brief: design/briefs/round-19-final-integration.md
 **A3 · drafts in project chat.** Drafts use B's **DraftVersions** above the composer, unchanged.
 
 Inverse: tokens only (dark cells on R19_ProjectMention).
+
+### Follow-up decisions (21 Oct)
+
+Decision record: design/briefs/round-19-follow-up-decisions.md. Design only. Boards: R19_ProjectChatUnsaved, Ph19_ProjectChatDeleted, R19_ProjectChatWalk.
+
+- **1 · Unsaved.** When the project chat composer's text can't reach the host, its version in B's **DraftVersions** reads **Unsaved** (JA 未保存). A help line sits under the composer: “Unsaved text stays in this window. If the browser or phone closes the page, it can be lost.” (JA “未保存の文字はこのウインドウに残ります。ブラウザーや電話がページを閉じると失われることがあります。”). It is `p.pw-draftv__help`, referenced by the field's `aria-describedby`.
+  - **Leaving the page:** while Unsaved text exists, the browser's native leave-page warning is registered. There is no Pi copy, and it is best effort: a crash, a killed tab or a phone evicting the page can still lose the text.
+  - **In-app navigation** (Work ⌃⌥2, ‹ Projects, another project, an Overview row) keeps the text in memory for this window, and a failed navigation never clears it.
+  - **Storage:** never in browser storage.
+- **2 · Saving.** “Saving…” means one save is in flight; typing continues and no second save starts. An acknowledgement for an older revision never marks newer text Saved. An online failure shows **Not saved** + **Retry** (JA 保存されていません / 再試行). Retry is revision-checked: a newer save elsewhere becomes a Conflict version, and nothing is overwritten.
+- **3 · Deleted in another window.** Editing and sending stop. The chat body is replaced by B's read-only Trash detail with the notice “This conversation was moved to the Trash in another window.” and, if there was unsaved text, “Your unsaved text is kept as a draft version with it.” The toolbar title and ⋯ are hidden while the conversation is in the Trash. Late or retried saves are never sent. **Restore** rechecks access and resumes nothing.
+- **States:**
+
+| State | What shows |
+| --- | --- |
+| Idle | Saved (no help line) |
+| Loading | Saving… |
+| Empty | Not applicable: no text means no version to save |
+| Error | Not saved + Retry |
+| Disabled | Composer gone while the conversation is in the Trash |
+| Stale | An old acknowledgement after newer typing stays Saving… |
+| Conflict | Version rows as B's DraftVersions |
+
+- **Who:** the signed-in person, in their conversation. **Persistence:** the host only. **Cancellation:** nothing to cancel; a save is never cancelled by navigation. **Focus:** stays in the field; on remote deletion it moves to the Trash detail's heading, with one polite announcement.
+- **15 · Comment composers:** @ mentions stay deferred in comment composers (Review window, threads, whole-file questions). This release offers the @ list only in the project chat composer.

@@ -177,7 +177,7 @@ Decided (round 19, owner-delegated 21 Oct 2026: A1, A6 Overview part, A10). Boar
 
 **Stopped services (A1)**
 - The section sits above Needs you, with one row per affected operation, oldest first. Examples:
-  - "studio.local not reachable · since 14:24 · Pi can’t answer in any project"
+  - "Studio Mac not reachable · since 14:24 · Pi can’t answer in any project"
   - "Gate stopped · since 14:27 · tool steps wait in every project"
 - Each row has **Open Details** → the service's details in Activity, where **Check Again** runs one read-only probe. "Checking…" is shared by every window, and repeat presses join the pending probe; it never starts or restarts anything. The result reads e.g. "Still not reachable · checked 14:33".
 - Unknown or stale health appears in its own section, **Service status unknown**, e.g. "Ollama · Service status unknown · last checked 14:20" (`.pw-svcrow--unknown`, dotted). Rows there read "State unknown until Ollama answers a check".
@@ -208,3 +208,26 @@ Decided (round 19, owner-delegated 21 Oct 2026: A1, A6 Overview part, A10). Boar
 **Persistence:** selection is per window, in memory only (not saved). Health comes from System 1 records.
 
 **Recording:** the WorkStation RecordingStatus sits in the menu bar above Overview (no toolbar slot); see that card.
+
+### Follow-up decisions (21 Oct)
+
+**Decision 5: stale selection.**
+- While Overview is not connected, the explicit selection is kept and shown as stale: "Selected: Class Notes · not checked since 14:20" (JA 選択中: Class Notes · 14:20 から未確認).
+- File › "New Task in Class Notes…" is disabled with "Reconnect to add a task. The selection is checked again first." (JA タスクを追加するには再接続してください。先に選択をもう一度確認します。).
+- On reconnect, and again at submission, the host revalidates the selection. If it is still available, the note returns to "Selected: Class Notes". If it was removed or access was lost, it clears ("No project selected").
+- Service rows show "at 14:20", dotted ("last known at 14:20 · not checked since"); cached health is never shown as current.
+- States:
+  - Idle: no selection.
+  - Stale: as above.
+  - Conflict: removed while disconnected → cleared.
+  - Error: "Class Notes is no longer available. Nothing was created."
+  - Loading, Empty, Disabled: as in Round 19.
+- Who may invoke: the signed-in person. Persistence: per window, in memory. Cancellation: N/A. Focus: unchanged on reconnect.
+
+**Decision 6: provider names.** Example "Studio Mac not reachable · since 14:24 · Pi can’t answer in any project"; the fallback is "Model provider not reachable".
+
+**Decision 4: removing a project.** The row leaves, its selection clears, and its conversations and Trash are retained under its project id (worker B: Trash › Removed projects). See Dialog § Round 19 follow-up and board R19_ProjectRemove.
+
+**Decision 12: theme wrappers.** `scripts/round19_theme.css` re-derives the selection tokens on every `[data-theme]` wrapper. The round 19 A dark workaround rules were removed. Board R19_OverviewSelection shows a light and a dark wrapper side by side.
+
+**Given/When/Then.** Given Class Notes is selected, When the connection drops at 14:20, Then the note reads "Selected: Class Notes · not checked since 14:20" and New Task is disabled with its reason; When it reconnects and Class Notes still exists, Then "Selected: Class Notes".
