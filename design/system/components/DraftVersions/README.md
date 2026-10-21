@@ -10,7 +10,7 @@ Boards: R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_AskTrash (draft vers
 - Head `.pw-draftv__head`: `h4.pw-draftv__h` “Draft versions · 3” + a **Hide** / **Show** button (`aria-expanded`, `aria-controls` the list).
 - Hint `p.pw-draftv__hint`: “Use a version to edit and send it. The others stay until you discard them.”
 - List `ol.pw-draftv__list` (scrolls past 240 px) of `li.pw-draftv__row[data-state]`:
-  - `p.pw-draftv__meta`: **device or window** · “saved 14:52” · `span.pw-draftv__state` (Saved · Saving… · Unsaved · Not saved · Conflict);
+  - `p.pw-draftv__meta`: **device or window** · “Saved 14:52” (or “Kept …” / “Recorded …”, see Closeout) · `span.pw-draftv__state` (Saved · Saving… · Unsaved · Not saved · Conflict);
   - `p.pw-draftv__text`: the version's text, two lines at most (the person's own words);
   - `.pw-draftv__actions`: **Use This Version** and **Discard…** — or, on the version in the field, the label “In use” (`aria-current="true"`, a 3 px rule) and no buttons.
 - Offline line `p.pw-draftv__offline[role=status]`: “You're offline. Your typing is kept here as Unsaved and will be offered as a version when you reconnect.”
@@ -47,7 +47,7 @@ Boards: R19_AskDrafts, Ph19_AskDrafts, Ph19_AskOffline, R19_AskTrash (draft vers
 | Draft versions · {n} | 下書きの版 · {n} |
 | Use a version to edit and send it. The others stay until you discard them. | 版を選ぶと編集して送信できます。ほかの版は破棄するまで残ります。 |
 | This window / Mac · window 2 / iPhone / This phone | このウインドウ / Mac · ウインドウ 2 / iPhone / この電話 |
-| saved {time} | {time} に保存 |
+| Saved {time} / Kept {time} / Recorded {time} | 保存 {time} / 保持 {time} / 記録 {time} |
 | Saved · Saving… · Unsaved · Not saved · Conflict | 保存済み · 保存中… · 未保存 · 保存されていません · 競合 |
 | In use | 使用中 |
 | Use This Version | この版を使う |
@@ -103,3 +103,5 @@ Decision record: design/briefs/round-19-follow-up-decisions.md (1, 2, 3, 12). Bo
 - States add: Not saved (error) as above; the single-version rule above.
 
 Given/When/Then: (1) Given Unsaved text, When I close the tab, Then the browser's own warning appears (best effort). (2) Given revision 6 saving, When I type and revision 6 is acknowledged, Then my row stays “Saving…”. (3) Given a failed save, When I press “Retry” and a newer version exists, Then both are “Conflict”. (4) Given unsaved text, When another window deletes the conversation, Then my text is kept as a draft version with it.
+
+**Closeout (21 Oct).** Timestamps (decision 3): “Saved {time}” (保存 {time}) only for a host-confirmed save; “Kept {time}” (保持 {time}) only when the host records a separate preservation time (e.g. the unsaved text kept when another window deleted the conversation); with a single timestamp of unspecified meaning, “Recorded {time}” (記録 {time}) — the time the host recorded this version — or no time. Never invent a saved/kept distinction; an unsaved buffer never becomes “Saved” through a remote deletion. Approved (decision 6): the list may show a single version when it is Saving…, Unsaved, Not saved or in Conflict, with its real state; a normal saved draft shows no list and no conflict UI. Boards: R19_AskUnsaved (timestamps, normal draft), R19_AskRemote, Ph19_AskRemote. Worker C uses the same labels in project chat. Given a version kept when another window deleted the conversation, When I read its row, Then it says “Kept 15:21”, never “Saved”.

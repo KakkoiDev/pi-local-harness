@@ -9,12 +9,13 @@ Design only. Nothing here has been implemented, and no runtime behaviour has bee
   - Section B approves user-journey recording on Pi WorkStation and the Preview.
   - Section C lists the 14 acceptance groups.
 - [round-19-follow-up-decisions](../../design/briefs/round-19-follow-up-decisions.md): decisions 1–15 close every gap reported after `01070dd1`.
+- [round-19-closeout](../../design/briefs/round-19-closeout.md): six final corrections close the gaps reported after `e6b7b027`. They correct existing round 19 work; they are not a new round.
 
 These supersede conflicting round 18 addendum proposals (`64dad882`). The Constitution and the twenty round 17 decisions in [plan 360](../plans/360-round-17-product-decisions.md) remain authoritative.
 
 The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19". It holds:
 
-- the A–C coverage matrices, and the 1–15 decision map;
+- the A–C coverage matrices, the 1–15 decision map and the closeout map;
 - per-part states, who may invoke each action, persistence, cancellation and focus destinations;
 - keyboard, responsive behaviour and exact EN/JA;
 - changed text, implementation dependencies and Given/When/Then journeys.
@@ -24,9 +25,9 @@ The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19
 | Canvas | Manifest | Holds |
 | --- | --- | --- |
 | Pi Workbench — Desktop Interface | `design/canvas/canvas.json` | Rounds up to 18 and the round 18 addendum (484 boards). **Not synchronized with round 19.** |
-| Pi WorkStation — Round 19 onward | `design/canvas/canvas-round19.json` | Round 19 (61 boards), in four pages |
+| Pi WorkStation — Round 19 onward | `design/canvas/canvas-round19.json` | Round 19 (62 boards), in four pages |
 
-`design/canvas/INDEX.md` lists both, with their links. Every board file stays in `design/canvas/`. Nothing was deleted or pruned from the first canvas. Its only changes this pass are the six R18A_Ask* boards with duplicate ids fixed and the earlier retitling.
+`design/canvas/INDEX.md` lists both, with their links. Every board file stays in `design/canvas/`. Nothing was deleted or pruned from the first canvas. Its changes in round 19 are the retitling, the six R18A_Ask* boards with duplicate ids fixed, and, in the closeout, the alert icon repair on 25 older boards and 8 addendum boards regenerated without stale `ov-keys` references. Its manifest is unchanged.
 
 ## Status
 
@@ -34,6 +35,7 @@ The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19
 | --- | --- |
 | Round 18 addendum Q1–Q10 and Delete Conversation | Decided in round 19 (A1–A10). The addendum boards are retitled "Settled" or "Superseded"; their alternatives read "Not chosen (round 19)". |
 | Gaps reported after `01070dd1` | Decided by follow-up decisions 1–15. The obsolete "Gap → recommendation" labels are replaced by the decided rules in the cards and the spec. |
+| Gaps reported after `e6b7b027` | Decided by the closeout (1–6) and drawn; see below. |
 | Delete Conversation in the Agent or phone Chat ▾ menu | Withdrawn (round 9). Ph18A_ConversationMenu is kept for history and marked superseded. |
 | Japanese | 議論 / 計画 / 実装; キャンセル for cancel; 取り消し only for undo; 元に戻す for restore. **No native-speaker review has taken place.** |
 
@@ -59,7 +61,30 @@ The full specification is `design/IMPLEMENTATION.md` › "2026-10-21 · Round 19
 
 The 14 acceptance groups map to boards in the IMPLEMENTATION.md matrix. Strings are on R19_OverviewStrings, R19_AskStrings, R19_ProjectChatStrings and R19_RecStrings. Journeys are on R19_OverviewWalk, R19_AskWalk, R19_ProjectChatWalk and R19_RecWalk.
 
+## Closeout of `e6b7b027` → boards
+
+| # | Correction | Boards | Components |
+| --- | --- | --- | --- |
+| 1 | Remove from List failure: project stays listed, Try Again; “Nothing changed.” only when the host confirms; uncertain result asks to check the list; reconcile before retry | R19_ProjectRemove, Ph19_ProjectRemoveError (new), R19_OverviewStrings, R19_OverviewWalk | Dialog, WorkOverview |
+| 2 | Alert icons and the Failed glyph use paper and ink (21:1 in both themes) with cutouts kept | source `gen/preview.py` and all regenerated boards; 25 older boards on the first canvas; Alert and other previews; `assets/Icons/alert-*.svg`, `failed.svg` | Alert |
+| 2a | Duplicate ids in two previews | — | PhaseControl, PreviewWindow |
+| 3 | Saved / Kept / Recorded draft times | R19_AskUnsaved, R19_AskRemote, Ph19_AskRemote, R19_AskDrafts, R19_AskTrash, R19_ProjectChatUnsaved, Ph19_ProjectChatDeleted, R19_AskStrings, R19_ProjectChatStrings, R19_AskWalk, R19_ProjectChatWalk | DraftVersions, ConversationTrash, Composer |
+| 4 | “Flow full · no more actions saved”, no Start New Flow button | R19_RecLimits, R19_RecStates, R19_RecResponsive, R19_RecHistory, R19_RecStrings, R19_RecWalk | RecordingStatus |
+| 5 | Shared-profile report draft notice | R19_RecIdentity, R19_RecStrings, R19_RecWalk | ProblemReport |
+| 6 | Single-version list and “Removed from the list” approved, with the project-list explanation | R19_AskUnsaved, R19_AskRemoved, R19_AskTrash | DraftVersions, ConversationTrash |
+
+Stale accessibility references were fixed in the generators, not by hand: `gen/r18a.py` emits `aria-describedby="ov-keys"` only from a window that draws the keyboard hint, the chat generator drops `aria-controls="preview"` when no Preview is drawn, and the recorder's first-use dialog has its id.
+
 ## Changed files (this pass)
+
+**Closeout pass:**
+
+- **Decision record:** `design/briefs/round-19-closeout.md` (the closeout, as supplied).
+- **`design/canvas/`:** the new board Ph19_ProjectRemoveError; 32 round 19 boards revised (closeout content, regenerated icons and accessibility references); `canvas-round19.json` (new board and heights); 25 older boards with the icon repair; 8 addendum boards regenerated.
+- **`design/system/`:** Alert, Composer, ConversationTrash, Dialog, DraftVersions, ProblemReport, RecordingStatus and WorkOverview cards; previews of those plus PhaseControl, PreviewWindow and RecordingHistory; `assets/Icons/alert-*.svg`, `failed.svg` and their README; `design-system.json`.
+- **Other:** `design/IMPLEMENTATION.md`, `design/README.md`, `design/canvas/INDEX.md` and this file.
+
+**Follow-up pass (`e6b7b027`):**
 
 - **Decision record:** `design/briefs/round-19-follow-up-decisions.md` (as supplied, with a note on where its references live).
 - **`design/canvas/`:**
@@ -98,15 +123,22 @@ These are implementation work for behaviour already decided. They are not produc
 
 ## Static design checks that ran
 
-- **HTML and classes:** nesting and `pw-` class definitions on all 61 round 19 boards, the 28 addendum boards and every card preview: 0 problems, 0 undefined classes.
+These checks read the drawings only. They do not verify host or backend behaviour.
+
+- **HTML and classes:** nesting and `pw-` class definitions on all 62 round 19 boards, the 28 addendum boards and every card preview: 0 problems, 0 undefined classes.
 - **CSS isolation:** no round 19 rule redefines an existing class. `round19_theme.css` only re-derives two tokens on theme wrappers, which compute identically on `<html>`, so app rendering is unchanged.
-- **Duplicate ids:** none on round 19 or addendum boards. PhaseControl and PreviewWindow previews, which were not touched this round, still repeat an id across their state samples.
+- **Duplicate ids:** none on round 19 or addendum boards or any card preview, PhaseControl and PreviewWindow included.
+- **Accessibility references:** no `aria-controls`, `aria-labelledby`, `aria-describedby` or `aria-activedescendant` names an absent id on those files, except `aria-controls` on a popup drawn closed.
+- **Icons:** no 36-px alert icon or Failed glyph on any board, preview or exported asset hard-codes white or black. Boards that do not load the shared stylesheet (Dialogs, PhoneEdit5) use `var(--paper, #ffffff)`.
 - **References:** board references, both manifests and INDEX.md agree.
 - **Renders:** desk, 1024, 320, phone, and dark and light wrappers on the new and changed boards and previews.
 - **Tests:** `python3 -m unittest tests.test_design_brand tests.test_frontend tests.test_web_robustness`.
 
 ## Runtime behaviour still unverified (needs the built app)
 
+- Remove from List: whether the host can tell “rejected, nothing changed” from “unknown”, and reconcile-before-retry.
+- Which draft time the host records (save confirmation or preservation).
+- `truncated_at` driving the “Flow full” status.
 - Autosave timing, revision checks and late acknowledgements.
 - The browser leave-page warning, and mobile page eviction (documented as a limitation).
 - Cross-window deletion events and consent mirroring.
@@ -118,14 +150,16 @@ These are implementation work for behaviour already decided. They are not produc
 - Screen-reader output, focus restoration, reduced motion and safe areas.
 - Theme wrappers in the built app.
 
-## Genuinely new ambiguities (recommendations; not adopted)
+## Settled by the closeout
 
-1. **Remove from List… failure** has no copy. Recommend "Couldn't remove "Class Notes". Nothing changed." (「Class Notes」を外せませんでした。何も変更していません。) with Try Again, keeping the project listed.
-2. **Alert icons in dark wrappers.** They hard-code a white fill. Recommend that the shared icon set use theme colours. This is fixed only on R19_ProjectRemove.
-3. **Kept draft version time.** A draft version kept from a remote deletion shows "saved 15:21". Recommend "kept 15:21" only if the host records the two times separately.
-4. **Full flow while recording stays on.** No "Start New Flow" button was drawn. Recommend keeping it that way: the existing new-session paths are listed in the popover.
-5. **Shared-profile report drafts** are visible to anyone using that profile. Recommend saying so in the report dialog ("From: Shared profile on this computer"), with no new control.
-6. **Single draft version.** The version list now appears for a single version whenever it isn't Saved; this is a presentation choice. Recommend confirming it, and the label "Removed from the list" (一覧から外したプロジェクト) for the removed-projects Trash group.
+The six items listed here after `e6b7b027` (Remove from List failure, alert icons in dark wrappers, kept draft time, full flow, shared-profile report drafts, single draft version and the “Removed from the list” label) are all decided and drawn; see the closeout map above.
+
+## Remaining defects (known)
+
+- **EditB's comment-popover arrow** still uses a fixed white fill. It is part of a light-only board, not an icon, and was left as is.
+- **Hand-made older boards.** The icon repair on the 25 older boards was applied to the board files. Their generators are not all in the repository, so a board rebuilt from an old source would need the same repair (`gen/preview.py` is fixed; the Dialogs board has no generator).
+- **Closed-popup references.** `aria-controls` on a button whose popup is drawn closed points at an id that is not in the file. This is the drawing convention since round 17, not a defect in the built app.
+- **Japanese:** no native-speaker review.
 
 ## Remaining blockers
 

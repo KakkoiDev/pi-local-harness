@@ -157,8 +157,8 @@
     },
     "failed.svg": {
      "name": "failed.svg",
-     "blob": "6d70d923e579225de92774257f2d225e",
-     "size": 235,
+     "blob": "2bb54dd330d8960c4c03eac68b77933a",
+     "size": 286,
      "type": "image/svg+xml"
     },
     "stopped.svg": {
@@ -187,20 +187,20 @@
     },
     "alert-stop.svg": {
      "name": "alert-stop.svg",
-     "blob": "f317800b8d446b754f835782edb5ad84",
-     "size": 245,
+     "blob": "149073f4b6569d28629b4948c3411514",
+     "size": 296,
      "type": "image/svg+xml"
     },
     "alert-caution.svg": {
      "name": "alert-caution.svg",
-     "blob": "9cf6ede5bf929c4bb88c12881f8762c4",
-     "size": 289,
+     "blob": "9599d38da6f0209f0ee1c7a6940144b4",
+     "size": 352,
      "type": "image/svg+xml"
     },
     "alert-note.svg": {
      "name": "alert-note.svg",
-     "blob": "942b3a275ef4dcb50fbb76668679eada",
-     "size": 293,
+     "blob": "0fb86e8d1df33fc58ad56c9d5d9044a3",
+     "size": 356,
      "type": "image/svg+xml"
     },
     "gate.svg": {
@@ -225,8 +225,8 @@
  },
  "lastChange": {
   "by": "Cyril",
-  "at": "2026-10-21T14:00:00Z",
+  "at": "2026-10-21T18:00:00Z",
   "via": "Claude (Cowork)",
-  "note": "Round 19 follow-up decisions 1–15: unsaved and failed saves, remote deletion, removed projects, stale selection, provider names, phone title row, recorder limits, phone opt-in, shared profile, Preview-only test drafts, theme wrappers, restore copy; second canvas for round 19."
+  "note": "Round 19 closeout of e6b7b027: Remove from List failure copy; alert icons use the theme foreground and background in both themes; Saved, Kept and Recorded draft times; Flow full · no more actions saved; shared-profile report drafts; single-version list and Removed from the list approved; duplicate ids fixed in the PhaseControl and PreviewWindow previews. Exported alert and Failed icons re-uploaded with the theme tokens."
  }
 }

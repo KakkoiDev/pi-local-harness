@@ -57,3 +57,17 @@ A dialog whose body is edge to edge (VisualResult's Inspect, `padding: 0` on `.p
 **Given/When/Then:** Given Class Notes is removed and its folder is added again with the same recorded id, Then its earlier conversations and Trash are connected again. Given a new folder with the same name but no matching id, Then the history is not connected.
 
 Boards: R19_ProjectRemove, Ph19_ProjectRemove. JA has not been reviewed by a native speaker.
+
+### Closeout (21 Oct)
+
+Removing a project from the list can fail. The alert stays open and the project stays listed: **Try Again** (default; JA 再試行) and Cancel.
+- **Host confirms no change:** "Couldn’t remove “Class Notes”." + "Nothing changed." (JA 「Class Notes」を外せませんでした。 / 何も変更していません。). "Nothing changed." appears only when the host confirms no mutation.
+- **Result uncertain:** "Couldn’t confirm removal. Check the list and try again." (JA 外せたかどうか確認できませんでした。一覧を確認して、もう一度お試しください。). The list keeps the host's last report; there is no false rollback.
+
+Try Again first re-reads the host's project list. If the project is already gone, it shows the normal "Removed …" toast; otherwise it repeats the removal (idempotent by project id). Project files are never removed.
+
+**Focus:** stays in the alert while retrying. On success it goes to the next project row; on Cancel, back to where Remove from List… was invoked.
+
+**Given/When/Then:** Given the removal request times out, When the alert reads "Couldn’t confirm removal…" and I press Try Again, Then the list is re-read first, and Class Notes is either shown as removed (toast) or removed again; its folder is untouched.
+
+Boards: R19_ProjectRemove, Ph19_ProjectRemoveError.

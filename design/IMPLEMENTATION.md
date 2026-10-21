@@ -339,7 +339,7 @@ Boards are on the canvas; the new CSS is at the end of `components.css` (also in
 - **ContextMeter** (`#context-meter.pw-meter`, `role="meter"`) replaces “Session: … only” at the right of the Chat footer status bar. `aria-valuenow` = used in k, `aria-valuemax` = limit in k, `--pw-meter` = percent. States: `< 50%` plain; `≥ 50%` `.pw-meter--near` + “· earlier turns are summarised after this answer”; after compaction “· summarised HH:MM” until the next send. Phone: text only in the footer line.
 - **CompactionMarker.** When a chat job reports `compacted_at`, insert `<details class="pw-compacted">` after the last summarised message (summary text from `/api/chat/summary?id=`, rendered with `message-markdown.mjs`). The earlier messages stay visible. Toggle label Show Summary / Hide Summary.
 - **Agent menu.** After Show Task Record: separator, `data-command="compact-now"` “Compact Now” (no alert; adds the marker; toast “Conversation summarised.” without Undo), `new-conversation` “New Conversation…”, `earlier-conversations` “Earlier Conversations ▸” (submenu, newest first, “13 Oct · 84 messages”). All three only in Chat. *(Superseded: round 9 removed these from the Agent menu; Round 19 puts New Conversation, Earlier Conversations… and Delete Conversation… in the conversation’s own “Conversation actions” menu.)*
-- **New Conversation alert** (`#alert-dialog`, note icon): message “Start a new conversation in <project>?”, detail “Pi starts fresh with only the project context. This conversation is kept, read only: open it from the top of the new one or from Agent › Earlier Conversations.”, buttons Cancel / **New Conversation** (default). The new transcript starts with `.pw-convline` “‹ Earlier conversation · 13 Oct · 84 messages · kept, read only”; opening it shows the old transcript with the composer hidden and an info bar “Earlier conversation · read only” + Back to Current. Routes: `/p/<project>/chat` (current), `/p/<project>/chat/<conversation id>` (earlier).
+- **New Conversation alert** (`#alert-dialog`, note icon): message “Start a new conversation in <project>?”, detail “Pi starts fresh with only the project context. This conversation is kept, read only: open it from the top of the new one or from Agent › Earlier Conversations.”, buttons Cancel / **New Conversation** (default). *(Superseded: round 9 removed Earlier Conversations from the Agent menu; Round 19 puts Earlier Conversations… in the conversation's own “Conversation actions” menu.)* The new transcript starts with `.pw-convline` “‹ Earlier conversation · 13 Oct · 84 messages · kept, read only”; opening it shows the old transcript with the composer hidden and an info bar “Earlier conversation · read only” + Back to Current. Routes: `/p/<project>/chat` (current), `/p/<project>/chat/<conversation id>` (earlier).
 - **Sent comments.** Thread `.pw-thread__state` lines: “Saved with the file · not sent to Pi” → “Sent to Pi · waiting in queue · can no longer be deleted” (waiting glyph) → “Pi is working on it” (running) → “Pi answered · HH:MM · can no longer be deleted” (done). Sent and unanswered: a `.pw-link` “Show in Activity” at the end of the actions, also on the Review item (replaces the removed Open Chat). Answers stay in the thread; nothing is posted to Chat.
 
 ### C. What shipped, now drawn
@@ -380,7 +380,7 @@ Boards: [W_Table], [Ph_Table], [Ph_TableEdit], [P_Popups], [PhoneEdit1], [PhoneE
 5. ContextLine: file first for comments and whole-file requests, plan first in Chat. Card fixed.
 6. ContextMeter: show Pi's reported usage (history + that turn's context). Label built as one string, no space before k.
 7. New Conversation alert: confirmed as drawn. It is not destructive (the old conversation is kept), so the expected action is the default.
-8. Earlier conversations: address `/p/<project>/chat/earlier/<id>`. Read-only view: `.pw-readonly` bar under the toolbar (“Earlier conversation · 13 Oct, 09:12 – 14:30 · 84 messages · read only” + Back to Current, default), composer and meter hidden. Agent › Earlier Conversations ▸ lists them newest first with the message count as the key text. [S_Earlier], [M_AgentEarlier]
+8. Earlier conversations: address `/p/<project>/chat/earlier/<id>`. Read-only view: `.pw-readonly` bar under the toolbar (“Earlier conversation · 13 Oct, 09:12 – 14:30 · 84 messages · read only” + Back to Current, default), composer and meter hidden. Agent › Earlier Conversations ▸ lists them newest first with the message count as the key text. [S_Earlier], [M_AgentEarlier] *(Superseded: round 9 removed Earlier Conversations from the Agent menu; Round 19 puts Earlier Conversations… in the conversation's own “Conversation actions” menu.)*
 9. Gate icon: added to the Icons group as `gate.svg`.
 10. Returning: the close box (⌘W) goes back to the last page (fallback `/projects`). **Change**: View ⌘1/⌘2 stay enabled in Activity and Gate and open the last project in that view. A project row or Project-column link opens that project's Chat.
 11. Activity empty copy reworded: “Requests from every project, its comments and whole-file questions wait here in one queue. Terminal Pi runs directly and shows in Gate.”
@@ -2151,9 +2151,9 @@ HTML nesting and `pw-` class definitions on all 28 boards and every card preview
 
 ## 2026-10-21 · Round 19: final design integration (decided, owner-delegated)
 
-**Decision records:** `design/briefs/round-19-final-integration.md` and `design/briefs/round-19-follow-up-decisions.md` (both 21 Oct 2026, owner-delegated; follow-up decisions 1–15 close the gaps reported after `01070dd1`). The owner delegated the selection of the recommendations. Its section A settles the ten round 18 addendum questions and the language rule; section B approves user-journey recording on Pi WorkStation and the Preview; section C is the acceptance matrix. It supersedes conflicting proposals in the round 18 addendum (revision 2, `64dad882`). The Constitution and the twenty round 17 decisions (plan 360) remain authoritative. These decisions authorize **design**; nothing here is implemented or tested at runtime because it is drawn.
+**Decision records:** `design/briefs/round-19-final-integration.md`, `design/briefs/round-19-follow-up-decisions.md` and `design/briefs/round-19-closeout.md` (all 21 Oct 2026, owner-delegated; follow-up decisions 1–15 close the gaps reported after `01070dd1`, and the closeout's six corrections close those reported after `e6b7b027`). The owner delegated the selection of the recommendations. Its section A settles the ten round 18 addendum questions and the language rule; section B approves user-journey recording on Pi WorkStation and the Preview; section C is the acceptance matrix. It supersedes conflicting proposals in the round 18 addendum (revision 2, `64dad882`). The Constitution and the twenty round 17 decisions (plan 360) remain authoritative. These decisions authorize **design**; nothing here is implemented or tested at runtime because it is drawn.
 
-Boards: four pages (Overview; Ask; Project chat; Recording) (61 boards: 42 desk `R19_`, 19 phone `Ph19_`), on the second canvas “Pi WorkStation — Round 19 onward” (see Canvases below). The 28 round 18 addendum boards are retitled "Settled in round 19 (A*n*)" or "Superseded by round 19 (A*n*), see R19_…", and their "Alternative" cells read "Not chosen (round 19)". Ph18A_ConversationMenu is kept for history but superseded: round 9 keeps conversation commands out of the Agent and Chat ▾ menus.
+Boards: four pages (Overview; Ask; Project chat; Recording) (62 boards: 42 desk `R19_`, 20 phone `Ph19_`), on the second canvas “Pi WorkStation — Round 19 onward” (see Canvases below). The 28 round 18 addendum boards are retitled "Settled in round 19 (A*n*)" or "Superseded by round 19 (A*n*), see R19_…", and their "Alternative" cells read "Not chosen (round 19)". Ph18A_ConversationMenu is kept for history but superseded: round 9 keeps conversation commands out of the Agent and Chat ▾ menus.
 
 Cards:
 - **New:** DraftVersions, ConversationTrash, RecordingHistory. Every Round 19 card section has a “Follow-up decisions (21 Oct)” subsection; Dialog has a “Round 19 follow-up” section (Remove from List…).
@@ -2194,6 +2194,30 @@ The final acceptance additions are journeys on four walkthrough boards:
 - **R19_RecWalk:** shared-profile identity limits, consent across windows, full flow and oversized batch, capture after a gap, the mixed-flow test-draft restriction.
 
 Both theme wrappers are drawn on the boards listed for decision 12.
+
+#### Closeout of `e6b7b027` (21 Oct, owner-delegated)
+
+Six final corrections, recorded as supplied in `design/briefs/round-19-closeout.md`. They are corrections to existing round 19 boards and cards, not a new design round.
+
+| # | Correction | Boards | Components | Strings |
+| --- | --- | --- | --- | --- |
+| 1 | Remove from List… failure keeps the project listed with Try Again. “Couldn’t remove “Class Notes”.” adds “Nothing changed.” only when the host confirms no mutation; an uncertain result reads “Couldn’t confirm removal. Check the list and try again.” Try Again re-reads host state first and retries by project id. No false rollback; project files are never removed. | R19_ProjectRemove, Ph19_ProjectRemoveError (new), R19_OverviewWalk | Dialog, WorkOverview | R19_OverviewStrings |
+| 2 | Alert icons use the semantic tokens in both themes: the shape's ground is `--paper`, its outline and glyph are `currentColor` (ink), cutouts are kept. Ink on paper is 21:1 in both themes. | Source `gen/preview.py` (`CAUT36`, `NOTE36`) and every board regenerated from it; 23 hand-made older boards (list below); the 16-px Failed glyph on C_ActivityDesk and PhoneEdit5 | Alert and every preview showing an alert | — |
+| 2a | Duplicate ids in the PhaseControl and PreviewWindow previews: each state sample has its own id (`phase-button-2`…`-6`, `preview-2`, `preview-3`), and the open menu's `aria-labelledby` names its own button | — | PhaseControl, PreviewWindow | — |
+| 3 | Draft times: “Saved {time}” (保存) only for a host-confirmed save; “Kept {time}” (保持) for a separately recorded preservation time; otherwise “Recorded {time}” (記録) or no time. An unsaved buffer never becomes “Saved” through a remote deletion. | R19_AskUnsaved, R19_AskRemote, Ph19_AskRemote, R19_AskDrafts, R19_AskTrash, R19_ProjectChatUnsaved, Ph19_ProjectChatDeleted | DraftVersions, ConversationTrash, Composer | R19_AskStrings, R19_ProjectChatStrings |
+| 4 | Full flow: no Start New Flow button. The status reads “Flow full · no more actions saved” (記録の上限 · これ以上の操作は保存されません), and its popover lists the existing ways to start a new session. Never an unqualified “Recording” while events are dropped. | R19_RecLimits, R19_RecStates, R19_RecResponsive, R19_RecHistory, R19_RecWalk | RecordingStatus | R19_RecStrings |
+| 5 | Shared-profile report drafts show “From: Shared profile on this computer” and “Anyone using this profile can see this draft.” before editing or saving. External submission still needs the payload review and confirmation. | R19_RecIdentity, R19_RecWalk (F10) | ProblemReport | R19_RecStrings |
+| 6 | Approved as drawn: the version list for a single Saving…/Unsaved/Not saved/Conflict version (a normal saved draft shows no list and no conflict UI), and the Trash group “Removed from the list” (一覧から外したプロジェクト) with “This is about the project list. The project's files weren't deleted.” | R19_AskUnsaved, R19_AskRemoved, R19_AskTrash | DraftVersions, ConversationTrash | R19_AskStrings |
+
+**Alert icon repair, older boards.** C_ChatDesk, C_GateDesk, C_WorkDesk, Dialogs, Dialogs2, Ph_GateDetail, G_Tablet, P_Undo, P_UndoConflict, P_UndoUnsaved, R9_Update, R9_UpdateStates, R9_Devices, R10_AutoOn, R12_Verify, R12_Reopen, R12_Renamed, R12_ThemeParts, R15_ReportFailure, R15_RecordingStates, R15_PlanStates, R15_VisualUse, R18_OverviewHistory; plus the Failed glyph on C_ActivityDesk and PhoneEdit5. Dialogs and PhoneEdit5 do not load the shared stylesheet, so they use `var(--paper, #ffffff)` with a fallback. The exported assets `design/system/assets/Icons/alert-note.svg`, `alert-caution.svg`, `alert-stop.svg` and `failed.svg` use `var(--paper, #ffffff)` and `var(--ink, #000000)`, so they still render in black and white outside the app. The app's own icon set (`design/icons.mjs`) already used `var(--paper,#fff)` and is unchanged.
+
+**Stale accessibility references, fixed at the source.** `gen/r18a.py` emits `aria-describedby="ov-keys"` only from a window that draws the keyboard hint, so phone lists and cropped Overview cells no longer point at a missing id when regenerated. The chat generator no longer gives an off Preview toggle `aria-controls="preview"` when no Preview is drawn. The recorder generator gives the first-use dialog its id. The part checks now fail on any `aria-controls`, `aria-labelledby`, `aria-describedby` or `aria-activedescendant` naming an absent id; the only exception is `aria-controls` on a popup drawn closed (`aria-expanded="false"`).
+
+**Implementation dependencies added by the closeout:**
+- the host's Remove from List response distinguishes “rejected, nothing changed” from “unknown”, and the list is re-read before a retry;
+- the draft store says which time it holds (save confirmation or preservation);
+- the recorder reports `truncated_at` so the status can switch to “Flow full”;
+- the report draft store records the shared-profile scope.
 
 #### What changes against earlier rounds (only these areas)
 
@@ -2277,7 +2301,7 @@ Both theme wrappers are drawn on the boards listed for decision 12.
 
 Brief: REPO/design/briefs/round-19-final-integration.md. This part covers A1, A6 (the Overview part) and A10, plus acceptance groups C1, C5 and part of C14.
 
-This is design only: nothing here claims runtime behaviour exists or was tested. Recording is part D; its WorkStation status sits in the menu bar above every window, Overview included.
+This is design only: nothing here claims runtime behaviour exists or was tested. Recording, including any control over Overview, is specified in part D, so it is not drawn here.
 
 **Files**
 - Generator `gen/r19a.py`: it execs `gen/r18a_a.py`, then retitles the R18A boards and makes ids unique (`gen/uniqids.py`).
@@ -2287,7 +2311,7 @@ This is design only: nothing here claims runtime behaviour exists or was tested.
 
 **Validation (`r19check_a.py`)**
 - 0 HTML problems, 0 undefined `pw-` classes, 0 CSS redefinitions, and no duplicate ids across 7 R19 boards, 7 revised R18A boards and 6 card previews.
-- Every board was rendered with shot.py into `shots19a/` and its PNG read, covering desk, 1024, 320, phone and dark cells; heights were measured to fit.
+- Every board was rendered with shot.py and its PNG read, covering desk, 1024, 320, phone and dark cells; heights were measured to fit.
 - Previews were checked with `dsshot.py` (bundle.css only) and with the round 17/18/19 CSS injected.
 
 #### Boards
@@ -2299,10 +2323,11 @@ This is design only: nothing here claims runtime behaviour exists or was tested.
 | R19_OverviewSelection | 1440×4010 | In context with the File menu; menu states; no selection; removed between menu and action; two windows; rules; 320; and (follow-up) stale selection, reconnect revalidation, light and dark wrappers side by side |
 | R19_CancelRequest | 1440×1790 | Request detail idle, confirmation, cancelling, cancelled, already finished, idempotent, failed, dark; rules; New marker with hover and background refresh; rules |
 | Ph19_CancelRequest | 390×844 | Failed cancel on the phone, with Try Again |
-| R19_ProjectRemove | 1440×1530 | Follow-up 4: Project menu, the revised Remove from List… confirmation, toast + Projects home after removal, Add Existing Folder… same identity vs a reused name, rules, light and dark wrappers |
+| R19_ProjectRemove | 1440×2360 | Follow-up 4: Project menu, the revised Remove from List… confirmation, toast + Projects home after removal, Add Existing Folder… same identity vs a reused name, rules, light and dark wrappers |
 | Ph19_ProjectRemove | 390×844 | Follow-up 4: the confirmation as a phone sheet |
-| R19_OverviewStrings | 1440×1540 | EN/JA, 43 strings |
-| R19_OverviewWalk | 1440×1540 | Given/When/Then for C1, C5, C14 and follow-up decisions 4, 5, 6 |
+| Ph19_ProjectRemoveError | 390×844 | Closeout: the uncertain-result sheet with Try Again |
+| R19_OverviewStrings | 1440×1660 | EN/JA, 47 strings |
+| R19_OverviewWalk | 1440×1660 | Given/When/Then for C1, C5, C14 and follow-up decisions 4, 5, 6 |
 
 **Revised R18A boards** (titles in `r19revised_a.json`; "Alternative (not recommended)" captions now read "Not chosen (round 19)"):
 
@@ -2537,21 +2562,21 @@ Real probe coalescing timing; cross-window propagation of health, cancel and New
 #### Gap → recommendation
 
 1. **Selection while Overview is not connected.** Settled by follow-up decision 5 (see below).
-2. **RecordingStatus in the Overview toolbar.** Not drawn here; part D places it in the menu bar. Recommend D places it after the freshness indicator, before Show.
+2. **RecordingStatus in the Overview toolbar.** Not needed: part D puts the WorkStation recording control in the menu bar above Overview, so the Overview toolbar has no recording slot.
 3. **Plain click to select.** Not adopted: round 17's row link keeps opening the chat. Recommendation only: if testing shows Space and empty-area clicks are hard to discover, consider a visible “Select” affordance per row rather than repurposing the click.
 4. **Remote provider naming.** Settled by follow-up decision 6: the configured name (e.g. Studio Mac), with the fallback "Model provider".
 5. **Dark cells drawn in a wrapper.** Settled by follow-up decision 12: `scripts/round19_theme.css` re-derives the selection tokens on every theme wrapper, and A's workaround rules were removed.
 
 #### Follow-up decisions (21 Oct; REPO/design/briefs/round-19-follow-up-decisions.md)
 
-Part A covers decisions 4, 5, 6 and 12. New CSS: none. `scripts/round19_theme.css` is injected after the other CSS; A's dark-selection workaround rules were removed from `round19_a.css`.
+Part A covers decisions 4, 5, 6 and 12. New CSS: none. `scripts/round19_theme.css` is injected after the other CSS; A's dark-selection workaround rules were removed from `round19_a.css`. `bundle.css` has since been rebuilt from the current files.
 
 **Validation (`r19check_a.py`)**
 - 0 HTML problems, 0 undefined classes, 0 duplicate ids, 0 CSS redefinitions. The check compares against the bundle with its earlier `round19_a` block removed.
 - All boards were rendered and read, including the 320, 1024, phone, dark and light cells.
 
 #### Decision 4 · Owner removes a project
-**Boards:** R19_ProjectRemove (1440×1530), Ph19_ProjectRemove (390×844).
+**Boards:** R19_ProjectRemove (1440×2360), Ph19_ProjectRemove (390×844), Ph19_ProjectRemoveError (390×844).
 **Cards:** Dialog § Round 19 follow-up; MenuBar, Menu and WorkOverview follow-up subsections.
 
 **Confirmation**
@@ -2573,7 +2598,7 @@ Part A covers decisions 4, 5, 6 and 12. New CSS: none. `scripts/round19_theme.cs
 | --- | --- |
 | Idle | Menu item |
 | Loading | Remove pending: the button disabled until recorded (host) |
-| Error | Pending: "Couldn’t remove “Class Notes”. Nothing changed." is not drawn (see Gap → recommendation) |
+| Error | Decided in the closeout: "Couldn’t remove “Class Notes”." + "Nothing changed." (host-confirmed), or "Couldn’t confirm removal. Check the list and try again." (uncertain); Try Again |
 | Conflict | Same-name / different-identity case above |
 | Empty, Disabled, Stale | N/A |
 
@@ -2630,17 +2655,64 @@ Part A covers decisions 4, 5, 6 and 12. New CSS: none. `scripts/round19_theme.cs
   - Other dark cells: R19_ServiceHealth, R19_CancelRequest.
 - **Unrelated application styles:** unchanged (the theme rule only re-derives the selection tokens on wrappers).
 
-#### Gap → recommendation (new)
-1. **Remove from List… failure.** Recommend: "Couldn’t remove “Class Notes”. Nothing changed." (JA 「Class Notes」を外せませんでした。何も変更していません。) with Try Again, shown in the same alert; the project stays listed.
-2. **The Note alert icon in dark wrappers.** NOTE36/CAUT36 hard-code `fill="#fff"`. Recommend that the shared icon set use `currentColor` / `var(--paper)` fills so dark previews draw correctly. I fixed it locally for the R19_ProjectRemove board only.
+#### Gaps settled by the closeout
+1. **Remove from List… failure.** Decided in the closeout (see Closeout below).
+2. **The Note alert icon in dark wrappers.** Fixed at the source (`gen/preview.py`); the local `NOTE36T` workaround was removed.
+
+#### Closeout (21 Oct; closeout of revision `e6b7b027`)
+
+#### Decision 1 · Remove from List failure
+**Boards:** R19_ProjectRemove (1440×2360: two failure alerts, the Projects list still showing Class Notes, rules), Ph19_ProjectRemoveError (390×844, new, appended to the layout), R19_OverviewStrings (1440×1660), R19_OverviewWalk (1440×1660).
+**Cards:** Dialog § Round 19 follow-up › Closeout; WorkOverview › Closeout.
+
+**Strings**
+
+| State | English | Japanese |
+| --- | --- | --- |
+| Host confirms no mutation | "Couldn’t remove “Class Notes”." + "Nothing changed." | 「Class Notes」を外せませんでした。 / 何も変更していません。 |
+| Uncertain result | "Couldn’t confirm removal. Check the list and try again." | 外せたかどうか確認できませんでした。一覧を確認して、もう一度お試しください。 |
+| Retry button | Try Again | 再試行 |
+
+**States**
+- Error (confirmed): first row above.
+- Error (uncertain): second row above.
+- Loading: Try Again busy/disabled while it re-reads and retries.
+- Conflict: already removed by then → the normal removed toast.
+- Idle, Empty, Disabled, Stale: as in follow-up 4.
+
+**Rules**
+- The item stays visible until the host reports it removed.
+- Try Again reconciles host state first, then retries idempotently by project id.
+- No false rollback; project files are never removed.
+
+**Focus:** stays in the alert while retrying; on success, the next project row; on Cancel, where the command was invoked.
+**Implementation dependency:** a host response that distinguishes "rejected, nothing changed" from "unknown", and a list re-read before the retry.
+
+#### `ov-keys` source fix
+- `gen/r18a.py` no longer emits `aria-describedby="ov-keys"` from `needs18()` / `projects18()`. `ovwin18()` adds it only when it draws the keyboard hint (`keys=True`) in the same window.
+- Phone lists (`phlist18`), cropped and narrow cells, and every window drawn without the hint no longer reference it.
+- Regenerated output keeps the earlier hand fixes: Ph19_ServiceHealth and R19_CancelRequest contain no `ov-keys` reference.
+
+#### `NOTE36T`
+Removed from `gen/r19a.py`; R19_ProjectRemove uses the source-fixed NOTE36 (`fill: var(--paper)`). The dark wrapper renders correctly.
+
+#### Validation (`r19check_a.py`)
+- 0 HTML problems, 0 undefined classes, 0 CSS redefinitions, 0 duplicate ids.
+- 0 dangling `aria-controls` / `aria-labelledby` / `aria-describedby` references. `aria-controls` is allowed only for a closed popup (`aria-expanded` or `aria-pressed` = "false").
+- This covers the R19 boards, the revised R18A boards and the 6 card previews.
+- All A boards were re-rendered and their PNGs read.
+
+#### Still defective / unverified
+- **Nothing known defective in A's files.**
+- **Unverified (as before):** runtime timing of reconcile-then-retry and the host's ability to distinguish "nothing changed" from "unknown".
 
 ### B · Ask across projects, drafts and conversation Trash
 
 Design only. Nothing here is implemented or tested; real autosave, cross-window timing, screen-reader output and browser focus are unverified until built. Brief: `design/briefs/round-19-final-integration.md` (A2, A3, A4, A5, A6 dashboard part, A9; acceptance groups 2, 3, 4 and part of 14). Board titles “Round 19 · Decided · …”.
 
-Generator `gen/r19b.py` execs `gen/r18a_b.py` (which execs r18b/r17b/r13), regenerates the R18A boards, retitles them, then draws round 19. Run `PW_OUT=SP/out19b/`; copied to `cv/project/`: `R19_Ask*`, `Ph19_Ask*` and my revised `R18A_Ask*`/`Ph18A_Ask*` (not part C's R18A_AskAgainPhase). CSS `scripts/round19_b.css`: only new classes (`.pw-convoact*`, `.pw-convoline`, `.pw-convo__trash`, `.pw-draftv*`, `.pw-trash*`); existing classes appear only as descendants of new ones. Validation `r19check_b.py`: 29 board files + 5 previews → 0 HTML problems, 0 undefined classes, 0 duplicate ids (a post-pass suffixes ids repeated across cells and rewires their references), 0 redefinitions. Remaining dangling `aria-controls` point at closed popups (`ask-convo-menu`, `ask-scope-pop`, a collapsed list), as in rounds 17–18. Every board and the five previews were rendered and read (`shots19b/`), including 320, 1024, phone and Inverse cells; previews were checked with round18_b/round18add_b/round19_b CSS injected (`round19_b.css` is appended to the bundle).
+Generator `gen/r19b.py` execs `gen/r18a_b.py` (which execs r18b/r17b/r13), regenerates the R18A boards, retitles them, then draws round 19. Output: `R19_Ask*`, `Ph19_Ask*` and the revised `R18A_Ask*`/`Ph18A_Ask*` (R18A_AskAgainPhase comes from part C). CSS `scripts/round19_b.css`: only new classes (`.pw-convoact*`, `.pw-convoline`, `.pw-convo__trash`, `.pw-draftv*`, `.pw-trash*`); existing classes appear only as descendants of new ones. Validation `r19check_b.py`: 29 board files + 5 previews → 0 HTML problems, 0 undefined classes, 0 duplicate ids (a post-pass suffixes ids repeated across cells and rewires their references), 0 redefinitions. Remaining dangling `aria-controls` point at closed popups (`ask-convo-menu`, `ask-scope-pop`, a collapsed list), as in rounds 17–18. Every board and the five previews were rendered and read, including 320, 1024, phone and Inverse cells; previews were checked with round18_b/round18add_b/round19_b CSS injected (plain `dsshot.py` uses bundle.css only; `round19_b.css` is now part of it).
 
-**Reused by part C by name:** DraftVersions = `section.pw-draftv` › `.pw-draftv__head` (`h4.pw-draftv__h`, Hide/Show) › `p.pw-draftv__hint` › `ol.pw-draftv__list` › `li.pw-draftv__row[data-state=saved|saving|unsaved|conflict][aria-current]` › `p.pw-draftv__meta` (b + `span.pw-draftv__state`) + `p.pw-draftv__text` + `.pw-draftv__actions` (`.pw-draftv__inuse`); `p.pw-draftv__offline`. ConversationTrash = `section.pw-trash` › `.pw-trash__head` (`h3.pw-trash__title`) › `.pw-trash__body` › `p.pw-trash__note`, `h4.pw-trash__sub`, `ul.pw-trash__list` › `button.pw-trash__item` (`.pw-trash__t`, `.pw-trash__m`), `p.pw-trash__empty`; detail `p.pw-trash__ro`, `.pw-trash__detail`, `.pw-trash__foot` (`p.pw-trash__status`, `.pw-trash__actions`). Conversation actions = `span.pw-convoact` › `button.pw-convoact__btn[aria-label="Conversation actions"]` + `.pw-menu`; history list end `button.pw-convo__trash`. Helpers in `gen/r19b.py`: `draftv`, `dv_row`, `OFFLINE`, `dvalert`, `trash_list`, `trash_detail`, `delalert`, `refusal`, `convoact`.
+**Reused by part C (by name):** DraftVersions = `section.pw-draftv` › `.pw-draftv__head` (`h4.pw-draftv__h`, Hide/Show) › `p.pw-draftv__hint` › `ol.pw-draftv__list` › `li.pw-draftv__row[data-state=saved|saving|unsaved|conflict][aria-current]` › `p.pw-draftv__meta` (b + `span.pw-draftv__state`) + `p.pw-draftv__text` + `.pw-draftv__actions` (`.pw-draftv__inuse`); `p.pw-draftv__offline`. ConversationTrash = `section.pw-trash` › `.pw-trash__head` (`h3.pw-trash__title`) › `.pw-trash__body` › `p.pw-trash__note`, `h4.pw-trash__sub`, `ul.pw-trash__list` › `button.pw-trash__item` (`.pw-trash__t`, `.pw-trash__m`), `p.pw-trash__empty`; detail `p.pw-trash__ro`, `.pw-trash__detail`, `.pw-trash__foot` (`p.pw-trash__status`, `.pw-trash__actions`). Conversation actions = `span.pw-convoact` › `button.pw-convoact__btn[aria-label="Conversation actions"]` + `.pw-menu`; history list end `button.pw-convo__trash`. Helpers in `gen/r19b.py`: `draftv`, `dv_row`, `OFFLINE`, `dvalert`, `trash_list`, `trash_detail`, `delalert`, `refusal`, `convoact`.
 
 #### Boards
 
@@ -2775,7 +2847,7 @@ Cards: DraftVersions, ConversationTrash, ConversationList — each gets “### F
 - Dependencies: deletion event pushed to open windows; server rejects saves to trashed conversations except the one “keep unsaved buffer as a version” call bound to the trash record; restore revalidates.
 
 #### 4 · Owner removes a project (Trash side)
-- Group “Removed from the list · {n}” keyed by stable project id + removal time and counts; detail notice “Kanji Cards was removed from the list on 21 Oct. Its folder wasn't moved or deleted.” / “To restore these conversations, add the same project again with Add Existing Folder….”; Restore disabled, “Add Kanji Cards again to restore its conversations.”. Same identity re-added → reconnected (A's copy), group gone; name/path reuse → not reconnected; access revocation → nothing listed or named.
+- Group “Removed from the list · {n}” keyed by stable project id + removal time and counts; detail notice “Kanji Cards was removed from the list on 21 Oct. Its folder wasn't moved or deleted.” (closeout 6 replaces the second sentence with “This is about the project list. The project's files weren't deleted.”) / “To restore these conversations, add the same project again with Add Existing Folder….”; Restore disabled, “Add Kanji Cards again to restore its conversations.”. Same identity re-added → reconnected (A's copy), group gone; name/path reuse → not reconnected; access revocation → nothing listed or named.
 - Dependencies: project identity independent of name/path; retained Trash records keyed by project id with removal metadata; reconnect on identity match. Product questions: none.
 
 #### 12 · Theme wrappers
@@ -2791,7 +2863,18 @@ F1 Unsaved and leaving; F2 old acknowledgement; F2 Not saved + newer remote; F3 
 `r19check_b.py`: 33 board files (16 R19/Ph19 + 12 revised R18A/Ph18A + …) and 5 previews: 0 HTML problems, 0 undefined classes, 0 duplicate ids (now including all R18A/Ph18A boards and every B preview), 0 redefinitions (the check ignores CSS comments and the bundled copy of round19_b). Every new and updated board, both theme wrappers and the two new-card previews were rendered and read.
 
 #### Remaining gaps
-- A draft version kept from a remote deletion and later restored keeps its saved-at time from the moment it was kept; whether to show “kept 15:21” instead of “saved 15:21” → recommend “kept” wording only if the host distinguishes the two times (no copy adopted).
+- (Settled in the closeout, decision 3: “Kept {time}” only when the host records a preservation time; otherwise “Recorded {time}” or no time.)
+
+#### Closeout (21 Oct)
+
+Decisions 3 and 6 (B part). Same boards, updated in place; no new boards.
+
+- **Decision 3 · timestamps.** `dv_row(..., ts=)` labels: “Saved {time}” (保存 {time}) = host-confirmed save only; “Kept {time}” (保持 {time}) = a separately recorded preservation time; “Recorded {time}” (記録 {time}) = the only time known, or omit it. The version kept from a remote deletion reads “Kept 15:21” (R19_AskRemote, Ph19_AskRemote, the restored cell); host-confirmed rows read “Saved …” (R19_AskDrafts, R19_AskTrash item “Draft version · iPhone · Saved 14:55”); R19_AskUnsaved gains a timestamps cell (Saved / Kept / Recorded) and a “normal saved draft: no list, no conflict UI” cell. An unsaved buffer never becomes “Saved”. Implementation dependency: the host must say which timestamp it stores (save confirmation vs preservation); otherwise the UI shows “Recorded” or nothing. Part C reuses these labels.
+- **Decision 6 · approvals.** Single-version list for Saving…/Unsaved/Not saved/Conflict approved as drawn; normal saved draft shows no list (drawn). “Removed from the list” approved; explanation “This is about the project list. The project's files weren't deleted.” (プロジェクトの一覧についての表示です。ファイルは削除されていません。) added under the group heading (`p.pw-trash__why#tr-rw`, the list's `aria-describedby`) and in the detail notice, replacing “Its folder wasn't moved or deleted.”.
+- **Accessibility references.** `r19check_b.py` now also fails on any `aria-controls`, `aria-labelledby` or `aria-describedby` pointing at an absent id, except `aria-controls` on a control drawn closed (`aria-expanded="false"`). Result: 0. Part B's generators never emit `ov-keys`. The shared alert icons come from gen/preview.py (fill var(--paper)); part B had no local icon workaround.
+- **Sizes.** R19_AskUnsaved 1440×2100; R19_AskStrings 1440×1940; R19_AskWalk 1440×2960; R19_AskRemoved 1440×1880; R19_AskRemote 1440×2130; others unchanged (`r19layout_b.json` regenerated; `r19revised_b.json` unchanged).
+- **Validation.** 33 board files + 5 previews: 0 HTML problems, 0 undefined classes, 0 duplicate ids, 0 redefinitions, 0 dangling aria references. Rendered and read: R19_AskUnsaved, R19_AskRemote, R19_AskRemoved, R19_AskDrafts, R19_AskTrash, Ph19_AskRemote.
+- Unverified: whether the host can supply separate saved/kept times (implementation dependency). JA not native-speaker reviewed.
 
 ### C · Project chat
 
@@ -2799,12 +2882,12 @@ This is design only; none of it is implemented, and no runtime behaviour was tes
 
 **Files and checks**
 
-- Generator: `gen/r19c.py`. It execs `gen/r18a_c.py` with source edits: round 9 is restored, the approval labels are retired, and `Ph18A_ConversationMenu` is dropped. It also post-processes ids per cell. Run with `PW_OUT=out19c/`.
+- Generator: `gen/r19c.py`. It execs `gen/r18a_c.py` with source edits: round 9 is restored, the approval labels are retired, and `Ph18A_ConversationMenu` is dropped. It also post-processes ids per cell.
 - Previews: `gen/ds19c.py`. CSS: `scripts/round19_c.css` (new classes only).
 - Board CSS injects round17_*, round18_*, round18add_a/b/c, round19_b (B's shared cards) and round19_c.
 - Check: `r19check_c.py` finds 0 HTML problems (including duplicate attributes), 0 files with duplicate ids, 0 undefined `pw-` classes and 0 CSS redefinitions. It covers the 17 boards and 5 card previews.
 - Rendering: every board was rendered with `shot.py` and its PNG read, including 1024, 320, phone and dark cells.
-- dsshot: run for the five cards with the bundle, which carries `round19_b.css` and `round19_c.css`.
+- dsshot: run for the five cards. It uses bundle.css only, so `round19_b.css` and `round19_c.css` (and the earlier round18add/round17/18 files) are appended to bundle.css. The previews were also checked with all CSS injected (`pvshot19c.py`).
 
 #### Boards (r19layout_c.json)
 
@@ -2828,7 +2911,7 @@ This is design only; none of it is implemented, and no runtime behaviour was tes
   - The “Alternative (not recommended)” cells now read “Not chosen (round 19)”.
   - The Agent-menu, Earlier Conversations ▸ and Chat ▾ delete cells are removed from R18A_ReceiptLifetime and replaced by one pointer cell.
   - The R18A walkthrough's Agent stories are replaced by a pointer.
-- **Removed:** Ph18A_ConversationMenu (it put Delete Conversation… in Chat ▾, which round 9 forbids). It stays on the canvas for history, retitled as superseded.
+- **Withdrawn:** Ph18A_ConversationMenu (it put Delete Conversation… in Chat ▾, which round 9 forbids). The board stays on the first canvas for history, retitled as withdrawn.
 
 #### Cards
 
@@ -2837,7 +2920,7 @@ Composer, Message, ContextReceipt, CompactionMarker and ContextLine:
 - The heading is renamed to “## Round 18 addendum (settled or superseded in round 19 — see Round 19)”, and the Agent/Chat ▾ lines in CompactionMarker are marked “Superseded:”.
 - Each card gains a “## Round 19 (decided, owner-delegated 21 Oct 2026)” section.
 - Round 19 preview blocks were appended to Composer (height 1070), Message (1420) and ContextReceipt (3420).
-- B's DraftVersions and ConversationTrash are referenced by name and reused by markup (`.pw-draftv*`, `.pw-trash*`, `.pw-convoact*`, `.pw-convo__*`, `.pw-convorow*`). I didn't edit them.
+- B's DraftVersions and ConversationTrash are referenced by name and reused by markup (`.pw-draftv*`, `.pw-trash*`, `.pw-convoact*`, `.pw-convo__*`, `.pw-convorow*`). Part C did not edit them.
 
 #### A6 / A9 · Conversation actions in project chat (group 4, project side)
 
@@ -2973,13 +3056,13 @@ Caret anchoring across wrapped and scrolled fields, IME composition events per b
 - **Settled by decision 4:** what happens to a removed project's conversation Trash. It is kept under the stable project id with removal metadata (A and B draw it). This line is no longer a gap.
 - **Settled by decision 7:** the phone title row under the PhoneBar (see Follow-up decisions below).
 - **Settled by decision 15:** @ in comment composers stays deferred (stated in the Composer card).
-- **Settled:** the older text naming “Agent › Earlier Conversations ▸” is marked superseded in the card and in the earlier IMPLEMENTATION sections.
+- The earlier text that mentions “Agent › Earlier Conversations ▸” is marked superseded in this file and in the CompactionMarker card.
 
 #### Follow-up decisions (21 Oct)
 
 Authority: design/briefs/round-19-follow-up-decisions.md. Design only.
 
-- **CSS:** `scripts/round19_theme.css` is injected last. I added no selection workaround (there was none in my CSS). New classes: `.pw-chattitle__row`, `.pw-chattitle__btn`, `.pw-chattitle__sheethead`, `.pw-chattitle__sub`, `.pw-chattitle__full`. No redefinitions.
+- **CSS:** `scripts/round19_theme.css` is injected last. Part C needed no selection workaround. New classes: `.pw-chattitle__row`, `.pw-chattitle__btn`, `.pw-chattitle__sheethead`, `.pw-chattitle__sub`, `.pw-chattitle__full`. No redefinitions.
 - **Check:** `r19check_c.py` excludes the bundled copy of round19_c from the redefinition check. It covers the 20 boards and 5 previews: 0 HTML problems, 0 duplicate ids, 0 undefined classes, 0 redefinitions.
 - **Rendering:** every changed board was rendered and read, including 320, 1024, the phone, and the dark and light wrappers.
 
@@ -3051,11 +3134,34 @@ Dark and light wrappers sit side by side, with a selected Trash item (R19_Projec
 
 beforeunload behaviour per browser and phone, real save timing and acknowledgement ordering, the live deletion event across windows, screen-reader reading of the title row and sheet, and large-text rendering on devices.
 
+#### Closeout (21 Oct)
+
+**Decision 3 in project chat (B's labels).** Draft-version rows show:
+
+- “Saved {time}” (保存 {time}): only for a host-confirmed save.
+- “Kept {time}” (保持 {time}): a separately recorded preservation time. The unsaved buffer kept at a deletion in another window is “Kept 14:52”, on R19_ProjectChatUnsaved (remote detail, restore failure, restored) and on Ph19_ProjectChatDeleted.
+- “Recorded {time}” (記録 {time}): the only time the host has, when it doesn't say which. Otherwise no time is shown.
+
+An unsaved buffer never becomes “Saved” through remote deletion. The Trash draft title now reads “Draft version · iPhone · Saved 14:55” (B's capitalised label). Also new: a timestamps cell on R19_ProjectChatUnsaved, a Composer card paragraph, a strings row and a walkthrough story.
+
+**Sizes:** R19_ProjectChatUnsaved 1440×4520, R19_ProjectChatStrings 1440×1330, R19_ProjectChatWalk 1440×1100. All other sizes are unchanged.
+
+**Accessibility references.**
+
+- `r19check_c.py` now also fails on aria-labelledby, aria-describedby, aria-controls or aria-activedescendant that point at a missing id. The only exception is aria-controls on an element with aria-expanded="false".
+- **Source fix in r19c.py:** the Chat window's Preview toggle, drawn off (aria-pressed=false), no longer carries aria-controls="preview" when no Preview window is drawn in that file.
+- Ph18A_AskAgainPhase's summary now controls the receipt actually drawn in its sheet.
+- **Result:** 0 dangling references, 0 HTML problems, 0 duplicate ids, 0 undefined classes, 0 redefinitions. The redefinition check skips only the bundle's round19_c section.
+
+**Icons:** the shared alert icon was fixed at the source; part C had no local workaround; the boards were regenerated.
+
+**Still to verify in the built app:** the host's actual timestamp semantics, i.e. which events record a preservation time.
+
 ### D · Recording on Pi WorkStation and the Preview
 
 Decided, owner-delegated 21 Oct 2026 (brief `design/briefs/round-19-final-integration.md`, section B). Design only: nothing here claims the runtime exists or was tested. Capture belongs in test-core; storage, permissions and presentation in WorkStation. Recording is evidence collection, never a grant of agent authority.
 
-Boards (layout `r19layout_d.json`, reading order): R19_RecFirstUse (1440×900), R19_RecSurfaces (1440×2900), R19_RecControl (1440×900), R19_RecStop (1440×1240), R19_RecCoverage (1440×1190), R19_RecSessions (1440×920), R19_RecStates (1440×1660), R19_RecHistory (1440×900), R19_RecAttach (1440×900), R19_RecEvidence (1440×2440), R19_Rec1024 (1024×900), R19_RecResponsive (1440×2620), Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview, Ph19_RecAttach, Ph19_RecReport (390×844 each), R19_RecStrings (1440×2140), R19_RecWalk (1440×1600). No R18A boards in this area (`r19revised_d.json` is empty).
+Boards (layout `r19layout_d.json`, reading order): R19_RecFirstUse (1440×900), R19_RecSurfaces (1440×2900), R19_RecControl (1440×900), R19_RecStop (1440×1240), R19_RecCoverage (1440×1190), R19_RecSessions (1440×920), R19_RecStates (1440×1660), R19_RecHistory (1440×900), R19_RecAttach (1440×900), R19_RecEvidence (1440×2440), R19_Rec1024 (1024×900), R19_RecResponsive (1440×2620), Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview, Ph19_RecAttach, Ph19_RecReport (390×844 each), R19_RecStrings (1440×2140), R19_RecWalk (1440×1700). No R18A boards in this area (`r19revised_d.json` is empty).
 Generator `gen/r19d.py` (execs `gen/r18a.py` for menu bar, Projects home, Overview and project chat helpers; borrows round 15 recording pieces from `gen/r15a.py`). Card previews `gen/ds19d.py`. CSS `scripts/round19_d.css` (new classes/modifiers only). Check `r19check_d.py`: 0 HTML problems, 0 undefined `pw-` classes, 0 CSS redefinitions, 0 duplicate ids (19 boards + 4 card previews).
 Cards: **RecordingStatus**, **FlowAttachment**, **ProblemReport** (each gains “## Round 19 (decided, owner-delegated 21 Oct 2026)”); new **RecordingHistory** (README + preview). Earned because round 15 had nowhere to list flows by surface, inspect them, or Clear by scope.
 
@@ -3075,7 +3181,7 @@ Cards: **RecordingStatus**, **FlowAttachment**, **ProblemReport** (each gains �
 
 #### Group 9 · enable/decline, Preview independent, stop one/all, reload, remote device
 Boards R19_RecFirstUse, R19_RecSurfaces, R19_RecControl, R19_RecStop, Ph19_RecFirstUse, Ph19_RecStatus, Ph19_RecOverview.
-- Placement: one WorkStation button per browser window in the **menu bar**, left of the agent status → visible over Projects, project chat, Work (files), Settings and Overview. Each step's destination is fixed at event time by the desk window it happened in; the button names the active window's destination (“· Class Notes” / “· outside projects”). Overview needs **no toolbar slot** (part A draws no slot). 1024: “Recording WorkStation” (destination in the accessible name). Phone: strip under the phone bar once enabled; before that, π › Settings… and the first-use sheet.
+- Placement: one WorkStation button per browser window in the **menu bar**, left of the agent status → visible over Projects, project chat, Work (files), Settings and Overview. Each step's destination is fixed at event time by the desk window it happened in; the button names the active window's destination (“· Class Notes” / “· outside projects”). Overview needs **no toolbar slot**. 1024: “Recording WorkStation” (destination in the accessible name). Phone: strip under the phone bar once enabled; before that, π › Settings… and the first-use sheet.
 - First use: one-time notice “New: Pi WorkStation can record what you do in its windows, so Pi can see what led to a problem. It stays off until you turn it on.” · Recording Options… · Not Now; dialog “Record what you do in Pi WorkStation?” · **Not Now** (default, Esc) · **Enable Recording**. No modal at launch, no focus stealing.
 - Stop Recording WorkStation stops only WorkStation (toast “WorkStation recording stopped. The Preview is still recording.”); Stop Recording Preview only the Preview; **Stop All Recording** stops both everywhere for the person, deletes nothing (“All recording stopped. What was recorded is kept.”). Mirrored to other windows; announced once “WorkStation recording stopped in another window.”
 - Reload: the previous flow ends; “Starting WorkStation recording…” until the host confirms a new session. Not Now / Stop survive reload.
@@ -3146,7 +3252,7 @@ Real capture coverage per browser; key-up fidelity; bridge origin/source/token s
 - Settled by follow-up decision 10 (was a gap): per authenticated person; otherwise the labelled shared profile on this computer.
 - Settled by follow-up decision 11 (was a gap): Preview-only flows only.
 - **Retention of Trash for recordings** → reuse the existing Trash rules (no new retention, per brief).
-- **Overview toolbar slot** is unnecessary: the WorkStation control lives in the menu bar above Overview.
+- **Overview toolbar slot** is unnecessary: the WorkStation control lives in the menu bar above Overview (no placeholder needed).
 
 
 #### Follow-up decisions
@@ -3158,7 +3264,7 @@ New boards (appended to `r19layout_d.json`): R19_RecLimits (1440×1420), R19_Rec
 #### 8 · Recorder limits
 - Boards R19_RecLimits, R19_RecStates, R19_RecHistory; cards RecordingStatus, FlowAttachment, RecordingHistory, ProblemReport.
 - Rules: ≤500 normalized events per flow, ≤50 per batch, ≤64 KiB per encoded HTTP body, all checked by the host before storage; oversized batch rejected whole (no partial write) → gap; full flow → no further events accepted, marked truncated; no eviction; no automatic replacement flow; batching never creates flows; a new session or Record It Again… may start a new flow; 20 flows / 7 days per bucket unchanged; smaller transport chunks allowed, limits never relaxed without a documented change.
-- Strings: “WorkStation flow full · 500 steps” / “WorkStation の記録が上限 · 500 ステップ”; “This flow is full” / “この記録は上限に達しました”; “Truncated · 500 steps” / “打ち切り · 500 ステップ”; “Some steps couldn’t be kept (too many at once). Recording continues.” / “一度に多すぎたため、一部の操作を残せませんでした。記録は続いています。”
+- Strings: “WorkStation · Flow full · no more actions saved” / “WorkStation · 記録の上限 · これ以上の操作は保存されません” (closeout wording); “Truncated · 500 steps” / “打ち切り · 500 ステップ”; “Some steps couldn’t be kept (too many at once). Recording continues.” / “一度に多すぎたため、一部の操作を残せませんでした。記録は続いています。”
 - States: full (dotted, hollow square, `data-state="full"`); gap marker; capture continuing after the gap (numbering continues).
 - Journeys: F8 Oversized batch, F8 Full flow (R19_RecWalk).
 - Implementation dependencies: host-side counters per flow; batch/body validation before any write; rejection reported to the client so the gap is drawn with its time span; flow `truncated_at`. Product questions: none.
@@ -3190,16 +3296,32 @@ New boards (appended to `r19layout_d.json`): R19_RecLimits (1440×1420), R19_Rec
 Host enforcement of the three limits and atomic rejection; gap timing; identity-switch buffer clearing; cross-device notice dismissal; theme wrappers in the built app (only boards/previews checked).
 
 #### Gap → recommendation (follow-up)
-- **A full flow while recording stays “on”:** the decision stops acceptance but doesn't say whether the WorkStation button should invite a new flow. → Drawn without a new control: the popover lists the existing ways (reload, project change, Stop then Record WorkStation, Record It Again…). No “Start New Flow” button.
-- **Shared-profile report drafts:** visible to anyone using the shared profile (follows decision 10). → Say so in the report dialog's destination line (“From: Shared profile on this computer”); no extra privacy control.
+- Settled by closeout decision 4 (was a gap): no Start New Flow button; “Flow full · no more actions saved”.
+- Settled by closeout decision 5 (was a gap): the report dialog discloses the shared profile before editing/saving.
+
+
+#### Closeout
+
+Closeout of `e6b7b027`, part D: decisions 4 and 5, and the `ov-keys` source fix. Design only.
+
+- **Decision 4 · full flow.** No Start New Flow button. Button `data-state="full"` `.pw-recstat--full`: “WorkStation · Flow full · no more actions saved” (JA “WorkStation · 記録の上限 · これ以上の操作は保存されません”); popover title “Flow full · no more actions saved” (JA “記録の上限 · これ以上の操作は保存されません”) with the existing ways to start a new session (reload, change project, Stop then Record WorkStation, Record It Again…). Never an unqualified “Recording” while events are dropped. Boards: R19_RecLimits, R19_RecStates, R19_RecResponsive (theme pair), R19_RecHistory (row stays “Truncated · 500 steps”), R19_RecStrings, R19_RecWalk; no phone board draws a full flow (the phone strip uses the same button and text). Cards: RecordingStatus (Closeout paragraph; follow-up text updated), RecordingHistory unchanged.
+- **Decision 5 · shared report draft.** R19_RecIdentity gains the Report a Problem… dialog for the shared profile with “From: Shared profile on this computer. Anyone using this profile can see this draft.” (JA “送信元: このコンピューターの共有プロフィール” / “このプロフィールを使う人は誰でもこの下書きを見られます。”) above the fields; Submit still needs payload review + confirmation. New story F10 “Shared report draft” in R19_RecWalk. Card: ProblemReport (Closeout paragraph).
+- **ov-keys.** The source in `gen/r18a.py` (`ovwin18(..., keys=…)`) now emits `aria-describedby="ov-keys"` only when the hint is drawn; regenerating Ph19_RecOverview (drawn with `phlist18`, no hint) emits none. `r19check_d.py` now also fails on dangling aria-controls/labelledby/describedby (aria-controls allowed only on a popup drawn closed, `aria-expanded="false"`). Fixed the three it found in part D's files: the first-use dialog now has `id="wsrec-first"` and the button controls it; the theme-pair and preview demo buttons (open, popover not drawn) carry no aria-controls (`wsrec(..., controls=None)`).
+- Sizes changed: R19_RecIdentity 1440×2010; R19_RecWalk 1440×1700; R19_RecLimits 1440×1420 (unchanged); others unchanged.
+- Checks: 0 HTML problems, 0 undefined classes, 0 duplicate ids, 0 redefinitions, 0 dangling aria references (24 boards + 4 card previews). Rendered and read R19_RecIdentity, R19_RecLimits, R19_RecStates, R19_RecResponsive and the RecordingStatus preview.
+- Still defective / unverified: nothing known in the drawings; runtime behaviour (host limits, identity switch, bridge, focus, screen readers) remains unverified.
 
 #### Validation (static design checks that ran)
 
-- **HTML and classes:** nesting and `pw-` class definitions checked on all 61 round 19 boards, the 28 addendum boards and every card preview: 0 problems, 0 undefined classes.
+- **HTML and classes:** nesting and `pw-` class definitions checked on all 62 round 19 boards, the 28 addendum boards and every card preview: 0 problems, 0 undefined classes.
 - **CSS isolation:** no round 19 rule redefines an existing class, and no class is shared between the round 19 CSS files. `round19_theme.css` only re-derives two tokens on theme wrappers; on `<html>` they compute to the same values, so app rendering is unchanged.
-- **Duplicate ids:** none on round 19 boards or on the 28 addendum boards. The six `R18A_Ask*` boards are fixed, with their references updated. Two older previews not touched this round, PhaseControl and PreviewWindow, still repeat an id across their state samples.
+- **Duplicate ids:** none on round 19 boards, the 28 addendum boards or any card preview. The six `R18A_Ask*` boards and the PhaseControl and PreviewWindow previews are fixed, with their references updated.
+- **Accessibility references:** no `aria-controls`, `aria-labelledby`, `aria-describedby` or `aria-activedescendant` names an absent id on those files, except `aria-controls` on a popup drawn closed.
+- **Alert icons:** no 36-px alert icon and no Failed glyph on any board, preview or exported asset hard-codes white or black; ink on paper is 21:1 in both themes. The one remaining hard-coded white is EditB's comment-popover arrow, which is not an icon.
 - **References:** every board named here exists. The two canvas manifests and `design/canvas/INDEX.md` agree. No "awaiting approval" text remains on addendum boards.
 - **Renders:** desk, 1024, 320 and phone, plus dark and light wrapper cells, for the new and changed boards and previews.
 - **Tests:** `tests.test_design_brand`, `tests.test_frontend` and `tests.test_web_robustness` pass.
 
-**Runtime behaviour not verified (static designs cannot test it):** autosave, revision checks and late acknowledgements; the browser leave-page warning; mobile page eviction; cross-window deletion and consent mirroring; host-side recorder limits and whole-batch rejection; profile and session switching; the Preview bridge's origin/source security; capture coverage per browser; IME and caret anchoring; screen-reader output; focus restoration; reduced motion and safe areas. The Japanese has not had a native-speaker review.
+These are static checks of the drawings. They do not verify any host or backend behaviour.
+
+**Runtime behaviour not verified (static designs cannot test it):** Remove from List's confirmed-versus-uncertain response and reconcile-before-retry; which draft time the host records; autosave, revision checks and late acknowledgements; the browser leave-page warning; mobile page eviction; cross-window deletion and consent mirroring; host-side recorder limits and whole-batch rejection; profile and session switching; the Preview bridge's origin/source security; capture coverage per browser; IME and caret anchoring; screen-reader output; focus restoration; reduced motion and safe areas. The Japanese has not had a native-speaker review.

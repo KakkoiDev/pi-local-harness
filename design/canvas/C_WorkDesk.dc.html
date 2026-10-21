@@ -165,8 +165,8 @@ def finish(job, status):
 <div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-conic-gradient(#000 0 25%, transparent 0 50%) 0 0/4px 4px; opacity: .35"></div>
 <div role="alertdialog" aria-labelledby="al-msg" class="pw-dialog" style="position: absolute; left: 50%; top: 150px; transform: translateX(-50%); width: 480px">
 <div class="pw-alert">
-<sc-if value="{{alertCaution}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg></sc-if>
-<sc-if value="{{alertStop}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke="#fff" stroke-width="4"/></svg></sc-if>
+<sc-if value="{{alertCaution}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="fill: var(--paper)"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg></sc-if>
+<sc-if value="{{alertStop}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"/><path d="M10 18h16" stroke-width="4" style="stroke: var(--paper)"/></svg></sc-if>
 <div><p id="al-msg" class="pw-alert__message">{{alertMessage}}</p><p class="pw-alert__detail">{{alertDetail}}</p></div>
 </div>
 <div class="pw-dialog__actions">

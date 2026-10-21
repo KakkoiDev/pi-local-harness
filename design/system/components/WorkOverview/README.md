@@ -231,3 +231,9 @@ Decided (round 19, owner-delegated 21 Oct 2026: A1, A6 Overview part, A10). Boar
 **Decision 12: theme wrappers.** `scripts/round19_theme.css` re-derives the selection tokens on every `[data-theme]` wrapper. The round 19 A dark workaround rules were removed. Board R19_OverviewSelection shows a light and a dark wrapper side by side.
 
 **Given/When/Then.** Given Class Notes is selected, When the connection drops at 14:20, Then the note reads "Selected: Class Notes · not checked since 14:20" and New Task is disabled with its reason; When it reconnects and Class Notes still exists, Then "Selected: Class Notes".
+
+### Closeout (21 Oct)
+
+Remove from List failure states are in Dialog § Round 19 follow-up › Closeout. The Overview row stays listed until the host reports the project removed.
+
+**Accessibility:** the lists carry `aria-describedby="ov-keys"` only when the keyboard hint `#ov-keys` is drawn in the same window; phone and cropped cells no longer point at an absent hint (fixed in the generator source).

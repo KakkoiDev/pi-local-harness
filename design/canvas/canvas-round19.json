@@ -120,7 +120,7 @@
    "x": 1990,
    "y": 5430,
    "w": 1440,
-   "h": 1540,
+   "h": 1660,
    "title": "Round 19 · Decided · Overview, status and selection: English and Japanese strings (A1, A6, A10)",
    "page": "r19-overview"
   },
@@ -128,7 +128,7 @@
    "x": 0,
    "y": 7300,
    "w": 1440,
-   "h": 1540,
+   "h": 1660,
    "title": "Round 19 · Decided · Overview, status and selection walkthrough: acceptance groups 1, 5 and part of 14 (stable accessible names; two windows, reload, keyboard)",
    "page": "r19-overview"
   },
@@ -136,8 +136,8 @@
    "x": 1520,
    "y": 7300,
    "w": 1440,
-   "h": 1530,
-   "title": "Round 19 · Decided · Removing a project from the list keeps its folder and its conversations; re-adding the same identity reconnects them, a reused name does not",
+   "h": 2360,
+   "title": "Round 19 · Decided · Removing a project from the list keeps its folder and its conversations; re-adding the same identity reconnects them, a reused name does not; a failed removal keeps the project listed",
    "page": "r19-overview"
   },
   "Ph19_ProjectRemove.dc.html": {
@@ -146,6 +146,14 @@
    "w": 390,
    "h": 844,
    "title": "Round 19 · Decided · Phone · Remove from List… as a sheet from the project’s ⋯ in the π sheet; the same words",
+   "page": "r19-overview"
+  },
+  "Ph19_ProjectRemoveError.dc.html": {
+   "x": 3040,
+   "y": 8224,
+   "w": 390,
+   "h": 844,
+   "title": "Round 19 · Decided · Phone · Remove from List… result uncertain: the project stays listed; Try Again re-reads the list first",
    "page": "r19-overview"
   },
   "R19_AskScope.dc.html": {
@@ -232,7 +240,7 @@
    "x": 0,
    "y": 8534,
    "w": 1440,
-   "h": 2010,
+   "h": 2100,
    "title": "Round 19 · Decided · Follow-up 1–2 · Unsaved with a help line and the browser’s own leave-page warning; Saving… one at a time; an old acknowledgement never marks newer text Saved; Not saved + Retry; newer remote data → Conflict",
    "page": "r19-ask"
   },
@@ -240,21 +248,21 @@
    "x": 1520,
    "y": 8534,
    "w": 1440,
-   "h": 2090,
+   "h": 2130,
    "title": "Round 19 · Decided · Follow-up 3, 13 · Deleted in another window: read-only Trash detail; unsaved text kept as a draft version; never resurrected by late saves; Restore, “Conversation restored.”, restore failure, “Restore the conversation first.”",
    "page": "r19-ask"
   },
   "R19_AskRemoved.dc.html": {
    "x": 0,
-   "y": 10704,
+   "y": 10744,
    "w": 1440,
-   "h": 1820,
+   "h": 1880,
    "title": "Round 19 · Decided · Follow-up 4, 12 · A removed project’s conversations stay in the Trash under its project id, read only, restorable only after re-adding the same identity; dark and light wrappers",
    "page": "r19-ask"
   },
   "Ph19_AskRemote.dc.html": {
    "x": 1520,
-   "y": 10704,
+   "y": 10744,
    "w": 390,
    "h": 844,
    "title": "Round 19 · Decided · Phone · Follow-up 3 · deleted in another window while typing: read-only Trash detail; unsaved text kept as a draft version; Restore",
@@ -262,17 +270,17 @@
   },
   "R19_AskStrings.dc.html": {
    "x": 1990,
-   "y": 10704,
+   "y": 10744,
    "w": 1440,
-   "h": 1880,
+   "h": 1940,
    "title": "Round 19 · Decided · Ask, drafts, Trash: English and Japanese (キャンセル = cancel; 取り消す = undo only; not native-speaker reviewed)",
    "page": "r19-ask"
   },
   "R19_AskWalk.dc.html": {
    "x": 0,
-   "y": 12664,
+   "y": 12764,
    "w": 1440,
-   "h": 2720,
+   "h": 2960,
    "title": "Round 19 · Decided · Ask, drafts, Trash: Given/When/Then for acceptance groups 2, 3, 4 and 14 (stable accessible names in quotes)",
    "page": "r19-ask"
   },
@@ -336,7 +344,7 @@
    "x": 1520,
    "y": 8250,
    "w": 1440,
-   "h": 1300,
+   "h": 1330,
    "title": "Round 19 · Decided · Project chat (A6–A9): EN/JA strings (no native-speaker review claimed)",
    "page": "r19-chat"
   },
@@ -344,7 +352,7 @@
    "x": 0,
    "y": 11800,
    "w": 1440,
-   "h": 1030,
+   "h": 1100,
    "title": "Round 19 · Decided · Project chat (A6–A9): walkthrough, acceptance groups 4 (project side), 6, 7, 8, 14",
    "page": "r19-chat"
   },
@@ -352,7 +360,7 @@
    "x": 1520,
    "y": 11800,
    "w": 1440,
-   "h": 4060,
+   "h": 4520,
    "title": "Round 19 · Decided · Follow-up · Decisions 1–3, 12, 13 in project chat: Unsaved + help line, the browser’s own leave warning, Saving… one at a time, Not saved + Retry, deletion in another window → read-only Trash detail with the kept draft version, restore copy, theme wrappers",
    "page": "r19-chat"
   },
@@ -366,7 +374,7 @@
   },
   "R19_PhoneTitleRow.dc.html": {
    "x": 0,
-   "y": 15940,
+   "y": 16400,
    "w": 1440,
    "h": 1190,
    "title": "Round 19 · Decided · Follow-up · Decision 7 · The phone title row: one button under the PhoneBar, ellipsis, full title in its name and in the sheet head, neutral date title when redacted",
@@ -536,7 +544,7 @@
    "x": 0,
    "y": 14954,
    "w": 1440,
-   "h": 1160,
+   "h": 2010,
    "title": "Round 19 · Decided · Follow-up · Decisions 9 and 10 · Whose recording it is: a signed-in person, or the labelled shared profile on this computer; switching closes capture and clears buffers; consent is mirrored across that identity’s windows",
    "page": "r19-rec"
   },
@@ -550,7 +558,7 @@
   },
   "R19_RecStrings.dc.html": {
    "x": 0,
-   "y": 16194,
+   "y": 17044,
    "w": 1440,
    "h": 2140,
    "title": "Round 19 · Decided · B · Recording on WorkStation and Preview: English and Japanese strings (no native-speaker review claimed)",
@@ -558,9 +566,9 @@
   },
   "R19_RecWalk.dc.html": {
    "x": 1520,
-   "y": 16194,
+   "y": 17044,
    "w": 1440,
-   "h": 1600,
+   "h": 1700,
    "title": "Round 19 · Decided · B · Recording walkthrough: acceptance groups 9–13 and part of 14, Given/When/Then with stable accessible names",
    "page": "r19-rec"
   }
@@ -575,6 +583,7 @@
   "R19_OverviewWalk.dc.html",
   "R19_ProjectRemove.dc.html",
   "Ph19_ProjectRemove.dc.html",
+  "Ph19_ProjectRemoveError.dc.html",
   "R19_AskScope.dc.html",
   "R19_AskResend.dc.html",
   "R19_AskDrafts.dc.html",

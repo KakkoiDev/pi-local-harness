@@ -50,7 +50,7 @@
 
 <!-- Startup error -->
 <div role="alertdialog" aria-labelledby="d-start" class="pw-dialog" style="max-width: none">
-<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"></path><path d="M10 18h16" stroke="#fff" stroke-width="4"></path></svg><div><p id="d-start" class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, then reload this page.</p></div></div>
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Stop" class="pw-alert__icon"><path d="M11.5 1.5h13l10 10v13l-10 10h-13l-10-10v-13z" fill="currentColor"></path><path d="M10 18h16" stroke-width="4" style="stroke: var(--paper)"></path></svg><div><p id="d-start" class="pw-alert__message">Pi Workbench could not load.</p><p class="pw-alert__detail">After updating, quit the running plh session, start plh again, then reload this page.</p></div></div>
 <div class="pw-dialog__actions"><button class="pw-btn pw-btn--default">Reload Page</button></div>
 </div>
 </div>
@@ -102,7 +102,7 @@
 <!-- Open on phone: Serve is off -->
 <div role="alertdialog" aria-labelledby="d-phoneoff" class="pw-dialog" style="max-width: none">
 <h2 class="pw-dialog__title">Open on Phone</h2>
-<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" fill="#fff" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="d-phoneoff" class="pw-alert__message">Phone access is off.</p><p class="pw-alert__detail">Serve is not enabled on your tailnet. Enable it once at <a href="#" class="pw-link">login.tailscale.com/f/serve</a>, then quit plh and start it again.</p></div></div>
+<div class="pw-alert"><svg viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="Caution" class="pw-alert__icon"><path d="M18 2.5 34 31.5H2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="fill: var(--paper)"/><path d="M18 11v11M18 25v3.5" stroke="currentColor" stroke-width="3.5"/></svg><div><p id="d-phoneoff" class="pw-alert__message">Phone access is off.</p><p class="pw-alert__detail">Serve is not enabled on your tailnet. Enable it once at <a href="#" class="pw-link">login.tailscale.com/f/serve</a>, then quit plh and start it again.</p></div></div>
 <p class="pw-help">The same line shows when plh starts: “Phone access off: Serve is not enabled on your tailnet; enable it once at &lt;link&gt;”.</p>
 <div class="pw-dialog__actions"><button class="pw-btn">Copy Link</button><button class="pw-btn pw-btn--default">Done</button></div>
 </div>

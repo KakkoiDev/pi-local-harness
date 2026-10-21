@@ -53,7 +53,7 @@
 <dt>Last command</dt><dd class="pw-mono" style="margin: 0; font-size: 13px">{{dCommand}}</dd>
 <dt>Gate</dt><dd style="margin: 0">{{dGate}}</dd>
 </dl>
-<sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/><path d="M4.5 8h7" stroke="#fff" stroke-width="2"/></svg>backup.sh exited with code 1: /mnt/backup is not mounted.</div></sc-if>
+<sc-if value="{{failed}}" hint-placeholder-val="{{false}}"><div class="pw-alert-line"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 .5h6L15.5 5v6L11 15.5H5L.5 11V5z" fill="currentColor"/><path d="M4.5 8h7" stroke-width="2" style="stroke: var(--paper)"/></svg>backup.sh exited with code 1: /mnt/backup is not mounted.</div></sc-if>
 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px">
 <sc-if value="{{bChat}}" hint-placeholder-val="{{true}}"><a href="Main.dc.html" class="pw-btn">Open in Chat</a></sc-if>
 <sc-if value="{{bComment}}" hint-placeholder-val="{{false}}"><a href="F3_Comment_4.dc.html" class="pw-btn">Show Comment</a></sc-if>

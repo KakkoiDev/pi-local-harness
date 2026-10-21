@@ -87,4 +87,13 @@ Decision record: design/briefs/round-19-follow-up-decisions.md. Design only. Boa
 | Conflict | Version rows as B's DraftVersions |
 
 - **Who:** the signed-in person, in their conversation. **Persistence:** the host only. **Cancellation:** nothing to cancel; a save is never cancelled by navigation. **Focus:** stays in the field; on remote deletion it moves to the Trash detail's heading, with one polite announcement.
+**Closeout (21 Oct) · decision 3 draft timestamps (B's labels).**
+
+- **Saved {time}** (JA 保存 {time}): only for a host-confirmed save.
+- **Kept {time}** (JA 保持 {time}): the time the host separately recorded when it preserved text. For example, this window's unsaved buffer at a deletion in another window reads “Kept 14:52”.
+- **Recorded {time}** (JA 記録 {time}): the only time the host has, when it doesn't say which. Otherwise no time is shown.
+- A saved/kept distinction is never invented, and an unsaved buffer never becomes “Saved” through a remote deletion.
+
+Boards: R19_ProjectChatUnsaved, Ph19_ProjectChatDeleted.
+
 - **15 · Comment composers:** @ mentions stay deferred in comment composers (Review window, threads, whole-file questions). This release offers the @ list only in the project chat composer.
