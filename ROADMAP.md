@@ -435,3 +435,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [360-Resolve round17 decisions and brief round18](tasks/360-round-17-product-decisions.md)
 
 - [x] [361-Add round18 follow-up product questions](tasks/361-round-18-follow-up-questions.md)
+
+- [ ] [362-A checklist of the plan while Pi builds](tasks/362-plan-checklist-while-building.md)
