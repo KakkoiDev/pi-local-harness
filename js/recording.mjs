@@ -1,6 +1,6 @@
 // Preview adapter: structural events only. All async work is bound to its original project and document.
 const element = (tag, text, css) => { const e = document.createElement(tag); if (text) e.textContent = text; if (css) e.className = css; return e; };
-export function installRecording({ api, project, iframe, available }) {
+export function installRecording({ api, project, iframe, available, toast = () => {} }) {
   const status = element('button', 'Recording status unknown', 'pw-recstat'); status.type = 'button'; status.id = 'recording-status';
   status.setAttribute('aria-haspopup', 'dialog'); status.setAttribute('aria-controls', 'recording-popover'); status.setAttribute('aria-expanded', 'false');
   const popup = element('section', '', 'pw-recpop'); popup.id = 'recording-popover'; popup.setAttribute('role', 'dialog'); popup.setAttribute('aria-label', 'Recording'); popup.hidden = true;
@@ -35,7 +35,15 @@ export function installRecording({ api, project, iframe, available }) {
     for (const [key, value] of [['Kept', 'Buttons, focus and navigation keys (text not recorded)'], ['Not kept', 'What you type, passwords, chat or file contents'], ['Where', 'On this host, with this project only'], ['How long', '7 days, at most 20 flows']]) facts.append(element('dt', key), element('dd', value));
     const id = identity, ticket = epoch;
     const post = async body => { const next = await api('/api/recordings', { project: id, ...body }); if (ticket !== epoch || id !== identity) return; state = next; flow = null; epoch++; close(); draw(); status.focus(); };
-    popup.append(facts, button(state?.enabled ? 'Stop Recording' : 'Record This Preview', () => post({ action: 'enabled', enabled: !state?.enabled })), button('Clear History…', async () => {
+    popup.append(facts, button(state?.enabled ? 'Stop Recording Preview' : 'Record This Preview', () => post({ action: 'enabled', enabled: !state?.enabled })), button('Stop All Recording', async () => {
+      window.dispatchEvent(new Event('recording-stop-all-started'));
+      try {
+        await api('/api/recordings', { project: identity, action: 'stop_all' });
+        await refresh(); close();
+        toast('All recording stopped. What was recorded is kept.');
+        document.getElementById('ws-recording-status')?.focus();
+      } finally { window.dispatchEvent(new Event('recording-stop-all-finished')); }
+    }), button('Clear History…', async () => {
       close();
       const { ask } = await import('./dialogs.mjs');
       const answer = await ask({ message: "Move this project's recorded Preview actions to the Trash?", danger: 'Move to Trash', safe: 'Cancel' });
@@ -56,6 +64,7 @@ export function installRecording({ api, project, iframe, available }) {
     } catch { if (ticket === epoch && id === identity) { fault = true; draw(); } }
   }
   notice.append(button("What's Kept", async () => show()), button('Stop Recording', () => noticeCommand({ action: 'enabled', enabled: false })), button('OK', () => noticeCommand({ action: 'notice' })));
+  window.addEventListener('recording-settings-changed', () => void refresh());
   status.onclick = () => popup.hidden ? show() : close();
   popup.addEventListener('keydown', event => { if (event.key === 'Escape') { close(); status.focus(); } });
   popup.addEventListener('keydown', event => { if (event.key === 'Tab') { const buttons = [...popup.querySelectorAll('button')]; if ((!event.shiftKey && document.activeElement === buttons.at(-1)) || (event.shiftKey && document.activeElement === buttons[0])) { close(); status.focus(); event.preventDefault(); } } });

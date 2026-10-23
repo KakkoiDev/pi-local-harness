@@ -1,5 +1,6 @@
 {
  "exact": {
+  "WorkStation recording stopped in another window.": "別のウィンドウで WorkStation の記録が停止されました。",
   "parallel tested": "並行動作を確認済み",
   "serial in tested setup": "検証した設定では直列",
   "parallel unknown": "並行動作は未確認",

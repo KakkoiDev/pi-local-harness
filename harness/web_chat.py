@@ -314,6 +314,10 @@ class WebChat:
         store = self.workstation_recordings if surface == 'workstation' else self.recordings
         project = project or 'outside-projects'
         action = data.get('action', 'status')
+        if action == 'stop_all':
+            self.workstation_recordings.set_enabled('outside-projects', False)
+            for item in self.documents.list_projects(): self.recordings.set_enabled(item['id'], False)
+            return {**store.status(project), 'run': self.recording_run}
         if action == 'append':
             if type(data.get('generation')) is not int: raise ValueError('Recording generation is required.')
             if data.get('run') != self.recording_run: return {'flow': None}

@@ -31,6 +31,31 @@ class RecordingTransportTest(unittest.TestCase):
         except urllib.error.HTTPError as error:
             with error:return error.code,json.load(error)
 
+    def test_stop_all_is_person_only_preserves_history_and_invalidates_every_project(self):
+        other=self.chat.documents.create_project('Other recording')
+        self.request({'surface':'workstation','action':'enabled','enabled':True})
+        batches=[]
+        for project in (self.project,other):
+            body={'project':project,'action':'append','generation':0,'run':self.chat.recording_run,'flow':{'steps':[{'type':'focus','selectors':[['input']]}]}}
+            self.assertIsNotNone(self.request(body)[1]['flow']);batches.append(body)
+        self.assertEqual(self.request({'surface':'workstation','action':'stop_all'},person=False)[0],403)
+        self.assertEqual(self.request({'surface':'workstation','action':'stop_all'})[0],200)
+        self.assertFalse(self.request({'surface':'workstation'})[1]['enabled'])
+        for body in batches:
+            state=self.request(path='/api/recordings?project='+body['project'])[1]
+            self.assertFalse(state['enabled']);self.assertEqual(state['steps'],1)
+            self.assertIsNone(self.request(body)[1]['flow'])
+            self.request({'project':body['project'],'action':'enabled','enabled':True})
+            self.assertIsNone(self.request(body)[1]['flow'],'old generations stay rejected after re-enable')
+
+    def test_stop_all_storage_failure_is_not_reported_as_success(self):
+        from unittest.mock import patch
+        with patch.object(self.chat.recordings,'set_enabled',side_effect=OSError('Scratch recording disk unavailable')):
+            status,result=self.request({'surface':'workstation','action':'stop_all'})
+        self.assertEqual(status,500);self.assertIn('error',result)
+        self.assertFalse(self.request({'surface':'workstation'})[1]['enabled'])
+        self.assertEqual(self.request(path='/api/workspace')[0],200)
+
     def test_safe_focus_steps_are_persisted_in_one_flow_and_disable_rejects_late_batches(self):
         body={'project':self.project,'action':'append','generation':0,'run':self.chat.recording_run,'flow':{'steps':[{'type':'focus','selectors':[['input:nth-of-type(1)']],'value':'secret'}]}}
         status,first=self.request(body);self.assertEqual(status,200,first)

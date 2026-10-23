@@ -54,7 +54,7 @@ export function fixMessage(error) {
 const REMOTE = typeof location !== 'undefined' && !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
 const phoneScreen = () => matchMedia('(max-width:760px)').matches;
 
-export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff, themeReady }) {
+export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff, themeReady, toast }) {
   const body = $('preview-body'), beside = $('preview'), slot = $('preview-view');
   let status = { state: 'none' }, shown = false, timer = 0, lastNote = '', fixing = false, mode = 'beside', loadedSrc = '';
   const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: document.documentElement.lang === 'ja' ? 'ja' : 'en', path: '/' });  // the app starts in the workbench's language
@@ -88,7 +88,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     else await (await import('./dialogs.mjs')).ask({ icon: 'note', message: 'The app could not be opened on a phone.', detail: found.problem || '', danger: 'Cancel', safe: 'OK', plain: true });
     return null;
   }
-  const recording = installRecording({ api, project, iframe, available: () => status.state === 'running' && !status.terminal && !REMOTE });
+  const recording = installRecording({ api, project, iframe, toast, available: () => status.state === 'running' && !status.terminal && !REMOTE });
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser);
   const themeNote = node('p', 'pw-preview__note pw-preview__note--theme', '◐ Showing the unsaved theme · Save or Discard in the chat'); themeNote.hidden = true;  // task 312, round 12
   body.append(bar1, bar2, note, themeNote, recording.notice, stage,keys, foot);

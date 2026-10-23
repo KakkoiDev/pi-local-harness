@@ -51,14 +51,27 @@ Implemented: Preview bridge checks source/origin, document probe, generation and
 
 US-352 exercises real iframe focus/canvas capture, redaction, stop, reload and clear. US-353 exercises opt-in/decline, scope switching, independent Preview setting and usable chat during recorder failure. Full-suite results go in the handoff after verification.
 
-Still open: Recording History and restoration UI; report/reproduction/attachment flow; System1 context selection; Stop All control; full EN/JA copy coverage and cross-device identity integration. These are decided designs, not new product questions. Keep this task open.
+Still open: Recording History and restoration UI; report/reproduction/attachment flow; System1 context selection; full EN/JA copy coverage and cross-device identity integration. These are decided designs, not new product questions. Keep this task open.
 
 ### US-354 A late chat load preserves the phone menu I just opened
 Given startup is waiting for the selected conversation
 When I open the phone project menu before that conversation finishes loading
 Then the menu stays open and New Project remains usable
 
+## Stop All checkpoint · 23 October 2026
+
+- [x] Red: missing host action returned 400; the browser could not find Stop All Recording; Tab closed its popover before reaching that control.
+- [x] Stop both surfaces across registered projects; preserve history and invalidate old batches even after re-enabling. Use person authentication and existing project registry, with no submitted file paths.
+- [x] US356 exercises both popovers, keyboard access, focus return and mirrored notices across two windows. Host tests cover refusal without person authentication and failure without claiming success.
+
+Full release verification is required by the chained commit gate and the complete browser runner. History, restoration, report attachments and System1 context remain open; this checkpoint does not finish task333.
+
 ## For the person
 
-Preview and WorkStation now have separate action-recording controls; WorkStation asks before enabling. A recorder failure leaves the conversation usable.
+Stop All Recording stops WorkStation and every registered Preview without clearing history. Preview and WorkStation have separate action-recording controls; WorkStation asks before enabling. A recorder failure leaves the conversation usable.
 Tried it: scratch browser journeys cover focus/canvas capture, stop/reload/clear, opt-in, a storage failure while sending, and a late-loading phone menu. Full release results are in docs/handoff/recording-integration-2026-10-21.md.
+
+### US-356 Stop All Recording stops both surfaces across windows without losing history
+Given two WorkStation windows and recorded Preview actions in two projects
+When I choose Stop All Recording from either recording popover
+Then both surfaces stop in both windows, old batches are refused, and the recorded history stays available

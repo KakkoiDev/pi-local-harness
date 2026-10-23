@@ -20,10 +20,18 @@ Release browser run: recording, design, chat, stories, conversation and journey 
 
 ## Still open in task333
 
-Recording History/restore UI; report/reproduction/flow attachments; System1 context selection; Stop All; full localization coverage; authenticated per-person profiles beyond the explicitly shared local profile; scroll/viewport capture and unsupported/cross-origin/browser-native coverage; richer gap/idempotent-delivery metadata and flow registration. Review exact-replay limitations and transport failure semantics before presenting this as a complete journey recorder. Browser crashes cannot guarantee final queued-event delivery.
+Recording History/restore UI; report/reproduction/flow attachments; System1 context selection; full localization coverage; authenticated per-person profiles beyond the explicitly shared local profile; scroll/viewport capture and unsupported/cross-origin/browser-native coverage; richer gap/idempotent-delivery metadata and flow registration. Review exact-replay limitations and transport failure semantics before presenting this as a complete journey recorder. Browser crashes cannot guarantee final queued-event delivery.
 
 Current UI intentionally exposes only the working capture/stop/clear/consent slice, not unimplemented report or history commands. The approved round19 designs remain the source for completing those controls and their tests. Keep task333 open. Other roadmap implementation tasks are unchanged by merging designs.
 
 ## How to check manually
 
 Restart the installed harness after updating. Open a scratch project with a local HTML app in Preview; inspect the first-use notice, focus fields and click a canvas. Check status counts, stop, reload and clear. WorkStation recording requires its own Enable Recording confirmation from the status button or Settings. Try stopping it on a phone-sized window. Use scratch data for injected storage failures and confirm a normal chat message still sends.
+
+## Follow-up · 23 October 2026: Stop All Recording
+
+Preserved the newer Colibri, build-progress and verified parallel-generation work through 4f2c8a4 before implementation. Task333 now adds Stop All Recording to both designed popovers. The host stops shared-profile WorkStation and every registered project's Preview, incrementing their generations under existing storage locks. History is retained. Independent Record/Stop controls still affect only their own surface. Existing person authentication is required; no new authority is granted to app messages. Partial storage failure is an error, never a success message; this operation does not promise a transaction across project stores.
+
+The two adapters coordinate local stop intent so stopping from Preview is not misreported as a different window (an additional Red reproduced that notice race). The local window shows the approved success toast and returns focus to the WorkStation button; another window reports the stopped state once on refresh. Tab reaches every popover button before leaving, and Escape returns focus. Added US356 with two windows, two projects, both entry points, keyboard activation, focus and notices. A further Red exposed that the stopped WorkStation button reopened first-use confirmation, hiding Stop All; once previously enabled, it now opens the designed off-state popover, with Record WorkStation still requiring confirmation. New host regressions cover unauthenticated refusal, all-project history preservation, stale-generation rejection after re-enabling and a storage error that leaves the workspace readable. Observed Red for the absent API/control and the keyboard bug, then focused Green (four recorder stories; transport and storage tests).
+
+History/restore/report/context and the other task333 items above remain open. Release requires the complete browser runner and the full workflow chained to the commit.

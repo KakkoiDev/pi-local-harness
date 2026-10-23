@@ -444,3 +444,10 @@ Then the menu stays open and New Project remains usable
 Given installed local models with unknown, supported, unsupported or failed smoke results
 When I open the model menu
 Then each name shows its capability and only current verified configurations enable parallel work
+
+### US-356 Stop All Recording stops both surfaces across windows without losing history
+Given two WorkStation windows and recorded Preview actions in two projects
+When I choose Stop All Recording from either recording popover
+Then both surfaces stop in both windows, old batches are refused, and the recorded history stays available
+
+Surface: web. Test: tests/browser/recording.cjs. Task: 333.

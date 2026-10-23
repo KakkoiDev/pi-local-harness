@@ -329,3 +329,7 @@ A smoke checks simultaneous progress on short prompts. It does not establish ans
 safe long histories. The historical 16-stream 2K experiment is not a production capacity limit. Other backends may
 parallelize a model that serialized here. Production starts conservatively at two, and the model's context window is
 8K on the managed server, so long chats compact sooner. See [configuration and evidence](../docs/parallel-generation.md).
+
+### How do I stop all action recording?
+
+Choose Stop All Recording in either recording popover. It stops WorkStation and the Preview recordings for every registered project, including other windows. Recorded history stays on the host. Re-enabling a recorder starts a new flow; pending batches from before the stop are refused. A storage failure is reported as a failure, since some recorders may already have stopped; ordinary chat and files remain usable.

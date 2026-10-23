@@ -34,7 +34,7 @@ story('US-352', 'Preview records focus and canvas clicks and stopping rejects la
   assert.ok(flow.steps.some(step => step.type === 'click' && step.selectors[0][0].includes('canvas')));
   assert.doesNotMatch(JSON.stringify(flow), /private|password|Note/);
   await status.click();
-  await t.page.getByRole('button', { name: 'Stop Recording', exact: true }).click();
+  await t.page.getByRole('button', { name: 'Stop Recording Preview', exact: true }).click();
   await t.page.waitForFunction(() => document.getElementById('recording-status').dataset.state === 'off');
   const count = (await t.bench.api('/api/recordings?project=' + made.project)).steps;
   await app.getByLabel('Note', { exact: true }).focus();
@@ -72,8 +72,8 @@ story('US-353', 'WorkStation recording requires opt-in and never blocks conversa
   await t.page.waitForFunction(() => document.getElementById('ws-recording-status')?.dataset.state === 'on');
   await t.page.locator('#prompt').fill('private-workstation-buffer');
   await t.page.locator('#ws-recording-status').click();
-  assert.equal(await t.page.locator('#ws-recording-popover button.pw-btn').textContent(), 'Stop Recording WorkStation');
-  await t.page.locator('#ws-recording-popover button.pw-btn').click();
+  assert.equal(await t.page.locator('#ws-recording-popover').getByRole('button', { name: 'Stop Recording WorkStation', exact: true }).textContent(), 'Stop Recording WorkStation');
+  await t.page.locator('#ws-recording-popover').getByRole('button', { name: 'Stop Recording WorkStation', exact: true }).click();
   await t.page.waitForFunction(() => document.getElementById('ws-recording-status').dataset.state === 'off');
   await t.page.setViewportSize({ width: 390, height: 844 });
   await t.page.locator('.pw-recbar #ws-recording-status').waitFor();
@@ -86,6 +86,45 @@ story('US-353', 'WorkStation recording requires opt-in and never blocks conversa
   assert.equal(await t.page.locator('#prompt').inputValue(), 'private-workstation-buffer');
   await t.page.locator('#send').click();
   await t.page.locator('#messages .pw-msg--user').getByText('private-workstation-buffer', { exact: true }).waitFor();
+});
+story('US-356', 'Stop All Recording stops both surfaces across windows without losing history', async t => {
+  const made = await t.bench.api('/api/projects/create', { name: 'Stop all', parent: t.bench.directory, kind: 'empty' });
+  const other = await t.bench.api('/api/projects/create', { name: 'Other recorded', parent: t.bench.directory, kind: 'empty' });
+  for (const project of [made.project, other.project]) {
+    const state = await t.bench.api('/api/recordings', { project });
+    await t.bench.api('/api/recordings', { project, action: 'append', generation: state.generation, run: state.run, flow: { steps: [{ type: 'focus', selectors: [['input']] }] } });
+  }
+  await t.bench.api('/api/recordings', { surface: 'workstation', action: 'enabled', enabled: true });
+  await t.page.goto(t.bench.base + '/p/' + made.project + '/chat');
+  const second = await t.context.newPage();
+  await second.goto(t.bench.base + '/p/' + other.project + '/chat');
+  await t.page.locator('#ws-recording-status[data-state="on"]').waitFor();
+  await second.locator('#ws-recording-status[data-state="on"]').waitFor();
+  await t.page.locator('#ws-recording-status').click();
+  await t.page.keyboard.press('Tab');
+  assert.equal(await t.page.locator('#ws-recording-popover').getByRole('button', { name: 'Stop All Recording', exact: true }).evaluate(button => button === document.activeElement), true);
+  await t.page.keyboard.press('Enter');
+  for (const page of [t.page, second]) await page.locator('#ws-recording-status').getByText('WorkStation not recording', { exact: true }).waitFor();
+  await t.page.locator('#toast-text').getByText('All recording stopped. What was recorded is kept.', { exact: true }).waitFor();
+  await second.locator('#toast-text').getByText('WorkStation recording stopped in another window.', { exact: true }).waitFor();
+  assert.equal(await t.page.locator('#ws-recording-status').evaluate(button => button === document.activeElement), true);
+  for (const project of [made.project, other.project]) {
+    const state = await t.bench.api('/api/recordings', { project });
+    assert.equal(state.enabled, false); assert.equal(state.steps, 1);
+  }
+  await t.page.locator('#ws-recording-status').click();
+  await t.page.locator('#ws-recording-popover').getByRole('button', { name: 'Stop All Recording', exact: true }).waitFor();
+  await t.page.locator('#ws-recording-popover').getByRole('button', { name: 'Record WorkStation', exact: true }).click();
+  await t.page.getByRole('button', { name: 'Enable Recording', exact: true }).click();
+  await t.page.locator('#ws-recording-status[data-state="on"]').waitFor();
+  const toggle = t.page.locator('#preview-toggle');
+  if (await toggle.getAttribute('aria-pressed') !== 'true') await toggle.click();
+  await t.page.locator('#recording-status').click();
+  await t.page.locator('#recording-popover').getByRole('button', { name: 'Stop All Recording', exact: true }).click();
+  await second.locator('#ws-recording-status').getByText('WorkStation not recording', { exact: true }).waitFor();
+  await t.page.locator('#ws-recording-status').getByText('WorkStation not recording', { exact: true }).waitFor();
+  assert.equal(await t.page.locator('#toast-text').textContent(), 'All recording stopped. What was recorded is kept.');
+  await second.close();
 });
 story('US-354', 'A late chat load preserves the phone menu I just opened', async t => {
   const made = await t.bench.api('/api/projects/create', { name: 'Late chat', parent: t.bench.directory, kind: 'empty' });
