@@ -61,6 +61,17 @@ def already_running_message(port):
     return (f'Pi WorkStation is already running in another session. Open http://127.0.0.1:{port} to use it. '
             'No second copy was started. To restart, exit Pi in the session that started it, then run plh again.')
 
+def require_node():
+    """Check Pi's runtime before starting it; never install or change the person's Node."""
+    minimum=(22,19,0)
+    message='Pi needs Node >= 22.19.0. Put a supported Node version on PATH, then run plh again.'
+    try:
+        result=subprocess.run(['node','--version'],capture_output=True,text=True,check=True,timeout=5)
+    except (OSError,subprocess.SubprocessError) as error:
+        raise ValueError(message) from error
+    found=re.fullmatch(r'v(\d+)\.(\d+)\.(\d+)',result.stdout.strip())
+    if not found or tuple(map(int,found.groups()))<minimum:raise ValueError(message)
+
 def main():
     directory=Path(os.getenv('PI_AGENT_DATA',str(Path.home()/'pi-local-harness-data'))).expanduser().resolve()
     settings=configuration(directory)
@@ -78,6 +89,7 @@ def main():
         if commit:
             print(f'PLH: updated to {commit[:7]}',file=sys.stderr)
             os.execve(sys.executable,[sys.executable,str(ROOT/'plh.py'),*sys.argv[1:]],{**os.environ,'PLH_UPDATED':commit})
+    require_node()
     memory=directory/'AGENTS.md'
     if not memory.exists():memory.write_text((ROOT/'harness/AGENTS.md').read_text())
     # The model and thinking level chosen in the web menu bar (task 147), else harness/model.json's default and config.json's effort.

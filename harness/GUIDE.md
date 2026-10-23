@@ -333,3 +333,7 @@ parallelize a model that serialized here. Production starts conservatively at tw
 ### How do I stop all action recording?
 
 Choose Stop All Recording in either recording popover. It stops WorkStation and the Preview recordings for every registered project, including other windows. Recorded history stays on the host. Re-enabling a recorder starts a new flow; pending batches from before the stop are refused. A storage failure is reported as a failure, since some recorders may already have stopped; ordinary chat and files remain usable.
+
+### Why does startup say “Pi needs Node >= 22.19.0”?
+
+The Node version on PATH is too old, unavailable, or did not report a supported stable version. Put Node 22.19.0 or newer on PATH and run `plh` again. Pi has not started; the launcher does not install Node for you. `plh setup` and the notice for an already-running WorkStation remain available.

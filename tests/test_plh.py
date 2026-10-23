@@ -120,3 +120,20 @@ class LauncherTest(unittest.TestCase):
             install(root/'prefix',root/'agent',data)
             upgraded=(data/'AGENTS.md').read_text();self.assertIn('Markdown comment record',upgraded);self.assertIn('retain this lesson',upgraded);self.assertNotIn('JSON sidecar',upgraded)
             self.assertTrue(list(data.glob('AGENTS.md.before-markdown-*')))
+
+class NodeRequirementTest(unittest.TestCase):
+    def test_supported_and_unsupported_versions(self):
+        from plh import require_node
+        from unittest.mock import patch
+        for version, allowed in [('v20.19.0',False),('v22.18.9',False),('v22.19.0',True),('v24.0.0',True),('v22.19.0-rc.1',False),('not a version',False)]:
+            with self.subTest(version=version), patch('plh.subprocess.run',return_value=subprocess.CompletedProcess([],0,version+'\n','')) as run:
+                if allowed:require_node()
+                else:
+                    with self.assertRaisesRegex(ValueError,r'Pi needs Node >= 22\.19\.0'):require_node()
+                self.assertEqual(run.call_args.kwargs['timeout'],5)
+    def test_unavailable_node_has_a_clear_error(self):
+        from plh import require_node
+        from unittest.mock import patch
+        for error in (FileNotFoundError(),subprocess.TimeoutExpired('node',5),subprocess.CalledProcessError(1,'node')):
+            with self.subTest(error=type(error).__name__),patch('plh.subprocess.run',side_effect=error):
+                with self.assertRaisesRegex(ValueError,r'Pi needs Node >= 22\.19\.0'):require_node()

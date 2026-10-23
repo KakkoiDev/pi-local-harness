@@ -472,3 +472,11 @@ When Pi runs it (exit 127), writes the code and runs it again
 Then the task ends “not verified”, and Activity shows the run with its exit code
 
 Surface: web. Test: tests/browser/stories.cjs. Task: 61.
+
+### US-359 terminal: plh with an old Node stops and says Pi needs Node 22.19.0 or newer
+Given the node on PATH is version 20
+When I start plh
+Then it stops at once with “Pi needs Node >= 22.19.0”
+And Pi is not started
+
+Surface: terminal. Test: tests/harness/node-startup.test.mjs. Task: 63.
