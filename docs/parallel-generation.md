@@ -68,3 +68,7 @@ python3 experiments/parallel_inference/production_smoke.py --gpu-lock /path/to/e
 
 The smoke refuses a held lock, a resident model on owner Ollama, or less than 16 GiB available memory. It starts and
 stops only its own server, offers no download path, and does not resume a lab campaign.
+
+## Project agents
+
+Each registered project owns one agent lane, identified by its stable project ID, with its own chat history and phase. An idle lane does not keep a Pi process alive. The workspace API exposes `agents` keyed by project ID, with running and queued job IDs and advisory `available` admission. Older runnable queued requests reserve capacity before this estimate. Dispatch checks the current capability again; the estimate never authorizes execution. Existing Send/Queue controls follow the selected project's availability. When capability is unknown, stale, or under memory pressure, new requests serialize.

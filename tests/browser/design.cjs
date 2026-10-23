@@ -396,7 +396,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   assert.equal(await page.locator('#window-title').textContent(),'Activity · All Projects');
   assert.equal(await page.locator('#main-window>.pw-titlebar [data-command="close-window"]').getAttribute('aria-label'),'Close Activity and go back');
   assert.equal(await page.locator('#workspace-bar').isVisible(),false,'no project tabs in an app window');
-  assert.match(await page.locator('#activity-panel .pw-infobar').textContent(),/One agent, one queue, first in first out\. Interrupted work is never repeated automatically\./);
+  assert.match(await page.locator('#activity-panel .pw-infobar').textContent(),/One agent per project\. Parallel work requires a verified model server\. Interrupted work is never repeated automatically\./);
   assert.equal(await page.locator('#activity-project option').first().textContent(),'All Projects');
   const projectLink=page.locator('#activity-list .pw-link').first();assert.equal(await projectLink.count(),1,'project names are links');
   assert.match(await page.locator('#activity-detail .activity-detail__actions .pw-btn').first().textContent(),/^(Open in Chat|Show Comment|Show in Review)$/,'one button back, named after the origin (task 157)');

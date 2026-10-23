@@ -38,6 +38,53 @@ class EvidenceTest(unittest.TestCase):
                 self.assertEqual(capability.capacity(directory,'m',8192),1)
 
 class SchedulingTest(unittest.TestCase):
+    def test_project_agents_report_actual_admission_and_shared_workspace_exclusion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            queue=WorkQueue(Path(directory)/'q.json',lambda *args:None,start=False,
+                            mode=lambda:('parallel',2),workspace=lambda project:'/projects/'+('p' if project=='alias' else project))
+            queue.add('p','chat-p',{'message':'one'})
+            queue.jobs[0]['status']='running'
+            agents=queue.project_agents([{'id':p,'chat':'chat-'+p} for p in ['p','q','alias']])
+            self.assertEqual(agents['p']['running'],[queue.jobs[0]['id']])
+            self.assertFalse(agents['p']['available'])
+            self.assertFalse(agents['alias']['available'])
+            self.assertTrue(agents['q']['available'])
+            queue.add('q','chat-q',{'message':'two'})
+            queue.jobs[1]['status']='running'
+            self.assertFalse(queue.project_agents([{'id':'r','chat':'chat-r'}])['r']['available'])
+            queue.jobs[0]['status']='completed'
+            queue.mode=lambda:('one at a time',1)
+            self.assertFalse(queue.project_agents([{'id':'p','chat':'chat-p'}])['p']['available'])
+
+    def test_agent_snapshot_reserves_older_jobs_without_claiming_and_obeys_terminal_hold(self):
+        with tempfile.TemporaryDirectory() as directory:
+            held=False
+            queue=WorkQueue(Path(directory)/'q.json',lambda *args:None,start=False,
+                            mode=lambda:('parallel',2),busy=lambda:held)
+            queue.add('p','p-chat',{'message':'older'})
+            queue.add('q','q-chat',{'message':'older too'})
+            projects=[{'id':'r','chat':'r-chat'}]
+            self.assertFalse(queue.project_agents(projects)['r']['available'])
+            self.assertEqual([job['status'] for job in queue.jobs],['queued','queued'])
+            queue.jobs[0]['status']='completed'
+            self.assertTrue(queue.project_agents(projects)['r']['available'])
+            held=True
+            self.assertFalse(queue.project_agents(projects)['r']['available'])
+            held=False
+            projects[0]['missing']=True
+            self.assertFalse(queue.project_agents(projects)['r']['available'])
+
+    def test_missing_running_workspace_does_not_break_project_agent_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            def workspace(project):
+                if project=='missing':raise ValueError('Project not found')
+                return '/projects/'+project
+            queue=WorkQueue(Path(directory)/'q.json',lambda *args:None,start=False,
+                            mode=lambda:('parallel',2),workspace=workspace)
+            queue.add('missing','old-chat',{'message':'one'})
+            queue.jobs[0]['status']='running'
+            self.assertFalse(queue.project_agents([{'id':'q','chat':'q-chat'}])['q']['available'])
+
     def test_unknown_serializes_across_chat_and_work(self):
         with tempfile.TemporaryDirectory() as directory:
             queue=WorkQueue(Path(directory)/'q.json',lambda *args:None,start=False)

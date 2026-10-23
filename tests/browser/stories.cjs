@@ -1976,6 +1976,27 @@ story('US-290', 'New Project shows the folder it makes: a slug of the name, neve
   assert.equal(await page.locator('#window-title').textContent(), 'Habit Tracker');
 });
 
+story('US-357', 'Chat follows the selected project agent availability', async t => {
+  const {page}=t;
+  await newProject(t,'Project Agent');
+  let available=true;
+  // Admission rendering fixture only: production scheduling is covered by real-process lane tests.
+  await page.route('**/api/workspace',async route=>{
+    const response=await route.fetch(), body=await response.json();
+    body.jobs.push({id:'other-project',project:'elsewhere',status:'running',chat:'other',data:{message:'Other project'}});
+    body.agents=Object.fromEntries(body.projects.map(project=>[project.id,{id:project.id,running:[],queued:[],available}]));
+    await route.fulfill({response,json:body});
+  });
+  await page.waitForFunction(()=>document.querySelector('#send').textContent==='Send');
+  available=false;
+  await page.waitForFunction(()=>document.querySelector('#send').textContent==='Queue');
+  await page.waitForFunction(()=>document.querySelector('#hint').textContent==='Pi answers after the current request.');
+  available=true;
+  await page.waitForFunction(()=>document.querySelector('#send').textContent==='Send' && document.querySelector('#hint').textContent==='');
+  const id=await say(t,'Hello from my project');
+  assert.equal((await answered(t,id)).status,'completed');
+});
+
 story('US-355', 'Model names show configuration-specific parallel capability', async t => {
   const {page}=t;
   const statuses=['supported','not_supported','unknown','error'];

@@ -451,3 +451,10 @@ When I choose Stop All Recording from either recording popover
 Then both surfaces stop in both windows, old batches are refused, and the recorded history stays available
 
 Surface: web. Test: tests/browser/recording.cjs. Task: 333.
+
+### US-357 Chat follows the selected project agent availability
+Given another project is working and my project has its own agent lane
+When the scheduler reports available or occupied capacity for my project
+Then Send and Queue reflect my project and sending preserves its own conversation
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 364.

@@ -6,7 +6,8 @@ New here? [harness/GUIDE.md](../harness/GUIDE.md) answers the common questions (
 comments, models, the phone, settings, trouble). In terminal Pi, `/guide <words>` prints the matching answers, and Pi
 itself reads them when you ask how to do something.
 
-A local workbench for **one agent, one chat per project, and real Markdown files**.
+A local workbench for **one agent per project, one chat per project, and real Markdown files**.
+Different projects can run simultaneously when the exact model-server configuration has passed the parallel capability check; otherwise requests run one at a time. See [parallel generation](parallel-generation.md).
 Start `plh` (or `pi-local-harness`) from any directory. It starts Pi in your home
 directory, Gate on port **8000**, and the web workbench on **3000**. Plain `pi` keeps
 its normal behavior. Whisper loads only when you submit audio.

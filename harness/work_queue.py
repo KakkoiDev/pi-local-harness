@@ -113,10 +113,10 @@ class WorkQueue:
     @staticmethod
     def role(data):
         return 'worker' if data.get('worker') else 'comment' if data.get('document_comment') else 'document' if data.get('document') else 'chat'
-    def runnable(self, job):
+    def runnable(self, job, *, running=None, mode=None):
         """Whether a queued request may start now, given what runs (call with the condition held)."""
-        running=[item for item in self.jobs if item['status']=='running']
-        mode,slots=self.mode()
+        if running is None:running=[item for item in self.jobs if item['status']=='running']
+        mode,slots=self.mode() if mode is None else mode
         limit=max(1,int(slots or 1)) if mode=='parallel' else 1
         if len(running)>=limit:return False
         # Chats can run tools too: all requests retain the workspace exclusion, including symlink aliases.
@@ -127,6 +127,33 @@ class WorkQueue:
             return left==right or left in right.parents or right in left.parents
         if any(item['chat']==job['chat'] or conflict(item) for item in running):return False
         return True
+    def project_agents(self, projects):
+        """A project owns one agent lane, not one permanently running process.
+
+        Availability is advisory: dispatch rechecks capability and ownership at claim time.
+        Older runnable work reserves its slot so the composer never promises to jump it.
+        """
+        with self.condition:
+            running=[job for job in self.jobs if job['status']=='running']
+            blocked=self.closed or self.busy()
+            mode=self.mode()
+            result={}
+            def available(job):
+                try:return self.runnable(job,running=running,mode=mode)
+                except (ValueError,OSError):return False  # A removed/unplugged folder cannot break workspace polling.
+            if not blocked:
+                for job in self.jobs:
+                    if job['status']=='queued' and available(job):running.append(job)
+            for project in projects:
+                identifier=project['id']
+                owned=[job for job in self.jobs if job['project']==identifier]
+                probe={'project':identifier,'chat':project.get('chat')}
+                result[identifier]={'id':identifier,
+                    'running':[job['id'] for job in owned if job['status']=='running'],
+                    'queued':[job['id'] for job in owned if job['status']=='queued'],
+                    'available':not blocked and not project.get('missing') and available(probe)}
+            return result
+
     def claim(self, job):
         """Mark a request running. False when its record cannot be saved: it fails instead of blocking its lane."""
         job.update(status='running',started=now(),progress='Loading project context')
