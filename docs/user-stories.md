@@ -465,3 +465,10 @@ When I choose English before that download finishes
 Then existing and newly added controls stay in English
 
 Surface: web. Test: tests/browser/stories.cjs. Task: 365.
+
+### US-358 a test command that is not found does not count as the failing test, so the task is not verified
+Given an approved code task whose test command does not exist
+When Pi runs it (exit 127), writes the code and runs it again
+Then the task ends “not verified”, and Activity shows the run with its exit code
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 61.

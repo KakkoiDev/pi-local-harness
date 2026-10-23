@@ -92,7 +92,7 @@ and harness/README.md for the installed pi workflow.
 - [ ] [58-Fresh context per task](tasks/58-fresh-context-per-task.md)
 - [ ] [59-Stuck detection](tasks/59-stuck-detection.md)
 - [ ] [60-ntfy notifications](tasks/60-ntfy-notifications.md)
-- [ ] [61-Red means a test failure](tasks/61-real-exit-codes.md)
+- [x] [61-Red means a test failure](tasks/61-real-exit-codes.md)
 - [ ] [62-Stale agent lock recovery](tasks/62-stale-agent-lock.md)
 - [ ] [63-Node version check at launch](tasks/63-node-version-check.md)
 - [ ] [64-Per-task report for check](tasks/64-task-report.md)

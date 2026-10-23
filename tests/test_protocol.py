@@ -44,6 +44,12 @@ class ProtocolTest(unittest.TestCase):
         (self.root / 'tasks/01-feature.md').write_text(f'# Feature\n\nKind: {kind}\n\n- [x] Red\n- [x] Green\n')
         (self.root / 'ROADMAP.md').write_text('- [x] [01](tasks/01-feature.md)\n')
 
+    def test_unavailable_test_commands_never_supply_red_evidence(self):
+        for code in (126,127):
+            with self.subTest(code=code):
+                self.run_bash('python3 -m unittest',exit_code=code)
+                self.assertFalse(self.ledger.protocol.failed_run(self.root))
+
     def test_full_protocol_allows_commit(self):
         (self.root / 'test_app.py').write_text('assert False\n')
         self.assertEqual(self.run_bash('python3 -m unittest', exit_code=1)['outcome'], 'ALLOW')

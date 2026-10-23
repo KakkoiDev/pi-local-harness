@@ -37,6 +37,7 @@ def record(data, *, request, project, cwd, command, exit_code, duration, output)
         (data / 'test-runs').mkdir(parents=True, exist_ok=True)
         (data / row['output_file']).write_text('\n'.join(str(output).splitlines()[-200:]) + '\n', encoding='utf-8')
         with (data / 'test-runs.jsonl').open('a', encoding='utf-8') as handle: handle.write(json.dumps(row, ensure_ascii=False) + '\n')
+    if exit_code in (126,127):return row  # Runner unavailable: keep the audit, never claim a failed test.
     from harness.learning import emit
     import hashlib
     emit(data, project=str(project), source=identifier, kind='test_passed' if exit_code==0 else 'test_failed',

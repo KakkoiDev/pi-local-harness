@@ -1976,6 +1976,25 @@ story('US-290', 'New Project shows the folder it makes: a slug of the name, neve
   assert.equal(await page.locator('#window-title').textContent(), 'Habit Tracker');
 });
 
+story('US-358', 'a test command that is not found does not count as the failing test, so the task is not verified', async t => {
+  const {root}=await newProject(t,'Missing Runner');
+  await givenApprovedTasks(t,root,[COUNT]);
+  // The fake Pi has an absolute Python shebang; only the audited shell command sees this unavailable runner.
+  fs.writeFileSync(join(t.directory,'python3'),'#!/bin/sh\nexit 127\n',{mode:0o755});
+  const id=await say(t,'Build the approved task. TEST_SCRIPT=build-unavailable-runner');
+  const job=await answered(t,id);
+  assert.equal(job.check_in?.verified,false);
+  const task=fs.readFileSync(join(root,'tasks/002-count-clicks.md'),'utf8');
+  assert.doesNotMatch(task,/- \[x\] Red:/);
+  const runs=t.bench.lines(join(t.bench.data,'test-runs.jsonl')).filter(row=>row.request===id);
+  assert.ok(runs.length>=2);
+  assert.ok(runs.every(row=>row.exit_code===127));
+  await t.page.locator('#messages').getByText(/not verified/i).first().waitFor();
+  await t.page.goto(t.base+'/activity');
+  await t.page.locator('.activity-task').filter({hasText:'TEST_SCRIPT=build-unavailable-runner'}).first().locator('.activity-request').click();
+  await t.page.locator('#activity-detail').getByText('Exit code: 127',{exact:true}).first().waitFor();
+});
+
 story('US-360', 'a delayed translation cannot undo my newer language choice', async t => {
   await t.page.goto(t.base);
   const observed=await t.page.evaluate(async()=>{

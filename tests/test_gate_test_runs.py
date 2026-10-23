@@ -12,6 +12,15 @@ from gate.ledger import ProposalLedger
 
 
 class TestRunLogTest(unittest.TestCase):
+    def test_unavailable_runner_keeps_exit_code_without_learning_false_test_failure(self):
+        from gate.test_runs import record,read
+        with tempfile.TemporaryDirectory() as directory,patch('harness.learning.emit') as emit:
+            for code in (126,127):
+                record(directory,request='r',project='p',cwd=directory,command='pytest',
+                       exit_code=code,duration=0,output='runner unavailable')
+            self.assertEqual([row['exit_code'] for row in read(directory)],[126,127])
+            emit.assert_not_called()
+
     def test_counts_from_runner_summaries(self):
         from gate.test_runs import counts
         cases = [

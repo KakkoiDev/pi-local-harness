@@ -413,7 +413,7 @@ class ProposalLedger:
                 postcondition_ok = False
         event = self.engine.audit(proposal, execution, postcondition_ok=postcondition_ok)
         command = proposal.args.get('command')
-        if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED'):
+        if proposal.tool_name == 'execute_command' and isinstance(command, str) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and exit_code not in (126,127):
             self.protocol.record(cwd, command, exit_code == 0, output)
         if expected and exit_code == 0:  # strategy 2: the file Pi just wrote still parses
             problem = syntax_problem(expected[0])
@@ -436,7 +436,7 @@ class ProposalLedger:
             except OSError as error: self.report('test-log', str(error), request=request, cwd=cwd)
         if request:  # plan 184: the paperwork sees what happened (a test run, a first change) and may have a note for Pi
             # Task 260: a `--help` call or a run where no test ran is neither Red nor Green in the task's progress.
-            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and test_invocation(command, output):
+            if isinstance(command, str) and test_folder(command, cwd) and event.status in ('SUCCESS', 'EXECUTION_FAILED') and test_invocation(command, output) and exit_code not in (126,127):
                 self.paperwork.ran(request, command, exit_code == 0, output)  # task 329: the test names, for the scenarios
             note = self.paperwork.observe(request)
             if note: self.notes[token] = '\n'.join(filter(None, [self.notes.get(token), note]))

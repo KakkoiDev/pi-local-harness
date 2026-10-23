@@ -1,3 +1,4 @@
+import { toolExitCode } from './tool-exit.mjs';
 import { taskReviewPrompt } from './task-review.mjs';
 import { spawn } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs';
@@ -464,7 +465,7 @@ export default function harness(pi, dependencies = {}) {
     try {
       const started = checks.get(event.toolCallId)?.started, seconds = started ? (Date.now() - started) / 1000 : undefined;
       const result = await call('/audit', { proposal_id: token, tool_name: names[event.toolName] || event.toolName,
-        args: boxes.get(event.toolCallId) || sandboxed.get(event.toolCallId) || event.input, output: event.content, exit_code: event.isError ? 1 : 0 });
+        args: boxes.get(event.toolCallId) || sandboxed.get(event.toolCallId) || event.input, output: event.content, exit_code: toolExitCode(event) });
       boxes.delete(event.toolCallId); sandboxed.delete(event.toolCallId);
       if (result.sandbox_refused) notify(sharedPortEnv() ? `Harness notice: ${result.sandbox_refused}` : result.sandbox_refused, 'warning'); /* task 311: the person can widen it */
       // Plan 184: the first change gives the request its task; Pi reads where it is and that the harness keeps it.

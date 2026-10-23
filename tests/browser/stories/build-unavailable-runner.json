@@ -1,0 +1,17 @@
+{
+  "steps": [
+    {
+      "bash": "python3 -m unittest"
+    },
+    {
+      "write": "counter.py",
+      "content": "VALUE = 2\n"
+    },
+    {
+      "bash": "python3 -m unittest"
+    },
+    {
+      "say": "[CANARY] The test runner could not start."
+    }
+  ]
+}
