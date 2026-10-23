@@ -439,3 +439,8 @@ Then structural actions stay in their original scope, stopping is independent of
 Given startup is waiting for the selected conversation
 When I open the phone project menu before that conversation finishes loading
 Then the menu stays open and New Project remains usable
+
+### US-355 Model names show configuration-specific parallel capability
+Given installed local models with unknown, supported, unsupported or failed smoke results
+When I open the model menu
+Then each name shows its capability and only current verified configurations enable parallel work

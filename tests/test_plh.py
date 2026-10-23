@@ -19,16 +19,16 @@ class LauncherTest(unittest.TestCase):
             fake=root/'pi';fake.write_text('#!'+sys.executable+'\nimport os,json,sys\nprint(json.dumps({"cwd":os.getcwd(),"args":sys.argv[1:],"port":os.environ["PI_WEB_PORT"]}))\n');fake.chmod(0o755)
             result=subprocess.run([sys.executable,str(ROOT/'plh.py'),'--mode','rpc'],cwd=root,env={**os.environ,'PATH':str(root)+os.pathsep+os.environ['PATH'],'PI_AGENT_DATA':str(data)},capture_output=True,text=True,check=True)
             record=json.loads(result.stdout);self.assertEqual(record['cwd'],str(Path.home()))
-            self.assertEqual(record['args'][record['args'].index('--model')+1],'gemma4:26b-mlx');self.assertIn('medium',record['args']);self.assertIn('--no-extensions',record['args'])
+            self.assertEqual(record['args'][record['args'].index('--model')+1],'gpt-oss:20b');self.assertIn('medium',record['args']);self.assertIn('--no-extensions',record['args'])
             self.assertEqual(record['port'],'4321');self.assertTrue((data/'AGENTS.md').exists())
     def test_model_is_pinned_and_config_cannot_override_it(self):
         from harness.model import PROVIDER,MODEL
-        self.assertEqual((PROVIDER,MODEL),('ollama','gemma4:26b-mlx'))
+        self.assertEqual((PROVIDER,MODEL),('ollama','gpt-oss:20b'))
         with tempfile.TemporaryDirectory() as directory:
             Path(directory,'config.json').write_text('{"model":"ollama/other-model"}')
             with self.assertRaisesRegex(ValueError,'pinned'):configuration(directory)
-            Path(directory,'config.json').write_text('{"model":"ollama/gemma4:26b-mlx"}')
-            self.assertEqual(configuration(directory)['model'],'ollama/gemma4:26b-mlx')
+            Path(directory,'config.json').write_text('{"model":"ollama/gpt-oss:20b"}')
+            self.assertEqual(configuration(directory)['model'],'ollama/gpt-oss:20b')
             other=Path(directory,'fresh');configuration(other)
             self.assertNotIn('model',json.loads((other/'config.json').read_text()))
     def test_web_workers_ignore_model_environment_overrides(self):
@@ -36,7 +36,7 @@ class LauncherTest(unittest.TestCase):
         from harness.web_chat import pi_command
         with patch.dict(os.environ,{'PI_WEB_MODEL':'other-model','PI_WEB_PROVIDER':'other'}):
             command=pi_command('session.jsonl')
-        self.assertEqual(command[command.index('--model')+1],'gemma4:26b-mlx');self.assertEqual(command[command.index('--provider')+1],'ollama')
+        self.assertEqual(command[command.index('--model')+1],'gpt-oss:20b');self.assertEqual(command[command.index('--provider')+1],'ollama')
     def test_invalid_settings_do_not_start_pi(self):
         with tempfile.TemporaryDirectory() as directory:
             Path(directory,'config.json').write_text('{"effort":"bogus"}')

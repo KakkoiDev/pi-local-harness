@@ -87,6 +87,7 @@ class OllamaAdminTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not installed'): admin.run(self.console, 'models', ['remove', 'gemma4:26b-mlx'], yes=True)
 
     def test_the_chosen_model_cannot_be_removed(self):
+        models.save(self.data,model='gemma4:26b-mlx')
         self.manifest('gemma4', '26b-mlx', ['sha256:config1'])
         with self.assertRaisesRegex(ValueError, 'chosen model'): admin.run(self.console, 'models', ['remove', 'gemma4:26b-mlx'], yes=True)
 

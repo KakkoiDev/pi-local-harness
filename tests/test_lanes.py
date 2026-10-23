@@ -56,7 +56,7 @@ class LaneTest(unittest.TestCase):
         queue.add('q', 'chat-q', {'message': 'C', 'document_comment': {'path': 'projects/q/a.md', 'id': 'x'}})
         queue.add('p', 'chat-p', {'message': 'hello'})
         queue.dispatch(); self.settle()
-        self.assertEqual(sorted(self.started), ['W', 'hello'], 'the chat does not wait for the worker; the comment waits (one at a time)')
+        self.assertEqual(self.started, ['W'], 'unverified configurations serialize across both lanes')
         self.finish(queue, 'W'); queue.dispatch(); self.settle()
         self.assertIn('C', self.started)
 
@@ -69,7 +69,7 @@ class LaneTest(unittest.TestCase):
         queue.add('r', 'chat-r', {'message': 'R', 'document': 'projects/r/a.md'})
         queue.add('q', 'chat-q', {'message': 'hello'})
         queue.dispatch(); self.settle()
-        self.assertEqual(sorted(self.started), ['D', 'W1', 'hello'], 'three slots: W2 waits for W1 (one worker per project), R for a slot')
+        self.assertEqual(sorted(self.started), ['D', 'R', 'W1'], 'three total slots: same workspace and same history must wait')
         self.finish(queue, 'W1'); queue.dispatch(); self.settle()
         self.assertIn('W2', self.started, 'FIFO: the next request of the freed project before a later one')
 
@@ -106,9 +106,13 @@ class WebLaneTest(unittest.TestCase):
         return check()
 
     def test_a_chat_and_a_comment_run_at_the_same_time_and_stop_on_their_own(self):
-        page = f'projects/{self.project}/ROADMAP.md'; entry = self.chat.documents.comment(page, 'Slowly TEST_SLOW', 'Describe what we are building.')
+        from unittest.mock import patch
+        mode=patch.object(self.chat,'mode',return_value=('parallel',2)); mode.start(); self.addCleanup(mode.stop)
+        self.chat.queue.mode=self.chat.mode
+        other=self.chat.documents.create_project('Other')
+        page = f'projects/{other}/ROADMAP.md'; entry = self.chat.documents.comment(page, 'Slowly TEST_SLOW', 'Describe what we are building.')
         chat = self.chat.enqueue({'project': self.project, 'message': 'Hello TEST_WAIT'})
-        comment = self.chat.enqueue({'project': self.project, 'message': 'Comment', 'document_comment': {'path': page, 'id': entry['id']}})
+        comment = self.chat.enqueue({'project': other, 'message': 'Comment', 'document_comment': {'path': page, 'id': entry['id']}})
         running = lambda: {job['id'] for job in self.chat.queue.list() if job['status'] == 'running'}
         self.assertTrue(self.wait(lambda: running() == {chat['id'], comment['id']}), 'both run: ' + str(self.chat.queue.list()))
         lock = json.loads((self.chat.documents.root / '.agent-lock').read_text())
@@ -129,7 +133,8 @@ class WebLaneTest(unittest.TestCase):
         self.assertIn({'type': 'paused', 'paused': True}, events); self.assertIn('Paused while Pi answers you', [event.get('text') for event in events])
         with self.chat.lock: self.chat.active.pop('chat-job'); self.chat.turns.notify_all()
         thread.join(5); self.assertFalse(thread.is_alive()); self.assertIn({'type': 'paused', 'paused': False}, events)
-        self.chat._mode = (('parallel', 2), time.monotonic())
+        from unittest.mock import patch
+        mode=patch.object(self.chat,'mode',return_value=('parallel',2)); mode.start(); self.addCleanup(mode.stop)
         with self.chat.lock: self.chat.active['chat-job'] = {'process': None, 'cancel': threading.Event(), 'chat': 'c', 'role': 'chat', 'emit': lambda event: None}
         self.assertEqual(self.chat.wait_turn('work-job')['waited'], 0, 'a parallel model never pauses the worker')
         with self.chat.lock: self.chat.active.clear()

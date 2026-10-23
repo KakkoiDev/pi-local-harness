@@ -135,10 +135,15 @@ def main():
     chat = None
     serve = None
     repair = None
+    parallel = None
     try:
         api = Server(('127.0.0.1', int(os.getenv('PI_GATE_PORT', '8000'))), Handler)
         servers.append(api)
         web = Server(('127.0.0.1', int(os.getenv('PI_WEB_PORT', '3000'))), WebHandler)
+        if os.getenv('PI_PARALLEL_SERVER') == '1':
+            from harness.parallel_server import ParallelServer
+            parallel = ParallelServer(data_dir).start()
+            parallel.activate()
         # Task 326: the tool-call repair proxy in front of Ollama; the workbench's Pi requests inherit its address.
         try: repair = tool_repair_proxy.start_for_services(data_dir, ollama_url(), int(os.getenv('PI_TOOL_REPAIR_PORT', '0')), os.getenv('PI_TOOL_REPAIR', '1') != '0')
         except OSError as error:
@@ -160,6 +165,7 @@ def main():
         # 'person' goes only to whoever started these services (terminal Pi's extension reads this line from a pipe).
         ready = {'gate': api.server_port, 'web': web.server_port, 'token': token, 'person': WebHandler.person_secret}
         if repair: ready['repair'] = repair.url
+        if parallel: ready['serving'] = parallel.config
         if WebHandler.remote_hosts:
             serve, problem = tailscale_serve(web.server_port)
             if serve: ready['remote'] = WebHandler.phone_url = 'https://' + sorted(WebHandler.remote_hosts)[0]
@@ -180,6 +186,7 @@ def main():
             except subprocess.TimeoutExpired: serve.kill()
         if chat: chat.close()
         if repair: repair.close()
+        if parallel: parallel.close()
         for server in servers:
             server.server_close()
 

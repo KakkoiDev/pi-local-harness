@@ -25,7 +25,7 @@ test('the provider is routed through the proxy only when it points at the workbe
   process.env.PI_HARNESS_TOOL_REPAIR_URL = 'http://127.0.0.1:4321/v1';
   try {
     let fake = fakePi(); installToolRepair(fake.pi, { config: {}, localModels });
-    assert.equal(fake.providers.length, 0, 'the default Ollama is not the configured one here (PI_OLLAMA_URL is a closed port)');
+    assert.equal(fake.providers.length, 1, 'the default provider follows PI_OLLAMA_URL and routes through its own proxy');
     fake = fakePi(); installToolRepair(fake.pi, { config: { baseUrl: 'http://localhost:9/v1/' }, localModels });
     assert.equal(fake.providers.at(-1).config.baseUrl, 'http://127.0.0.1:4321/v1', 'localhost and a trailing slash are the same address');
     assert.ok(fake.providers.at(-1).config.models.length, 'the models stay');

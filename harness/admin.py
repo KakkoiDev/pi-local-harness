@@ -591,7 +591,7 @@ def build(console, command, args, yes=False):
         value = console.models()
         if not value['ollama']: return value, view('Models', {'kind': 'lines', 'lines': [f"✗ Ollama does not answer at {models.ollama_url()}.", f"Chosen: {value['choice']['model']}"]}, *colibri_parts(value['colibri']), hint='/doctor')
         loaded = set(console.ollama_info().get('loaded') or [])
-        can = lambda item: '✗ no tools' if not item['tools'] else ' · '.join(word for word in [('thinks' if item['thinking'] else 'no thinking'), item['vision'] and 'sees', {'parallel': 'parallel', 'partly parallel': 'one at a time', 'one at a time': 'one at a time', 'checking': 'checking…'}.get(item['at_once'])] if word)
+        can = lambda item: '✗ no tools' if not item['tools'] else ' · '.join(word for word in [('thinks' if item['thinking'] else 'no thinking'), item['vision'] and 'sees', {'parallel': 'parallel', 'partly parallel': 'one at a time', 'one at a time': 'one at a time', 'checking': 'checking…', 'unknown': 'parallel unknown', 'error': 'parallel check failed'}.get(item['at_once'])] if word)
         table = {'kind': 'table', 'columns': ['MODEL', 'SIZE', 'CAN', ''], 'flex': 2, 'dim': [3],
                  'rows': [[('● ' if item['chosen'] else '  ') + item['id'], f"{item['size'] / 1e9:.0f} GB", can(item), 'in memory' if item['id'] in loaded else ''] for item in value['models']]}
         return value, view('Models', table, *colibri_parts(value['colibri']), hint='/models use <name> · /models check · /models pull <name> · /models remove <name>')
@@ -806,7 +806,8 @@ def check_models(console, args):
         if verdict != 'unknown' and not force:
             results[name] = capability.stored(console.data)[name]; lines.append(f'{name}: {verdict} (already measured; --force measures again)'); continue
         result = capability.check(console.data, name); results[name] = result
-        lines.append(f"{name}: {result['verdict']} · overlap {result['overlap']:.0%} · {result['alone_tps']} tok/s alone · {result['combined_x']}x with two at once · Ollama {result['ollama']}, OLLAMA_NUM_PARALLEL={result['num_parallel']}")
+        lines.append(f"{name}: {result['status']} ({result['verdict']}) · overlap {result['overlap']:.0%} · {result['alone_tps']} tok/s alone · {result['combined_x']}x with two at once · Ollama {result['ollama']}, OLLAMA_NUM_PARALLEL={result['num_parallel']}")
+        if result.get('reason'): lines.append(result['reason'])
     if not targets: lines.append('Every installed model is measured. --force measures them again.')
     if any(result.get('num_parallel') in ('default', '1') for result in results.values()):
         lines.append('Note: with OLLAMA_NUM_PARALLEL at 1 (or the default) a model can only answer one request at a time.')

@@ -40,8 +40,8 @@ class PiStartupTest(unittest.TestCase):
                 if state is None:process.terminate();process.wait(timeout=10)
                 self.assertIsNotNone(state, ''.join(lines)+(process.stderr.read() if process.poll() is not None else ''))
                 self.assertTrue(state['success'],state)
-                self.assertEqual(state['data']['model']['id'],'gemma4:26b-mlx')
-                self.assertIn('image',state['data']['model']['input'])
+                self.assertEqual(state['data']['model']['id'],'gpt-oss:20b')
+                self.assertNotIn('image',state['data']['model']['input'])
                 self.assertEqual(state['data']['thinkingLevel'], 'high')
                 self.assertTrue(any('Gate ' in line and 'Web ' in line and 'Pi WorkStation' in line for line in lines),lines)  # the round 6 header
             finally:

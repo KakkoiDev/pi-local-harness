@@ -702,7 +702,8 @@ async function main() {
   fs.mkdirSync(bench.data, { recursive: true });
   if (LIVE) fs.writeFileSync(join(bench.data, 'model.json'), JSON.stringify({ model: LIVE_MODEL, effort: 'low' }) + '\n');
   // The fake models' measured verdicts, so the workbench never measures them (capability.check).
-  else fs.writeFileSync(join(bench.data, 'model-capabilities.json'), JSON.stringify(Object.fromEntries(['gemma4:26b-mlx', 'qwen3:8b', 'tiny:1b'].map(name => [name, { digest: '', ollama: '0.12.0', num_parallel: '1', verdict: 'parallel' }]))));
+  else fs.writeFileSync(join(bench.data, 'model.json'), JSON.stringify({model:'gemma4:26b-mlx',provider:'ollama',effort:'high'}));
+  if (!LIVE) fs.writeFileSync(join(bench.data, 'model-capabilities.json'), JSON.stringify(Object.fromEntries(['gemma4:26b-mlx', 'qwen3:8b', 'tiny:1b'].map(name => [name, { digest: '', ollama: '0.12.0', num_parallel: '1', verdict: 'parallel' }]))));
   await bench.start({ PI_NO_DOWNLOADS: '', PI_BINARY: wrapper, PI_OLLAMA_URL: url, OLLAMA_NUM_PARALLEL: '1', ...(LIVE ? {} : { PI_HARNESS_MODEL_SILENCE_SECONDS: String(SILENCE), PI_HARNESS_MODEL_START_SECONDS: String(START), PI_HARNESS_MODEL_TURN_SECONDS: String(TURN) }) });
   const browser = await launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });

@@ -346,3 +346,10 @@ Gate selects private structured observations and verified regression receipts au
 ### Optional offline Python correctness check
 
 Set `PI_RUFF_BINARY` to an explicitly approved local Ruff 0.17.1 binary when running `tests/verify_workflow.py`. Undefined-name/syntax findings, missing tools and scanner errors then fail verification. Without it the workflow says Ruff did not run; there is no automatic download or repair. Scope, exclusions, hashes and the separate synthetic Agentplay viewer proof are documented in [the approved-tools report](reports/approved-tools-2026-10-20.md). Publication and generated-project integration remain planned.
+
+## Verified parallel generation
+
+GPT-OSS 20B is the default model. `parallel_server=true` opts into a harness-owned Ollama with two 8K slots;
+matching interleaved token evidence is required before any two requests run together. Chats and actions count against
+one total bound, and shared histories/workspaces serialize. Memory pressure reduces new admission. Existing Gate
+approval and resource controls still apply. [Serving identity, evidence and limits](parallel-generation.md).

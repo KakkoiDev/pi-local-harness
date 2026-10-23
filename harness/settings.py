@@ -66,6 +66,7 @@ SETTINGS = {
     'model_turn_seconds': ('PI_HARNESS_MODEL_TURN_SECONDS', 300, _number(10, 24 * 3600), 'A model turn after a tool result, or one the harness starts (a wake-up, the next approved task), may take this long before its first output (the model is loaded and reads its context). Then the request fails (“the model did not start answering”).', str),
     'wake_ups': ('PI_HARNESS_WAKE_UPS', 5, _number(0, 1000), 'How many times the harness may wake Pi in one request (after a loop, a hang, or stopping with work open) before it stops and offers Ask Pi to Retry…. 0: no limit (plan 184).', str),
     'hang_seconds': ('PI_HANG_MS', 60, _number(10, 3600), 'In a thought phase with no streamed activity for this long, the harness aborts, compacts and re-asks.', lambda value: str(value * 1000)),
+    'parallel_server': ('PI_PARALLEL_SERVER', False, _flag, 'Use an isolated harness-owned Ollama with two 8K slots; smoke evidence must match before concurrent work starts. Owner Ollama settings stay unchanged. Restart plh after changing.', lambda value: '1' if value else '0'),
     'ollama_url': ('PI_OLLAMA_URL', 'http://127.0.0.1:11434', _url, 'Where Ollama answers.', str),
     'colibri_url': ('PI_COLIBRI_URL', 'http://127.0.0.1:8100', _url, 'Where a Colibri server answers (`coli serve --port 8100`): its models join the model menu beside Ollama’s (task 294). plh does not start or stop Colibri. Not 8000, Gate’s port, which is Colibri’s own default.', str),
     'tool_repair': ('PI_TOOL_REPAIR', True, _flag, 'Fix the tool calls a local model writes as text (task 326): Pi talks to Ollama through a small proxy that turns them into real calls.', lambda value: '1' if value else '0'),
@@ -83,6 +84,8 @@ EXPLAIN = {key: about for key, (_, _, _, about, _) in SETTINGS.items()}
 
 # Set by the harness itself, for each start or each request; shown by /config, never changed there.
 INTERNAL = {
+    'PI_OLLAMA_SERVING_CONFIG': 'Attested isolated Ollama instance settings set by services, never inferred from the caller environment.',
+    'PI_HARNESS_CONTEXT_WINDOW': 'The context window reserved per request by the managed server.',
     'PI_NO_DOWNLOADS': 'Set by the tests and the browser suites (task 331): Create and Install Packages… never run the installer.',
     'PI_LAYA_DATA': 'Classifier toolchain root override for isolated tests; normally the harness data folder.',
     'RIPGREP_CONFIG_PATH': 'Inherited ripgrep configuration; Gate refuses rg reads when set because configuration may execute preprocessors.',

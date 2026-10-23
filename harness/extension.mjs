@@ -1,3 +1,4 @@
+import { taskReviewPrompt } from './task-review.mjs';
 import { spawn } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -245,7 +246,12 @@ export default function harness(pi, dependencies = {}) {
           }
         });
       });
-      if (ports?.repair) toolRepair.route(ports.repair); // task 326: terminal Pi learns the proxy from the ready line
+      if (ports?.serving) {
+        process.env.PI_HARNESS_CONTEXT_WINDOW=String(ports.serving.num_ctx);
+        process.env.PI_OLLAMA_URL=ports.serving.url; process.env.PI_OLLAMA_SERVING_CONFIG=JSON.stringify(ports.serving);
+      }
+      if (ports?.repair) toolRepair.route(ports.repair);
+      else if (ports?.serving && !bare) pi.registerProvider?.('ollama',localModels(config));
       // Round 6 header: the build, the data folder, and one line of suggestions on the very first start.
       let build = 'checkout', first = false;
       try { build = JSON.parse(readFileSync(join(moduleRoot, 'install.json'), 'utf8')).commit?.slice(0, 7) || build; } catch {}
@@ -324,7 +330,7 @@ export default function harness(pi, dependencies = {}) {
     if (event.source === 'extension' && !chain) { await refreshContext(); return { action: 'continue' }; }
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
-    assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
+    taskReviewed=false;assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
     chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
@@ -484,8 +490,10 @@ export default function harness(pi, dependencies = {}) {
       return { isError: true, content: [...event.content, { type: 'text', text: `Gate audit unavailable: ${error.message}` }] };
     }
   });
+  const ctxModelName = () => context?.model?.id || '';
+  let taskReviewed = false;
   pi.on('agent_settled', async event => {
-    agentLock.release();
+    try {
     if (waitingChoice) {
       if (requestId) await call('/request/pause',{request:requestId});
       requestId=undefined;
@@ -560,6 +568,13 @@ export default function harness(pi, dependencies = {}) {
       say('wake-up',instruction,'warning');
       pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);return;
     }
+    const reviewPrompt=taskReviewPrompt(process.env.PI_HARNESS_MODEL || ctxModelName());
+    if (!taskReviewed && reviewPrompt && after?.verified && after?.code?.length && before?.state!==after.state && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
+      taskReviewed=true;recovering=true;retries++;
+      incident('wake-up','task self-review: correctness, validation, scope');
+      say('wake-up','Reviewing this task.','info');
+      pi.sendUserMessage(reviewPrompt);return;
+    }
     if (!(after?.code?.length && !after.verified && before?.state !== after.state)) { verifiedBefore = undefined; await settledNow(); return; }
     const files = after.code.slice(0, 5).join(', ') + (after.code.length > 5 ? ' …' : '');
     if (!event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {
@@ -572,6 +587,7 @@ export default function harness(pi, dependencies = {}) {
     }
     verifiedBefore = undefined; await settledNow();
     if (!sharedPortEnv()) { incident('unverified', files); say('unverified', files, 'warning'); } // the web marks its own answer
+    } finally { if (!recovering && !pending) agentLock.release(); }
   });
   // Task 164: with a model that answers one request at a time, a work request asks the workbench before each model call
   // and waits while Pi answers the person in chat. An unreachable workbench never blocks the model.

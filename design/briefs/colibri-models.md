@@ -43,3 +43,10 @@ Gate's 8000).
   selectable and untouched.
 - A Colibri model without tools says so instead of failing silently.
 - Colibri stopping mid-answer: the chat says the connection was lost and offers Retry.
+
+## Follow-up: verified parallel labels (task 363)
+
+The existing model-menu metadata now includes “parallel tested”, “serial in tested setup”, “parallel unknown” or
+“parallel check failed”. Keep these beside model names and explain that current verified serving settings and
+memory permit at most two requests in separate projects. Unknown/error results serialize. Review the text-only
+extension of the existing metadata row on desktop and phone; no new control is introduced.

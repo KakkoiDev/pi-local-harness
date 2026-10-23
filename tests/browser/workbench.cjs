@@ -19,7 +19,7 @@ function scratch(prefix = 'pi-stories-') {
   const env = {
     ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))),
     PATH: directory + ':' + process.env.PATH, PI_TAILSCALE: 'false', PI_TRASH_DIR: join(directory, 'Trash'), PI_GATE_PORT: '0',
-    PI_OLLAMA_URL: 'http://127.0.0.1:9', PI_COLIBRI_URL: 'http://127.0.0.1:9', PI_WEB_PORT: '0', PI_AGENT_DATA: join(directory, 'workspace'), PI_WEB_DATA: join(directory, 'data'),
+    PI_PARALLEL_SERVER:'0', PI_OLLAMA_SERVING_CONFIG:'', PI_OLLAMA_URL: 'http://127.0.0.1:9', PI_COLIBRI_URL: 'http://127.0.0.1:9', PI_WEB_PORT: '0', PI_AGENT_DATA: join(directory, 'workspace'), PI_WEB_DATA: join(directory, 'data'),
     PI_HARNESS_LOG_FILE: join(directory, 'audit.log'), PI_FAKE_SCRIPTS: scripts, PI_LAYA_DATA: join(directory, 'laya'),
     PI_NO_DOWNLOADS: '1',  /* task 331: Create and Install Packages… never download; a story with uv stand-ins passes PI_NO_DOWNLOADS: '' */
   };

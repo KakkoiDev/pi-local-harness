@@ -483,7 +483,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
     assert.equal(new Set(widths).size,1,'the thinking menu keeps its width: '+widths); } // audit: it grew on every open
   await page.locator('#model-button').click();await page.locator('#model-menu [data-model="qwen3:8b"]').waitFor();
   assert.equal(await page.locator('#model-menu [data-model="tiny:1b"]').getAttribute('aria-disabled'),'true','a model without tools cannot be chosen');
-  assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['tools · thinks · sees','tools · no thinking','no tools']);/* task 326: tools only for models that call them */assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.');
+  assert.deepEqual(await page.locator('#model-menu .pw-menu__key').allTextContents(),['tools · thinks · sees · parallel unknown','tools · no thinking · parallel unknown','no tools']);/* task 326: tools only for models that call them */assert.equal(await page.locator('#model-menu [role="note"]').textContent(),'Parallel tested: up to two requests in separate projects, with verified serving settings and enough memory. Unknown, failed or serial checks run one at a time. Each chat keeps its own history.');
   await page.locator('#model-menu [data-model="qwen3:8b"]').click();
   assert.match(await page.locator('#model-button').textContent(),/Loading qwen3:8b…/);
   await page.locator('#model',{hasText:/^qwen3:8b$/}).waitFor();assert.match(await page.locator('#toast-text').textContent(),/qwen3:8b is ready\./);
@@ -921,7 +921,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.route('**/api/models',route=>route.fulfill({json:{models:[{id:'gemma4:26b-mlx',tools:true,thinking:true,vision:true,at_once:'parallel'},{id:'qwen3:8b',tools:true,thinking:false,vision:false,at_once:'checking'},{id:'mistral:7b',tools:true,thinking:false,vision:false,at_once:'unknown'}],current:{model:'gemma4:26b-mlx',effort:'high',chosenEffort:'high',thinking:true,missing:'gone:7b'}}}));
   await page.goto(`${base}/p/${id}/chat`);await page.locator('#model-button').click();await page.locator('#model-menu [data-model]').first().waitFor();
   const keys=await page.locator('#model-menu .pw-menu__key').allTextContents();
-  assert.match(keys[0],/ · parallel$/);assert.match(keys[1],/ · checking…$/);assert.doesNotMatch(keys[2],/unknown/,'unknown says nothing');
+  assert.match(keys[0],/ · parallel tested$/);assert.match(keys[1],/ · checking…$/);assert.match(keys[2],/ · parallel unknown$/,'unknown remains visible and serializes');
   const gone=page.locator('#model-menu .pw-menu__item',{hasText:'gone:7b'});assert.equal(await gone.getAttribute('aria-disabled'),'true');assert.equal(await gone.locator('.pw-menu__key').textContent(),'not installed');
   await page.keyboard.press('Escape');await page.unroute('**/api/models');
   }

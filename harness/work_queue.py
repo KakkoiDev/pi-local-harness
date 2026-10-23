@@ -1,4 +1,4 @@
-"""Durable FIFO work for one local agent; restarting never repeats an interrupted task."""
+"""Durable bounded work for isolated local sessions; restarting never repeats an interrupted task."""
 from harness.markdown_records import read_record,write_record
 import copy
 import json
@@ -35,12 +35,10 @@ STARTED_REMOVE='Pi already started this message, so it was not removed. Use Stop
 CHANGED_REMOVE='This message changed in another window, so it was not removed. Read it again first.'
 
 class WorkQueue:
-    # Task 164 (plan 156 phase 2): two lanes. The chat lane runs one chat request at a time; the work lane runs workers,
-    # comments and whole-file requests, never two in one project (they edit files), and only one in all when the model
-    # answers one request at a time. mode() returns ('parallel' or 'one at a time', the model's slots).
-    def __init__(self, path, execute, busy=lambda:False, start=True, mode=lambda:('one at a time',1)):
+    # Only configuration-specific verified progress permits concurrent jobs. Every lane counts toward the same limit.
+    def __init__(self, path, execute, busy=lambda:False, start=True, mode=lambda:('one at a time',1),workspace=lambda project:project):
         self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
-        self.execute=execute;self.busy=busy;self.mode=mode;self.condition=threading.Condition();self.closed=False
+        self.execute=execute;self.workspace=workspace;self.busy=busy;self.mode=mode;self.condition=threading.Condition();self.closed=False
         self.records=self.path.parent/'activity';self.records.mkdir(exist_ok=True)
         documents=sorted(self.records.glob('*.md'));legacy=not documents and self.path.exists()
         self.jobs=sorted([read_record(path) for path in documents],key=lambda job:(job['created'],job.get('order',0))) if documents else json.loads(self.path.read_text()) if self.path.exists() else []
@@ -117,13 +115,18 @@ class WorkQueue:
         return 'worker' if data.get('worker') else 'comment' if data.get('document_comment') else 'document' if data.get('document') else 'chat'
     def runnable(self, job):
         """Whether a queued request may start now, given what runs (call with the condition held)."""
-        running=[item for item in self.jobs if item['status']=='running'];chat=self.role(job['data'])=='chat'
-        if chat:return not any(self.role(item['data'])=='chat' for item in running)
-        work=[item for item in running if self.role(item['data'])!='chat']
-        if any(item['project']==job['project'] for item in work):return False  # one at a time per project (D3)
+        running=[item for item in self.jobs if item['status']=='running']
         mode,slots=self.mode()
-        if mode!='parallel':return not work
-        return len(work)<max(1,int(slots or 2)-1)  # one slot stays free for the chat
+        limit=max(1,int(slots or 1)) if mode=='parallel' else 1
+        if len(running)>=limit:return False
+        # Chats can run tools too: all requests retain the workspace exclusion, including symlink aliases.
+        # Same-history requests never resume or append one Pi session concurrently.
+        def conflict(other):
+            if not job['project'] or not other['project']:return False
+            left,right=Path(self.workspace(other['project'])),Path(self.workspace(job['project']))
+            return left==right or left in right.parents or right in left.parents
+        if any(item['chat']==job['chat'] or conflict(item) for item in running):return False
+        return True
     def claim(self, job):
         """Mark a request running. False when its record cannot be saved: it fails instead of blocking its lane."""
         job.update(status='running',started=now(),progress='Loading project context')

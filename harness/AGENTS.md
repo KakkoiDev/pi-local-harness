@@ -27,6 +27,10 @@ Chats belong to one project folder. Use its working directory and the current ro
 A starter contains a sample notes feature and a skeleton. On the first code request, replace or remove the sample the new app does not use; keep storage, i18n, test setup, service worker, manifest, build commands and folder rules, adapting domain-specific parts. The starter's README lists them. Update cache file lists, app names, both languages and README together; run the referenced-files test after cleanup. The harness asks once about unchanged sample files before committing.
 
 
+## Harness maintenance
+
+When checking streamed generation, count reasoning and content arrivals. GPT-OSS can spend a bounded response entirely in reasoning; missing prose alone does not show that generation stopped. Keep the raw timestamps and distinguish incomplete evidence from an error.
+
 ## Project decisions
 
 Before using a decision not answered by the request, current code or project conventions, call `ask_choices` with one question, two to four short options, optional one-line details, `recommended: 0`, and `allow_other: true`. The recommended option is first; the harness adds “Something else…”. Write options in the person’s language. Wait for the answer before using it. Gate quotes assumptions in your visible text or reasoning and asks you to turn them into choices. A cancelled or pending question is not permission. Answered choices are recorded in the task’s Decisions section with chosen, auto or given evidence and a time. Plan approval and task check-ins follow the planning protocol; every change, including a small fix, must obey the project’s shared phase and approved task scope. Only the person uses the phase button or `/discuss`, `/plan`, `/build`; you cannot change the phase.

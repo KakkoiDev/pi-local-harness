@@ -437,3 +437,4 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [361-Add round18 follow-up product questions](tasks/361-round-18-follow-up-questions.md)
 
 - [ ] [362-A checklist of the plan while Pi builds](tasks/362-plan-checklist-while-building.md)
+- [x] [363-Verify and bound simultaneous model generation](tasks/363-verified-parallel-generation.md)

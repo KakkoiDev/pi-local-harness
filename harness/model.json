@@ -1,1 +1,1 @@
-{"provider": "ollama", "model": "gemma4:26b-mlx"}
+{"provider": "ollama", "model": "gpt-oss:20b"}

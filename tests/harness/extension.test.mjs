@@ -567,3 +567,30 @@ for(const via of ['environment','file']) test(`Pi's shell never inherits Gate's 
   assert.ok(headers.every(call=>call.port==='4321'&&call.token==='secret-token'),JSON.stringify(headers));
  } finally {handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
 });
+
+test('GPT-OSS reviews a verified changed task once before production paperwork finishes',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'pi-task-review-')),saved={...process.env},fetchBefore=globalThis.fetch;
+ Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_MODEL:'gpt-oss:20b'});
+ const handlers={},messages=[],calls=[];let changed=false;
+ globalThis.fetch=async(url,options)=>{
+  const path=new URL(url).pathname;calls.push(path);
+  return {ok:true,json:async()=>path==='/verification'?{verification:{state:changed?'after':'before',code:changed?['app.py']:[],verified:true}}:{}};
+ };
+ const pi={on:(name,fn)=>{handlers[name]=fn;},appendEntry(){},registerEntryRenderer(){},sendUserMessage:message=>messages.push(message)};
+ const ctx={cwd:dir,model:{id:'gpt-oss:20b'},ui:{notify(){},setWidget(){},setStatus(){}}};
+ try{
+  harness(pi,{root:dir+'/',setInterval:()=>({unref(){}})});
+  await handlers.session_start({},ctx);await handlers.input({source:'interactive',text:'Fix the code'},ctx);handlers.agent_start({},ctx);changed=true;
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'[CANARY] Fixed and tested.'}]}});
+  handlers.agent_end({},ctx);await handlers.agent_settled({aborted:false},ctx);
+  assert.ok(existsSync(join(dir,'.agent-lock')),'terminal exclusion remains held during self-review');
+  assert.equal(messages.length,1);assert.match(messages[0],/correctness:[\s\S]*validation:[\s\S]*scope:/);
+  assert.equal(calls.filter(path=>path==='/request/end').length,0);
+  await handlers.input({source:'extension',text:messages[0]},ctx);handlers.agent_start({},ctx);
+  handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'[CANARY] Reviewed.'}]}});handlers.agent_end({},ctx);
+  await handlers.agent_settled({aborted:false},ctx);
+  assert.equal(messages.length,1,'review is bounded even when the same changed state remains');
+  assert.equal(calls.filter(path=>path==='/request/end').length,1,'Gate still finishes the request');
+  assert.equal(existsSync(join(dir,'.agent-lock')),false,'the finished review releases terminal exclusion');
+ }finally{handlers.session_shutdown?.();globalThis.fetch=fetchBefore;for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);rmSync(dir,{recursive:true,force:true});}
+});

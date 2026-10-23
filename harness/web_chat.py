@@ -293,12 +293,12 @@ def verification_note(before, after):
 class WebChat:
     def __init__(self, root, gate_port, web_port, data_root=None, gate_token=''):
         self.store=ConversationStore(root);self.gate_port=gate_port;self.web_port=web_port;self.gate_token=gate_token
-        self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False;self._colibri={};self._colibri_at=-1e9;self._colibri_listed=False
+        self.lock=threading.Lock();self.turns=threading.Condition(self.lock);self.active={};self.stopping=set();self.closed=False;self.switching=None;self.measuring=None;self._mode=(('one at a time',1),-1e9);self.lock_token=None;self._capabilities={};self._capabilities_at=-1e9;self._ollama_listed=False;self._colibri={};self._colibri_at=-1e9;self._colibri_listed=False
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.recording_run=secrets.token_hex(16)
         self.recordings=Recordings(self.documents.root/'.action-recordings')
         self.workstation_recordings=Recordings(self.documents.root/'.ws-action-recordings', default_enabled=False, shared_settings=True)
-        self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode)
+        self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode,workspace=lambda project:str(self.documents.project_path(project).resolve()) if project else '')
         from harness.web_updates import UpdateService
         from harness.admin import update_source
         self.updates=UpdateService(self.documents.root,update_source())
@@ -361,7 +361,7 @@ class WebChat:
         def at_once(item):
             if item.get('provider')=='colibri':return 'unknown'  # measured through Ollama only
             return 'checking' if self.measuring==item['id'] else capability.known(self.documents.root,item['id'],current)
-        return {'models':[{**item,'at_once':at_once(item)} for item in listed],'unavailable':unavailable,'current':self.choice()}
+        return {'models':[{**item,'at_once':at_once(item),'parallel_status':('checking' if self.measuring==item['id'] else capability.status(self.documents.root,item['id'],current)) if item.get('provider')=='ollama' else 'unknown'} for item in listed],'unavailable':unavailable,'current':self.choice()}
     def choose_model(self, model, provider=None):
         if provider not in (None,*models.PROVIDERS):raise ValueError(f'Unknown model provider “{provider}”: ollama or colibri.')
         try:listed,unavailable=self.listed_models()
@@ -373,14 +373,14 @@ class WebChat:
         item=found[0];provider=item['provider']
         if not item['tools']:raise ValueError(f'“{model}” cannot use tools, so Pi cannot work with it' + (' (Colibri does not say this family calls tools)' if item.get('family')=='unknown' else ''))
         if provider=='colibri':  # one model per Colibri server: nothing to load or unload; Ollama keeps its model
-            with self.lock:
+            with self.queue.condition,self.lock:
                 if self.switching:raise ValueError('Already switching models')
-                if self.active or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
+                if self.active or any(job['status']=='running' for job in self.queue.jobs) or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
             models.save(self.documents.root,model=model,provider='colibri');return self.choice()
         listed={entry['id']:entry for entry in listed if entry['provider']=='ollama'}
-        with self.lock:  # claimed atomically: while switching, busy() holds the queue back (no job starts on the old model)
+        with self.queue.condition,self.lock:  # claimed atomically: while switching, busy() holds the queue back (no job starts on the old model)
             if self.switching:raise ValueError('Already switching models')
-            if self.active or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
+            if self.active or any(job['status']=='running' for job in self.queue.jobs) or self.agent_running():raise ValueError('Pi is working. Switch models when the queue is empty.')
             self.switching=model
         try:
             before=models.current(self.documents.root)
@@ -395,9 +395,10 @@ class WebChat:
         and parallel setting; only while nothing runs, and the queue waits meanwhile (about half a minute)."""
         model=model or self.choice()['model']
         if capability.known(self.documents.root,model)!='unknown':return False
-        with self.lock:
-            if self.active or self.switching or self.measuring or self.agent_running():return False
+        with self.queue.condition,self.lock:
+            if self.active or any(job['status']=='running' for job in self.queue.jobs) or self.switching or self.measuring or self.agent_running():return False
             self.measuring=model
+            self._mode=(('one at a time',1),-1e9)
         try:capability.check(self.documents.root,model);return True
         except (OSError,ValueError,RuntimeError):return False
         finally:
@@ -409,18 +410,23 @@ class WebChat:
         """Holds the whole queue back: a model switch, a capability check, or terminal Pi at work. Running requests do not:
         the queue's lanes decide what may run beside them (task 164)."""
         with self.lock:
-            if self.switching or self.measuring:return True
+            if self.switching or self.measuring or any(not entry.get('queued',False) for entry in self.active.values()):return True
         return self.agent_running()
     def mode(self):
-        """('parallel', slots) when the chosen model answers requests at once (task 161), else ('one at a time', 1). Cached 30 s."""
-        value,at=self._mode
-        if time.monotonic()-at<30:return value
+        """('parallel', slots) when the chosen model answers requests at once (task 161), else ('one at a time', 1). Checked at admission; stale evidence cannot grant slots."""
+        from harness.parallel_server import memory_available
+        choice=models.current(self.documents.root)
+        if choice['provider']!='ollama':return ('one at a time',1)
+        config,verified=capability.serving()
+        if not verified:return ('one at a time',1)
         try:
-            model=models.current(self.documents.root)['model'];verdict=capability.known(self.documents.root,model)
-            slots=str(capability.stored(self.documents.root).get(model,{}).get('num_parallel',''))
-            value=('parallel',int(slots) if slots.isdigit() else 2) if verdict=='parallel' else ('one at a time',1)
-        except Exception:value=('one at a time',1)
-        self._mode=(value,time.monotonic());return value
+            ctx=int(config.get('num_ctx',32768))
+            slots=capability.capacity(self.documents.root,choice['model'],ctx)
+            slots=min(slots,int(config.get('token_budget',ctx))//ctx)
+        except (ValueError,TypeError,ZeroDivisionError):return ('one at a time',1)
+        available=memory_available()
+        if available is None or available<2*1024**3:slots=1
+        return ('parallel',slots) if slots>1 else ('one at a time',1)
     def wait_turn(self, key, limit=900):
         """Before each model call of a work request (POST /api/turn from the extension): with a one-at-a-time model it waits
         while a chat request runs, so the person is answered first (plan 156 D2). The request reads "Paused while Pi answers you"."""
@@ -646,14 +652,16 @@ class WebChat:
             projects.append({**project,'chat':chat,**({'packages_missing':True} if not project.get('missing') and needs_install(project['path']) else {})})  # task 331: Project › Install Packages…
         return tool_repairs.annotate({'projects':projects,'jobs':with_checks(self.queue.list(),self.ledger.recent_events() if getattr(self,'ledger',None) else [],self.ledger.test_runs() if getattr(self,'ledger',None) else []),'auto_accept':autonomy.enabled(self.documents.root),'language':autonomy.read(self.documents.root/'config.json',{}).get('language'),'reports':[r for r in autonomy.RunReports(self.documents.root).list() if r.get('ended')],'busy':self.busy(),'data_root':str(self.documents.root),'gate':self.gate_today()},self.documents.root)  # task 326: tool calls the workbench fixed
     def stop(self, identifier):
-        """Stop one request (its job id), or a chat's own requests (the chat id; comments and workers keep running)."""
-        with self.lock:
+        """Cancel active or just-claimed work by job id; a chat id stops only that chat's requests."""
+        with self.queue.condition,self.lock:
+            pending=[item['id'] for item in self.queue.jobs if item['status']=='running' and (item['id']==identifier or (item['chat']==identifier and WorkQueue.role(item['data'])=='chat'))]
+            self.stopping.update(pending)
             targets=[entry for key,entry in self.active.items() if key==identifier or (entry.get('chat')==identifier and entry.get('role')=='chat')]
             for entry in targets:
                 entry['cancel'].set()
                 if entry['process']:entry['process'].terminate()
             self.turns.notify_all()
-        return {'stopped':bool(targets)}
+        return {'stopped':bool(targets or pending)}
     def edit_job(self, identifier, data):
         """Task 325: the person edits a waiting message (PERSON_ROUTES); the decision log keeps that they did, never the text."""
         job=self.queue.edit(identifier,data.get('version'),data.get('message',''),data.get('remove_files') or [])
@@ -748,12 +756,14 @@ class WebChat:
         streaming route) it still refuses while anything runs."""
         self.store.get(identifier)
         cancelled=threading.Event();key=job or identifier;role=WorkQueue.role(data)
-        with self.lock:
+        with self.queue.condition,self.lock:
             if self.closed:raise ValueError('Web chat is shutting down')
             if key in self.active:raise ValueError('This conversation is already running')
-            if not job and self.active:raise ValueError('Only one agent can run at a time. Wait for the current task or stop it.')
-            self.active[key]={'process':None,'cancel':cancelled,'chat':identifier,'role':role,'emit':emit}
-        try:self.hold_lock()
+            if not job and (self.active or any(item['status']=='running' for item in self.queue.jobs)):raise ValueError('Only one agent can run at a time. Wait for the current task or stop it.')
+            if key in self.stopping:cancelled.set()
+            self.active[key]={'process':None,'cancel':cancelled,'chat':identifier,'role':role,'emit':emit,'queued':bool(job)}
+        try:
+            with self.lock:self.hold_lock()
         except ValueError:
             with self.lock:self.active.pop(key,None)
             raise
@@ -949,6 +959,7 @@ class WebChat:
             if comment:self.documents.agent_result(comment['path'],comment['id'],reply,previous=(thread or {}).get('agent_reply',''),also_read=opened)
             emit({'type':'done','conversation':self.store.get(identifier)} if not detached else {'type':'done'})
         except Exception as error:
+            if cancelled.is_set():error=ValueError('Stopped')
             # Task 290 (review P2): a crash or a stop mid-answer. Gate gets the request's end (the extension can no longer
             # send it); the chat keeps what Pi had written and the control it raised, marked failed or stopped, once.
             ended=self.abandon(key)
@@ -964,7 +975,7 @@ class WebChat:
                         **({'choice':pending_choice} if pending_choice else {}),**({'plan':pending_plan} if pending_plan else {}),**({'check_in':check_in} if check_in else {}),**({'notices':notices} if notices else {})})
                     emit({'type':'conversation','conversation':self.store.get(identifier)})
                 except Exception as failure:print(f'Could not keep the partial answer: {failure!r}',flush=True)
-            raise
+            raise error
         finally:
             if process:
                 process.terminate()
@@ -974,9 +985,8 @@ class WebChat:
                 stop_group(process.pid)  # servers and watchers Pi started with `&` (seen in the bench: an http.server left for hours)
             if diagnostics:diagnostics.close()
             with self.lock:
-                self.active.pop(key,None);self.turns.notify_all()
-                last=not self.active
-            if last:self.release_lock()
+                self.active.pop(key,None);self.stopping.discard(key);self.turns.notify_all()
+                if not self.active:self.release_lock()
             if job and context_file:
                 try:context_file.unlink()
                 except OSError:pass

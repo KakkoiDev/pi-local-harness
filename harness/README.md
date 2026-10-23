@@ -205,3 +205,10 @@ kept as backups. Queued attachments use separate payload files; they are not emb
 as base64 in the Markdown. A running task resumes as interrupted after restart.
 Document-level requests belong above the document; text comments require a unique
 selected passage. Activity links restore the appropriate project and source.
+
+### Verified parallel serving
+
+The default model is GPT-OSS 20B. Enable `parallel_server` and restart plh for an isolated Ollama with two 8K slots.
+The model menu shows the streamed capability check; unknown, failed and unsupported configurations serialize.
+Concurrent requests use separate projects and histories, with a total bound and memory-pressure admission.
+The owner's global Ollama settings stay unchanged. [Configuration, limits and validation](../docs/parallel-generation.md).

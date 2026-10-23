@@ -106,7 +106,7 @@ def switch(previous, model, url=None):
 def assumed(model, provider=PROVIDER):
     """Capabilities when the server cannot tell: the default model is known to think and see; others are assumed plain."""
     if provider == 'colibri': return {'id': model, 'provider': 'colibri', 'tools': colibri_family(model)[0], 'thinking': False, 'vision': False}
-    return {'id': model, 'provider': PROVIDER, 'tools': True, 'thinking': model == MODEL, 'vision': model == MODEL}
+    return {'id': model, 'provider': PROVIDER, 'tools': True, 'thinking': model == MODEL, 'vision': model.startswith('gemma4')}
 
 
 def effective(choice, capabilities):

@@ -47,7 +47,7 @@ class ModelChoiceTest(unittest.TestCase):
 
     def test_switching_unloads_the_old_model_then_loads_the_new_one(self):
         choice = self.chat.choose_model('qwen3:8b')
-        self.assertEqual(FakeOllama.calls, [('/api/generate', {'model': 'gemma4:26b-mlx', 'keep_alive': 0}), ('/api/generate', {'model': 'qwen3:8b', 'keep_alive': '30m'})])
+        self.assertEqual(FakeOllama.calls, [('/api/generate', {'model': models.MODEL, 'keep_alive': 0}), ('/api/generate', {'model': 'qwen3:8b', 'keep_alive': '30m'})])
         self.assertEqual((choice['model'], choice['thinking'], choice['effort']), ('qwen3:8b', False, 'off'), 'a model without thinking runs with thinking off')
         self.assertEqual(json.loads((Path(self.temp.name) / 'data/model.json').read_text())['model'], 'qwen3:8b')
         self.assertIn('qwen3:8b', pi_command(None, self.chat.choice()))

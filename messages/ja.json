@@ -1,5 +1,9 @@
 {
  "exact": {
+  "parallel tested": "並行動作を確認済み",
+  "serial in tested setup": "検証した設定では直列",
+  "parallel unknown": "並行動作は未確認",
+  "parallel check failed": "並行動作の確認に失敗",
   "English": "日本語",
   "Recording · no steps yet": "記録中 · まだ操作はありません",
   "Not recording": "記録していません",
@@ -495,7 +499,7 @@
   "Applies from the next request.": "次の依頼から適用されます。",
   "Looking for local models…": "ローカルモデルを探しています…",
   "Cannot use tools": "ツールを使えません",
-  "One model in memory at a time. “Parallel”: the chat and the worker run together; “one at a time”: the worker pauses while Pi answers you.": "メモリに載るモデルは一度にひとつです。「並行」：チャットと作業が同時に動きます。「一度にひとつ」：Pi があなたに回答する間、作業は一時停止します。",
+  "Parallel tested: up to two requests in separate projects, with verified serving settings and enough memory. Unknown, failed or serial checks run one at a time. Each chat keeps its own history.": "「並行動作を確認済み」：サーバー設定と空きメモリを確認したうえで、別々のプロジェクトで最大 2 件を実行します。不明・失敗・直列の結果では 1 件ずつ実行します。各チャットの履歴は独立しています。",
   "Ollama did not answer within 15 seconds.": "Ollama が 15 秒以内に応答しませんでした。",
   "no tools": "ツールなし",
   "not installed": "未インストール",

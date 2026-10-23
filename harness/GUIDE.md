@@ -111,7 +111,7 @@ ends a request at any time: in Chat, in Activity, or ⌘. .
 
 In the menu bar, click the model name or the thinking level and choose. Switching unloads the previous model, so one is in
 memory. In terminal Pi: `/models` lists the installed models and what they can do, `/models use <name> [effort]` switches
-(it asks first). The model menu also says whether a model answers two requests at once ("parallel" or "one at a time").
+(it asks first). The model menu also says whether a model answers two requests at once (“parallel tested”, “serial in tested setup”, “parallel unknown” or “parallel check failed”).
 
 ## Can I use a model served by Colibri?
 
@@ -306,3 +306,26 @@ Only structural actions, focus changes, supported navigation keys and redacted i
 History stays on the host with its project. WorkStation actions outside projects use separate storage. Limits: 7 days, 20 flows per bucket, 500 actions per flow, 50 actions and 64 KiB per delivered batch. A full flow stops saving and says so. Disabling preserves history; clearing moves it to recording Trash and invalidates late delivery. Reload starts a new flow when recording is enabled.
 
 The history browser, report/reproduction attachments and automatic context selection remain under implementation. This checkpoint never automatically sends recordings to Pi, publishes them or executes recorded actions.
+
+## Can several chats or actions run at once?
+
+GPT-OSS 20B is the default for new installations; an existing saved model choice stays in place until changed.
+With `/config set parallel_server true` and a restart, plh starts its own isolated Ollama server with two 8K context
+slots and one resident model. It does not change the Ollama app's global settings. A short streamed check runs while
+idle. Only repeated interleaved generated tokens on that exact model and server configuration enable two requests.
+`/models check --force` repeats the check. The model menu shows the result; a failed check is different from an
+unknown result. Colibri and ordinary Ollama endpoints without verified serving settings keep one request at a time.
+
+Two requests may work in separate project folders, including two chats. Requests sharing a project folder or chat
+history wait. Each chat resumes only its own session. Stop affects only the selected request. The queue uses a total
+two-request ceiling and a 16K combined context reservation (8K per request); memory pressure or an unavailable memory
+reading reduces new admissions to one. A restart, model digest, engine version, endpoint or serving setting change
+invalidates evidence. A managed server failure never redirects work to the owner's server.
+
+GPT-OSS performs one bounded task self-review, with correctness, test and scope prompts, before verified changed tasks
+finish. This is the same model reviewing its work; tests and Gate remain the authority, and approvals still apply.
+
+A smoke checks simultaneous progress on short prompts. It does not establish answer quality, maximum concurrency or
+safe long histories. The historical 16-stream 2K experiment is not a production capacity limit. Other backends may
+parallelize a model that serialized here. Production starts conservatively at two, and the model's context window is
+8K on the managed server, so long chats compact sooner. See [configuration and evidence](../docs/parallel-generation.md).

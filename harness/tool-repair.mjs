@@ -17,7 +17,7 @@ export function installToolRepair(pi, { config = {}, localModels, request = () =
   const route = url => {
     if (bare || !url || routed === url) return Boolean(routed);
     const own = `${(process.env.PI_OLLAMA_URL || DEFAULT_OLLAMA).replace(/\/+$/, '')}/v1`;
-    if (!sameAddress(config.baseUrl || `${DEFAULT_OLLAMA}/v1`, own)) return false;
+    if (!sameAddress(localModels(config).baseUrl || `${DEFAULT_OLLAMA}/v1`, own)) return false;
     pi.registerProvider?.('ollama', localModels({ ...config, baseUrl: url }));
     routed = url;
     return true;

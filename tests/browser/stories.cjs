@@ -1976,6 +1976,17 @@ story('US-290', 'New Project shows the folder it makes: a slug of the name, neve
   assert.equal(await page.locator('#window-title').textContent(), 'Habit Tracker');
 });
 
+story('US-355', 'Model names show configuration-specific parallel capability', async t => {
+  const {page}=t;
+  const statuses=['supported','not_supported','unknown','error'];
+  await page.route('**/api/models', route=>route.fulfill({json:{models:statuses.map((parallel_status,index)=>({id:'test:'+index,provider:'ollama',tools:true,parallel_status})),current:{model:'test:0',effort:'off',thinking:false}}}));
+  await page.goto(t.bench.base+'/projects');
+  await page.locator('#model-button').click();
+  const expected=['parallel tested','serial in tested setup','parallel unknown','parallel check failed'];
+  for(let i=0;i<expected.length;i++)assert.ok((await page.locator(`#model-menu [data-model="test:${i}"]`).textContent()).includes(expected[i]));
+  await page.keyboard.press('Escape');
+});
+
 story('US-291', 'a refused model switch shows right under the model menu, not at the bottom of the window', async t => {
   const { page } = t;
   await newProject(t, 'Switch');
@@ -2233,7 +2244,7 @@ if (require.main === module) story('US-351', 'the browser and terminal identify 
   assert.equal(dictionary.exact['About Pi WorkStation'], 'Pi WorkStation について');
 });
 
-(async () => {
+if (require.main === module) (async () => {
   const browser = await launch(); let bench = null, context = null, current = null;
   const code = await run({
     async fresh(item) {
