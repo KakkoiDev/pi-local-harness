@@ -47,3 +47,28 @@ test('round 11 phase refusals have Japanese copy and preserve the task and file'
  for(const [,text] of source.matchAll(/^[A-Z_]+_REFUSAL = '([^']+)'$/gm))assert.ok(translate(text.replace('{verb}','Not run').replace('{folder}','/tmp/x')),text);
  assert.match(translate('Not run: in Implementation Pi can run tests and read-only commands; other commands could change files outside task 001: Count. Run the tests, or change the task’s files with edit or write.'),/001: Count/);
 });
+
+test('a stale language load cannot attach an observer after the person chose English', async()=>{
+ const {applyLanguage}=await import('../../js/i18n.mjs');
+ const saved={document:globalThis.document,MutationObserver:globalThis.MutationObserver,NodeFilter:globalThis.NodeFilter};
+ let observed=0,release;
+ globalThis.document={body:{nodeType:0},documentElement:{lang:'en'},title:'Cancel',createTreeWalker:()=>({nextNode:()=>null})};
+ globalThis.NodeFilter={SHOW_TEXT:4,SHOW_ELEMENT:1};
+ globalThis.MutationObserver=class {observe(){observed++;}disconnect(){}};
+ try {
+  const pending=applyLanguage('ja',{load:()=>new Promise(resolve=>{release=resolve;})});
+  await applyLanguage('en');release({exact:{Cancel:'キャンセル'}});await pending;
+  assert.equal(observed,0,'obsolete requests must never attach a translator');
+  assert.equal(document.documentElement.lang,'en');assert.equal(document.title,'Cancel');
+  let first, second;
+  const older=applyLanguage('ja',{load:()=>new Promise(resolve=>{first=resolve;})});
+  const newer=applyLanguage('ja',{load:()=>new Promise(resolve=>{second=resolve;})});
+  second({exact:{Cancel:'新しい'}});await newer;first({exact:{Cancel:'古い'}});await older;
+  assert.equal(observed,1,'two overlapping loads install only the latest observer');
+  assert.equal(document.title,'新しい');
+  let reject;
+  const failed=applyLanguage('ja',{load:()=>new Promise((resolve,fail)=>{reject=fail;})});
+  await applyLanguage('en');reject(new Error('obsolete failure'));await failed;
+  await assert.rejects(applyLanguage('ja',{load:async()=>{throw new Error('current failure');}}),/current failure/);
+ }finally{await applyLanguage('en');for(const [key,value] of Object.entries(saved)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});

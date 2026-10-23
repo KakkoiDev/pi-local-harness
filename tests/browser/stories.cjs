@@ -1976,6 +1976,23 @@ story('US-290', 'New Project shows the folder it makes: a slug of the name, neve
   assert.equal(await page.locator('#window-title').textContent(), 'Habit Tracker');
 });
 
+story('US-360', 'a delayed translation cannot undo my newer language choice', async t => {
+  await t.page.goto(t.base);
+  const observed=await t.page.evaluate(async()=>{
+    const {applyLanguage}=await import('/js/i18n.mjs');
+    const root=document.createElement('section');document.body.append(root);
+    const existing=document.createElement('button');existing.textContent='Cancel';root.append(existing);
+    let release;
+    const pending=applyLanguage('ja',{root,load:()=>new Promise(resolve=>{release=resolve;})});
+    await applyLanguage('en',{root});release({exact:{Cancel:'キャンセル'}});await pending;
+    const added=document.createElement('button');added.textContent='Cancel';root.append(added);
+    await Promise.resolve();
+    const result={lang:document.documentElement.lang,existing:existing.textContent,added:added.textContent};
+    await applyLanguage('en',{root});root.remove();return result;
+  });
+  assert.deepEqual(observed,{lang:'en',existing:'Cancel',added:'Cancel'});
+});
+
 story('US-357', 'Chat follows the selected project agent availability', async t => {
   const {page}=t;
   await newProject(t,'Project Agent');

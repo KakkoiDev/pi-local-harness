@@ -458,3 +458,10 @@ When the scheduler reports available or occupied capacity for my project
 Then Send and Queue reflect my project and sending preserves its own conversation
 
 Surface: web. Test: tests/browser/stories.cjs. Task: 364.
+
+### US-360 a delayed translation cannot undo my newer language choice
+Given a Japanese translation is still loading
+When I choose English before that download finishes
+Then existing and newly added controls stay in English
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 365.

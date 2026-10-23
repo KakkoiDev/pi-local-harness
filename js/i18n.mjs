@@ -87,13 +87,18 @@ export function translatePage(root, translate) {
   };
 }
 
-let running = null;
+let running = null, languageRequest = 0;
 /** Apply a language to the workbench: 'en' leaves the English; 'ja' loads messages/ja.json and keeps the page in it. */
 export async function applyLanguage(language, { root = document.body, load = path => fetch(path).then(response => response.json()) } = {}) {
+  const request = ++languageRequest;
   running?.stop(); running = null;
   document.documentElement.lang = language;
   if (language === 'en') return;
-  const translate = translator(await load(`/messages/${language}.json`));
+  let dictionary;
+  try { dictionary = await load(`/messages/${language}.json`); }
+  catch (error) { if (request === languageRequest) throw error; return; }
+  if (request !== languageRequest) return;
+  const translate = translator(dictionary);
   running = translatePage(root, translate);
   const title = translate(document.title); if (title) document.title = title;
   return translate;

@@ -440,3 +440,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [363-Verify and bound simultaneous model generation](tasks/363-verified-parallel-generation.md)
 
 - [x] [364-One agent per project with capability-aware admission](tasks/364-project-agent-admission.md)
+
+- [x] [365-Keep the latest language choice when translations load late](tasks/365-language-loading-order.md)

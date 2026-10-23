@@ -16,13 +16,13 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
  const fake=join(directory,'pi');
  fs.writeFileSync(fake,`#!${python}\n`+fs.readFileSync('tests/fixtures/fake-pi.py','utf8'));fs.chmodSync(fake,0o755);
  const server=spawn('python3',[join(process.env.PI_TEST_RUNTIME||'.','harness/services.py')],{env:{...Object.fromEntries(Object.entries(process.env).filter(([key])=>!/^PI_(HARNESS_|WEB_REMOTE_)/.test(key))) /* never the live harness or phone access */,PATH:directory+':'+process.env.PATH,PI_TAILSCALE:'false',PI_TRASH_DIR:join(directory,'Trash'),PI_GATE_PORT:'0',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_COLIBRI_URL:'http://127.0.0.1:9',PI_WEB_PORT:'0',PI_AGENT_DATA:join(directory,'workspace'),PI_WEB_DATA:join(directory,'data'),PI_HARNESS_LOG_FILE:join(directory,'audit.log')},stdio:['ignore','pipe','pipe']});
- let browser;
+ let browser, page;
  try{
   const lines=readline.createInterface({input:server.stdout});
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
   const base=`http://127.0.0.1:${ports.web}`;
   browser=await chromium.launch({headless:true,args:['--use-mock-keychain', '--password-store=basic','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
-  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
+  page=await browser.newPage({viewport:{width:1440,height:900}});const errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
   page.on('pageerror',e=>errors.push(e.message));
   // The server's stderr (its request log) must be read: an unread pipe fills up and the server stalls mid-request.
   const serverLog=[];server.stderr.on('data',chunk=>{serverLog.push(...String(chunk).split('\n').filter(line=>line&&!/" (200|304) -/.test(line)));serverLog.splice(0,Math.max(0,serverLog.length-40));});
@@ -74,8 +74,9 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
    return {quote:[quote.borderTopStyle,quote.fontStyle],bullets:[...document.querySelectorAll('#document-editor .pw-block--bullet .pw-block__marker')].map(item=>item.textContent),numbers:[...document.querySelectorAll('#document-editor .pw-block--number .pw-block__marker')].map(item=>item.textContent),
     text:document.querySelector('#document-editor .pw-block--bullet .pw-block__content').textContent,code:[code.borderTopStyle,code.fontFamily.includes('IBM Plex Mono')]};});
   assert.deepEqual(look,{quote:['dotted','italic'],bullets:['•','•'],numbers:['1.','2.'],text:'First bullet',code:['solid',true]});
-  await page.goto(base);await page.locator('#work-tab').click();
-  await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  // This check needs the roadmap, not whichever route was remembered while TYPES.md was opening.
+  await page.goto(base+'/?document='+encodeURIComponent(`projects/${created.project}/ROADMAP.md`));
+  await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
 
   // 102: an open thread sits below its passage, as wide as the column minus the 24px indent.
   const path=`projects/${created.project}/ROADMAP.md`;
@@ -165,8 +166,8 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 
   // 108: comments reach Pi from the Review list, one at a time or all unsent at once; the whole-file request is separate and folded.
   await post('/api/documents/comment',{path,text:'Name the reader.',anchor:'Design check'});
-  await page.reload();await page.locator('#work-tab').click();
-  await page.getByRole('button',{name:'ROADMAP.md',exact:true}).click();await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
+  await page.goto(base+'/?document='+encodeURIComponent(path));
+  await page.locator('#document-path').filter({hasText:'ROADMAP.md'}).waitFor();
   const review=page.locator('#document-comments');
   await review.locator('.pw-review-item').nth(1).waitFor();
   assert.equal(await review.getByRole('button',{name:'Ask Pi',exact:true}).count(),2,'each unsent comment offers Ask Pi');
@@ -377,6 +378,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('ja'));});await page.goto(`${base}/p/${id}/chat`);
   await page.waitForFunction(()=>document.querySelector('#menubar [aria-controls="menu-file"]')?.textContent==='ファイル');
   assert.equal(await page.locator('#chat-tab').evaluate(tab=>tab.childNodes[0].nodeValue),'チャット');
+  await page.waitForFunction(()=>document.querySelector('#prompt')?.placeholder==='質問や相談、作りたいものを入力');
   assert.equal(await page.locator('#prompt').getAttribute('placeholder'),'質問や相談、作りたいものを入力');
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'ja');
   await page.evaluate(()=>{localStorage.setItem('plh.language',JSON.stringify('en'));});await page.goto(`${base}/p/${id}/chat`);
@@ -1164,5 +1166,5 @@ plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_
   await post('/api/settings',{language:'ja'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('ja')));await page.reload();await page.locator('#preview-body').getByRole('button',{name:'再起動',exact:true}).waitFor();
   assert.deepEqual(errors,[]);
   console.log('Design checks passed.');
- }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
+ }catch(error){if(page){await page.screenshot({path:shot('failure.png')}).catch(()=>{});fs.writeFileSync(shot('failure.html'),await page.content().catch(()=>''));console.error('Failure URL:',page.url());}throw error; }finally{await browser?.close();/* a server that already died must not make this wait forever (Node would exit 0) */const exited=server.exitCode!==null||server.signalCode!==null?Promise.resolve():new Promise(resolve=>server.once('exit',resolve));server.kill();/* a server stuck in a request gets SIGKILL after 5 s, so a failed run still exits */const killer=setTimeout(()=>server.kill('SIGKILL'),5000);await exited;clearTimeout(killer);fs.rmSync(directory,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 })().catch(error=>{console.error(error);process.exitCode=1;});
