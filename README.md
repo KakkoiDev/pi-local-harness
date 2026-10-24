@@ -25,7 +25,8 @@ needs: everything is plain, editable code in your project.
   shop or an RPG, in English or Japanese: Pi gets the designer's card for exactly that part (151 App Blocks) and copies
   its markup, texts and states instead of inventing them.
 - **See your app as you build it.** The Preview runs your app beside the chat. It can show phone, tablet and full
-  sizes, in English or Japanese, and open the app on your phone.
+  sizes, in English or Japanese, and open the app on your phone. Address shows its usable port; Open in New Window
+  opens more copies at the same page and language for testing. Use private sessions or separate profiles for separate accounts.
 - **Tune your app's look by hand.** Ask "I want to adjust the site's colours" and a panel opens with the app's colours,
   corner radius, spacing and fonts (any Google font, saved into the project). The Preview changes as you drag; Save
   keeps it as your own change, and Undo takes it back.

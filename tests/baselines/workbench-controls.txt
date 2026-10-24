@@ -73,8 +73,6 @@ uncovered button:listen to a recording
 uncovered button:modelone in memory at a time
 uncovered button:next
 uncovered button:open again
-uncovered button:open app
-uncovered button:open in browser
 uncovered button:open on phone…
 uncovered button:open the plan
 uncovered button:projects
@@ -101,7 +99,6 @@ uncovered menuitem:move project to trash…
 uncovered menuitem:move project…
 uncovered menuitem:move to trash…
 uncovered menuitem:open
-uncovered menuitem:open appsafari
 uncovered menuitem:pi menu
 uncovered menuitem:project
 uncovered menuitem:reload
@@ -145,7 +142,6 @@ uncovered radio:off
 uncovered radio:open
 uncovered radio:plain
 uncovered radio:resolved
-uncovered radio:日本語
 absent #phase-refusal
 absent #plan-regression-row
 absent #round10-cards

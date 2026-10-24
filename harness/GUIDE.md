@@ -337,3 +337,19 @@ Choose Stop All Recording in either recording popover. It stops WorkStation and 
 ### Why does startup say “Pi needs Node >= 22.19.0”?
 
 The Node version on PATH is too old, unavailable, or did not report a supported stable version. Put Node 22.19.0 or newer on PATH and run `plh` again. Pi has not started; the launcher does not install Node for you. `plh setup` and the notice for an already-running WorkStation remain available.
+
+## How do I test my app in several windows or as two users?
+
+In Preview, **Address** shows the usable address and port, plus the app server's port when different. Copy Address
+copies the current page and App language. The local web Preview port stays bound for this project's current harness
+session, including Stop/Start and crash recovery; restarting the harness may change it. Terminal and Tailscale addresses
+have their own lifecycles.
+
+**Open in New Window** opens another copy of the current page and language without restarting the app. Use it repeatedly,
+or Window › Open App in New Window (⌃⌥B). A fallback link and Copy Address stay available while the app runs. Opening
+never starts a stopped app. On another device, only the guarded Tailscale address is used; this Mac's localhost address
+would not work there.
+
+Windows share browser sign-in and saved data. For independent accounts use a private window (⇧⌘N, Firefox ⇧⌘P) or
+another browser profile. The workbench does not create a private session for you. Terminal windows start independent
+runs of the terminal app.

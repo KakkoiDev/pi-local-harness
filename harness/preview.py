@@ -75,11 +75,12 @@ def free_port():
 def answers(port, timeout=2):
     """A page comes back (any status). An open port is not enough: with --reload, uvicorn's reloader keeps the port
     while the app inside has crashed, and every page hangs."""
+    connection = http.client.HTTPConnection('127.0.0.1', port, timeout=timeout)
     try:
-        connection = http.client.HTTPConnection('127.0.0.1', port, timeout=timeout)
-        connection.request('GET', '/'); connection.getresponse().read(); connection.close()
+        connection.request('GET', '/'); connection.getresponse().read()
         return True
     except (OSError, http.client.HTTPException): return False
+    finally: connection.close()
 
 
 HELPER = Path(__file__).with_name('theme-helper.js')
@@ -103,6 +104,9 @@ class Frame:
     and passes everything else through as it is. Only for the workbench's own frame: Open on Phone serves the app itself."""
     def __init__(self, port, origins):
         from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        self.target = (port, lambda: True)
+        self.app_port = port
+        frame = self
         import json
         from harness.theme import ALLOWED
         helper = HELPER.read_text(encoding='utf-8').replace('__ORIGINS__', json.dumps(list(origins))).replace('__TOKENS__', json.dumps(list(ALLOWED))).encode()
@@ -116,6 +120,8 @@ class Frame:
             def relay(self):
                 from harness.preview_files import loopback
                 if not loopback(self.headers.get('Host')): self.send_error(403, 'This preview answers only on this computer'); return  # task 304: no DNS rebinding
+                target = frame.target
+                if not target or not target[1](): self.send_error(503, 'The app is stopped'); return
                 resource = self.path.split('?', 1)[0]
                 if resource in ('/__pi-workbench/recording.mjs', '/__pi-workbench/recorder-core.mjs'):
                     body = recording if resource.endswith('/recording.mjs') else core
@@ -128,7 +134,7 @@ class Frame:
                 size = int(self.headers.get('Content-Length') or 0)
                 body = self.rfile.read(size) if size > 0 else None
                 headers = {key: value for key, value in self.headers.items() if key.lower() not in HOP | {'accept-encoding', 'content-length'}}  # plain bytes back, so the page can be read
-                connection = http.client.HTTPConnection('127.0.0.1', port, timeout=300)
+                connection = http.client.HTTPConnection('127.0.0.1', target[0], timeout=300)
                 try:
                     connection.request(self.command, self.path, body=body, headers=headers); response = connection.getresponse()
                 except (OSError, http.client.HTTPException):
@@ -174,7 +180,7 @@ class Previews:
     def __init__(self, folder, command=run_command, limit=START_LIMIT, serve=tailnet_serve, origins=()):
         self.folder, self.command, self.limit, self.serve = Path(folder), command, limit, serve
         self.origins = tuple(origins)  # task 312: the workbench page's origins; with them the frame loads through Frame
-        self.apps, self.lock = {}, threading.RLock()
+        self.apps, self.frames, self.lock = {}, {}, threading.RLock()
 
     def status(self, project, folder=None):
         """The state (none · starting · running · stopped) and what the Preview shows with it: while starting, whether it
@@ -183,6 +189,9 @@ class Previews:
         terminal=bool(folder and (Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()) if not app else app.terminal
         extra={'terminal':True,'command':'python -m app.tui'} if terminal else {}
         if not app and folder and self.command(folder, 0) and packages_missing(folder): return {**packages_missing(folder), **extra}
+        if not app and project in self.frames:
+            frame = self.frames[project]
+            extra.update(url=f'http://127.0.0.1:{frame.port}/', port=frame.app_port)
         if not app: return ({'state': 'none', 'kind': 'app',**extra} if self.command(folder, 0) else no_app(folder)) if folder else {'state': 'none'}
         found = {**extra,'state': app.state, 'port': app.port, 'url': f'http://127.0.0.1:{app.frame.port if app.frame else app.port}/', 'first': app.first}
         if app.state == 'starting':
@@ -236,7 +245,7 @@ class Previews:
             app = self.apps.get(project)
             if app and app.state in ('starting', 'running'): return self.status(project)
             if app and app.process.poll() is None: app.state = 'none'; self.end_phone(app); self.end(app)  # Start Again on an app that hangs under its reloader
-            if app: self.end_frame(app)  # the stopped app's proxy goes with it
+            if app and app.frame: app.frame.target = None
             port = free_port(); command = self.command(folder, port)
             if not command: return no_app(folder)
             if packages_missing(folder): return packages_missing(folder)
@@ -252,7 +261,11 @@ class Previews:
             first = (Path(folder) / 'pyproject.toml').is_file() and not (Path(folder) / '.venv').exists()
             self.apps[project] = app = App(process, port, log, first)
             app.terminal=(Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()
-            if self.origins and not app.terminal: app.frame = Frame(port, self.origins)  # a terminal app speaks WebSocket: no helper there
+            if self.origins and not app.terminal:  # retain the bound listener for this project's harness session
+                if project not in self.frames: self.frames[project] = Frame(port, self.origins)
+                app.frame = self.frames[project]
+                app.frame.app_port = port
+                app.frame.target = (port, lambda: app.state in ('starting', 'running') and app.process.poll() is None)
         threading.Thread(target=self.watch, args=(app,), daemon=True).start()
         return self.status(project)
 
@@ -295,13 +308,16 @@ class Previews:
         return bool(app and app.state in ('starting', 'running') and app.process.poll() is None)
 
     def stop(self, project):
-        with self.lock: app = self.apps.pop(project, None)
-        if app: app.state = 'none'; self.end_phone(app); self.end(app); self.end_frame(app)
+        with self.lock:
+            app = self.apps.pop(project, None)
+            if app:
+                app.state = 'none'
+                if app.frame: app.frame.target = None
+                self.end_phone(app); self.end(app)
         return {'state': 'none'}
-
-    @staticmethod
-    def end_frame(app):
-        if app.frame: app.frame.close(); app.frame = None
 
     def close(self):
         for project in list(self.apps): self.stop(project)
+        with self.lock:
+            frames, self.frames = self.frames, {}
+        for frame in frames.values(): frame.close()

@@ -768,7 +768,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await stopAll();
   }
   { // Round 8 point 10 (Ph8_ChooseFolder), now Project Start's “Create in … ›” (R12_NP1): it opens the folder browser as its own step; New Folder… makes one.
-  await page.goto(`${base}/p/${id}/chat`);await page.locator('#open-menu').waitFor();await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#start-dialog').waitFor();
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt:not([disabled])').waitFor();await page.locator('#open-menu').click();await page.locator('#new-project').click();await page.locator('#start-dialog').waitFor();
   await page.locator('#start-where').click();await page.locator('#folder-list').waitFor();assert.equal(await page.locator('#folder-name').isVisible(),false,'its own step');
   await page.evaluate(folder=>{document.getElementById('folder-path').value=folder;document.getElementById('folder-go').click();},directory);
   await page.locator('#folder-crumbs [aria-current]').filter({hasText:directory.split('/').pop()}).waitFor();
@@ -992,7 +992,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#folder-path').fill(join(directory,'Found'));await page.locator('#folder-go').click();await page.locator('#folder-help').filter({hasText:'Found.'}).waitFor();
   await page.locator('#folder-use').click();await page.locator('#missing-banner').waitFor({state:'hidden'});
   assert.equal((await page.evaluate(()=>fetch('/api/workspace').then(r=>r.json()))).projects.find(item=>item.id===gone.project).missing,undefined);
-  await page.setViewportSize({width:390,height:844});await page.goto(`${base}/projects`);await page.locator('#open-menu').click();
+  await page.setViewportSize({width:390,height:844});await page.goto(`${base}/projects`);await page.waitForFunction(()=>document.querySelector('#prompt')?.disabled===false);await page.locator('#project-list [aria-label="More for Found"]').waitFor({state:'attached'});await page.locator('#open-menu').click();
   await page.getByRole('button',{name:'More for Found'}).click();const more=page.locator('#project-more');await more.waitFor();
   assert.equal(await more.locator('#project-more-title').textContent(),'Found');
   assert.deepEqual(await more.locator('[data-more]:not([hidden])').evaluateAll(items=>items.map(item=>item.textContent)),['Open','Rename Project…','Move Project…','Copy Folder Path','Remove from List…','Move Project to Trash…']);
@@ -1134,6 +1134,7 @@ plan=paper.plan_state(root);plan.update(check_in=True,verified=True);paper.plan_
   await page.locator('#round10-ja button').filter({hasText:'実装開始'}).waitFor();
   assert.equal(await page.locator('#round10-ja .pw-option__label').first().evaluate(el=>el.firstChild.textContent),'Tasks','person options keep their original words');
   assert.equal(await page.locator('#round10-ja .pw-plan__goal').textContent(),'Tasks');
+  await page.locator('#round10-ja .pw-plan__tasks small').filter({hasText:'完了条件'}).waitFor();
   assert.match(await page.locator('#round10-ja .pw-plan__tasks small').textContent(),/完了条件/);
   // Round 9: every designed update state uses the safe backend result; these routes never fetch the real clone.
   await post('/api/settings',{language:'en'});await page.evaluate(()=>localStorage.setItem('plh.language',JSON.stringify('en')));await page.reload();

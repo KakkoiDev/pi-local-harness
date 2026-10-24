@@ -102,6 +102,15 @@ class PreviewTest(unittest.TestCase):
         self.previews.note('other', 'ignored: not running')
         self.assertNotIn('note', self.previews.status('other'))
 
+    def test_a_failed_health_check_closes_its_connection(self):
+        from unittest.mock import Mock, patch
+        from harness.preview import answers
+        connection = Mock()
+        connection.getresponse.side_effect = OSError('app not answering')
+        with patch('harness.preview.http.client.HTTPConnection', return_value=connection):
+            self.assertFalse(answers(12345))
+        connection.close.assert_called_once()
+
     def test_a_plain_site_starts_answers_and_stops(self):
         site = self.folder('site', {'index.html': '<h1>Hello preview</h1>'})
         self.assertEqual(self.previews.start('site', site)['state'], 'starting')
@@ -112,6 +121,43 @@ class PreviewTest(unittest.TestCase):
         self.assertEqual(self.previews.start('site', site)['url'], status['url'], 'starting a running app keeps it')
         self.previews.stop('site')
         self.assertEqual(self.previews.status('site')['state'], 'none')
+
+    def test_the_frame_address_survives_stop_and_restart_without_serving_a_stopped_app(self):
+        previews = Previews(self.root / 'stable', origins=('http://127.0.0.1:3000',))
+        self.addCleanup(previews.close)
+        site = self.folder('stable-site', {'index.html': '<h1>First app</h1>'})
+        previews.start('site', site)
+        first = wait(previews, 'site', ('running', 'stopped'))
+        self.assertEqual(first['state'], 'running', first)
+        previews.stop('site')
+        with self.assertRaises(urllib.error.HTTPError) as stopped:
+            urllib.request.urlopen(first['url'], timeout=5)
+        self.assertEqual(stopped.exception.code, 503)
+        stopped.exception.close()
+        (site / 'index.html').write_text('<h1>Restarted app</h1>')
+        previews.start('site', site)
+        second = wait(previews, 'site', ('running', 'stopped'))
+        self.assertEqual(second['state'], 'running', second)
+        self.assertEqual(first['url'], second['url'])
+        with urllib.request.urlopen(first['url'], timeout=5) as response:
+            self.assertIn(b'Restarted app', response.read())
+        previews.apps['site'].process.terminate()
+        previews.apps['site'].process.wait(timeout=5)
+        self.assertEqual(wait(previews, 'site', ('stopped',))['state'], 'stopped')
+        with self.assertRaises(urllib.error.HTTPError) as crashed:
+            urllib.request.urlopen(first['url'], timeout=5)
+        self.assertEqual(crashed.exception.code, 503)
+        crashed.exception.close()
+        previews.start('site', site)
+        self.assertEqual(wait(previews, 'site', ('running', 'stopped'))['state'], 'running')
+        self.assertEqual(previews.status('site')['url'], first['url'])
+        other = self.folder('other-site', {'index.html': '<h1>Other project</h1>'})
+        previews.start('other', other)
+        self.assertNotEqual(first['url'], previews.status('other')['url'])
+        previews.close()
+        with self.assertRaises(urllib.error.URLError) as closed:
+            urllib.request.urlopen(first['url'], timeout=2)
+        self.assertNotIsInstance(closed.exception, urllib.error.HTTPError, 'the listener closes, rather than merely answering 503')
 
     def test_an_app_that_exits_is_stopped_with_its_last_lines(self):
         crash = self.folder('crash', {'index.html': ''})

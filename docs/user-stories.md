@@ -480,3 +480,39 @@ Then it stops at once with “Pi needs Node >= 22.19.0”
 And Pi is not started
 
 Surface: terminal. Test: tests/harness/node-startup.test.mjs. Task: 63.
+
+### US-361 Preview keeps its address after restarting and a page cannot select another host
+Given a running app in Preview
+When I stop and start it, then enter a page beginning with two slashes
+Then its Preview address stays the same and the page stays on the app's origin
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 321.
+
+### US-362 the Preview shows its address and port, and the app server’s port when it differs
+Given a project whose app runs in the Preview
+When I look at the Preview
+Then its address and port are shown, and the app server's port too when it is different
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 321.
+
+### US-363 opening the Preview in a new window keeps the page and language, as many times as I like
+Given the Preview on a page of the app in Japanese
+When I open it in a new window twice
+Then each window shows the same page in Japanese, and the Preview controls still say whether the app is running
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 321.
+
+### US-364 the Preview explains that a second account needs a private window or another browser profile
+Given the Preview with a second window open
+When I look for how to test as two users
+Then the Preview says independent accounts need a private window or a separate browser profile
+
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 321.
+
+### US-365 a remote Preview opens only its guarded address and never shows the Mac’s localhost address
+Given a running Preview opened from another device
+When I inspect its address and open the app
+Then only the guarded Tailscale address is shown and used
+
+Surface: web. Test: tests/browser/stories.cjs. Task: 321.

@@ -5,6 +5,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { join } = require('node:path');
+const { tmpdir } = require('node:os');
+const SHOTS=fs.mkdtempSync(join(tmpdir(),'plh-shots-')),shot=name=>join(SHOTS,name);
 const { scratch, launch, runner } = require('./workbench.cjs');
 
 const { story, run } = runner();
@@ -683,6 +685,136 @@ story('US-060', 'preview a page Pi built, at phone and tablet sizes; Open on Pho
   assert.equal(status.state, 'running');
   const phone = await t.bench.api('/api/preview/phone', { project: await page.evaluate(() => location.pathname.split('/')[2]) });
   assert.match(phone.problem, /Phone access is off/);
+});
+
+story('US-361', 'Preview keeps its address after restarting and a page cannot select another host', async t => {
+  const { page } = t;
+  const { project, root } = await newProject(t, 'Stable Preview');
+  fs.writeFileSync(join(root, 'index.html'), '<h1>Stable app</h1>');
+  await page.locator('#preview-toggle').click();
+  await page.frameLocator('#preview-body iframe').locator('h1').filter({ hasText: 'Stable app' }).waitFor({ timeout: 20000 });
+  const original = (await t.bench.api('/api/preview?project=' + project)).url;
+  await page.locator('#preview-body').getByRole('button', { name: 'Stop', exact: true }).click();
+  await page.locator('#preview-body').getByRole('button', { name: 'Start', exact: true }).waitFor();
+  assert.equal((await fetch(original)).status, 503, 'stopped apps never serve old content');
+  await page.locator('#preview-body').getByRole('button', { name: 'Start', exact: true }).click();
+  await page.frameLocator('#preview-body iframe').locator('h1').filter({ hasText: 'Stable app' }).waitFor({ timeout: 20000 });
+  assert.equal((await t.bench.api('/api/preview?project=' + project)).url, original);
+  await page.route('**://other.invalid/**', route => route.abort());
+  await page.locator('#preview-body').getByLabel('Page', { exact: true }).fill('//other.invalid/notes');
+  await page.locator('#preview-body').getByLabel('Page', { exact: true }).press('Enter');
+  await page.waitForFunction(origin => new URL(document.querySelector('#preview-body iframe').src).origin === origin && document.querySelector('#preview-body iframe').src.includes('other.invalid'), new URL(original).origin);
+  assert.equal(new URL(await page.locator('#preview-body iframe').getAttribute('src')).origin, new URL(original).origin);
+});
+
+async function previewProject(t) {
+  const made = await newProject(t, 'Preview windows');
+  fs.writeFileSync(join(made.root, 'index.html'), '<h1>Window app</h1>');
+  await t.page.locator('#preview-toggle').click();
+  await t.page.frameLocator('#preview-body iframe').locator('h1').filter({ hasText: 'Window app' }).waitFor({ timeout: 20000 });
+  return made;
+}
+
+story('US-362', 'the Preview shows its address and port, and the app server’s port when it differs', async t => {
+  const { project } = await previewProject(t);
+  const status = await t.bench.api('/api/preview?project=' + project);
+  assert.equal(await t.page.locator('#preview-body .pw-address__host').textContent(), new URL(status.url).host);
+  await t.page.locator('#preview-addr-about').click();
+  await t.page.locator('#preview-addr[open]').waitFor();
+  assert.match(await t.page.locator('#preview-addr').textContent(), new RegExp('port ' + status.port));
+  assert.equal(await t.page.locator('#preview-copy-address').evaluate(el => el === document.activeElement), true);
+  await t.page.evaluate(() => { window.__copied = ''; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async value => { window.__copied = value; } } }); });
+  await t.page.locator('#preview-copy-address').click();
+  assert.equal(await t.page.evaluate(() => window.__copied), status.url + '?lang=en');
+  await t.page.keyboard.press('Escape');
+  assert.equal(await t.page.locator('#preview-addr-about').evaluate(el => el === document.activeElement), true);
+  await t.page.locator('[aria-controls="menu-window"]').click();
+  await t.page.locator('[data-command="copy-app-address"]').click();
+  await t.page.waitForFunction(() => Boolean(window.__copied));
+});
+
+story('US-363', 'opening the Preview in a new window keeps the page and language, as many times as I like', async t => {
+  const { project, root } = await previewProject(t);
+  fs.writeFileSync(join(root, 'notes.html'), '<h1>Notes page</h1>');
+  await t.page.locator('#preview-body').getByLabel('Page', { exact: true }).fill('/notes.html');
+  await t.page.locator('#preview-body').getByLabel('Page', { exact: true }).press('Enter');
+  await t.page.locator('#preview-body').getByRole('radio', { name: '日本語', exact: true }).click();
+  const status = await t.bench.api('/api/preview?project=' + project);
+  for (let n = 0; n < 2; n++) {
+    const opened = t.page.context().waitForEvent('page');
+    await t.page.getByText('Open in New Window', { exact: true }).click();
+    const app = await opened;
+    await app.locator('h1').filter({ hasText: 'Notes page' }).waitFor();
+    assert.equal(app.url(), status.url + 'notes.html?lang=ja');
+    assert.equal(await app.evaluate(() => window.opener), null);
+    await app.close();
+  }
+  assert.equal((await t.bench.api('/api/preview?project=' + project)).url, status.url);
+  assert.equal(await t.page.locator('#preview-window-link').getAttribute('href'), status.url + 'notes.html?lang=ja');
+  await t.page.locator('#preview-fallback-copy').click();
+  const opened = t.page.context().waitForEvent('page');
+  await t.page.locator('[aria-controls="menu-window"]').click();
+  await t.page.locator('[data-command="open-app-window"]').click();
+  await (await opened).close();
+  const shortcutWindow = t.page.context().waitForEvent('page');
+  await t.page.keyboard.press('Control+Alt+b');
+  await (await shortcutWindow).close();
+  assert.equal(t.page.context().pages().length, 1, 'each shortcut opens exactly one window');
+  await t.page.locator('#preview-body').getByRole('button', { name: 'Stop', exact: true }).click();
+  await t.page.waitForFunction(() => document.querySelector('#preview-newwin')?.disabled);
+  assert.match(await t.page.locator('#preview-window-reason').textContent(), /window never starts it/);
+});
+
+story('US-364', 'the Preview explains that a second account needs a private window or another browser profile', async t => {
+  await previewProject(t);
+  const opened = t.page.context().waitForEvent('page');
+  await t.page.locator('#preview-newwin').click(); await (await opened).close();
+  await t.page.locator('#preview-addr-about').click();
+  const text = await t.page.locator('#preview-addr').textContent();
+  assert.match(text, /share sign-in and saved data/); assert.match(text, /private window/); assert.match(text, /browser profile/);
+  assert.equal(await t.page.locator('#preview-address-phone').isDisabled(), true);
+  await t.page.locator('#preview-address-close').click();
+  for (const width of [1440, 1024, 390, 320]) {
+    await t.page.setViewportSize({ width, height: 900 });
+    if (width <= 760) await t.page.locator('#preview-body [aria-label="App language"]').waitFor({ state: 'hidden' });
+    await t.page.locator('#preview-addr-about').click();
+    await t.page.locator('#preview-addr[open]').waitFor();
+    const box = await t.page.locator('#preview-addr').boundingBox();
+    assert.ok(box.x >= 0 && box.x + box.width <= width, 'address fits ' + width);
+    await t.page.screenshot({path:shot('address-' + width + '.png'), fullPage: true });
+    await t.page.keyboard.press('Escape');
+  }
+  console.log('Preview screenshots: ' + SHOTS);
+});
+
+story('US-365', 'a remote Preview opens only its guarded address and never shows the Mac’s localhost address', async t => {
+  const { project } = await previewProject(t);
+  const { page } = t;
+  await page.route('http://workstation.invalid/**', async route => {
+    const url = new URL(route.request().url());
+    if (url.pathname === '/api/preview/phone') return route.fulfill({ json: { url: 'https://phone.invalid:8443/' } });
+    const response = await route.fetch({ url: t.base + url.pathname + url.search, headers: { ...route.request().headers(), host: new URL(t.base).host, origin: t.base } });
+    await route.fulfill({ response });
+  });
+  await page.context().route('https://phone.invalid:8443/**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Guarded app</h1>' }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://workstation.invalid/p/' + project + '/chat'); /* flaky-lint: allow synthetic origin; every request is fulfilled by the local fixture route above */
+  await page.locator('#prompt:not([disabled])').waitFor();
+  await page.locator('#install-dialog[open]').getByRole('button', { name: 'Done', exact: true }).click();
+  await page.locator('#phone-view').click();
+  await page.locator('#phone-view-menu [data-view="preview"]').click();
+  await page.frameLocator('#preview-body iframe').locator('h1').filter({ hasText: 'Guarded app' }).waitFor();
+  await page.locator('#preview-addr-about').click();
+  assert.doesNotMatch(await page.locator('#preview-addr').textContent(), /127\.0\.0\.1/);
+  assert.match(await page.locator('#preview-addr').textContent(), /https:\/\/phone\.invalid:8443/);
+  const fromAddress = page.context().waitForEvent('page');
+  await page.locator('#preview-address-open').click();
+  const first = await fromAddress; await first.locator('h1').filter({ hasText: 'Guarded app' }).waitFor(); await first.close();
+  await page.locator('#preview-address-close').click();
+  const opened = page.context().waitForEvent('page');
+  await page.locator('#preview-body').getByText('Open App', { exact: true }).click();
+  const app = await opened; await app.locator('h1').filter({ hasText: 'Guarded app' }).waitFor();
+  assert.match(app.url(), /^https:\/\/phone\.invalid:8443\//); await app.close();
 });
 
 // -- Theme panel (task 312) ----------------------------------------------------------------------------------------

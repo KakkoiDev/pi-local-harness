@@ -38,7 +38,8 @@ export function frameFor(size, stage) {
 
 /** The app's address with the page and the language asked for (the starters read ?lang=). */
 export function appAddress(url, path = '/', language = '') {
-  const address = new URL(path.startsWith('/') ? path : '/' + path, url);
+  /* Resolve a page as a relative path: leading slashes or backslashes must never select another host. */
+  const address = new URL('./' + path.replace(/^[/\\]+/, ''), new URL('/', url));
   if (language) address.searchParams.set('lang', language);
   return address.href;
 }
@@ -54,21 +55,22 @@ export function fixMessage(error) {
 const REMOTE = typeof location !== 'undefined' && !['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
 const phoneScreen = () => matchMedia('(max-width:760px)').matches;
 
-export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff, themeReady, toast }) {
+export function installPreview({ api, project, send, showView, view, working, onLayout, openOnPhone, phoneOff, themeReady, toast, phoneAvailable = () => false }) {
   const body = $('preview-body'), beside = $('preview'), slot = $('preview-view');
   let status = { state: 'none' }, shown = false, timer = 0, lastNote = '', fixing = false, mode = 'beside', loadedSrc = '';
   const settings = () => readState('preview.' + (project()?.id || ''), { open: false, seen: false, size: 'phone', language: document.documentElement.lang === 'ja' ? 'ja' : 'en', path: '/' });  // the app starts in the workbench's language
   const save = change => writeState('preview.' + (project()?.id || ''), { ...settings(), ...change });
 
   // Its parts, built once (the card's markup).
-  const host = node('span', 'pw-address__host'), path = node('input'); path.setAttribute('aria-label', 'Page');
+  const host = node('span', 'pw-address__host pw-address__host--addr'), path = node('input'); path.setAttribute('aria-label', 'Page');
   const address = node('label', 'pw-address'); address.append(host, path);
   const reload = button('Reload', () => status.terminal?restart():load(true));
   const sizes = segment('Size', [['phone', 'Phone'], ['tablet', 'Tablet'], ['full', 'Full']], value => { save({ size: value }); draw(); });
   let terminalNatural={width:816,height:488},terminalAdjustments=0,control=false;
   const terminalSizes=segment('Terminal size',[['80x24','80 × 24'],['120x40','120 × 40'],['fit','Fit']],value=>{save({terminalSize:value});terminalAdjustments=0;terminalNatural=value==='120x40'?{width:1216,height:808}:{width:816,height:488};draw();});
-  const languages = segment('App language', [['en', 'English'], ['ja', '日本語']], value => { save({ language: value }); load(true); });
-  const bar1 = node('div', 'pw-toolbar'), bar2 = node('div', 'pw-toolbar'); bar1.append(address, reload); bar2.append(sizes.element, languages.element);
+  const languages = segment('App language', [['en', 'English'], ['ja', '日本語']], value => { save({ language: value }); draw(); load(true); });
+  const about = button('Address', showAddress); about.id = 'preview-addr-about'; about.className = 'pw-addrbtn'; about.setAttribute('aria-label', 'About this address'); about.setAttribute('aria-haspopup', 'dialog'); about.setAttribute('aria-expanded', 'false'); about.setAttribute('aria-controls', 'preview-addr');
+  const bar1 = node('div', 'pw-toolbar'), bar2 = node('div', 'pw-toolbar'); bar1.append(address, reload, about); bar2.append(sizes.element, languages.element);
   const note = node('p', 'pw-preview__note'); note.setAttribute('role', 'status'); note.hidden = true;
   const stage = node('div', 'pw-preview__stage pw-desk');
   const keys=node('div','pw-terminal-keys');
@@ -77,21 +79,75 @@ export function installPreview({ api, project, send, showView, view, working, on
   const state = node('span', 'pw-glyph'); state.setAttribute('role', 'status');
   const stopStart = button('Stop', () => (status.state === 'running' || status.state === 'starting' ? stop() : start()));
   const onPhone = button('Open on Phone…', () => phone().then(url => url && openOnPhone(project().name, url)), { disabled: true });
-  const openApp = button('Open App', () => phone().then(url => url && window.open(url, '_blank', 'noopener')), { disabled: true }); // Ph_Preview: Safari, then Add to Home Screen
-  const inBrowser = button('Open in Browser', () => window.open(appAddress(base(), settings().path, settings().language), '_blank', 'noopener'), { disabled: true });
+  const openApp = button('Open App', openWindow, { disabled: true }); // Ph_Preview: Safari, then Add to Home Screen
+  const inBrowser = button('Open in New Window', openWindow, { disabled: true }); inBrowser.id = 'preview-newwin';
   let asked = false;
-  const base = () => (REMOTE && status.phone ? status.phone : status.url);
+  const base = () => REMOTE ? status.phone : status.url;
+  const appUrl = () => base() ? appAddress(base(), settings().path, settings().language) : '';
+  const canOpen = () => status.state === 'running' && Boolean(appUrl());
   async function phone() {  // the app's tailnet address, served while it runs
-    const found = await api('/api/preview/phone', { project: project().id });
-    if (found.url) { status.phone = found.url; return found.url; }
+    const id = project()?.id; if (!id) return null;
+    const found = await api('/api/preview/phone', { project: id });
+    if (project()?.id !== id) return null;
+    if (found.url) { status.phone = found.url; draw(); return found.url; }
     if (/Phone access is off/.test(found.problem || '')) phoneOff?.();
     else await (await import('./dialogs.mjs')).ask({ icon: 'note', message: 'The app could not be opened on a phone.', detail: found.problem || '', danger: 'Cancel', safe: 'OK', plain: true });
     return null;
   }
   const recording = installRecording({ api, project, iframe, toast, available: () => status.state === 'running' && !status.terminal && !REMOTE });
   const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser);
+  const reason = node('p', 'pw-reason'); reason.id = 'preview-window-reason';
+  const windowNote = node('p', 'pw-preview__note'); windowNote.setAttribute('role', 'status'); windowNote.hidden = true;
+  const fallback = node('div', 'pw-preview__note pw-preview__note--alert');
+  const fallbackLink = node('a'); fallbackLink.id = 'preview-window-link'; fallbackLink.target = '_blank'; fallbackLink.rel = 'noopener';
+  const fallbackCopy = button('Copy Address', copyAddress); fallbackCopy.id = 'preview-fallback-copy'; fallback.append(fallbackLink, fallbackCopy);
+  const usersText = 'Windows share sign-in and saved data. For a second user, use a private window (⇧⌘N; Firefox ⇧⌘P) or another browser profile.';
+  const users = node('p', 'pw-preview__note', usersText); users.hidden = true;
+  const addressDialog = node('dialog', 'pw-addr'); addressDialog.hidden = true; addressDialog.id = 'preview-addr'; addressDialog.setAttribute('aria-labelledby', 'preview-address-title');
+  const addressTitle = node('h3'); addressTitle.id = 'preview-address-title';
+  const localSection = node('section'), localTitle = node('b'), addressLine = node('div', 'pw-addr__line'), addressText = node('span', 'pw-addr__url');
+  const addressOpen = button('Open App', openWindow); addressOpen.id = 'preview-address-open';
+  const copy = button('Copy Address', copyAddress); copy.id = 'preview-copy-address'; addressLine.append(addressText, copy, addressOpen);
+  const ports = node('small'); localSection.append(localTitle, addressLine, ports);
+  const phoneSection = node('section'); const addressPhone = button('Open on Phone…', () => { addressDialog.close(); onPhone.click(); }); addressPhone.id = 'preview-address-phone';
+  const phoneReason = node('small'); phoneReason.id = 'preview-phone-reason'; addressPhone.setAttribute('aria-describedby', phoneReason.id); phoneSection.append(node('b', '', 'On your phone'), addressPhone, phoneReason);
+  const peopleSection = node('section'); peopleSection.append(node('b', '', 'Two people at once'), node('small', '', usersText));
+  const closeAddress = button('Close', () => addressDialog.close()); closeAddress.id = 'preview-address-close';
+  const copyStatus = node('p', 'pw-help'); copyStatus.setAttribute('role', 'status');
+  const addressHead = node('div', 'pw-sheet__head'); addressHead.append(addressTitle, closeAddress);
+  const addressContent = node('div'); addressContent.append(localSection, phoneSection, peopleSection, copyStatus);
+  addressDialog.append(addressHead, addressContent); document.body.append(addressDialog);
+  addressDialog.addEventListener('close', () => { addressDialog.hidden = true; about.setAttribute('aria-expanded', 'false'); about.focus(); });
+  async function copyAddress() {
+    if (!canOpen()) return;
+    try { await navigator.clipboard.writeText(appUrl()); copyStatus.textContent = 'Address copied'; toast?.('Address copied'); }
+    catch { copyStatus.textContent = 'Could not copy the address. Select and copy it above.'; toast?.(copyStatus.textContent); }
+  }
+  function updateAddress() {
+    addressTitle.textContent = `Where ${project()?.name || ''} runs`;
+    localTitle.textContent = REMOTE ? 'From this device, over Tailscale' : 'On this Mac';
+    addressText.textContent = appUrl() || 'Not available'; copy.disabled = addressOpen.disabled = !canOpen(); addressOpen.hidden = !phoneScreen(); phoneSection.hidden = phoneScreen();
+    const previewPort = base() ? new URL(base()).port : '';
+    ports.textContent = REMOTE ? 'Use this Tailscale address from this device. Access is checked by the harness.' : status.port && String(status.port) !== previewPort && !status.terminal ? `Use this address. The app itself listens on port ${status.port}; the Preview passes it through port ${previewPort}, which stays the same when the app restarts.` : '';
+    addressPhone.disabled = !canOpen() || !phoneAvailable(); addressPhone.setAttribute('aria-disabled', String(addressPhone.disabled));
+    phoneReason.textContent = phoneAvailable() ? 'Use a phone signed in to the same Tailscale account.' : 'Phone access is off.';
+  }
+  function showAddress() {
+    updateAddress(); copyStatus.textContent = ''; about.setAttribute('aria-expanded', 'true');
+    addressDialog.hidden = false; addressDialog.className = phoneScreen() ? 'pw-sheet' : 'pw-addr'; addressContent.className = phoneScreen() ? 'pw-addr' : '';
+    Object.assign(addressDialog.style, { position: 'fixed', margin: '0', boxSizing: 'border-box', width: phoneScreen() ? '100%' : '440px', maxWidth: phoneScreen() ? 'none' : 'calc(100vw - 16px)', top: phoneScreen() ? 'auto' : '0', left: phoneScreen() ? '0' : '0', right: 'auto', bottom: phoneScreen() ? '0' : 'auto', maxHeight: 'calc(100dvh - 32px)' });
+    addressDialog.showModal();
+    if (!phoneScreen()) { const box = about.getBoundingClientRect(); addressDialog.style.left = Math.max(8, Math.min(box.right - addressDialog.offsetWidth, innerWidth - addressDialog.offsetWidth - 8)) + 'px'; addressDialog.style.top = Math.max(8, Math.min(box.bottom + 4, innerHeight - addressDialog.offsetHeight - 8)) + 'px'; }
+    (copy.disabled ? closeAddress : copy).focus();
+  }
+  function openWindow() {
+    if (!canOpen()) return;
+    window.open(appUrl(), '_blank', 'noopener');
+    windowNote.textContent = `Opened ${settings().path} in a new window, in ${settings().language === 'ja' ? '日本語' : 'English'}.`; windowNote.hidden = false;
+    if (!settings().windowsSeen) { users.hidden = false; save({ windowsSeen: true }); }
+  }
   const themeNote = node('p', 'pw-preview__note pw-preview__note--theme', '◐ Showing the unsaved theme · Save or Discard in the chat'); themeNote.hidden = true;  // task 312, round 12
-  body.append(bar1, bar2, note, themeNote, recording.notice, stage,keys, foot);
+  body.append(bar1, bar2, note, themeNote, recording.notice, stage, keys, foot, reason, windowNote, fallback, users);
   // Task 312: the theme panel's changes go to the helper the Preview's proxy adds to the app (harness/theme-helper.js);
   // each page it loads says it is ready, and gets the panel's last changes again.
   let themeMaps = null;
@@ -108,7 +164,7 @@ export function installPreview({ api, project, send, showView, view, working, on
    const selected=settings().terminalSize||'80x24',target=selected==='120x40'?[120,40]:[80,24],{width,height}=event.data||{};
    if(event.data?.type==='pi-terminal-size'&&selected!=='fit'&&Number.isInteger(width)&&width>0&&Number.isInteger(height)&&height>0&&terminalAdjustments<4&&(width!==target[0]||height!==target[1])){terminalAdjustments++;terminalNatural={width:Math.ceil(terminalNatural.width*target[0]/width),height:Math.ceil(terminalNatural.height*target[1]/height)};draw();}
   });
-  path.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); save({ path: path.value.trim() || '/' }); load(true); } };
+  path.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); save({ path: path.value.trim() || '/' }); draw(); load(true); } };
 
   function segment(label, items, choose) {
     const element = node('div', 'pw-seg'); element.setAttribute('role', 'radiogroup'); element.setAttribute('aria-label', label);
@@ -162,7 +218,7 @@ export function installPreview({ api, project, send, showView, view, working, on
   }
   async function restart(){await stop();await start();}
   async function start() { status = await api('/api/preview/start', { project: project().id }); fixing = false; draw(); refresh(); }
-  async function stop() { await api('/api/preview/stop', { project: project().id }); status = { state: 'none', kind: 'app', stopped: true }; loadedSrc = ''; draw(); }
+  async function stop() { await api('/api/preview/stop', { project: project().id }); status = { ...status, state: 'none', kind: 'app', stopped: true }; loadedSrc = ''; draw(); }
 
   function load(force = false) {
     if (status.state !== 'running') return;
@@ -179,14 +235,20 @@ export function installPreview({ api, project, send, showView, view, working, on
 
   function draw() {
     const current = project(), chosen = settings();
+    if (addressDialog.open) updateAddress();
     $('preview-title').textContent = current ? `Preview · ${current.name}` : 'Preview';
-    host.textContent = status.terminal?'Runs':status.kind === 'notweb' || !current ? '—' : current.name; path.value = status.terminal?status.command:chosen.path;reload.textContent=status.terminal?'Restart':'Reload';
+    host.textContent = status.terminal ? 'Runs' : base() ? new URL(base()).host : '—'; path.value = status.terminal?status.command:chosen.path;reload.textContent=status.terminal?'Restart':'Reload';
     const terminal=Boolean(status.terminal);keys.hidden=!terminal||!phoneScreen();terminalSizes.sync(chosen.terminalSize||'80x24');bar2.replaceChildren(terminal?terminalSizes.element:sizes.element,languages.element);
     sizes.sync(chosen.size); languages.sync(chosen.language);
     const running = status.state === 'running', app = status.kind !== 'notweb' && status.kind !== 'empty';
     body.classList.toggle('pw-preview--dim', status.kind === 'notweb');
     path.disabled = !running||terminal;reload.disabled = !running; sizes.enable(app); languages.enable(app);
-    onPhone.disabled = inBrowser.disabled = openApp.disabled = !running;
+    onPhone.disabled = !running; inBrowser.disabled = openApp.disabled = !canOpen();
+    inBrowser.setAttribute('aria-label', `Open ${current?.name || ''} in a new browser window`); openApp.setAttribute('aria-label', `Open ${current?.name || ''} in Safari`);
+    reason.textContent = status.terminal && running ? 'Each window starts its own run; this one keeps going.' : running && !canOpen() ? 'Phone access is off.' : running ? '' : status.state === 'starting' ? 'Opens when the app is running.' : status.state === 'stopped' ? 'The app stopped. Start it, then open a window.' : status.kind === 'app' ? 'The app is stopped. Start it first: a window never starts it.' : 'There is no app yet.';
+    reason.hidden = !reason.textContent;
+    for (const control of [onPhone, inBrowser, openApp]) { control.setAttribute('aria-disabled', String(control.disabled)); control.setAttribute('aria-describedby', reason.id); }
+    fallback.hidden = !canOpen(); fallbackLink.href = appUrl() || '#'; fallbackLink.textContent = `Open ${chosen.path} in a new window ↗`; fallbackCopy.disabled = !canOpen();
     // Ph8_Preview (round 8): on a phone the app takes the width; the foot is the state, Stop / Start and Open App. The app's
     // language moved to Preview's view menu (Ph8_PreviewMenu).
     const small = phoneScreen(); bar2.hidden = small;
@@ -247,9 +309,10 @@ export function installPreview({ api, project, send, showView, view, working, on
   // A project change: its own Preview state (open or closed, size, language, page). The first time a project has an
   // app, the Preview opens by itself, once (P_Answers).
   async function projectChanged() {
+    if (addressDialog.open) addressDialog.close(); users.hidden = true; windowNote.hidden = true;
     recording.changed();
     clearTimeout(timer); status = { state: 'none' }; lastNote = ''; loadedSrc = ''; fixing = false; asked = false;
-    const current = project(); if (!current) { beside.hidden = true; return; }
+    const current = project(); if (!current) { beside.hidden = true; draw(); return; }
     try { status = await api(`/api/preview?project=${encodeURIComponent(current.id)}`); } catch { status = { state: 'none' }; }
     const chosen = settings();
     if (chosen.open || (!chosen.seen && status.kind === 'app' && mode === 'beside')) setShown(true);
@@ -261,7 +324,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     toggle: () => setShown(!(mode === 'beside' ? !beside.hidden : view() === 'preview')),
     show: (page = '/') => { save({ path: page }); setShown(true); },
     projectChanged, refresh, layout, mode: () => mode,
-    commands: () => ({ language: settings().language, app: status.kind !== 'notweb' && status.kind !== 'empty', running: status.state === 'running' }),
+    commands: () => ({ language: settings().language, app: status.kind !== 'notweb' && status.kind !== 'empty', running: status.state === 'running', canOpen: canOpen() }),
     setLanguage: value => { save({ language: value }); draw(); load(true); },
     reload: () => status.terminal?restart():load(true),
     postTheme,
@@ -274,7 +337,7 @@ export function installPreview({ api, project, send, showView, view, working, on
       if (found.state === 'none' && found.kind === 'app') found = await api('/api/preview/start', { project: current.id });
       return found.state === 'running' && !found.terminal && found.url ? appAddress(found.url, settings().path, settings().language) : '';
     },
-    openApp: () => openApp.click(),
+    openApp: openWindow, openWindow, copyAddress,
     stateWord: () => ({ running: '▶ Running', starting: '◷ Starting…', stopped: '⬣ Stopped' }[status.state] || (status.kind === 'app' ? '○ Not started' : '○ No app')),
     viewShown: on => { if (mode === 'view') { shown = on; if (on) refresh(true); else clearTimeout(timer); } },
   };
