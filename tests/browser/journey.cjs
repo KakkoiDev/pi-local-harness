@@ -324,6 +324,10 @@ step('J07', 'Start Building: no "Which guide should Pi use?" card; tool calls wr
   await page.waitForFunction(() => (document.querySelector('#phase-button')?.textContent || '').includes('Implementation'));
   t.build = (await (await sent).json()).id;
   await until(() => turnUsed(t, 0), 30000) || assert.fail('the model never received the build request');
+  await t.check('US-371 the agent receives the current phase and approved task after a phase change',async()=>{
+    const request=t.model.state.requests[t.buildFrom];const instructions=JSON.stringify(request.messages.filter(m=>['system','developer'].includes(m.role)));
+    assert.match(instructions,/Current phase: implementation/);assert.match(instructions,/Active approved task: tasks\//);assert.match(instructions,/Allowed files:/);
+  });
   await until(async () => turnUsed(t, 1) || ENDED.includes((await job(t, t.build)).status), 60000);
   await t.check('finding 11: the first pseudo tool call is repaired into a real call or nudged in the same request', async () => assert.ok(turnUsed(t, 1), 'the request ended on the pseudo tool call: ' + (await job(t, t.build)).status));
   const typed = await keepGoing(t, () => turnUsed(t, 2));
@@ -563,7 +567,7 @@ step('J16','a reasoning-only model turn after reading recovers within the same r
     assert.ok(retry);assert.equal(retry.messages.some(message=>message.role==='tool'),false,'old tool output cannot refill the retry window');
     assert.match(JSON.stringify(retry.messages),/Read this roadmap and explain it/);
     const instructions=retry.messages.filter(message=>['system','developer'].includes(message.role));
-    assert.match(JSON.stringify(instructions),/Current persistent memory/,'Pi must restore the harness instructions, whether the provider uses system or developer');assert.ok(retry.tools.includes('read'));
+    assert.match(JSON.stringify(instructions),/Current persistent memory/,'Pi must restore the harness instructions, whether the provider uses system or developer');assert.ok(retry.tools.includes('read'));assert.match(JSON.stringify(instructions),/Current phase: discussion/);
     assert.equal((await t.bench.api('/api/phase?project='+t.project)).phase,'discussion');
   });
 });

@@ -6,6 +6,7 @@ import html
 import secrets
 from datetime import datetime
 from harness.context import build_context, build_project_context
+from harness.execution_context import execution_brief
 from harness.music_artifacts import music_attachments
 from harness import capability
 from harness.documents import DocumentStore, DocumentConflict
@@ -765,7 +766,9 @@ class WebChat:
         event={'type':'context','included':chosen['included'],'omitted':chosen['omitted'],'reasons':chosen['reasons'],'chars':len(chosen['text']),'excluded':chosen['excluded'][:100],'excluded_count':len(chosen['excluded'])}
         if job:self.queue.update(job,event)
         else:reports.report(self.documents.root,'context','Selected files for this turn',request=request,cwd=str(root),**{key:event[key] for key in ('included','omitted','reasons','chars','excluded','excluded_count')})
-        return {**chosen,'text':f'Active project folder: {root}\nWork only in this folder. This context is current for this turn.\n\n'+chosen['text']}
+        try: state=ledger.paperwork.phase(root) if ledger else {}
+        except (ValueError,OSError): state={}
+        return {**chosen,'execution':execution_brief(root,state),'text':f'Active project folder: {root}\nWork only in this folder. This context is current for this turn.\n\n'+chosen['text']}
 
     def context_preview(self, project, data):
         """What "Pi sees:" shows before sending: the items of the same selection and its size in tokens (about 4 characters each)."""

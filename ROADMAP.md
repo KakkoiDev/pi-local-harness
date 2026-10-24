@@ -446,3 +446,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [366-Recover empty replies and quiet recording controls](tasks/366-reliable-chat-and-quiet-recording.md)
 
 - [x] [367-Recover small-window replies and suppress routine phase-only reports](tasks/367-small-window-recovery.md)
+
+- [x] [368-Give every model turn authoritative execution context](tasks/368-authoritative-execution-context.md)

@@ -108,7 +108,7 @@ export default function harness(pi, dependencies = {}) {
       try { return loadMemory(`${moduleRoot}harness/AGENTS.md`); } catch { return ''; }
     }
   };
-  let chosenContext = '', contextAttempted = false, requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, recovering = false, closing = false;
+  let chosenContext = '', executionContext = '', contextAttempted = false, requestId, verifiedBefore, child, timer, ports, context, pending, lastQuestion = '', lastImages = [], retries = 0, recovering = false, closing = false;
   const timeout = Number(process.env.PI_HANG_MS || 60000);
   const notify = (text, level = 'info') => context?.ui.notify(text, level);
   // Recovery and refusal (round 6, T_Gate): in terminal Pi a display-only entry, bold sentence first; Pi never reads it.
@@ -148,8 +148,8 @@ export default function harness(pi, dependencies = {}) {
   const refreshContext = async () => {
     if (bare || !ports) return;
     contextAttempted = true;
-    try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; }
-    catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
+    try { const chosen = await call('/context', { cwd: context?.cwd || root, text: lastQuestion, request: requestId }); chosenContext = chosen.text || ''; executionContext = chosen.execution || 'Current phase unavailable. Do not infer write permission.'; }
+    catch (error) { chosenContext = ''; executionContext = 'Current phase unavailable. Do not infer write permission.'; incident('context', `could not refresh: ${error.message}`); }
   };
   let noActionWoken=false, textualToolSeen=false, toolRan=false, refusedAgain='';  // task 323: the checked alternative after the same refused command twice
   let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity, recoveryWindow=false, requestMessage;
@@ -302,7 +302,7 @@ export default function harness(pi, dependencies = {}) {
     if (!bare && blocks) try { blockCards = chosenBlocks.cards.length ? blocksPrompt(chosenBlocks.cards, blocks, undefined, chosenBlocks.others) : blocksHint(chosenBlocks.candidates); } catch {}
     const language=requestLanguage(dataDir);loadTerminalLanguage(language);const languageGuide=`\n\nReply to the person in ${language==='ja'?'Japanese':'English'}; keep code, filenames and commands in their original form.`;
     const style = bare ? '' : `\n\n${terseStyle}`; // task 326: every model, web and terminal
-    return { systemPrompt: `${event.systemPrompt}${languageGuide}${style}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${chosen}${guide}${blockCards}${cards}${consoleGuide}` };
+    return { systemPrompt: `${event.systemPrompt}${languageGuide}${style}\n\nCurrent persistent memory (${memoryPath}; add a short lesson there with write or edit, at most 32 KiB in all) and operating instructions:\n${memory()}${gateRules}${executionContext ? `\n\n${executionContext}` : ''}${chosen}${guide}${blockCards}${cards}${consoleGuide}` };
   });
   pi.on('message_end', event => {
     let message=event.message, replacement;
@@ -335,7 +335,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     taskReviewed=false;assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
-    contextCharLimit=Infinity;recoveryWindow=false;requestMessage=undefined;chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
+    contextCharLimit=Infinity;recoveryWindow=false;requestMessage=undefined;chosenContext = ''; executionContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
     chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);

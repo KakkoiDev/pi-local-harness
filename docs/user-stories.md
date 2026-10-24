@@ -544,3 +544,5 @@ Then the current request is retained, old tool output is excluded from the model
 Given an unattended Discussion request that changed nothing and only received phase refusals
 When I reload the chat
 Then no report card appears and its audit record remains available
+
+- US-371 — the agent receives the current phase and approved task after a phase change (`tests/browser/journey.cjs`).
