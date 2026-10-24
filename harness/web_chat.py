@@ -297,7 +297,7 @@ class WebChat:
         self.documents=DocumentStore(data_root or Path(root)/'workspace')
         self.recording_run=secrets.token_hex(16)
         self.recordings=Recordings(self.documents.root/'.action-recordings')
-        self.workstation_recordings=Recordings(self.documents.root/'.ws-action-recordings', default_enabled=False, shared_settings=True)
+        self.workstation_recordings=Recordings(self.documents.root/'.ws-action-recordings', default_enabled=True, shared_settings=True)
         self.queue=WorkQueue(self.documents.root/'.queue.json',self.execute_job,self.busy,mode=self.mode,workspace=lambda project:str(self.documents.project_path(project).resolve()) if project else '')
         from harness.web_updates import UpdateService
         from harness.admin import update_source
@@ -306,6 +306,10 @@ class WebChat:
         from harness.theme_fonts import Fonts
         self.fonts=Fonts(self.documents.root)  # task 312: the Google Fonts list, cached in the data folder
     def recording(self, data):
+        with autonomy.LOCK:
+            return self._recording(data)
+
+    def _recording(self, data):
         project = data.get('project')
         surface = data.get('surface', 'preview')
         if surface not in ('preview', 'workstation'): raise ValueError('Invalid recording surface.')
@@ -314,11 +318,25 @@ class WebChat:
         store = self.workstation_recordings if surface == 'workstation' else self.recordings
         project = project or 'outside-projects'
         action = data.get('action', 'status')
+        preferences = self.documents.root/'.recording-preferences.json'
+        allowed = autonomy.read(preferences, {}).get('enabled', True)
+        if action == 'preferences':
+            if 'enabled' in data:
+                value = data['enabled']
+                if type(value) is not bool: raise ValueError('Recording needs an on or off value.')
+                # Disable first; a failed write must not accidentally resume capture.
+                if not value: autonomy.write(preferences, {'enabled': False})
+                self.workstation_recordings.set_enabled('outside-projects', value)
+                for item in self.documents.list_projects(): self.recordings.set_enabled(item['id'], value)
+                autonomy.write(preferences, {'enabled': value})
+            return {'enabled': autonomy.read(preferences, {}).get('enabled', True)}
         if action == 'stop_all':
+            autonomy.write(preferences, {'enabled': False})
             self.workstation_recordings.set_enabled('outside-projects', False)
             for item in self.documents.list_projects(): self.recordings.set_enabled(item['id'], False)
             return {**store.status(project), 'run': self.recording_run}
         if action == 'append':
+            if not allowed: return {'flow': None}
             if type(data.get('generation')) is not int: raise ValueError('Recording generation is required.')
             if data.get('run') != self.recording_run: return {'flow': None}
             return {'flow': store.append(project, data.get('flow'), flow_id=data.get('flow_id'), generation=data['generation'], session=self.recording_run)}
@@ -327,7 +345,8 @@ class WebChat:
         elif action == 'clear': store.clear(project)
         elif action == 'notice': store.dismiss_notice(project)
         elif action != 'status': raise ValueError('Unknown recording action.')
-        return {**store.status(project), 'run': self.recording_run}
+        status = store.status(project)
+        return {**status, 'enabled': status['enabled'] and allowed, 'run': self.recording_run}
 
     # Model and thinking level (task 147): one model in memory at a time; a model without thinking runs with thinking off.
     # Capabilities come from Ollama; a miss (Ollama down, model not listed) is cached too, for a minute, so a hung Ollama

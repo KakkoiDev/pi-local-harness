@@ -95,7 +95,7 @@ export function installPreview({ api, project, send, showView, view, working, on
     return null;
   }
   const recording = installRecording({ api, project, iframe, toast, available: () => status.state === 'running' && !status.terminal && !REMOTE });
-  const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser);
+  const foot = node('div', 'pw-preview__foot'); foot.append(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser);
   const reason = node('p', 'pw-reason'); reason.id = 'preview-window-reason';
   const windowNote = node('p', 'pw-preview__note'); windowNote.setAttribute('role', 'status'); windowNote.hidden = true;
   const fallback = node('div', 'pw-preview__note pw-preview__note--alert');
@@ -252,8 +252,8 @@ export function installPreview({ api, project, send, showView, view, working, on
     // Ph8_Preview (round 8): on a phone the app takes the width; the foot is the state, Stop / Start and Open App. The app's
     // language moved to Preview's view menu (Ph8_PreviewMenu).
     const small = phoneScreen(); bar2.hidden = small;
-    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, recording.status, node('span', 'pw-preview__gap'), openApp);
-    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(terminal?terminalSizes.element:sizes.element, languages.element); foot.replaceChildren(state, stopStart, recording.status, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
+    if (small && foot.lastElementChild !== openApp) foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), openApp);
+    if (!small && foot.lastElementChild !== inBrowser) { bar2.replaceChildren(terminal?terminalSizes.element:sizes.element, languages.element); foot.replaceChildren(state, stopStart, node('span', 'pw-preview__gap'), onPhone, inBrowser); }
     const word = { running: 'Running', starting: 'Starting…', stopped: 'Stopped' }[status.state] || (status.stopped ? 'Stopped' : 'No app');
     state.replaceChildren(glyph(status.state === 'running' ? 'running' : status.state === 'starting' ? 'starting' : status.state === 'stopped' || status.stopped ? 'stopped' : 'none'), word);
     stopStart.textContent = running || status.state === 'starting' ? 'Stop' : 'Start';

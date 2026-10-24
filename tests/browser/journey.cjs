@@ -544,6 +544,25 @@ step('J12', 'reloads and a second tab: state is consistent, no card reopens, no 
   await other.close();
 });
 
+// Task 366: the real Pi extension must recover the owner's read -> reasoning-only -> no answer failure.
+step('J16','a reasoning-only model turn after reading recovers within the same request',async t=>{
+  await newProject(t,'Recovered chat');
+  const project=(await t.bench.api('/api/workspace')).projects.find(p=>p.id===t.project);
+  fs.writeFileSync(join(project.path,'ROADMAP.md'),'# Roadmap\n\nA clear plan.\n');
+  t.model.script({turns:[
+    {when:'Read this roadmap',calls:[{name:'read',arguments:{path:'ROADMAP.md'}}]},
+    {when:'tool:',think:'Need to tidy the roadmap.',finish:'length'},
+    {when:'Continue',say:'[CANARY] I read the roadmap. It contains a clear plan.'}
+  ]});
+  const id=await say(t,'Read this roadmap and explain it.');
+  const result=await t.bench.job(id,ENDED,60000);
+  await t.check('the empty response recovers, without a retry click or changing phase',async()=>{
+    assert.equal(result.status,'completed',result.progress);assert.match(result.text,/It contains a clear plan/);
+    assert.equal(t.model.state.used.filter(Boolean).length,3);
+    assert.equal((await t.bench.api('/api/phase?project='+t.project)).phase,'discussion');
+  });
+});
+
 // -- small helpers that act as the person --------------------------------------------------------------------------------
 const stepIs = (t, name) => t.page.waitForFunction(name => document.querySelector('#start-steps [aria-current="step"]')?.textContent.endsWith(name), name);
 /** “Start from an empty folder instead” in the scratch folder; the project's chat opens. */

@@ -430,9 +430,9 @@ Given a registered scratch project with an app running in Preview
 When I focus an input, click a canvas, stop recording, reload, enable recording and clear history
 Then safe structural focus and click steps are retained, stopped actions are refused, and history moves to Trash
 
-### US-353 WorkStation recording requires opt-in and never blocks conversation
+### US-353 WorkStation recording defaults on and never blocks conversation
 Given a scratch WorkStation on the Projects screen
-When I enable WorkStation recording, switch into a project, then stop it or its storage becomes unavailable
+When I use its default recording, stop WorkStation recording in Settings, or its storage becomes unavailable
 Then structural actions stay in their original scope, stopping is independent of Preview, and I can still send a message
 
 ### US-354 A late chat load preserves the phone menu I just opened
@@ -516,3 +516,19 @@ When I inspect its address and open the app
 Then only the guarded Tailscale address is shown and used
 
 Surface: web. Test: tests/browser/stories.cjs. Task: 321.
+
+
+### US-366 an empty model reply fails clearly and I can retry and receive an answer
+Given a model request that ends without an answer
+When I retry from the failed message
+Then the next answer arrives and the composer remains usable
+
+### US-367 ordinary chat does not show an empty unattended report
+Given Run on its own is enabled
+When Pi answers without doing work or making an automatic decision
+Then no empty report card interrupts the conversation
+
+### US-368 recording runs quietly and Settings explains and controls both surfaces
+Given a fresh WorkStation with Preview
+When I use it and turn recording off in Settings
+Then structural actions are captured by default without permanent recording controls and turning off stops both surfaces without losing history

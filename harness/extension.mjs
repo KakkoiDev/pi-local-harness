@@ -152,6 +152,7 @@ export default function harness(pi, dependencies = {}) {
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
   let noActionWoken=false, textualToolSeen=false, toolRan=false, refusedAgain='';  // task 323: the checked alternative after the same refused command twice
+  let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity;
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -283,6 +284,7 @@ export default function harness(pi, dependencies = {}) {
     let chosen = '';
     if (chosenContext) chosen = `\n\nContext for this request:\n${chosenContext}`;
     try { if (!contextAttempted && process.env.PI_HARNESS_CONTEXT) chosen = `\n\nContext for this request:\n${readFileSync(process.env.PI_HARNESS_CONTEXT, 'utf8')}`; } catch {}
+    if(chosen.length>contextCharLimit)chosen=chosen.slice(0,contextCharLimit)+'\n[Selected context shortened after the model exhausted its window. Read the project files for omitted details.]';
     // Plan 158: a terminal session is the harness console; Pi learns its commands (web workers share the port and skip it).
     let consoleGuide = '';
     try { if (!sharedPortEnv()) consoleGuide = `\n\n${readFileSync(`${moduleRoot}harness/CONSOLE.md`, 'utf8')}`; } catch {}
@@ -321,6 +323,7 @@ export default function harness(pi, dependencies = {}) {
       }
     }
     if (message?.role === 'assistant') assistantText+='\n'+(message.content || []).map(part=>part.type === 'thinking' ? part.thinking || '' : part.type === 'text' ? part.text || '' : '').join('\n')+'\n';
+    if (message?.role === 'assistant') {answerLimit=message.stopReason==='length';assistantStopped=message.stopReason==='stop'||answerLimit;}
     if (message?.role === 'assistant') lastAnswer = (message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
     if (missingCanary(message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
     return replacement;
@@ -332,7 +335,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     taskReviewed=false;assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
-    chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
+    contextCharLimit=Infinity;chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
     chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);
@@ -385,7 +388,7 @@ export default function harness(pi, dependencies = {}) {
   });
   // Task 116: agent_end can fire again before a new turn while the usage reading is still stale; compact at most once per turn.
   let compactedThisTurn = false;
-  pi.on('agent_start', (_event, ctx) => { context = ctx; recovering = false; compactedThisTurn = false; watch.start(); });
+  pi.on('agent_start', (_event, ctx) => { context = ctx; assistantStopped=false; answerLimit=false; recovering = false; compactedThisTurn = false; watch.start(); });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
     if (stream.type === 'text_delta' || stream.type === 'thinking_delta') assistantText+=stream.delta || '';
@@ -404,6 +407,7 @@ export default function harness(pi, dependencies = {}) {
   pi.on('agent_end', (_event, ctx) => {
     watch.stop();
     if (waitingChoice) return;
+    if(answerLimit&&!lastAnswer.replace(/\[CANARY\]/g,'').trim())return; /* agent_settled owns the bounded context recovery */
     if (!pending) {
       const usage = ctx?.getContextUsage?.();
       if (!compactedThisTurn && usage?.tokens && usage.tokens > COMPACT_AT * usage.contextWindow) {
@@ -557,17 +561,26 @@ export default function harness(pi, dependencies = {}) {
     const textualTool=textualToolSeen || /(?:\b(?:bash|read|write|edit)\s*[{(]|<\|tool_call\|>|^\s*call:)/mi.test(assistantText);
     const announced=lastAnswer.match(/(?:\b(?:I will|I'll start|Let me|Next, I)\b|\bFirst,)[^\n]*/i);
     // Task 324 (live: a small model thought "I will proceed with the propose_plan call" and ended with no tool call and
-    // no answer): a turn with no answer and no tool that ran, or a tool call written as text, is nudged once whatever
+    // no answer): a completed turn with no answer, including after a tool ran, is nudged once whatever
     // the request's words; System 1 decides it (recorded as the wake-up incident).
-    const silentTurn=!lastAnswer.trim() && !toolRan && !waitingChoice && /\b(?:tool|call|propose_plan|ask_choices|I will|I'll|let me|proceed)\b/i.test(assistantText);
+    const silentTurn=assistantStopped && !lastAnswer.replace(/\[CANARY\]/g,'').trim() && !waitingChoice;
     // Task 323: the same refused command twice, and no allowed call after it: one nudge to the checked alternative.
     const refusalLoop=Boolean(refusedAgain) && !waitingChoice;
     if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || refusalLoop || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
       noActionWoken=true;recovering=true;retries++;
-      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Call the tool you described now; do not describe it.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning.':`You said: '${announced[0]}'. Do it now with a tool call.`;
       incident('wake-up',instruction,{trigger:refusalLoop?'refused-again':'no-action',round:retries});refusedAgain='';
       say('wake-up',instruction,'warning');
-      pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);return;
+      let sent=false;const resume=()=>{if(!sent&&!closing){sent=true;pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);}};
+      if(silentTurn&&answerLimit){
+        contextCharLimit=4000;incident('context','Reduced selected context to 4000 characters after an output-limit stop.');
+        if(context?.compact){
+          notify('Harness recovery: Making room for the answer.','info');
+          try{context.compact({customInstructions:'Keep the original request, current phase, decisions, files read and open work. Remove repeated reasoning and finished details. Do not invent approvals.',onComplete:resume,onError:error=>{notify(`Compaction failed: ${error.message}. Retrying once with less selected context.`,'warning');resume();}});}catch(error){notify(`Compaction failed: ${error.message}. Retrying once with less selected context.`,'warning');resume();}
+          return;
+        }
+      }
+      resume();return;
     }
     const reviewPrompt=taskReviewPrompt(process.env.PI_HARNESS_MODEL || ctxModelName());
     if (!taskReviewed && reviewPrompt && after?.verified && after?.code?.length && before?.state!==after.state && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing) {

@@ -35,6 +35,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.unroute('**/js/ui.mjs');
   await page.goto(`http://127.0.0.1:${ports.web}`);
   await page.getByRole('button',{name:'Create Your First Project…',exact:true}).waitFor();
+  await page.waitForFunction(()=>Boolean(document.getElementById('ws-recording-status')));
   assert.deepEqual(await page.evaluate(()=>Promise.all(['16px "Source Serif 4"','italic 16px "Source Serif 4"','13px "IBM Plex Mono"','500 13px "IBM Plex Mono"'].map(font=>document.fonts.load(font).then(faces=>faces.length>0&&faces.every(face=>face.status==='loaded'),()=>false)))),[true,true,true,true],'the design fonts load from /fonts');assert.match(await page.evaluate(()=>getComputedStyle(document.getElementById('menubar')).fontFamily),/^system-ui/,'chrome uses the system font');
   assert.equal(await page.locator('#prompt').isDisabled(),true);
   await page.locator('#menubar [aria-controls="menu-file"]').click();assert.equal(await page.locator('#menu-file [data-command="new-file"]').getAttribute('aria-disabled'),'true','New File needs a project');assert.equal(await page.locator('#menu-file [data-command="new-project"]').getAttribute('aria-disabled'),'false');await page.keyboard.press('Escape');

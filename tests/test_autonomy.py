@@ -23,6 +23,16 @@ class AutonomyTest(unittest.TestCase):
         runs.mark_seen(first)
         self.assertEqual([r for r in runs.list() if r.get('ended') and not r['seen']],[])
 
+    def test_empty_reports_stay_in_audit_but_not_the_conversation(self):
+        runs=RunReports(self.data)
+        ident=runs.begin('/scratch/chat')
+        self.assertIsNone(runs.finish('/scratch/chat','nothing changed'))
+        self.assertEqual(runs.list(),[])
+        self.assertIsNotNone(runs.get(ident))
+        runs.begin('/scratch/chat');runs.add('/scratch/chat','decisions',{'answer':'recommended'})
+        self.assertIsNotNone(runs.finish('/scratch/chat','nothing changed'))
+        self.assertEqual(len(runs.list()),1)
+
     def test_every_enable_needs_the_risks_confirmed_and_the_setting_is_global_and_live(self):
         self.assertFalse(validate({})['auto_accept']);self.assertFalse(enabled(self.data))
         for _ in range(2):

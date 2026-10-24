@@ -69,6 +69,7 @@ async function newProject(t, name, kind = 'empty', capabilities = []) {
 
 async function choosePhase(t, name) {
   const { page } = t;
+  await page.locator('#ws-recording-status').waitFor({state:'attached'}); // installed after app initialization, including newly opened tabs
   await page.locator('#phase-button').click();
   await page.locator('#phase-menu').getByRole(/radio/.test(await page.locator('#phase-menu').getAttribute('role')) ? 'radio' : 'menuitemradio', { name: new RegExp('^' + name) }).click();
   await page.waitForFunction(phase => (document.querySelector('#phase-button')?.textContent||'').includes(phase), name);
@@ -149,10 +150,34 @@ const RESET = { title: 'Reset the count', files: ['counter.py', 'tests/'], done_
 const checkIn = t => t.page.locator('.pw-card[aria-label^="Task "]').last();  // round 12: “done” or “not verified”
 
 // -- First run and projects --------------------------------------------------------------------------------------
+story('US-366', 'an empty model reply fails clearly and I can retry and receive an answer', async t => {
+  await newProject(t,'Empty answer');
+  const id=await say(t,'Explain the roadmap TEST_EMPTY_ONCE');
+  await answered(t,id,['failed']);
+  const failed=t.page.locator('.pw-cut').last();
+  await failed.getByText(/Pi completed without an assistant answer/).waitFor();
+  const response=t.page.waitForResponse(r=>r.url().endsWith('/retry'));
+  await failed.getByRole('button',{name:'Retry',exact:true}).click();
+  const retry=await (await response).json();await answered(t,retry.id,['completed']);
+  await t.page.locator('#messages .pw-msg.assistant').filter({hasText:'reply 2'}).waitFor();
+  assert.equal(await t.page.locator('#prompt').isEnabled(),true);
+});
+story('US-367', 'ordinary chat does not show an empty unattended report', async t => {
+  const {project}=await newProject(t,'Quiet reports');
+  await t.bench.api('/api/auto',{enabled:true,confirmed:true});
+  const id=await say(t,'TEST_SCRIPT=chat-only');await answered(t,id,['completed']);
+  await t.page.reload();await t.page.locator('#prompt:not([disabled])').waitFor();
+  const state=await t.bench.api('/api/workspace');assert.equal(state.reports.filter(r=>r.project===(state.projects.find(p=>p.id===project)?.path)).length,0);
+  assert.equal(await t.page.getByText('Ran on its own: report',{exact:true}).count(),0);
+  await t.page.locator('#model-button').focus();
+  await t.page.locator('[data-command=\"about\"]').evaluate(b=>b.click());
+  await t.page.locator('#about-dialog').getByRole('button',{name:'OK',exact:true}).click();
+});
 story('US-001', 'first run: an empty workbench leads to the first project, which opens its chat', async t => {
   const { page } = t;
   await page.goto(t.base);
   const first = page.getByRole('button', { name: 'Create Your First Project…', exact: true }); await first.waitFor();
+  await page.waitForFunction(()=>Boolean(document.getElementById('ws-recording-status')));
   assert.equal(await page.locator('#prompt').isDisabled(), true, 'no chat before a project exists');
   await first.click(); await page.locator('#start-dialog').waitFor();
   await page.locator('#start-name').fill('Hello'); await pickWhere(t);
@@ -317,6 +342,7 @@ story('US-006', 'add an existing folder: it is used in place, its files show and
   const { page } = t;
   const folder = join(t.directory, 'My notes'); fs.mkdirSync(folder); fs.writeFileSync(join(folder, 'ideas.md'), '# Ideas\n\nA garden planner.\n');
   await page.goto(t.base + '/projects');
+  await page.waitForFunction(()=>Boolean(document.getElementById('ws-recording-status')));
   await page.locator('#menubar [aria-controls="menu-file"]').click(); await page.locator('#menu-file [data-command="add-folder"]').click();
   await page.locator('#folder-dialog').waitFor();
   await page.waitForFunction(() => document.querySelector('#folder-path').value.length > 0 && !document.querySelector('#folder-use').disabled);
@@ -1267,6 +1293,7 @@ story('US-126', 'an unverified task: Retry Task is the default; Accept Anyway…
   const task = fs.readdirSync(join(root, 'tasks')).find(name => /count-clicks/.test(name));
   await until(() => new RegExp(`- \\[x\\] \\[\\d+-Count clicks\\]\\(tasks/${task}\\) \\(accepted without verification\\)`).test(t.bench.read(root, 'ROADMAP.md')), 'the labelled roadmap line');
   assert.ok(commits(t, root).some(line => /^Pi Workbench\|Count clicks \(task \d+, accepted without verification\)$/.test(line)), 'a harness commit records it');
+  await until(() => decisions(t).some(row => row.kind === 'task_acceptance' && row.answer === 'accept_anyway' && row.who === 'person'), 'the person acceptance decision');
   assert.ok(decisions(t).some(row => row.kind === 'task_acceptance' && row.answer === 'accept_anyway' && row.who === 'person'));
 });
 
@@ -1445,6 +1472,7 @@ story('US-122', 'without Laya, a phase word gets the harness’s own notice unde
   const notice = laya(); await notice.waitFor({ timeout: 20000 });
   assert.equal(await notice.locator('.pw-notice__who').textContent(), 'Harness', 'the harness speaks, not Pi');
   assert.equal(await notice.locator('.pw-notice__text').textContent(), 'Laya isn’t installed, so the phase button can’t suggest the next phase. Everything else works.');
+  await page.waitForFunction(()=>[...document.querySelectorAll('#messages .pw-notice[role="note"]')].some(el=>getComputedStyle(el).borderTopStyle==='dotted'));
   assert.equal(await notice.evaluate(el => getComputedStyle(el).borderTopStyle), 'dotted');
   assert.equal(await notice.evaluate(el => Boolean(el.closest('.pw-msg__body'))), false, 'outside Pi’s words');
   await notice.getByRole('link', { name: 'How to Install', exact: true }).click();

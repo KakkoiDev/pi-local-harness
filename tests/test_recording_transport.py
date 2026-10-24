@@ -24,6 +24,20 @@ class RecordingTransportTest(unittest.TestCase):
         threading.Thread(target=server.serve_forever,daemon=True).start();self.addCleanup(server.server_close);self.addCleanup(server.shutdown)
         self.base=f'http://127.0.0.1:{server.server_port}'
 
+    def test_quiet_recording_defaults_global_stop_and_old_batches(self):
+        project=self.project['id'] if isinstance(self.project,dict) else self.project
+        self.assertTrue(self.chat.recording({'surface':'workstation'})['enabled'])
+        old=self.chat.recording({'project':project})
+        self.chat.recording({'surface':'workstation','action':'preferences','enabled':False})
+        for surface in ('preview','workstation'):
+            self.assertFalse(self.chat.recording({'surface':surface,'project':project})['enabled'])
+        self.chat.recording({'surface':'workstation','action':'preferences','enabled':True})
+        late=self.chat.recording({'project':project,'action':'append','generation':old['generation'],'run':old['run'],'flow':{'steps':[{'type':'focus','selectors':[['button']]}]}})
+        self.assertIsNone(late['flow'])
+        new=self.chat.documents.create_project('Later')
+        self.chat.recording({'surface':'workstation','action':'preferences','enabled':False})
+        self.assertFalse(self.chat.recording({'project':new})['enabled'])
+
     def request(self,body=None,person=True,path='/api/recordings'):
         request=urllib.request.Request(self.base+path,data=json.dumps(body).encode() if body is not None else None,headers={'Content-Type':'application/json',**({'X-Pi-Person':'test-person'} if person else {})})
         try:
@@ -75,10 +89,10 @@ class RecordingTransportTest(unittest.TestCase):
         self.assertEqual(self.request({**body,'project':'../outside'})[0],400)
         self.assertEqual(self.request({**body,'flow':{'steps':[],'padding':'x'*70000}})[0],400)
 
-    def test_workstation_opt_in_is_separate_and_outside_events_stay_outside_projects(self):
+    def test_workstation_default_on_is_separate_and_outside_events_stay_outside_projects(self):
         base={'surface':'workstation'}
         status,state=self.request({**base,'action':'status'})
-        self.assertEqual(status,200,state);self.assertFalse(state['enabled'])
+        self.assertEqual(status,200,state);self.assertTrue(state['enabled'])
         _,state=self.request({**base,'action':'enabled','enabled':True})
         body={**base,'action':'append','generation':state['generation'],'run':state['run'],'flow':{'steps':[{'type':'focus','selectors':[['button:nth-of-type(1)']]}]}}
         _,recorded=self.request(body);self.assertIsNotNone(recorded['flow'])
@@ -93,7 +107,7 @@ class RecordingTransportTest(unittest.TestCase):
         body={'surface':'workstation','action':'notice'}
         status,state=self.request(body)
         self.assertEqual(status,200,state)
-        self.assertTrue(state['notice_seen']);self.assertFalse(state['enabled'])
+        self.assertTrue(state['notice_seen']);self.assertTrue(state['enabled'])
         self.assertTrue(self.request({**body,'action':'status'})[1]['notice_seen'])
 
     def test_a_restarted_host_refuses_batches_from_its_previous_run(self):

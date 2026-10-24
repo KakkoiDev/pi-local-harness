@@ -299,7 +299,7 @@ Discussion prevent that retry. A real-model success still depends on the model f
 
 ## Are my clicks and focus changes recorded?
 
-Preview recording starts on for each project and shows its status beside Stop. Its first-use notice explains what is kept. Open the recording status to stop it or clear history to recording Trash. WorkStation recording is separate and starts off. Use its menu-bar recording button or Settings › Recording Options… to review the explanation and enable it. On a phone, use Settings before enabling. This checkpoint uses a shared local profile: anyone using it shares its recording choice and history.
+WorkStation and Preview structural recording start on unless previously disabled. Controls live in Settings, without a permanent recording bar or first-use banner. Settings › Allow action recording turns capture on or off for both surfaces and all projects; turning it off preserves history and refuses late batches. The detailed WorkStation and Preview controls remain in Settings for per-surface choices and clearing Preview history. Turning recording off gives Pi less interaction context and makes debugging harder. This checkpoint uses a shared local profile: anyone using it shares its recording choice and history.
 
 Only structural actions, focus changes, supported navigation keys and redacted input lengths are captured. Typed text, passwords, chat/document contents, labels and full URLs are excluded. Unsupported pages may not record. These are lossy traces, not video or guaranteed replay. A recorder failure does not block messages or answers.
 
@@ -332,7 +332,7 @@ parallelize a model that serialized here. Production starts conservatively at tw
 
 ### How do I stop all action recording?
 
-Choose Stop All Recording in either recording popover. It stops WorkStation and the Preview recordings for every registered project, including other windows. Recorded history stays on the host. Re-enabling a recorder starts a new flow; pending batches from before the stop are refused. A storage failure is reported as a failure, since some recorders may already have stopped; ordinary chat and files remain usable.
+Open Settings and turn off Allow action recording, or choose Stop All Recording in either detailed recording panel. It stops WorkStation and the Preview recordings for every registered project, including other windows. Recorded history stays on the host. Turning Allow action recording back on enables both surfaces and starts new flows; pending batches from before the stop are refused. A storage failure is reported as a failure, since some recorders may already have stopped; ordinary chat and files remain usable.
 
 ### Why does startup say “Pi needs Node >= 22.19.0”?
 
@@ -353,3 +353,7 @@ would not work there.
 Windows share browser sign-in and saved data. For independent accounts use a private window (⇧⌘N, Firefox ⇧⌘P) or
 another browser profile. The workbench does not create a private session for you. Terminal windows start independent
 runs of the terminal app.
+
+### Why did Pi stop without an answer?
+
+The harness detects a finished model turn with no user-visible answer, even after file reads, and wakes Pi once within its configured recovery budget. When the model filled its window while reasoning, it first compacts history and shortens selected context so the answer has room. This never changes phase or approves work. If it still cannot answer, the failed message explains the failure and offers Retry; the queue and composer remain usable. Empty Run on its own reports for requests with no tasks, decisions, external actions or problems are kept in the audit files but omitted from the conversation.

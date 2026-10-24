@@ -4,13 +4,14 @@ export function installRecording({ api, project, iframe, available, toast = () =
   const status = element('button', 'Recording status unknown', 'pw-recstat'); status.type = 'button'; status.id = 'recording-status';
   status.setAttribute('aria-haspopup', 'dialog'); status.setAttribute('aria-controls', 'recording-popover'); status.setAttribute('aria-expanded', 'false');
   const popup = element('section', '', 'pw-recpop'); popup.id = 'recording-popover'; popup.setAttribute('role', 'dialog'); popup.setAttribute('aria-label', 'Recording'); popup.hidden = true;
-  document.body.append(popup);
+  document.getElementById('settings-dialog').append(popup);
+  const settings=element('fieldset','','settings-group'); settings.append(element('legend','Preview recording','pw-label'),status); document.getElementById('settings-cancel').parentElement.before(settings);
   const notice = element('div', 'This Preview records which buttons and pages you use (never what you type).', 'pw-notice'); notice.setAttribute('role', 'note'); notice.id = 'preview-recording-notice'; notice.hidden = true;
   let state = null, identity = '', epoch = 0, flow = null, session = null, origin = null, busy = false, fault = false, probe = null;
   const sendControl = () => { if (session && origin) iframe.contentWindow?.postMessage({ type: 'pi-recording-control', session, generation: state?.generation, run: state?.run, enabled: Boolean(state?.enabled && available() && !fault && !flow?.truncated) }, origin); };
   function close() { popup.hidden = true; status.setAttribute('aria-expanded', 'false'); }
   function draw() {
-    notice.hidden = !state?.enabled || state?.notice_seen || !available();
+    notice.hidden = true;
     const active = state?.enabled && available() && session && !fault;
     status.dataset.state = fault || !state ? 'paused' : active && !flow?.truncated ? 'on' : 'off';
     status.textContent = fault ? 'Recording paused' : !state ? 'Recording status unknown' : !state.enabled ? 'Not recording' : !available() ? 'Not recording · app stopped' : !session ? "Can't record this page" : flow?.truncated ? 'Flow full · no more actions saved' : `Recording · ${state.steps || 'no'} steps${state.steps ? '' : ' yet'}`;
@@ -54,19 +55,11 @@ export function installRecording({ api, project, iframe, available, toast = () =
     const rect = status.getBoundingClientRect(); popup.style.position = 'fixed'; popup.style.left = Math.max(8, Math.min(rect.left, innerWidth - 360)) + 'px'; popup.style.bottom = Math.max(8, innerHeight - rect.top + 4) + 'px'; popup.style.maxWidth = 'calc(100vw - 16px)'; popup.style.zIndex = '100';
     popup.querySelector('button')?.focus();
   }
-  async function noticeCommand(body) {
-    const id = identity, ticket = epoch;
-    try {
-      const next = await api('/api/recordings', { project: id, ...body });
-      if (ticket !== epoch || id !== identity) return;
-      if (state?.generation !== next.generation) { flow = null; busy = false; epoch++; }
-      state = next; draw();
-    } catch { if (ticket === epoch && id === identity) { fault = true; draw(); } }
-  }
-  notice.append(button("What's Kept", async () => show()), button('Stop Recording', () => noticeCommand({ action: 'enabled', enabled: false })), button('OK', () => noticeCommand({ action: 'notice' })));
+  document.getElementById('settings-dialog').addEventListener('close',close);
+  window.addEventListener('recording-stop-all-started',()=>{if(state)state={...state,enabled:false};sendControl();});
   window.addEventListener('recording-settings-changed', () => void refresh());
   status.onclick = () => popup.hidden ? show() : close();
-  popup.addEventListener('keydown', event => { if (event.key === 'Escape') { close(); status.focus(); } });
+  popup.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); close(); status.focus(); } });
   popup.addEventListener('keydown', event => { if (event.key === 'Tab') { const buttons = [...popup.querySelectorAll('button')]; if ((!event.shiftKey && document.activeElement === buttons.at(-1)) || (event.shiftKey && document.activeElement === buttons[0])) { close(); status.focus(); event.preventDefault(); } } });
   function reset() { epoch++; flow = null; session = null; origin = null; busy = false; probe = crypto.randomUUID(); close(); draw(); }
   iframe.addEventListener('load', () => { reset(); try { iframe.contentWindow?.postMessage({ type: 'pi-recording-probe', probe }, new URL(iframe.src).origin); } catch {} });

@@ -89,7 +89,11 @@ class RunReports:
                 if event.get('time','')>=report['started'] and event.get('cwd')==str(root) and event.get('kind') in {'recovery','wake-up','gate-failed','stopped','unverified','paperwork'}:
                     report['problems'].append({'when':event['time'],'reason':event.get('detail',''),'kind':event['kind']})
             report.update(ended=now(),outcome=outcome,running=False);write(file,report);write(self.folder/'index.json',index)
-            return self.get(identifier)
+            return self.get(identifier) if self.visible(report) else None
+
+    @staticmethod
+    def visible(value):
+        return value.get('outcome') != 'nothing changed' or any(value.get(kind) for kind in KINDS)
 
     def get(self,identifier):
         with LOCK:
@@ -98,7 +102,7 @@ class RunReports:
 
     def list(self):
         """Finished unseen runs remain available even while a newer run is working."""
-        return sorted((value for path in self.folder.glob('*.json') if path.stem!='index' and (value:=self.get(path.stem))),key=lambda value:value['started'],reverse=True)
+        return sorted((value for path in self.folder.glob('*.json') if path.stem!='index' and (value:=self.get(path.stem)) and self.visible(value)),key=lambda value:value['started'],reverse=True)
 
     def latest(self):
         identifier=self.index()['latest'];return self.get(identifier) if identifier else None

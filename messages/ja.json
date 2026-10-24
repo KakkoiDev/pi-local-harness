@@ -1,5 +1,11 @@
 {
  "exact": {
+    "Allow action recording": "操作の記録を許可",
+    "Preview recording": "プレビューの記録",
+    "Turning this off gives Pi less interaction context and makes problems harder to reproduce.": "オフにすると、Pi が利用できる操作の情報が減り、問題の再現が難しくなります。",
+    "Could not save recording settings. Check the setting and try again.": "記録の設定を保存できませんでした。設定を確認して、もう一度試してください。",
+    "Buttons, focus and navigation only; never typed text, passwords, chat or file contents. Saved on this host for 7 days, at most 20 flows per scope. Anyone using this shared profile can see them.": "ボタン、フォーカス、画面の移動のみを記録します。入力した文章、パスワード、チャットやファイルの内容は記録しません。このホストに7日間、各範囲につき最大20件のフローを保存します。この共有プロファイルを使う人は記録を閲覧できます。",
+
   "Address": "アドレス",
   "About this address": "このアドレスについて",
   "Copy Address": "アドレスをコピー",

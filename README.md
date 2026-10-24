@@ -139,3 +139,5 @@ visual/coding/game adapters; the existing music workflow remains available.
 Pi requires Node 22.19.0 or newer on PATH. If Node is older, missing, or cannot report its version, `plh` stops before starting Pi and says “Pi needs Node >= 22.19.0”. It never installs or replaces Node automatically.
 
 If `plh` says Pi WorkStation is already running in another session, open the address it shows. A second copy is not started. To restart, exit Pi in the terminal that started the existing Workbench, then run `plh` again. An occupied port without a responding Workbench may belong to another application; choose unused ports in the Workbench config rather than stopping an unknown process.
+
+Action recording runs quietly by default (structural actions only; never typed text). Settings explains retention/privacy and lets you disable both WorkStation and Preview capture. Existing explicit opt-outs are preserved. Empty unattended reports no longer interrupt ordinary chat.

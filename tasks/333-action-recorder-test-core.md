@@ -38,9 +38,9 @@ Then safe structural focus and click steps are retained, stopped actions are ref
 
 The owner confirmed recording must cover both WorkStation and Preview. Missing WorkStation controls, scope/privacy states and mixed-surface journeys are collected in [the round 19 brief](../design/briefs/round-19.md). Round19 is merged at `2e7407f6`; its WorkStation controls supply the design for this implementation. Earlier briefs remain historical decision records.
 
-### US-353 WorkStation recording requires opt-in and never blocks conversation
+### US-353 WorkStation recording defaults on and never blocks conversation
 Given a scratch WorkStation on the Projects screen
-When I enable WorkStation recording, switch into a project, then stop it or its storage becomes unavailable
+When I use its default recording, stop WorkStation recording in Settings, or its storage becomes unavailable
 Then structural actions stay in their original scope, stopping is independent of Preview, and I can still send a message
 
 ## Adapter implementation checkpoint · 21 October 2026
@@ -75,3 +75,7 @@ Tried it: scratch browser journeys cover focus/canvas capture, stop/reload/clear
 Given two WorkStation windows and recorded Preview actions in two projects
 When I choose Stop All Recording from either recording popover
 Then both surfaces stop in both windows, old batches are refused, and the recorded history stays available
+
+## Superseded recorder presentation (2026-10-24)
+
+Task 366 implements the owner’s new direction: default-on structural WorkStation capture, Settings-only controls, no permanent bars or first-use banners, and a global recording switch. The earlier opt-in and permanent-status descriptions above record the previous implementation; task 366 supersedes them. Explicit saved opt-outs remain respected.

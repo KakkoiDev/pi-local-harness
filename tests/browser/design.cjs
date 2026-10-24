@@ -22,7 +22,10 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   const ports=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Server startup timeout')),10000);lines.once('line',line=>{clearTimeout(timeout);resolve(JSON.parse(line));});server.once('exit',code=>reject(new Error('Server exited '+code)));});
   const base=`http://127.0.0.1:${ports.web}`;
   browser=await chromium.launch({headless:true,args:['--use-mock-keychain', '--password-store=basic','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream'],/* a fake microphone for dictation */...(process.env.PI_TEST_CHROME?{executablePath:process.env.PI_TEST_CHROME}:{})});
-  page=await browser.newPage({viewport:{width:1440,height:900}});const errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
+  page=await browser.newPage({viewport:{width:1440,height:900}});
+  // The Settings recorder is installed after workspace.start/applyRoute; static markup alone is not an initialized app.
+  for(const method of ['goto','reload']){const navigate=page[method].bind(page);page[method]=async(...args)=>{const response=await navigate(...args);await page.waitForFunction(()=>Boolean(document.getElementById('ws-recording-status')));return response;};}
+  const errors=[];let updateFixture={state:'current',checked:1};await page.route('**/api/updates',async route=>{if(route.request().method()==='POST'&&route.request().postDataJSON()?.action==='apply'){await new Promise(resolve=>setTimeout(resolve,200));await route.fulfill({json:{state:'updated',commit:'abc1234'}});}else await route.fulfill({json:updateFixture});});
   page.on('pageerror',e=>errors.push(e.message));
   // The server's stderr (its request log) must be read: an unread pipe fills up and the server stalls mid-request.
   const serverLog=[];server.stderr.on('data',chunk=>{serverLog.push(...String(chunk).split('\n').filter(line=>line&&!/" (200|304) -/.test(line)));serverLog.splice(0,Math.max(0,serverLog.length-40));});
@@ -50,6 +53,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 
   fs.writeFileSync(join(root,'ROADMAP.md'),'# Design check\n\nThe goal is a calm workbench.\n\n- [x] Done item\n- [ ] Open item\n');
   await page.goto(base);
+  await page.waitForFunction(()=>document.querySelector('#prompt')?.disabled===false);
   await page.locator('#work-tab').click();
   await page.getByRole('textbox',{name:'Heading',exact:true}).first().waitFor();
   const roadmap=(await page.evaluate(()=>window.__workspaceStatus?.()))||null;
@@ -439,6 +443,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.goto(`${base}/projects`);await page.locator('#agent-activity').waitFor();
   await page.locator('#agent-activity').click();await page.waitForURL(`${base}/activity`);
   assert.equal(await page.locator('#agent-activity').getAttribute('aria-current'),'page');
+  await page.waitForFunction(()=>document.querySelector('#agent-activity-meta')?.textContent==='Nothing running');
   assert.equal(await page.locator('#agent-activity-meta').textContent(),'Nothing running','opening Activity marks attention seen');
   // From Activity or Gate, Chat and Work (Window menu, ⌃⌥1/⌃⌥2) and the ‹ project link go back into the project.
   assert.equal(await page.locator('#activity-panel .app-back').textContent(),'‹ Design check');
@@ -634,7 +639,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
 
   // 123: the phone follows the phone boards.
   await page.setViewportSize({width:390,height:844});
-  await page.goto(`${base}/projects`);await page.locator('#open-menu').waitFor();
+  await page.goto(`${base}/projects`);await page.locator('#prompt:not([disabled])').waitFor();await page.locator('#project-list .pw-row',{hasText:'Design check'}).waitFor({state:'attached'});await page.locator('#open-menu').waitFor();
   await page.locator('#open-menu').click();await page.locator('#project-list .pw-row',{hasText:'Design check'}).click();
   await page.waitForURL(new RegExp(`/p/${id}/`),{timeout:5000});
   assert.equal(await page.evaluate(()=>document.body.dataset.level),'project','a project chosen in the π sheet is entered');
@@ -790,7 +795,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   await page.locator('#phone-comments').click();
   assert.ok((await page.locator('.review-footer .pw-label-row').boundingBox()).height>=44,'Show resolved is a 44 px row');
   await page.locator('#comments-panel').getByRole('button',{name:'Close',exact:true}).click();
-  await page.goto(`${base}/p/${id}/chat`);await page.locator('#open-menu').waitFor();
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt:not([disabled])').waitFor();await page.locator('#open-menu').waitFor();
   await page.locator('#open-menu').click();await page.locator('#pi-settings').click();await page.locator('#settings-dialog').waitFor();
   assert.equal(await page.locator('#settings-pattern').isVisible(),false,'no Desktop pattern on the phone');assert.equal(await page.locator('#settings-return').isVisible(),false);
   assert.equal(await page.locator('.settings-mac-note').isVisible(),true,'named, not silently absent');
@@ -929,7 +934,7 @@ process.on('exit',()=>console.log(`Screenshots: ${SHOTS}`));
   }
   { // Task 141: Open on Phone when tailscale serve did not start (Dialogs2): the reason, the enable link, Copy Link, Done.
   await page.route('**/api/config',async route=>{const response=await route.fetch();const config=await response.json();await route.fulfill({response,json:{...config,phoneUrl:null,phoneError:'tailscale serve exited (1): Serve is not enabled on your tailnet. To enable, visit: https://login.tailscale.com/f/serve?node=abc',phoneEnable:'https://login.tailscale.com/f/serve?node=abc'}});});
-  await page.goto(`${base}/p/${id}/chat`);await page.locator('#menubar [aria-controls="menu-pi"]').click();
+  await page.goto(`${base}/p/${id}/chat`);await page.locator('#prompt:not([disabled])').waitFor();await page.locator('#menubar [aria-controls="menu-pi"]').click();
   const phoneItem=page.locator('#menu-pi [data-command="open-on-phone"]');assert.equal(await phoneItem.getAttribute('aria-disabled'),'false','enabled, so it can say why');await phoneItem.click();
   await page.locator('#phone-off').waitFor();assert.equal(await page.locator('#phone-off .pw-alert__message').textContent(),'Phone access is off.');
   assert.equal(await page.locator('#phone-off-detail').textContent(),'Serve is not enabled on your tailnet. Enable it once at login.tailscale.com/f/serve, then quit plh and start it again.');
