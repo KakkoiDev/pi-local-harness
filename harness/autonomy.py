@@ -93,7 +93,9 @@ class RunReports:
 
     @staticmethod
     def visible(value):
-        return value.get('outcome') != 'nothing changed' or any(value.get(kind) for kind in KINDS)
+        routine=lambda problem: str(problem.get('reason','')).startswith('G-015 Project phase permissions: ') and any(phrase in str(problem.get('reason','')) for phrase in ('Not written: the project is in Discussion.', 'Not written: the project is in Planning.', 'Not proposed: the project is in Discussion.'))
+        return (value.get('outcome') != 'nothing changed' or any(value.get(kind) for kind in ('done','decisions','external'))
+                or any(not routine(problem) for problem in value.get('problems',[])))
 
     def get(self,identifier):
         with LOCK:

@@ -532,3 +532,15 @@ Then no empty report card interrupts the conversation
 Given a fresh WorkStation with Preview
 When I use it and turn recording off in Settings
 Then structural actions are captured by default without permanent recording controls and turning off stops both surfaces without losing history
+
+### US-369 terminal: an output-limited reply recovers when the session is too small to compact
+
+Given a reasoning-only output-limit stop with Pi unable to compact a small session
+When the harness retries within the existing budget
+Then the current request is retained, old tool output is excluded from the model context, saved history is unchanged and the phase remains authoritative
+
+### US-370 routine phase refusals do not create an unattended report card
+
+Given an unattended Discussion request that changed nothing and only received phase refusals
+When I reload the chat
+Then no report card appears and its audit record remains available

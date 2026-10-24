@@ -444,3 +444,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [365-Keep the latest language choice when translations load late](tasks/365-language-loading-order.md)
 
 - [x] [366-Recover empty replies and quiet recording controls](tasks/366-reliable-chat-and-quiet-recording.md)
+
+- [x] [367-Recover small-window replies and suppress routine phase-only reports](tasks/367-small-window-recovery.md)

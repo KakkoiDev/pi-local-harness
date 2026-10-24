@@ -31,7 +31,8 @@ function fakeOllama({ models = MODELS, loadMs = 300 } = {}) {
   function complete(body, response) {
     const input = fresh(body.messages || []);
     const index = state.turns.findIndex((turn, at) => !state.used[at] && (!turn.when || new RegExp(turn.when, 'i').test(input)));
-    const turn = index >= 0 ? state.turns[index] : { say: state.defaultSay };
+    let turn = index >= 0 ? state.turns[index] : { say: state.defaultSay };
+    if(turn.maxToolChars!==undefined && JSON.stringify((body.messages||[]).filter(message=>message.role==='tool')).length>turn.maxToolChars)turn={think:'The window is still full.',finish:'length'};
     if (index >= 0) state.used[index] = true;
     state.requests.push({ input, turn: index, model: body.model, messages: body.messages || [], tools: (body.tools || []).map(tool => tool.function?.name) });
     if (!body.stream) {

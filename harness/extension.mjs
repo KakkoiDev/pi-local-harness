@@ -152,7 +152,7 @@ export default function harness(pi, dependencies = {}) {
     catch (error) { chosenContext = ''; incident('context', `could not refresh: ${error.message}`); }
   };
   let noActionWoken=false, textualToolSeen=false, toolRan=false, refusedAgain='';  // task 323: the checked alternative after the same refused command twice
-  let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity;
+  let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity, recoveryWindow=false, requestMessage;
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -335,7 +335,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     taskReviewed=false;assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
-    contextCharLimit=Infinity;chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
+    contextCharLimit=Infinity;recoveryWindow=false;requestMessage=undefined;chosenContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
     chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);
@@ -389,6 +389,15 @@ export default function harness(pi, dependencies = {}) {
   // Task 116: agent_end can fire again before a new turn while the usage reading is still stale; compact at most once per turn.
   let compactedThisTurn = false;
   pi.on('agent_start', (_event, ctx) => { context = ctx; assistantStopped=false; answerLimit=false; recovering = false; compactedThisTurn = false; watch.start(); });
+  // A length stop can exhaust an 8K server with less history than Pi's 20K compaction tail.
+  // Project only the request and recovery message for this retry; Pi restores system/tool instructions.
+  // This never edits the session or treats omitted conversation as approval.
+  pi.on('context', event => {
+    const users=event.messages.filter(message=>message.role==='user');
+    if(!requestMessage)requestMessage=users.at(-1);
+    if(!recoveryWindow||!requestMessage)return;
+    const latest=users.at(-1);return {messages:latest&&latest!==requestMessage?[requestMessage,...event.messages.slice(event.messages.lastIndexOf(latest))]:[requestMessage]};
+  });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
     if (stream.type === 'text_delta' || stream.type === 'thinking_delta') assistantText+=stream.delta || '';
@@ -568,17 +577,14 @@ export default function harness(pi, dependencies = {}) {
     const refusalLoop=Boolean(refusedAgain) && !waitingChoice;
     if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || refusalLoop || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
       noActionWoken=true;recovering=true;retries++;
-      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning. If older history or tool results are omitted, read project files for missing facts; never infer approvals.':`You said: '${announced[0]}'. Do it now with a tool call.`;
       incident('wake-up',instruction,{trigger:refusalLoop?'refused-again':'no-action',round:retries});refusedAgain='';
       say('wake-up',instruction,'warning');
       let sent=false;const resume=()=>{if(!sent&&!closing){sent=true;pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);}};
       if(silentTurn&&answerLimit){
-        contextCharLimit=4000;incident('context','Reduced selected context to 4000 characters after an output-limit stop.');
-        if(context?.compact){
-          notify('Harness recovery: Making room for the answer.','info');
-          try{context.compact({customInstructions:'Keep the original request, current phase, decisions, files read and open work. Remove repeated reasoning and finished details. Do not invent approvals.',onComplete:resume,onError:error=>{notify(`Compaction failed: ${error.message}. Retrying once with less selected context.`,'warning');resume();}});}catch(error){notify(`Compaction failed: ${error.message}. Retrying once with less selected context.`,'warning');resume();}
-          return;
-        }
+        contextCharLimit=4000;recoveryWindow=true;
+        incident('context','Retrying with current request and reduced selected context; session history retained.');
+        notify('Harness recovery: Retrying with a fresh context window. Conversation history is kept.','info');
       }
       resume();return;
     }

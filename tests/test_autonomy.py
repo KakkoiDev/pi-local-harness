@@ -78,6 +78,15 @@ class AutonomyTest(unittest.TestCase):
         reports.add(project,'decisions',{'question':'Plan approval','answer':'Approved'})
         self.assertEqual(planning_metrics(project,self.data),{'tasks':1,'done_when':1,'decisions_asked':1})
 
+    def test_phase_only_reports_are_quiet_but_other_failures_remain(self):
+        reports=RunReports(self.data);identifier=reports.begin('/scratch/app')
+        reports.add('/scratch/app','problems',{'reason':'G-015 Project phase permissions: Not written: the project is in Discussion.'})
+        self.assertIsNone(reports.finish('/scratch/app','nothing changed'))
+        self.assertTrue(reports.get(identifier)['problems']);self.assertEqual(reports.list(),[])
+        reports.begin('/scratch/app');reports.add('/scratch/app','problems',{'reason':'G-015 Project phase permissions: Not written: the project is in Discussion.'})
+        reports.add('/scratch/app','problems',{'reason':'Model stopped answering.'})
+        self.assertIsNotNone(reports.finish('/scratch/app','nothing changed'))
+
     def test_publication_evidence_belongs_to_the_project_and_current_readme(self):
         import subprocess
         from harness import audit

@@ -173,6 +173,15 @@ story('US-367', 'ordinary chat does not show an empty unattended report', async 
   await t.page.locator('[data-command=\"about\"]').evaluate(b=>b.click());
   await t.page.locator('#about-dialog').getByRole('button',{name:'OK',exact:true}).click();
 });
+story('US-370', 'routine phase refusals do not create an unattended report card', async t => {
+  const {project,root}=await newProject(t,'Quiet phase reports');
+  const id='a'.repeat(32),folder=join(t.bench.data,'auto-runs');fs.mkdirSync(folder,{recursive:true});
+  fs.writeFileSync(join(folder,id+'.json'),JSON.stringify({id,project:root,started:new Date().toISOString(),ended:new Date().toISOString(),outcome:'nothing changed',running:false,seen:false,done:[],decisions:[],external:[],problems:[{reason:'G-015 Project phase permissions: Not written: the project is in Discussion.'},{reason:'G-015 Project phase permissions: Not proposed: the project is in Discussion.'}]}));
+  await t.page.reload();await t.page.locator('#ws-recording-status').waitFor({state:'attached'});
+  assert.equal((await t.bench.api('/api/workspace')).reports.filter(r=>r.id===id).length,0);
+  assert.equal(await t.page.getByText('Ran on its own: report',{exact:true}).count(),0);
+  assert.equal(JSON.parse(fs.readFileSync(join(folder,id+'.json'))).problems.length,2,'audit evidence retained');
+});
 story('US-001', 'first run: an empty workbench leads to the first project, which opens its chat', async t => {
   const { page } = t;
   await page.goto(t.base);

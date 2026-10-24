@@ -14,24 +14,29 @@ test('a tool call written as text becomes a readable note (gemma4 live, ```tool_
   assert.deepEqual(pseudoToolCalls('Use `read` to open a file; JSON like {"a": 1} stays.'), { text: 'Use `read` to open a file; JSON like {"a": 1} stays.', count: 0 });
 });
 
-async function turn(answer, { thinking = '', question = 'Plan the icons', missingPlan = false, read = false, stopReason = 'stop' } = {}) {
+async function turn(answer, { thinking = '', question = 'Plan the icons', missingPlan = false, read = false, stopReason = 'stop', compactFails = false } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'pi-pseudo-')), saved = { ...process.env }, fetchBefore = globalThis.fetch;
   Object.assign(process.env, { PI_AGENT_DATA: join(dir, 'data'), PI_HARNESS_SHARED_PORT: '1', PI_HARNESS_TOKEN: 't', PI_HARNESS_WAKE_UPS: '3' });
   const handlers = {}, sent = [], calls = [], compactions=[];
   let ends = 0;
   globalThis.fetch = async (url, options) => { const path = new URL(url).pathname; calls.push(path); const body = JSON.parse(options?.body || '{}'); return { ok: true, json: async () => path === '/verification' ? { verification: { state: 'same', code: [], verified: false } } : path === '/request/end' && missingPlan && body.review && !ends++ ? { result: { outcome: 'continue', kind: 'plan', instruction: 'No plan was submitted. Call propose_plan.' } } : {} }; };
   const pi = { on: (name, fn) => handlers[name] = fn, appendEntry() {}, registerEntryRenderer() {}, sendUserMessage: text => sent.push(text) };
-  const ctx = { cwd: dir, compact:options=>{compactions.push(options.customInstructions);options.onComplete();}, ui: { notify() {}, setWidget() {}, setStatus() {} } };
+  const ctx = { cwd: dir, compact:options=>{compactions.push(options.customInstructions);if(compactFails)options.onError(new Error("Nothing to compact (session too small)"));else options.onComplete();}, ui: { notify() {}, setWidget() {}, setStatus() {} } };
   try {
     harness(pi, { root: dir + '/', setInterval: () => ({ unref() {} }) }); await handlers.session_start({}, ctx);
     const results = [];
+    const history=[{role:"user",content:[{type:"text",text:question}]},{role:"assistant",content:[{type:"toolCall",id:"read",name:"read",arguments:{path:"ROADMAP.md"}}]},{role:"toolResult",toolCallId:"read",toolName:"read",content:[{type:"text",text:"OLD_TOOL_OUTPUT".repeat(1000)}]}];const before=JSON.stringify(history);let projected,afterRetryTool;
+
     for (let round = 0; round < 2; round++) {
       await handlers.input({ source: round ? 'extension' : 'interactive', text: round ? sent.at(-1) : question }, ctx); handlers.agent_start({}, ctx);
+      if(!round)await handlers.context?.({messages:history},ctx);
       if(read){await handlers.tool_execution_start?.({toolCallId:'read',toolName:'read',args:{path:'ROADMAP.md'}},ctx);await handlers.tool_execution_end?.({toolCallId:'read',toolName:'read',isError:false,result:{content:[{type:'text',text:'# Plan'}]}},ctx);}
       results.push(handlers.message_end({ message: { role: 'assistant', content: [...(thinking ? [{ type: 'thinking', thinking }] : []), ...(answer ? [{ type: 'text', text: answer }] : [])], stopReason } }));
       await handlers.agent_settled({ aborted: false });
     }
-    return { sent, results, calls, compactions };
+    if(sent.length)projected=await handlers.context?.({messages:[...history,{role:"user",content:[{type:"text",text:sent[0]}]}]},ctx);
+    if(projected)afterRetryTool=await handlers.context?.({messages:[...projected.messages,{role:"assistant",content:[{type:"toolCall",id:"fresh",name:"read",arguments:{path:"README.md"}}]},{role:"toolResult",toolCallId:"fresh",toolName:"read",content:[{type:"text",text:"FRESH_TOOL_OUTPUT"}]}]},ctx);
+    return { sent, results, calls, compactions, projected, afterRetryTool, historyUnchanged:before===JSON.stringify(history) };
   } finally { handlers.session_shutdown?.(); globalThis.fetch = fetchBefore; for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env, saved); rmSync(dir, { recursive: true, force: true }); }
 }
 
@@ -43,7 +48,7 @@ test('a pseudo tool call is nudged once, whatever the request says, and never st
 
 test('a turn that only describes its tool call (no answer, no tool) is nudged once', async () => {
   const { sent } = await turn('', { thinking: 'I will proceed with the propose_plan call.' });
-  assert.deepEqual(sent.map(text => text.replace(/^Continue \(harness wake-up \d+\): /, '')), ['Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning.']);
+  assert.deepEqual(sent.map(text => text.replace(/^Continue \(harness wake-up \d+\): /, '')), ['Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning. If older history or tool results are omitted, read project files for missing facts; never infer approvals.']);
 });
 
 
@@ -66,4 +71,6 @@ for (const read of [false,true]) test(`empty reasoning-only turn recovers once, 
   assert.match(sent[0], /answer|reply/i);
 });
 
-test('a token-limited reasoning-only reply after reading is recovered once',async()=>{const {sent,compactions}=await turn('',{thinking:'Need to tidy the roadmap.',read:true,stopReason:'length'});assert.equal(compactions.length,1);assert.equal(sent.length,1);assert.match(sent[0],/answer|reply/i);});
+test('a token-limited reasoning-only reply after reading is recovered once',async()=>{const {sent,compactions}=await turn('',{thinking:'Need to tidy the roadmap.',read:true,stopReason:'length'});assert.equal(compactions.length,0);assert.equal(sent.length,1);assert.match(sent[0],/answer|reply/i);});
+
+ test('US-369 terminal: an output-limited reply recovers when the session is too small to compact',async()=>{const {sent,compactions,projected,afterRetryTool,historyUnchanged}=await turn('',{question:'Explain this roadmap',thinking:'Need to tidy.',read:true,stopReason:'length',compactFails:true});assert.equal(sent.length,1);assert.equal(compactions.length,0,'small-window recovery must not depend on Pi compaction');assert.ok(projected?.messages);assert.match(JSON.stringify(projected.messages),/Explain this roadmap/);assert.doesNotMatch(JSON.stringify(projected.messages),/OLD_TOOL_OUTPUT/);assert.equal(historyUnchanged,true);assert.match(JSON.stringify(afterRetryTool.messages),/FRESH_TOOL_OUTPUT/);});

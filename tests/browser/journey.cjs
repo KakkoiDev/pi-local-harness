@@ -548,17 +548,22 @@ step('J12', 'reloads and a second tab: state is consistent, no card reopens, no 
 step('J16','a reasoning-only model turn after reading recovers within the same request',async t=>{
   await newProject(t,'Recovered chat');
   const project=(await t.bench.api('/api/workspace')).projects.find(p=>p.id===t.project);
-  fs.writeFileSync(join(project.path,'ROADMAP.md'),'# Roadmap\n\nA clear plan.\n');
+  fs.writeFileSync(join(project.path,'ROADMAP.md'),'# Roadmap\n\nA clear plan.\n'+('OLD_RECOVERY_TOOL_OUTPUT '.repeat(1200)));
   t.model.script({turns:[
     {when:'Read this roadmap',calls:[{name:'read',arguments:{path:'ROADMAP.md'}}]},
     {when:'tool:',think:'Need to tidy the roadmap.',finish:'length'},
-    {when:'Continue',say:'[CANARY] I read the roadmap. It contains a clear plan.'}
+    {when:'Continue',say:'[CANARY] I read the roadmap. It contains a clear plan.',maxToolChars:2}
   ]});
   const id=await say(t,'Read this roadmap and explain it.');
   const result=await t.bench.job(id,ENDED,60000);
   await t.check('the empty response recovers, without a retry click or changing phase',async()=>{
     assert.equal(result.status,'completed',result.progress);assert.match(result.text,/It contains a clear plan/);
     assert.equal(t.model.state.used.filter(Boolean).length,3);
+    const retry=t.model.state.requests.findLast(request=>/Continue/.test(request.input));
+    assert.ok(retry);assert.equal(retry.messages.some(message=>message.role==='tool'),false,'old tool output cannot refill the retry window');
+    assert.match(JSON.stringify(retry.messages),/Read this roadmap and explain it/);
+    const instructions=retry.messages.filter(message=>['system','developer'].includes(message.role));
+    assert.match(JSON.stringify(instructions),/Current persistent memory/,'Pi must restore the harness instructions, whether the provider uses system or developer');assert.ok(retry.tools.includes('read'));
     assert.equal((await t.bench.api('/api/phase?project='+t.project)).phase,'discussion');
   });
 });
