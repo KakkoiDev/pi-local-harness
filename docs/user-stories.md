@@ -559,3 +559,5 @@ Then it fails with a readable message without raw arguments and I can Retry succ
 
 - US-377 — malformed planning JSON recovers without a retry click (`tests/harness/pseudo-tools.test.mjs`; real Pi J18).
 - US-378 — an invalid tool call fails clearly and Retry still works (`tests/browser/stories.cjs`).
+
+- US-379 — chat renders triple-backtick code blocks including escaped snippets (`tests/browser/stories.cjs`; `tests/harness/chat-fences.test.mjs`).

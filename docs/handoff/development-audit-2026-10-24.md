@@ -87,3 +87,7 @@ Task 369 verification: required workflow and all six browser suites passed, incl
 ## 31 October: task 370 — malformed JSON after task 369
 
 The owner reported a raw tool error at 22:59 and confirmed manual retry worked. Read-only session inspection showed an invalid-character error after the JSON top-level value, not the unexpected-end class task 369 matched. The error display was limited to 1,000 characters and hid that suffix. The new classifier includes invalid-character, invalid-escape and invalid-Unicode provider syntax failures; it preserves the same one-retry and mutation guards. Node and Python regressions first failed on this exact class; real Pi J18 and browser US-378 cover automatic recovery, explicit approval and exhausted error followed by manual Retry. No private transcript or owner project changes are included.
+
+## 31 October: task 371 — chat fences
+
+The landing-page answer put JSON-escaped triple-backtick snippets inside table cells. Existing inline rendering did not handle those, and the block parser swallowed fences directly following prose. The chat-only renderer now separates these blocks, handles fenced code within table cells, and decodes exactly one escape layer only when a complete fence uses escaped line breaks throughout. Ordinary source escapes and durable messages are unchanged. Code uses textContent and the existing pre presentation; no new controls or editor behavior are introduced. Unit regressions cover real/escaped blocks, pipes in code cells and inert script text; browser US-379 adds reload and phone-width checks.

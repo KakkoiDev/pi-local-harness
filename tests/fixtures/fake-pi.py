@@ -312,6 +312,7 @@ else:
     if 'TEST_CANARY_CODE' in request['message']:text=f'`[CANARY]` reply {count}'  # the owner's model, 2026-10-18
     if 'TEST_CANARY_BOLD' in request['message']:text=f'**[CANARY]**\n\nreply {count}'
     if 'TEST_ASK' in request['message']:text='[CANARY] I can do that two ways. Should I keep the old name too?'  # the bench's scripted user answers it
+    if request['message'].rstrip().endswith('TEST_FENCED_CODE'):text='[CANARY] Here is README.md:\n```markdown\n# Simple App\n\nA short description.\n```\n\nEncoded example:\n\n```py\\nprint(\\"a\\\\nb\\")\\n```\n\n| Field | Value |\n| --- | --- |\n| content | ```html\\n<div title=\\"a|b\\"><script>window.__fenceInjected=true</script></div>\\n``` |'
     if request['message'].rstrip().endswith('TEST_MARKDOWN'):text='[CANARY] ## Result\n\nI **verified** the `hello.py` output.\n\n1. First step\n2. Second step\n\n- [x] Tests pass\n\n**Updated `ROADMAP.md`:** done.\n\n| If you are… | Action | A very long example column that should scroll on a phone |\n| :--- | :---: | ---: |\n| **Looking** | Use `sou` | 美味しそう and a much longer cell to push the width |'
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'old <channel|>' if 'TEST_FINAL_TEXT' in request['message'] else text}})
     if 'TEST_FINAL_TEXT' in request['message']:text='[CANARY] clean answer'

@@ -1,6 +1,7 @@
 // Pi's chat replies as Markdown: blocks from markdown-blocks.mjs, inline marks as tokens.
 // Everything becomes DOM nodes with textContent; model text never reaches innerHTML.
 import { parseMarkdown } from './markdown-blocks.mjs';
+import { fencedParts, togglesFence } from './chat-fences.mjs';
 
 // The harness checks every reply starts with [CANARY] (harness/memory.mjs); people never need to see it, bare or
 // wrapped in code or bold (`[CANARY]`, **[CANARY]**). The server strips it too (harness/canary.py); this covers answers
@@ -35,7 +36,15 @@ export function inlineTokens(text) {
 const LIST = { bullet: 'ul', number: 'ol', check: 'ul' };
 
 // GFM tables (task 143): a header row, a `---` row (colons set alignment), then body rows; outer pipes optional.
-const cells = line => line.trim().replace(/^\|/, '').replace(/\|$/, '').split(/(?<!\\)\|/).map(cell => cell.trim().replace(/\\\|/g, '|'));
+const cells = line => {
+  const body=line.trim().replace(/^\|/, '').replace(/\|$/, '');
+  const values=[];let value='',fenced=false;
+  for(let at=0;at<body.length;at++){
+    if(body.startsWith('```',at)){fenced=!fenced;value+='```';at+=2;continue;}
+    if(body[at]==='|'&&!fenced&&body[at-1]!=='\\'){values.push(value);value='';}else value+=body[at];
+  }
+  values.push(value);return values.map(cell=>cell.trim().replace(/\\\|/g,'|'));
+};
 function table(text) {
   const lines = text.split('\n').filter(line => line.trim());
   if (lines.length < 2 || !lines[0].includes('|')) return null;
@@ -51,7 +60,8 @@ const LIST_LINE = /^\s*(?:[-*] |\d+\. )/;
 function separateLists(markdown) {
   const out = []; let fence = false;
   for (const line of markdown.split('\n')) {
-    if (/^```/.test(line)) fence = !fence;
+    if(!fence&&togglesFence(line)&&out.at(-1)?.trim())out.push('');
+    if (togglesFence(line)) fence = !fence;
     const previous = out.at(-1);
     if (!fence && LIST_LINE.test(line) && previous && previous.trim() && !LIST_LINE.test(previous) && !/^```/.test(line)) out.push('');
     out.push(line);
@@ -64,7 +74,7 @@ const SUB_LINE = /^(\s{2,}|\t+)(?:[-*] |\d+[.)] )(.*)$/, TOP_LINE = /^(?:[-*] |\
 function nestSubItems(markdown) {
   const out = [], children = []; let fence = false, parent = -1;
   for (const line of markdown.split('\n')) {
-    if (/^```/.test(line)) { fence = !fence; parent = -1; }
+    if (togglesFence(line)) { fence = !fence; parent = -1; }
     const sub = !fence && parent >= 0 && line.match(SUB_LINE);
     if (sub) { children[parent].push(sub[2]); continue; }
     if (!fence && TOP_LINE.test(line)) { parent = children.length; children.push([]); out.push(line + '\u0001' + parent + '\u0001'); continue; }
@@ -84,7 +94,14 @@ export function messageBlocks(markdown) {
   const result = []; let previous = null;
   const nested = nestSubItems(separateLists(markdown));
   for (const block of parseMarkdown(nested.markdown)) {
+    if(block.type==='raw'&&!block.text.trim())continue;
     if (block.text?.includes('\u0001')) block.text = LIST[block.type] ? block.text : block.text.replace(/\u0001\d+\u0001/g, '');
+    // Keep tables intact: their cell renderer handles embedded fences without breaking rows.
+    const codeParts=block.type==='code'&&!block.language.includes('\\n')?[]:block.type!=='code'&&table(block.text)?[]:fencedParts(block.type==='code'?block.raw:block.text,block.type==='code');
+    if(codeParts.some(part=>part.code)){
+      for(const part of codeParts)if(part.code)result.push({tag:'pre',text:part.text});else if(part.text.trim())result.push(...messageBlocks(part.text));
+      previous=block;continue;
+    }
     const list = LIST[block.type], adjacent = previous && !/\n\s*\n/.test(previous.raw); previous = block;
     if (list) {
       const last = result.at(-1);
@@ -113,13 +130,20 @@ function inline(document, parent, text) {
   }
 }
 
+function cellContent(document,cell,text){
+  for(const part of fencedParts(text)){
+    if(part.code){const pre=document.createElement('pre');pre.textContent=part.text;cell.append(pre);}
+    else inline(document,cell,part.text);
+  }
+}
+
 export function renderMessage(document, markdown) {
   const fragment = document.createDocumentFragment();
   for (const block of messageBlocks(spoken(markdown))) {
     if (block.tag === 'table') {
       // A wide table scrolls inside its own box instead of widening the message (phone).
       const box = document.createElement('div'); box.className = 'pw-msg__table'; const element = document.createElement('table');
-      const row = (values, cellTag) => { const tr = document.createElement('tr'); values.forEach((value, index) => { const cell = document.createElement(cellTag); cell.style.textAlign = block.align[index] || 'left'; inline(document, cell, value || ''); tr.append(cell); }); return tr; };
+      const row = (values, cellTag) => { const tr = document.createElement('tr'); values.forEach((value, index) => { const cell = document.createElement(cellTag); cell.style.textAlign = block.align[index] || 'left'; cellContent(document, cell, value || ''); tr.append(cell); }); return tr; };
       const thead = document.createElement('thead'); thead.append(row(block.head, 'th'));
       const tbody = document.createElement('tbody'); for (const values of block.rows) tbody.append(row(values, 'td'));
       element.append(thead, tbody); box.append(element); fragment.append(box); continue;

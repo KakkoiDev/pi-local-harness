@@ -188,6 +188,24 @@ story('US-378', 'an invalid tool call fails clearly and Retry still works', asyn
   await t.page.locator('#messages .pw-msg.assistant').filter({hasText:'reply 2'}).waitFor();
   assert.equal(await t.page.locator('#prompt').isEnabled(),true);
 });
+story('US-379', 'chat renders triple-backtick code blocks including escaped snippets', async t => {
+  await newProject(t,'Fenced snippets');
+  const id=await say(t,'Show code TEST_FENCED_CODE');await answered(t,id,['completed']);
+  const message=t.page.locator('#messages .pw-msg.assistant').last();
+  await message.locator('pre').nth(2).waitFor();
+  assert.equal(await message.locator('pre').count(),3);
+  assert.equal(await message.locator('pre').nth(0).textContent(),'# Simple App\n\nA short description.');
+  assert.equal(await message.locator('pre').nth(1).textContent(),'print("a\\nb")');
+  assert.equal(await message.locator('tbody td').count(),2);
+  assert.equal(await message.locator('td pre').textContent(),'<div title="a|b"><script>window.__fenceInjected=true</script></div>');
+  assert.equal(await message.locator('script').count(),0);
+  assert.equal(await t.page.evaluate(()=>window.__fenceInjected),undefined);
+  await t.page.setViewportSize({width:390,height:844});await t.page.reload();
+  await t.page.locator('#messages .pw-msg.assistant pre').nth(2).waitFor();
+  assert.equal(await t.page.locator('#messages .pw-msg.assistant pre').count(),3);
+  assert.equal(await t.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+  assert.equal(await t.page.evaluate(()=>window.__fenceInjected),undefined);
+});
 story('US-367', 'ordinary chat does not show an empty unattended report', async t => {
   const {project}=await newProject(t,'Quiet reports');
   await t.bench.api('/api/auto',{enabled:true,confirmed:true});

@@ -452,3 +452,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [369-Keep recovery from exhausting a small model window](tasks/369-bounded-context-recovery.md)
 
 - [x] [370-Recover malformed tool JSON beyond truncated input](tasks/370-malformed-tool-recovery.md)
+
+- [x] [371-Render triple-backtick code in chat](tasks/371-chat-fenced-code.md)
