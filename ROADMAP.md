@@ -450,3 +450,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [368-Give every model turn authoritative execution context](tasks/368-authoritative-execution-context.md)
 
 - [x] [369-Keep recovery from exhausting a small model window](tasks/369-bounded-context-recovery.md)
+
+- [x] [370-Recover malformed tool JSON beyond truncated input](tasks/370-malformed-tool-recovery.md)

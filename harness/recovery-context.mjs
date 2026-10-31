@@ -31,5 +31,5 @@ export function recentHistory(messages, request, maxChars=6000) {
 }
 
 export function incompleteToolJSON(message) {
-  return message?.role==='assistant'&&message.stopReason==='error'&&/error parsing tool call:[\s\S]*unexpected end of JSON input/i.test(String(message.errorMessage||''));
+  return message?.role==='assistant'&&message.stopReason==='error'&&/error parsing tool call:[\s\S]*(?:unexpected end of JSON input|invalid character\b|invalid escape\b|invalid unicode\b)/i.test(String(message.errorMessage||''));
 }

@@ -97,3 +97,9 @@ test('US-374 an incomplete planning call recovers without a retry click',async()
 test('a malformed tool response after a completed write is not automatically replayed',async()=>{
  const {sent}=await turn('',{mutated:true,stopReason:'error',errorMessage:'500: error parsing tool call: unexpected end of JSON input'});assert.equal(sent.length,0);
 });
+
+test('US-377 malformed planning JSON recovers without a retry click',async()=>{
+ const errorMessage='500: {"message":"error parsing tool call: raw=private_argument, err=invalid character after top-level value"}';
+ const {sent,projected}=await turn('',{question:'Write the plan',stopReason:'error',errorMessage});assert.equal(sent.length,1);assert.ok(projected?.messages);
+ const afterWrite=await turn('',{mutated:true,stopReason:'error',errorMessage});assert.equal(afterWrite.sent.length,0);
+});

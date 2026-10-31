@@ -595,6 +595,29 @@ step('J17','a marker omission stays answered and incomplete planning JSON recove
   assert.equal(await t.page.getByText(/unexpected end of JSON input/).count(),0);
 });
 
+step('J18','malformed planning JSON recovers into a plan that waits for explicit approval',async t=>{
+  await t.bench.api('/api/auto',{enabled:false});
+  await newProject(t,'Malformed plan');
+  t.model.script({turns:[{say:'A landing page with a title and short description.'}]});
+  const first=await say(t,'Make this a very simple app with just a title and a short description.');
+  assert.equal((await t.bench.job(first,ENDED,30000)).status,'completed');
+  assert.equal(t.model.state.used.filter(Boolean).length,1);
+  assert.equal(t.model.state.requests.filter(r=>/Instruction drift|Reinjected AGENTS/.test(r.input)).length,0);
+  const task={title:'Show the landing page',kind:'code',files:['index.html','tests/'],done_when:'The title and short description are visible.',content:'Write a failing test. Replace the sample with a title and short description. Run the tests.',scenarios:[{title:'See the landing page',given:'The app is running',when:'I open the page',then:'The title and description are visible'}]};
+  t.model.script({turns:[
+    {when:'Write the plan',error:'error parsing tool call: raw={"goal": "landing", err=invalid character after top-level value'},
+    {when:'Continue',calls:[{name:'propose_plan',arguments:{goal:'A title and short description.',tasks:[task]}}]},
+    {when:'tool:',say:'The plan is ready.'}
+  ]});
+  await choosePhase(t,'Planning');
+  const plan=t.page.locator('.pw-card[aria-label="Plan"]').last();await plan.waitFor({timeout:30000});
+  await plan.getByRole('button',{name:'Start Building',exact:true}).waitFor();
+  assert.equal((await t.bench.api('/api/phase?project='+t.project)).phase,'planning');
+  assert.ok(t.model.state.requests.some(r=>/incomplete tool JSON/.test(r.input)));
+  assert.equal(t.model.state.used.filter(Boolean).length>=2,true);
+  assert.equal(await t.page.getByText(/invalid character after top-level value/).count(),0);
+});
+
 // -- small helpers that act as the person --------------------------------------------------------------------------------
 const stepIs = (t, name) => t.page.waitForFunction(name => document.querySelector('#start-steps [aria-current="step"]')?.textContent.endsWith(name), name);
 /** “Start from an empty folder instead” in the scratch folder; the project's chat opens. */

@@ -11,11 +11,19 @@ from pathlib import Path
 from harness.web_chat import ConversationStore, prepare_prompt
 
 class WebChatTest(unittest.TestCase):
+    def test_invalid_character_tool_error_has_readable_copy_without_arguments(self):
+        from harness.web_chat import incomplete_tool_json, readable_error
+        error='500: {"message":"error parsing tool call: raw=private_argument, err=invalid character after top-level value"}'
+        self.assertTrue(incomplete_tool_json(error))
+        self.assertNotIn('private_argument',readable_error(error))
+        self.assertIn('Retry the message',readable_error(error))
+
     def test_incomplete_tool_json_is_narrow_and_has_no_raw_arguments(self):
         from harness.web_chat import incomplete_tool_json, readable_error
         failure='500 error parsing tool call: raw={"private_argument": "secret", err=unexpected end of JSON input'
         self.assertTrue(incomplete_tool_json(failure))
         self.assertIn('Retry the message',readable_error(failure))
+        self.assertIn('an incomplete tool call',readable_error(failure))
         self.assertNotIn('private_argument',readable_error(failure))
         for other in ['Connection error', 'unexpected end of JSON input', 'error parsing tool call: wrong schema']:
             self.assertFalse(incomplete_tool_json(other))

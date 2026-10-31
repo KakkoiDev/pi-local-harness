@@ -219,12 +219,14 @@ def intentional_pause(message, *, recovering=False, choice=None, plan=None):
 
 
 def incomplete_tool_json(text):
-    return bool(re.search(r'error parsing tool call:[\s\S]*unexpected end of JSON input',str(text),re.I))
+    return bool(re.search(r'error parsing tool call:[\s\S]*(?:unexpected end of JSON input|invalid character\b|invalid escape\b|invalid unicode\b)',str(text),re.I))
 
 
 def readable_error(text):
     """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
-    if incomplete_tool_json(text):return 'The model returned an incomplete tool call. No completed answer was received. Retry the message.'
+    if incomplete_tool_json(text):
+        kind='incomplete' if 'unexpected end of json input' in str(text).lower() else 'invalid'
+        return f'The model returned an {kind} tool call. No completed answer was received. Retry the message.'
     missing=re.search(r"model '([^']+)' not found",str(text))
     if missing:return f'The model “{missing.group(1)}” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull {missing.group(1)}`.'
     if str(text).startswith(('Ollama is not answering','Colibri is not answering')):return str(text)  # already said (the failure path says it once more)

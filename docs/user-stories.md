@@ -556,3 +556,6 @@ Then no report card appears and its audit record remains available
 Given the automatic recovery did not produce a complete tool call
 When the request settles
 Then it fails with a readable message without raw arguments and I can Retry successfully
+
+- US-377 — malformed planning JSON recovers without a retry click (`tests/harness/pseudo-tools.test.mjs`; real Pi J18).
+- US-378 — an invalid tool call fails clearly and Retry still works (`tests/browser/stories.cjs`).
