@@ -448,3 +448,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [367-Recover small-window replies and suppress routine phase-only reports](tasks/367-small-window-recovery.md)
 
 - [x] [368-Give every model turn authoritative execution context](tasks/368-authoritative-execution-context.md)
+
+- [x] [369-Keep recovery from exhausting a small model window](tasks/369-bounded-context-recovery.md)

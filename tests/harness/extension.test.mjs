@@ -11,7 +11,7 @@ for(const key of Object.keys(process.env))if(/^PI_(HARNESS_|WEB_REMOTE_)/.test(k
 // Task 263: never the person's data folder; a test that sets its own restores this one.
 process.env.PI_AGENT_DATA=mkdtempSync(join(tmpdir(),'pi-test-data-'));process.env.PI_WEB_DATA=join(process.env.PI_AGENT_DATA,'chats');delete process.env.PI_WEB_PORT;delete process.env.PI_GATE_PORT;
 
-test('startup, ten-second loop check, abort/compact/reask, canary reinjection', async () => {
+test('startup, ten-second loop check, abort/compact/reask, canary diagnostics', async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-harness-'));
  writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
  const handlers={}, messages=[], notices=[], order=[],commands={},tools={};
@@ -108,7 +108,7 @@ paper.plan_state(root,{'tasks':tasks,'pending':True,'digest':paper.plan_digest(r
   await new Promise(resolve=>setTimeout(resolve,10));
   assert.deepEqual(order,['abort','compact','reask']);
   assert.match(messages[0],/Fix my code/);assert.match(messages[0],/Previous reasoning/);
-  assert.match(messages[0],/Reinjected AGENTS.md/);
+  assert.doesNotMatch(messages[0],/Reinjected AGENTS.md/);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: loop/);
   // Incident records are written under PI_AGENT_DATA, not the module root.
   assert.match(readFileSync(join(dir,'workspace','incident_log.md'),'utf8'),/Harness loop/);
@@ -120,15 +120,14 @@ paper.plan_state(root,{'tasks':tasks,'pending':True,'digest':paper.plan_digest(r
   handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'Forgot token'}]}});
   handlers.agent_end({},ctx);
   await new Promise(resolve=>setTimeout(resolve,10));
-  assert.match(messages[1],/omitted \[CANARY\]/);
+  assert.equal(messages.length,1,'a missing marker does not replay the answer');
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: canary/);
   // A second failure for the same question must not reask indefinitely.
   handlers.agent_start({},ctx);
   handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'Forgot again'}]}});
   handlers.agent_end({},ctx);
   await new Promise(resolve=>setTimeout(resolve,10));
-  assert.equal(messages.length,2);
-  assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped retrying.');
+  assert.equal(messages.length,1,'repeated marker omissions remain diagnostics');
   await handlers.input({source:'interactive',text:'Hang test'},ctx);
   handlers.agent_start({},ctx); idle=true;
   const before=order.length; tick(); assert.equal(order.length,before);
@@ -136,7 +135,7 @@ paper.plan_state(root,{'tasks':tasks,'pending':True,'digest':paper.plan_digest(r
   tick(); assert.equal(order.at(-1),'abort');
   handlers.agent_end({},ctx);
   await new Promise(resolve=>setTimeout(resolve,10));
-  assert.match(messages[2],/no active model operation/);
+  assert.match(messages[1],/no active model operation/);
   assert.equal(entries.filter(entry=>entry.type==='harness-notice').at(-1).data.sentence,'Harness stopped a hang.','round 6: the harness says it in a sentence');assert.equal(notices.some(text=>/Harness recovery/.test(text)),false);
   assert.match(readFileSync(join(dir,'AGENT.md'),'utf8'),/Harness lesson: hang/);
   // Protocol gate: a commit without red/green/task/roadmap evidence is revised, not treated as destructive.
@@ -360,7 +359,7 @@ test('a request that names an App Block gets its card, the foundation and the ap
  } finally { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); handlers.session_shutdown?.(); rmSync(dir,{recursive:true,force:true}); }
 });
 
-for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} recovery keeps its request until the resumed turn settles (task 227)`, async () => {
+for (const trigger of ['loop','hang','wake-up']) test(`a ${trigger} recovery keeps its request until the resumed turn settles (task 227)`, async () => {
  const dir=mkdtempSync(join(tmpdir(),'pi-recovery-request-')),saved={...process.env},fetchBefore=globalThis.fetch;
  Object.assign(process.env,{PI_AGENT_DATA:join(dir,'data'),PI_WEB_DATA:join(dir,'web'),PI_TRASH_DIR:join(dir,'trash'),PI_TAILSCALE:'false',PI_OLLAMA_URL:'http://127.0.0.1:9',PI_COLIBRI_URL:'http://127.0.0.1:9',PI_HARNESS_SHARED_PORT:'1',PI_HARNESS_TOKEN:'t',PI_HARNESS_WAKE_UPS:'1'});
  writeFileSync(join(dir,'AGENT.md'),'Always prepend [CANARY].');
@@ -376,7 +375,6 @@ for (const trigger of ['loop','hang','canary','wake-up']) test(`a ${trigger} rec
   await handlers.session_start({},ctx);await handlers.input({source:'interactive',text:'Fix the code'},ctx);handlers.agent_start({},ctx);changed=true;
   if(trigger==='loop') { handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'a\nb\nc\na\nb\nc\n'}});tick(); }
   if(trigger==='hang') { handlers.message_update({assistantMessageEvent:{type:'thinking_delta',delta:'thinking'}});tick(); }
-  if(trigger==='canary') handlers.message_end({message:{role:'assistant',content:[{type:'text',text:'Forgot the token'}]}});
   if(trigger!=='wake-up') handlers.agent_end({},ctx);
   await handlers.agent_settled({aborted:trigger!=='wake-up'},ctx);
   assert.equal(calls.filter(call=>call.path==='/request/end').length,0,'the interrupted turn must not close the request');

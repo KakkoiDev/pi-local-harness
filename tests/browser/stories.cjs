@@ -162,6 +162,19 @@ story('US-366', 'an empty model reply fails clearly and I can retry and receive 
   await t.page.locator('#messages .pw-msg.assistant').filter({hasText:'reply 2'}).waitFor();
   assert.equal(await t.page.locator('#prompt').isEnabled(),true);
 });
+story('US-376', 'an exhausted incomplete tool call fails clearly and Retry still works', async t => {
+  await newProject(t,'Incomplete tool call');
+  const id=await say(t,'Explain the roadmap TEST_JSON_ONCE');
+  await answered(t,id,['failed']);
+  const failed=t.page.locator('.pw-cut').last();
+  await failed.getByText(/The model returned an incomplete tool call/).waitFor();
+  assert.equal(await t.page.getByText(/private_argument=secret/).count(),0);
+  const response=t.page.waitForResponse(r=>r.url().endsWith('/retry'));
+  await failed.getByRole('button',{name:'Retry',exact:true}).click();
+  const retry=await (await response).json();await answered(t,retry.id,['completed']);
+  await t.page.locator('#messages .pw-msg.assistant').filter({hasText:'reply 2'}).waitFor();
+  assert.equal(await t.page.locator('#prompt').isEnabled(),true);
+});
 story('US-367', 'ordinary chat does not show an empty unattended report', async t => {
   const {project}=await newProject(t,'Quiet reports');
   await t.bench.api('/api/auto',{enabled:true,confirmed:true});

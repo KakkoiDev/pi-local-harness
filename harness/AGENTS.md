@@ -18,7 +18,7 @@ Every 10 seconds, the harness checks the last 100 nonempty thought lines. Two no
 
 A thought phase without an active pi operation, or without streamed activity for the configured timeout, triggers hang recovery. Idle sessions and tool execution do not count as thought hangs. Pi's extension API exposes stream activity, not backend CPU/GPU utilization.
 
-Recovery aborts the operation, compacts context, and reasks the original question with the incident, preceding reasoning, and current AGENTS.md. The harness wakes you at most `wake_ups` times per request (default 5; recoveries and "continue" wake-ups together), then stops and offers the person Ask Pi to Retry….
+Recovery aborts the operation and tries compaction; if unavailable, it resumes with reduced context. Current AGENTS.md is refreshed in the system prompt, never copied into recovery messages. A missing [CANARY] marker is diagnostic only; a usable answer is not regenerated for it. The harness wakes you at most `wake_ups` times per request (default 5; recoveries and "continue" wake-ups together), then stops and offers the person Ask Pi to Retry….
 
 ## Project workbench
 

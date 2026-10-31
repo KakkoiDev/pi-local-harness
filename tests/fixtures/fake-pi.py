@@ -285,6 +285,9 @@ if 'TEST_WAKE_THEN_SLOW' in request['message']:  # task 327 (live, Run on its ow
     emit({'type':'message_update','assistantMessageEvent':{'type':'text_delta','delta':'[CANARY] Task 5 is done.'}})
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'[CANARY] Task 5 is done.'}],'stopReason':'stop'}});emit({'type':'agent_settled'})
     emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'});sys.stdin.readline();sys.exit(0)
+if 'TEST_JSON_ONCE' in request['message'] and count == 1:
+    emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'text','text':'Partial plan'}],'stopReason':'error','errorMessage':'error parsing tool call: private_argument=secret, unexpected end of JSON input'}})
+    emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'});sys.stdin.readline();sys.exit(0)
 if 'TEST_EMPTY_ONCE' in request['message'] and count == 1:
     emit({'type':'message_end','message':{'role':'assistant','content':[{'type':'thinking','thinking':'Need to tidy the roadmap.'}],'stopReason':'stop'}})
     emit({'type':'agent_settled'});emit({'type':'extension_ui_request','method':'notify','message':'Harness settled'});sys.stdin.readline();sys.exit(0)

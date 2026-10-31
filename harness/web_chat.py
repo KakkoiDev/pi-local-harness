@@ -218,8 +218,13 @@ def intentional_pause(message, *, recovering=False, choice=None, plan=None):
         {'this operation was aborted', 'the operation was aborted', 'operation aborted'})
 
 
+def incomplete_tool_json(text):
+    return bool(re.search(r'error parsing tool call:[\s\S]*unexpected end of JSON input',str(text),re.I))
+
+
 def readable_error(text):
     """Pi passes Ollama's raw error through (e.g. `404: {"message":"model 'x' not found",…}`); say it in a sentence."""
+    if incomplete_tool_json(text):return 'The model returned an incomplete tool call. No completed answer was received. Retry the message.'
     missing=re.search(r"model '([^']+)' not found",str(text))
     if missing:return f'The model “{missing.group(1)}” is not installed in Ollama. Choose another model in the menu bar, or pull it with `ollama pull {missing.group(1)}`.'
     if str(text).startswith(('Ollama is not answering','Colibri is not answering')):return str(text)  # already said (the failure path says it once more)
@@ -861,6 +866,7 @@ class WebChat:
             if comment:self.documents.mark_sent(comment['path'],comment['id'],identifier)
             process.stdin.write(json.dumps({'id':'web-prompt','type':'prompt','message':prompt,'images':images})+'\n');process.stdin.flush()
             emit({'type':'status','text':'Waiting for the model (it may be loading)…'})  # task 324: a cold model load takes minutes; say so
+            deferred_model_error=None
             heard=time.monotonic();settled=False;thought='';spoke=False;spoke_ever=False;after_tool=False;final_answer=False  # spoke: this model turn has output (MODEL_START, or MODEL_TURN after a tool, until then)
             # What Pi waits for, for the model watchdog: tools running (by call id), the harness after agent_end (its
             # paperwork may run the tests twice), a compaction. Only a wait for the model has the short limit.
@@ -926,6 +932,7 @@ class WebChat:
                     if notice=='Harness settled':harness_done=True
                     committed=committed_commit(notice) or committed
                 if event.get('type')=='agent_start':
+                    deferred_model_error=None
                     settled=False
                     if phase=='recovering':phase='reasking'
                 if event.get('type')=='agent_settled' and phase!='recovering':settled=True
@@ -939,6 +946,8 @@ class WebChat:
                             continue  # persist the control and preceding answer when settled
                         if message.get('stopReason') in ('error','aborted'):
                             reply=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text') or reply  # kept with the failure (task 290)
+                            if incomplete_tool_json(message.get('errorMessage','')):
+                                deferred_model_error=readable_error(message['errorMessage']);continue
                             raise ValueError(readable_error(message.get('errorMessage','Model response stopped')))
                         text=''.join(part.get('text','') for part in message.get('content',[]) if part.get('type')=='text')
                         if text:reply=text
@@ -964,6 +973,7 @@ class WebChat:
                     if name and name not in chosen['included'] and name not in opened and len(opened)<20:opened.append(name)
                 if event.get('type') in ('message_update','tool_execution_start','tool_execution_end','extension_ui_request','agent_start'):
                     emit(event)
+            if deferred_model_error:raise ValueError(deferred_model_error)
             reply=strip_canary(reply)  # the drift detector read the raw text in the extension; people never see the marker
             if pending_plan and not pending_plan.get('approved') and not reply:reply=pending_plan['goal']+'\n\n'+ '\n'.join(task['title']+': '+task['done_when'] for task in pending_plan['tasks'])+'\n\nStart Building?'
             if pending_choice and not reply:reply=pending_choice['question']

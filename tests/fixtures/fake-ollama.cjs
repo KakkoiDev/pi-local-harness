@@ -35,6 +35,7 @@ function fakeOllama({ models = MODELS, loadMs = 300 } = {}) {
     if(turn.maxToolChars!==undefined && JSON.stringify((body.messages||[]).filter(message=>message.role==='tool')).length>turn.maxToolChars)turn={think:'The window is still full.',finish:'length'};
     if (index >= 0) state.used[index] = true;
     state.requests.push({ input, turn: index, model: body.model, messages: body.messages || [], tools: (body.tools || []).map(tool => tool.function?.name) });
+    if(turn.error){response.writeHead(turn.status||400,{'Content-Type':'application/json'});response.end(JSON.stringify({message:turn.error}));return;}
     if (!body.stream) {
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ id: 'fake', object: 'chat.completion', created: 1, model: 'fake', choices: [{ index: 0, message: { role: 'assistant', content: turn.say || '' }, finish_reason: 'stop' }] }));

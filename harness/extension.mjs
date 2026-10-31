@@ -1,3 +1,4 @@
+import { cleanRecoveryMessages, recentHistory, incompleteToolJSON } from './recovery-context.mjs';
 import { toolExitCode } from './tool-exit.mjs';
 import { taskReviewPrompt } from './task-review.mjs';
 import { spawn } from 'node:child_process';
@@ -152,7 +153,7 @@ export default function harness(pi, dependencies = {}) {
     catch (error) { chosenContext = ''; executionContext = 'Current phase unavailable. Do not infer write permission.'; incident('context', `could not refresh: ${error.message}`); }
   };
   let noActionWoken=false, textualToolSeen=false, toolRan=false, refusedAgain='';  // task 323: the checked alternative after the same refused command twice
-  let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity, recoveryWindow=false, requestMessage;
+  let assistantStopped=false, answerLimit=false, contextCharLimit=Infinity, recoveryWindow=false, requestMessage, compactFallback=false, malformedCall=false, mutated=false;
   let lastAnswer = '', assistantText = '', waitingChoice = false, nextPlanInput=false, pendingPlanReply='';
   const automatic=()=>call('/auto',{}).then(value=>value.enabled).catch(()=>false);
   const pauseChoice = ctx => { waitingChoice=true;setTimeout(()=>ctx?.abort?.(),0); };
@@ -179,7 +180,7 @@ export default function harness(pi, dependencies = {}) {
   });
   const trip = (reason, kind = 'loop') => {
     if (bare || pending || !lastQuestion) return;
-    pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n')}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
+    pending = `Harness recovery: ${reason}\nLast user question:\n${lastQuestion}\nPrevious reasoning (last 100 lines):\n${[...watch.lines, watch.partial].filter(Boolean).join('\n').slice(-1200)}\nExplain the loop or hang briefly, then use a different approach to answer the original question. Do not repeat the failed reasoning.`;
     recordLesson(memoryPath, kind);
     mkdirSync(dataDir, { recursive: true });
     appendFileSync(join(dataDir, 'incident_log.md'), `\n- ${new Date().toISOString()} Harness ${kind}: ${reason}\n`);
@@ -323,9 +324,10 @@ export default function harness(pi, dependencies = {}) {
       }
     }
     if (message?.role === 'assistant') assistantText+='\n'+(message.content || []).map(part=>part.type === 'thinking' ? part.thinking || '' : part.type === 'text' ? part.text || '' : '').join('\n')+'\n';
+    if (message?.role === 'assistant') malformedCall=incompleteToolJSON(message);
     if (message?.role === 'assistant') {answerLimit=message.stopReason==='length';assistantStopped=message.stopReason==='stop'||answerLimit;}
     if (message?.role === 'assistant') lastAnswer = (message.content || []).filter(part => part.type === 'text').map(part => part.text).join('');
-    if (missingCanary(message)) trip('Instruction drift: the completed response omitted [CANARY]. Compact and reinject AGENTS.md.', 'canary');
+    if (missingCanary(message) && !bare) {recordLesson(memoryPath,'canary');incident('canary','The answer omitted its diagnostic marker; kept the answer without replaying the request.');}
     return replacement;
   });
   pi.on('input', async (event, ctx) => {
@@ -335,7 +337,7 @@ export default function harness(pi, dependencies = {}) {
     // One agent at a time (terminal and web share <data>/.agent-lock): refuse here, where a turn can still be refused.
     try { agentLock.acquire(); } catch (error) { say('refused', error.message, 'warning', ctx?.ui || context?.ui); return { action: 'handled' }; }
     taskReviewed=false;assistantText='';waitingChoice=false;noActionWoken=false;textualToolSeen=false;toolRan=false;refusedAgain='';
-    contextCharLimit=Infinity;recoveryWindow=false;requestMessage=undefined;chosenContext = ''; executionContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
+    contextCharLimit=compactFallback?4000:Infinity;recoveryWindow=false;requestMessage=undefined;malformedCall=false;mutated=false;chosenContext = ''; executionContext = ''; contextAttempted = false; lastQuestion = event.text; retries = 0; pending = undefined; recovering = false; steps.reset();
     const guideReply=String(event.text || '').match(/^Choice: Which guide should Pi use\? → (.+)$/);
     const guideName=guideReply?.[1]==='Use the planning guide'?'planning':guideReply?.[1];
     chosenGuides = bare ? [] : guideReply ? guides.filter(item=>item.name===guideName) : chooseGuides(event.text, guides);
@@ -388,15 +390,19 @@ export default function harness(pi, dependencies = {}) {
   });
   // Task 116: agent_end can fire again before a new turn while the usage reading is still stale; compact at most once per turn.
   let compactedThisTurn = false;
-  pi.on('agent_start', (_event, ctx) => { context = ctx; assistantStopped=false; answerLimit=false; recovering = false; compactedThisTurn = false; watch.start(); });
+  pi.on('agent_start', (_event, ctx) => { context = ctx; assistantStopped=false; answerLimit=false; malformedCall=false; recovering = false; compactedThisTurn = false; watch.start(); });
   // A length stop can exhaust an 8K server with less history than Pi's 20K compaction tail.
   // Project only the request and recovery message for this retry; Pi restores system/tool instructions.
   // This never edits the session or treats omitted conversation as approval.
   pi.on('context', event => {
-    const users=event.messages.filter(message=>message.role==='user');
+    let messages=cleanRecoveryMessages(event.messages);
+    const users=messages.filter(message=>message.role==='user');
     if(!requestMessage)requestMessage=users.at(-1);
-    if(!recoveryWindow||!requestMessage)return;
-    const latest=users.at(-1);return {messages:latest&&latest!==requestMessage?[requestMessage,...event.messages.slice(event.messages.lastIndexOf(latest))]:[requestMessage]};
+    if(recoveryWindow&&requestMessage){
+      const latest=users.at(-1);
+      messages=latest&&latest!==requestMessage?[requestMessage,...messages.slice(messages.lastIndexOf(latest))]:[requestMessage];
+    }else if(compactFallback&&requestMessage)messages=recentHistory(messages,requestMessage);
+    if(messages!==event.messages)return {messages};
   });
   pi.on('message_update', event => {
     const stream = event.assistantMessageEvent;
@@ -407,24 +413,25 @@ export default function harness(pi, dependencies = {}) {
     if (stream.type === 'thinking_end') { watch.feed('\n'); watch.thinking = false; }
     if (stream.type === 'text_start' || stream.type === 'text_delta' || stream.type === 'toolcall_start') watch.thinking = false;
   });
-  pi.on('tool_execution_start', () => { toolRan = true; watch.thinking = false; watch.touch(); });
+  pi.on('tool_execution_start', event => {if(!['read','search','find','grep','ls','propose_plan','ask_choices'].includes(event.toolName))mutated=true;toolRan = true; watch.thinking = false; watch.touch(); });
   pi.on('tool_execution_update', () => watch.touch());
-  pi.on('tool_execution_end', () => watch.touch());
+  pi.on('tool_execution_end', event => {watch.touch();if(!event.isError&&!['read','search','find','grep','ls'].includes(event.toolName))mutated=true;});
   // Task 116: compact a long chat after the turn that passes 60% of the window, once per turn, before Pi's own
   // threshold (window - 16,384) is reached. Uses the extension API, so plain pi's settings stay untouched.
   const COMPACT_AT = 0.6;
   pi.on('agent_end', (_event, ctx) => {
     watch.stop();
     if (waitingChoice) return;
+    if(malformedCall)return; /* settled owns bounded tool-parser recovery */
     if(answerLimit&&!lastAnswer.replace(/\[CANARY\]/g,'').trim())return; /* agent_settled owns the bounded context recovery */
     if (!pending) {
       const usage = ctx?.getContextUsage?.();
-      if (!compactedThisTurn && usage?.tokens && usage.tokens > COMPACT_AT * usage.contextWindow) {
+      if (!compactFallback && !compactedThisTurn && usage?.tokens && usage.tokens > COMPACT_AT * usage.contextWindow) {
         compactedThisTurn = true;
         setTimeout(() => {
           if (closing) return;
           ctx.compact({ customInstructions: 'Keep the open work: what the person asked for, decisions made, files touched, and what is left to do. Drop finished detail.',
-            onError: error => notify(`Compaction failed: ${error.message}`, 'warning') });
+            onError: error => {compactFallback=true;contextCharLimit=4000;incident('compaction',`Unavailable: ${error.message}; using recent context on the next input.`);notify('Harness context: Compaction unavailable; the next request uses recent context. Saved history is kept.','info');} });
         }, 0);
       }
       return;
@@ -432,12 +439,13 @@ export default function harness(pi, dependencies = {}) {
     const recovery = pending; pending = undefined;
     if (!canWake()) { incident('stopped', `recovery repeated ${retries} times: ${recovery.split('\n')[0]}`); say('stopped', join(dataDir, 'session.log'), 'error'); return; }
     recovering = true; retries++;
-    const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: `${recovery}\n\nReinjected AGENTS.md:\n${memory()}` }, ...lastImages]); };
+    const reask = () => { if (!closing) pi.sendUserMessage([{ type: 'text', text: recovery }, ...lastImages]); };
     // Defer until pi has completed abort cleanup before compaction.
     setTimeout(() => {
       if (closing) return;
+      if(compactFallback){contextCharLimit=4000;recoveryWindow=!mutated;reask();return;}
       ctx.compact({ customInstructions: `Preserve the original task and this recovery context:\n${recovery}`, onComplete: reask,
-        onError: error => { notify(`Compaction failed: ${error.message}. Reasking with recovery context.`, 'warning'); reask(); } });
+        onError: error => {compactFallback=true;contextCharLimit=4000;recoveryWindow=!mutated;incident('compaction',`Unavailable: ${error.message}; reduced context fallback.`);notify('Harness recovery: Compaction unavailable; continuing with reduced context. Saved history is kept.','info');reask();} });
     }, 0);
   });
   pi.on('tool_call', async event => {
@@ -521,7 +529,7 @@ export default function harness(pi, dependencies = {}) {
     // The request is over: the harness finishes its paperwork (commits when verified), then tells the web worker.
     const settledNow = async () => {
       if (requestId) {
-        const result = await call('/request/end', { request: requestId, review: !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing }, turnTimeout).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
+        const result = await call('/request/end', { request: requestId, review: !malformedCall && !event?.aborted && !/\?\s*$/.test(lastAnswer) && canWake() && !closing }, turnTimeout).then(answer => answer.result).catch(error => { incident('paperwork', `could not finish: ${error.message}`); return null; });
         if (result?.outcome === 'continue') {
           recovering = true; retries++;
           verifiedBefore = call('/verification', { cwd: context?.cwd || root }).then(answer => answer.verification).catch(() => null);
@@ -572,16 +580,17 @@ export default function harness(pi, dependencies = {}) {
     // Task 324 (live: a small model thought "I will proceed with the propose_plan call" and ended with no tool call and
     // no answer): a completed turn with no answer, including after a tool ran, is nudged once whatever
     // the request's words; System 1 decides it (recorded as the wake-up incident).
+    const parserRetry=malformedCall&&!mutated;
     const silentTurn=assistantStopped && !lastAnswer.replace(/\[CANARY\]/g,'').trim() && !waitingChoice;
     // Task 323: the same refused command twice, and no allowed call after it: one nudge to the checked alternative.
     const refusalLoop=Boolean(refusedAgain) && !waitingChoice;
-    if(!noActionWoken && !event?.aborted && canWake() && !closing && (textualTool || silentTurn || refusalLoop || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
+    if(!noActionWoken && !event?.aborted && canWake() && !closing && (parserRetry || textualTool || silentTurn || refusalLoop || typeof before?.state==='string' && before.state===after?.state && changing && announced && !/\?\s*$/.test(lastAnswer))){
       noActionWoken=true;recovering=true;retries++;
-      const instruction=textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning. If older history or tool results are omitted, read project files for missing facts; never infer approvals.':`You said: '${announced[0]}'. Do it now with a tool call.`;
+      const instruction=parserRetry?'The server returned incomplete tool JSON; that call did not execute. Submit a short valid tool call, using the current phase and task. Do not include implementation code in a plan. Read files for omitted facts; never infer approvals.':textualTool?'Nothing ran: your tool call was written as text. Call the tool through the tool interface; do not write it in your answer.':refusalLoop?`That command stays refused. ${refusedAgain}`:silentTurn?'Your turn ended without an answer. Reply to the person now, using tools only if needed and allowed by the current phase. Do not repeat your reasoning. If older history or tool results are omitted, read project files for missing facts; never infer approvals.':`You said: '${announced[0]}'. Do it now with a tool call.`;
       incident('wake-up',instruction,{trigger:refusalLoop?'refused-again':'no-action',round:retries});refusedAgain='';
       say('wake-up',instruction,'warning');
       let sent=false;const resume=()=>{if(!sent&&!closing){sent=true;pi.sendUserMessage(`Continue (harness wake-up ${retries}): ${instruction}`);}};
-      if(silentTurn&&answerLimit){
+      if(parserRetry||silentTurn&&answerLimit){
         contextCharLimit=4000;recoveryWindow=true;
         incident('context','Retrying with current request and reduced selected context; session history retained.');
         notify('Harness recovery: Retrying with a fresh context window. Conversation history is kept.','info');

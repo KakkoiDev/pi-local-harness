@@ -1,7 +1,7 @@
 // Task 324: tool calls written as text, and turns that only describe a tool call, are System 1's to catch.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pseudoToolCalls } from '../../harness/pseudo-tools.mjs';
@@ -14,30 +14,32 @@ test('a tool call written as text becomes a readable note (gemma4 live, ```tool_
   assert.deepEqual(pseudoToolCalls('Use `read` to open a file; JSON like {"a": 1} stays.'), { text: 'Use `read` to open a file; JSON like {"a": 1} stays.', count: 0 });
 });
 
-async function turn(answer, { thinking = '', question = 'Plan the icons', missingPlan = false, read = false, stopReason = 'stop', compactFails = false } = {}) {
+async function turn(answer, { thinking = '', question = 'Plan the icons', missingPlan = false, read = false, stopReason = 'stop', compactFails = false, errorMessage = '', mutated = false, legacy = false } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'pi-pseudo-')), saved = { ...process.env }, fetchBefore = globalThis.fetch;
   Object.assign(process.env, { PI_AGENT_DATA: join(dir, 'data'), PI_HARNESS_SHARED_PORT: '1', PI_HARNESS_TOKEN: 't', PI_HARNESS_WAKE_UPS: '3' });
-  const handlers = {}, sent = [], calls = [], compactions=[];
+  writeFileSync(join(dir,'AGENT.md'),'Start with [CANARY].');
+  const handlers = {}, sent = [], calls = [], compactions=[], aborts=[];
   let ends = 0, refreshes=0; const prompts=[];
   globalThis.fetch = async (url, options) => { const path = new URL(url).pathname; calls.push(path); const body = JSON.parse(options?.body || '{}'); return { ok: true, json: async () => path === '/context' ? {text:'SELECTED_FILE '.repeat(1000),execution:`Current phase: ${refreshes++?'discussion':'implementation'}; Active approved task: tasks/003-map.md`} : path === '/verification' ? { verification: { state: 'same', code: [], verified: false } } : path === '/request/end' && missingPlan && body.review && !ends++ ? { result: { outcome: 'continue', kind: 'plan', instruction: 'No plan was submitted. Call propose_plan.' } } : {} }; };
   const pi = { on: (name, fn) => handlers[name] = fn, appendEntry() {}, registerEntryRenderer() {}, sendUserMessage: text => sent.push(text) };
-  const ctx = { cwd: dir, compact:options=>{compactions.push(options.customInstructions);if(compactFails)options.onError(new Error("Nothing to compact (session too small)"));else options.onComplete();}, ui: { notify() {}, setWidget() {}, setStatus() {} } };
+  const ctx = { cwd: dir, abort:()=>aborts.push(true), compact:options=>{compactions.push(options.customInstructions);if(compactFails)options.onError(new Error("Nothing to compact (session too small)"));else options.onComplete();}, ui: { notify() {}, setWidget() {}, setStatus() {} } };
   try {
     harness(pi, { root: dir + '/', setInterval: () => ({ unref() {} }) }); await handlers.session_start({}, ctx);
     const results = [];
-    const history=[{role:"user",content:[{type:"text",text:question}]},{role:"assistant",content:[{type:"toolCall",id:"read",name:"read",arguments:{path:"ROADMAP.md"}}]},{role:"toolResult",toolCallId:"read",toolName:"read",content:[{type:"text",text:"OLD_TOOL_OUTPUT".repeat(1000)}]}];const before=JSON.stringify(history);let projected,afterRetryTool;
+    const history=[...(legacy?[{role:'user',content:[{type:'text',text:'Harness recovery: Instruction drift: the completed response omitted [CANARY].\n\nReinjected AGENTS.md:\n'+ 'DUPLICATED_MEMORY '.repeat(1000)}]}]:[]),{role:"user",content:[{type:"text",text:question}]},{role:"assistant",content:[{type:"toolCall",id:"read",name:"read",arguments:{path:"ROADMAP.md"}}]},{role:"toolResult",toolCallId:"read",toolName:"read",content:[{type:"text",text:"OLD_TOOL_OUTPUT".repeat(1000)}]}];const before=JSON.stringify(history);let projected,afterRetryTool,initialContext;
 
     for (let round = 0; round < 2; round++) {
       await handlers.input({ source: round ? 'extension' : 'interactive', text: round ? sent.at(-1) : question }, ctx); handlers.agent_start({}, ctx);
-      if(!round)await handlers.context?.({messages:history},ctx);
+      if(!round)initialContext=await handlers.context?.({messages:history},ctx);
       prompts.push(handlers.before_agent_start({systemPrompt:'Instructions'}).systemPrompt);
+      if(mutated)await handlers.tool_execution_end?.({toolName:'write',isError:false},ctx);
       if(read){await handlers.tool_execution_start?.({toolCallId:'read',toolName:'read',args:{path:'ROADMAP.md'}},ctx);await handlers.tool_execution_end?.({toolCallId:'read',toolName:'read',isError:false,result:{content:[{type:'text',text:'# Plan'}]}},ctx);}
-      results.push(handlers.message_end({ message: { role: 'assistant', content: [...(thinking ? [{ type: 'thinking', thinking }] : []), ...(answer ? [{ type: 'text', text: answer }] : [])], stopReason } }));
+      results.push(handlers.message_end({ message: { role: 'assistant', content: [...(thinking ? [{ type: 'thinking', thinking }] : []), ...(answer ? [{ type: 'text', text: answer }] : [])], stopReason, errorMessage } }));
       await handlers.agent_settled({ aborted: false });
     }
     if(sent.length)projected=await handlers.context?.({messages:[...history,{role:"user",content:[{type:"text",text:sent[0]}]}]},ctx);
     if(projected)afterRetryTool=await handlers.context?.({messages:[...projected.messages,{role:"assistant",content:[{type:"toolCall",id:"fresh",name:"read",arguments:{path:"README.md"}}]},{role:"toolResult",toolCallId:"fresh",toolName:"read",content:[{type:"text",text:"FRESH_TOOL_OUTPUT"}]}]},ctx);
-    return { sent, results, calls, compactions, prompts, projected, afterRetryTool, historyUnchanged:before===JSON.stringify(history) };
+    return { sent, results, calls, compactions, prompts, projected, initialContext, aborts, afterRetryTool, historyUnchanged:before===JSON.stringify(history) };
   } finally { handlers.session_shutdown?.(); globalThis.fetch = fetchBefore; for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env, saved); rmSync(dir, { recursive: true, force: true }); }
 }
 
@@ -82,3 +84,16 @@ test('a token-limited reasoning-only reply after reading is recovered once',asyn
   assert.match(prompts[1],/Current phase: discussion/);assert.match(prompts[1],/Active approved task: tasks\/003-map.md/);
   assert.match(prompts[1],/Selected context shortened/);
  });
+
+test('US-372 a missing diagnostic marker does not regenerate my answer',async()=>{
+ const {sent,aborts,compactions}=await turn('A useful answer.');assert.equal(aborts.length,0);assert.equal(sent.length,0);assert.equal(compactions.length,0);
+});
+test('US-373 old recovery instructions do not fill the next model request',async()=>{
+ const {initialContext,historyUnchanged}=await turn('[CANARY] Done.',{legacy:true});assert.ok(initialContext?.messages);assert.doesNotMatch(JSON.stringify(initialContext.messages),/DUPLICATED_MEMORY/);assert.match(JSON.stringify(initialContext.messages),/Plan the icons/);assert.equal(historyUnchanged,true);
+});
+test('US-374 an incomplete planning call recovers without a retry click',async()=>{
+ const {sent,projected}=await turn('',{question:'Write the plan from our discussion.',stopReason:'error',errorMessage:'500: error parsing tool call: unexpected end of JSON input'});assert.equal(sent.length,1);assert.match(sent[0],/incomplete|JSON/i);assert.ok(projected?.messages);
+});
+test('a malformed tool response after a completed write is not automatically replayed',async()=>{
+ const {sent}=await turn('',{mutated:true,stopReason:'error',errorMessage:'500: error parsing tool call: unexpected end of JSON input'});assert.equal(sent.length,0);
+});

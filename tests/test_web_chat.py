@@ -11,6 +11,15 @@ from pathlib import Path
 from harness.web_chat import ConversationStore, prepare_prompt
 
 class WebChatTest(unittest.TestCase):
+    def test_incomplete_tool_json_is_narrow_and_has_no_raw_arguments(self):
+        from harness.web_chat import incomplete_tool_json, readable_error
+        failure='500 error parsing tool call: raw={"private_argument": "secret", err=unexpected end of JSON input'
+        self.assertTrue(incomplete_tool_json(failure))
+        self.assertIn('Retry the message',readable_error(failure))
+        self.assertNotIn('private_argument',readable_error(failure))
+        for other in ['Connection error', 'unexpected end of JSON input', 'error parsing tool call: wrong schema']:
+            self.assertFalse(incomplete_tool_json(other))
+
     def test_conversations_are_separate_persistent_and_manageable(self):
         with tempfile.TemporaryDirectory() as directory:
             store=ConversationStore(Path(directory))

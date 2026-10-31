@@ -546,3 +546,13 @@ When I reload the chat
 Then no report card appears and its audit record remains available
 
 - US-371 — the agent receives the current phase and approved task after a phase change (`tests/browser/journey.cjs`).
+
+- US-372 — a missing diagnostic marker does not regenerate my answer (`tests/harness/pseudo-tools.test.mjs`; real Pi recovery in `tests/browser/journey.cjs`).
+- US-373 — old recovery instructions do not fill the next model request (`tests/harness/pseudo-tools.test.mjs`; real Pi recovery in `tests/browser/journey.cjs`).
+- US-374 — an incomplete planning call recovers without a retry click (`tests/harness/pseudo-tools.test.mjs`; real Pi recovery in `tests/browser/journey.cjs`).
+- US-375 — compaction failure falls back to recent context (`tests/harness/recovery-context.test.mjs`; real Pi recovery is covered separately by J17 in `tests/browser/journey.cjs`).
+
+### US-376 an exhausted incomplete tool call fails clearly and Retry still works
+Given the automatic recovery did not produce a complete tool call
+When the request settles
+Then it fails with a readable message without raw arguments and I can Retry successfully
