@@ -217,12 +217,15 @@ include those records and output files too. Counts are shown only when the runne
 ### Can the tests Pi writes harm my Mac?
 
 No: on macOS every test run Gate allows runs in the test sandbox (`sandbox-exec`). It may write only in the project, a
-temporary folder and the toolchain caches (never in `.git`), cannot read the workbench's data folder or folders such as
-`~/.ssh`, gets none of the harness's variables or tokens, and has no network. The base check of a new project, the Red
+temporary folder and the toolchain caches (never in `.git`), cannot read the workbench's data folder or your secret files
+(`~/.ssh`, `~/.aws`, `~/.npmrc`, shell history, browser profiles and others), gets none of the harness's variables or tokens, and has no network. The base check of a new project, the Red
 proof and `/audit` run the same way. When a test fails because of the sandbox, a Harness notice under the answer says
 so. If a test really needs the network, choose **Project › Test Sandbox…**: No network (recommended), This computer
 only (localhost) or The internet, kept for that project. Only you can change it, never Pi. On other systems the
 sandbox is not there yet (Linux: bubblewrap, planned).
+
+Pi cannot read those secret files either, with a tool or a command (Gate rule G-018): it asks you to paste the value
+it needs.
 
 The app the Preview runs gets the same short list of variables as a test run (the toolchains', the locale, the
 terminal, PATH and HOME, plus its language and Tailwind settings): no tokens or keys from your shell.

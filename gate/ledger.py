@@ -229,7 +229,7 @@ class ProposalLedger:
             self.record_event('gate', outcome, proposal, said, tool_call=tool_call_id, cwd=cwd, source=source, rule=rule_id, request=request)
             self.report('rule', said, rule=rule_id, tool=tool_name, source=source, cwd=cwd)  # plan 184: for the later analysis
             return {'outcome': outcome, 'reason': said, 'rule': rule_id}
-        rule, reason = self.engine.rejection(proposal, auth_level)
+        rule, reason = self.engine.rejection(proposal, auth_level, cwd=cwd)
         if rule:
             return refuse(rule.id, None, reason)
         response = {'outcome': 'ALLOW'}

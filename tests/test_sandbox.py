@@ -82,6 +82,27 @@ class SandboxedTestRunTest(unittest.TestCase):
         ''', env={'PI_AGENT_DATA': str(self.data)})
         self.assertEqual(done.returncode, 0, done.stderr)
 
+    def test_a_test_cannot_read_the_wider_list_of_secret_files(self):
+        """Task 373 (F2): files outside the old list, against the real profile with a fake home."""
+        home = self.base / 'home'
+        for name in ('.npmrc', '.zsh_history', '.claude.json', 'Library/Application Support/Google/Chrome/Default/Cookies', 'notes.txt'):
+            (home / name).parent.mkdir(parents=True, exist_ok=True); (home / name).write_text('fake')
+        for name in ('.npmrc', '.pypirc', '.yarnrc.yml', '.zsh_history', '.bash_history', '.claude.json', '.claude', '.codex', '.kube', '.azure',
+                     '.config/gcloud', '.tokeneconomizer', 'Library/Application Support/Google/Chrome', 'Library/Application Support/Firefox', 'Library/Cookies'):
+            self.assertIn(name, sandbox.SECRET_FOLDERS)
+        (self.project / 'tests' / 'test_probe.py').write_text(textwrap.dedent(f'''
+            import unittest, pathlib
+            class Probe(unittest.TestCase):
+                def test_secrets(self):
+                    for name in ('.npmrc', '.zsh_history', '.claude.json', 'Library/Application Support/Google/Chrome/Default/Cookies'):
+                        with self.assertRaises(PermissionError, msg=name): pathlib.Path({str(home)!r}, name).read_text()
+                def test_other_files(self): self.assertEqual(pathlib.Path({str(home)!r}, 'notes.txt').read_text(), 'fake')
+        '''))
+        path, temporary = sandbox.prepare(self.project, self.data, home=home)
+        done = subprocess.run(['/bin/sh', str(sandbox.RUNNER), str(path), str(temporary), f'{sys.executable} -B -m unittest tests.test_probe'],
+                              cwd=self.project, capture_output=True, text=True, timeout=120)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
     def test_a_project_inside_the_data_folder_is_still_its_own(self):
         self.project = self.data / 'projects' / 'inside'; (self.project / 'tests').mkdir(parents=True)
         done = self.run_tests('''

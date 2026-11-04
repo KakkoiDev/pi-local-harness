@@ -18,3 +18,4 @@ When a rule sends an action back, do what its message says; never work around it
 - G-015 Project phase permissions: Discussion reads; Planning writes ROADMAP.md and tasks/; Implementation writes approved task files. Only you or auto changes phase.
 - G-016 Ask instead of assuming: An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.
 - G-017 Decisions are settled: Decisions lines must be answers the harness recorded, before code changes.
+- G-018 Secret files stay unread: No reads of the person’s secret files (~/.ssh, ~/.npmrc, history ...); ask them for the value.

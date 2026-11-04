@@ -34,7 +34,7 @@ class RegistryTest(unittest.TestCase):
     def test_the_summary_lists_every_rule_in_one_line_each(self):
         summary = rules.summary()
         for rule in rules.RULES: self.assertIn(f'{rule.id} {rule.name}', summary)
-        self.assertLess(len(summary), 3000, 'short: it is in every system prompt')
+        self.assertLess(len(summary), 3200, 'short: it is in every system prompt (3000 until G-018, task 373)')
         self.assertIn(summary, rules.SUMMARY_FILE.read_text(), 'harness/gate-rules.md is current: run python3 -m gate.rules')
 
     def test_agent_md_no_longer_restates_what_gate_enforces(self):
@@ -103,6 +103,43 @@ class ProjectMarkdownTest(unittest.TestCase):
                         'python3 tests/verify_workflow.py > /tmp/out.txt', 'wc -l tasks/*.md']:
             self.assertEqual(engine.rejection(ActionProposal('execute_command', {'command': command}, 'test'), 'admin'), (None, None), command)
         self.assertEqual(engine.gatekeep(ActionProposal('execute_command', {'command': 'echo x >> ROADMAP.md'}, 'test'), 'admin'), ActionOutcome.REVISE)
+
+
+class SecretReadsTest(unittest.TestCase):
+    """G-018 (task 373, docs/reports/outside-tools-study-2026-10-30.md F3): Pi does not read the person's secret files.
+    A fake HOME with fake files: nothing real is read."""
+    KEY = 'id_' + 'ed25519'
+
+    def setUp(self):
+        import os
+        from unittest.mock import patch
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.home = Path(os.path.realpath(self.temp.name)) / 'home'
+        for name in (f'.ssh/{self.KEY}', '.npmrc', '.npmrc-notes.txt', '.zsh_history', '.aws/config', 'project/app.py'):
+            (self.home / name).parent.mkdir(parents=True, exist_ok=True); (self.home / name).write_text('fake')
+        (self.home / 'project' / 'keys').symlink_to(self.home / '.ssh')
+        patcher = patch.dict(os.environ, {'HOME': str(self.home)}); patcher.start(); self.addCleanup(patcher.stop)
+        self.engine = GateEngine('', '/dev/null')
+
+    def decided(self, tool, args, cwd):
+        rule, reason = self.engine.rejection(ActionProposal(tool, args, 'test'), 'admin', cwd=str(cwd))
+        return getattr(rule, 'id', None), reason
+
+    def test_secret_files_are_refused_and_the_person_is_asked(self):
+        project = self.home / 'project'
+        for args in ({'path': f'~/.ssh/{self.KEY}'}, {'path': str(self.home / '.npmrc')}, {'path': f'keys/{self.KEY}'}, {'path': '../.aws'}, {'path': f'~/.SSH/{self.KEY}'}):
+            rule, reason = self.decided('read_file', args, project)
+            self.assertEqual(rule, 'G-018', args); self.assertIn('Ask the person to paste the value you need', reason)
+        for command, cwd in (('cat ~/.npmrc', project), ('head -n 5 .zsh_history', self.home), ('grep -r x ~/.aws', project),
+                             ('python3 -c "print(1)" --config=~/.npmrc', project), (f'cat keys/{self.KEY}', project)):
+            self.assertEqual(self.decided('execute_command', {'command': command}, cwd)[0], 'G-018', command)
+
+    def test_other_files_are_read_as_before(self):
+        project = self.home / 'project'
+        for args in ({'path': 'app.py'}, {'path': '~/.npmrc-notes.txt'}, {}, {'path': '.'}):
+            self.assertEqual(self.decided('read_file', args, project), (None, None), args)
+        for command in ('cat app.py', 'ls -la', 'grep -rn npmrc .', 'python3 -m unittest'):
+            self.assertEqual(self.decided('execute_command', {'command': command}, project), (None, None), command)
 
 
 class PlanFilesTest(unittest.TestCase):

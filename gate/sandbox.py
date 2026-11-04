@@ -36,7 +36,10 @@ NETWORK = ('none', 'local', 'internet')
 ENVIRONMENT = ('USER', 'LOGNAME', 'SHELL', 'LANG', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'TERM', 'COLORTERM', 'NO_COLOR', 'FORCE_COLOR', 'CI', 'TZ',
                'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'UV_TOOL_DIR', 'UV_OFFLINE', 'NPM_CONFIG_CACHE', 'CARGO_HOME', 'RUSTUP_HOME', 'NVM_DIR', 'VOLTA_HOME',
                'PYENV_ROOT', 'JAVA_HOME', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR', 'DEVELOPER_DIR', 'SDKROOT', 'PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'NODE_NO_WARNINGS')
-SECRET_FOLDERS = ('.ssh', '.aws', '.gnupg', '.config/gh', '.netrc', '.git-credentials', '.pi', '.docker', 'Library/Keychains')
+# The person's secrets: test runs cannot read them and Gate refuses Pi's reads of them (G-018, task 373).
+SECRET_FOLDERS = ('.ssh', '.aws', '.gnupg', '.config/gh', '.netrc', '.git-credentials', '.pi', '.docker', 'Library/Keychains',
+                  '.npmrc', '.pypirc', '.yarnrc.yml', '.zsh_history', '.bash_history', '.claude.json', '.claude', '.codex', '.kube', '.azure',
+                  '.config/gcloud', '.tokeneconomizer', 'Library/Application Support/Google/Chrome', 'Library/Application Support/Firefox', 'Library/Cookies')
 CACHES = ('.cache', 'Library/Caches', '.npm', '.cargo', '.rustup', '.local/share/uv', '.bun/install/cache', '.yarn', '.pnpm-store', 'Library/pnpm')
 REFUSED = re.compile(r'Operation not permitted|\[Errno 1\]|\bEPERM\b|sandbox-exec:|deny\(\d+\)', re.I)
 LOCK = threading.Lock()

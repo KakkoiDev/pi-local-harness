@@ -456,3 +456,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [371-Render triple-backtick code in chat](tasks/371-chat-fenced-code.md)
 
 - [x] [372-The Preview's app gets no secret from the person's environment](tasks/372-preview-environment-allow-list.md)
+
+- [x] [373-Pi cannot read secret files, and test runs cannot either](tasks/373-secret-files-stay-unread.md)
