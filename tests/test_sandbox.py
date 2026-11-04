@@ -178,6 +178,11 @@ class SandboxWideningTest(unittest.TestCase):
         self.assertEqual(sandbox.shown(wrapped), "python3 -m unittest -k 'a b'")
         self.assertEqual(sandbox.shown('ls -la'), 'ls -la')
 
+    def test_the_runner_keeps_exactly_the_one_allow_list(self):
+        """Task 372: the Preview builds its environment from the same list the runner keeps."""
+        runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()
+        self.assertEqual(tuple(runner.split('for name in ', 1)[1].split('; do', 1)[0].replace('\\\n', ' ').split()), sandbox.ENVIRONMENT)
+
     def test_the_runner_keeps_only_harmless_variables(self):
         runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()
         self.assertIn('/usr/bin/env -i', runner)

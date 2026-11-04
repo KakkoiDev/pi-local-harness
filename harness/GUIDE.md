@@ -224,6 +224,9 @@ so. If a test really needs the network, choose **Project › Test Sandbox…**: 
 only (localhost) or The internet, kept for that project. Only you can change it, never Pi. On other systems the
 sandbox is not there yet (Linux: bubblewrap, planned).
 
+The app the Preview runs gets the same short list of variables as a test run (the toolchains', the locale, the
+terminal, PATH and HOME, plus its language and Tailwind settings): no tokens or keys from your shell.
+
 ### When are my app's packages downloaded?
 
 Once, when you press **Create** in New Project, and only then. A Web app or a Terminal app needs Python packages

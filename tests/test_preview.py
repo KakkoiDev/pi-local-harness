@@ -5,6 +5,8 @@ try:
     import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
+import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -12,6 +14,7 @@ import time
 import unittest
 import urllib.request
 from pathlib import Path
+from unittest.mock import patch
 
 from harness.preview import Previews, run_command
 from harness.web_chat import WebChat, preview_lines
@@ -220,6 +223,30 @@ class PreviewTest(unittest.TestCase):
         process = self.previews.apps['site'].process
         self.previews.close()
         self.assertIsNotNone(process.poll())
+
+
+class PreviewSecretsTest(unittest.TestCase):
+    """Task 372 (docs/reports/outside-tools-study-2026-10-30.md, F1): the app Pi wrote runs with an allow-listed
+    environment, as test runs do; the values below are fakes."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(os.path.realpath(self.temp.name))
+        (self.root / 'config.json').write_text('{"language": "ja"}')
+
+    def started(self, script, extra=()):
+        folder = self.root / 'project'; folder.mkdir(exist_ok=True)
+        previews = Previews(self.root / 'previews', command=lambda folder, port: [sys.executable, '-c', script, *extra]); self.addCleanup(previews.close)
+        fakes = {'GITHUB_TOKEN': 'fake-token', 'OPENAI_API_KEY': 'fake-key', 'PI_HARNESS_TOKEN': 'fake-harness', 'SOME_SERVICE_PASSWORD': 'fake-password'}
+        with patch.dict(os.environ, fakes): previews.start('project', folder)
+        return folder, previews
+
+    def test_the_app_gets_no_secret_from_the_persons_environment(self):
+        folder, _ = self.started('import json, os, pathlib, time; pathlib.Path("env.json").write_text(json.dumps(sorted(os.environ))); time.sleep(30)')
+        deadline = time.monotonic() + 15
+        while not (folder / 'env.json').is_file() and time.monotonic() < deadline: time.sleep(0.1)
+        names = json.loads((folder / 'env.json').read_text())
+        for name in ('GITHUB_TOKEN', 'OPENAI_API_KEY', 'PI_HARNESS_TOKEN', 'SOME_SERVICE_PASSWORD'): self.assertNotIn(name, names)
+        for name in ('PATH', 'HOME', 'APP_LANG', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR'): self.assertIn(name, names)
 
 
 class PreviewNeverServesOutsideTheProjectTest(unittest.TestCase):

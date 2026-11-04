@@ -31,7 +31,11 @@ import threading
 EXECUTABLE = Path('/usr/bin/sandbox-exec')
 RUNNER = Path(__file__).with_name('sandbox-run.sh')
 NETWORK = ('none', 'local', 'internet')
-# The variables a run keeps are listed in sandbox-run.sh (an allow-list: no PI_HARNESS_*, no tokens or keys).
+# The variables a run keeps besides PATH and HOME (an allow-list: no PI_HARNESS_*, no tokens or keys); sandbox-run.sh
+# keeps exactly these, and the Preview starts the app with them (task 372).
+ENVIRONMENT = ('USER', 'LOGNAME', 'SHELL', 'LANG', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'TERM', 'COLORTERM', 'NO_COLOR', 'FORCE_COLOR', 'CI', 'TZ',
+               'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'UV_TOOL_DIR', 'UV_OFFLINE', 'NPM_CONFIG_CACHE', 'CARGO_HOME', 'RUSTUP_HOME', 'NVM_DIR', 'VOLTA_HOME',
+               'PYENV_ROOT', 'JAVA_HOME', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR', 'DEVELOPER_DIR', 'SDKROOT', 'PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'NODE_NO_WARNINGS')
 SECRET_FOLDERS = ('.ssh', '.aws', '.gnupg', '.config/gh', '.netrc', '.git-credentials', '.pi', '.docker', 'Library/Keychains')
 CACHES = ('.cache', 'Library/Caches', '.npm', '.cargo', '.rustup', '.local/share/uv', '.bun/install/cache', '.yarn', '.pnpm-store', 'Library/pnpm')
 REFUSED = re.compile(r'Operation not permitted|\[Errno 1\]|\bEPERM\b|sandbox-exec:|deny\(\d+\)', re.I)
@@ -76,6 +80,12 @@ def widen(data, root, network, state='chosen'):
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_suffix('.tmp'); temporary.write_text(json.dumps(saved, indent=2) + '\n', encoding='utf-8'); temporary.replace(path)
     return widened(data, root)
+
+
+def environment(source=None):
+    """The allow-listed variables of `source` (os.environ by default): PATH, HOME, TMPDIR and ENVIRONMENT."""
+    source = os.environ if source is None else source
+    return {name: source[name] for name in ('PATH', 'HOME', 'TMPDIR', *ENVIRONMENT) if name in source}
 
 
 def quoted(path):
