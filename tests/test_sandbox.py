@@ -156,6 +156,70 @@ class GateSandboxesAllowedTestRunsTest(unittest.TestCase):
             self.assertEqual(event.status, 'SUCCESS', 'Pi reports what it asked for; no drift')
 
 
+def decision(text, operation, path=None):
+    """Task 376: what a profile from sandbox.profile() decides for one operation ('file-read-data',
+    'file-read-metadata', 'file-write-data' or 'network-outbound') on one real path: the last matching rule wins, as in
+    Seatbelt. Reads only the forms profile() writes: (allow default), operations, (subpath ...), (literal ...),
+    (local|remote unix|ip ...)."""
+    import re
+    found = None
+    for line in text.splitlines():
+        rule = re.fullmatch(r'\((allow|deny) (.*)\)', line)
+        if not rule: continue
+        verdict, body = rule.groups()
+        if body == 'default': found = verdict; continue
+        operations = re.match(r'[a-z*-]+(?: [a-z*-]+)*', body).group(0).split()
+        filters = body[len(' '.join(operations)):].strip()
+        if not any(name == operation or name.endswith('*') and operation.startswith(name[:-1]) for name in operations): continue
+        if operation.startswith('network'):  # path: 'unix', or 'ip:<host>'
+            kind, _, host = path.partition(':')
+            if not filters or any(found_kind == kind and (not found_host or found_host.split(':')[0] == host)
+                                  for found_kind, found_host in re.findall(r'\((?:local|remote) (ip|unix)(?: "([^"]*)")?\)', filters)): found = verdict
+            continue
+        for kind, value in re.findall(r'\((subpath|literal) "((?:[^"\\]|\\.)*)"\)', filters):
+            value = value.replace('\\"', '"').replace('\\\\', '\\')
+            if path == value or kind == 'subpath' and path.startswith(value.rstrip('/') + '/'): found = verdict; break
+    return found
+
+
+class SandboxProfilePropertiesTest(unittest.TestCase):
+    """Task 376 (docs/reports/outside-tools-study-2026-10-30.md, OS-4, after OpenShell's prover): properties of every profile, checked on its text."""
+    def profiles(self, profile=sandbox.profile):
+        base = Path(os.path.realpath(tempfile.gettempdir())) / 'profile-properties'
+        home, data, temporary = base / 'home', base / 'data', base / 'tmp'
+        for root in (base / 'elsewhere' / 'project', data / 'projects' / 'inside'):
+            for network in sandbox.NETWORK:
+                yield network, str(root), str(data), str(home), profile(root, temporary, data, network, home)
+
+    def check(self, profile=sandbox.profile):
+        for network, root, data, home, text in self.profiles(profile):
+            where = f'{network}, {root}'
+            self.assertEqual(decision(text, 'file-write-data', root + '/app.py'), 'allow', where)
+            for path in (root + '/.git', root + '/.git/config', root + '/.git/hooks/pre-commit', data + '/chats/x', data + '/gate-events.jsonl', data):
+                self.assertEqual(decision(text, 'file-write-data', path), 'deny', f'{where}: write {path}')
+            self.assertEqual(decision(text, 'file-write-data', data + '/toolchain/tailwindcss/bin'), 'allow', where)
+            for name in sandbox.SECRET_FOLDERS:
+                for path in (f'{home}/{name}', f'{home}/{name}/inner'):
+                    self.assertEqual(decision(text, 'file-read-data', path), 'deny', f'{where}: read {path}')
+            for path in (data, data + '/chats/.gate-token-x', data + '/projects/other/notes.md'):
+                self.assertEqual(decision(text, 'file-read-data', path), 'deny', f'{where}: read {path}')
+            self.assertEqual(decision(text, 'network-outbound', 'ip:example.com'), 'allow' if network == 'internet' else 'deny', where)
+            self.assertEqual(decision(text, 'network-outbound', 'ip:localhost'), 'deny' if network == 'none' else 'allow', where)
+            self.assertEqual(decision(text, 'network-outbound', 'unix'), 'allow', where)
+            self.assertEqual('(allow network*)' in text.splitlines(), network == 'internet', where)
+
+    def test_no_profile_crosses_the_boundary(self):
+        self.check()
+
+    def test_each_property_catches_a_broken_profile(self):
+        broken = {'.git': lambda text: '\n'.join(line for line in text.splitlines() if '.git' not in line),
+                  'secrets': lambda text: text.replace('(deny file-read* file-write*', '(allow file-read* file-write*'),
+                  'network': lambda text: text.replace('(deny network*)', '(allow network*)')}
+        for name, breaking in broken.items():
+            with self.subTest(name), self.assertRaises(AssertionError):
+                self.check(lambda *args, breaking=breaking: breaking(sandbox.profile(*args)))
+
+
 class SandboxRouteTest(unittest.TestCase):
     def test_only_the_persons_page_can_widen_the_sandbox(self):
         import http.server, json, threading, urllib.error, urllib.request

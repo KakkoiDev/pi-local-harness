@@ -462,3 +462,5 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [374-The docs name the default model the harness actually uses](tasks/374-default-model-docs.md)
 
 - [x] [375-The Preview runs the app inside the test sandbox's file boundary](tasks/375-preview-file-sandbox.md)
+
+- [x] [376-The sandbox profile keeps its boundary for every setting](tasks/376-sandbox-profile-properties.md)
