@@ -2,7 +2,8 @@
 
 Status: design, not built. Written 2026-11-04 at `002ede3`.
 Kind: planning. No code changes in this document.
-Review: an elephant-goldfish (EGM) review of this plan is in progress and may revise it.
+Review: elephant-goldfish (EGM) review done 2026-11-04, not yet applied here: TE-2 and EGM-3 RETHINK, SkillOpt PROCEED after
+a trim. See [the consolidated review](../reports/plan-361-egm-review-2026-11-04/consolidated_review_report.md).
 
 Request 2026-11-04 (the captain): "let's do all of this now and also add the skillopt feature for skill improvement on
 the go." "All of this" is ranks 8, 10 and 11 of the tool-study report

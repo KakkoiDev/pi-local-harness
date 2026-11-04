@@ -61,3 +61,4 @@ Review and return handoff (2026-10-17):
 - [Outside tools study](reports/outside-tools-study-2026-10-30.md): OpenShell, TokenEconomizer, EGM and OpenUI against Pi WorkStation; verified security gaps, a ranked change list and the decisions taken on 2026-11-04.
 - [Facts, goldfish and SkillOpt plan](plans/361-facts-goldfish-skill-improvement.md): TE-2 readable test-runner facts, EGM-3 goldfish plan check (off by default), and why SkillOpt does not fit on the go; EGM review in progress.
 - [Facts, goldfish and SkillOpt design report](reports/facts-goldfish-skillopt-design-2026-11-04.md): feasibility findings, decisions D2 to D6 for the captain, and the blocked EGM runs.
+- [Plan 361 EGM design review](reports/plan-361-egm-review-2026-11-04/consolidated_review_report.md): consolidated verdict (TE-2 and EGM-3 RETHINK, SkillOpt PROCEED after a trim), per-reviewer reports and the plan text as reviewed, in one folder.
