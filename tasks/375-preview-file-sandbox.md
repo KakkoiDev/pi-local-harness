@@ -25,3 +25,10 @@ each change reverted. `tests/test_preview.py` and `tests/test_sandbox.py` pass u
 copy of `kit/starter` (styles set aside) started with `uvicorn --reload` in a data-folder project, answered 200, and
 answered 200 again after an edit reloaded it. Not verified: the Tailwind build path, because the Tailwind download
 fails on this network with a certificate error with or without the sandbox; the terminal Preview.
+
+`tests/test_project_commands.py` (task 262) read the folder from the app's last argument; under the sandbox that is the
+last word of the wrapped command, so its helper now reads it there. Full run on this Mac (Python 3.13, 1096 tests):
+the only other failures are environmental and also fail on the base commit 1de9a10 (the bench's Pong check and
+`tests/harness/browser.test.mjs` time out because headless Chrome hangs here, which also fails the Node isolation
+test) or come from load (the Ollama-down test passes 3 of 3 alone). Browser suites not run: Playwright's Chromium
+download hangs on this network, and the local Pi is 0.87.1, not the journey's 1.1.0.
