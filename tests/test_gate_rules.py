@@ -133,7 +133,8 @@ class SecretReadsTest(unittest.TestCase):
         for command, cwd in (('cat ~/.npmrc', project), ('head -n 5 .zsh_history', self.home), ('grep -r x ~/.aws', project),
                              ('python3 -c "print(1)" --config=~/.npmrc', project), (f'cat keys/{self.KEY}', project),
                              ('rg --hidden --no-ignore -n "" ~', project), ('grep -rn x ..', project), ('grep -Rn x ..', project),
-                             ('find ~ -name x', project), ('ls -R ~', project)):
+                             ('find ~ -name x', project), ('ls -R ~', project), ('cat ~/.npmrc|head', project),
+                             ('grep -n x ~/.zsh_history|head -n 3', project)):
             self.assertEqual(self.decided('execute_command', {'command': command}, cwd)[0], 'G-018', command)
 
     def test_other_files_are_read_as_before(self):

@@ -93,11 +93,11 @@ def secret_read(tool, args, cwd=None):
     grep/find/ls, rg, find, grep -r, ls -R) reaches through a parent folder, as the person would write it, or None.
     Paths are resolved from the call's folder and through symlinks; one list, gate.sandbox.SECRET_FOLDERS."""
     import os
-    import shlex
+    from .phase_shell import shell_words
     from .sandbox import SECRET_FOLDERS
     if tool == 'read_file': words, recursive = ([args.get('path')] if isinstance(args.get('path'), str) else []), True
     elif tool == 'execute_command' and isinstance(args.get('command'), str):
-        try: words = shlex.split(args['command'])
+        try: words = shell_words(args['command'])
         except ValueError: words = args['command'].split()
         names, short = {Path(word).name for word in words}, ''.join(word[1:] for word in words if word[:1] == '-' and word[:2] != '--')
         recursive = bool(names & {'rg', 'find'}) or ('grep' in names and ('r' in short or 'R' in short or bool({'--recursive', '--dereference-recursive'} & set(words)))) \
