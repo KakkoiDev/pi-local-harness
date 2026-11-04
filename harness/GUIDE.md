@@ -225,7 +225,7 @@ only (localhost) or The internet, kept for that project. Only you can change it,
 sandbox is not there yet (Linux: bubblewrap, planned).
 
 Pi cannot read those secret files either, with a tool or a command (Gate rule G-018): it asks you to paste the value
-it needs.
+it needs. A search or listing of a folder that holds them, such as your home folder, is refused too.
 
 The app the Preview runs gets the same short list of variables as a test run (the toolchains', the locale, the
 terminal, PATH and HOME, plus its language and Tailwind settings): no tokens or keys from your shell. On macOS it also
