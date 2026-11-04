@@ -27,8 +27,8 @@ The language model is used for generation, never for judgement. It does not deci
 command is safe, which phase the work is in, whether the person said yes, or what comes next. It produces answers,
 code, the content of plans, readings of images, and tool calls; System 1 judges all of them.
 
-**Enforced by:** Gate checks every tool call (G-001 to G-013); the harness keeps the paperwork (plan 184). Not yet: the
-decisions System 2 still takes (Articles 4 and 6).
+**Enforced by:** Gate checks every tool call (the rules in `gate/rules.py`, listed by `/gate rules`); the harness keeps
+the paperwork (plan 184). Not yet: the decisions System 2 still takes (Articles 4 and 6).
 
 ## Article 2. The decision ladder
 
@@ -87,7 +87,7 @@ or verified, or answers a question that code or Laya already answers.
 Every tool call System 2 makes is checked by Gate before it runs and audited after. A check that fails blocks only that
 call (G-011).
 
-**Enforced by:** G-001 to G-013, the audit log.
+**Enforced by:** Gate's rules (`gate/rules.py`, listed by `/gate rules`), the audit log.
 
 ## Article 8. Three phases, for every request
 
