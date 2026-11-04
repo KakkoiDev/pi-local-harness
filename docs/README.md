@@ -57,3 +57,5 @@ Review and return handoff (2026-10-17):
 - [Round17 product decisions](plans/360-round-17-product-decisions.md) and [round18 designer prompt](../design/briefs/round-18-overview-decisions.md): all 20 questions resolved under owner delegation.
 
 - [Round18 follow-up questions and agent prompt](../design/briefs/round-18-follow-up-questions.md): historical questions, now superseded by the owner-delegated round19 decisions.
+
+- [Outside tools study](reports/outside-tools-study-2026-10-30.md): OpenShell, TokenEconomizer, EGM and OpenUI against Pi WorkStation; verified security gaps, a ranked change list and the decisions taken on 2026-11-04.
