@@ -258,7 +258,8 @@ class Previews:
             if language in ('en','ja'):env['APP_LANG']=language
             env.update(TAILWINDCSS_VERSION=TAILWIND, TAILWINDCSS_BIN_DIR=str(self.folder.parent / 'toolchain' / 'tailwindcss'))
             with log.open('w', encoding='utf-8') as output:
-                process = subprocess.Popen(command, cwd=folder, env=env, stdout=output, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+                # Task 375: the app is model-written code; it runs inside the test sandbox's file boundary (network unchanged).
+                process = subprocess.Popen(sandbox.argv(command, folder, self.folder.parent, 'internet'), cwd=folder, env=env, stdout=output, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
             first = (Path(folder) / 'pyproject.toml').is_file() and not (Path(folder) / '.venv').exists()
             self.apps[project] = app = App(process, port, log, first)
             app.terminal=(Path(folder)/'app/tui.py').is_file() and (Path(folder)/'serve.py').is_file()

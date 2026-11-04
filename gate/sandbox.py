@@ -35,7 +35,7 @@ NETWORK = ('none', 'local', 'internet')
 # keeps exactly these, and the Preview starts the app with them (task 372).
 ENVIRONMENT = ('USER', 'LOGNAME', 'SHELL', 'LANG', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'TERM', 'COLORTERM', 'NO_COLOR', 'FORCE_COLOR', 'CI', 'TZ',
                'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'UV_TOOL_DIR', 'UV_OFFLINE', 'NPM_CONFIG_CACHE', 'CARGO_HOME', 'RUSTUP_HOME', 'NVM_DIR', 'VOLTA_HOME',
-               'PYENV_ROOT', 'JAVA_HOME', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR', 'DEVELOPER_DIR', 'SDKROOT', 'PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'NODE_NO_WARNINGS')
+               'PYENV_ROOT', 'JAVA_HOME', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR', 'DEVELOPER_DIR', 'SDKROOT', 'PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'NODE_NO_WARNINGS', 'APP_LANG')
 # The person's secrets: test runs cannot read them and Gate refuses Pi's reads of them (G-018, task 373).
 SECRET_FOLDERS = ('.ssh', '.aws', '.gnupg', '.config/gh', '.netrc', '.git-credentials', '.pi', '.docker', 'Library/Keychains',
                   '.npmrc', '.pypirc', '.yarnrc.yml', '.zsh_history', '.bash_history', '.claude.json', '.claude', '.codex', '.kube', '.azure',
@@ -113,6 +113,9 @@ def profile(root, temporary, data=None, network='none', home=None):
     # A project inside the data folder (the workbench's own projects) is still the project; so is its toolchain.
     if data and Path(root).is_relative_to(real(data)):
         lines.append(f'(allow file-read* (subpath {quoted(root)}))')
+        # Task 375: its path resolves (realpath reads each folder above it); their metadata only, never their files or listing.
+        above = [folder for folder in Path(root).parents if folder.is_relative_to(real(data))]
+        lines.append('(allow file-read-metadata ' + ' '.join(f'(literal {quoted(folder)})' for folder in above) + ')')
         lines.append(f'(allow file-write* (subpath {quoted(root)}))')
         lines.append(f'(deny file-write* (subpath {quoted(Path(root) / ".git")}))')
     if data: lines.append(f'(allow file-read* file-write* (subpath {quoted(real(Path(data) / "toolchain"))}))')

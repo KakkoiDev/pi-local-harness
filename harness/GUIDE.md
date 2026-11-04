@@ -228,7 +228,9 @@ Pi cannot read those secret files either, with a tool or a command (Gate rule G-
 it needs.
 
 The app the Preview runs gets the same short list of variables as a test run (the toolchains', the locale, the
-terminal, PATH and HOME, plus its language and Tailwind settings): no tokens or keys from your shell.
+terminal, PATH and HOME, plus its language and Tailwind settings): no tokens or keys from your shell. On macOS it also
+runs inside the test sandbox's file boundary: it writes only in its project, a temporary folder and the toolchain
+caches (never in `.git`) and cannot read your secret files. Its network is not limited.
 
 ### When are my app's packages downloaded?
 

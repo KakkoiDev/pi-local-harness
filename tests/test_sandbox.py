@@ -106,9 +106,12 @@ class SandboxedTestRunTest(unittest.TestCase):
     def test_a_project_inside_the_data_folder_is_still_its_own(self):
         self.project = self.data / 'projects' / 'inside'; (self.project / 'tests').mkdir(parents=True)
         done = self.run_tests('''
-            import unittest, pathlib
+            import os, unittest, pathlib
             class Probe(unittest.TestCase):
                 def test_inside(self): pathlib.Path('result.txt').write_text('ok')
+                def test_its_own_path_resolves(self): self.assertEqual(pathlib.Path.cwd().resolve(strict=True).name, 'inside')  # task 375: the Preview's file server
+                def test_the_data_folder_stays_unlisted(self):
+                    with self.assertRaises(PermissionError): os.listdir(pathlib.Path.cwd().parent.parent)
         ''')
         self.assertEqual(done.returncode, 0, done.stderr)
 
