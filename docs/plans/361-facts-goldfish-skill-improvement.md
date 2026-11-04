@@ -6,13 +6,13 @@ Review: an elephant-goldfish (EGM) review of this plan is in progress and may re
 
 Request 2026-11-04 (the captain): "let's do all of this now and also add the skillopt feature for skill improvement on
 the go." "All of this" is ranks 8, 10 and 11 of the tool-study report
-(`firstmate/data/pi-harness-report/report.md`, "Ranked list of changes worth shipping"). This document covers:
+([`docs/reports/outside-tools-study-2026-10-30.md`](../reports/outside-tools-study-2026-10-30.md), "Ranked list of changes worth shipping"). This document covers:
 
 - **TE-2** (rank 8): readable project facts, confirmed three times. Decision D1 was taken as **B**: facts built only
   from words System 1 already classifies, never model text or raw arguments.
 - **EGM-3** (rank 11): a fresh-context "goldfish" check of Pi's plan, off by default.
 - **SkillOpt**: "skill improvement on the go", after microsoft/SkillOpt, which rewrites one Markdown skill file and keeps
-  a rewrite only if a scorer says it is better (`firstmate/data/skillopt-loop/report.md`, A1).
+  a rewrite only if a scorer says it is better (an earlier SkillOpt study, 2026-10-22, A1).
 
 Rank 10 (running EGM on this repository's docs and plans) is a process step, not product code. It is not designed here.
 
@@ -218,7 +218,7 @@ not drop, and the time added stays under a limit the captain sets (decision D3).
 
 - One more full pass of a 20B to 26B local model: minutes, and it holds the agent lock, so the next request waits.
 - Wrong questions confuse a learner. An earlier EGM run produced a false finding
-  (`firstmate/data/openui-genui-egm/report.md:26`). Mitigated by three cards at most and off by default.
+  (an earlier EGM run on a GenUI design, 2026-10-30). Mitigated by three cards at most and off by default.
 
 ---
 
@@ -226,7 +226,7 @@ not drop, and the time added stays under a limit the captain sets (decision D3).
 
 ### 3.1 What SkillOpt needs
 
-From `firstmate/data/skillopt-loop/report.md` A1, read from the SkillOpt source at `1a44050`:
+From an earlier SkillOpt study (2026-10-22), A1, read from the SkillOpt source at `1a44050`:
 
 - one Markdown skill document per run;
 - rollouts that score each item (`hard`, `soft`) and keep its conversation;
