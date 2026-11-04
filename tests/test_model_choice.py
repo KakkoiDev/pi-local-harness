@@ -31,6 +31,21 @@ class FakeOllama(BaseHTTPRequestHandler):
         FakeOllama.calls.append((self.path, data)); self.send({'done': True})
 
 
+class DefaultModelDocsTest(unittest.TestCase):
+    """Task 374 (docs/reports/outside-tools-study-2026-10-30.md F4): the docs that name the default model name the one
+    harness/model.json holds."""
+    def test_the_docs_name_the_default_model_of_harness_model_json(self):
+        import re
+        root = Path(__file__).resolve().parent.parent
+        saved = json.loads((root / 'harness' / 'model.json').read_text())
+        expected = f"{saved['provider']}/{saved['model']}"
+        for name in ('docs/reference.md', 'harness/README.md'):
+            text = (root / name).read_text()
+            named = re.findall(r'`harness/model\.json`[^`]*`(ollama/[^`]+)`', text)
+            self.assertTrue(named, f'{name} names the default model next to harness/model.json')
+            self.assertEqual(set(named), {expected}, name)
+
+
 class ModelChoiceTest(unittest.TestCase):
     def setUp(self):
         FakeOllama.calls = []

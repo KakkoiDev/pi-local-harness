@@ -43,7 +43,7 @@ applies the next time plh starts). A variable already set in your shell wins ove
 `PI_AGENT_DATA` (the data folder, `~/pi-local-harness-data`) is chosen before plh starts, since config.json lives in it.
 The harness also sets variables for its own requests (`PI_HARNESS_*`); `/config` lists them.
 
-`harness/model.json` holds the default model (`ollama/gemma4:26b-mlx`). The person chooses
+`harness/model.json` holds the default model (`ollama/gpt-oss:20b`). The person chooses
 another installed Ollama model and the thinking level in the web menu bar; the choice lives in
 `<data>/model.json` and both terminal Pi (from its next start) and browser workers use it
 (`harness/model.py`: `current()`, `effective()`). Switching unloads the previous model

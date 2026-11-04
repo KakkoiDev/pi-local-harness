@@ -167,7 +167,7 @@ does not think dims the thinking menu. The choice is saved in `model.json` in th
 directory and used by terminal Pi (from its next start) and browser workers.
 A Colibri server (`coli serve`, task 294) the person starts adds its model to the list: `colibri_url`
 (`PI_COLIBRI_URL`, default `http://127.0.0.1:8100`) says where it answers; plh never starts or stops it.
-`harness/model.json` is the default model (`ollama/gemma4:26b-mlx`); a `model` in
+`harness/model.json` is the default model (`ollama/gpt-oss:20b`); a `model` in
 `config.json` is not supported and stops `plh` with an error. Port `0`
 selects an available port. `PI_AGENT_DATA` selects a different data directory;
 `PI_GATE_PORT` and `PI_WEB_PORT` override ports. See the
