@@ -17,8 +17,10 @@ protected reads plus a wider `SECRET_FOLDERS` (OS-3), which fixes F2 and F3.
 - [x] Green: `python3 tests/verify_workflow.py`.
 
 Limits: a deny list is never complete. The rule reads the words of a command, so a path built at run time (a glob,
-a variable, `cd ~ && cat .npmrc`) is not seen, and a recursive search of a folder that contains a secret folder
-(`grep -r x ~`) is not refused. The sandbox remains the backstop, for test runs only.
+a variable, `cd ~ && cat .npmrc`) is not seen. A recursive read of a folder that contains a secret folder (Pi's
+grep, find or ls of `~` or `..`, `rg ... ~`, `find ~`, `grep -r x ..`, `ls -R ~`) is refused (review, 2026-11-04), which
+also refuses ordinary searches of HOME; one with no folder named (`rg x` run from HOME) is not seen. The sandbox
+remains the backstop, for test runs only.
 
 ## Verification
 

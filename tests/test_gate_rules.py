@@ -127,18 +127,20 @@ class SecretReadsTest(unittest.TestCase):
 
     def test_secret_files_are_refused_and_the_person_is_asked(self):
         project = self.home / 'project'
-        for args in ({'path': f'~/.ssh/{self.KEY}'}, {'path': str(self.home / '.npmrc')}, {'path': f'keys/{self.KEY}'}, {'path': '../.aws'}, {'path': f'~/.SSH/{self.KEY}'}):
+        for args in ({'path': f'~/.ssh/{self.KEY}'}, {'path': str(self.home / '.npmrc')}, {'path': f'keys/{self.KEY}'}, {'path': '../.aws'}, {'path': f'~/.SSH/{self.KEY}'}, {'path': '~'}, {'path': '..'}):
             rule, reason = self.decided('read_file', args, project)
             self.assertEqual(rule, 'G-018', args); self.assertIn('Ask the person to paste the value you need', reason)
         for command, cwd in (('cat ~/.npmrc', project), ('head -n 5 .zsh_history', self.home), ('grep -r x ~/.aws', project),
-                             ('python3 -c "print(1)" --config=~/.npmrc', project), (f'cat keys/{self.KEY}', project)):
+                             ('python3 -c "print(1)" --config=~/.npmrc', project), (f'cat keys/{self.KEY}', project),
+                             ('rg --hidden --no-ignore -n "" ~', project), ('grep -rn x ..', project), ('grep -Rn x ..', project),
+                             ('find ~ -name x', project), ('ls -R ~', project)):
             self.assertEqual(self.decided('execute_command', {'command': command}, cwd)[0], 'G-018', command)
 
     def test_other_files_are_read_as_before(self):
         project = self.home / 'project'
         for args in ({'path': 'app.py'}, {'path': '~/.npmrc-notes.txt'}, {}, {'path': '.'}):
             self.assertEqual(self.decided('read_file', args, project), (None, None), args)
-        for command in ('cat app.py', 'ls -la', 'grep -rn npmrc .', 'python3 -m unittest'):
+        for command in ('cat app.py', 'ls -la', 'grep -rn npmrc .', 'python3 -m unittest', 'ls -la ..', 'rg -n x .', 'grep -n x ../.npmrc-notes.txt'):
             self.assertEqual(self.decided('execute_command', {'command': command}, project), (None, None), command)
 
 

@@ -266,10 +266,19 @@ class SandboxWideningTest(unittest.TestCase):
         self.assertEqual(sandbox.shown(wrapped), "python3 -m unittest -k 'a b'")
         self.assertEqual(sandbox.shown('ls -la'), 'ls -la')
 
+    @unittest.skipUnless(sandbox.available(), 'sandbox-exec is macOS only')
     def test_the_runner_keeps_exactly_the_one_allow_list(self):
         """Task 372: the Preview builds its environment from the same list the runner keeps."""
-        runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()
-        self.assertEqual(tuple(runner.split('for name in ', 1)[1].split('; do', 1)[0].replace('\\\n', ' ').split()), sandbox.ENVIRONMENT)
+        with tempfile.TemporaryDirectory() as folder:
+            profile = Path(folder) / 'open.sb'; profile.write_text('(version 1)\n(allow default)\n')
+            source = {'PATH': '/usr/bin:/bin', 'HOME': folder, 'TMPDIR': folder, 'GITHUB_TOKEN': 'fake', 'PI_HARNESS_TOKEN': 'fake',
+                      **{name: 'fake' for name in sandbox.ENVIRONMENT}}
+            done = subprocess.run(['/bin/sh', str(sandbox.RUNNER), str(profile), folder, '/usr/bin/env'], env=source,
+                                  capture_output=True, text=True, timeout=60)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        kept = {line.partition('=')[0] for line in done.stdout.splitlines()} - {'PWD', 'SHLVL', '_'}  # /bin/sh's own
+        self.assertEqual(kept, {'PATH', 'HOME', 'TMPDIR', *sandbox.ENVIRONMENT})
+        self.assertEqual(set(sandbox.environment(source)), kept)
 
     def test_the_runner_keeps_only_harmless_variables(self):
         runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()

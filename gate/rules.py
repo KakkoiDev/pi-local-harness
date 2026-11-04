@@ -89,15 +89,19 @@ def plan_file(path):
 
 
 def secret_read(tool, args, cwd=None):
-    """G-018 (task 373): the secret file a read_file call or a shell command names, as the person would write it, or
-    None. Paths are resolved from the call's folder and through symlinks; one list, gate.sandbox.SECRET_FOLDERS."""
+    """G-018 (task 373): the secret file a read_file call or a shell command names, or a recursive read (Pi's
+    grep/find/ls, rg, find, grep -r, ls -R) reaches through a parent folder, as the person would write it, or None.
+    Paths are resolved from the call's folder and through symlinks; one list, gate.sandbox.SECRET_FOLDERS."""
     import os
     import shlex
     from .sandbox import SECRET_FOLDERS
-    if tool == 'read_file': words = [args.get('path')] if isinstance(args.get('path'), str) else []
+    if tool == 'read_file': words, recursive = ([args.get('path')] if isinstance(args.get('path'), str) else []), True
     elif tool == 'execute_command' and isinstance(args.get('command'), str):
         try: words = shlex.split(args['command'])
         except ValueError: words = args['command'].split()
+        names, short = {Path(word).name for word in words}, ''.join(word[1:] for word in words if word[:1] == '-' and word[:2] != '--')
+        recursive = bool(names & {'rg', 'find'}) or ('grep' in names and ('r' in short or 'R' in short or bool({'--recursive', '--dereference-recursive'} & set(words)))) \
+            or ('ls' in names and ('R' in short or '--recursive' in words))
         words = [part for word in words for part in (word, word.partition('=')[2]) if part]
     else: return None
     home = Path.home()
@@ -106,7 +110,7 @@ def secret_read(tool, args, cwd=None):
         try: found = os.path.realpath(Path(cwd or '.') / Path(word).expanduser()).casefold()
         except (OSError, RuntimeError, ValueError): continue
         for name, path in hidden:
-            if found == path or found.startswith(path + os.sep): return '~/' + name
+            if found == path or found.startswith(path + os.sep) or recursive and path.startswith(found.rstrip(os.sep) + os.sep): return '~/' + name
     return None
 
 
