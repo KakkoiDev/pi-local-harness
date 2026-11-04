@@ -5,6 +5,8 @@ try:
     import isolation  # noqa: F401  (first: no real Ollama, tailnet or live harness in tests)
 except ModuleNotFoundError:  # run as tests.<module> from the repository root
     from tests import isolation  # noqa: F401
+import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -12,7 +14,9 @@ import time
 import unittest
 import urllib.request
 from pathlib import Path
+from unittest.mock import patch
 
+from gate import sandbox
 from harness.preview import Previews, run_command
 from harness.web_chat import WebChat, preview_lines
 
@@ -220,6 +224,66 @@ class PreviewTest(unittest.TestCase):
         process = self.previews.apps['site'].process
         self.previews.close()
         self.assertIsNotNone(process.poll())
+
+
+class PreviewSecretsTest(unittest.TestCase):
+    """Task 372 (docs/reports/outside-tools-study-2026-10-30.md, F1): the app Pi wrote runs with an allow-listed
+    environment, as test runs do; the values below are fakes."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(os.path.realpath(self.temp.name))
+        (self.root / 'config.json').write_text('{"language": "ja"}')
+
+    def started(self, script, extra=()):
+        folder = self.root / 'project'; folder.mkdir(exist_ok=True)
+        previews = Previews(self.root / 'previews', command=lambda folder, port: [sys.executable, '-c', script, *extra]); self.addCleanup(previews.close)
+        fakes = {'GITHUB_TOKEN': 'fake-token', 'OPENAI_API_KEY': 'fake-key', 'PI_HARNESS_TOKEN': 'fake-harness', 'SOME_SERVICE_PASSWORD': 'fake-password'}
+        with patch.dict(os.environ, fakes): previews.start('project', folder)
+        return folder, previews
+
+    def test_the_app_gets_no_secret_from_the_persons_environment(self):
+        folder, _ = self.started('import json, os, pathlib, time; pathlib.Path("env.json").write_text(json.dumps(sorted(os.environ))); time.sleep(30)')
+        deadline = time.monotonic() + 15
+        while not (folder / 'env.json').is_file() and time.monotonic() < deadline: time.sleep(0.1)
+        names = json.loads((folder / 'env.json').read_text())
+        for name in ('GITHUB_TOKEN', 'OPENAI_API_KEY', 'PI_HARNESS_TOKEN', 'SOME_SERVICE_PASSWORD'): self.assertNotIn(name, names)
+        for name in ('PATH', 'HOME', 'APP_LANG', 'TAILWINDCSS_VERSION', 'TAILWINDCSS_BIN_DIR'): self.assertIn(name, names)
+
+
+@unittest.skipUnless(sandbox.available(), 'sandbox-exec is macOS only')
+class PreviewSandboxTest(unittest.TestCase):
+    """Task 375 (docs/reports/outside-tools-study-2026-10-30.md F1, OS-1 step b): the app runs inside the test
+    sandbox's file boundary. A fake HOME with a fake key; nothing real is read."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        base = Path(os.path.realpath(self.temp.name))
+        self.data, self.home, self.elsewhere = base / 'data', base / 'home', base / 'elsewhere'
+        for folder in (self.data, self.home / ('.' + 'ssh'), self.elsewhere): folder.mkdir(parents=True)
+        (self.home / ('.' + 'ssh') / 'key').write_text('fake')
+        (self.data / 'config.json').write_text('{"language": "ja"}')
+        patcher = patch.dict(os.environ, {'HOME': str(self.home)}); patcher.start(); self.addCleanup(patcher.stop)
+
+    def test_the_app_writes_only_in_its_project_and_reads_no_secret(self):
+        folder = self.data / 'projects' / 'app'; (folder / '.git').mkdir(parents=True)
+        script = f"""
+import json, os, pathlib, tempfile, time
+def tried(action):
+    try: action(); return 'done'
+    except OSError as error: return type(error).__name__
+found = {{'outside': tried(lambda: pathlib.Path({str(self.elsewhere / 'outside.txt')!r}).write_text('x')),
+         'git': tried(lambda: pathlib.Path('.git/config').write_text('x')),
+         'secret': tried(lambda: pathlib.Path({str(self.home / ('.' + 'ssh') / 'key')!r}).read_text()),
+         'tmp': tried(lambda: pathlib.Path(tempfile.mkdtemp(), 'x').write_text('x')),
+         'language': os.environ.get('APP_LANG')}}
+pathlib.Path('result.json').write_text(json.dumps(found)); time.sleep(30)
+"""
+        previews = Previews(self.data / '.previews', command=lambda folder, port: [sys.executable, '-c', script]); self.addCleanup(previews.close)
+        previews.start('app', folder)
+        deadline = time.monotonic() + 30
+        while not (folder / 'result.json').is_file() and time.monotonic() < deadline: time.sleep(0.1)
+        found = json.loads((folder / 'result.json').read_text())
+        self.assertEqual(found, {'outside': 'PermissionError', 'git': 'PermissionError', 'secret': 'PermissionError', 'tmp': 'done', 'language': 'ja'})
+        self.assertFalse((self.elsewhere / 'outside.txt').exists())
 
 
 class PreviewNeverServesOutsideTheProjectTest(unittest.TestCase):

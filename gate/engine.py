@@ -21,7 +21,7 @@ class GateEngine:
             }
         }
 
-    def rejection(self, proposal: ActionProposal, auth_level: str = "standard"):
+    def rejection(self, proposal: ActionProposal, auth_level: str = "standard", cwd=None):
         """(rule, reason Pi reads) for the first rule this proposal breaks before it runs, else (None, None). Plan 179:
         the rules are gate/rules.py; the ones decided from the proposal alone are checked here."""
         def broke(rule_id, reason): return rules.BY_ID[rule_id], rules.decided(rule_id, reason)
@@ -37,6 +37,9 @@ class GateEngine:
         risk = self.policies['tools'][proposal.tool_name]
         if risk not in self.policies['auth_levels'].get(auth_level, []):
             return broke('G-002', f"Profile {auth_level} does not authorize {proposal.tool_name}.")
+        secret = None if rules.bare() else rules.secret_read(proposal.tool_name, proposal.args, cwd)
+        if secret:
+            return broke('G-018', f'{secret} holds the person’s keys, tokens or history. Ask the person to paste the value you need.')
         if proposal.tool_name == 'execute_command' and not rules.bare() and rules.shell_writes_plan(command):
             return broke('G-008', 'this command writes ROADMAP.md or a task file from the shell. Use the edit tool (write for a new file, task_box to tick a box by its label), so Gate can check the change.')
         return None, None

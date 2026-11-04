@@ -44,6 +44,7 @@ RULES = [
     Rule('G-015', 'Project phase permissions', 'before', PROJECT, 'REVISE', 'Discussion reads; Planning writes ROADMAP.md and tasks/; Implementation writes approved task files. Only you or auto changes phase.', 'tests/test_phases.py', 'L-008-guessed-project-decisions.md'),
     Rule('G-016', 'Ask instead of assuming', 'before', PROJECT, 'REVISE', 'An assumption in Pi’s text or reasoning since the last user answer must become an ask_choices question before writing content.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
     Rule('G-017', 'Decisions are settled', 'before', PROJECT, 'REVISE', 'Decisions lines must be answers the harness recorded, before code changes.', 'tests/test_gate_rules.py', 'L-008-guessed-project-decisions.md'),
+    Rule('G-018', 'Secret files stay unread', 'before', EVERYWHERE, 'BLOCK', 'No reads of the person’s secret files (~/.ssh, ~/.npmrc, history ...); ask them for the value.', 'tests/test_gate_rules.py'),
 ]
 BY_ID = {rule.id: rule for rule in RULES}
 
@@ -85,6 +86,32 @@ def plan_file(path):
     """ROADMAP.md, or a Markdown file directly in tasks/."""
     path = Path(path)
     return path.name == 'ROADMAP.md' or (path.parent.name == 'tasks' and path.suffix == '.md')
+
+
+def secret_read(tool, args, cwd=None):
+    """G-018 (task 373): the secret file a read_file call or a shell command names, or a recursive read (Pi's
+    grep/find/ls, rg, find, grep -r, ls -R) reaches through a parent folder, as the person would write it, or None.
+    Paths are resolved from the call's folder and through symlinks; one list, gate.sandbox.SECRET_FOLDERS."""
+    import os
+    from .phase_shell import shell_words
+    from .sandbox import SECRET_FOLDERS
+    if tool == 'read_file': words, recursive = ([args.get('path')] if isinstance(args.get('path'), str) else []), True
+    elif tool == 'execute_command' and isinstance(args.get('command'), str):
+        try: words = shell_words(args['command'])
+        except ValueError: words = args['command'].split()
+        names, short = {Path(word).name for word in words}, ''.join(word[1:] for word in words if word[:1] == '-' and word[:2] != '--')
+        recursive = bool(names & {'rg', 'find'}) or ('grep' in names and ('r' in short or 'R' in short or bool({'--recursive', '--dereference-recursive'} & set(words)))) \
+            or ('ls' in names and ('R' in short or '--recursive' in words))
+        words = [part for word in words for part in (word, word.partition('=')[2]) if part]
+    else: return None
+    home = Path.home()
+    hidden = [(name, os.path.realpath(home / name).casefold()) for name in SECRET_FOLDERS]  # macOS folders ignore case
+    for word in words:
+        try: found = os.path.realpath(Path(cwd or '.') / Path(word).expanduser()).casefold()
+        except (OSError, RuntimeError, ValueError): continue
+        for name, path in hidden:
+            if found == path or found.startswith(path + os.sep) or recursive and path.startswith(found.rstrip(os.sep) + os.sep): return '~/' + name
+    return None
 
 
 def shell_writes_plan(command):

@@ -82,12 +82,36 @@ class SandboxedTestRunTest(unittest.TestCase):
         ''', env={'PI_AGENT_DATA': str(self.data)})
         self.assertEqual(done.returncode, 0, done.stderr)
 
+    def test_a_test_cannot_read_the_wider_list_of_secret_files(self):
+        """Task 373 (F2): files outside the old list, against the real profile with a fake home."""
+        home = self.base / 'home'
+        for name in ('.npmrc', '.zsh_history', '.claude.json', 'Library/Application Support/Google/Chrome/Default/Cookies', 'notes.txt'):
+            (home / name).parent.mkdir(parents=True, exist_ok=True); (home / name).write_text('fake')
+        for name in ('.npmrc', '.pypirc', '.yarnrc.yml', '.zsh_history', '.bash_history', '.claude.json', '.claude', '.codex', '.kube', '.azure',
+                     '.config/gcloud', '.tokeneconomizer', 'Library/Application Support/Google/Chrome', 'Library/Application Support/Firefox', 'Library/Cookies'):
+            self.assertIn(name, sandbox.SECRET_FOLDERS)
+        (self.project / 'tests' / 'test_probe.py').write_text(textwrap.dedent(f'''
+            import unittest, pathlib
+            class Probe(unittest.TestCase):
+                def test_secrets(self):
+                    for name in ('.npmrc', '.zsh_history', '.claude.json', 'Library/Application Support/Google/Chrome/Default/Cookies'):
+                        with self.assertRaises(PermissionError, msg=name): pathlib.Path({str(home)!r}, name).read_text()
+                def test_other_files(self): self.assertEqual(pathlib.Path({str(home)!r}, 'notes.txt').read_text(), 'fake')
+        '''))
+        path, temporary = sandbox.prepare(self.project, self.data, home=home)
+        done = subprocess.run(['/bin/sh', str(sandbox.RUNNER), str(path), str(temporary), f'{sys.executable} -B -m unittest tests.test_probe'],
+                              cwd=self.project, capture_output=True, text=True, timeout=120)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
     def test_a_project_inside_the_data_folder_is_still_its_own(self):
         self.project = self.data / 'projects' / 'inside'; (self.project / 'tests').mkdir(parents=True)
         done = self.run_tests('''
-            import unittest, pathlib
+            import os, unittest, pathlib
             class Probe(unittest.TestCase):
                 def test_inside(self): pathlib.Path('result.txt').write_text('ok')
+                def test_its_own_path_resolves(self): self.assertEqual(pathlib.Path.cwd().resolve(strict=True).name, 'inside')  # task 375: the Preview's file server
+                def test_the_data_folder_stays_unlisted(self):
+                    with self.assertRaises(PermissionError): os.listdir(pathlib.Path.cwd().parent.parent)
         ''')
         self.assertEqual(done.returncode, 0, done.stderr)
 
@@ -130,6 +154,70 @@ class GateSandboxesAllowedTestRunsTest(unittest.TestCase):
             self.assertTrue(allowed['command'].endswith("'python3 -m unittest'"), allowed['command'])
             event = ledger.complete(allowed['proposal_id'], 'execute_command', args, 'OK', 0)
             self.assertEqual(event.status, 'SUCCESS', 'Pi reports what it asked for; no drift')
+
+
+def decision(text, operation, path=None):
+    """Task 376: what a profile from sandbox.profile() decides for one operation ('file-read-data',
+    'file-read-metadata', 'file-write-data' or 'network-outbound') on one real path: the last matching rule wins, as in
+    Seatbelt. Reads only the forms profile() writes: (allow default), operations, (subpath ...), (literal ...),
+    (local|remote unix|ip ...)."""
+    import re
+    found = None
+    for line in text.splitlines():
+        rule = re.fullmatch(r'\((allow|deny) (.*)\)', line)
+        if not rule: continue
+        verdict, body = rule.groups()
+        if body == 'default': found = verdict; continue
+        operations = re.match(r'[a-z*-]+(?: [a-z*-]+)*', body).group(0).split()
+        filters = body[len(' '.join(operations)):].strip()
+        if not any(name == operation or name.endswith('*') and operation.startswith(name[:-1]) for name in operations): continue
+        if operation.startswith('network'):  # path: 'unix', or 'ip:<host>'
+            kind, _, host = path.partition(':')
+            if not filters or any(found_kind == kind and (not found_host or found_host.split(':')[0] == host)
+                                  for found_kind, found_host in re.findall(r'\((?:local|remote) (ip|unix)(?: "([^"]*)")?\)', filters)): found = verdict
+            continue
+        for kind, value in re.findall(r'\((subpath|literal) "((?:[^"\\]|\\.)*)"\)', filters):
+            value = value.replace('\\"', '"').replace('\\\\', '\\')
+            if path == value or kind == 'subpath' and path.startswith(value.rstrip('/') + '/'): found = verdict; break
+    return found
+
+
+class SandboxProfilePropertiesTest(unittest.TestCase):
+    """Task 376 (docs/reports/outside-tools-study-2026-10-30.md, OS-4, after OpenShell's prover): properties of every profile, checked on its text."""
+    def profiles(self, profile=sandbox.profile):
+        base = Path(os.path.realpath(tempfile.gettempdir())) / 'profile-properties'
+        home, data, temporary = base / 'home', base / 'data', base / 'tmp'
+        for root in (base / 'elsewhere' / 'project', data / 'projects' / 'inside'):
+            for network in sandbox.NETWORK:
+                yield network, str(root), str(data), str(home), profile(root, temporary, data, network, home)
+
+    def check(self, profile=sandbox.profile):
+        for network, root, data, home, text in self.profiles(profile):
+            where = f'{network}, {root}'
+            self.assertEqual(decision(text, 'file-write-data', root + '/app.py'), 'allow', where)
+            for path in (root + '/.git', root + '/.git/config', root + '/.git/hooks/pre-commit', data + '/chats/x', data + '/gate-events.jsonl', data):
+                self.assertEqual(decision(text, 'file-write-data', path), 'deny', f'{where}: write {path}')
+            self.assertEqual(decision(text, 'file-write-data', data + '/toolchain/tailwindcss/bin'), 'allow', where)
+            for name in sandbox.SECRET_FOLDERS:
+                for path in (f'{home}/{name}', f'{home}/{name}/inner'):
+                    self.assertEqual(decision(text, 'file-read-data', path), 'deny', f'{where}: read {path}')
+            for path in (data, data + '/chats/.gate-token-x', data + '/projects/other/notes.md'):
+                self.assertEqual(decision(text, 'file-read-data', path), 'deny', f'{where}: read {path}')
+            self.assertEqual(decision(text, 'network-outbound', 'ip:example.com'), 'allow' if network == 'internet' else 'deny', where)
+            self.assertEqual(decision(text, 'network-outbound', 'ip:localhost'), 'deny' if network == 'none' else 'allow', where)
+            self.assertEqual(decision(text, 'network-outbound', 'unix'), 'allow', where)
+            self.assertEqual('(allow network*)' in text.splitlines(), network == 'internet', where)
+
+    def test_no_profile_crosses_the_boundary(self):
+        self.check()
+
+    def test_each_property_catches_a_broken_profile(self):
+        broken = {'.git': lambda text: '\n'.join(line for line in text.splitlines() if '.git' not in line),
+                  'secrets': lambda text: text.replace('(deny file-read* file-write*', '(allow file-read* file-write*'),
+                  'network': lambda text: text.replace('(deny network*)', '(allow network*)')}
+        for name, breaking in broken.items():
+            with self.subTest(name), self.assertRaises(AssertionError):
+                self.check(lambda *args, breaking=breaking: breaking(sandbox.profile(*args)))
 
 
 class SandboxRouteTest(unittest.TestCase):
@@ -177,6 +265,20 @@ class SandboxWideningTest(unittest.TestCase):
             wrapped = sandbox.wrap("python3 -m unittest -k 'a b'", Path(folder), Path(folder) / 'data')
         self.assertEqual(sandbox.shown(wrapped), "python3 -m unittest -k 'a b'")
         self.assertEqual(sandbox.shown('ls -la'), 'ls -la')
+
+    @unittest.skipUnless(sandbox.available(), 'sandbox-exec is macOS only')
+    def test_the_runner_keeps_exactly_the_one_allow_list(self):
+        """Task 372: the Preview builds its environment from the same list the runner keeps."""
+        with tempfile.TemporaryDirectory() as folder:
+            profile = Path(folder) / 'open.sb'; profile.write_text('(version 1)\n(allow default)\n')
+            source = {'PATH': '/usr/bin:/bin', 'HOME': folder, 'TMPDIR': folder, 'GITHUB_TOKEN': 'fake', 'PI_HARNESS_TOKEN': 'fake',
+                      **{name: 'fake' for name in sandbox.ENVIRONMENT}}
+            done = subprocess.run(['/bin/sh', str(sandbox.RUNNER), str(profile), folder, '/usr/bin/env'], env=source,
+                                  capture_output=True, text=True, timeout=60)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        kept = {line.partition('=')[0] for line in done.stdout.splitlines()} - {'PWD', 'SHLVL', '_'}  # /bin/sh's own
+        self.assertEqual(kept, {'PATH', 'HOME', 'TMPDIR', *sandbox.ENVIRONMENT})
+        self.assertEqual(set(sandbox.environment(source)), kept)
 
     def test_the_runner_keeps_only_harmless_variables(self):
         runner = (HERE / 'gate' / 'sandbox-run.sh').read_text()

@@ -96,13 +96,18 @@ def without_output_tail(command):
     return rest if rest != command.strip() and test_run(rest) else command
 
 
+def shell_words(command):
+    """The command's words with each pipe its own word, as read_only and G-018 see them; ValueError on a bad quote."""
+    lexer = shlex.shlex(command, posix=True, punctuation_chars='|'); lexer.whitespace_split = True
+    lexer.commenters = ''
+    return list(lexer)
+
+
 def read_only(command):
     if not isinstance(command, str) or not command.strip(): return False
     # Reject shell expansion, redirection, control flow and assignments even inside quotes: the exception is small.
     if any(c in command for c in '\n\r$`<>;&()') or expands_glob(command): return False
-    try:
-        lexer = shlex.shlex(command, posix=True, punctuation_chars='|'); lexer.whitespace_split = True
-        lexer.commenters = ''; tokens = list(lexer)
+    try: tokens = shell_words(command)
     except ValueError: return False
     if any(token != '|' and '|' in token for token in tokens): return False
     current = []

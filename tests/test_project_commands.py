@@ -139,15 +139,22 @@ class PreviewFollowsTest(unittest.TestCase):
     def app(self):
         return self.chat.previews.apps.get(self.project)
 
+    def started_in(self):
+        """The folder the app's own arguments name; on macOS they are the last word of the sandboxed command (task 375)."""
+        import shlex
+        from gate import sandbox
+        args = self.app().process.args
+        return shlex.split(args[-1])[-1] if sandbox.available() else args[-1]
+
     def test_rename_and_move_restart_the_app_in_the_new_folder(self):
         self.chat.preview(self.project, 'start'); old = self.app().process
         renamed = self.chat.project_command('rename', self.project, {'name': 'Store'})
         self.assertIsNotNone(old.poll(), 'the old app was stopped')
-        self.assertEqual(self.app().process.args[-1], renamed['path'], 'started again in the renamed folder')
+        self.assertEqual(self.started_in(), renamed['path'], 'started again in the renamed folder')
         self.assertIn(self.chat.preview(self.project, 'status')['state'], ('starting', 'running'))
         before = self.app().process; learning = self.code / 'learning'; learning.mkdir()
         moved = self.chat.project_command('move', self.project, {'parent': str(learning)})
-        self.assertIsNotNone(before.poll()); self.assertEqual(self.app().process.args[-1], moved['path'])
+        self.assertIsNotNone(before.poll()); self.assertEqual(self.started_in(), moved['path'])
 
     def test_the_restarted_preview_says_where_it_runs_now(self):
         """Round 12 (R12_Renamed): one note line once the app answers: “Restarted in the renamed folder: …”."""
