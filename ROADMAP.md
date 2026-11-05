@@ -464,3 +464,17 @@ Plan 253: one app, many packages ([docs/plans/253-one-app-many-packages.md](docs
 - [x] [375-The Preview runs the app inside the test sandbox's file boundary](tasks/375-preview-file-sandbox.md)
 
 - [x] [376-The sandbox profile keeps its boundary for every setting](tasks/376-sandbox-profile-properties.md)
+
+- [x] [377-Plan GG-inspired improvements and a stock-Pi comparison](tasks/377-gg-adoption-plan.md)
+
+- [ ] [378-Measure the full effective model input](tasks/378-model-input-ledger.md)
+
+- [ ] [379-Benchmark actual upstream Pi without harness extensions](tasks/379-stock-pi-benchmark-adapter.md)
+
+- [ ] [380-Budget the whole prompt and select tools by phase](tasks/380-bounded-prompt-and-phase-tools.md)
+
+- [ ] [381-Retrieve tested local Python and HTMX reference blocks](tasks/381-tested-local-reference-catalogue.md)
+
+- [ ] [382-Show readiness from actual verification evidence](tasks/382-readiness-evidence.md)
+
+- [ ] [383-Measure GG and WorkStation against stock Pi](tasks/383-gg-stock-pi-pilot.md)
